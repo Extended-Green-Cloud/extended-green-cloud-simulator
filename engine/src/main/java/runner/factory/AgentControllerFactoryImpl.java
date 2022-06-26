@@ -43,8 +43,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
                                                               greenEnergyAgent.getPricePerPowerUnit(),
                                                               greenEnergyAgent.getMaximumCapacity(),
                                                               greenEnergyAgent.getLatitude(),
-                                                              greenEnergyAgent.getLongitude(),
-                                                              greenEnergyAgent.getEnergyType()});
+                                                              greenEnergyAgent.getLongitude()});
         } else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
             return containerController.createNewAgent(monitoringAgent.getName(),
                                                       "agents.monitoring.MonitoringAgent",

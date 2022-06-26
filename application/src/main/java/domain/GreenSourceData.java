@@ -15,7 +15,7 @@ public interface GreenSourceData {
     /**
      * @return available power at the given time
      */
-    double getAvailablePowerInTime();
+    int getAvailablePowerInTime();
 
     /**
      * @return price for the 1kWh

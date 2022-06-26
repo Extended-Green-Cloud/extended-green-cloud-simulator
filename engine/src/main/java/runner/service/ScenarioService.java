@@ -2,13 +2,10 @@ package runner.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.gui.controller.GUIControllerImpl;
-import jade.core.Agent;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
-import runner.domain.AgentArgs;
 import runner.domain.ScenarioArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
@@ -49,31 +46,22 @@ public class ScenarioService {
         try {
             final ScenarioArgs scenario = XML_MAPPER.readValue(scenarioFile, ScenarioArgs.class);
 
-            if (Objects.nonNull(scenario.getAgentsArgs())) {
-                createAgents(scenario.getMonitoringAgentsArgs(), scenario);
-                createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);
-                createAgents(scenario.getServerAgentsArgs(), scenario);
-                createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
-                createAgents(scenario.getClientAgentsArgs(), scenario);
+            if (Objects.nonNull(scenario.getServerAgentsArgs())) {
+
+                scenario.getAgentsArgs().forEach(agentArgs -> {
+                    try {
+                        final AgentController agentController = factory.createAgentController(agentArgs);
+                        GUIControllerImpl.addAgentNodeToGraph(factory.createAgentNode(agentArgs, scenario));
+                        agentController.putO2AObject(GUIControllerImpl, AgentController.ASYNC);
+                        agentController.start();
+                    } catch (StaleProxyException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void createAgents(List<?> agentArgsList, ScenarioArgs scenario) {
-        agentArgsList.forEach(agentArgs -> {
-            var args = (AgentArgs) agentArgs;
-            try {
-                final AgentController agentController = factory.createAgentController(args);
-                GUIControllerImpl.addAgentNodeToGraph(factory.createAgentNode(args, scenario));
-                agentController.putO2AObject(GUIControllerImpl, AgentController.ASYNC);
-                agentController.start();
-                agentController.activate();
-            } catch (StaleProxyException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     private File getFileFromResourceFileName(final String fileName) {

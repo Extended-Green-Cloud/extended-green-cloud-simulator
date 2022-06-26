@@ -1,6 +1,6 @@
 package agents.greenenergy.behaviour;
 
-import static agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
+import static agents.greenenergy.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static messages.domain.ReplyMessageFactory.prepareStringReply;

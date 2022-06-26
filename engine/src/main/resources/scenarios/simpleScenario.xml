@@ -6,14 +6,13 @@
     </monitoringAgentsArgs>
     <greenEnergyAgentsArgs>
         <greenenergyAgent>
-            <name>WindFarm1</name>
+            <name>Green</name>
             <monitoringAgent>Weather</monitoringAgent>
             <ownerSever>Server</ownerSever>
-            <latitude>52</latitude>
-            <longitude>20</longitude>
-            <pricePerPowerUnit>5</pricePerPowerUnit>
+            <latitude>10.0</latitude>
+            <longitude>11.1</longitude>
+            <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
-            <energyType>WIND</energyType>
         </greenenergyAgent>
     </greenEnergyAgentsArgs>
     <serverAgentsArgs>
