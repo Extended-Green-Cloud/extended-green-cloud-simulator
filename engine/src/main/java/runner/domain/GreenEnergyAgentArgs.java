@@ -1,5 +1,6 @@
 package runner.domain;
 
+import agents.greenenergy.domain.EnergyTypeEnum;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
@@ -41,4 +42,9 @@ public interface GreenEnergyAgentArgs extends AgentArgs{
      * @return maximum capacity of the server
      */
     String getMaximumCapacity();
+
+    /**
+     * @return type of energy source
+     */
+    EnergyTypeEnum getEnergyType();
 }

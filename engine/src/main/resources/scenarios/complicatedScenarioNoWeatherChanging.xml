@@ -33,94 +33,104 @@
     </monitoringAgentsArgs>
     <greenEnergyAgentsArgs>
         <greenenergyAgent>
-            <name>Solar</name>
+            <name>Solar1</name>
             <monitoringAgent>Weather1</monitoringAgent>
             <ownerSever>Server1</ownerSever>
             <latitude>52</latitude>
             <longitude>22</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>SOLAR</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>WindFarm</name>
+            <name>WindFarm1</name>
             <monitoringAgent>Weather3</monitoringAgent>
             <ownerSever>Server1</ownerSever>
             <latitude>52</latitude>
             <longitude>20</longitude>
             <pricePerPowerUnit>5</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>WIND</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Soil</name>
+            <name>Solar2</name>
             <monitoringAgent>Weather10</monitoringAgent>
             <ownerSever>Server1</ownerSever>
             <latitude>51</latitude>
             <longitude>21</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>SOLAR</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Water</name>
+            <name>Wind2</name>
             <monitoringAgent>Weather2</monitoringAgent>
             <ownerSever>Server2</ownerSever>
             <latitude>52</latitude>
             <longitude>17</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>WIND</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>SolarFarm</name>
+            <name>Solar3</name>
             <monitoringAgent>Weather4</monitoringAgent>
             <ownerSever>Server2</ownerSever>
             <latitude>52</latitude>
             <longitude>16</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>SOLAR</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Geothermal</name>
+            <name>Wind3</name>
             <monitoringAgent>Weather5</monitoringAgent>
             <ownerSever>Server3</ownerSever>
             <latitude>51</latitude>
             <longitude>17</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>WIND</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Biogas</name>
+            <name>Solar4</name>
             <monitoringAgent>Weather7</monitoringAgent>
             <ownerSever>Server3</ownerSever>
             <latitude>51</latitude>
             <longitude>18</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>SOLAR</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>BioGasCompany</name>
+            <name>Wind4</name>
             <monitoringAgent>Weather9</monitoringAgent>
             <ownerSever>Server3</ownerSever>
             <latitude>51</latitude>
             <longitude>17</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>WIND</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Biomas</name>
+            <name>Solar5</name>
             <monitoringAgent>Weather6</monitoringAgent>
             <ownerSever>Server4</ownerSever>
             <latitude>50</latitude>
             <longitude>20</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>SOLAR</energyType>
         </greenenergyAgent>
         <greenenergyAgent>
-            <name>Hydropower</name>
+            <name>Wind5</name>
             <monitoringAgent>Weather8</monitoringAgent>
             <ownerSever>Server4</ownerSever>
             <latitude>50</latitude>
             <longitude>21</longitude>
             <pricePerPowerUnit>10</pricePerPowerUnit>
             <maximumCapacity>200</maximumCapacity>
+            <energyType>WIND</energyType>
         </greenenergyAgent>
     </greenEnergyAgentsArgs>
     <serverAgentsArgs>
@@ -163,28 +173,28 @@
             <jobId>1</jobId>
             <start>5</start>
             <end>10</end>
-            <power>5</power>
+            <power>2</power>
         </clientAgent>
         <clientAgent>
             <name>Second_Client</name>
             <jobId>2</jobId>
             <start>3</start>
             <end>4</end>
-            <power>10</power>
+            <power>3</power>
         </clientAgent>
         <clientAgent>
             <name>Third_Client</name>
             <jobId>3</jobId>
             <start>6</start>
             <end>8</end>
-            <power>10</power>
+            <power>4</power>
         </clientAgent>
         <clientAgent>
             <name>Fourth_Client</name>
             <jobId>4</jobId>
             <start>0</start>
             <end>2</end>
-            <power>10</power>
+            <power>5</power>
         </clientAgent>
     </clientAgentsArgs>
 </ScenarioArgs>

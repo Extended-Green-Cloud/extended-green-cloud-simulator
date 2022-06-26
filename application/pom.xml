@@ -31,6 +31,13 @@
       <groupId>com.tilab.jade</groupId>
       <artifactId>jade-misc</artifactId>
     </dependency>
+    <!-- Gui -->
+    <dependency>
+      <groupId>org.greencloud.gui</groupId>
+      <artifactId>gui</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
     <!-- Logging -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -72,11 +79,11 @@
       <artifactId>okhttp</artifactId>
       <version>4.10.0</version>
     </dependency>
+    <!-- sunrise & sunset calculation -->
     <dependency>
-      <groupId>org.greencloud.gui</groupId>
-      <artifactId>gui</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>compile</scope>
+      <groupId>org.shredzone.commons</groupId>
+      <artifactId>commons-suncalc</artifactId>
+      <version>3.5</version>
     </dependency>
   </dependencies>
 </project>

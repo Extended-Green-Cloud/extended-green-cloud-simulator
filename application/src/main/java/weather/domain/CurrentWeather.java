@@ -26,8 +26,6 @@ public interface CurrentWeather extends AbstractWeather {
 
     Long getTimezone();
 
-    Sys getSys();
-
     /**
      * @return {@link Instant} timestamp for when the weather is valid
      */

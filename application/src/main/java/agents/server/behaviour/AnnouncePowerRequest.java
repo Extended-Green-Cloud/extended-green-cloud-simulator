@@ -91,7 +91,7 @@ public class AnnouncePowerRequest extends ContractNetInitiator {
 
     private ACLMessage chooseGreenSourceToExecuteJob(final List<ACLMessage> greenSourceOffers) {
         final Comparator<ACLMessage> compareGreenSources =
-                Comparator.comparingInt(greenSource -> {
+                Comparator.comparingDouble(greenSource -> {
                     try {
                         return getMapper().readValue(greenSource.getContent(), GreenSourceData.class).getAvailablePowerInTime();
                     } catch (final JsonProcessingException e) {

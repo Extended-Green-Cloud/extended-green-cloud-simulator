@@ -4,11 +4,11 @@ import static common.constant.DFServiceConstants.GS_SERVICE_NAME;
 import static common.constant.DFServiceConstants.GS_SERVICE_TYPE;
 import static yellowpages.YellowPagesService.register;
 
-import agents.greenenergy.behaviour.ListenForFinishedJobs;
 import agents.greenenergy.behaviour.ReceivePowerRequest;
+import agents.greenenergy.domain.EnergyTypeEnum;
+import agents.greenenergy.domain.GreenPower;
 import domain.location.ImmutableLocation;
 import jade.core.AID;
-import jade.core.behaviours.ParallelBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +37,18 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
     }
 
     private void initializeAgent(final Object[] args) {
-        if (Objects.nonNull(args) && args.length == 6) {
-
+        if (Objects.nonNull(args) && args.length == 7) {
             this.powerJobs = new HashMap<>();
             this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
             this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
             try {
-                this.maximumCapacity = Integer.parseInt(args[2].toString());
-                this.pricePerPowerUnit = Double.parseDouble(args[3].toString());
+                this.greenPower = new GreenPower(Integer.parseInt(args[3].toString()), this);
+                this.pricePerPowerUnit = Double.parseDouble(args[2].toString());
                 this.location = ImmutableLocation.builder()
                         .latitude(Double.parseDouble(args[4].toString()))
                         .longitude(Double.parseDouble(args[5].toString()))
                         .build();
+                this.energyType = (EnergyTypeEnum) args[6];
             } catch (NumberFormatException e) {
                 logger.info("Incorrect argument: please check arguments in the documentation");
                 doDelete();
