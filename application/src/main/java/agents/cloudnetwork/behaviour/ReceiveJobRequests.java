@@ -1,6 +1,7 @@
 package agents.cloudnetwork.behaviour;
 
 import static agents.cloudnetwork.CloudNetworkAgentConstants.SERVER_AGENTS;
+import static common.GUIUtils.displayMessageArrow;
 import static common.constant.MessageProtocolConstants.CLIENT_JOB_CFP_PROTOCOL;
 import static common.constant.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.CFP;
@@ -56,6 +57,7 @@ public class ReceiveJobRequests extends CyclicBehaviour {
                 final List<AID> serverAgents = (List<AID>) getParent().getDataStore().get(SERVER_AGENTS);
                 final ACLMessage cfp = CallForProposalMessageFactory.createCallForProposal(job, serverAgents, CNA_JOB_CFP_PROTOCOL);
 
+                displayMessageArrow(myCloudNetworkAgent, serverAgents);
                 myCloudNetworkAgent.getNetworkJobs().put(job, JobStatusEnum.PROCESSING);
                 myAgent.addBehaviour(new AnnounceNewJobRequest(myAgent, cfp, message.createReply()));
             } catch (Exception e) {

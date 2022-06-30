@@ -1,51 +1,107 @@
+/* graph styling */
 graph {
-    fill-color: rgb(239, 244, 246);
+    fill-color: rgb(255, 255, 255);
 }
 
+/* node styling */
 node.labelStyle {
     text-mode: normal;
     text-background-mode: plain;
     text-background-color: #ffffff;
     text-style: bold;
+    text-color: #3f3f3f;
     text-alignment: under;
-    text-padding: 2;
-    text-size: 12;
+    text-offset: 2;
+    text-padding: 3;
+    text-size: 10;
 }
 
 node.client {
-    size: 10;
     fill-mode: plain;
     fill-color: #81777f;
     shape: box;
 }
 
 node.cloudNetwork {
-    size: 30;
+    size: 0.065%;
     fill-mode: plain;
-    fill-color: #5883c4;
     shape: circle;
 }
 
+node.cloudNetworkInactive {
+    fill-color: #6c6c6c;
+}
+
+node.cloudNetworkLow {
+    fill-color: #6ec020;
+}
+
+node.cloudNetworkMedium {
+    fill-color: #FBC028;
+}
+
+node.cloudNetworkHigh {
+    fill-color: #F15524;
+}
+
 node.server {
-    size: 20;
+    size: 0.045%;
     fill-mode: plain;
     fill-color: #ffffff;
     shape: circle;
     stroke-mode: plain;
-    stroke-color: #d20000;
-    stroke-width: 2;
+    stroke-width: 3;
+}
+
+node.serverInactive {
+    stroke-color: #B3B3B3;
+}
+
+node.serverActive {
+    stroke-color: #6ec020;
 }
 
 node.greenEnergy {
-    size: 15;
+    size: 0.025%;
     fill-mode: plain;
-    fill-color: #d20000;
     shape: circle;
+    stroke-mode: plain;
+    stroke-width: 3;
+}
+
+node.greenEnergyInactive {
+    fill-color: #B3B3B3;
+    stroke-color: #9d9d9d;
+}
+
+node.greenEnergyActive {
+    fill-color: #6ec020;
+    stroke-color: #56a111;
 }
 
 node.monitoring {
-    size: 10;
+    size: 0.02%;
     fill-mode: plain;
-    fill-color: #8eb4ec;
-    shape: cross;
+    fill-color: #227910;
+    shape: box;
+}
+
+/* edge styling */
+
+edge.inactive {
+    fill-color: #313131;
+}
+
+edge.active {
+    fill-color: #6ec020;
+}
+
+edge.messageFlow {
+    fill-color: #227910;
+    arrow-size: 2;
+    stroke-mode: dots;
+}
+
+edge.messageFlowHidden {
+    visibility-mode: hidden;
 }

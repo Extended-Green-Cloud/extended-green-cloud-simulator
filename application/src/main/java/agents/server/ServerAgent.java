@@ -5,10 +5,12 @@ import static yellowpages.YellowPagesService.register;
 import static yellowpages.YellowPagesService.search;
 
 import agents.server.behaviour.ReceiveJobRequest;
+import behaviours.ReceiveGUIController;
 import jade.core.AID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -28,12 +30,13 @@ public class ServerAgent extends AbstractServerAgent {
         final Object[] args = getArguments();
         initializeAgent(args);
         register(this, SA_SERVICE_TYPE, SA_SERVICE_NAME, ownerCloudNetworkAgent.getName());
-        addBehaviour(new ReceiveJobRequest());
+        addBehaviour(new ReceiveGUIController(this, List.of(new ReceiveJobRequest())));
     }
 
     @Override
     protected void takeDown() {
         logger.info("I'm finished. Bye!");
+        getGuiController().removeAgentNodeFromGraph(getAgentNode());
         super.takeDown();
     }
 

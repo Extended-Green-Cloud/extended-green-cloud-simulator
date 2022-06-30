@@ -1,9 +1,12 @@
 package agents.server.behaviour.jobexecution;
 
+import static common.GUIUtils.displayMessageArrow;
+import static common.GUIUtils.updateServerState;
 import static messages.domain.JobStatusMessageFactory.prepareFinishMessage;
 
 import agents.server.ServerAgent;
 import domain.job.Job;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -56,15 +59,17 @@ public class FinishJobExecution extends WakerBehaviour {
     @Override
     protected void onWake() {
         logger.info("[{}] Finished executing the job for {}", myAgent.getName(), jobToExecute.getClientIdentifier());
-        final ACLMessage finishJobMessage = prepareFinishMessage(jobToExecute.getJobId(),
-                                                                 List.of(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()),
-                                                                         myServerAgent.getOwnerCloudNetworkAgent()));
+        final List<AID> receivers = List.of(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()),
+                                            myServerAgent.getOwnerCloudNetworkAgent());
+        final ACLMessage finishJobMessage = prepareFinishMessage(jobToExecute.getJobId(), receivers);
         updateNetworkInformation();
+        displayMessageArrow(myServerAgent, receivers);
         myAgent.send(finishJobMessage);
     }
 
     private void updateNetworkInformation() {
         myServerAgent.getServerJobs().remove(jobToExecute);
         myServerAgent.getGreenSourceForJobMap().remove(jobToExecute.getJobId());
+        updateServerState(myServerAgent, true);
     }
 }

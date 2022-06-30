@@ -1,6 +1,7 @@
 package agents.client.behaviour;
 
 import static agents.client.ClientAgentConstants.CLOUD_NETWORK_AGENTS;
+import static common.GUIUtils.announceNewClient;
 import static common.constant.MessageProtocolConstants.CLIENT_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static mapper.JsonMapper.getMapper;
@@ -9,6 +10,8 @@ import static messages.MessagingUtils.retrieveProposals;
 
 import agents.client.ClientAgent;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gui.domain.nodes.ClientAgentNode;
+import com.gui.domain.types.JobStatusEnum;
 import domain.job.Job;
 import domain.job.PricedJob;
 import exception.IncorrectCloudNetworkOfferException;
@@ -83,7 +86,8 @@ public class RequestJobExecution extends ContractNetInitiator {
             myAgent.doDelete();
         } else if (proposals.isEmpty()) {
             logger.info("[{}] All Cloud Network Agents refused to the call for proposal", guid);
-            myAgent.doDelete();
+            myClientAgent.getGuiController().updateClientsCountByValue(-1);
+            ((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.REJECTED);
         } else {
             final ACLMessage chosenOffer = chooseCNAToExecuteJob(proposals);
             logger.info("[{}] Sending ACCEPT_PROPOSAL to {}", guid, chosenOffer.getSender().getName());
@@ -107,6 +111,7 @@ public class RequestJobExecution extends ContractNetInitiator {
     @Override
     protected void handleInform(final ACLMessage inform) {
         logger.info("[{}] The execution of my job started!", myAgent);
+        ((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
     }
 
     private ACLMessage chooseCNAToExecuteJob(final List<ACLMessage> receivedOffers) {

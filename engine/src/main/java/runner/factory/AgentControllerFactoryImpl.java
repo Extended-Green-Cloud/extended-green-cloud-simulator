@@ -1,5 +1,6 @@
 package runner.factory;
 
+import com.gui.domain.Location;
 import com.gui.domain.nodes.*;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -24,8 +25,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
             throws StaleProxyException {
 
         if (agentArgs instanceof ClientAgentArgs clientAgent) {
-            final String startDate = formatDate(OffsetDateTime.now().plusHours(Long.parseLong(clientAgent.getStart())));
-            final String endDate = formatDate(OffsetDateTime.now().plusHours(Long.parseLong(clientAgent.getEnd())));
+            final String startDate = formatToDate(clientAgent.getStart());
+            final String endDate = formatToDate(clientAgent.getEnd());
 
             return containerController.createNewAgent(clientAgent.getName(), "agents.client.ClientAgent",
                                                       new Object[]{startDate, endDate, clientAgent.getPower(), clientAgent.getJobId()});
@@ -40,8 +41,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
                                                       "agents.greenenergy.GreenEnergyAgent",
                                                       new Object[]{greenEnergyAgent.getMonitoringAgent(),
                                                               greenEnergyAgent.getOwnerSever(),
-                                                              greenEnergyAgent.getPricePerPowerUnit(),
                                                               greenEnergyAgent.getMaximumCapacity(),
+                                                              greenEnergyAgent.getPricePerPowerUnit(),
                                                               greenEnergyAgent.getLatitude(),
                                                               greenEnergyAgent.getLongitude(),
                                                               greenEnergyAgent.getEnergyType()});
@@ -56,46 +57,49 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
     @Override
     public AgentNode createAgentNode(AgentArgs agentArgs, ScenarioArgs scenarioArgs) {
         if (agentArgs instanceof ClientAgentArgs clientArgs) {
-            return new ClientAgentNode(clientArgs.getName());
+            final String startDate = formatToDate(clientArgs.getStart());
+            final String endDate = formatToDate(clientArgs.getEnd());
+
+            return new ClientAgentNode(clientArgs.getName(), clientArgs.getJobId(), startDate, endDate);
         }
         if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
-            final CloudNetworkAgentNode cloudNetworkAgentNode = new CloudNetworkAgentNode(cloudNetworkArgs.getName());
-            cloudNetworkAgentNode.setServerAgents(scenarioArgs.getServerAgentsArgs().stream()
-                                                          .filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
-                                                          .map(ImmutableServerAgentArgs::getName)
-                                                          .toList());
-            return cloudNetworkAgentNode;
+            final List<ImmutableServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
+                    .filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
+                    .toList();
+            final double maximumCapacity = ownedServers.stream().mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
+            final List<String> serverList = ownedServers.stream().map(ImmutableServerAgentArgs::getName).toList();
+
+            return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), maximumCapacity, serverList);
         }
         if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
-            final GreenEnergyAgentNode greenEnergyAgentNode = new GreenEnergyAgentNode(greenEnergyAgentArgs.getName());
-            greenEnergyAgentNode.setMonitoringAgent(greenEnergyAgentArgs.getMonitoringAgent());
-            greenEnergyAgentNode.setServerAgent(greenEnergyAgentArgs.getOwnerSever());
-            return greenEnergyAgentNode;
+            return new GreenEnergyAgentNode(greenEnergyAgentArgs.getName(),
+                                            Double.parseDouble(greenEnergyAgentArgs.getMaximumCapacity()),
+                                            greenEnergyAgentArgs.getMonitoringAgent(),
+                                            greenEnergyAgentArgs.getOwnerSever(),
+                                            new Location(greenEnergyAgentArgs.getLatitude(), greenEnergyAgentArgs.getLongitude()));
         }
         if (agentArgs instanceof MonitoringAgentArgs monitoringAgentArgs) {
-            final MonitoringAgentNode monitoringAgentNode = new MonitoringAgentNode(monitoringAgentArgs.getName());
             final ImmutableGreenEnergyAgentArgs ownerGreenSource = scenarioArgs.getGreenEnergyAgentsArgs().stream()
                     .filter(greenSourceArgs -> greenSourceArgs.getMonitoringAgent().equals(monitoringAgentArgs.getName()))
                     .findFirst()
                     .orElse(null);
             if (Objects.nonNull(ownerGreenSource)) {
-                monitoringAgentNode.setGreenEnergyAgent(ownerGreenSource.getName());
+                return new MonitoringAgentNode(monitoringAgentArgs.getName(), ownerGreenSource.getName());
             }
-            return monitoringAgentNode;
+            return null;
         }
         if (agentArgs instanceof ServerAgentArgs serverAgentArgs) {
-            final ServerAgentNode serverAgentNode = new ServerAgentNode(serverAgentArgs.getName());
             final List<ImmutableGreenEnergyAgentArgs> ownedGreenSources = scenarioArgs.getGreenEnergyAgentsArgs().stream()
                     .filter(greenEnergyArgs -> greenEnergyArgs.getOwnerSever().equals(serverAgentArgs.getName()))
                     .toList();
-            serverAgentNode.setCloudNetworkAgent(serverAgentArgs.getOwnerCloudNetwork());
-            serverAgentNode.setGreenEnergyAgents(ownedGreenSources.stream().map(ImmutableGreenEnergyAgentArgs::getName).toList());
-            return serverAgentNode;
+            final List<String> greenSourceNames = ownedGreenSources.stream().map(ImmutableGreenEnergyAgentArgs::getName).toList();
+            return new ServerAgentNode(serverAgentArgs.getName(), Double.parseDouble(serverAgentArgs.getMaximumCapacity()), serverAgentArgs.getOwnerCloudNetwork(), greenSourceNames);
         }
         return null;
     }
 
-    private String formatDate(final OffsetDateTime date) {
+    private String formatToDate(final String value) {
+        final OffsetDateTime date = OffsetDateTime.now().plusHours(Long.parseLong(value));
         final String dateFormat = "dd/MM/yyyy HH:mm";
         return date.format(DateTimeFormatter.ofPattern(dateFormat));
     }

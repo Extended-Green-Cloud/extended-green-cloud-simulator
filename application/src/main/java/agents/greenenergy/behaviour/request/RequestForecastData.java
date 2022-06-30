@@ -1,5 +1,6 @@
 package agents.greenenergy.behaviour.request;
 
+import static common.GUIUtils.displayMessageArrow;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static mapper.JsonMapper.getMapper;
 
@@ -55,6 +56,7 @@ public class RequestForecastData extends OneShotBehaviour {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        displayMessageArrow(myGreenEnergyAgent, myGreenEnergyAgent.getMonitoringAgent());
         myAgent.send(request);
     }
 }

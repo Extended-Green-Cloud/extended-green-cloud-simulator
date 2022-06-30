@@ -2,6 +2,8 @@ package com.gui.controller;
 
 import com.gui.domain.nodes.AgentNode;
 
+import java.util.List;
+
 /**
  * Controller for GUI
  */
@@ -20,11 +22,16 @@ public interface GUIController {
     void addAgentNodeToGraph(final AgentNode agent);
 
     /**
+     * Method creates edges based on existing nodes
+     */
+    void createEdges();
+
+    /**
      * Method remove agent node from the graph
      *
-     * @param agentName name of the agent node that is to be removed
+     * @param agentNode agent node that is to be removed
      */
-    void removeAgentNodeToGraph(final String agentName);
+    void removeAgentNodeFromGraph(final AgentNode agentNode);
 
     /**
      * Method updates the clients number by given value
@@ -53,4 +60,14 @@ public interface GUIController {
      * @param information information that is to be added
      */
     void addNewInformation(final String information);
+
+
+    /**
+     * Method draws an arrow to show the messages flow between agents
+     *
+     * @param senderAgent    agent sending the message
+     * @param receiversNames names of the agents receiving the message
+     */
+    void displayMessageArrow(final AgentNode senderAgent, final List<String> receiversNames);
+
 }

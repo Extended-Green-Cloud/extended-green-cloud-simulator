@@ -1,5 +1,6 @@
 package agents.server.behaviour;
 
+import static common.GUIUtils.announceBookedJob;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
@@ -49,6 +50,7 @@ public class ListenForPowerConfirmation extends CyclicBehaviour {
                 final String jobId = getMapper().readValue(inform.getContent(), String.class);
                 final Job job = myServerAgent.getJobById(jobId);
                 logger.info("[{}] Scheduling the execution of the job", myAgent.getName());
+                announceBookedJob(myServerAgent, jobId);
                 myAgent.addBehaviour(CheckWeatherBeforeJobExecution.createFor(myServerAgent, job));
             } catch (Exception e) {
                 e.printStackTrace();

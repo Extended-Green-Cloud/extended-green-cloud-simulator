@@ -7,7 +7,10 @@ import static yellowpages.YellowPagesService.register;
 import agents.cloudnetwork.behaviour.FindServerAgents;
 import agents.cloudnetwork.behaviour.ReceiveJobRequests;
 import agents.cloudnetwork.behaviour.ReturnCompletedJob;
+import behaviours.ReceiveGUIController;
 import jade.core.behaviours.SequentialBehaviour;
+
+import java.util.List;
 
 /**
  * Agent representing the Cloud Network Agent that handles part of the Cloud Network
@@ -22,8 +25,13 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
     protected void setup() {
         super.setup();
         initializeAgent();
-        addBehaviour(prepareStartingBehaviour());
-        addBehaviour(new ReturnCompletedJob());
+        addBehaviour(new ReceiveGUIController(this, List.of(prepareStartingBehaviour(), new ReturnCompletedJob())));
+    }
+
+    @Override
+    protected void takeDown() {
+        getGuiController().removeAgentNodeFromGraph(getAgentNode());
+        super.takeDown();
     }
 
     private void initializeAgent() {

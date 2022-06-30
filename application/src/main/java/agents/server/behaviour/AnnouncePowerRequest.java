@@ -76,7 +76,7 @@ public class AnnouncePowerRequest extends ContractNetInitiator {
             myServerAgent.getGreenSourceForJobMap().put(jobId, chosenGreenSourceOffer.getSender());
             logger.info("[{}] Sending job volunteering offer to Cloud Network Agent", myAgent.getName());
             myAgent.addBehaviour(new VolunteerForJob(myAgent, proposalMessage, chosenGreenSourceOffer.createReply()));
-            rejectJobOffers(myAgent, jobId, chosenGreenSourceOffer, proposals);
+            rejectJobOffers(myServerAgent, jobId, chosenGreenSourceOffer, proposals);
         }
     }
 

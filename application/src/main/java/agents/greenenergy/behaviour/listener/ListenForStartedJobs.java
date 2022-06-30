@@ -1,5 +1,6 @@
 package agents.greenenergy.behaviour.listener;
 
+import static common.GUIUtils.updateGreenSourceState;
 import static common.constant.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
@@ -47,6 +48,7 @@ public class ListenForStartedJobs extends CyclicBehaviour {
             if (nonNull(myGreenEnergyAgent.getJobById(jobId))) {
                 myGreenEnergyAgent.getPowerJobs().replace(myGreenEnergyAgent.getJobById(jobId), JobStatusEnum.IN_PROGRESS);
                 logger.info("[{}] Started the execution of the job with id {}", guid, jobId);
+                updateGreenSourceState(myGreenEnergyAgent, false);
             }
         } else {
             block();

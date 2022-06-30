@@ -1,5 +1,6 @@
 package agents.server.behaviour;
 
+import static common.GUIUtils.displayMessageArrow;
 import static common.constant.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.CFP;
@@ -56,10 +57,12 @@ public class ReceiveJobRequest extends CyclicBehaviour {
                 if (job.getPower() <= myServerAgent.getAvailableCapacity(job.getStartTime(), job.getEndTime())) {
                     logger.info("[{}] Sending call for proposal to Green Source Agents", myAgent.getName());
                     final ACLMessage cfp = preparePowerJobCFP(job);
+                    displayMessageArrow(myServerAgent, myServerAgent.getOwnedGreenSources());
                     myServerAgent.getServerJobs().put(job, JobStatusEnum.PROCESSING);
                     myAgent.addBehaviour(new AnnouncePowerRequest(myAgent, cfp, message.createReply()));
                 } else {
                     logger.info("[{}] Not enough available power! Sending refuse message to Cloud Network Agent", myAgent.getName());
+                    displayMessageArrow(myServerAgent, message.getSender());
                     myAgent.send(ReplyMessageFactory.prepareRefuseReply(message.createReply()));
                 }
             } catch (Exception e) {

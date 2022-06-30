@@ -1,5 +1,7 @@
 package agents.greenenergy.behaviour.listener;
 
+import static common.GUIUtils.displayMessageArrow;
+import static common.GUIUtils.updateGreenSourceState;
 import static messages.domain.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 
 import agents.greenenergy.GreenEnergyAgent;
@@ -45,6 +47,8 @@ public class ListenForUnfinishedJobs extends WakerBehaviour {
         if (Objects.nonNull(job)) {
             logger.error("[{}] The power delivery should be finished! Finishing power delivery by hand.", myAgent.getName());
             myGreenEnergyAgent.getPowerJobs().remove(job);
+            updateGreenSourceState(myGreenEnergyAgent, true);
+            displayMessageArrow(myGreenEnergyAgent, myGreenEnergyAgent.getOwnerServer());
             myAgent.send(prepareManualFinishMessageForServer(jobId, myGreenEnergyAgent.getOwnerServer()));
         }
     }

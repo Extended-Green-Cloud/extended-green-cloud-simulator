@@ -11,6 +11,7 @@ import agents.greenenergy.behaviour.query.ReceivePowerCheckRequest;
 import agents.greenenergy.behaviour.request.ReceivePowerRequest;
 import agents.greenenergy.domain.EnergyTypeEnum;
 import agents.greenenergy.domain.GreenPower;
+import behaviours.ReceiveGUIController;
 import domain.MonitoringData;
 import domain.WeatherData;
 import domain.job.PowerJob;
@@ -48,6 +49,13 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
         register(this, GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerServer.getName());
         addBehaviour(new ReceivePowerRequest(this));
         addBehaviour(new ReceivePowerCheckRequest(this));
+        addBehaviour(new ReceiveGUIController(this, List.of(new ReceivePowerRequest(this))));
+    }
+
+    @Override
+    protected void takeDown() {
+        getGuiController().removeAgentNodeFromGraph(getAgentNode());
+        super.takeDown();
     }
 
     private void initializeAgent(final Object[] args) {
@@ -56,8 +64,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
             this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
             this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
             try {
-                this.greenPower = new GreenPower(Integer.parseInt(args[3].toString()), this);
-                this.pricePerPowerUnit = Double.parseDouble(args[2].toString());
+                this.greenPower = new GreenPower(Integer.parseInt(args[2].toString()), this);
+                this.pricePerPowerUnit = Double.parseDouble(args[3].toString());
                 this.location = ImmutableLocation.builder()
                         .latitude(Double.parseDouble(args[4].toString()))
                         .longitude(Double.parseDouble(args[5].toString()))

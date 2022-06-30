@@ -1,8 +1,9 @@
 package messages;
 
+import static common.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
-import jade.core.Agent;
+import agents.AbstractAgent;
 import jade.lang.acl.ACLMessage;
 import messages.domain.ReplyMessageFactory;
 
@@ -35,9 +36,12 @@ public class MessagingUtils {
      * @param chosenOffer    chosen offer message
      * @param receivedOffers all retrieved offer messages
      */
-    public static void rejectJobOffers(final Agent agent, final String jobId, final ACLMessage chosenOffer, final List<ACLMessage> receivedOffers) {
+    public static void rejectJobOffers(final AbstractAgent agent, final String jobId, final ACLMessage chosenOffer, final List<ACLMessage> receivedOffers) {
         receivedOffers.stream()
                 .filter(offer -> !offer.equals(chosenOffer))
-                .forEach(offer -> agent.send(ReplyMessageFactory.prepareReply(offer.createReply(), jobId, REJECT_PROPOSAL)));
+                .forEach(offer -> {
+                    displayMessageArrow(agent, offer.getSender());
+                    agent.send(ReplyMessageFactory.prepareReply(offer.createReply(), jobId, REJECT_PROPOSAL));
+                });
     }
 }

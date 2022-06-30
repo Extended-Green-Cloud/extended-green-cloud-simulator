@@ -1,6 +1,7 @@
 package agents.client.behaviour;
 
 import static agents.client.ClientAgentConstants.CLOUD_NETWORK_AGENTS;
+import static common.GUIUtils.announceNewClient;
 import static common.constant.DFServiceConstants.CNA_SERVICE_TYPE;
 import static yellowpages.YellowPagesService.search;
 
@@ -34,8 +35,8 @@ public class FindCloudNetworkAgents extends OneShotBehaviour {
      */
     @Override
     public void action() {
+        announceNewClient(myClientAgent);
         final List<AID> cloudNetworkAgents = search(myAgent, CNA_SERVICE_TYPE);
-
         if (cloudNetworkAgents.isEmpty()) {
             logger.info("[{}] No Cloud Network Agents were found", myClientAgent.getName());
             myClientAgent.doDelete();

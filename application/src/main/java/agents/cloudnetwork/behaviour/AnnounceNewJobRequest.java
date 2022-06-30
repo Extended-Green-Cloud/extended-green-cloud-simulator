@@ -14,9 +14,11 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
 import messages.domain.ReplyMessageFactory;
+import net.miginfocom.layout.AC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 

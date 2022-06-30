@@ -1,5 +1,8 @@
 package agents.greenenergy;
 
+import static domain.job.JobStatusEnum.IN_PROGRESS;
+
+import agents.AbstractAgent;
 import agents.greenenergy.domain.EnergyTypeEnum;
 import agents.greenenergy.domain.GreenPower;
 import domain.MonitoringData;
@@ -10,12 +13,13 @@ import domain.location.Location;
 import jade.core.AID;
 import jade.core.Agent;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 /**
  * Abstract agent class storing data of the Green Source Energy Agent
  */
-public abstract class AbstractGreenEnergyAgent extends Agent {
+public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
     /**
      * greenPower        defines maximum power of the green source and holds algorithms to compute available power
@@ -35,6 +39,36 @@ public abstract class AbstractGreenEnergyAgent extends Agent {
     protected AID ownerServer;
     protected EnergyTypeEnum energyType;
 
+    AbstractGreenEnergyAgent() {
+        super.setup();
+    }
+
+    /**
+     * Method calculates the power in use at the given moment for the green source
+     *
+     * @return current power in use
+     */
+    public int getCurrentPowerInUse() {
+        return powerJobs.entrySet().stream()
+            .filter(job -> job.getValue().equals(IN_PROGRESS))
+            .mapToInt(job -> job.getKey().getPower()).sum();
+    }
+
+    /**
+     * Method retrieves if the given green source is currently active or idle
+     *
+     * @return green source state
+     */
+    public boolean getIsActiveState() {
+        return !powerJobs.entrySet().stream().filter(entry -> entry.getValue().equals(IN_PROGRESS)).toList().isEmpty();
+    }
+
+    /**
+     * Method retrieves the job by the job id from job map
+     *
+     * @param jobId job identifier
+     * @return job
+     */
     public PowerJob getJobById(final String jobId) {
         return powerJobs.keySet().stream().filter(job -> job.getJobId().equals(jobId)).findFirst().orElse(null);
     }

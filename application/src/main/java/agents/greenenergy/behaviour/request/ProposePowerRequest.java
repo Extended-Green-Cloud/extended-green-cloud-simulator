@@ -1,6 +1,7 @@
 package agents.greenenergy.behaviour.request;
 
 import static agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
+import static common.GUIUtils.displayMessageArrow;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static messages.domain.ReplyMessageFactory.prepareStringReply;
@@ -58,6 +59,7 @@ public class ProposePowerRequest extends ProposeInitiator {
         var response = prepareStringReply(accept_proposal.createReply(), jobId, INFORM);
         response.setProtocol(SERVER_JOB_CFP_PROTOCOL);
         myAgent.addBehaviour(createJobListeningBehaviours(job));
+        displayMessageArrow(myGreenEnergyAgent, accept_proposal.getSender());
         myAgent.send(response);
     }
 

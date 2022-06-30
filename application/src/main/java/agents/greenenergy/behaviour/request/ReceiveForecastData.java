@@ -1,5 +1,6 @@
 package agents.greenenergy.behaviour.request;
 
+import static common.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -80,12 +81,14 @@ public class ReceiveForecastData extends CyclicBehaviour {
         if(averageAvailablePower.isEmpty()) {
             logger.info("[{}] Too bad weather conditions, sending refuse message to server for job with id {}.", guid, powerJob.getJobId());
             myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+            displayMessageArrow(myGreenEnergyAgent, cfp.getAllReceiver());
             myAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp.createReply()));
         }
         else if (powerJob.getPower() > averageAvailablePower.get()) {
             logger.info("[{}] Refusing job with id {} - not enough available power. Needed {}, available {}", guid,
                 powerJob.getJobId(), powerJob.getPower(),  averageAvailablePower.get());
             myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+            displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
             myAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp.createReply()));
         }
         else {
@@ -95,6 +98,7 @@ public class ReceiveForecastData extends CyclicBehaviour {
                     .availablePowerInTime(averageAvailablePower.get())
                     .jobId(powerJob.getJobId())
                     .build();
+            displayMessageArrow(myGreenEnergyAgent, cfp.getAllReceiver());
             myAgent.addBehaviour(new ProposePowerRequest(myAgent, prepareReply(cfp.createReply(), responseData, PROPOSE)));
         }
     }
@@ -102,6 +106,7 @@ public class ReceiveForecastData extends CyclicBehaviour {
     private void handleRefuse(final ACLMessage cfp) {
         logger.info("[{}] Weather data not available, sending refuse message to server.", guid);
         myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+        displayMessageArrow(myGreenEnergyAgent, cfp.getAllReceiver());
         myAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp));
     }
 

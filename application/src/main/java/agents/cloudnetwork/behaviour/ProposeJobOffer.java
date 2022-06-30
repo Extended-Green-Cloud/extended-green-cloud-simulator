@@ -1,6 +1,7 @@
 package agents.cloudnetwork.behaviour;
 
 import static agents.cloudnetwork.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
+import static common.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
@@ -56,6 +57,7 @@ public class ProposeJobOffer extends ProposeInitiator {
         final Job job = myCloudNetworkAgent.getJobById(jobId);
         myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
         myAgent.addBehaviour(createWaitingForJobStartBehaviour(accept_proposal, job));
+        displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
         myAgent.send(ReplyMessageFactory.prepareStringReply(replyMessage, jobId, ACCEPT_PROPOSAL));
     }
 
@@ -71,6 +73,7 @@ public class ProposeJobOffer extends ProposeInitiator {
         final String jobId = reject_proposal.getContent();
         myCloudNetworkAgent.getServerForJobMap().remove(jobId);
         myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.getJobById(jobId));
+        displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
         myCloudNetworkAgent.send(ReplyMessageFactory.prepareReply(replyMessage, jobId, REJECT_PROPOSAL));
     }
 

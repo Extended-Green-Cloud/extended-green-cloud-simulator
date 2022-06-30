@@ -1,5 +1,6 @@
 package agents.greenenergy.behaviour.request;
 
+import static common.GUIUtils.displayMessageArrow;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.CFP;
 import static jade.lang.acl.MessageTemplate.*;
@@ -18,6 +19,7 @@ import jade.lang.acl.MessageTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**

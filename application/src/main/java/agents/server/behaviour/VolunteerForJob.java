@@ -1,5 +1,6 @@
 package agents.server.behaviour;
 
+import static common.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
@@ -49,6 +50,7 @@ public class VolunteerForJob extends ProposeInitiator {
             final String jobId = accept_proposal.getContent();
             myServerAgent.getServerJobs().replace(myServerAgent.getJobById(jobId), JobStatusEnum.ACCEPTED);
             myAgent.addBehaviour(new ListenForPowerConfirmation());
+            displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
             myAgent.send(ReplyMessageFactory.prepareStringReply(replyMessage, jobId, ACCEPT_PROPOSAL));
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +70,7 @@ public class VolunteerForJob extends ProposeInitiator {
             final String jobId = reject_proposal.getContent();
             myServerAgent.getGreenSourceForJobMap().remove(jobId);
             myServerAgent.getServerJobs().remove(myServerAgent.getJobById(jobId));
+            displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
             myServerAgent.send(ReplyMessageFactory.prepareStringReply(replyMessage, jobId, REJECT_PROPOSAL));
         } catch (final Exception e) {
             e.printStackTrace();
