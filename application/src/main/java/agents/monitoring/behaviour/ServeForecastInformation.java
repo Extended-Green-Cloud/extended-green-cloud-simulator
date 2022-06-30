@@ -1,29 +1,27 @@
 package agents.monitoring.behaviour;
 
-import static common.constant.MessageProtocolConstants.SERVER_JOB_START_CHECK_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.ACLMessage.QUERY_IF;
-import static jade.lang.acl.MessageTemplate.MatchPerformative;
-import static jade.lang.acl.MessageTemplate.MatchProtocol;
-import static jade.lang.acl.MessageTemplate.and;
+import static jade.lang.acl.ACLMessage.REQUEST;
 import static mapper.JsonMapper.getMapper;
 
 import agents.monitoring.MonitoringAgent;
-import domain.GreenSourceQueryData;
+import domain.GreenSourceRequestData;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import java.io.IOException;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServeWeatherInformation extends CyclicBehaviour {
+import java.io.IOException;
+import java.util.Objects;
 
+/**
+ * Behaviour responsible for listening for the upcoming weather requests
+ */
+public class ServeForecastInformation extends CyclicBehaviour {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServeWeatherInformation.class);
-    private static final MessageTemplate template = and(MatchPerformative(QUERY_IF),
-        MatchProtocol(SERVER_JOB_START_CHECK_PROTOCOL));
+    private static final Logger logger = LoggerFactory.getLogger(ServeForecastInformation.class);
+    private static final MessageTemplate template = MessageTemplate.MatchPerformative(REQUEST);
 
     private final MonitoringAgent monitoringAgent;
 
@@ -32,7 +30,7 @@ public class ServeWeatherInformation extends CyclicBehaviour {
      *
      * @param monitoringAgent agent which is executing the behaviour
      */
-    public ServeWeatherInformation(MonitoringAgent monitoringAgent) {
+    public ServeForecastInformation(MonitoringAgent monitoringAgent) {
         this.monitoringAgent = monitoringAgent;
     }
 
@@ -48,14 +46,14 @@ public class ServeWeatherInformation extends CyclicBehaviour {
             final ACLMessage response = message.createReply();
             response.setPerformative(INFORM);
             try {
-                var requestData = getMapper().readValue(message.getContent(), GreenSourceQueryData.class);
-                var data = monitoringAgent.getWeather(requestData);
+                var requestData = getMapper().readValue(message.getContent(), GreenSourceRequestData.class);
+                var data = monitoringAgent.getForecast(requestData);
                 response.setContent(getMapper().writeValueAsString(data));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             response.setConversationId(message.getConversationId());
-            logger.info("Sending message with the weather data");
+            logger.info("Sending message with the forecast data");
             monitoringAgent.send(response);
         } else {
             block();

@@ -50,6 +50,10 @@ public class GreenPower {
         return getAvailablePower(weather, dateTime.atZone(UTC), location);
     }
 
+    public double getAvailablePower(WeatherData weather, Instant instant, Location location) {
+        return getAvailablePower(weather, instant.atZone(UTC), location);
+    }
+
     /**
      * Returns available solar power in regard to the sunset and sunrise times and cloudiness.
      *

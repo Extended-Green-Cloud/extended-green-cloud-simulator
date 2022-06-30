@@ -1,4 +1,4 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.request;
 
 import static agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
@@ -6,6 +6,9 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import static messages.domain.ReplyMessageFactory.prepareStringReply;
 
 import agents.greenenergy.GreenEnergyAgent;
+import agents.greenenergy.behaviour.listener.ListenForFinishedJobs;
+import agents.greenenergy.behaviour.listener.ListenForStartedJobs;
+import agents.greenenergy.behaviour.listener.ListenForUnfinishedJobs;
 import domain.job.JobStatusEnum;
 import domain.job.PowerJob;
 import jade.core.Agent;

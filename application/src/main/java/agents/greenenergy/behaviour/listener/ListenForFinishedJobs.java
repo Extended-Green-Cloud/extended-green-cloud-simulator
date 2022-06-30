@@ -1,13 +1,12 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.listener;
 
-import static common.constant.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
+import static common.constant.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static java.util.Objects.nonNull;
 
 import agents.greenenergy.GreenEnergyAgent;
-import domain.job.JobStatusEnum;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -15,12 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Behaviour which listens for the information that the execution of the given job starts.
+ * Behaviour which listens for the information that the execution of the given job finishes.
  */
-public class ListenForStartedJobs extends CyclicBehaviour {
+public class ListenForFinishedJobs extends CyclicBehaviour {
 
-    private static final Logger logger = LoggerFactory.getLogger(ListenForStartedJobs.class);
-    private static final MessageTemplate messageTemplate = MessageTemplate.and(MatchPerformative(INFORM), MatchProtocol(STARTED_JOB_PROTOCOL));
+    private static final Logger logger = LoggerFactory.getLogger(ListenForFinishedJobs.class);
+    private static final MessageTemplate messageTemplate = MessageTemplate.and(MatchPerformative(INFORM), MatchProtocol(FINISH_JOB_PROTOCOL));
 
     private final GreenEnergyAgent myGreenEnergyAgent;
     private final String guid;
@@ -30,13 +29,13 @@ public class ListenForStartedJobs extends CyclicBehaviour {
      *
      * @param myGreenEnergyAgent agent which is executing the behaviour
      */
-    public ListenForStartedJobs(final GreenEnergyAgent myGreenEnergyAgent) {
+    public ListenForFinishedJobs(final GreenEnergyAgent myGreenEnergyAgent) {
         this.myGreenEnergyAgent = myGreenEnergyAgent;
         this.guid = myGreenEnergyAgent.getName();
     }
 
     /**
-     * Method which listens for the information that the job execution has started. It is responsible
+     * Method which listens for the information that the job execution has finished. It is responsible
      * for updating the current green energy source state.
      */
     @Override
@@ -45,8 +44,8 @@ public class ListenForStartedJobs extends CyclicBehaviour {
         if (nonNull(message)) {
             final String jobId = message.getContent();
             if (nonNull(myGreenEnergyAgent.getJobById(jobId))) {
-                myGreenEnergyAgent.getPowerJobs().replace(myGreenEnergyAgent.getJobById(jobId), JobStatusEnum.IN_PROGRESS);
-                logger.info("[{}] Started the execution of the job with id {}", guid, jobId);
+                myGreenEnergyAgent.getPowerJobs().remove(myGreenEnergyAgent.getJobById(jobId));
+                logger.info("[{}] Finish the execution of the job with id {}", guid, jobId);
             }
         } else {
             block();

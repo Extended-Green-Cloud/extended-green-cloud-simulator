@@ -1,5 +1,6 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.request;
 
+import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static mapper.JsonMapper.getMapper;
 
 import agents.greenenergy.GreenEnergyAgent;
@@ -14,9 +15,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Behaviour responsible for requesting weather data from monitoring agent
  */
-public class RequestWeatherData extends OneShotBehaviour {
+public class RequestForecastData extends OneShotBehaviour {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestWeatherData.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestForecastData.class);
 
     private final GreenEnergyAgent myGreenEnergyAgent;
 
@@ -28,9 +29,9 @@ public class RequestWeatherData extends OneShotBehaviour {
      *
      * @param greenEnergyAgent agent which is executing the behaviour
      * @param conversationId   conversation identifier for given job processing
-     * @param job              power job for which the weather is requested
+     * @param job              power job for which the forecast is requested
      */
-    public RequestWeatherData(GreenEnergyAgent greenEnergyAgent, String conversationId, PowerJob job) {
+    public RequestForecastData(GreenEnergyAgent greenEnergyAgent, String conversationId, PowerJob job) {
         myGreenEnergyAgent = greenEnergyAgent;
         this.conversationId = conversationId;
         this.powerJob = job;
@@ -44,6 +45,7 @@ public class RequestWeatherData extends OneShotBehaviour {
         ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
         request.addReceiver(myGreenEnergyAgent.getMonitoringAgent());
         request.setConversationId(conversationId);
+        request.setProtocol(SERVER_JOB_CFP_PROTOCOL);
         var requestData = ImmutableGreenSourceRequestData.builder()
                 .location(myGreenEnergyAgent.getLocation())
                 .timetable(myGreenEnergyAgent.getJobsTimetable(powerJob))

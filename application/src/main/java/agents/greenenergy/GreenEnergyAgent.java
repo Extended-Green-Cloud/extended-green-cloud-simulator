@@ -7,10 +7,12 @@ import static domain.job.JobStatusEnum.IN_PROGRESS;
 import static java.util.stream.Collectors.toMap;
 import static yellowpages.YellowPagesService.register;
 
-import agents.greenenergy.behaviour.ReceivePowerRequest;
+import agents.greenenergy.behaviour.query.ReceivePowerCheckRequest;
+import agents.greenenergy.behaviour.request.ReceivePowerRequest;
 import agents.greenenergy.domain.EnergyTypeEnum;
 import agents.greenenergy.domain.GreenPower;
 import domain.MonitoringData;
+import domain.WeatherData;
 import domain.job.PowerJob;
 import domain.location.ImmutableLocation;
 import jade.core.AID;
@@ -45,6 +47,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
         initializeAgent(args);
         register(this, GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerServer.getName());
         addBehaviour(new ReceivePowerRequest(this));
+        addBehaviour(new ReceivePowerCheckRequest(this));
     }
 
     private void initializeAgent(final Object[] args) {
@@ -74,8 +77,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
      * computes average power available during computation of the job being processed
      *
      * @param powerJob job being processed (not yet accepted!)
-     * @param weather  monitoring data with weather for requested timetable
-     * @return
+     * @param weather  monitoring data with forecast for requested timetable
+     * @return optional of available average power of Optional.empty() if there is no available power at some moemnt
      */
     public Optional<Double> getAverageAvailablePower(final PowerJob powerJob, final MonitoringData weather) {
         var powerChart = getPowerChart(powerJob, weather);
@@ -86,6 +89,24 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
             return Optional.empty();
         }
         return Optional.of(availablePower);
+    }
+
+    /**
+     * computes power available during at a timestamp
+     *
+     * @param weather   monitoring data with weather for requested time
+     * @return available power
+     */
+    public Double getAvailablePower(final WeatherData weather) {
+        var timestamp = weather.getTime();
+        final int powerInUse = powerJobs.keySet().stream()
+            .filter(job -> job.isExecutedAtTime(timestamp))
+            .filter(job -> powerJobs.get(job).equals(ACCEPTED) || powerJobs.get(job).equals(IN_PROGRESS))
+            .mapToInt(PowerJob::getPower).sum();
+        double availablePower = getCapacity(weather, timestamp) - powerInUse;
+        logger.info("[{}] Calculated available {} power {} at {} for {}", this.getName(), energyType,
+            String.format("%.2f", availablePower), timestamp, weather);
+        return availablePower;
     }
 
     private Map<Instant, Double> getPowerChart(PowerJob powerJob, final MonitoringData weather) {
@@ -100,14 +121,14 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
         if(powerJobs.isEmpty()) {
             return timetable.stream()
-                .collect(toMap(Function.identity(), time -> greenPower.getAvailablePower(weather, time, location)));
+                .collect(toMap(Function.identity(), time -> getCapacity(weather, time)));
         }
 
         return timetable.stream()
             .collect(toMap(Function.identity(), time -> powerJobs.stream()
                 .filter(j -> j.isExecutedAtTime(time))
                 .map(PowerJob::getPower)
-                .map(power ->  greenPower.getAvailablePower(weather, time, location) - power)
+                .map(power -> getCapacity(weather, time) - power)
                 .mapToDouble(a -> a)
                 .average()
                 .getAsDouble()));

@@ -1,4 +1,4 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.listener;
 
 import static messages.domain.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 

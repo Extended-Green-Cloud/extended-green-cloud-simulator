@@ -2,13 +2,14 @@ package agents.greenenergy;
 
 import agents.greenenergy.domain.EnergyTypeEnum;
 import agents.greenenergy.domain.GreenPower;
+import domain.MonitoringData;
 import domain.WeatherData;
 import domain.job.JobStatusEnum;
 import domain.job.PowerJob;
 import domain.location.Location;
 import jade.core.AID;
 import jade.core.Agent;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -54,7 +55,11 @@ public abstract class AbstractGreenEnergyAgent extends Agent {
         this.pricePerPowerUnit = pricePerPowerUnit;
     }
 
-    public double getCapacity(WeatherData weather, ZonedDateTime startTime) {
+    public double getCapacity(WeatherData weather, Instant startTime) {
+        return greenPower.getAvailablePower(weather, startTime, location);
+    }
+
+    public double getCapacity(MonitoringData weather, Instant startTime) {
         return greenPower.getAvailablePower(weather, startTime, location);
     }
 

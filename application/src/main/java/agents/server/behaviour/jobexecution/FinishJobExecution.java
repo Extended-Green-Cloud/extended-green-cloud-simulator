@@ -1,4 +1,4 @@
-package agents.server.behaviour;
+package agents.server.behaviour.jobexecution;
 
 import static messages.domain.JobStatusMessageFactory.prepareFinishMessage;
 

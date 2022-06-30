@@ -1,4 +1,4 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.request;
 
 import static common.constant.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.CFP;
@@ -51,7 +51,7 @@ public class ReceivePowerRequest extends CyclicBehaviour {
         if (Objects.nonNull(cfp)) {
             try {
                 final PowerJob job = readJob(cfp);
-                logger.info("[{}] Sending weather request to monitoring agent.", guid);
+                logger.info("[{}] Sending forecast request to monitoring agent.", guid);
                 myGreenEnergyAgent.getPowerJobs().put(job, JobStatusEnum.PROCESSING);
                 requestMonitoringData(cfp, job);
             } catch (Exception e) {
@@ -72,8 +72,8 @@ public class ReceivePowerRequest extends CyclicBehaviour {
 
     private void requestMonitoringData(final ACLMessage cfp, final PowerJob job) {
         var sequentialBehaviour = new SequentialBehaviour();
-        sequentialBehaviour.addSubBehaviour(new RequestWeatherData(myGreenEnergyAgent, cfp.getConversationId(), job));
-        sequentialBehaviour.addSubBehaviour(new ReceiveWeatherData(myGreenEnergyAgent, cfp, job));
+        sequentialBehaviour.addSubBehaviour(new RequestForecastData(myGreenEnergyAgent, cfp.getConversationId(), job));
+        sequentialBehaviour.addSubBehaviour(new ReceiveForecastData(myGreenEnergyAgent, cfp, job));
         myAgent.addBehaviour(sequentialBehaviour);
     }
 }

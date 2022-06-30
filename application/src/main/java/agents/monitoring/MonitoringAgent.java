@@ -2,7 +2,9 @@ package agents.monitoring;
 
 import static java.util.Comparator.comparingLong;
 
+import agents.monitoring.behaviour.ServeForecastInformation;
 import agents.monitoring.behaviour.ServeWeatherInformation;
+import domain.GreenSourceQueryData;
 import domain.GreenSourceRequestData;
 import domain.ImmutableMonitoringData;
 import domain.ImmutableWeatherData;
@@ -36,6 +38,7 @@ public class MonitoringAgent extends Agent {
     @Override
     protected void setup() {
         super.setup();
+        addBehaviour(new ServeForecastInformation(this));
         addBehaviour(new ServeWeatherInformation(this));
         api = new OpenWeatherMapApi();
         cache = WeatherCache.getInstance();
@@ -50,12 +53,10 @@ public class MonitoringAgent extends Agent {
         super.takeDown();
     }
 
-    public MonitoringData getWeather(GreenSourceRequestData requestData) {
+    public WeatherData getWeather(GreenSourceQueryData requestData) {
         logger.info("Retrieving weather info for {}!", requestData.getLocation());
         var weather = api.getWeather(requestData.getLocation());
-        return ImmutableMonitoringData.builder()
-            .addWeatherData(buildWeatherData(weather, weather.getTimestamp()))
-            .build();
+        return buildWeatherData(weather, weather.getTimestamp());
     }
 
     public MonitoringData getForecast(GreenSourceRequestData requestData) {

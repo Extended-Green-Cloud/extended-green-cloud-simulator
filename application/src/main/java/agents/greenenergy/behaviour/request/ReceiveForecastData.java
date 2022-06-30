@@ -1,4 +1,4 @@
-package agents.greenenergy.behaviour;
+package agents.greenenergy.behaviour.request;
 
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Behaviour which is responsible for listening for the Monitoring Agent's response with weather data.
  */
-public class ReceiveWeatherData extends CyclicBehaviour {
+public class ReceiveForecastData extends CyclicBehaviour {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReceiveWeatherData.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReceiveForecastData.class);
 
     private final GreenEnergyAgent myGreenEnergyAgent;
     private final MessageTemplate template;
@@ -40,9 +40,9 @@ public class ReceiveWeatherData extends CyclicBehaviour {
      *
      * @param myGreenAgent agent which is executing the behaviour
      * @param cfp          call for proposal sent by the server to which the Green Source has to reply
-     * @param powerJob          job that is being processed
+     * @param powerJob     job that is being processed
      */
-    public ReceiveWeatherData(GreenEnergyAgent myGreenAgent, final ACLMessage cfp, final PowerJob powerJob) {
+    public ReceiveForecastData(GreenEnergyAgent myGreenAgent, final ACLMessage cfp, final PowerJob powerJob) {
         this.myGreenEnergyAgent = myGreenAgent;
         this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()),
                             MatchConversationId(cfp.getConversationId()));
