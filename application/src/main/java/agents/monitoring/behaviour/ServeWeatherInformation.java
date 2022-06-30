@@ -56,7 +56,7 @@ public class ServeWeatherInformation extends CyclicBehaviour {
                 e.printStackTrace();
             }
             response.setConversationId(message.getConversationId());
-            logger.info("Sending message with the weather data");
+            logger.info("[{}] Sending message with the weather data", myAgent.getName());
             displayMessageArrow(monitoringAgent, message.getSender());
             monitoringAgent.send(response);
         } else {

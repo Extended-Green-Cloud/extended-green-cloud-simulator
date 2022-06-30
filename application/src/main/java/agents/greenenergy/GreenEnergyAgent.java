@@ -139,7 +139,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
                 .map(power -> getCapacity(weather, time) - power)
                 .mapToDouble(a -> a)
                 .average()
-                .getAsDouble()));
+                .orElse(0)));
     }
 
     /**

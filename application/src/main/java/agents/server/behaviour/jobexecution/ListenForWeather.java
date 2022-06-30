@@ -41,8 +41,15 @@ public class ListenForWeather extends CyclicBehaviour {
         final ACLMessage message = myAgent.receive(messageTemplate);
         if (Objects.nonNull(message)) {
             try {
-                logger.info("[{}] Starting job execution!.", myServerAgent.getName());
-                myAgent.addBehaviour(new StartJobExecution(myServerAgent, jobToExecute));
+                if(message.getContent().equals("OK")) {
+                    logger.info("[{}] Starting job execution!.", myServerAgent.getName());
+                    myAgent.addBehaviour(new StartJobExecution(myServerAgent, jobToExecute));
+                }
+                else if (message.getContent().equals("ABORT")) {
+                    logger.info("[{}] Aborting job execution!.", myServerAgent.getName());
+                    myServerAgent.getServerJobs().remove(jobToExecute);
+                    //TODO announce job removal
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

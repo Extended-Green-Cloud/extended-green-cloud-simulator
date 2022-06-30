@@ -2,18 +2,17 @@ package agents.monitoring;
 
 import static java.util.Comparator.comparingLong;
 
-import agents.monitoring.behaviour.ServeForecastInformation;
 import agents.AbstractAgent;
+import agents.monitoring.behaviour.ServeForecastInformation;
 import agents.monitoring.behaviour.ServeWeatherInformation;
-import domain.GreenSourceQueryData;
 import behaviours.ReceiveGUIController;
+import domain.GreenSourceQueryData;
 import domain.GreenSourceRequestData;
 import domain.ImmutableMonitoringData;
 import domain.ImmutableWeatherData;
 import domain.MonitoringData;
 import domain.WeatherData;
 import domain.location.Location;
-import jade.core.Agent;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -56,20 +55,20 @@ public class MonitoringAgent extends AbstractAgent {
      */
     @Override
     protected void takeDown() {
-        logger.info("I'm finished. Bye!");
+        logger.info("[{}] I'm finished. Bye!", getName());
         getGuiController().removeAgentNodeFromGraph(getAgentNode());
         super.takeDown();
     }
 
     public WeatherData getWeather(GreenSourceQueryData requestData) {
-        logger.info("Retrieving weather info for {}!", requestData.getLocation());
+        logger.info("[{}] Retrieving weather info for {}!", getName(), requestData.getLocation());
         var weather = api.getWeather(requestData.getLocation());
         return buildWeatherData(weather, weather.getTimestamp());
     }
 
     public MonitoringData getForecast(GreenSourceRequestData requestData) {
         var location = requestData.getLocation();
-        logger.info("Retrieving forecast info for {}!", location);
+        logger.info("[{}] Retrieving forecast info for {}!", getName(), location);
         var weatherData = requestData.getTimetable().stream()
             .map(time -> getWeatherData(location, time))
             .toList();

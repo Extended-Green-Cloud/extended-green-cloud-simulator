@@ -1,15 +1,19 @@
 package agents.server.behaviour.jobexecution;
 
+import static common.GUIUtils.displayMessageArrow;
+import static messages.domain.JobStatusMessageFactory.prepareJobStartedMessage;
 import static messages.domain.PowerCheckMessageFactory.preparePowerCheckMessage;
 
 import agents.server.ServerAgent;
 import domain.job.ImmutablePowerJob;
 import domain.job.Job;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +54,11 @@ public class CheckWeatherBeforeJobExecution extends WakerBehaviour {
     @Override
     protected void onWake() {
         logger.info("[{}] Checking weather before the job execution {}", myAgent.getName(), jobToExecute.getClientIdentifier());
+        final List<AID> receivers = List.of(myServerAgent.getGreenSourceForJobMap()
+            .get(jobToExecute.getJobId()), myServerAgent.getOwnerCloudNetworkAgent());
+        final ACLMessage startedJobMessage = prepareJobStartedMessage(jobToExecute.getJobId(), receivers);
+        displayMessageArrow(myServerAgent, receivers);
+        myAgent.send(startedJobMessage);
         myAgent.send(getPowerCheckMessage(jobToExecute));
         myAgent.addBehaviour(new ListenForWeather(myServerAgent, jobToExecute));
     }

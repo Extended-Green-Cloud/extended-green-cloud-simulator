@@ -57,7 +57,6 @@ public class ReceiveWeatherData extends CyclicBehaviour {
     public void action() {
         final ACLMessage message = myAgent.receive(messageTemplate);
         if (nonNull(message)) {
-            logger.info("YEY");
             final WeatherData data = readWeatherData(message);
             if (nonNull(data)) {
                 switch (message.getPerformative()) {
@@ -78,7 +77,7 @@ public class ReceiveWeatherData extends CyclicBehaviour {
             logger.info("[{}] Weather has changed before executing job with id {} - not enough available power. Needed {}, available {}",
                 guid, powerJob.getJobId(), powerJob.getPower(), availablePower);
             myGreenEnergyAgent.getPowerJobs().remove(powerJob);
-            // TODO - handle sudden bad weather change
+            myAgent.send(ReplyMessageFactory.prepareReply(originalMessage.createReply(), "ABORT", INFORM));
         }
         else {
             logger.info("[{}] Everything okay - continuing job {} execution!", guid, powerJob.getJobId());

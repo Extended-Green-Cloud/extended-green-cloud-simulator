@@ -1,10 +1,13 @@
 package agents.server.behaviour.jobexecution;
 
+import static common.GUIUtils.displayMessageArrow;
+import static common.GUIUtils.updateServerState;
 import static messages.domain.JobStatusMessageFactory.prepareJobStartedMessage;
 
 import agents.server.ServerAgent;
 import domain.job.Job;
 import domain.job.JobStatusEnum;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -36,12 +39,9 @@ public class StartJobExecution extends OneShotBehaviour {
      */
     @Override
     public void action() {
-        logger.info("[{}] Start executing the job for {}", myAgent.getName(), jobToExecute.getClientIdentifier());
+        logger.info("[{}] Start actual execution the job for {}", myAgent.getName(), jobToExecute.getClientIdentifier());
         myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.IN_PROGRESS);
-        final ACLMessage startedJobMessage = prepareJobStartedMessage(jobToExecute.getJobId(),
-            List.of(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()),
-                myServerAgent.getOwnerCloudNetworkAgent()));
-        myAgent.send(startedJobMessage);
+        updateServerState(myServerAgent, false);
         myAgent.addBehaviour(FinishJobExecution.createFor(myServerAgent, jobToExecute));
     }
 }

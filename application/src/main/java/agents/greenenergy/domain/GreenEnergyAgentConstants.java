@@ -8,7 +8,7 @@ package agents.greenenergy.domain;
  */
 public class GreenEnergyAgentConstants {
 
-    public static final Long MAX_ERROR_IN_JOB_FINISH = 2000L;
+    public static final Long MAX_ERROR_IN_JOB_FINISH = 5000L;
 
     public static final Double CUT_ON_WIND_SPEED = 5.0;
 
