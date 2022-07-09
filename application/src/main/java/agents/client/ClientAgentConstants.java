@@ -1,5 +1,7 @@
 package agents.client;
 
+import static common.TimeUtils.SECONDS_FOR_HOUR;
+
 import java.time.temporal.ValueRange;
 
 /**
@@ -15,5 +17,5 @@ public class ClientAgentConstants {
     public static final String CLOUD_NETWORK_AGENTS = "CLOUD_NETWORK_AGENTS_LIST";
     public static final Integer MAX_RETRIES = 10;
     public static final Long RETRY_PAUSE_MILLISECONDS = 1000L;
-    public static final Integer JOB_RETRY_MINUTES_ADJUSTMENT = 90;
+    public static final Long JOB_RETRY_MINUTES_ADJUSTMENT = SECONDS_FOR_HOUR * RETRY_PAUSE_MILLISECONDS * 60 / 1000;
 }

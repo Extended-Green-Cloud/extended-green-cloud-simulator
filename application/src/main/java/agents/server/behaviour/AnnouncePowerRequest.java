@@ -62,7 +62,7 @@ public class AnnouncePowerRequest extends ContractNetInitiator {
         } else if (proposals.isEmpty()) {
             logger.info("[{}] No Green Sources available - sending refuse message to Cloud Network Agent", myAgent);
             myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
-        } else if (myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime()) <= job.getPower()) {
+        } else if (myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime())*0.5 <= job.getPower()) {
             logger.info("[{}] No enough capacity - sending refuse message to Cloud Network Agent", myAgent);
             myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
         } else {

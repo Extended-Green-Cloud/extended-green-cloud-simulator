@@ -58,9 +58,12 @@ public class ServerStateManagement {
    * @return available power
    */
   public int getAvailableCapacity(final OffsetDateTime startDate, final OffsetDateTime endDate) {
-    final int powerInUser =
-        getUniqueJobsForTimeStamp(startDate, endDate).stream().mapToInt(Job::getPower).sum();
-    return serverAgent.getMaximumCapacity() - powerInUser;
+    return serverAgent.getMaximumCapacity() - serverAgent.getServerJobs().entrySet().stream()
+        .filter(
+            job -> (TimeUtils.isWithinTimeStamp(startDate, endDate, job.getKey().getStartTime())
+                || TimeUtils.isWithinTimeStamp(startDate, endDate, job.getKey().getEndTime())))
+        .mapToInt(job -> job.getKey().getPower())
+        .sum();
   }
 
   /**

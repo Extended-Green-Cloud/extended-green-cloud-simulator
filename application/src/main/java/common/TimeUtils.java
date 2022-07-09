@@ -18,9 +18,10 @@ public class TimeUtils {
     private static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
     private static final Long TIME_ERROR = 10L;
-    private static final int SECONDS_FOR_HOUR = 3;
     private static final int MILLISECOND_MULTIPLIER = 1000;
     private static final int HOUR_DIVIDER = 3600;
+
+    public static final int SECONDS_FOR_HOUR = 3;
 
     /**
      * Mapper used to convert the date written as string to the offset date

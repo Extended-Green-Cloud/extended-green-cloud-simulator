@@ -55,7 +55,7 @@ public class ReceiveJobRequest extends CyclicBehaviour {
         if (Objects.nonNull(message)) {
             try {
                 final Job job = getMapper().readValue(message.getContent(), Job.class);
-                if (job.getPower() < myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime())) {
+                if (job.getPower() * 1.25 <= myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime())) {
                     logger.info("[{}] Sending call for proposal to Green Source Agents", myAgent.getName());
                     final ACLMessage cfp = preparePowerJobCFP(job);
                     displayMessageArrow(myServerAgent, myServerAgent.getOwnedGreenSources());
@@ -70,7 +70,7 @@ public class ReceiveJobRequest extends CyclicBehaviour {
                 e.printStackTrace();
             }
         } else {
-            block(200);
+            block(300);
         }
     }
 

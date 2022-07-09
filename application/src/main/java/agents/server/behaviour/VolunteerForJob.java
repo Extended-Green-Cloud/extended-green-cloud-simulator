@@ -57,8 +57,7 @@ public class VolunteerForJob extends ProposeInitiator {
       final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
       myServerAgent
           .getServerJobs()
-          .replace(
-              myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
+          .replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
       myServerAgent.manage().updateClientNumber();
       displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
       myAgent.send(
@@ -85,7 +84,10 @@ public class VolunteerForJob extends ProposeInitiator {
       final String jobId = reject_proposal.getContent();
       final Job job = myServerAgent.manage().getJobById(jobId);
       myServerAgent.getGreenSourceForJobMap().remove(jobId);
-      myServerAgent.getServerJobs().remove(job);
+      var jobs = myServerAgent.getServerJobs().keySet().stream()
+          .filter(key -> key.getJobId().equals(jobId))
+          .toList();
+      jobs.forEach(myServerAgent.getServerJobs()::remove);
       displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
       myServerAgent.send(
           ReplyMessageFactory.prepareStringReply(replyMessage, jobId, REJECT_PROPOSAL));
