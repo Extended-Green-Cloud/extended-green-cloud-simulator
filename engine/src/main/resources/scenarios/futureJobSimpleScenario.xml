@@ -1,4 +1,7 @@
 <ScenarioArgs>
+    <clientGenerationType>
+        1
+    </clientGenerationType>
     <monitoringAgentsArgs>
         <monitoringAgent>
             <name>Weather</name>

@@ -4,6 +4,7 @@ import static java.util.stream.Stream.concat;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import org.jetbrains.annotations.Nullable;
+import runner.service.domain.ClientGenerationType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Objects;
  */
 public class ScenarioArgs implements Serializable {
 
+    @JacksonXmlElementWrapper(localName = "clientGenerationType")
+    private ClientGenerationType clientGenerationType;
     @JacksonXmlElementWrapper(localName = "clientAgentsArgs")
     @Nullable
     private List<ImmutableClientAgentArgs> clientAgentsArgs;
@@ -32,22 +35,30 @@ public class ScenarioArgs implements Serializable {
     /**
      * Scenario constructor.
      *
+     * @param clientGenerationType   client generation mode
      * @param clientAgentsArgs       list of client agents
      * @param cloudNetworkAgentsArgs list of cloud network agents
      * @param serverAgentsArgs       list of server agents
      * @param monitoringAgentsArgs   list of monitoring agents
      * @param greenEnergyAgentsArgs  list of green energy source agents
      */
-    public ScenarioArgs(List<ImmutableClientAgentArgs> clientAgentsArgs,
+    public ScenarioArgs(ClientGenerationType clientGenerationType,
+                        List<ImmutableClientAgentArgs> clientAgentsArgs,
                         List<ImmutableCloudNetworkArgs> cloudNetworkAgentsArgs,
                         List<ImmutableServerAgentArgs> serverAgentsArgs,
                         List<ImmutableMonitoringAgentArgs> monitoringAgentsArgs,
                         List<ImmutableGreenEnergyAgentArgs> greenEnergyAgentsArgs) {
+        this.clientGenerationType = clientGenerationType;
         this.clientAgentsArgs = clientAgentsArgs;
         this.cloudNetworkAgentsArgs = cloudNetworkAgentsArgs;
         this.serverAgentsArgs = serverAgentsArgs;
         this.monitoringAgentsArgs = monitoringAgentsArgs;
         this.greenEnergyAgentsArgs = greenEnergyAgentsArgs;
+    }
+    public ClientGenerationType getClientGenerationType() {return clientGenerationType; }
+
+    public void setClientGenerationType(ClientGenerationType clientGenerationType){
+        this.clientGenerationType = clientGenerationType;
     }
 
     public List<ImmutableClientAgentArgs> getClientAgentsArgs() {

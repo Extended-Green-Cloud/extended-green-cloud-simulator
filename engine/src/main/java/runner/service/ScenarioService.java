@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -73,7 +76,11 @@ public class ScenarioService {
                 agentController.activate();
                 TimeUnit.MILLISECONDS.sleep(100);
             }
-            createClientAgents(CLIENT_NUMBER, scenario);
+            switch (scenario.getClientGenerationType()){
+                case FromScenraio -> createAgents(scenario.getClientAgentsArgs(), scenario);
+                case OnStart -> createClientAgents(CLIENT_NUMBER, scenario);
+                case Continuous -> keepSpawningAgents(scenario);
+            }
 
         } catch (IOException | InterruptedException | StaleProxyException e) {
             e.printStackTrace();
@@ -121,6 +128,12 @@ public class ScenarioService {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void keepSpawningAgents(ScenarioArgs scenario){
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future future = executorService.submit(new ClientSpawner(factory, guiController, scenario));
+        executorService.shutdown();
     }
 
     private File getFileFromResourceFileName(final String fileName) {
