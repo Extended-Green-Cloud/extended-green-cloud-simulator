@@ -3,10 +3,14 @@ package utils;
 import domain.job.AbstractJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
-import org.apache.commons.math3.analysis.function.Abs;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static utils.TimeUtils.getCurrentTime;
+import static utils.TimeUtils.isWithinTimeStamp;
 
 public class JobMapUtils {
 
@@ -63,5 +67,16 @@ public class JobMapUtils {
                 .toList()
                 .size()
                 == 1;
+    }
+
+    public static <T extends AbstractJob> int getJobCount(final Map<T, JobStatusEnum> map) {
+        return map.entrySet().stream()
+                .filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue())
+                        && isWithinTimeStamp(
+                        job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+                .map(Map.Entry::getKey)
+                .map(T::getJobId)
+                .collect(Collectors.toSet())
+                .size();
     }
 }

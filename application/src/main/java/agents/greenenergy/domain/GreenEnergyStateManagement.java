@@ -7,6 +7,7 @@ import static domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static java.util.stream.Collectors.toMap;
 import static mapper.JsonMapper.getMapper;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobCount;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
 import static utils.JobMapUtils.isJobUnique;
@@ -19,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -192,23 +192,6 @@ public class GreenEnergyStateManagement {
 	}
 
 	/**
-	 * Computes average power available during computation of the job being checked before execution
-	 *
-	 * @param powerJob job being processed (not yet accepted!)
-	 * @param weather  monitoring data with weather for requested timetable
-	 * @return average available power as decimal or empty optional if power not available
-	 */
-	public synchronized Optional<Double> getAverageAvailablePowerCheck(final PowerJob powerJob,
-			final MonitoringData weather) {
-		var powerChart = getPowerChart(powerJob, weather, true);
-		var availablePower = powerChart.values().stream().mapToDouble(a -> a).average().getAsDouble();
-		logger.info("[{}] Calculated available {} average power {} between {} and {}", greenEnergyAgent.getName(),
-				greenEnergyAgent.getEnergyType(),
-				String.format("%.2f", availablePower), powerJob.getStartTime(), powerJob.getEndTime());
-		return Optional.of(availablePower);
-	}
-
-	/**
 	 * Computes average power available during computation of the job being checked before putting on hold job to in progress
 	 *
 	 * @param powerJob job being processed (which is on hold)
@@ -231,17 +214,10 @@ public class GreenEnergyStateManagement {
 	public void updateGreenSourceGUI() {
 		final GreenEnergyAgentNode serverAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 		serverAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
-		serverAgentNode.updateJobsCount(getJobCount());
+		serverAgentNode.updateJobsCount(getJobCount(greenEnergyAgent.getPowerJobs()));
 		serverAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 		serverAgentNode.updateIsActive(getIsActiveState());
 		serverAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
-	}
-
-	public void handleRefuse(final ACLMessage message, final PowerJob powerJob) {
-		logger.info("[{}] Weather data not available, sending refuse message to server.", greenEnergyAgent.getName());
-		greenEnergyAgent.getPowerJobs().remove(powerJob);
-		displayMessageArrow(greenEnergyAgent, message.getAllReceiver());
-		greenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(message.createReply()));
 	}
 
 	public MonitoringData readMonitoringData(ACLMessage message, ACLMessage originalMessage) {
@@ -333,17 +309,6 @@ public class GreenEnergyStateManagement {
 						&& isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.toList()
-				.size();
-	}
-
-	private int getJobCount() {
-		return greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue())
-						&& isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
-				.map(Map.Entry::getKey)
-				.map(PowerJob::getJobId)
-				.collect(Collectors.toSet())
 				.size();
 	}
 

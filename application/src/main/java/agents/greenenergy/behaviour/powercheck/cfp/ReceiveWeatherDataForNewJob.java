@@ -71,7 +71,7 @@ public class ReceiveWeatherDataForNewJob extends CyclicBehaviour {
 			final MonitoringData data = myGreenEnergyAgent.manage().readMonitoringData(message, cfp);
 			if (nonNull(data)) {
 				switch (message.getPerformative()) {
-					case ACLMessage.REFUSE -> myGreenEnergyAgent.manage().handleRefuse(cfp, powerJob);
+					case ACLMessage.REFUSE -> handleRefuse(cfp, powerJob);
 					case ACLMessage.INFORM -> handleInform(data);
 				}
 				myAgent.removeBehaviour(parentBehaviour);
@@ -79,6 +79,13 @@ public class ReceiveWeatherDataForNewJob extends CyclicBehaviour {
 		} else {
 			block();
 		}
+	}
+
+	private void handleRefuse(final ACLMessage message, final PowerJob powerJob) {
+		logger.info("[{}] Weather data not available, sending refuse message to server.", myGreenEnergyAgent.getName());
+		myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+		displayMessageArrow(myGreenEnergyAgent, message.getAllReceiver());
+		myGreenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(message.createReply()));
 	}
 
 	private void handleInform(final MonitoringData data) {

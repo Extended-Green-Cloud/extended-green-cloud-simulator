@@ -9,11 +9,10 @@ import static domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
 import static utils.AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp;
 import static utils.GUIUtils.displayMessageArrow;
-import static utils.JobMapUtils.isJobUnique;
+import static utils.JobMapUtils.*;
 import static utils.TimeUtils.differenceInHours;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
-import static utils.JobMapUtils.getJobById;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -231,7 +230,7 @@ public class ServerStateManagement {
 
 		if (Objects.nonNull(serverAgentNode)) {
 			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity());
-			serverAgentNode.updateJobsCount(getJobCount());
+			serverAgentNode.updateJobsCount(getJobCount(serverAgent.getServerJobs()));
 			serverAgentNode.updateClientNumber(getClientNumber());
 			serverAgentNode.updateIsActive(getIsActiveState());
 			serverAgentNode.updateTraffic(getCurrentPowerInUseForServer());
@@ -299,13 +298,6 @@ public class ServerStateManagement {
 						updateServerGUI();
 					}
 				});
-	}
-
-	private int getJobCount() {
-		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
-				.map(Map.Entry::getKey).map(Job::getJobId).collect(Collectors.toSet()).size();
 	}
 
 	private int getClientNumber() {

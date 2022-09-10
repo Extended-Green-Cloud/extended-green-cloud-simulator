@@ -10,4 +10,6 @@ public interface AbstractJob {
     String getJobId();
 
     Instant getStartTime();
+
+    Instant getEndTime();
 }
