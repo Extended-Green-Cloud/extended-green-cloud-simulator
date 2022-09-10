@@ -9,6 +9,7 @@ import static mapper.JsonMapper.getMapper;
 import static utils.GUIUtils.displayMessageArrow;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
+import static utils.JobMapUtils.isJobUnique;
 
 import java.time.Instant;
 import java.util.Date;
@@ -31,7 +32,6 @@ import agents.greenenergy.GreenEnergyAgent;
 import agents.greenenergy.behaviour.FinishJobManually;
 import common.mapper.JobMapper;
 import domain.MonitoringData;
-import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import domain.job.PowerJob;
 import jade.lang.acl.ACLMessage;
@@ -63,7 +63,7 @@ public class GreenEnergyStateManagement {
 	 * @param jobId unique job identifier
 	 */
 	public void incrementStartedJobs(final String jobId) {
-		if (isJobUnique(jobId)) {
+		if (isJobUnique(greenEnergyAgent.getPowerJobs(), jobId)) {
 			uniqueStartedJobs.getAndAdd(1);
 			logger.info("[{}] Started job {}. Number of unique started jobs is {}", greenEnergyAgent.getLocalName(),
 					jobId, uniqueStartedJobs);
@@ -80,7 +80,7 @@ public class GreenEnergyStateManagement {
 	 * @param jobId unique identifier of the job
 	 */
 	public void incrementFinishedJobs(final String jobId) {
-		if (isJobUnique(jobId)) {
+		if (isJobUnique(greenEnergyAgent.getPowerJobs(), jobId)) {
 			uniqueFinishedJobs.getAndAdd(1);
 			logger.info(
 					"[{}] Finished job {}. Number of unique finished jobs is {} out of {} started",
@@ -286,14 +286,6 @@ public class GreenEnergyStateManagement {
 				.mapToDouble(Double::doubleValue)
 				.average()
 				.orElseGet(() -> 0.0);
-	}
-
-	private boolean isJobUnique(final String jobId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.toList()
-				.size()
-				== 1;
 	}
 
 	private synchronized Map<Instant, Double> getPowerChart(PowerJob powerJob, final MonitoringData weather,

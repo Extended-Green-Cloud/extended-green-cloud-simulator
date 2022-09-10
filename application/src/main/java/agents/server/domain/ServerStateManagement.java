@@ -9,6 +9,7 @@ import static domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
 import static utils.AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.isJobUnique;
 import static utils.TimeUtils.differenceInHours;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
@@ -133,23 +134,12 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method verifies if there is only 1 instance of the given job
-	 *
-	 * @param jobId unique job identifier
-	 * @return boolean
-	 */
-	public boolean isJobUnique(final String jobId) {
-		return serverAgent.getServerJobs().keySet().stream().filter(job -> job.getJobId().equals(jobId)).toList().size()
-				== 1;
-	}
-
-	/**
 	 * Method increments the count of started jobs
 	 *
 	 * @param jobId unique job identifier
 	 */
 	public void incrementStartedJobs(final String jobId) {
-		if (isJobUnique(jobId)) {
+		if (isJobUnique(serverAgent.getServerJobs(), jobId)) {
 			uniqueStartedJobs.getAndAdd(1);
 			logger.info("[{}] Started job {}. Number of unique started jobs is {}", serverAgent.getLocalName(),
 					jobId,
@@ -168,7 +158,7 @@ public class ServerStateManagement {
 	 * @param jobId unique identifier of the job
 	 */
 	public void incrementFinishedJobs(final String jobId) {
-		if (isJobUnique(jobId)) {
+		if (isJobUnique(serverAgent.getServerJobs(), jobId)) {
 			uniqueFinishedJobs.getAndAdd(1);
 			logger.info("[{}] Finished job {}. Number of unique finished jobs is {} out of {} started",
 					serverAgent.getLocalName(), jobId, uniqueFinishedJobs, uniqueStartedJobs);
@@ -291,7 +281,7 @@ public class ServerStateManagement {
 
 	private void updateStateAfterJobFinish(final Job jobToFinish) {
 		incrementFinishedJobs(jobToFinish.getJobId());
-		if (isJobUnique(jobToFinish.getJobId())) {
+		if (isJobUnique(serverAgent.getServerJobs(), jobToFinish.getJobId())) {
 			serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
 		}
 		serverAgent.getServerJobs().remove(jobToFinish);

@@ -3,6 +3,7 @@ package utils;
 import domain.job.AbstractJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
+import org.apache.commons.math3.analysis.function.Abs;
 
 import java.time.Instant;
 import java.util.Map;
@@ -47,5 +48,20 @@ public class JobMapUtils {
                         && job.getStartTime().equals(jobInstanceId.getStartTime()))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Method verifies if there is only 1 instance of the given job
+     *
+     * @param map map on which the operations are executed
+     * @param jobId unique job identifier
+     * @return boolean
+     */
+    public static <T extends AbstractJob> boolean isJobUnique(final Map<T, JobStatusEnum> map, final String jobId) {
+        return  map.keySet().stream()
+                .filter(job -> job.getJobId().equals(jobId))
+                .toList()
+                .size()
+                == 1;
     }
 }

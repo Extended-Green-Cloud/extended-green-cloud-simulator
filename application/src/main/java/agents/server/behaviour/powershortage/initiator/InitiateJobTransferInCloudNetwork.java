@@ -9,6 +9,7 @@ import static agents.server.behaviour.powershortage.initiator.logs.PowerShortage
 import static agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static utils.GUIUtils.displayMessageArrow;
 import static utils.JobMapUtils.getJobByIdAndStartDate;
+import static utils.JobMapUtils.isJobUnique;
 import static utils.TimeUtils.getCurrentTime;
 import static domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static domain.job.JobStatusEnum.ON_HOLD;
@@ -154,7 +155,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		if (job.getStartTime().isBefore(getCurrentTime())) {
 			myServerAgent.manage().incrementFinishedJobs(job.getJobId());
 		}
-		if (myServerAgent.manage().isJobUnique(job.getJobId())) {
+		if (isJobUnique(myServerAgent.getServerJobs() ,job.getJobId())) {
 			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
 		}
 		myServerAgent.getServerJobs().remove(job);
