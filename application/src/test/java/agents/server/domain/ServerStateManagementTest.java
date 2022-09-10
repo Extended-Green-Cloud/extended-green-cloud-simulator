@@ -217,45 +217,6 @@ class ServerStateManagementTest {
 		assertThat(result.getKey().getStartTime()).isEqualTo(Instant.parse("2022-01-01T10:30:00.000Z"));
 	}
 
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStart")
-	@DisplayName("Test getting job by id and start time")
-	void testGettingJobByIdAndStartTime(final Instant startTime, final String jobId, final boolean result) {
-		final Job jobResult = serverAgent.manage().getJobByIdAndStartDate(jobId, startTime);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStartInstant")
-	@DisplayName("Test getting job by id and start time instant")
-	void testGettingJobByIdAndStartTimeInstant(final JobInstanceIdentifier jobInstance, final boolean result) {
-		final Job jobResult = serverAgent.manage().getJobByIdAndStartDate(jobInstance);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetById")
-	@DisplayName("Test getting job by id")
-	void testGettingJobById(final String jobId, final boolean result) {
-		final Job jobResult = serverAgent.manage().getJobById(jobId);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersIsJobUnique")
-	@DisplayName("Test is job unique by id")
-	void testIsJobUnique(final String jobId, final boolean result) {
-		final Job jobProcessing = ImmutableJob.builder()
-				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
-				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		assertThat(serverAgent.manage().isJobUnique(jobId)).isEqualTo(result);
-	}
-
 	@Test
 	@DisplayName("Test increment started unique job")
 	void testIncrementStartedUniqueJob() {
