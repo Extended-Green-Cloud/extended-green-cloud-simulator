@@ -133,31 +133,6 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method retrieves the job by the job id and star time from job map
-	 *
-	 * @param jobId     job identifier
-	 * @param startTime job start time
-	 * @return job
-	 */
-	public Job getJobByIdAndStartDate(final String jobId, final Instant startTime) {
-		return serverAgent.getServerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId) && job.getStartTime().equals(startTime)).findFirst()
-				.orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job by the job instance id
-	 *
-	 * @param jobInstanceId job instance identifier
-	 * @return job
-	 */
-	public Job getJobByIdAndStartDate(final JobInstanceIdentifier jobInstanceId) {
-		return serverAgent.getServerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobInstanceId.getJobId()) && job.getStartTime()
-						.equals(jobInstanceId.getStartTime())).findFirst().orElse(null);
-	}
-
-	/**
 	 * Method verifies if there is only 1 instance of the given job
 	 *
 	 * @param jobId unique job identifier

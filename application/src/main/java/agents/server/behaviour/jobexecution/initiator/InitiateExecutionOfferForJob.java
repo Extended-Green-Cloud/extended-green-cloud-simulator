@@ -6,6 +6,7 @@ import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 import static messages.MessagingUtils.readMessageContent;
 import static messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
 		myServerAgent.getServerJobs()
-				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
+				.replace(getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
 		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
@@ -75,7 +76,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(SERVER_OFFER_REJECT_LOG, guid, reject_proposal.getSender().getLocalName());
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject_proposal, JobInstanceIdentifier.class);
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());

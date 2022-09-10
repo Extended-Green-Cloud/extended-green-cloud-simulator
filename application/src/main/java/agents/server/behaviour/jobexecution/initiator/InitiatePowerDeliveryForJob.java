@@ -10,6 +10,7 @@ import static messages.MessagingUtils.retrieveProposals;
 import static messages.MessagingUtils.retrieveValidMessages;
 import static messages.domain.factory.JobOfferMessageFactory.makeServerJobOffer;
 import static messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 
 import java.util.List;
 import java.util.Vector;
@@ -81,7 +82,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		} else {
 			final List<ACLMessage> validProposals = retrieveValidMessages(proposals, GreenSourceData.class);
 			final boolean isJobStillProcessed = myServerAgent.getServerJobs()
-					.replace(myServerAgent.manage().getJobByIdAndStartDate(job.getJobId(), job.getStartTime()),
+					.replace(getJobByIdAndStartDate(myServerAgent.getServerJobs(), job.getJobId(), job.getStartTime()),
 							JobStatusEnum.PROCESSING, JobStatusEnum.ACCEPTED);
 
 			if (!validProposals.isEmpty() && isJobStillProcessed) {

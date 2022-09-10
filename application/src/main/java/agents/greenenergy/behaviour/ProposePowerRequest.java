@@ -6,8 +6,9 @@ import static java.util.Objects.isNull;
 import static mapper.JsonMapper.getMapper;
 import static messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static utils.GUIUtils.displayMessageArrow;
-import static utils.TimeUtils.getCurrentTime;
 import static utils.JobMapUtils.getJobById;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
+import static utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -62,8 +63,7 @@ public class ProposePowerRequest extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		final JobWithProtocol jobWithProtocol = readMessage(accept_proposal);
 		if (Objects.nonNull(jobWithProtocol)) {
-			PowerJob job = myGreenEnergyAgent.manage()
-					.getJobByIdAndStartDate(jobWithProtocol.getJobInstanceIdentifier());
+			PowerJob job = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobWithProtocol.getJobInstanceIdentifier());
 			if (isNull(job)) {
 				job = getJobById(myGreenEnergyAgent.getPowerJobs(), jobWithProtocol.getJobInstanceIdentifier().getJobId());
 			}
@@ -87,7 +87,7 @@ public class ProposePowerRequest extends ProposeInitiator {
 			logger.info("[{}] Server rejected the job proposal", guid);
 			final JobInstanceIdentifier jobInstanceId = getMapper().readValue(reject_proposal.getContent(),
 					JobInstanceIdentifier.class);
-			final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+			final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 			if (Objects.nonNull(powerJob)) {
 				myGreenEnergyAgent.getPowerJobs().remove(powerJob);
 			}

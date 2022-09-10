@@ -1,6 +1,7 @@
 package agents.greenenergy.behaviour;
 
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 
@@ -46,8 +47,7 @@ public class FinishJobManually extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final PowerJob job = myGreenEnergyAgent.manage()
-				.getJobByIdAndStartDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime());
+		final PowerJob job = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId.getJobId(), jobInstanceId.getStartTime());
 		if (Objects.nonNull(job) && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
 			logger.error("[{}] The power delivery should be finished! Finishing power delivery by hand.",
 					myAgent.getName());

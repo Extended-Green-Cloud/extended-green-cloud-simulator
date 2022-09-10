@@ -11,6 +11,7 @@ import static messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINI
 import static messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static utils.GUIUtils.announceBookedJob;
 import static utils.JobMapUtils.getJobById;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
@@ -92,7 +93,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 
 		if (nonNull(job)) {
 			logger.info(SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG, guid, jobInstanceId.getJobId());
@@ -110,7 +111,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 			return getJobById(myServerAgent.getServerJobs(), jobId);
 		} catch (Exception e) {
 			final JobInstanceIdentifier identifier = readMessageContent(inform, JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+			return getJobByIdAndStartDate(myServerAgent.getServerJobs(), identifier);
 		}
 	}
 

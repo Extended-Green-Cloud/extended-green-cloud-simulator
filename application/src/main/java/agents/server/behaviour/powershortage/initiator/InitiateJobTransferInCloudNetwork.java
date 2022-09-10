@@ -8,6 +8,7 @@ import static agents.server.behaviour.powershortage.initiator.logs.PowerShortage
 import static agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_SUCCESSFUL_LOG;
 import static agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static utils.TimeUtils.getCurrentTime;
 import static domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static domain.job.JobStatusEnum.ON_HOLD;
@@ -90,7 +91,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		logger.info(CNA_JOB_TRANSFER_REFUSE_LOG,
 				guid, myServerAgent.getOwnerCloudNetworkAgent().getLocalName(),
 				jobToTransfer.getJobInstanceId().getJobId());
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
 			informGreenSourceUponJobFinish(job, refuse.getContent());
 			updateServerStateUponJobFinish(job);
@@ -106,7 +107,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			logger.info(CNA_JOB_TRANSFER_SUCCESSFUL_LOG, guid, jobToTransfer.getJobInstanceId().getJobId());
 			informGreenSourceUponJobFinish(job, null);
@@ -124,7 +125,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			final String jobId = jobToTransfer.getJobInstanceId().getJobId();
 			informGreenSourceUponJobOnHold(jobId, failure.getContent());

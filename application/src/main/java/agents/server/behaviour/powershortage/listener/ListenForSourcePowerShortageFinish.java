@@ -3,6 +3,7 @@ package agents.server.behaviour.powershortage.listener;
 import static agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_SHORTAGE_FINISH_LOG;
 import static agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates.SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static utils.TimeUtils.getCurrentTime;
 import static mapper.JsonMapper.getMapper;
 import static messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
@@ -76,7 +77,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		try {
 			final JobInstanceIdentifier jobInstanceIdentifier = getMapper().readValue(message.getContent(),
 					JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(jobInstanceIdentifier);
+			return getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceIdentifier);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

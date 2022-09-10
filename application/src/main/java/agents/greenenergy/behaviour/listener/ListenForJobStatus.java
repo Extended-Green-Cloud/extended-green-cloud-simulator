@@ -1,6 +1,7 @@
 package agents.greenenergy.behaviour.listener;
 
 import static utils.TimeUtils.getCurrentTime;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static domain.job.JobStatusEnum.ACCEPTED;
@@ -55,10 +56,9 @@ public class ListenForJobStatus extends CyclicBehaviour {
 				try {
 					final JobInstanceIdentifier jobInstanceId = getMapper().readValue(message.getContent(),
 							JobInstanceIdentifier.class);
-					if (nonNull(myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId))) {
+					if (nonNull(getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId))) {
 						logger.info("[{}] Finish the execution of the job with id {}", guid, jobInstanceId.getJobId());
-						final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
-						myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+						final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 						if (powerJob.getStartTime().isBefore(getCurrentTime())) {
 							myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId.getJobId());
 						}
@@ -70,8 +70,8 @@ public class ListenForJobStatus extends CyclicBehaviour {
 				try {
 					final JobInstanceIdentifier jobInstanceId = getMapper().readValue(message.getContent(),
 							JobInstanceIdentifier.class);
-					if (nonNull(myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId))) {
-						final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+					if (nonNull(getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId))) {
+						final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 						myGreenEnergyAgent.getPowerJobs().replace(powerJob, ACCEPTED, IN_PROGRESS);
 						logger.info("[{}] Started the execution of the job with id {}", guid, jobInstanceId.getJobId());
 						myGreenEnergyAgent.manage().incrementStartedJobs(jobInstanceId.getJobId());

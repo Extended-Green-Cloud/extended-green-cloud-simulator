@@ -7,6 +7,7 @@ import static agents.greenenergy.behaviour.powershortage.listener.logs.PowerShor
 import static agents.greenenergy.behaviour.powershortage.listener.logs.PowerShortageSourceListenerLog.SERVER_POWER_SHORTAGE_START_LOG;
 import static agents.greenenergy.behaviour.powershortage.listener.logs.PowerShortageSourceListenerLog.SERVER_POWER_SHORTAGE_START_NOT_FOUND_LOG;
 import static agents.greenenergy.behaviour.powershortage.listener.templates.PowerShortageSourceMessageTemplates.SERVER_POWER_SHORTAGE_INFORMATION_TEMPLATE;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static utils.TimeUtils.getCurrentTime;
 import static messages.MessagingUtils.readMessageContent;
 import static messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
@@ -73,8 +74,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleServerPowerShortageStart(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
-		final PowerJob affectedJob = myGreenEnergyAgent.manage()
-				.getJobByIdAndStartDate(powerShortageJob.getJobInstanceId());
+		final PowerJob affectedJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), powerShortageJob.getJobInstanceId());
 
 		if (Objects.nonNull(affectedJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_START_LOG, guid, powerShortageJob.getJobInstanceId().getJobId());
@@ -88,7 +88,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleServerPowerShortageFinish(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(inform, JobInstanceIdentifier.class);
-		final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 
 		if (Objects.nonNull(powerJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG, guid, jobInstanceId.getJobId());
@@ -105,7 +105,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private void handleServerJobTransferFailure(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		final JobInstanceIdentifier jobInstanceId = powerShortageJob.getJobInstanceId();
-		final PowerJob jobToPutOnHold = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob jobToPutOnHold = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 
 		if (Objects.nonNull(jobToPutOnHold)) {
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, guid, jobInstanceId.getJobId());

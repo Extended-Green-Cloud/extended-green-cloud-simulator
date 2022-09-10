@@ -58,48 +58,6 @@ public class GreenEnergyStateManagement {
 	}
 
 	/**
-	 * Method retrieves the job by the job id and start time from job map
-	 *
-	 * @param jobId     job identifier
-	 * @param startTime job start time
-	 * @return job
-	 */
-	public PowerJob getJobByIdAndStartDate(final String jobId, final Instant startTime) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId) && job.getStartTime().equals(startTime))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job by the job id and start time from job map
-	 *
-	 * @param jobInstanceId unique identifier of the job instance
-	 * @return job
-	 */
-	public PowerJob getJobByIdAndStartDate(final JobInstanceIdentifier jobInstanceId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobInstanceId.getJobId())
-						&& job.getStartTime().equals(jobInstanceId.getStartTime()))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job by the job id and end time from job map
-	 *
-	 * @param jobId   job identifier
-	 * @param endTime job end time
-	 * @return job
-	 */
-	public PowerJob getJobByIdAndEndDate(final String jobId, final Instant endTime) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId) && job.getEndTime().equals(endTime))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
 	 * Method increments the count of started jobs
 	 *
 	 * @param jobId unique job identifier

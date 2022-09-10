@@ -16,6 +16,7 @@ import static messages.domain.constants.powershortage.PowerShortageMessageConten
 import static messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 
 import java.time.Instant;
 import java.util.List;
@@ -133,7 +134,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	}
 
 	private void handleTransferFailure() {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransferInstance);
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),

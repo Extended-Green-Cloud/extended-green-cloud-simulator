@@ -3,6 +3,7 @@ package agents.server.behaviour.powershortage.handler;
 import static agents.server.behaviour.powershortage.handler.logs.PowerShortageServerHandlerLog.GS_TRANSFER_EXECUTION_LOG;
 import static messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobByIdAndStartDate;
 import static utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -73,7 +74,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job jobToExecute = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job jobToExecute = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 		if (Objects.nonNull(jobToExecute)) {
 			logger.info(GS_TRANSFER_EXECUTION_LOG, guid);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
