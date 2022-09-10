@@ -58,19 +58,6 @@ public class GreenEnergyStateManagement {
 	}
 
 	/**
-	 * Method retrieves the job by the job id from job map
-	 *
-	 * @param jobId job identifier
-	 * @return job
-	 */
-	public PowerJob getJobById(final String jobId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
 	 * Method retrieves the job by the job id and start time from job map
 	 *
 	 * @param jobId     job identifier

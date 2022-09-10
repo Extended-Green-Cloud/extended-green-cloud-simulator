@@ -5,6 +5,7 @@ import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 import static messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static utils.GUIUtils.displayMessageArrow;
 import static utils.TimeUtils.getCurrentTime;
+import static utils.JobMapUtils.getJobById;
 
 import java.time.Instant;
 import java.util.Date;
@@ -57,7 +58,7 @@ public class ProposeJobOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		logger.info("[{}] Sending ACCEPT_PROPOSAL to Server Agent", guid);
 		final String jobId = accept_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
 		myAgent.addBehaviour(new ReturnJobDelay(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
@@ -75,9 +76,9 @@ public class ProposeJobOffer extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info("[{}] Client {} rejected the job proposal", guid, reject_proposal.getSender().getName());
 		final String jobId = reject_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId));
 		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
 		myCloudNetworkAgent.send(
 				ReplyMessageFactory.prepareReply(replyMessage, JobMapper.mapToJobInstanceId(job), REJECT_PROPOSAL));

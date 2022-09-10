@@ -1,6 +1,7 @@
 package agents.cloudnetwork.behaviour.jobstatus;
 
 import static messages.domain.factory.JobStatusMessageFactory.prepareJobStartStatusRequestMessage;
+import static utils.JobMapUtils.getJobById;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import domain.job.Job;
@@ -44,7 +45,7 @@ public class ReturnJobDelay extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		if (Objects.nonNull(job) && !myCloudNetworkAgent.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS) &&
 				myCloudNetworkAgent.getServerForJobMap().containsKey(jobId)) {
 			final AID server = myCloudNetworkAgent.getServerForJobMap().get(job.getJobId());

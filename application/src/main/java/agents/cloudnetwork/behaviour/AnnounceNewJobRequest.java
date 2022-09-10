@@ -9,6 +9,7 @@ import static messages.MessagingUtils.rejectJobOffers;
 import static messages.MessagingUtils.retrieveProposals;
 import static messages.MessagingUtils.retrieveValidMessages;
 import static messages.domain.factory.JobOfferMessageFactory.makeJobOfferForClient;
+import static utils.JobMapUtils.getJobById;
 
 import java.util.List;
 import java.util.Vector;
@@ -89,7 +90,7 @@ public class AnnounceNewJobRequest extends ContractNetInitiator {
 			if (!validProposals.isEmpty()) {
 				final ACLMessage chosenServerOffer = chooseServerToExecuteJob(validProposals);
 				final ServerData chosenServerData = readMessageContent(chosenServerOffer, ServerData.class);
-				final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+				final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 				logger.info("[{}] Chosen Server for the job {}: {}", guid, jobId,
 						chosenServerOffer.getSender().getName());
 				final ACLMessage serverReplyMessage = chosenServerOffer.createReply();
@@ -109,7 +110,7 @@ public class AnnounceNewJobRequest extends ContractNetInitiator {
 
 	private void handleInvalidResponses(final List<ACLMessage> proposals) {
 		logger.info("[{}] I didn't understand any proposal from Server Agents", guid);
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		rejectJobOffers(myCloudNetworkAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
 		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
 	}

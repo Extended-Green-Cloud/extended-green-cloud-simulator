@@ -11,6 +11,7 @@ import static jade.lang.acl.MessageTemplate.and;
 import static mapper.JsonMapper.getMapper;
 import static messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
 import static messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static utils.JobMapUtils.getJobById;
 
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +80,7 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 
 		if (Objects.nonNull(inform)) {
 			final String jobId = jobToTransfer.getJobId();
-			if (Objects.nonNull(myServerAgent.manage().getJobById(jobId))) {
+			if (Objects.nonNull(getJobById(myServerAgent.getServerJobs(), jobId))) {
 				logger.info(GS_TRANSFER_CONFIRMED_LOG, guid, jobId);
 				handleJobTransfer(inform);
 			} else {

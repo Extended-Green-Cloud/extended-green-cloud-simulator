@@ -5,7 +5,7 @@ import domain.job.JobStatusEnum;
 
 import java.util.Map;
 
-public class JobMapUtilsUtils {
+public class JobMapUtils {
 
     /**
      * Method finds the Job or powerJob in the given map with given id

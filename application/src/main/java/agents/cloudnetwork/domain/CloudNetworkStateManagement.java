@@ -47,19 +47,6 @@ public class CloudNetworkStateManagement {
 	}
 
 	/**
-	 * Method retrieves the job by the job id from job map
-	 *
-	 * @param jobId job identifier
-	 * @return job
-	 */
-	public Job getJobById(final String jobId) {
-		return cloudNetworkAgent.getNetworkJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
 	 * Method increments the count of started jobs
 	 *
 	 * @param jobId unique job identifier

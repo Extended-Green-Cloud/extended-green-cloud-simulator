@@ -2,6 +2,7 @@ package messages.domain.factory;
 
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static mapper.JsonMapper.getMapper;
+import static utils.JobMapUtils.getJobById;
 
 import java.io.IOException;
 
@@ -58,7 +59,7 @@ public class JobOfferMessageFactory {
 			final double servicePrice,
 			final String jobId,
 			final ACLMessage replyMessage) {
-		final Job job = serverAgent.manage().getJobById(jobId);
+		final Job job = getJobById(serverAgent.getServerJobs(), jobId);
 		final int availablePower = serverAgent.manage()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()

@@ -4,6 +4,7 @@ import static messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PRO
 import static messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static domain.job.JobStatusEnum.IN_PROGRESS;
 import static messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static utils.JobMapUtils.getJobById;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import domain.job.Job;
@@ -48,12 +49,12 @@ public class RequestJobStartStatus extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleAgree(ACLMessage agree) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
 			logger.info(
 					"[{}] Received job started confirmation. Sending information that the job {} execution has started",
 					myAgent.getName(), jobId);
-			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), IN_PROGRESS);
+			myCloudNetwork.getNetworkJobs().replace(getJobById(myCloudNetwork.getNetworkJobs(), jobId), IN_PROGRESS);
 			myCloudNetwork.manage().incrementStartedJobs(jobId);
 			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
 		}
@@ -67,7 +68,7 @@ public class RequestJobStartStatus extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleRefuse(ACLMessage refuse) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
 			logger.error("[{}] The job {} execution hasn't started yet. Sending delay information to client",
 					myAgent.getName(), jobId);

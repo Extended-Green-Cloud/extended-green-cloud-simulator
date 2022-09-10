@@ -1,6 +1,7 @@
 package agents.cloudnetwork.behaviour.powershortage.handler;
 
 import static agents.cloudnetwork.behaviour.powershortage.handler.logs.PowerShortageCloudHandlerLog.SERVER_TRANSFER_EXECUTE_TRANSFER_LOG;
+import static utils.JobMapUtils.getJobById;
 import static utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -68,7 +69,7 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job jobToExecute = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job jobToExecute = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		if (Objects.nonNull(jobToExecute)) {
 			logger.info(SERVER_TRANSFER_EXECUTE_TRANSFER_LOG, guid, jobId, newServer.getLocalName());
 			myCloudNetworkAgent.getServerForJobMap().replace(jobId, newServer);

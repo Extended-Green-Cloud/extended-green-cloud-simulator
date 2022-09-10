@@ -10,6 +10,7 @@ import static messages.MessagingUtils.readMessageContent;
 import static messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static utils.GUIUtils.announceBookedJob;
+import static utils.JobMapUtils.getJobById;
 import static utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
@@ -106,7 +107,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	private Job retrieveJobFromMessage(final ACLMessage inform) {
 		try {
 			final String jobId = readMessageContent(inform, String.class);
-			return myServerAgent.manage().getJobById(jobId);
+			return getJobById(myServerAgent.getServerJobs(), jobId);
 		} catch (Exception e) {
 			final JobInstanceIdentifier identifier = readMessageContent(inform, JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);

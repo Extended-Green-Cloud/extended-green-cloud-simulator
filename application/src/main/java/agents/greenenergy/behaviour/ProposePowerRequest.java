@@ -7,6 +7,7 @@ import static mapper.JsonMapper.getMapper;
 import static messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static utils.GUIUtils.displayMessageArrow;
 import static utils.TimeUtils.getCurrentTime;
+import static utils.JobMapUtils.getJobById;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -64,7 +65,7 @@ public class ProposePowerRequest extends ProposeInitiator {
 			PowerJob job = myGreenEnergyAgent.manage()
 					.getJobByIdAndStartDate(jobWithProtocol.getJobInstanceIdentifier());
 			if (isNull(job)) {
-				job = myGreenEnergyAgent.manage().getJobById(jobWithProtocol.getJobInstanceIdentifier().getJobId());
+				job = getJobById(myGreenEnergyAgent.getPowerJobs(), jobWithProtocol.getJobInstanceIdentifier().getJobId());
 			}
 			logger.info("[{}] Sending information regarding job {} back to server agent.", guid, job.getJobId());
 			myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);

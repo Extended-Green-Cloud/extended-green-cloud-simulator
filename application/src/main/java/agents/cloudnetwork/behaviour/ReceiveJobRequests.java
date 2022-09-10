@@ -8,6 +8,7 @@ import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.and;
 import static mapper.JsonMapper.getMapper;
+import static utils.JobMapUtils.getJobById;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import domain.job.Job;
@@ -61,7 +62,7 @@ public class ReceiveJobRequests extends CyclicBehaviour {
 							myAgent.getName(), jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
 				} else {
 					myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
-					final Job previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
+					final Job previousInstance = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 					if (Objects.nonNull(previousInstance)) {
 						myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
 					}

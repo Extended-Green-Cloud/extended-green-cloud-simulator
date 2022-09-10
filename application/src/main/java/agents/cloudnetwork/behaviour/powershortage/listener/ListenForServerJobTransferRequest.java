@@ -13,6 +13,7 @@ import static messages.domain.factory.CallForProposalMessageFactory.createCallFo
 import static messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static utils.GUIUtils.displayMessageArrow;
+import static utils.JobMapUtils.getJobById;
 
 import java.time.Instant;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob powerShortageJob = readMessageContent(transferRequest, PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
 			final Instant shortageStartTime = powerShortageJob.getPowerShortageStart();
-			final Job job = myCloudNetworkAgent.manage().getJobById(jobInstance.getJobId());
+			final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstance.getJobId());
 
 			if (Objects.nonNull(job)) {
 				myCloudNetworkAgent.send(

@@ -12,6 +12,7 @@ import static utils.GUIUtils.displayMessageArrow;
 import static utils.TimeUtils.differenceInHours;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
+import static utils.JobMapUtils.getJobById;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -109,7 +110,7 @@ public class ServerStateManagement {
 	 * @return full price
 	 */
 	public double calculateServicePrice(final GreenSourceData greenSourceData) {
-		var job = getJobById(greenSourceData.getJobId());
+		var job = getJobById(serverAgent.getServerJobs(), greenSourceData.getJobId());
 		var powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
 		var computingCost = differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
 		return powerCost + computingCost;
@@ -154,17 +155,6 @@ public class ServerStateManagement {
 		return serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> job.getJobId().equals(jobInstanceId.getJobId()) && job.getStartTime()
 						.equals(jobInstanceId.getStartTime())).findFirst().orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job based on the given id
-	 *
-	 * @param jobId unique job identifier
-	 * @return Job
-	 */
-	public Job getJobById(final String jobId) {
-		return serverAgent.getServerJobs().keySet().stream().filter(job -> job.getJobId().equals(jobId)).findFirst()
-				.orElse(null);
 	}
 
 	/**

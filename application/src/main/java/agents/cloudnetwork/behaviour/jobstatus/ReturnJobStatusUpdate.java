@@ -12,6 +12,7 @@ import static jade.lang.acl.MessageTemplate.and;
 import static jade.lang.acl.MessageTemplate.or;
 import static mapper.JsonMapper.getMapper;
 import static messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static utils.JobMapUtils.getJobById;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import domain.job.Job;
@@ -59,7 +60,7 @@ public class ReturnJobStatusUpdate extends CyclicBehaviour {
 			try {
 				final JobInstanceIdentifier jobInstanceId = getMapper().readValue(message.getContent(),
 						JobInstanceIdentifier.class);
-				if (Objects.nonNull(myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId()))) {
+				if (Objects.nonNull(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId()))) {
 					switch (message.getProtocol()) {
 						case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobInstanceId);
 						case STARTED_JOB_PROTOCOL -> handleStartedJobMessage(jobInstanceId);
@@ -75,19 +76,19 @@ public class ReturnJobStatusUpdate extends CyclicBehaviour {
 	}
 
 	private void handleGreenPowerJobMessage(final JobInstanceIdentifier jobInstanceId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId());
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId());
 		logger.info("[{}] Sending information that the job {} is executed again using green power", myAgent.getName(),
 				jobInstanceId.getJobId());
 		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
 	}
 
 	private void handleStartedJobMessage(final JobInstanceIdentifier jobInstanceId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId());
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId());
 		if (!myCloudNetworkAgent.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.info("[{}] Sending information that the job {} execution has started", myAgent.getName(),
 					jobInstanceId.getJobId());
 			myCloudNetworkAgent.getNetworkJobs()
-					.replace(myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId()), IN_PROGRESS);
+					.replace(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId()), IN_PROGRESS);
 			myCloudNetworkAgent.manage().incrementStartedJobs(jobInstanceId.getJobId());
 			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
 		}
@@ -97,13 +98,13 @@ public class ReturnJobStatusUpdate extends CyclicBehaviour {
 		final Long completedJobs = myCloudNetworkAgent.completedJob();
 		logger.info("[{}] Sending information that the job {} execution is finished. So far completed {} jobs!",
 				myAgent.getName(), jobInstanceId.getJobId(), completedJobs);
-		final String clientId = myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId()).getClientIdentifier();
+		final String clientId = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId()).getClientIdentifier();
 		updateNetworkInformation(jobInstanceId.getJobId());
 		myAgent.send(prepareJobStatusMessageForClient(clientId, FINISH_JOB_PROTOCOL));
 	}
 
 	private void updateNetworkInformation(final String jobId) {
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
 	}
