@@ -1,9 +1,13 @@
 package domain.job;
 
-public interface JobId {
+import java.time.Instant;
+
+public interface AbstractJob {
 
     /**
      * @return unique job identifier
      */
     String getJobId();
+
+    Instant getStartTime();
 }
