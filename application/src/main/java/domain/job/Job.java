@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableJob.class)
 @JsonDeserialize(as = ImmutableJob.class)
 @Immutable
-public interface Job {
+public interface Job extends JobId{
 
 	/**
 	 * @return unique job identifier

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutablePowerJob.class)
 @JsonDeserialize(as = ImmutablePowerJob.class)
 @Value.Immutable
-public interface PowerJob {
+public interface PowerJob extends JobId{
 
 	/**
 	 * @return unique job identifier
