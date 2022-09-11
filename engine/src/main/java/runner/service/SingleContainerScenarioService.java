@@ -16,7 +16,7 @@ import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
 /**
- * Service used in running the scenarios
+ * Service used in running the scenarios on a single physical host.
  */
 public class SingleContainerScenarioService extends AbstractScenarioService implements Runnable {
 
@@ -24,6 +24,10 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 
 	private final AgentControllerFactory factory;
 
+	/**
+	 * Runs single scenario service with a single controller on a single physical host.
+	 * @param fileName name of the XML scenario document
+	 */
 	public SingleContainerScenarioService(String fileName)
 			throws StaleProxyException, ExecutionException, InterruptedException {
 		super(fileName);
