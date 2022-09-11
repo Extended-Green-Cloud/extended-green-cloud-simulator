@@ -2,7 +2,7 @@ package agents.cloudnetwork;
 
 import agents.AbstractAgent;
 import agents.cloudnetwork.management.CloudNetworkStateManagement;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
-	protected Map<Job, JobStatusEnum> networkJobs;
+	protected Map<ClientJob, JobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
 	protected Map<String, Integer> jobRequestRetries;
 	protected AtomicLong completedJobs;
@@ -44,7 +44,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		return serverForJobMap;
 	}
 
-	public Map<Job, JobStatusEnum> getNetworkJobs() {
+	public Map<ClientJob, JobStatusEnum> getNetworkJobs() {
 		return networkJobs;
 	}
 

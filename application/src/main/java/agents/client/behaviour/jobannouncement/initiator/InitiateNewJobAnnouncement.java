@@ -30,7 +30,7 @@ import com.gui.agents.domain.JobStatusEnum;
 
 import agents.client.ClientAgent;
 import agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.PricedJob;
 import exception.IncorrectMessageContentException;
 import jade.core.AID;
@@ -46,7 +46,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 
 	private static final Logger logger = LoggerFactory.getLogger(InitiateNewJobAnnouncement.class);
 
-	private final transient Job job;
+	private final transient ClientJob job;
 	private final ClientAgent myClientAgent;
 	private final String guid;
 
@@ -57,7 +57,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	 * @param cfp   call for proposal message containing job details that will be sent to Cloud Network Agents
 	 * @param job   the job that the client want to be executed
 	 */
-	public InitiateNewJobAnnouncement(final Agent agent, final ACLMessage cfp, final Job job) {
+	public InitiateNewJobAnnouncement(final Agent agent, final ACLMessage cfp, final ClientJob job) {
 		super(agent, cfp);
 		this.myClientAgent = (ClientAgent) agent;
 		this.guid = agent.getName();

@@ -112,7 +112,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 
 	private void handleWeatherDataForJobOnHold(final MonitoringData data) {
 		final Optional<Double> availablePower = myGreenEnergyAgent.manage()
-				.getAverageAvailablePower(powerJob, data, false);
+				.getAvailablePowerForJob(powerJob, data, false);
 
 		if (availablePower.isEmpty()) {
 			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, guid, powerJob.getJobId());

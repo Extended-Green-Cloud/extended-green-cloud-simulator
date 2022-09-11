@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
+import domain.job.ClientJob;
 import mapper.JobMapper;
 import domain.GreenSourceData;
-import domain.job.Job;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
 import jade.core.Agent;
@@ -37,7 +37,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	private final ACLMessage replyMessage;
 	private final ServerAgent myServerAgent;
 	private final String guid;
-	private final Job job;
+	private final ClientJob job;
 
 	/**
 	 * Behaviour constructor
@@ -47,7 +47,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	 * @param replyMessage reply message sent to cloud network after receiving the green sources' responses
 	 */
 	public InitiatePowerDeliveryForJob(final Agent agent, final ACLMessage powerRequest, final ACLMessage replyMessage,
-			final Job job) {
+			final ClientJob job) {
 		super(agent, powerRequest);
 		this.replyMessage = replyMessage;
 		this.job = job;

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import domain.job.JobWithProtocol;
@@ -75,7 +75,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(SERVER_OFFER_REJECT_LOG, guid, reject_proposal.getSender().getLocalName());
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject_proposal, JobInstanceIdentifier.class);
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());

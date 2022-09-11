@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import agents.client.ClientAgent;
 import agents.client.behaviour.df.FindCloudNetworkAgents;
 import agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import domain.job.Job;
+import domain.job.ClientJob;
 import jade.core.Agent;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.WakerBehaviour;
@@ -27,7 +27,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 
 	private final ClientAgent myClientAgent;
 	private final String guid;
-	private final Job job;
+	private final ClientJob job;
 
 	/**
 	 * Behaviour constructor.
@@ -36,7 +36,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	 * @param timeout time after which the retry will be triggered
 	 * @param job     job for which the retry is triggered
 	 */
-	public HandleClientJobRequestRetry(Agent agent, long timeout, Job job) {
+	public HandleClientJobRequestRetry(Agent agent, long timeout, ClientJob job) {
 		super(agent, timeout);
 		this.job = job;
 		this.myClientAgent = (ClientAgent) agent;
@@ -52,9 +52,9 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 		logger.info(RETRY_CLIENT_JOB_REQUEST_LOG, guid, job.getJobId());
 	}
 
-	private SequentialBehaviour prepareStartingBehaviour(final Job job) {
+	private SequentialBehaviour prepareStartingBehaviour(final ClientJob job) {
 		recalculateJobTimeInterval();
-		final Job jobForRetry = mapToJobWithNewTime(job, myClientAgent.getSimulatedJobStart(),
+		final ClientJob jobForRetry = mapToJobWithNewTime(job, myClientAgent.getSimulatedJobStart(),
 				myClientAgent.getSimulatedJobEnd());
 
 		var startingBehaviour = new SequentialBehaviour(myAgent);

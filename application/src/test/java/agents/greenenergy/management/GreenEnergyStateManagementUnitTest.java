@@ -1,5 +1,6 @@
 package agents.greenenergy.management;
 
+import static agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static config.constants.CacheTestConstants.MOCK_WEATHER;
 import static domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import domain.job.ImmutablePowerJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import domain.job.PowerJob;
+import utils.TimeUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -88,6 +91,7 @@ class GreenEnergyStateManagementUnitTest {
 
 	@BeforeAll
 	static void setUpAll() {
+		TimeUtils.useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
 		AbstractAgent.disableGui();
 	}
 
@@ -183,8 +187,8 @@ class GreenEnergyStateManagementUnitTest {
 		final int newCapacity = 1000;
 		mockGreenEnergyAgent.manage().updateMaximumCapacity(newCapacity);
 
-		assertThat(mockGreenEnergyAgent.getMaximumCapacity()).isEqualTo(1000);
-		assertThat(mockGreenEnergyAgent.getInitialMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
+		assertThat(mockGreenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity()).isEqualTo(1000);
+		assertThat(mockGreenEnergyAgent.manageGreenPower().getInitialMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
 	}
 
 	@Test
@@ -304,6 +308,48 @@ class GreenEnergyStateManagementUnitTest {
 		assertThat(result).isEmpty();
 	}
 
+	@Test
+	@DisplayName("Test get current power in use")
+	void testGetCurrentPowerInUse() {
+		assertThat(mockGreenEnergyAgent.manage().getCurrentPowerInUseForGreenSource()).isEqualTo(30);
+	}
+
+	@Test
+	@DisplayName("Test get available power for job when job is new")
+	void testGetAvailablePowerForNewJob() {
+		final PowerJob mockJob = ImmutablePowerJob.builder()
+				.jobId("100")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(20)
+				.build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
+				.addWeatherData(MOCK_WEATHER)
+				.build();
+		final Optional<Double> result = mockGreenEnergyAgent.manage()
+				.getAvailablePowerForJob(mockJob, monitoringData, true);
+
+		assertThat(result).contains(10.0);
+	}
+
+	@Test
+	@DisplayName("Test get available power for job when job is not new")
+	void testGetAvailablePowerForNotNewJob() {
+		final PowerJob mockJob = ImmutablePowerJob.builder()
+				.jobId("100")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(20)
+				.build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
+				.addWeatherData(MOCK_WEATHER)
+				.build();
+		final Optional<Double> result = mockGreenEnergyAgent.manage()
+				.getAvailablePowerForJob(mockJob, monitoringData, false);
+
+		assertThat(result).contains(70.0);
+	}
+
 	// PREPARING TEST DATA
 
 	/**
@@ -364,6 +410,7 @@ class GreenEnergyStateManagementUnitTest {
 		MOCK_MANAGEMENT = spy(management);
 		mockGreenEnergyAgent.setGreenPowerManagement(MOCK_POWER_MANAGEMENT);
 
+		doReturn(WIND).when(mockGreenEnergyAgent).getEnergyType();
 		doReturn(MOCK_PRICE).when(mockGreenEnergyAgent).getPricePerPowerUnit();
 		doReturn(MOCK_MANAGEMENT).when(mockGreenEnergyAgent).manage();
 		doNothing().when(mockGreenEnergyAgent).addBehaviour(any());

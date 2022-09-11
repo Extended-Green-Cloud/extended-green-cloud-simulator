@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static utils.TimeUtils.convertToInstantTime;
 import static utils.TimeUtils.convertToSimulationTime;
 import static utils.TimeUtils.differenceInHours;
+import static utils.TimeUtils.divideIntoSubIntervals;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.getCurrentTimeMinusError;
 import static utils.TimeUtils.isWithinTimeStamp;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 
@@ -128,5 +130,37 @@ class TimeUtilsUnitTest {
 		final Instant endTime = Instant.parse("2022-01-01T12:00:00.000Z");
 
 		assertThat(isWithinTimeStamp(startTime, endTime, timeToCheck)).isEqualTo(expectedResult);
+	}
+
+	@Test
+	@DisplayName("Test dividing into sub-intervals for length equal to 0 ms")
+	void testDividingIntoSubIntervalsLength0ms() {
+		final Instant startTime = Instant.parse("2022-01-01T10:00:00.000Z");
+		final Instant endTime = Instant.parse("2022-01-01T12:00:00.000Z");
+
+		final Set<Instant> result = divideIntoSubIntervals(startTime, endTime, 0L);
+
+		assertThat(result)
+				.hasSize(2)
+				.contains(startTime)
+				.contains(endTime);
+
+	}
+
+	@Test
+	@DisplayName("Test dividing into sub-intervals")
+	void testDividingIntoSubIntervals() {
+		final Instant startTime = Instant.parse("2022-01-01T10:00:00.000Z");
+		final Instant endTime = Instant.parse("2022-01-01T12:00:00.000Z");
+		final long length = 1800000;
+
+		final Set<Instant> result = divideIntoSubIntervals(startTime, endTime, length);
+
+		assertThat(result)
+				.hasSize(5)
+				.contains(Instant.parse("2022-01-01T10:30:00.000Z"))
+				.contains(startTime)
+				.contains(endTime);
+
 	}
 }

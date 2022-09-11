@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
+import domain.job.ClientJob;
 import mapper.JobMapper;
-import domain.job.Job;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
@@ -54,7 +54,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		final ACLMessage inform = myAgent.receive(SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE);
 
 		if (Objects.nonNull(inform)) {
-			final Job job = getJobFromMessage(inform);
+			final ClientJob job = getJobFromMessage(inform);
 
 			if (Objects.nonNull(job) && POWER_SHORTAGE_STATUSES.contains(myServerAgent.getServerJobs().get(job))) {
 				logger.info(GS_SHORTAGE_FINISH_LOG, guid, job.getJobId());
@@ -72,7 +72,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		}
 	}
 
-	private Job getJobFromMessage(final ACLMessage message) {
+	private ClientJob getJobFromMessage(final ACLMessage message) {
 		try {
 			final JobInstanceIdentifier jobInstanceIdentifier = getMapper().readValue(message.getContent(),
 					JobInstanceIdentifier.class);
@@ -83,7 +83,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		}
 	}
 
-	private JobStatusEnum getNewJobStatus(final Job job) {
+	private JobStatusEnum getNewJobStatus(final ClientJob job) {
 		return job.getStartTime().isAfter(getCurrentTime()) ?
 				JobStatusEnum.ACCEPTED :
 				JobStatusEnum.IN_PROGRESS;

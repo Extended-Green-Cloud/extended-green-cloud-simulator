@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import agents.server.ServerAgent;
 import agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
 import mapper.JobMapper;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -53,7 +53,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(NEW_JOB_CFP_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final Job job = readMessageContent(message, Job.class);
+			final ClientJob job = readMessageContent(message, ClientJob.class);
 			final int availableCapacity = myServerAgent.manage()
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 			final boolean validJobConditions = job.getPower() <= availableCapacity &&
@@ -72,7 +72,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		}
 	}
 
-	private void initiateNegotiationWithPowerSources(final Job job, final ACLMessage cnaMessage) {
+	private void initiateNegotiationWithPowerSources(final ClientJob job, final ACLMessage cnaMessage) {
 		logger.info(SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG, guid);
 		myServerAgent.getServerJobs().putIfAbsent(job, JobStatusEnum.PROCESSING);
 		myServerAgent.tookJobIntoProcessing();

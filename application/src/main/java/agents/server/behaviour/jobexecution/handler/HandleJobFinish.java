@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 
@@ -23,7 +23,7 @@ public class HandleJobFinish extends WakerBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandleJobFinish.class);
 
-	private final Job jobToExecute;
+	private final ClientJob jobToExecute;
 	private final ServerAgent myServerAgent;
 	private final String guid;
 	private final boolean informCNA;
@@ -36,7 +36,7 @@ public class HandleJobFinish extends WakerBehaviour {
 	 * @param job       job which execution is to be finished
 	 * @param informCNA flag indicating whether cloud network should be informed about the job finish
 	 */
-	private HandleJobFinish(Agent agent, Date endTime, final Job job, final boolean informCNA) {
+	private HandleJobFinish(Agent agent, Date endTime, final ClientJob job, final boolean informCNA) {
 		super(agent, endTime);
 		this.jobToExecute = job;
 		this.myServerAgent = (ServerAgent) agent;
@@ -52,7 +52,7 @@ public class HandleJobFinish extends WakerBehaviour {
 	 * @param informCNA   flag indicating whether cloud network should be informed about the job finish
 	 * @return behaviour to be run
 	 */
-	public static HandleJobFinish createFor(final ServerAgent serverAgent, final Job jobToFinish,
+	public static HandleJobFinish createFor(final ServerAgent serverAgent, final ClientJob jobToFinish,
 			final boolean informCNA) {
 		final Instant endTime = getCurrentTime().isAfter(jobToFinish.getEndTime()) ?
 				getCurrentTime() :

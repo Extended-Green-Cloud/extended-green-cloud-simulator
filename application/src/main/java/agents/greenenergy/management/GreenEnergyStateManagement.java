@@ -1,5 +1,6 @@
 package agents.greenenergy.management;
 
+import static agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MS;
 import static agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
@@ -11,7 +12,7 @@ import static domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toMap;
+import static utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static utils.TimeUtils.getCurrentTime;
 import static utils.TimeUtils.isWithinTimeStamp;
 
@@ -21,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -143,11 +144,11 @@ public class GreenEnergyStateManagement {
 	 * @param newMaximumCapacity new maximum capacity value
 	 */
 	public void updateMaximumCapacity(final int newMaximumCapacity) {
-		greenEnergyAgent.setMaximumCapacity(newMaximumCapacity);
+		greenEnergyAgent.manageGreenPower().setCurrentMaximumCapacity(newMaximumCapacity);
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity());
 		}
 	}
 
@@ -209,23 +210,34 @@ public class GreenEnergyStateManagement {
 	}
 
 	/**
-	 * Computes average power available during computation of the job being processed
+	 * Computes power available during computation of the job being processed
 	 *
 	 * @param powerJob job of interest
 	 * @param weather  monitoring data with weather for requested timetable
 	 * @param isNewJob flag indicating whether job of interest is a processed new job
-	 * @return average available power as decimal or empty optional if power not available
+	 * @return available power as decimal or empty optional if power not available
 	 */
-	public synchronized Optional<Double> getAverageAvailablePower(final PowerJob powerJob,
+	public synchronized Optional<Double> getAvailablePowerForJob(final PowerJob powerJob,
 			final MonitoringData weather, final boolean isNewJob) {
-		var powerChart = getPowerChart(powerJob, weather, isNewJob);
-		var availablePower = powerChart.values().stream().mapToDouble(a -> a).average().orElse(0.0D);
-		var power = String.format("%.2f", availablePower);
+		final Set<JobStatusEnum> jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
+		final Set<PowerJob> powerJobsOfInterest = greenEnergyAgent.getPowerJobs().entrySet().stream()
+				.filter(job -> jobStatuses.contains(job.getValue()))
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
+		final double availablePower =
+				getMinimalAvailablePowerDuringTimeStamp(
+						powerJobsOfInterest,
+						powerJob.getStartTime(),
+						powerJob.getEndTime(),
+						INTERVAL_LENGTH_MS,
+						greenEnergyAgent.manageGreenPower(),
+						weather);
+		final String power = String.format("%.2f", availablePower);
 
 		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
 				powerJob.getStartTime(), powerJob.getEndTime());
 
-		return powerChart.values().stream().anyMatch(value -> value <= 0) ?
+		return availablePower <= 0 ?
 				Optional.empty() :
 				Optional.of(availablePower);
 	}
@@ -240,11 +252,23 @@ public class GreenEnergyStateManagement {
 	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
 		var availablePower = getPower(time, weather);
 		var power = String.format("%.2f", availablePower);
-
 		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
 				time);
 
 		return Optional.of(availablePower).filter(powerVal -> powerVal >= 0.0);
+	}
+
+	/**
+	 * Method computes current green power in use for the green source
+	 *
+	 * @return current power in use
+	 */
+	public int getCurrentPowerInUseForGreenSource() {
+		return greenEnergyAgent.getPowerJobs().entrySet().stream()
+				.filter(job -> job.getValue().equals(JobStatusEnum.IN_PROGRESS)
+						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.mapToInt(job -> job.getKey().getPower())
+				.sum();
 	}
 
 	/**
@@ -254,7 +278,7 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity());
 			greenEnergyAgentNode.updateJobsCount(getJobCount());
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
@@ -284,36 +308,7 @@ public class GreenEnergyStateManagement {
 						job.isExecutedAtTime(start))
 				.mapToInt(PowerJob::getPower)
 				.sum();
-		return greenEnergyAgent.getCapacity(weather, start) - inUseCapacity;
-	}
-
-	private synchronized Map<Instant, Double> getPowerChart(PowerJob powerJob, final MonitoringData weather,
-			final boolean isNewJob) {
-		var start = powerJob.getStartTime();
-		var end = powerJob.getEndTime();
-		var jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
-
-		var timetable = getJobsTimetable(powerJob).stream()
-				.filter(time -> isWithinTimeStamp(start, end, time))
-				.toList();
-		var powerJobs = greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> jobStatuses.contains(greenEnergyAgent.getPowerJobs().get(job)))
-				.toList();
-
-		if (powerJobs.isEmpty()) {
-			return timetable.stream()
-					.collect(toMap(Function.identity(), time -> greenEnergyAgent.getCapacity(weather, time)));
-		}
-
-		return timetable.stream()
-				.collect(toMap(Function.identity(), time ->
-						powerJobs.stream()
-								.filter(job -> job.isExecutedAtTime(time))
-								.map(PowerJob::getPower)
-								.map(power -> greenEnergyAgent.getCapacity(weather, time) - power)
-								.mapToDouble(a -> a)
-								.average()
-								.orElseGet(() -> 0.0)));
+		return greenEnergyAgent.manageGreenPower().getAvailablePower(weather, start) - inUseCapacity;
 	}
 
 	private boolean isJobUnique(final String jobId) {
@@ -322,14 +317,6 @@ public class GreenEnergyStateManagement {
 				.toList()
 				.size()
 				== 1;
-	}
-
-	public int getCurrentPowerInUseForGreenSource() {
-		return greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(JobStatusEnum.IN_PROGRESS)
-						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
-				.mapToInt(job -> job.getKey().getPower())
-				.sum();
 	}
 
 	private int getOnHoldJobCount() {

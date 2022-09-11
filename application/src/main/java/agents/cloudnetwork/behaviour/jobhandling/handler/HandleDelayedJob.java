@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateJobStartCheck;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
 import jade.core.Agent;
@@ -49,7 +49,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		if (Objects.nonNull(job) && myCloudNetworkAgent.getServerForJobMap().containsKey(jobId)
 				&& !myCloudNetworkAgent.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {

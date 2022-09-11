@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
 import agents.server.behaviour.jobexecution.handler.HandleJobStart;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import exception.IncorrectMessageContentException;
@@ -71,7 +71,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
-		final Job job = retrieveJobFromMessage(inform);
+		final ClientJob job = retrieveJobFromMessage(inform);
 		final JobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
 
 		if (nonNull(statusEnum) && statusEnum.equals(JobStatusEnum.IN_PROGRESS)) {
@@ -93,7 +93,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 
 		if (nonNull(job)) {
 			logger.info(SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG, guid, jobInstanceId.getJobId());
@@ -105,7 +105,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 	}
 
-	private Job retrieveJobFromMessage(final ACLMessage inform) {
+	private ClientJob retrieveJobFromMessage(final ACLMessage inform) {
 		try {
 			final String jobId = readMessageContent(inform, String.class);
 			return myServerAgent.manage().getJobById(jobId);

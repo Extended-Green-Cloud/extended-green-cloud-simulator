@@ -75,7 +75,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 			logger.info(POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG, guid);
 			initiatePowerShortageHandler(Collections.emptyList());
 		} else {
-			final List<PowerJob> jobsToKeep = findJobsWithinPower(affectedJobs, maxAvailablePower, PowerJob.class);
+			final List<PowerJob> jobsToKeep = findJobsWithinPower(affectedJobs, maxAvailablePower);
 			final List<PowerJob> jobsToTransfer = prepareJobsToTransfer(affectedJobs, jobsToKeep);
 
 			jobsToTransfer.forEach(powerJob -> {

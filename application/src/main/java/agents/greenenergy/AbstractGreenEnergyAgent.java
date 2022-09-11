@@ -45,23 +45,6 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.pricePerPowerUnit = pricePerPowerUnit;
 	}
 
-	public Double getCapacity(MonitoringData weather, Instant startTime) {
-		final double availablePower = greenPowerManagement.getAvailablePower(weather, startTime);
-		return availablePower > getMaximumCapacity() ? getMaximumCapacity() : availablePower;
-	}
-
-	public int getMaximumCapacity() {
-		return this.greenPowerManagement.getCurrentMaximumCapacity();
-	}
-
-	public void setMaximumCapacity(int maximumCapacity) {
-		this.greenPowerManagement.setCurrentMaximumCapacity(maximumCapacity);
-	}
-
-	public int getInitialMaximumCapacity() {
-		return this.greenPowerManagement.getInitialMaximumCapacity();
-	}
-
 	public Map<PowerJob, JobStatusEnum> getPowerJobs() {
 		return powerJobs;
 	}
@@ -92,5 +75,9 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public GreenEnergyStateManagement manage() {
 		return stateManagement;
+	}
+
+	public GreenPowerManagement manageGreenPower() {
+		return greenPowerManagement;
 	}
 }

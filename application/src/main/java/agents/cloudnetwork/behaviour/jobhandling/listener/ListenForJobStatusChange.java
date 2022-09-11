@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobInstanceIdentifier;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -68,13 +68,13 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	}
 
 	private void handleGreenPowerJobMessage(final String jobId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 		logger.info(SEND_GREEN_POWER_STATUS_LOG, guid, jobId);
 		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
 	}
 
 	private void handleStartedJobMessage(final String jobId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		if (!myCloudNetworkAgent.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.info(SEND_JOB_START_STATUS_LOG, guid, jobId);

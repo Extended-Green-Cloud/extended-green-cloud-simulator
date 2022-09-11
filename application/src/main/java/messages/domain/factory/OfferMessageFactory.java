@@ -15,7 +15,7 @@ import domain.ImmutableGreenSourceData;
 import domain.ImmutableServerData;
 import domain.ServerData;
 import domain.job.ImmutablePricedJob;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.PricedJob;
 import jade.lang.acl.ACLMessage;
 
@@ -62,7 +62,7 @@ public class OfferMessageFactory {
 			final double servicePrice,
 			final String jobId,
 			final ACLMessage replyMessage) {
-		final Job job = serverAgent.manage().getJobById(jobId);
+		final ClientJob job = serverAgent.manage().getJobById(jobId);
 		final int availablePower = serverAgent.manage()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()

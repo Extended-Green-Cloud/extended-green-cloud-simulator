@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -63,7 +63,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetwork.manage().getJobById(jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
 			logger.info(JOB_HAS_STARTED_LOG, guid, jobId);
 
@@ -81,7 +81,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetwork.manage().getJobById(jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
 			logger.error(JOB_HAS_NOT_STARTED_LOG, guid, jobId);
 			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), DELAYED_JOB_PROTOCOL));

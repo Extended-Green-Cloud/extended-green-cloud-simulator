@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import agents.cloudnetwork.behaviour.jobhandling.handler.HandleDelayedJob;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -60,7 +60,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		logger.info(ACCEPT_SERVER_PROPOSAL_LOG, guid);
 		final String jobId = accept_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
 		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
@@ -79,7 +79,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(REJECT_SERVER_PROPOSAL_LOG, guid, reject_proposal.getSender().getName());
 		final String jobId = reject_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
@@ -88,7 +88,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 
-	private Date calculateExpectedJobStart(final Job job) {
+	private Date calculateExpectedJobStart(final ClientJob job) {
 		final Instant startTime = getCurrentTime().isAfter(job.getStartTime()) ?
 				getCurrentTime() :
 				job.getStartTime();

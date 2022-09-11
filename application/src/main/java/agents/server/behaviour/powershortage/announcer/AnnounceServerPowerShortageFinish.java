@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
 import mapper.JobMapper;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
@@ -55,7 +55,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 	public void action() {
 		logger.info(POWER_SHORTAGE_FINISH_DETECTED_LOG, guid);
 		myServerAgent.setCurrentMaximumCapacity(myServerAgent.getInitialMaximumCapacity());
-		final List<Job> affectedJobs = getJobsOnHold();
+		final List<ClientJob> affectedJobs = getJobsOnHold();
 
 		if (affectedJobs.isEmpty()) {
 			logger.info(POWER_SHORTAGE_FINISH_UPDATE_CAPACITY_LOG, guid);
@@ -89,7 +89,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		}
 	}
 
-	private void updateJobStatus(final Job job, final JobInstanceIdentifier jobInstance) {
+	private void updateJobStatus(final ClientJob job, final JobInstanceIdentifier jobInstance) {
 		final JobStatusEnum newStatus = job.getStartTime().isAfter(getCurrentTime()) ?
 				JobStatusEnum.ACCEPTED :
 				JobStatusEnum.IN_PROGRESS;
@@ -104,7 +104,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		myServerAgent.send(finishInformation);
 	}
 
-	private List<Job> getJobsOnHold() {
+	private List<ClientJob> getJobsOnHold() {
 		return myServerAgent.getServerJobs().entrySet().stream()
 				.filter(job -> job.getValue().equals(JobStatusEnum.ON_HOLD)
 						&& job.getKey().getEndTime().isAfter(getCurrentTime()))

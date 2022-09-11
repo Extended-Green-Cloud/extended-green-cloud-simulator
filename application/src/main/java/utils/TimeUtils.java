@@ -11,7 +11,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +101,29 @@ public class TimeUtils {
 	 */
 	public static double differenceInHours(final Instant startTime, final Instant endTime) {
 		return (double) SECONDS.between(startTime, endTime) / HOUR_DIVIDER;
+	}
+
+	/**
+	 * Method divides the given interval into sub-intervals of specified size
+	 *
+	 * @param startTime time interval start time
+	 * @param endTime   time interval end time
+	 * @param length    length of sub-interval
+	 * @return list of sub-intervals represented by their start times
+	 */
+	public static Set<Instant> divideIntoSubIntervals(final Instant startTime, final Instant endTime,
+			final Long length) {
+		final AtomicReference<Instant> currentTime = new AtomicReference<>(startTime);
+		final Set<Instant> subIntervals = new LinkedHashSet<>();
+
+		do {
+			subIntervals.add(currentTime.get());
+			currentTime.getAndUpdate(time -> time.plusMillis(length));
+		} while (currentTime.get().isBefore(endTime) && length != 0);
+
+		subIntervals.add(endTime);
+
+		return subIntervals;
 	}
 
 	/**

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.gui.agents.CloudNetworkAgentNode;
 
 import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 
 /**
@@ -54,7 +54,7 @@ public class CloudNetworkStateManagement {
 	 * @param jobId job identifier
 	 * @return job
 	 */
-	public Job getJobById(final String jobId) {
+	public ClientJob getJobById(final String jobId) {
 		return cloudNetworkAgent.getNetworkJobs().keySet().stream()
 				.filter(job -> job.getJobId().equals(jobId))
 				.findFirst()

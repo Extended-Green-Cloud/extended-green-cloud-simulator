@@ -11,12 +11,12 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import agents.client.behaviour.df.FindCloudNetworkAgents;
+import agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
 import behaviours.ReceiveGUIController;
-import domain.job.ImmutableJob;
-import domain.job.Job;
+import domain.job.ClientJob;
+import domain.job.ImmutableClientJob;
 import exception.IncorrectTaskDateException;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.SequentialBehaviour;
@@ -40,7 +40,7 @@ public class ClientAgent extends AbstractClientAgent {
 
 		if (Objects.nonNull(args) && args.length == 4) {
 			initializeAgent();
-			final Job jobToBeExecuted = initializeAgentJob(args);
+			final ClientJob jobToBeExecuted = initializeAgentJob(args);
 			if (GUI_ENABLED) {
 				addBehaviour(new ReceiveGUIController(this, prepareStartingBehaviour(jobToBeExecuted)));
 			} else {
@@ -66,7 +66,7 @@ public class ClientAgent extends AbstractClientAgent {
 		this.chosenCloudNetworkAgent = null;
 	}
 
-	private Job initializeAgentJob(final Object[] arguments) {
+	private ClientJob initializeAgentJob(final Object[] arguments) {
 		try {
 			final Instant startTime = TimeUtils.convertToInstantTime(arguments[0].toString());
 			final Instant endTime = TimeUtils.convertToInstantTime(arguments[1].toString());
@@ -81,7 +81,7 @@ public class ClientAgent extends AbstractClientAgent {
 			}
 			prepareSimulatedTimes(startTime, endTime);
 			logger.info("[{}] Job simulation time: from {} to {}", this.getName(), simulatedJobStart, simulatedJobEnd);
-			return ImmutableJob.builder()
+			return ImmutableClientJob.builder()
 					.clientIdentifier(getAID().getName())
 					.startTime(getSimulatedJobStart())
 					.endTime(getSimulatedJobEnd())
@@ -106,7 +106,7 @@ public class ClientAgent extends AbstractClientAgent {
 		setSimulatedJobEnd(currentTime.plus(expectedJobEnd, ChronoUnit.MILLIS));
 	}
 
-	private List<Behaviour> prepareStartingBehaviour(final Job job) {
+	private List<Behaviour> prepareStartingBehaviour(final ClientJob job) {
 		var startingBehaviour = new SequentialBehaviour(this);
 		startingBehaviour.addSubBehaviour(new FindCloudNetworkAgents());
 		startingBehaviour.addSubBehaviour(new InitiateNewJobAnnouncement(this, null, job));

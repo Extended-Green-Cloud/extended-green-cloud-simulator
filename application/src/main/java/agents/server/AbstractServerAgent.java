@@ -9,7 +9,7 @@ import agents.server.management.ServerStateManagement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import domain.GreenSourceData;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -33,7 +33,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected int currentMaximumCapacity;
 	protected double pricePerHour;
 	protected volatile AtomicLong currentlyProcessing;
-	protected volatile ConcurrentMap<Job, JobStatusEnum> serverJobs;
+	protected volatile ConcurrentMap<ClientJob, JobStatusEnum> serverJobs;
 	protected Map<String, AID> greenSourceForJobMap;
 	protected List<AID> ownedGreenSources;
 	protected AID ownerCloudNetworkAgent;
@@ -89,7 +89,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return pricePerHour;
 	}
 
-	public Map<Job, JobStatusEnum> getServerJobs() {
+	public Map<ClientJob, JobStatusEnum> getServerJobs() {
 		return serverJobs;
 	}
 

@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
 import agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferConfirmation;
+import domain.job.ClientJob;
 import mapper.JobMapper;
 import domain.GreenSourceData;
-import domain.job.Job;
 import domain.job.JobInstanceIdentifier;
 import domain.job.PowerJob;
 import domain.powershortage.PowerShortageJob;
@@ -133,7 +133,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	}
 
 	private void handleTransferFailure() {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
+		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),

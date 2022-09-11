@@ -5,6 +5,7 @@ package agents.greenenergy.domain;
  * Class storing Green Energy Agent constants
  *
  * <p> MAX_ERROR_IN_JOB_FINISH 		  			- variation in milliseconds of job finish time </p>
+ * <p> INTERVAL_LENGTH_MS					    - length of the sub-interval used in calculating available power </p>
  * <p> PERIODIC_WEATHER_CHECK_TIMEOUT 			- timeout in between consecutive weather checks </p>
  * <p> GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT  - timeout in between consecutive environment events checks </p>
  * <p> CUT_ON_WIND_SPEED 			  			- speed in blade rotation </p>
@@ -15,6 +16,7 @@ package agents.greenenergy.domain;
 public class GreenEnergyAgentConstants {
 
 	public static final Long MAX_ERROR_IN_JOB_FINISH = 500L;
+	public static final Long INTERVAL_LENGTH_MS = 500L;
 	public static final Long PERIODIC_WEATHER_CHECK_TIMEOUT = 2000L;
 	public static final Long GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT = 100L;
 	public static final Double CUT_ON_WIND_SPEED = 5.0;

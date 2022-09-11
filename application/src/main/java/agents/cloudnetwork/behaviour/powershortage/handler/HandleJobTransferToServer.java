@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.powershortage.PowerShortageJob;
 import jade.core.AID;
 import jade.core.Agent;
@@ -68,7 +68,7 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job jobToExecute = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob jobToExecute = myCloudNetworkAgent.manage().getJobById(jobId);
 		if (Objects.nonNull(jobToExecute)) {
 			logger.info(SERVER_TRANSFER_EXECUTE_TRANSFER_LOG, guid, jobId, newServer.getLocalName());
 			myCloudNetworkAgent.getServerForJobMap().replace(jobId, newServer);

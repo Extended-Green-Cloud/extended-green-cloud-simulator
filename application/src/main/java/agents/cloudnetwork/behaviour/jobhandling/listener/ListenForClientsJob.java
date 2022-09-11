@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -49,7 +49,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(NEW_JOB_REQUEST_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final Job job = readMessageContent(message, Job.class);
+			final ClientJob job = readMessageContent(message, ClientJob.class);
 			final String jobId = job.getJobId();
 			handleRetryProcess(jobId);
 			sendCFPToServers(job, message);
@@ -63,7 +63,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 			logger.info(SEND_CFP_RETRY_LOG, guid, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
 		} else {
 			myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
-			final Job previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
+			final ClientJob previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
 			if (Objects.nonNull(previousInstance)) {
 				myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
 			}
@@ -71,7 +71,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		}
 	}
 
-	private void sendCFPToServers(final Job job, final ACLMessage message) {
+	private void sendCFPToServers(final ClientJob job, final ACLMessage message) {
 		final ACLMessage cfp = createCallForProposal(job, myCloudNetworkAgent.getOwnedServers(),
 				CNA_JOB_CFP_PROTOCOL);
 

@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import agents.cloudnetwork.CloudNetworkAgent;
 import agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
+import domain.job.ClientJob;
 import mapper.JobMapper;
-import domain.job.Job;
 import domain.job.JobInstanceIdentifier;
 import domain.powershortage.PowerShortageJob;
 import jade.core.AID;
@@ -62,7 +62,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob powerShortageJob = readMessageContent(transferRequest, PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
 			final Instant shortageStartTime = powerShortageJob.getPowerShortageStart();
-			final Job job = myCloudNetworkAgent.manage().getJobById(jobInstance.getJobId());
+			final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobInstance.getJobId());
 
 			if (Objects.nonNull(job)) {
 				myCloudNetworkAgent.send(
@@ -87,9 +87,9 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		}
 	}
 
-	private void askRemainingServersToTransferJob(final List<AID> remainingServers, final Job originalJob,
+	private void askRemainingServersToTransferJob(final List<AID> remainingServers, final ClientJob originalJob,
 			final Instant shortageStartTime, final ACLMessage originalRequest) {
-		final Job jobToTransfer = prepareJobToTransfer(originalJob, shortageStartTime);
+		final ClientJob jobToTransfer = prepareJobToTransfer(originalJob, shortageStartTime);
 		final PowerShortageJob newPowerShortageJob = JobMapper.mapToPowerShortageJob(jobToTransfer, shortageStartTime);
 		final ACLMessage cfp = createCallForProposal(jobToTransfer, remainingServers, CNA_JOB_CFP_PROTOCOL);
 
@@ -105,7 +105,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		myCloudNetworkAgent.send(reply);
 	}
 
-	private Job prepareJobToTransfer(final Job job, final Instant shortageStartTime) {
+	private ClientJob prepareJobToTransfer(final ClientJob job, final Instant shortageStartTime) {
 		final Instant startTime = job.getStartTime().isAfter(shortageStartTime) ?
 				job.getStartTime() :
 				shortageStartTime;

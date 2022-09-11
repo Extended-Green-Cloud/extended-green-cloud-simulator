@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import agents.server.ServerAgent;
 import agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
 import agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
+import domain.job.ClientJob;
 import mapper.JobMapper;
-import domain.job.Job;
 import domain.powershortage.PowerShortageJob;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -63,7 +63,7 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 	@Override
 	public void action() {
 		logger.info(POWER_SHORTAGE_START_DETECTED_LOG, guid, powerShortageStartTime);
-		final List<Job> affectedJobs = getAffectedPowerJobs();
+		final List<ClientJob> affectedJobs = getAffectedPowerJobs();
 
 		if (affectedJobs.isEmpty()) {
 			logger.info(POWER_SHORTAGE_START_NO_IMPACT_LOG, guid);
@@ -71,12 +71,12 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 					HandleServerPowerShortage.createFor(Collections.emptyList(), powerShortageStartTime, myServerAgent,
 							recalculatedAvailablePower));
 		} else {
-			final List<Job> jobsToKeep = findJobsWithinPower(affectedJobs, recalculatedAvailablePower, Job.class);
-			final List<Job> jobsToTransfer = affectedJobs.stream().filter(job -> !jobsToKeep.contains(job)).toList();
+			final List<ClientJob> jobsToKeep = findJobsWithinPower(affectedJobs, recalculatedAvailablePower);
+			final List<ClientJob> jobsToTransfer = affectedJobs.stream().filter(job -> !jobsToKeep.contains(job)).toList();
 
 			jobsToTransfer.forEach(job -> {
 				logger.info(POWER_SHORTAGE_START_TRANSFER_REQUEST_LOG, guid, job.getJobId());
-				final Job jobToTransfer = myServerAgent.manage().divideJobForPowerShortage(job, powerShortageStartTime);
+				final ClientJob jobToTransfer = myServerAgent.manage().divideJobForPowerShortage(job, powerShortageStartTime);
 				final PowerShortageJob originalJobForShortage = JobMapper.mapToPowerShortageJob(job,
 						powerShortageStartTime);
 				final PowerShortageJob jobTransferForShortage = JobMapper.mapToPowerShortageJob(jobToTransfer,
@@ -111,7 +111,7 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 		myServerAgent.send(powerShortageInformation);
 	}
 
-	private List<Job> getAffectedPowerJobs() {
+	private List<ClientJob> getAffectedPowerJobs() {
 		return myServerAgent.getServerJobs().keySet().stream()
 				.filter(job -> powerShortageStartTime.isBefore(job.getEndTime()) && ACTIVE_JOB_STATUSES.contains(
 						myServerAgent.getServerJobs().get(job))).toList();

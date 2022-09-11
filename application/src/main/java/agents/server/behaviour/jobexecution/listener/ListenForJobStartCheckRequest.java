@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobStatusEnum;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -52,7 +52,7 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 			final String jobId = request.getContent();
 			myServerAgent.send(prepareStringReply(request.createReply(), "REQUEST PROCESSING", AGREE));
 			logger.info(JOB_START_STATUS_RECEIVED_REQUEST_LOG, guid, jobId);
-			final Map.Entry<Job, JobStatusEnum> jobInstance = myServerAgent.manage().getCurrentJobInstance(jobId);
+			final Map.Entry<ClientJob, JobStatusEnum> jobInstance = myServerAgent.manage().getCurrentJobInstance(jobId);
 			myServerAgent.send(createReplyWithJobStatus(request, jobInstance));
 		} else {
 			block();
@@ -60,7 +60,7 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 	}
 
 	private ACLMessage createReplyWithJobStatus(final ACLMessage message,
-			final Map.Entry<Job, JobStatusEnum> jobInstance) {
+			final Map.Entry<ClientJob, JobStatusEnum> jobInstance) {
 		return Objects.nonNull(jobInstance) && RUNNING_JOB_STATUSES.contains(jobInstance.getValue()) ?
 				prepareStringReply(message.createReply(), "JOB STARTED", INFORM) :
 				prepareStringReply(message.createReply(), "JOB HAS NOT STARTED", FAILURE);

@@ -88,7 +88,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private void handleInform(final MonitoringData data) {
 		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.manage()
-				.getAverageAvailablePower(powerJob, data, true);
+				.getAvailablePowerForJob(powerJob, data, true);
 		final String jobId = powerJob.getJobId();
 
 		if (averageAvailablePower.isEmpty()) {

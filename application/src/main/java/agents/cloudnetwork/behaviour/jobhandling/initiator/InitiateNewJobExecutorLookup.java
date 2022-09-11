@@ -26,7 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import agents.cloudnetwork.CloudNetworkAgent;
 import agents.cloudnetwork.behaviour.jobhandling.handler.HandleJobRequestRetry;
 import domain.ServerData;
-import domain.job.Job;
+import domain.job.ClientJob;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
@@ -83,7 +83,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 			if (!validProposals.isEmpty()) {
 				final ACLMessage chosenServerOffer = chooseServerToExecuteJob(validProposals);
 				final ServerData chosenServerData = readMessageContent(chosenServerOffer, ServerData.class);
-				final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+				final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 				logger.info(CHOSEN_SERVER_FOR_JOB_LOG, guid, jobId, chosenServerOffer.getSender().getName());
 
@@ -102,7 +102,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 
 	private void handleInvalidResponses(final List<ACLMessage> proposals) {
 		logger.info(INCORRECT_PROPOSAL_FORMAT_LOG, guid);
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 		rejectJobOffers(myCloudNetworkAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
 		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
 	}

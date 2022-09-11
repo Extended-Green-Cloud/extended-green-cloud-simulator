@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agents.server.ServerAgent;
-import domain.job.Job;
+import domain.job.ClientJob;
 import domain.job.JobInstanceIdentifier;
 import domain.job.JobStatusEnum;
 import jade.core.AID;
@@ -73,7 +73,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job jobToExecute = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob jobToExecute = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 		if (Objects.nonNull(jobToExecute)) {
 			logger.info(GS_TRANSFER_EXECUTION_LOG, guid);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
@@ -82,7 +82,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 		}
 	}
 
-	private void startJobExecutionInNewGreenSource(final Job jobToExecute) {
+	private void startJobExecutionInNewGreenSource(final ClientJob jobToExecute) {
 		final ACLMessage startedJobMessage = prepareJobStartedMessage(jobToExecute.getJobId(),
 				jobToExecute.getStartTime(), List.of(newGreenSource));
 		displayMessageArrow(myServerAgent, newGreenSource);
