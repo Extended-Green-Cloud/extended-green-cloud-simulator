@@ -22,8 +22,6 @@ import runner.domain.AgentArgs;
 import runner.domain.ClientAgentArgs;
 import runner.domain.CloudNetworkArgs;
 import runner.domain.GreenEnergyAgentArgs;
-import runner.domain.ImmutableGreenEnergyAgentArgs;
-import runner.domain.ImmutableServerAgentArgs;
 import runner.domain.MonitoringAgentArgs;
 import runner.domain.ScenarioArgs;
 import runner.domain.ServerAgentArgs;
@@ -81,12 +79,12 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					clientArgs.getPower());
 		}
 		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
-			final List<ImmutableServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
+			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
 					.filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
 					.toList();
 			final double maximumCapacity = ownedServers.stream()
 					.mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
-			final List<String> serverList = ownedServers.stream().map(ImmutableServerAgentArgs::getName).toList();
+			final List<String> serverList = ownedServers.stream().map(ServerAgentArgs::getName).toList();
 
 			return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), maximumCapacity, serverList);
 		}
@@ -98,7 +96,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					new AgentLocation(greenEnergyAgentArgs.getLatitude(), greenEnergyAgentArgs.getLongitude()));
 		}
 		if (agentArgs instanceof MonitoringAgentArgs monitoringAgentArgs) {
-			final ImmutableGreenEnergyAgentArgs ownerGreenSource = scenarioArgs.getGreenEnergyAgentsArgs().stream()
+			final GreenEnergyAgentArgs ownerGreenSource = scenarioArgs.getGreenEnergyAgentsArgs().stream()
 					.filter(greenSourceArgs -> greenSourceArgs.getMonitoringAgent()
 							.equals(monitoringAgentArgs.getName()))
 					.findFirst()
@@ -109,11 +107,11 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return null;
 		}
 		if (agentArgs instanceof ServerAgentArgs serverAgentArgs) {
-			final List<ImmutableGreenEnergyAgentArgs> ownedGreenSources = scenarioArgs.getGreenEnergyAgentsArgs()
+			final List<GreenEnergyAgentArgs> ownedGreenSources = scenarioArgs.getGreenEnergyAgentsArgs()
 					.stream()
 					.filter(greenEnergyArgs -> greenEnergyArgs.getOwnerSever().equals(serverAgentArgs.getName()))
 					.toList();
-			final List<String> greenSourceNames = ownedGreenSources.stream().map(ImmutableGreenEnergyAgentArgs::getName)
+			final List<String> greenSourceNames = ownedGreenSources.stream().map(GreenEnergyAgentArgs::getName)
 					.toList();
 			return new ServerAgentNode(serverAgentArgs.getName(),
 					Double.parseDouble(serverAgentArgs.getMaximumCapacity()), serverAgentArgs.getOwnerCloudNetwork(),
