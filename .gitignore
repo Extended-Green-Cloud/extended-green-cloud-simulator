@@ -9,3 +9,8 @@
 /logs/
 /application/src/main/resources/config.properties
 /gui/target/
+/application/APDescription.txt
+/application/application.iml
+/test/target/
+/application/MTPs-Main-Container.txt
+/test.iml
