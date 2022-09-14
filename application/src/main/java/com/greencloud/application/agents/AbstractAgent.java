@@ -12,8 +12,6 @@ import jade.core.Agent;
  */
 public abstract class AbstractAgent extends Agent {
 
-	public static boolean GUI_ENABLED = true;
-
 	private GUIController guiController;
 	private AbstractAgentNode agentNode;
 
@@ -37,7 +35,7 @@ public abstract class AbstractAgent extends Agent {
 
 	@Override
 	protected void takeDown() {
-		if (GUI_ENABLED && Objects.nonNull(getGuiController())) {
+		if (Objects.nonNull(getGuiController())) {
 			getGuiController().removeAgentNodeFromGraph(getAgentNode());
 		}
 		super.takeDown();
@@ -57,9 +55,5 @@ public abstract class AbstractAgent extends Agent {
 
 	public void setGuiController(GUIController guiController) {
 		this.guiController = guiController;
-	}
-
-	public static void disableGui() {
-		GUI_ENABLED = false;
 	}
 }

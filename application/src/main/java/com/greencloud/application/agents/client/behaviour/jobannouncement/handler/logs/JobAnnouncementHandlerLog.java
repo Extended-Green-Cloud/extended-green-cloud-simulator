@@ -6,5 +6,5 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.handl
 public class JobAnnouncementHandlerLog {
 
 	// JOB REQUEST RETRY LOG MESSAGES
-	public static final String RETRY_CLIENT_JOB_REQUEST_LOG = "[{}] Retrying to request job execution with id {}";
+	public static final String RETRY_CLIENT_JOB_REQUEST_LOG = "Retrying to request job execution.";
 }

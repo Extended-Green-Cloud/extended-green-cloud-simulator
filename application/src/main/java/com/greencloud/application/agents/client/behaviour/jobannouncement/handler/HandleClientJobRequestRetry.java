@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.client.behaviour.jobannouncement.handler;
 
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.RETRY_CLIENT_JOB_REQUEST_LOG;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 
 import java.time.temporal.ChronoUnit;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import com.greencloud.application.agents.client.domain.ClientAgentConstants;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.mapper.JobMapper;
 
@@ -27,7 +27,6 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleClientJobRequestRetry.class);
 
 	private final ClientAgent myClientAgent;
-	private final String guid;
 	private final Job job;
 
 	/**
@@ -41,7 +40,6 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 		super(agent, timeout);
 		this.job = job;
 		this.myClientAgent = (ClientAgent) agent;
-		this.guid = myClientAgent.getName();
 	}
 
 	/**
@@ -50,7 +48,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	@Override
 	protected void onWake() {
 		myAgent.addBehaviour(prepareStartingBehaviour(job));
-		logger.info(RETRY_CLIENT_JOB_REQUEST_LOG, guid, job.getJobId());
+		logger.info(RETRY_CLIENT_JOB_REQUEST_LOG);
 	}
 
 	private SequentialBehaviour prepareStartingBehaviour(final Job job) {
@@ -65,7 +63,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	}
 
 	private void recalculateJobTimeInterval() {
-		final long simulationAdjustment = convertToSimulationTime((long) ClientAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT * 60);
+		final long simulationAdjustment = convertToSimulationTime((long) JOB_RETRY_MINUTES_ADJUSTMENT * 60);
 		myClientAgent.setSimulatedJobStart(
 				myClientAgent.getSimulatedJobStart().plus(simulationAdjustment, ChronoUnit.MILLIS));
 		myClientAgent.setSimulatedJobEnd(

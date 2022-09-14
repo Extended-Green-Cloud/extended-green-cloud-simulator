@@ -17,7 +17,7 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected Integer retries;
 	protected boolean announced;
 
-	public AbstractClientAgent() {
+	protected AbstractClientAgent() {
 		super.setup();
 		retries = 0;
 	}

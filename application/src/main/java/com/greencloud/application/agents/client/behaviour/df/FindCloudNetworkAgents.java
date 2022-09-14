@@ -22,7 +22,6 @@ public class FindCloudNetworkAgents extends OneShotBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(FindCloudNetworkAgents.class);
 	private ClientAgent myClientAgent;
-	private String guid;
 
 	/**
 	 * Method casts the abstract agent to agent of type ClientAgent.
@@ -31,7 +30,6 @@ public class FindCloudNetworkAgents extends OneShotBehaviour {
 	public void onStart() {
 		super.onStart();
 		this.myClientAgent = (ClientAgent) myAgent;
-		this.guid = myAgent.getName();
 	}
 
 	/**
@@ -41,7 +39,7 @@ public class FindCloudNetworkAgents extends OneShotBehaviour {
 	public void action() {
 		final List<AID> cloudNetworkAgents = YellowPagesService.search(myAgent, DFServiceConstants.CNA_SERVICE_TYPE);
 		if (cloudNetworkAgents.isEmpty()) {
-			logger.info(ClientDFLog.NO_CLOUD_NETWORKS_FOUND_LOG, guid);
+			logger.info(ClientDFLog.NO_CLOUD_NETWORKS_FOUND_LOG);
 			myClientAgent.doDelete();
 			return;
 		}

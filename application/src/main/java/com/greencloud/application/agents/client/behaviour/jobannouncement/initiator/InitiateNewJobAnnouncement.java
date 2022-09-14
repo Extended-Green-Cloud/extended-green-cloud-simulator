@@ -6,6 +6,10 @@ import static com.greencloud.application.agents.client.behaviour.jobannouncement
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.logs.JobAnnouncementInitiatorLog.NO_CLOUD_RESPONSES_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.logs.JobAnnouncementInitiatorLog.SEND_ACCEPT_TO_CLOUD_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.logs.JobAnnouncementInitiatorLog.SEND_CFP_TO_CLOUD_LOG;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.CLOUD_NETWORK_AGENTS;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.MAX_RETRIES;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.MAX_TRAFFIC_DIFFERENCE;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.RETRY_PAUSE_MILLISECONDS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
@@ -23,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
-import com.greencloud.application.agents.client.domain.ClientAgentConstants;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
@@ -45,7 +48,6 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 
 	private final transient Job job;
 	private final ClientAgent myClientAgent;
-	private final String guid;
 
 	/**
 	 * Behaviour constructor.
@@ -57,7 +59,6 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	public InitiateNewJobAnnouncement(final Agent agent, final ACLMessage cfp, final Job job) {
 		super(agent, cfp);
 		this.myClientAgent = (ClientAgent) agent;
-		this.guid = agent.getName();
 		this.job = job;
 	}
 
@@ -69,10 +70,9 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	 */
 	@Override
 	protected Vector prepareCfps(final ACLMessage callForProposal) {
-		logger.info(SEND_CFP_TO_CLOUD_LOG, guid, job.getJobId());
+		logger.info(SEND_CFP_TO_CLOUD_LOG, job.getJobId());
 		final Vector<ACLMessage> vector = new Vector<>();
-		final List<AID> cloudNetworks = (List<AID>) getParent().getDataStore().get(
-				ClientAgentConstants.CLOUD_NETWORK_AGENTS);
+		final List<AID> cloudNetworks = (List<AID>) getParent().getDataStore().get(CLOUD_NETWORK_AGENTS);
 		vector.add(createCallForProposal(job, cloudNetworks, CLIENT_JOB_CFP_PROTOCOL));
 		return vector;
 	}
@@ -90,7 +90,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 		final List<ACLMessage> proposals = retrieveProposals(responses);
 
 		if (responses.isEmpty()) {
-			logger.info(NO_CLOUD_RESPONSES_LOG, guid);
+			logger.info(NO_CLOUD_RESPONSES_LOG);
 			myAgent.doDelete();
 		} else if (proposals.isEmpty()) {
 			handleRetryProcess();
@@ -100,7 +100,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 			if (!validProposals.isEmpty()) {
 				final ACLMessage chosenOffer = chooseCNAToExecuteJob(validProposals);
 				final PricedJob pricedJob = readMessageContent(chosenOffer, PricedJob.class);
-				logger.info(SEND_ACCEPT_TO_CLOUD_LOG, guid, chosenOffer.getSender().getName());
+				logger.info(SEND_ACCEPT_TO_CLOUD_LOG, chosenOffer.getSender().getName());
 
 				myClientAgent.setChosenCloudNetworkAgent(chosenOffer.getSender());
 				acceptances.add(prepareStringReply(chosenOffer.createReply(), pricedJob.getJobId(), ACCEPT_PROPOSAL));
@@ -112,19 +112,19 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	}
 
 	private void handleInvalidProposals(final List<ACLMessage> proposals) {
-		logger.info(INVALID_CLOUD_PROPOSAL_LOG, guid);
+		logger.info(INVALID_CLOUD_PROPOSAL_LOG);
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.REJECTED);
 		rejectJobOffers(myClientAgent, MessageContentConstants.INVALID_JOB_ID_MESSAGE, null, proposals);
 	}
 
 	private void handleRetryProcess() {
-		if (myClientAgent.getRetries() < ClientAgentConstants.MAX_RETRIES) {
-			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG, guid, myClientAgent.getRetries());
+		if (myClientAgent.getRetries() < MAX_RETRIES) {
+			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG, myClientAgent.getRetries());
 			myClientAgent.retry();
-			myClientAgent.addBehaviour(new HandleClientJobRequestRetry(myAgent, ClientAgentConstants.RETRY_PAUSE_MILLISECONDS, job));
+			myClientAgent.addBehaviour(new HandleClientJobRequestRetry(myAgent, RETRY_PAUSE_MILLISECONDS, job));
 		} else {
-			logger.info(NO_CLOUD_AVAILABLE_NO_RETRY_LOG, guid);
+			logger.info(NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
 			myClientAgent.getGuiController().updateClientsCountByValue(-1);
 			((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.REJECTED);
 		}
@@ -141,7 +141,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 
 			double powerDifference = cna1.getPowerInUse() - cna2.getPowerInUse();
 			int priceDifference = (int) (cna1.getPriceForJob() - cna2.getPriceForJob());
-			return ClientAgentConstants.MAX_TRAFFIC_DIFFERENCE.isValidIntValue((int) powerDifference) ?
+			return MAX_TRAFFIC_DIFFERENCE.isValidIntValue((int) powerDifference) ?
 					priceDifference :
 					(int) powerDifference;
 

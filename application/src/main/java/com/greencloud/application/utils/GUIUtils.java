@@ -22,10 +22,6 @@ public class GUIUtils {
 	 * @param agent agent updating the GUI
 	 */
 	public static void announceFinishedJob(final CloudNetworkAgent agent) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		agent.getGuiController().updateActiveJobsCountByValue(-1);
 		agent.getGuiController().updateAllJobsCountByValue(-1);
 	}
@@ -36,10 +32,6 @@ public class GUIUtils {
 	 * @param agent agent updating the GUI
 	 */
 	public static void announceBookedJob(final AbstractAgent agent) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		agent.getGuiController().updateAllJobsCountByValue(1);
 	}
 
@@ -49,10 +41,6 @@ public class GUIUtils {
 	 * @param agent agent updating the GUI
 	 */
 	public static void announceNewClient(final AbstractAgent agent) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		agent.getGuiController().updateClientsCountByValue(1);
 	}
 
@@ -63,10 +51,6 @@ public class GUIUtils {
 	 * @param receiver address of the receiver
 	 */
 	public static void displayMessageArrow(final AbstractAgent agent, final AID receiver) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		agent.getGuiController()
 				.displayMessageArrow(agent.getAgentNode(), Collections.singletonList(receiver.getLocalName()));
 	}
@@ -78,10 +62,6 @@ public class GUIUtils {
 	 * @param receivers addresses of the receivers
 	 */
 	public static void displayMessageArrow(final AbstractAgent agent, final List<AID> receivers) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		agent.getGuiController()
 				.displayMessageArrow(agent.getAgentNode(), receivers.stream().map(AID::getLocalName).toList());
 	}
@@ -93,10 +73,6 @@ public class GUIUtils {
 	 * @param receivers iterator of addresses of the receivers
 	 */
 	public static void displayMessageArrow(final AbstractAgent agent, final Iterator<AID> receivers) {
-		if (!AbstractAgent.GUI_ENABLED) {
-			return;
-		}
-
 		final Iterable<AID> iterable = () -> receivers;
 		final Stream<AID> stream = StreamSupport.stream(iterable.spliterator(), false);
 		agent.getGuiController().displayMessageArrow(agent.getAgentNode(), stream.map(AID::getLocalName).toList());

@@ -40,7 +40,6 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForJobUpdate.class);
 
 	private final ClientAgent myClientAgent;
-	private final String guid;
 
 	/**
 	 * Behaviours constructor.
@@ -50,7 +49,6 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	public ListenForJobUpdate(final ClientAgent clientAgent) {
 		super(clientAgent);
 		this.myClientAgent = clientAgent;
-		this.guid = myClientAgent.getName();
 	}
 
 	/**
@@ -73,15 +71,15 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 					myClientAgent.doDelete();
 				}
 				case DELAYED_JOB_PROTOCOL -> {
-					logger.info(CLIENT_JOB_DELAY_LOG, guid);
+					logger.info(CLIENT_JOB_DELAY_LOG);
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.DELAYED);
 				}
 				case BACK_UP_POWER_JOB_PROTOCOL -> {
-					logger.info(CLIENT_JOB_BACK_UP_LOG, guid);
+					logger.info(CLIENT_JOB_BACK_UP_LOG);
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.ON_BACK_UP);
 				}
 				case GREEN_POWER_JOB_PROTOCOL -> {
-					logger.info(CLIENT_JOB_GREEN_POWER_LOG, guid);
+					logger.info(CLIENT_JOB_GREEN_POWER_LOG);
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
 				}
 				case FAILED_JOB_PROTOCOL -> {
@@ -99,9 +97,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		final Instant startTime = getCurrentTime();
 		final long timeDifference = ChronoUnit.MILLIS.between(myClientAgent.getSimulatedJobStart(), startTime);
 		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
-			logger.info(CLIENT_JOB_START_ON_TIME_LOG, guid);
+			logger.info(CLIENT_JOB_START_ON_TIME_LOG);
 		} else {
-			logger.info(CLIENT_JOB_START_DELAY_LOG, guid, timeDifference);
+			logger.info(CLIENT_JOB_START_DELAY_LOG, timeDifference);
 		}
 	}
 
@@ -109,9 +107,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		final Instant endTime = getCurrentTime();
 		final long timeDifference = ChronoUnit.MILLIS.between(endTime, myClientAgent.getSimulatedJobEnd());
 		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
-			logger.info(CLIENT_JOB_FINISH_ON_TIME_LOG, guid);
+			logger.info(CLIENT_JOB_FINISH_ON_TIME_LOG);
 		} else {
-			logger.info(CLIENT_JOB_FINISH_DELAY_LOG, guid, timeDifference);
+			logger.info(CLIENT_JOB_FINISH_DELAY_LOG, timeDifference);
 		}
 	}
 }
