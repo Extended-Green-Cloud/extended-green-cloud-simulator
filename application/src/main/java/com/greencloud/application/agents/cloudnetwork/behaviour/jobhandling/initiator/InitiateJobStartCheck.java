@@ -1,16 +1,22 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_HAS_NOT_STARTED_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_HAS_STARTED_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_STATUS_IS_CHECKED_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog;
 import com.greencloud.application.domain.job.Job;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
-import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -24,7 +30,6 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	private static final Logger logger = LoggerFactory.getLogger(InitiateJobStartCheck.class);
 
 	private final CloudNetworkAgent myCloudNetwork;
-	private final String guid;
 	private final String jobId;
 
 	/**
@@ -38,7 +43,6 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 		super(agent, msg);
 		this.myCloudNetwork = (CloudNetworkAgent) agent;
 		this.jobId = jobId;
-		this.guid = myCloudNetwork.getName();
 	}
 
 	/**
@@ -48,7 +52,8 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleAgree(ACLMessage agree) {
-		logger.info(JobHandlingInitiatorLog.JOB_STATUS_IS_CHECKED_LOG, guid, jobId);
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(JOB_STATUS_IS_CHECKED_LOG, jobId);
 	}
 
 	/**
@@ -60,12 +65,13 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	@Override
 	protected void handleInform(ACLMessage inform) {
 		final Job job = myCloudNetwork.manage().getJobById(jobId);
-		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
-			logger.info(JobHandlingInitiatorLog.JOB_HAS_STARTED_LOG, guid, jobId);
+		MDC.put(MDC_JOB_ID, jobId);
+		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
+			logger.info(JOB_HAS_STARTED_LOG, jobId);
 
-			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), JobStatusEnum.IN_PROGRESS);
+			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), IN_PROGRESS);
 			myCloudNetwork.manage().incrementStartedJobs(jobId);
-			myAgent.send(JobStatusMessageFactory.prepareJobStatusMessageForClient(job.getClientIdentifier(), MessageProtocolConstants.STARTED_JOB_PROTOCOL));
+			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
 		}
 	}
 
@@ -78,9 +84,10 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	@Override
 	protected void handleFailure(ACLMessage failure) {
 		final Job job = myCloudNetwork.manage().getJobById(jobId);
-		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
-			logger.error(JobHandlingInitiatorLog.JOB_HAS_NOT_STARTED_LOG, guid, jobId);
-			myAgent.send(JobStatusMessageFactory.prepareJobStatusMessageForClient(job.getClientIdentifier(), MessageProtocolConstants.DELAYED_JOB_PROTOCOL));
+		MDC.put(MDC_JOB_ID, jobId);
+		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
+			logger.error(JOB_HAS_NOT_STARTED_LOG, jobId);
+			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), DELAYED_JOB_PROTOCOL));
 		}
 	}
 }

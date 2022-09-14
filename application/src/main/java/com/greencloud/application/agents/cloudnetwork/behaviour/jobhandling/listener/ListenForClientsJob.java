@@ -3,6 +3,7 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.lis
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_CFP_NEW_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_CFP_RETRY_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.NEW_JOB_REQUEST_TEMPLATE;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
@@ -29,7 +31,6 @@ public class ListenForClientsJob extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForClientsJob.class);
 
 	private CloudNetworkAgent myCloudNetworkAgent;
-	private String guid;
 
 	/**
 	 * Method casts the abstract agent to the agent of type CloudNetworkAgent
@@ -38,7 +39,6 @@ public class ListenForClientsJob extends CyclicBehaviour {
 	public void onStart() {
 		super.onStart();
 		myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
-		this.guid = myCloudNetworkAgent.getName();
 	}
 
 	/**
@@ -52,6 +52,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		if (Objects.nonNull(message)) {
 			final Job job = readMessageContent(message, Job.class);
 			final String jobId = job.getJobId();
+			MDC.put(MDC_JOB_ID, jobId);
 			handleRetryProcess(jobId);
 			sendCFPToServers(job, message);
 		} else {
@@ -61,14 +62,14 @@ public class ListenForClientsJob extends CyclicBehaviour {
 
 	private void handleRetryProcess(final String jobId) {
 		if (myCloudNetworkAgent.getJobRequestRetries().containsKey(jobId)) {
-			logger.info(SEND_CFP_RETRY_LOG, guid, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
+			logger.info(SEND_CFP_RETRY_LOG, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
 		} else {
 			myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
 			final Job previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
 			if (Objects.nonNull(previousInstance)) {
 				myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
 			}
-			logger.info(SEND_CFP_NEW_LOG, guid, jobId);
+			logger.info(SEND_CFP_NEW_LOG, jobId);
 		}
 	}
 

@@ -1,9 +1,11 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.logs.JobHandlingHandlerLog.TRIGGER_RETRY_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.logs.JobHandlingHandlerLog;
+import org.slf4j.MDC;
 
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
@@ -41,6 +43,7 @@ public class HandleJobRequestRetry extends WakerBehaviour {
 	@Override
 	protected void onWake() {
 		myAgent.send(originalMessage);
-		logger.info(JobHandlingHandlerLog.TRIGGER_RETRY_LOG, guid, jobId);
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(TRIGGER_RETRY_LOG, guid, jobId);
 	}
 }

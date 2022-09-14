@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.handler;
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.handler.logs.PowerShortageCloudHandlerLog.SERVER_TRANSFER_EXECUTE_TRANSFER_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -9,6 +10,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.domain.job.Job;
@@ -26,7 +28,6 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleJobTransferToServer.class);
 
 	private final CloudNetworkAgent myCloudNetworkAgent;
-	private final String guid;
 	private final String jobId;
 	private final AID newServer;
 
@@ -41,7 +42,6 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	private HandleJobTransferToServer(Agent myAgent, Date transferTime, String jobId, AID newServer) {
 		super(myAgent, transferTime);
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
-		this.guid = myAgent.getName();
 		this.jobId = jobId;
 		this.newServer = newServer;
 	}
@@ -71,7 +71,8 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	protected void onWake() {
 		final Job jobToExecute = myCloudNetworkAgent.manage().getJobById(jobId);
 		if (Objects.nonNull(jobToExecute)) {
-			logger.info(SERVER_TRANSFER_EXECUTE_TRANSFER_LOG, guid, jobId, newServer.getLocalName());
+			MDC.put(MDC_JOB_ID, jobId);
+			logger.info(SERVER_TRANSFER_EXECUTE_TRANSFER_LOG, jobId, newServer.getLocalName());
 			myCloudNetworkAgent.getServerForJobMap().replace(jobId, newServer);
 		}
 	}

@@ -1,15 +1,22 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.CHOSEN_SERVER_FOR_JOB_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.INCORRECT_PROPOSAL_FORMAT_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.NO_SERVERS_AVAILABLE_RETRIES_LIMIT_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.NO_SERVERS_AVAILABLE_RETRY_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.NO_SERVER_RESPONSES_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+
 import java.util.List;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.HandleJobRequestRetry;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog;
 import com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants;
 import com.greencloud.application.domain.ServerData;
 import com.greencloud.application.domain.job.Job;
@@ -33,7 +40,6 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	private final ACLMessage originalMessage;
 	private final ACLMessage replyMessage;
 	private final CloudNetworkAgent myCloudNetworkAgent;
-	private final String guid;
 	private final String jobId;
 
 	/**
@@ -47,7 +53,6 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 			String jobId) {
 		super(agent, cfp);
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
-		this.guid = agent.getName();
 		this.originalMessage = originalMessage;
 		this.replyMessage = originalMessage.createReply();
 		this.jobId = jobId;
@@ -64,8 +69,9 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	protected void handleAllResponses(final Vector responses, final Vector acceptances) {
 		final List<ACLMessage> proposals = MessagingUtils.retrieveProposals(responses);
 
+		MDC.put(MDC_JOB_ID, jobId);
 		if (responses.isEmpty()) {
-			logger.info(JobHandlingInitiatorLog.NO_SERVER_RESPONSES_LOG, guid);
+			logger.info(NO_SERVER_RESPONSES_LOG);
 		} else if (proposals.isEmpty()) {
 			initiateRetryProcess();
 		} else {
@@ -75,8 +81,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 				final ServerData chosenServerData = MessagingUtils.readMessageContent(chosenServerOffer, ServerData.class);
 				final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
 
-				logger.info(
-						JobHandlingInitiatorLog.CHOSEN_SERVER_FOR_JOB_LOG, guid, jobId, chosenServerOffer.getSender().getName());
+				logger.info(CHOSEN_SERVER_FOR_JOB_LOG, jobId, chosenServerOffer.getSender().getName());
 
 				final ACLMessage reply = chosenServerOffer.createReply();
 				final ACLMessage offer = OfferMessageFactory.makeJobOfferForClient(chosenServerData,
@@ -92,7 +97,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	}
 
 	private void handleInvalidResponses(final List<ACLMessage> proposals) {
-		logger.info(JobHandlingInitiatorLog.INCORRECT_PROPOSAL_FORMAT_LOG, guid);
+		logger.info(INCORRECT_PROPOSAL_FORMAT_LOG);
 		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
 		MessagingUtils.rejectJobOffers(myCloudNetworkAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
 		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
@@ -102,14 +107,15 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 		int retries = myCloudNetworkAgent.getJobRequestRetries().get(jobId);
 
 		if (retries >= CloudNetworkAgentConstants.RETRY_LIMIT) {
-			logger.info(JobHandlingInitiatorLog.NO_SERVERS_AVAILABLE_RETRIES_LIMIT_LOG, guid);
+			logger.info(NO_SERVERS_AVAILABLE_RETRIES_LIMIT_LOG);
 			myCloudNetworkAgent.getJobRequestRetries().remove(jobId);
 			myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
 		} else {
 			myCloudNetworkAgent.getJobRequestRetries().put(jobId, ++retries);
-			logger.info(JobHandlingInitiatorLog.NO_SERVERS_AVAILABLE_RETRY_LOG, guid, retries);
-			myAgent.addBehaviour(new HandleJobRequestRetry(myCloudNetworkAgent, CloudNetworkAgentConstants.RETRY_PAUSE_MILLISECONDS,
-					originalMessage, jobId));
+			logger.info(NO_SERVERS_AVAILABLE_RETRY_LOG, retries);
+			myAgent.addBehaviour(
+					new HandleJobRequestRetry(myCloudNetworkAgent, CloudNetworkAgentConstants.RETRY_PAUSE_MILLISECONDS,
+							originalMessage, jobId));
 		}
 	}
 

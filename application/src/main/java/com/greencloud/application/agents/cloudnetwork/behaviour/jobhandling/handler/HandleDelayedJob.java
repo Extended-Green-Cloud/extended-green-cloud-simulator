@@ -1,17 +1,20 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.logs.JobHandlingHandlerLog.JOB_DELAY_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartStatusRequestMessage;
+
 import java.util.Date;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.logs.JobHandlingHandlerLog;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateJobStartCheck;
 import com.greencloud.application.domain.job.Job;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -27,7 +30,6 @@ public class HandleDelayedJob extends WakerBehaviour {
 
 	private final String jobId;
 	private final CloudNetworkAgent myCloudNetworkAgent;
-	private final String guid;
 
 	/**
 	 * Behaviour constructor.
@@ -40,7 +42,6 @@ public class HandleDelayedJob extends WakerBehaviour {
 		super(agent, startTime);
 		this.myCloudNetworkAgent = (CloudNetworkAgent) agent;
 		this.jobId = jobId;
-		this.guid = myCloudNetworkAgent.getName();
 	}
 
 	/**
@@ -50,12 +51,13 @@ public class HandleDelayedJob extends WakerBehaviour {
 	@Override
 	protected void onWake() {
 		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		MDC.put(MDC_JOB_ID, jobId);
 
 		if (Objects.nonNull(job) && myCloudNetworkAgent.getServerForJobMap().containsKey(jobId)
-				&& !myCloudNetworkAgent.getNetworkJobs().get(job).equals(JobStatusEnum.IN_PROGRESS)) {
-			logger.error(JobHandlingHandlerLog.JOB_DELAY_LOG, guid);
+				&& !myCloudNetworkAgent.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
+			logger.error(JOB_DELAY_LOG);
 			final AID server = myCloudNetworkAgent.getServerForJobMap().get(jobId);
-			final ACLMessage checkMessage = JobStatusMessageFactory.prepareJobStartStatusRequestMessage(jobId, server);
+			final ACLMessage checkMessage = prepareJobStartStatusRequestMessage(jobId, server);
 
 			myAgent.addBehaviour(new InitiateJobStartCheck(myCloudNetworkAgent, checkMessage, jobId));
 		}

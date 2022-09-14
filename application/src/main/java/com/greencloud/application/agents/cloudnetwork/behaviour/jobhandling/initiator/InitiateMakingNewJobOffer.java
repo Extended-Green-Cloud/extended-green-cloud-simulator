@@ -1,5 +1,13 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.REJECT_SERVER_PROPOSAL_LOG;
+import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.time.Instant;
@@ -7,17 +15,13 @@ import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.HandleDelayedJob;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog;
-import com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
-import com.greencloud.application.utils.GUIUtils;
 import com.greencloud.application.utils.TimeUtils;
 
 import jade.core.Agent;
@@ -33,7 +37,6 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 
 	private final ACLMessage replyMessage;
 	private final CloudNetworkAgent myCloudNetworkAgent;
-	private final String guid;
 
 	/**
 	 * Behaviour constructor.
@@ -45,7 +48,6 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	public InitiateMakingNewJobOffer(final Agent agent, final ACLMessage msg, final ACLMessage replyMessage) {
 		super(agent, msg);
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
-		this.guid = agent.getName();
 		this.replyMessage = replyMessage;
 	}
 
@@ -57,15 +59,16 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
-		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG, guid);
+		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
 		final String jobId = accept_proposal.getContent();
 		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
 
+		MDC.put(MDC_JOB_ID, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
 		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 
-		GUIUtils.displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
-		myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(replyMessage, JobMapper.mapToJobInstanceId(job), MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL));
+		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
 	}
 
 	/**
@@ -76,22 +79,21 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
-		logger.info(JobHandlingInitiatorLog.REJECT_SERVER_PROPOSAL_LOG, guid, reject_proposal.getSender().getName());
+		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject_proposal.getSender().getName());
 		final String jobId = reject_proposal.getContent();
 		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
 
-		GUIUtils.displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
-		myCloudNetworkAgent.send(
-				ReplyMessageFactory.prepareReply(replyMessage, JobMapper.mapToJobInstanceId(job), REJECT_PROPOSAL));
+		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 
 	private Date calculateExpectedJobStart(final Job job) {
 		final Instant startTime = TimeUtils.getCurrentTime().isAfter(job.getStartTime()) ?
 				TimeUtils.getCurrentTime() :
 				job.getStartTime();
-		return Date.from(startTime.plusSeconds(CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START));
+		return Date.from(startTime.plusSeconds(MAX_ERROR_IN_JOB_START));
 	}
 }

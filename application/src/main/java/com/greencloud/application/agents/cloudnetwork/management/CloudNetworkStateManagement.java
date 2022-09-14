@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.FINISHED_JOB_COUNT_LOG;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.STARTED_JOB_COUNT_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.domain.job.Job;
@@ -67,7 +69,8 @@ public class CloudNetworkStateManagement {
 	 */
 	public void incrementStartedJobs(final String jobId) {
 		startedJobs.getAndAdd(1);
-		logger.info(STARTED_JOB_COUNT_LOG, cloudNetworkAgent.getLocalName(), jobId, startedJobs);
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(STARTED_JOB_COUNT_LOG, jobId, startedJobs);
 
 		if (nonNull(cloudNetworkAgent.getGuiController())) {
 			cloudNetworkAgent.getGuiController().updateActiveJobsCountByValue(1);
@@ -82,7 +85,8 @@ public class CloudNetworkStateManagement {
 	 */
 	public void incrementFinishedJobs(final String jobId) {
 		finishedJobs.getAndAdd(1);
-		logger.info(FINISHED_JOB_COUNT_LOG, cloudNetworkAgent.getLocalName(), jobId, finishedJobs, startedJobs);
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(FINISHED_JOB_COUNT_LOG, jobId, finishedJobs, startedJobs);
 		updateCloudNetworkGUI();
 		announceFinishedJob(cloudNetworkAgent);
 	}

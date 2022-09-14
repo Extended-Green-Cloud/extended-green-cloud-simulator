@@ -6,5 +6,5 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.h
 public class PowerShortageCloudHandlerLog {
 
 	// HANDLING POWER SHORTAGE IN SERVER
-	public static final String SERVER_TRANSFER_EXECUTE_TRANSFER_LOG = "[{}] Transferring job {} to server {}";
+	public static final String SERVER_TRANSFER_EXECUTE_TRANSFER_LOG = "Transferring job {} to server {}";
 }

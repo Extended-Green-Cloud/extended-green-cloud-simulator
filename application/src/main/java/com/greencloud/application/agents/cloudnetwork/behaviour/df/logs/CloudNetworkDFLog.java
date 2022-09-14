@@ -6,5 +6,5 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.df.logs;
 public class CloudNetworkDFLog {
 
 	// FIND SERVERS LOG MESSAGES
-	public static final String NO_SERVERS_FOUND_LOG = "[{}] No Server Agents were found";
+	public static final String NO_SERVERS_FOUND_LOG = "No Server Agents were found";
 }
