@@ -26,7 +26,7 @@ import com.greencloud.application.weather.domain.AbstractWeather;
 import com.greencloud.application.weather.domain.FutureWeather;
 
 /**
- * Set of methods used in com.greencloud.application.weather management
+ * Set of methods used in weather management
  */
 public class MonitoringWeatherManagement {
 
@@ -43,10 +43,10 @@ public class MonitoringWeatherManagement {
 	}
 
 	/**
-	 * Constructor initializing api and cache for com.greencloud.application.weather
+	 * Constructor initializing api and cache for weather
 	 *
-	 * @param api   com.greencloud.application.weather api
-	 * @param cache com.greencloud.application.weather cache
+	 * @param api   weather api
+	 * @param cache weather cache
 	 */
 	public MonitoringWeatherManagement(final OpenWeatherMapApi api, final WeatherCache cache) {
 		this.api = api;
@@ -54,10 +54,10 @@ public class MonitoringWeatherManagement {
 	}
 
 	/**
-	 * Method retrieves com.greencloud.application.weather for given location at current moment
+	 * Method retrieves weather for given location at current moment
 	 *
 	 * @param requestData information about location
-	 * @return com.greencloud.application.weather for current moment
+	 * @return weather for current moment
 	 */
 	public MonitoringData getWeather(GreenSourceWeatherData requestData) {
 		logger.info(MonitoringManagementLog.RETRIEVE_WEATHER_LOG, requestData.getLocation());
@@ -67,10 +67,10 @@ public class MonitoringWeatherManagement {
 	}
 
 	/**
-	 * Method retrieves com.greencloud.application.weather for given location at given time
+	 * Method retrieves weather for given location at given time
 	 *
 	 * @param requestData information about location and time
-	 * @return com.greencloud.application.weather for given time
+	 * @return weather for given time
 	 */
 	public MonitoringData getForecast(GreenSourceForecastData requestData) {
 		var location = requestData.getLocation();

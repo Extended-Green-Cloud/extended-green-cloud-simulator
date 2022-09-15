@@ -5,7 +5,7 @@ import static jade.lang.acl.ACLMessage.REQUEST;
 import jade.lang.acl.MessageTemplate;
 
 /**
- * Class stores all message templates used in behaviours that server com.greencloud.application.weather information
+ * Class stores all message templates used in behaviours that server weather information
  */
 public class WeatherServingMessageTemplates {
 
