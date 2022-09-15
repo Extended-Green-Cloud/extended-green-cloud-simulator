@@ -1,5 +1,10 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer;
 
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
@@ -15,9 +20,9 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.HandleSourcePowerShortage;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.InitiatePowerJobTransfer;
 import com.greencloud.application.domain.job.JobStatusEnum;
@@ -40,7 +45,6 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	private final PowerJob powerJobToInclude;
 	private final Double maxAvailablePower;
 	private final GreenEnergyAgent myGreenAgent;
-	private final String guid;
 	private final PowerShortageCause cause;
 
 	/**
@@ -57,7 +61,6 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 		this.shortageStartTime = shortageStartTime;
 		this.maxAvailablePower = maxAvailablePower;
 		this.myGreenAgent = myAgent;
-		this.guid = myAgent.getName();
 		this.powerJobToInclude = powerJobToInclude;
 		this.cause = cause;
 	}
@@ -70,14 +73,15 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 		logPowerShortageStart();
 		final List<PowerJob> affectedJobs = getAffectedPowerJobs();
 		if (affectedJobs.isEmpty() && Objects.isNull(powerJobToInclude)) {
-			logger.info(PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG, guid);
+			logger.info(POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG);
 			initiatePowerShortageHandler(Collections.emptyList());
 		} else {
 			final List<PowerJob> jobsToKeep = findJobsWithinPower(affectedJobs, maxAvailablePower, PowerJob.class);
 			final List<PowerJob> jobsToTransfer = prepareJobsToTransfer(affectedJobs, jobsToKeep);
 
 			jobsToTransfer.forEach(powerJob -> {
-				logger.info(PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG, guid, powerJob.getJobId());
+				MDC.put(MDC_JOB_ID, powerJob.getJobId());
+				logger.info(POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG, powerJob.getJobId());
 				final PowerJob jobToTransfer = myGreenAgent.manage()
 						.dividePowerJobForPowerShortage(powerJob, shortageStartTime);
 				requestJobTransferInServer(powerJob, jobToTransfer);
@@ -123,9 +127,8 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	}
 
 	private void logPowerShortageStart() {
-		final String logMessage = cause.equals(PHYSICAL_CAUSE) ?
-				PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_LOG :
-				PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
-		logger.info(logMessage, guid, shortageStartTime);
+		final String logMessage = cause.equals(PHYSICAL_CAUSE) ? POWER_SHORTAGE_SOURCE_START_LOG :
+				POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
+		logger.info(logMessage, shortageStartTime);
 	}
 }

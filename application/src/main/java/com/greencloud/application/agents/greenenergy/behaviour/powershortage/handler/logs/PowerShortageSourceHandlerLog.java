@@ -6,6 +6,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.powershortage.ha
 public class PowerShortageSourceHandlerLog {
 
 	// POWER SHORTAGE IN SOURCE LOG MESSAGES
-	public static final String POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG = "[{}] Power shortage has started. Putting job {} on hold";
+	public static final String POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG =
+			"Power shortage has started. Putting job {} on hold";
 
 }

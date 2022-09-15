@@ -7,6 +7,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.logs.PowerShortageSourceListenerLog.SERVER_POWER_SHORTAGE_START_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.logs.PowerShortageSourceListenerLog.SERVER_POWER_SHORTAGE_START_NOT_FOUND_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.templates.PowerShortageSourceMessageTemplates.SERVER_POWER_SHORTAGE_INFORMATION_TEMPLATE;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ALERT_PROTOCOL;
@@ -17,6 +18,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
@@ -36,7 +38,6 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForServerPowerInformation.class);
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
-	private final String guid;
 
 	/**
 	 * Behaviour constructor
@@ -46,7 +47,6 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	public ListenForServerPowerInformation(final Agent myAgent) {
 		super(myAgent);
 		this.myGreenEnergyAgent = (GreenEnergyAgent) myAgent;
-		this.guid = myAgent.getName();
 	}
 
 	/**
@@ -74,32 +74,33 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleServerPowerShortageStart(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
+		MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
 		final PowerJob affectedJob = myGreenEnergyAgent.manage()
 				.getJobByIdAndStartDate(powerShortageJob.getJobInstanceId());
 
 		if (Objects.nonNull(affectedJob)) {
-			logger.info(SERVER_POWER_SHORTAGE_START_LOG, guid, powerShortageJob.getJobInstanceId().getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_START_LOG, powerShortageJob.getJobInstanceId().getJobId());
 			myGreenEnergyAgent.manage()
 					.dividePowerJobForPowerShortage(affectedJob, powerShortageJob.getPowerShortageStart());
 		} else {
-			logger.info(SERVER_POWER_SHORTAGE_START_NOT_FOUND_LOG, guid,
-					powerShortageJob.getJobInstanceId().getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_START_NOT_FOUND_LOG, powerShortageJob.getJobInstanceId().getJobId());
 		}
 	}
 
 	private void handleServerPowerShortageFinish(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(inform, JobInstanceIdentifier.class);
 		final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(powerJob)) {
-			logger.info(SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG, guid, jobInstanceId.getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG, jobInstanceId.getJobId());
 			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ?
 					JobStatusEnum.ACCEPTED :
 					JobStatusEnum.IN_PROGRESS;
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
-			logger.info(SERVER_POWER_SHORTAGE_FINISH_NOT_FOUND_LOG, guid, jobInstanceId.getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_FINISH_NOT_FOUND_LOG, jobInstanceId.getJobId());
 		}
 	}
 
@@ -107,13 +108,14 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		final JobInstanceIdentifier jobInstanceId = powerShortageJob.getJobInstanceId();
 		final PowerJob jobToPutOnHold = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(jobToPutOnHold)) {
-			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, guid, jobInstanceId.getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, jobInstanceId.getJobId());
 			myGreenEnergyAgent.getPowerJobs().replace(jobToPutOnHold, JobStatusEnum.ON_HOLD);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
-			logger.info(SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG, guid, jobInstanceId.getJobId());
+			logger.info(SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG, jobInstanceId.getJobId());
 		}
 	}
 }

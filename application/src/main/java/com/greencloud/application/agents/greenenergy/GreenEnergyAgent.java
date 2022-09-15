@@ -75,8 +75,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				doDelete();
 			}
 		} else {
-			logger.info(
-					"Incorrect arguments: some parameters for green source agent are missing - check the parameters in the documentation");
+			logger.info("Incorrect arguments: some parameters for green source agent are missing - "
+					+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}

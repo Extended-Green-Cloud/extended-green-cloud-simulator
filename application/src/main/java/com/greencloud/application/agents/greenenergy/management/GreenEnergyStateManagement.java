@@ -1,14 +1,17 @@
 package com.greencloud.application.agents.greenenergy.management;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_START_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_START_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static java.util.Objects.nonNull;
@@ -27,10 +30,10 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
-import com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
@@ -110,12 +113,13 @@ public class GreenEnergyStateManagement {
 	 * @param jobId unique job identifier
 	 */
 	public void incrementStartedJobs(final String jobId) {
+		MDC.put(MDC_JOB_ID, jobId);
 		if (isJobUnique(jobId)) {
 			uniqueStartedJobs.getAndAdd(1);
-			logger.info(UNIQUE_POWER_JOB_START_LOG, greenEnergyAgent.getLocalName(), jobId, uniqueStartedJobs);
+			logger.info(UNIQUE_POWER_JOB_START_LOG, jobId, uniqueStartedJobs);
 		}
 		startedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_START_LOG, greenEnergyAgent.getLocalName(), jobId, startedJobsInstances);
+		logger.info(DUPLICATED_POWER_JOB_START_LOG, jobId, startedJobsInstances);
 		updateGreenSourceGUI();
 	}
 
@@ -125,13 +129,14 @@ public class GreenEnergyStateManagement {
 	 * @param jobId unique identifier of the job
 	 */
 	public void incrementFinishedJobs(final String jobId) {
+		MDC.put(MDC_JOB_ID, jobId);
 		if (isJobUnique(jobId)) {
 			uniqueFinishedJobs.getAndAdd(1);
-			logger.info(UNIQUE_POWER_JOB_FINISH_LOG, greenEnergyAgent.getLocalName(), jobId,
+			logger.info(UNIQUE_POWER_JOB_FINISH_LOG, jobId,
 					uniqueFinishedJobs, uniqueStartedJobs);
 		}
 		finishedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, greenEnergyAgent.getLocalName(), jobId,
+		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobId,
 				finishedJobsInstances, startedJobsInstances);
 		updateGreenSourceGUI();
 	}
@@ -173,11 +178,9 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgent.getPowerJobs().remove(powerJob);
 			greenEnergyAgent.getPowerJobs().put(affectedPowerJobInstance, JobStatusEnum.ON_HOLD_TRANSFER);
 			greenEnergyAgent.getPowerJobs().put(notAffectedPowerJobInstance, currentJobStatus);
-			final Date endDate = Date.from(
-					affectedPowerJobInstance.getEndTime().plusMillis(GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH));
-			greenEnergyAgent.addBehaviour(
-					new HandleManualPowerSupplyFinish(greenEnergyAgent, endDate,
-							JobMapper.mapToJobInstanceId(affectedPowerJobInstance)));
+			final Date endDate = Date.from(affectedPowerJobInstance.getEndTime().plusMillis(MAX_ERROR_IN_JOB_FINISH));
+			greenEnergyAgent.addBehaviour(new HandleManualPowerSupplyFinish(greenEnergyAgent, endDate,
+					mapToJobInstanceId(affectedPowerJobInstance)));
 			updateGreenSourceGUI();
 			return affectedPowerJobInstance;
 		} else {
@@ -220,8 +223,8 @@ public class GreenEnergyStateManagement {
 		var powerChart = getPowerChart(powerJob, weather, isNewJob);
 		var availablePower = powerChart.values().stream().mapToDouble(a -> a).average().orElse(0.0D);
 		var power = String.format("%.2f", availablePower);
-
-		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
+		MDC.put(MDC_JOB_ID, powerJob.getJobId());
+		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getEnergyType(), power,
 				powerJob.getStartTime(), powerJob.getEndTime());
 
 		return powerChart.values().stream().anyMatch(value -> value <= 0) ?
@@ -239,9 +242,7 @@ public class GreenEnergyStateManagement {
 	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
 		var availablePower = getPower(time, weather);
 		var power = String.format("%.2f", availablePower);
-
-		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
-				time);
+		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getEnergyType(), power, time);
 
 		return Optional.of(availablePower).filter(powerVal -> powerVal >= 0.0);
 	}

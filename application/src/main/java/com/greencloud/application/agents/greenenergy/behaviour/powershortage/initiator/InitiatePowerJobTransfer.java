@@ -1,13 +1,20 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator;
 
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_FAILURE_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_FAILURE_NOT_FOUND_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_PROCESSING_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_REFUSE_NOT_FOUND_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 
@@ -22,7 +29,6 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	private static final Logger logger = LoggerFactory.getLogger(InitiatePowerJobTransfer.class);
 
 	private final GreenEnergyAgent myGreenAgent;
-	private final String guid;
 	private final PowerJob jobToTransfer;
 
 	/**
@@ -36,7 +42,6 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 		super(agent, transferRequest);
 		this.myGreenAgent = agent;
 		this.jobToTransfer = jobToTransfer;
-		this.guid = myGreenAgent.getLocalName();
 	}
 
 	/**
@@ -47,8 +52,8 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleAgree(ACLMessage agree) {
-		logger.info(
-				PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_PROCESSING_LOG, guid, myGreenAgent.getOwnerServer().getLocalName(),
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
+		logger.info(SOURCE_JOB_TRANSFER_PROCESSING_LOG, myGreenAgent.getOwnerServer().getLocalName(),
 				jobToTransfer.getJobId());
 	}
 
@@ -60,8 +65,9 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleRefuse(ACLMessage refuse) {
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		if (refuse.getContent().equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
-			logger.info(PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_REFUSE_NOT_FOUND_LOG, guid, jobToTransfer.getJobId());
+			logger.info(SOURCE_JOB_TRANSFER_REFUSE_NOT_FOUND_LOG, jobToTransfer.getJobId());
 			if (myGreenAgent.getPowerJobs().containsKey(jobToTransfer)) {
 				finishNonExistingJob();
 			}
@@ -77,16 +83,17 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		if (myGreenAgent.getPowerJobs().containsKey(jobToTransfer)) {
 			final String jobId = jobToTransfer.getJobId();
-			logger.info(PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG, guid, jobId);
+			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG, jobId);
 
 			myGreenAgent.getPowerJobs().remove(jobToTransfer);
 			if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
 				myGreenAgent.manage().incrementFinishedJobs(jobToTransfer.getJobId());
 			}
 		} else {
-			logger.info(PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG, guid, jobToTransfer.getJobId());
+			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG, jobToTransfer.getJobId());
 		}
 	}
 
@@ -100,15 +107,16 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	@Override
 	protected void handleFailure(ACLMessage failure) {
 		final String cause = failure.getContent();
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		if (myGreenAgent.getPowerJobs().containsKey(jobToTransfer) &&
 				!cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
-			logger.info(PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_FAILURE_LOG, guid, jobToTransfer.getJobId());
+			logger.info(SOURCE_JOB_TRANSFER_FAILURE_LOG, jobToTransfer.getJobId());
 			myGreenAgent.getPowerJobs().replace(jobToTransfer, JobStatusEnum.ON_HOLD);
 			myGreenAgent.manage().updateGreenSourceGUI();
 		} else if (cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			finishNonExistingJob();
 		} else {
-			logger.info(PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_FAILURE_NOT_FOUND_LOG, guid, jobToTransfer.getJobId());
+			logger.info(SOURCE_JOB_TRANSFER_FAILURE_NOT_FOUND_LOG, jobToTransfer.getJobId());
 		}
 	}
 

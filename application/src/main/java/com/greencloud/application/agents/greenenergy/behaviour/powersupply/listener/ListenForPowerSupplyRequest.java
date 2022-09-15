@@ -27,7 +27,6 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForPowerSupplyRequest.class);
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
-	private final String guid;
 
 	/**
 	 * Behaviours constructor.
@@ -36,7 +35,6 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 	 */
 	public ListenForPowerSupplyRequest(Agent myAgent) {
 		this.myGreenEnergyAgent = (GreenEnergyAgent) myAgent;
-		this.guid = myGreenEnergyAgent.getName();
 	}
 
 	/**
@@ -62,7 +60,7 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 		try {
 			return readMessageContent(callForProposal, PowerJob.class);
 		} catch (Exception e) {
-			logger.info("[{}] I didn't understand the message from the server, refusing the job", guid);
+			logger.info("I didn't understand the message from the server, refusing the job");
 			myAgent.send(ReplyMessageFactory.prepareRefuseReply(callForProposal.createReply()));
 		}
 		return null;

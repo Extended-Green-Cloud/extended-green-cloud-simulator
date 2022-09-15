@@ -6,6 +6,15 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.POWER_DROP_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_JOB_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.domain.powershortage.PowerShortageCause.WEATHER_CAUSE;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
@@ -21,18 +30,14 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortage;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
-import com.greencloud.application.domain.powershortage.PowerShortageCause;
-import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.MessagingUtils;
-import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
-import com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory;
-import com.greencloud.application.utils.TimeUtils;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
@@ -48,7 +53,6 @@ public class ListenForWeatherData extends CyclicBehaviour {
 
 	private final MessageTemplate messageTemplate;
 	private final GreenEnergyAgent myGreenEnergyAgent;
-	private final String guid;
 	private final PowerJob powerJob;
 	private final SequentialBehaviour parentBehaviour;
 	private final String protocol;
@@ -67,7 +71,6 @@ public class ListenForWeatherData extends CyclicBehaviour {
 		this.messageTemplate = and(and(MatchProtocol(protocol), MatchSender(myGreenAgent.getMonitoringAgent())),
 				and(or(MatchPerformative(INFORM), MatchPerformative(REFUSE)), MatchConversationId(conversationId)));
 		this.myGreenEnergyAgent = myGreenAgent;
-		this.guid = myGreenEnergyAgent.getName();
 		this.powerJob = powerJob;
 		this.parentBehaviour = parentBehaviour;
 		this.protocol = protocol;
@@ -85,6 +88,9 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			final MonitoringData data = MessagingUtils.readMessageContent(message, MonitoringData.class);
 
 			if (nonNull(data)) {
+				if (nonNull(powerJob)) {
+					MDC.put(MDC_JOB_ID, powerJob.getJobId());
+				}
 				switch (message.getPerformative()) {
 					case REFUSE -> handleRefuse();
 					case INFORM -> handleInform(data);
@@ -98,15 +104,15 @@ public class ListenForWeatherData extends CyclicBehaviour {
 
 	private void handleInform(final MonitoringData data) {
 		switch (protocol) {
-			case MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL -> handleWeatherDataForJobOnHold(data);
-			case MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL -> handleWeatherDataForPeriodicCheck(data);
+			case ON_HOLD_JOB_CHECK_PROTOCOL -> handleWeatherDataForJobOnHold(data);
+			case PERIODIC_WEATHER_CHECK_PROTOCOL -> handleWeatherDataForPeriodicCheck(data);
 		}
 	}
 
 	private void handleRefuse() {
 		switch (protocol) {
-			case MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL -> logger.info(WEATHER_UNAVAILABLE_JOB_LOG, guid, powerJob.getJobId());
-			case MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL -> logger.info(WEATHER_UNAVAILABLE_LOG, guid, TimeUtils.getCurrentTime());
+			case ON_HOLD_JOB_CHECK_PROTOCOL -> logger.info(WEATHER_UNAVAILABLE_JOB_LOG, powerJob.getJobId());
+			case PERIODIC_WEATHER_CHECK_PROTOCOL -> logger.info(WEATHER_UNAVAILABLE_LOG, getCurrentTime());
 		}
 	}
 
@@ -115,30 +121,28 @@ public class ListenForWeatherData extends CyclicBehaviour {
 				.getAverageAvailablePower(powerJob, data, false);
 
 		if (availablePower.isEmpty()) {
-			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, guid, powerJob.getJobId());
+			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, powerJob.getJobId());
 		} else {
-			logger.info(CHANGE_JOB_STATUS_LOG, guid, powerJob.getJobId());
-			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(TimeUtils.getCurrentTime()) ?
-					JobStatusEnum.ACCEPTED :
-					JobStatusEnum.IN_PROGRESS;
+			logger.info(CHANGE_JOB_STATUS_LOG, powerJob.getJobId());
+			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ? ACCEPTED : IN_PROGRESS;
 
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
-			myGreenEnergyAgent.send(PowerShortageMessageFactory.preparePowerShortageFinishInformation(JobMapper.mapToJobInstanceId(powerJob),
+			myGreenEnergyAgent.send(preparePowerShortageFinishInformation(mapToJobInstanceId(powerJob),
 					myGreenEnergyAgent.getOwnerServer()));
 		}
 	}
 
 	private void handleWeatherDataForPeriodicCheck(final MonitoringData data) {
-		final Instant time = TimeUtils.getCurrentTime();
+		final Instant time = getCurrentTime();
 		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(0.0);
 
 		if (availablePower < myGreenEnergyAgent.manage().getCurrentPowerInUseForGreenSource()) {
-			logger.info(POWER_DROP_LOG, guid, time);
-			myAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, time,
-					availablePower, PowerShortageCause.WEATHER_CAUSE));
+			logger.info(POWER_DROP_LOG, time);
+			myAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, time, availablePower,
+					WEATHER_CAUSE));
 		} else {
-			logger.info(NO_POWER_DROP_LOG, guid, time);
+			logger.info(NO_POWER_DROP_LOG, time);
 		}
 	}
 }

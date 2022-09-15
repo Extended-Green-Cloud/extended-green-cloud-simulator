@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler;
 
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.logs.PowerShortageSourceHandlerLog.POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -9,9 +11,9 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.logs.PowerShortageSourceHandlerLog;
 import com.greencloud.application.domain.job.PowerJob;
 
 import jade.core.Agent;
@@ -69,8 +71,8 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 	protected void onWake() {
 		jobsToHalt.forEach(jobToHalt -> {
 			if (myGreenEnergyAgent.getPowerJobs().containsKey(jobToHalt)) {
-				logger.info(PowerShortageSourceHandlerLog.POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG, myGreenEnergyAgent.getName(),
-						jobToHalt.getJobId());
+				MDC.put(MDC_JOB_ID, jobToHalt.getJobId());
+				logger.info(POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG, jobToHalt.getJobId());
 			}
 		});
 		if (Objects.nonNull(newMaximumCapacity)) {

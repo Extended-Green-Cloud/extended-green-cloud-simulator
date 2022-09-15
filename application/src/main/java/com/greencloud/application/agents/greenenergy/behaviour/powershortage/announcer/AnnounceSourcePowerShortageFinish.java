@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_FINISH_NO_JOBS_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_JOB_ENDED_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForWeatherData;
@@ -31,7 +33,6 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(AnnounceSourcePowerShortageFinish.class);
 
 	private final GreenEnergyAgent myGreenAgent;
-	private final String guid;
 
 	/**
 	 * Behaviour constructor
@@ -41,7 +42,6 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 	public AnnounceSourcePowerShortageFinish(GreenEnergyAgent myAgent) {
 		super(myAgent);
 		this.myGreenAgent = myAgent;
-		this.guid = myAgent.getName();
 	}
 
 	/**
@@ -50,18 +50,19 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 	 */
 	@Override
 	public void action() {
-		logger.info(POWER_SHORTAGE_SOURCE_FINISH_LOG, guid);
+		logger.info(POWER_SHORTAGE_SOURCE_FINISH_LOG);
 		final List<PowerJob> jobsOnHold = getJobsOnHold();
 
 		if (jobsOnHold.isEmpty()) {
-			logger.info(POWER_SHORTAGE_SOURCE_FINISH_NO_JOBS_LOG, guid);
+			logger.info(POWER_SHORTAGE_SOURCE_FINISH_NO_JOBS_LOG);
 		} else {
 			jobsOnHold.forEach(powerJob -> {
+				MDC.put(MDC_JOB_ID, powerJob.getJobId());
 				if (myGreenAgent.getPowerJobs().containsKey(powerJob)) {
-					logger.info(POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG, guid, powerJob.getJobId());
+					logger.info(POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG, powerJob.getJobId());
 					myAgent.addBehaviour(prepareVerificationBehaviour(powerJob));
 				} else {
-					logger.info(POWER_SHORTAGE_SOURCE_JOB_ENDED_LOG, guid, powerJob.getJobId());
+					logger.info(POWER_SHORTAGE_SOURCE_JOB_ENDED_LOG, powerJob.getJobId());
 				}
 			});
 		}
@@ -70,7 +71,7 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 
 	private Behaviour prepareVerificationBehaviour(final PowerJob affectedJob) {
 		final String conversationId = String.join("_", affectedJob.getJobId(),
-				affectedJob.getStartTime().toString(), guid);
+				affectedJob.getStartTime().toString());
 
 		final SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
 		sequentialBehaviour.addSubBehaviour(

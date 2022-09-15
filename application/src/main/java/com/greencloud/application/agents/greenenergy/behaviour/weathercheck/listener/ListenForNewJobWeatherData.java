@@ -1,5 +1,11 @@
 package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener;
 
+import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.INCORRECT_WEATHER_DATA_FORMAT_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.NOT_ENOUGH_POWER_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.POWER_SUPPLY_PROPOSAL_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.TOO_BAD_WEATHER_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_FOR_JOB_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -10,10 +16,10 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.InitiatePowerSupplyOffer;
-import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.messages.MessagingUtils;
@@ -66,12 +72,13 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(template);
 
 		if (nonNull(message)) {
+			MDC.put(MDC_JOB_ID, powerJob.getJobId());
 			final MonitoringData data = readMonitoringData(message);
 
 			if (nonNull(data)) {
 				switch (message.getPerformative()) {
 					case ACLMessage.REFUSE -> {
-						logger.info(WeatherCheckListenerLog.WEATHER_UNAVAILABLE_FOR_JOB_LOG, guid);
+						logger.info(WEATHER_UNAVAILABLE_FOR_JOB_LOG);
 						handleRefusal();
 					}
 					case ACLMessage.INFORM -> handleInform(data);
@@ -89,13 +96,13 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		final String jobId = powerJob.getJobId();
 
 		if (averageAvailablePower.isEmpty()) {
-			logger.info(WeatherCheckListenerLog.TOO_BAD_WEATHER_LOG, guid, jobId);
+			logger.info(TOO_BAD_WEATHER_LOG, jobId);
 			handleRefusal();
 		} else if (powerJob.getPower() > averageAvailablePower.get()) {
-			logger.info(WeatherCheckListenerLog.NOT_ENOUGH_POWER_LOG, guid, jobId, powerJob.getPower(), averageAvailablePower.get());
+			logger.info(NOT_ENOUGH_POWER_LOG, jobId, powerJob.getPower(), averageAvailablePower.get());
 			handleRefusal();
 		} else {
-			logger.info(WeatherCheckListenerLog.POWER_SUPPLY_PROPOSAL_LOG, guid, jobId);
+			logger.info(POWER_SUPPLY_PROPOSAL_LOG, jobId);
 			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent, averageAvailablePower.get(),
 					jobId, cfp.createReply());
 			displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
@@ -107,7 +114,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		try {
 			return MessagingUtils.readMessageContent(message, MonitoringData.class);
 		} catch (Exception e) {
-			logger.info(WeatherCheckListenerLog.INCORRECT_WEATHER_DATA_FORMAT_LOG, guid);
+			logger.info(INCORRECT_WEATHER_DATA_FORMAT_LOG, guid);
 			handleRefusal();
 		}
 		return null;

@@ -1,22 +1,25 @@
 package com.greencloud.application.agents.greenenergy.management;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.CUT_ON_WIND_SPEED;
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MOCK_SOLAR_ENERGY;
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.RATED_WIND_SPEED;
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.TEST_MULTIPLIER;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.SOLAR_FARM_SHUTDOWN_LOG;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Comparator.comparingLong;
+import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 import org.shredzone.commons.suncalc.SunTimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants;
-import com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.WeatherData;
 import com.greencloud.application.domain.location.Location;
@@ -94,21 +97,21 @@ public class GreenPowerManagement {
 
 	private double getWindPower(WeatherData weather) {
 		return currentMaximumCapacity * pow(
-				(weather.getWindSpeed() + 5 - GreenEnergyAgentConstants.CUT_ON_WIND_SPEED) / (
-						GreenEnergyAgentConstants.RATED_WIND_SPEED - GreenEnergyAgentConstants.CUT_ON_WIND_SPEED), 2)
-				* GreenEnergyAgentConstants.TEST_MULTIPLIER;
+				(weather.getWindSpeed() + 5 - CUT_ON_WIND_SPEED) / (RATED_WIND_SPEED - CUT_ON_WIND_SPEED), 2)
+				* TEST_MULTIPLIER;
 	}
 
 	private double getSolarPower(WeatherData weather, ZonedDateTime dateTime, Location location) {
 		var sunTimes = getSunTimes(dateTime, location);
 		var dayTime = dateTime.toLocalTime();
-		if (!GreenEnergyAgentConstants.MOCK_SOLAR_ENERGY || (dayTime.isBefore(Objects.requireNonNull(sunTimes.getRise()).toLocalTime()) ||
-				dayTime.isAfter(Objects.requireNonNull(sunTimes.getSet()).toLocalTime()))) {
-			logger.debug(GreenEnergyManagementLog.SOLAR_FARM_SHUTDOWN_LOG, dateTime, sunTimes.getRise(), sunTimes.getSet());
+		if (!MOCK_SOLAR_ENERGY || (dayTime.isBefore(requireNonNull(sunTimes.getRise()).toLocalTime()) ||
+				dayTime.isAfter(requireNonNull(sunTimes.getSet()).toLocalTime()))) {
+			logger.debug(SOLAR_FARM_SHUTDOWN_LOG, dateTime, sunTimes.getRise(),
+					sunTimes.getSet());
 			return 0;
 		}
 
-		return currentMaximumCapacity * min(weather.getCloudCover() / 100 + 0.1, 1) * GreenEnergyAgentConstants.TEST_MULTIPLIER;
+		return currentMaximumCapacity * min(weather.getCloudCover() / 100 + 0.1, 1) * TEST_MULTIPLIER;
 	}
 
 	private SunTimes getSunTimes(ZonedDateTime dateTime, Location location) {
