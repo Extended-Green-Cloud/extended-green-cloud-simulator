@@ -1,0 +1,20 @@
+{
+  "short_name": "Green Cloud",
+  "name": "Green Cloud System UI",
+  "icons": [
+    {
+      "src": "icon-cloud.png",
+      "type": "image/png",
+      "sizes": "50x50"
+    },
+    {
+      "src": "icon-cloud-white.png",
+      "type": "image/png",
+      "sizes": "50x50"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

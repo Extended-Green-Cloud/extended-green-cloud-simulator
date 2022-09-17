@@ -1,0 +1,49 @@
+:root {
+
+  /* COLORS */
+
+  --white: #ffffff;
+  --black: #000000;
+
+  --green-1: #4ba146;
+  --green-2: #179d10;
+
+  --gray-1: #878787;
+  --gray-2: #5e5e5e;
+  --gray-3: #262626;
+  --gray-4: #eaeaea;
+
+  --red: #d91709;
+
+  --beige-1: #faf6f1;
+
+  /* FONTS */
+
+  --font-1: 'Inter', 'sans-serif';
+
+  --font-size-1: 1.5rem;
+  --font-size-2: 0.75rem;
+  --font-size-3: 1.1rem;
+}
+
+#root {
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
