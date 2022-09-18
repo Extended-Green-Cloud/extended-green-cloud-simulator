@@ -1,34 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CloudNetwork, AgentNodeInterface, AgentType, CloudNetworkAgent } from "@types";
-import { TrafficPayload } from 'types/store/payload/traffic-payload-interface';
+import { MessagePayload, CloudNetworkStore, AgentType, CloudNetworkAgent, ClientAgent, JobStatus, CommonNetworkAgentInterface, CapacityMessage, ServerAgent, RegisterClientMessage, RegisterCloudNetworkMessage, RegisterGreenEnergyMessage, RegisterMonitoringMessage, RegisterServerMessage, RegisterAgent } from "@types";
+import { calculateAgentTraffic, changeEdgeState, getAgentByName, getEdges, registerClient, registerCloudNetwork, registerGreenEnergy, registerMonitoring, registerServer } from './api';
 
-const MOCK_AGENTS: AgentNodeInterface[] = [
-    { type: AgentType.CLOUD_NETWORK, name: 'CNA1', serverAgents: ['Server1', 'Server2'], maximumCapacity: 0, traffic: 0, totalNumberOfClients: 0, totalNumberOfExecutedJobs: 0 },
-    { type: AgentType.CLOUD_NETWORK, name: 'CNA2', serverAgents: ['Server3', 'Server4'], maximumCapacity: 0, traffic: 0, totalNumberOfClients: 0, totalNumberOfExecutedJobs: 0 },
-    { type: AgentType.SERVER, name: 'Server1', greenEnergyAgents: ['Solar1', 'Water1'], cloudNetworkAgent: 'CNA1', traffic: 0, backUpTraffic: 0, totalNumberOfClients: 0, initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false },
-    { type: AgentType.SERVER, name: 'Server2', greenEnergyAgents: ['Solar2', 'Water2'], cloudNetworkAgent: 'CNA1', traffic: 0, backUpTraffic: 0, totalNumberOfClients: 0, initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false },
-    { type: AgentType.SERVER, name: 'Server3', greenEnergyAgents: ['Solar3', 'Water3'], cloudNetworkAgent: 'CNA2', traffic: 0, backUpTraffic: 0, totalNumberOfClients: 0, initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false },
-    { type: AgentType.SERVER, name: 'Server4', greenEnergyAgents: ['Solar4', 'Water4'], cloudNetworkAgent: 'CNA2', traffic: 0, backUpTraffic: 0, totalNumberOfClients: 0, initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false },
-    { type: AgentType.GREEN_ENERGY, name: 'Solar1', monitoringAgent: 'Weather1', traffic: 0, serverAgent: 'Server1', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Solar2', monitoringAgent: 'Weather2', traffic: 0, serverAgent: 'Server2', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Solar3', monitoringAgent: 'Weather3', traffic: 0, serverAgent: 'Server3', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Solar4', monitoringAgent: 'Weather4', traffic: 0, serverAgent: 'Server4', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Water1', monitoringAgent: 'Weather5', traffic: 0, serverAgent: 'Server1', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Water2', monitoringAgent: 'Weather6', traffic: 0, serverAgent: 'Server2', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Water3', monitoringAgent: 'Weather7', traffic: 0, serverAgent: 'Server3', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.GREEN_ENERGY, name: 'Water4', monitoringAgent: 'Weather8', traffic: 0, serverAgent: 'Server4', initialMaximumCapacity: 0, currentMaximumCapacity: 0, numberOfExecutedJobs: 0, numberOfJobsOnHold: 0, isActive: false, agentLocation: { latitude: '11', longitude: '10' } },
-    { type: AgentType.MONITORING, name: 'Weather1', greenEnergyAgent: 'Solar1'},
-    { type: AgentType.MONITORING, name: 'Weather2', greenEnergyAgent: 'Solar2'},
-    { type: AgentType.MONITORING, name: 'Weather3', greenEnergyAgent: 'Solar3'},
-    { type: AgentType.MONITORING, name: 'Weather4', greenEnergyAgent: 'Solar4'},
-    { type: AgentType.MONITORING, name: 'Weather5', greenEnergyAgent: 'Water1'},
-    { type: AgentType.MONITORING, name: 'Weather6', greenEnergyAgent: 'Water2'},
-    { type: AgentType.MONITORING, name: 'Weather7', greenEnergyAgent: 'Water3'},
-    { type: AgentType.MONITORING, name: 'Weather8', greenEnergyAgent: 'Water4'}
-]
-
-const INITIAL_STATE: CloudNetwork = {
-    agents: MOCK_AGENTS,
+const INITIAL_STATE: CloudNetworkStore = {
+    agents: [],
+    selectedAgent: undefined,
     currClientsNo: 0,
     currActiveJobsNo: 0,
     currPlannedJobsNo: 0,
@@ -41,16 +17,136 @@ export const cloudNetworkSlice = createSlice({
     name: 'cloudNetwork',
     initialState: INITIAL_STATE,
     reducers: {
-        setTotalPrice(state, action: PayloadAction<number>) {
-            state.totalPrice = action.payload
+        setSelectedAgent(state, action: PayloadAction<string>) {
+            const agent = getAgentByName(state.agents, action.payload)
+            if (agent) {
+                state.selectedAgent = agent
+            }
         },
-        incrementPrice(state) {
-            state.currActiveJobsNo = state.currActiveJobsNo + 1
+        displayAgentEdge(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent) {
+                const targetAgents = action.payload.data as string[]
+                const edges = getEdges(agent, targetAgents)
+                changeEdgeState(edges, 'active')
+            }
         },
-        setAgentTraffic(state, action: PayloadAction<TrafficPayload>) {
-            const agent = state.agents.find(agent => agent.name === action.payload.agentName)
-            if(agent && agent.type === AgentType.CLOUD_NETWORK) {
-                (agent as CloudNetworkAgent).traffic = action.payload.traffic
+        hideAgentEdge(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent) {
+                const targetAgents = action.payload.data as string[]
+                const edges = getEdges(agent, targetAgents)
+                changeEdgeState(edges, 'inactive')
+            }
+        },
+        registerAgent(state, action: PayloadAction<MessagePayload>) {
+            if (!getAgentByName(state.agents, (action.payload.data as RegisterAgent).name)) {
+                let newAgent
+                switch (action.payload.agentType) {
+                    case AgentType.CLIENT:
+                        newAgent = registerClient(action.payload.data as RegisterClientMessage)
+                        break
+                    case AgentType.CLOUD_NETWORK:
+                        newAgent = registerCloudNetwork(action.payload.data as RegisterCloudNetworkMessage)
+                        break
+                    case AgentType.GREEN_ENERGY:
+                        newAgent = registerGreenEnergy(action.payload.data as RegisterGreenEnergyMessage)
+                        break
+                    case AgentType.MONITORING:
+                        newAgent = registerMonitoring(action.payload.data as RegisterMonitoringMessage)
+                        break
+                    case AgentType.SERVER:
+                        newAgent = registerServer(action.payload.data as RegisterServerMessage)
+                        break
+                }
+
+                if (newAgent) {
+                    state.agents.push(newAgent)
+                }
+            }
+        },
+        incrementFinishedJobs(state) {
+            state.finishedJobsNo++
+        },
+        incrementFailedJobs(state) {
+            state.failedJobsNo++
+        },
+        updateCurrentClientNumber(state, action: PayloadAction<MessagePayload>) {
+            state.currClientsNo += action.payload.data as number
+        },
+        updateCurrentPlannedJobsNumber(state, action: PayloadAction<MessagePayload>) {
+            state.currPlannedJobsNo += action.payload.data as number
+        },
+        updateCurrentActiveJobsNumber(state, action: PayloadAction<MessagePayload>) {
+            state.currActiveJobsNo += action.payload.data as number
+        },
+        setTotalPrice(state, action: PayloadAction<MessagePayload>) {
+            state.totalPrice = action.payload.data as number
+        },
+        setMaximumCapacity(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && (agent.type === AgentType.SERVER || agent?.type === AgentType.GREEN_ENERGY)) {
+                const networkAgent = agent as CommonNetworkAgentInterface
+                const { powerInUse, maximumCapacity } = action.payload.data as CapacityMessage
+                networkAgent.currentMaximumCapacity = maximumCapacity
+                networkAgent.traffic = calculateAgentTraffic(networkAgent.currentMaximumCapacity, powerInUse)
+            }
+        },
+        setTraffic(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent) {
+                const powerInUse = action.payload.data as number
+                if (agent.type === AgentType.SERVER || agent?.type === AgentType.GREEN_ENERGY) {
+                    const networkAgent = agent as CommonNetworkAgentInterface
+                    networkAgent.traffic = calculateAgentTraffic(networkAgent.currentMaximumCapacity, powerInUse)
+                } else if (agent.type === AgentType.CLOUD_NETWORK) {
+                    const cna = agent as CloudNetworkAgent
+                    cna.traffic = calculateAgentTraffic(cna.maximumCapacity, powerInUse)
+                }
+            }
+        },
+        setIsActive(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && (agent.type === AgentType.SERVER || agent?.type === AgentType.GREEN_ENERGY)) {
+                (agent as CommonNetworkAgentInterface).isActive = action.payload.data as boolean
+            }
+        },
+        setJobsCount(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent) {
+                if (agent.type === AgentType.SERVER || agent?.type === AgentType.GREEN_ENERGY) {
+                    (agent as CommonNetworkAgentInterface).numberOfExecutedJobs = action.payload.data as number
+                } else if (agent.type === AgentType.CLOUD_NETWORK) {
+                    (agent as CloudNetworkAgent).totalNumberOfExecutedJobs = action.payload.data as number
+                }
+            }
+        },
+        setOnHoldJobsCount(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && (agent.type === AgentType.SERVER || agent?.type === AgentType.GREEN_ENERGY)) {
+                (agent as CommonNetworkAgentInterface).numberOfJobsOnHold = action.payload.data as number
+            }
+        },
+        setClientNumber(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && agent.type === AgentType.CLOUD_NETWORK) {
+                (agent as CloudNetworkAgent).totalNumberOfClients = action.payload.data as number
+            } else if (agent && agent.type === AgentType.SERVER) {
+                (agent as ServerAgent).totalNumberOfClients = action.payload.data as number
+            }
+        },
+        setClientJobStatus(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && agent.type === AgentType.CLIENT) {
+                (agent as ClientAgent).jobStatusEnum = action.payload.data as JobStatus
+            }
+        },
+        setServerBackUpTraffic(state, action: PayloadAction<MessagePayload>) {
+            const agent = getAgentByName(state.agents, action.payload?.agentName)
+            if (agent && agent.type === AgentType.SERVER) {
+                const server = agent as ServerAgent
+                const backUp = action.payload.data as number
+                server.backUpTraffic = calculateAgentTraffic(server.initialMaximumCapacity, backUp)
             }
         }
     }

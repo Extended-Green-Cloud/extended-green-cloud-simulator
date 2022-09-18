@@ -11,7 +11,7 @@ export const styles: Styles = {
     parentContainer: {
         backgroundColor: 'var(--green-1)',
         boxShadow: '0px 6px 6px -6px rgba(0,0,0,0.4)',
-        height: '150px',
+        height: '25%',
     },
     bannerContainer: {
         color: 'var(--white)',

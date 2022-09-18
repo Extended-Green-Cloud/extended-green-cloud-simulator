@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { crashMiddleware, loggingMiddleware } from '@middleware'
 import createSagaMiddleware from 'redux-saga';
-import { cloudNetworkSlice } from './cloud-network/slice'
-import socketSagas from './socket/sagas/fetch-message-saga';
-import { socketSlice } from './socket/slice';
-import { guiError } from './gui-error/slice';
+import { cloudNetworkSlice } from './cloud-network'
+import socketSagas from './socket/sagas/sagas';
+import { socketSlice } from './socket';
+import { errorSlice } from './error';
+import { crashMiddleware, loggingMiddleware } from '@middleware'
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -12,7 +12,7 @@ export const store = configureStore({
     reducer: {
         cloudNetwork: cloudNetworkSlice.reducer,
         socket: socketSlice.reducer,
-        guiError: guiError.reducer
+        error: errorSlice.reducer
     },
     middleware: (getDefaultMiddleware) => {
         return getDefaultMiddleware({ thunk: false }).concat([

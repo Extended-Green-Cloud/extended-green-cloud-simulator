@@ -11,6 +11,6 @@ export const styles: Styles = {
         backgroundColor: 'var(--white)',
         marginTop: '-80px',
         minWidth: 'min-content',
-        marginLeft: '20px'
+        marginLeft: '20px',
     }
 }

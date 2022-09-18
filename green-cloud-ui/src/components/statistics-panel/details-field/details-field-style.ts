@@ -3,7 +3,8 @@ import React from "react"
 interface Styles {
     detailsContainer: React.CSSProperties,
     label: React.CSSProperties,
-    value: React.CSSProperties
+    value: React.CSSProperties,
+    valueText: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -28,6 +29,9 @@ export const styles: Styles = {
         width: '30%',
         textAlign: 'right',
         paddingRight: '10px',
+    },
+    valueText: {
+        fontWeight: '400',
         fontSize: 'var(--font-size-3)'
     }
 }

@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SocketConnection } from "@types";
+import { createSlice } from "@reduxjs/toolkit";
+import { SocketStore } from "@types";
 
-const INITIAL_STATE: SocketConnection = {
+const INITIAL_STATE: SocketStore = {
     isConnected: false
 }
 

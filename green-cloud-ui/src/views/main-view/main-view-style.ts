@@ -2,7 +2,8 @@ import React from "react"
 
 interface Styles {
     mainContainer: React.CSSProperties,
-    contentContainer: React.CSSProperties
+    contentContainer: React.CSSProperties,
+    leftContentContainer: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -13,6 +14,13 @@ export const styles: Styles = {
     },
     contentContainer: {
         display: 'flex',
-        flexGrow: 1,
+        height: '75%',
+        minHeight: 0
+    },
+    leftContentContainer: {
+        width: '30%',
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 'fit-content'
     }
 }

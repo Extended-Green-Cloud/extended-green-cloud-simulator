@@ -32,13 +32,24 @@ const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
         style: {
             "curve-style": "bezier",
         },
-    },
+    }
+]
+
+const EDGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
-        selector: "edge[type = 'unidirected']",
+        selector: "edge[type = 'unidirected'][state = 'inactive']",
         style: {
             width: 1,
             "target-arrow-shape": "none",
             "line-color": "#242424"
+        },
+    },
+    {
+        selector: "edge[type = 'unidirected'][state = 'active']",
+        style: {
+            width: 1,
+            "target-arrow-shape": "none",
+            "line-color": "#58B905"
         },
     },
     {
@@ -189,6 +200,7 @@ const MONITORING_STYLESHEET: Array<cytoscape.Stylesheet> = [
 
 export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
     COMMON_STYLESHEET
+        .concat(EDGE_STYLESHEET)
         .concat(CNA_STYLESHEET)
         .concat(SERVER_STYLESHEET)
         .concat(GREEN_ENERGY_STYLESHEET)
@@ -198,10 +210,10 @@ export const GRAPH_LAYOUT = {
     name: 'fcose',
     quality: "proof",
     fit: true,
-    padding: 20,
-    nodeRepulsion: 6000,
     animation: true,
     nodeDimensionsIncludeLabels: true,
+    padding: 20,
+    nodeRepulsion: 6000,
     edgeElasticity: 0.45,
     gravity: 0.2,
     idealEdgeLength: 20,
