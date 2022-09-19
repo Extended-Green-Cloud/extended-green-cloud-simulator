@@ -2,7 +2,6 @@ import { Agent } from "../agents/agent-interface";
 
 export type CloudNetworkStore = {
     agents: Agent[],
-    selectedAgent?: Agent,
     currClientsNo: number;
     currActiveJobsNo: number;
     currPlannedJobsNo: number;

@@ -7,13 +7,21 @@
 
   --green-1: #4ba146;
   --green-2: #179d10;
+  --green-3: #66ca60;
+  --green-4: #76cd5c;
+  --green-5: #70bd6a;
+  --green-6: #7fc77a;
 
   --gray-1: #878787;
   --gray-2: #5e5e5e;
   --gray-3: #262626;
   --gray-4: #eaeaea;
+  --gray-5: #e3e2e2;
+  --gray-6: #5e5b5b;
 
-  --red: #d91709;
+  --red-1: #cc2020;
+  --red-2: #dd3030;
+  --red-3: #dc3d3d;
 
   --beige-1: #faf6f1;
 
@@ -24,6 +32,20 @@
   --font-size-1: 1.5rem;
   --font-size-2: 0.75rem;
   --font-size-3: 1rem;
+
+  /* SHADOWS */
+
+  --banner-shadow: 0px 6px 6px -6px rgba(0,0,0,0.4);
+  --card-shadow: 3px 3px 13px -3px rgba(0,0,0,0.3);
+  --button-shadow: 0px 1px 4px 0px #8c8c8c;
+  --event-shadow: 0px 2px 9px 0px rgba(0,0,0,0.2);
+
+  /* BORDERS */
+
+  --border-agent-panel: 1.5px solid var(--green-1);
+  --border-event: 3px solid var(--gray-1);
+  --border-detail: 6px solid var(--gray-2);
+  --border-subtitle: 1px solid var(--gray-2);
 }
 
 #root {
@@ -76,6 +98,15 @@ body {
   background: transparent;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

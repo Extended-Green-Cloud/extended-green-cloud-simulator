@@ -16,11 +16,12 @@ interface MessageHandlerProps {
     emitter: Emitter
 }
 
+const ws = new WebSocket(process.env.REACT_APP_WEB_SOCKET_URL)
+
 export function establishSocketConnection() {
     return eventChannel(emitter => {
-        const ws = new WebSocket(process.env.REACT_APP_WEB_SOCKET_URL)
 
-        ws.onopen = () => handleSocketOpen(emitter)
+        ws.onopen = () => handleSocketOpen(emitter, ws)
         ws.onmessage = (e) => handleSocketMessage({ event: e, emitter })
         ws.onerror = (e) => handleSocketError(e)
         ws.onclose = () => handleSocketClose()
@@ -29,7 +30,13 @@ export function establishSocketConnection() {
     })
 }
 
-const handleSocketOpen = (emitter: Emitter) => {
+export function sendMessageUsnigSocket(data: string) {
+    if (ws.readyState === WebSocket.OPEN && ws) {
+        ws.send(data)
+    }
+}
+
+const handleSocketOpen = (emitter: Emitter, ws: WebSocket) => {
     console.log("Connection was opened")
     emitter(socketActions.connectSocket())
 }

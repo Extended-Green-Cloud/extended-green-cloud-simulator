@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { MessagePayload, CloudNetworkStore, AgentType, CloudNetworkAgent, ClientAgent, JobStatus, CommonNetworkAgentInterface, CapacityMessage, ServerAgent, RegisterClientMessage, RegisterCloudNetworkMessage, RegisterGreenEnergyMessage, RegisterMonitoringMessage, RegisterServerMessage, RegisterAgent } from "@types";
-import { calculateAgentTraffic, changeEdgeState, getAgentByName, getEdges, registerClient, registerCloudNetwork, registerGreenEnergy, registerMonitoring, registerServer } from './api';
+import { MessagePayload, CloudNetworkStore, AgentType, CloudNetworkAgent, ClientAgent, JobStatus, CommonNetworkAgentInterface, CapacityMessage, ServerAgent, RegisterClientMessage, RegisterCloudNetworkMessage, RegisterGreenEnergyMessage, RegisterMonitoringMessage, RegisterServerMessage, RegisterAgent, PowerShortageEventData, EventType, EventState, PowerShortageMessage } from "@types";
+import { sendMessageUsnigSocket } from 'store/socket';
+import { calculateAgentTraffic, changeEdgeState, getAgentByName, getEdges, getEventByType, getSelectedAgent, registerClient, registerCloudNetwork, registerGreenEnergy, registerMonitoring, registerServer } from './api';
 
 const INITIAL_STATE: CloudNetworkStore = {
     agents: [],
-    selectedAgent: undefined,
     currClientsNo: 0,
     currActiveJobsNo: 0,
     currPlannedJobsNo: 0,
@@ -17,10 +17,53 @@ export const cloudNetworkSlice = createSlice({
     name: 'cloudNetwork',
     initialState: INITIAL_STATE,
     reducers: {
+        setPowerShortageCapacity(state, action: PayloadAction<PowerShortageEventData>) {
+            const agent = getAgentByName(state.agents, action.payload.agentName)
+            if (agent) {
+                const event = getEventByType(agent.events, EventType.POWER_SHORTAGE_EVENT)
+                if (event) {
+                    const capacity = action.payload.newMaximumCapacity
+                    event!.data = { newMaximumCapacity: capacity };
+                }
+            }
+        },
+        triggerPowerShortage(state, action: PayloadAction<string | undefined>) {
+            const agent = getAgentByName(state.agents, action.payload)
+            if (agent) {
+                const event = getEventByType(agent.events, EventType.POWER_SHORTAGE_EVENT)
+                if (event) {
+                    const networkAgent = agent as CommonNetworkAgentInterface
+                    networkAgent.currentMaximumCapacity = EventState.ACTIVE === event.state ?
+                        event.data?.newMaximumCapacity as number :
+                        networkAgent.initialMaximumCapacity
+                    const occurenceTime = new Date()
+                    occurenceTime.setSeconds(occurenceTime.getSeconds() + 2)
+                    event!.occurenceTime = occurenceTime.toJSON()
+                    event.disabled = true
+                    event.state = EventState.ACTIVE === event.state ? EventState.INACTIVE : EventState.ACTIVE;
+                    const data: PowerShortageMessage = { ...event, agentName: agent.name }
+                    sendMessageUsnigSocket(JSON.stringify(data))
+                    event.data = null
+                }
+            }
+        },
+        unlockPowerShortageEvent(state, action: PayloadAction<string | undefined>) {
+            const agent = getAgentByName(state.agents, action.payload)
+            if (agent) {
+                const event = getEventByType(agent.events, EventType.POWER_SHORTAGE_EVENT)
+                if (event) {
+                    event.disabled = false
+                }
+            }
+        },
         setSelectedAgent(state, action: PayloadAction<string>) {
             const agent = getAgentByName(state.agents, action.payload)
             if (agent) {
-                state.selectedAgent = agent
+                const previousAgent = getSelectedAgent(state.agents)
+                if (previousAgent) {
+                    previousAgent.isSelected = false
+                }
+                agent.isSelected = true
             }
         },
         displayAgentEdge(state, action: PayloadAction<MessagePayload>) {

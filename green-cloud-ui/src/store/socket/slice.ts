@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { SocketStore } from "@types";
 
 const INITIAL_STATE: SocketStore = {
-    isConnected: false
+    isConnected: false,
 }
 
 export const socketSlice = createSlice({

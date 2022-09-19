@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { styles } from './main-view-style'
-import { AgentStatisticsPanel, Banner, CloudStatisticsPanel, GraphPanel } from '@components'
+import { AgentStatisticsPanel, Banner, CloudStatisticsPanel, EventPanel, GraphPanel } from '@components'
 import { useAppDispatch, socketActions } from '@store';
 import { AgentType, EnergyType, MessagePayload, MessageType } from '@types';
 
@@ -49,6 +49,7 @@ const MainView = () => {
           <AgentStatisticsPanel />
         </div>
         <GraphPanel />
+        <EventPanel />
       </div>
     </div>
   );
