@@ -6,9 +6,8 @@ interface Styles {
 
 export const styles: Styles = {
     cloudContainer: {
-        height: '40%',
         backgroundColor: 'var(--white)',
-        marginTop: '-65px',
+        height: '45%',
         marginLeft: '20px',
         minWidth: 'fit-content'
     }

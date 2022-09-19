@@ -6,11 +6,12 @@ interface Styles {
 
 export const styles: Styles = {
     graphContainer: {
-        width: '40%',
-        height: '100%',
+        flexGrow: 1,
+        height: '105%',
         backgroundColor: 'var(--white)',
-        marginTop: '-80px',
         minWidth: 'min-content',
+        marginTop: '-1%',
         marginLeft: '20px',
+        marginRight: '20px'
     }
 }

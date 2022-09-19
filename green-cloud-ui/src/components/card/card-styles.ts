@@ -9,23 +9,23 @@ interface Styles {
 
 export const styles: Styles = {
     cardContainer: {
-        padding: '15px',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '3px 3px 13px -3px rgba(0,0,0,0.3)',
+        padding: '15px',
+        boxShadow: 'var(--card-shadow)',
     },
     cardHeader: {
         color: 'var(--gray-2)',
         fontWeight: '300',
     },
     cardContent: {
+        flexGrow: 1,
         marginTop: '20px',
         color: 'var(--gray-2)',
         fontWeight: '300',
-        flexGrow: 1,
     },
     cardContentScroll: {
-        overflowY: 'auto',
+        overflowY: 'scroll',
         overflowX: 'hidden'
     }
 }

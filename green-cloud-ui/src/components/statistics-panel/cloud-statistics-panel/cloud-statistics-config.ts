@@ -4,6 +4,7 @@ export const CURRENT_CLOUD_STATISTICS = [
     { key: 'currPlannedJobsNo', label: 'Current number of planned jobs'}
 ]
 
+// TODO: the following map will be used in upcoming improvements
 export const SUMMARIZED_CLOUD_STATISTICS = [
     { key: 'finishedJobsNo', label: 'Total number of finished jobs'},
     { key: 'failedJobsNo', label: 'Total number of failed jobs'},

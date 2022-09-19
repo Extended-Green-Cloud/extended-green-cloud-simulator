@@ -5,6 +5,10 @@ import { styles } from './graph-panel-styles'
 
 const header = 'Cloud network structure'
 
+/**
+ * Component is the graph container
+ * @returns JSX Element
+ */
 const GraphPanel = () => {
     return (
         <Card {...{header, containerStyle: styles.graphContainer, removeScroll: true}} >

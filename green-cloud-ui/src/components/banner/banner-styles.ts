@@ -10,19 +10,20 @@ interface Styles {
 export const styles: Styles = {
     parentContainer: {
         backgroundColor: 'var(--green-1)',
-        boxShadow: '0px 6px 6px -6px rgba(0,0,0,0.4)',
-        height: '25%',
+        boxShadow: 'var(--banner-shadow)',
+        height: 'min-content',
+        paddingBottom: '5%'
     },
     bannerContainer: {
+        display: 'flex',
+        alignItems: 'center',
         color: 'var(--white)',
         fontFamily: 'var(--font-1)',
         fontSize: 'var(--font-size-1)',
         fontWeight: '300',
         paddingLeft: '10px',
-        display: 'flex',
-        alignItems: 'center',
-        height: '50px',
         paddingTop: '10px',
+        height: '50px',
     },
     bannerText: {
         paddingLeft: '15px',

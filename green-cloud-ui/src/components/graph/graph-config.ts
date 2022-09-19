@@ -13,7 +13,7 @@ const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
             "padding-right": "4",
             "font-family": "Inter, sans-serif",
             "font-weight": "bold",
-            "font-size": "10",
+            "font-size": "11",
             "text-transform": "uppercase",
             "target-text-offset": 10,
             "source-text-offset": 10,
@@ -216,8 +216,8 @@ export const GRAPH_LAYOUT = {
     nodeRepulsion: 6000,
     edgeElasticity: 0.45,
     gravity: 0.2,
-    idealEdgeLength: 20,
-    nodeSeparation: 15,
+    idealEdgeLength: 30,
+    nodeSeparation: 30,
     sampleSize: 30,
 }
 

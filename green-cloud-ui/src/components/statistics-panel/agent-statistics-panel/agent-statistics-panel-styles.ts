@@ -11,38 +11,39 @@ interface Styles {
 
 export const styles: Styles = {
     agentContainer: {
-        height: '40%',
+        flexShrink: 0,
         backgroundColor: 'var(--white)',
-        marginTop: '20px',
+        height: '45%',
+        marginTop: '5%',
         marginLeft: '20px',
-        minWidth: 'fit-content'
     },
     badge: {
         display: 'block',
         textAlign: 'center',
-        color: 'white',
+        color: 'var(--white)',
         borderRadius: '10px',
         fontSize: '0.8rem',
         fontWeight: '500',
     },
     inActiveBadge: {
-        backgroundColor: '#5e5b5b',
+        backgroundColor: 'var(--gray-6)',
     },
     activeBadge: {
-        backgroundColor: '#76cd5c',
+        backgroundColor: 'var(--green-4)',
     },
     agentHeader: {
+        display: 'flex',
         color: 'var(--gray-2)',
         fontWeight: '300',
-        display: 'flex',
-        minWidth: 'fit-content'
+        minWidth: 'fit-content',
     },
     agentNameHeader: {
-        marginLeft: '15%',
-        fontWeight: '500',
         flexGrow: 1,
         textAlign: 'right',
+        marginLeft: '15%',
+        fontWeight: '500',
         paddingBottom: '2px',
-        borderBottom: '3px solid var(--green-1)',
+        borderBottom: 'var(--border-agent-panel)',
+        minWidth: 0
     }
 }

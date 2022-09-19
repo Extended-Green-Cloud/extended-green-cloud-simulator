@@ -8,22 +8,35 @@ interface Props {
     containerStyle?: React.CSSProperties
 }
 
-const Card = ({ header, children, containerStyle, removeScroll }: Props) => {
+/**
+ * Component representing common container with shadow effect
+ * 
+ * @param {object}[children] - content to be displayed inside container
+ * @param {string}[header] - header displayed at the top of the container
+ * @param {boolean}[removeScroll] -flag indicating whether the scroll bar   should be removed 
+ * @param {object}[containerStyle] - optional styling applied to the container
+ * @returns 
+ */
+const Card = ({
+    header,
+    children,
+    containerStyle,
+    removeScroll
+}: Props) => {
+
     const contentStyle = removeScroll ?
         { ...styles.cardContent } :
         { ...styles.cardContent, ...styles.cardContentScroll }
+    const parentContainerStyle = { ...styles.cardContainer, ...containerStyle }
 
-    const mapHeader = () => {
-        if (header) {
-            return typeof header === 'string' ?
-                <div style={styles.cardHeader}>{header?.toUpperCase()}</div> :
-                header
-        }
-    }
+    const mapHeader = () =>
+        typeof header === 'string' ?
+            <div style={styles.cardHeader}>{header?.toUpperCase()}</div> :
+            header
 
     return (
-        <div style={{ ...styles.cardContainer, ...containerStyle }}>
-            {mapHeader()}
+        <div style={parentContainerStyle}>
+            {header && mapHeader()}
             <div style={contentStyle}>
                 {children}
             </div>

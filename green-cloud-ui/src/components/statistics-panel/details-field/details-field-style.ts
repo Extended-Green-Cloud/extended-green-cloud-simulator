@@ -10,17 +10,17 @@ interface Styles {
 export const styles: Styles = {
     detailsContainer: {
         display: 'flex',
-        width: '100%',
         alignItems: 'center',
+        width: '100%',
         marginBottom: '10px',
         paddingTop: '5px',
         paddingBottom: '5px',
         backgroundColor: 'var(--gray-4)',
-        borderLeft: '6px solid var(--gray-2)',
+        borderLeft: 'var(--border-detail)',
     },
     label: {
-        width: '70%',
         textAlign: 'left',
+        width: '70%',
         paddingLeft: '10px',
         fontWeight: '300',
         fontSize: 'var(--font-size-2)'
