@@ -57,7 +57,7 @@ const EventPanel = () => {
     }
 
     const getPowerShortageFields = (event: AgentEvent, label: string) => {
-        const { newMaximumCapacity } = event.data as PowerShortageEvent
+        const powerShortage = event.data as PowerShortageEvent
         const buttonStyle =
             ['button',
                 event.state === EventState.ACTIVE ?
@@ -69,7 +69,7 @@ const EventPanel = () => {
         return (
             <>
                 <NumericInput {...{
-                    value: newMaximumCapacity,
+                    value: powerShortage?.newMaximumCapacity,
                     handleChange: handlePowerShortageChange,
                     label: topButtonLabel,
                     disabled,
