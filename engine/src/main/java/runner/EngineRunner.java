@@ -17,7 +17,7 @@ import runner.service.SingleContainerScenarioService;
 public class EngineRunner {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenario = "complicatedScenarioNoWeatherChanging";
+		String scenario = "simpleScenario";
 
 		if (MULTI_CONTAINER) {
 			runMultiContainerService(scenario);

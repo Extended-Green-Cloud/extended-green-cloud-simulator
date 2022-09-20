@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.ClientAgentConstants;
+import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
-import com.gui.agents.domain.JobStatusEnum;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.application.domain.location.Location;
+import com.greencloud.commons.location.Location;
 
 /**
  * Object storing the data passed by the Green Source in the forecast request message

@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.greencloud.commons.args.cloudnetwork.CloudNetworkArgs;
+import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.server.ServerAgentArgs;
+
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.CloudNetworkArgs;
-import runner.domain.GreenEnergyAgentArgs;
-import runner.domain.MonitoringAgentArgs;
 import runner.domain.ScenarioArgs;
-import runner.domain.ServerAgentArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
@@ -40,11 +41,11 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 
 	/**
 	 * Service's constructor for the remote host. Creates an AgentContainer which contains
-	 * all agents underlying to the {@link agents.cloudnetwork.CloudNetworkAgent} corresponding to
+	 * all agents underlying to the CloudNetworkAgent corresponding to
 	 * the given host id.
 	 *
-	 * @param fileName name of the XML scenario document
-	 * @param hostId number of the host id
+	 * @param fileName   name of the XML scenario document
+	 * @param hostId     number of the host id
 	 * @param mainHostIp IP address of the main host
 	 */
 	public MultiContainerScenarioService(String fileName, Integer hostId, String mainHostIp) {
@@ -71,7 +72,6 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 			runClients(scenario);
 		} else {
 			List<AgentController> controllers = runCloudNetworkContainers(scenario, hostId);
-			guiController.createEdges();
 			runAgents(controllers);
 		}
 	}

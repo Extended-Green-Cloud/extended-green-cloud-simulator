@@ -7,7 +7,7 @@ import com.gui.agents.AbstractAgentNode;
 /**
  * Controller for GUI
  */
-public interface GUIController extends Runnable {
+public interface GuiController extends Runnable {
 
 	/**
 	 * Method creates the GUI
@@ -53,13 +53,6 @@ public interface GUIController extends Runnable {
 	 * @param value value to be added to the all jobs number
 	 */
 	void updateAllJobsCountByValue(final int value);
-
-	/**
-	 * Method adds new information to the latest news panel
-	 *
-	 * @param information information that is to be added
-	 */
-	void addNewInformation(final String information);
 
 	/**
 	 * Method draws an arrow to show the messages flow between com.greencloud.application.agents

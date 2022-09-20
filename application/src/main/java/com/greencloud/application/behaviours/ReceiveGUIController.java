@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.gui.agents.AbstractAgentNode;
-import com.gui.controller.GUIController;
+import com.gui.controller.GuiController;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -45,10 +45,10 @@ public class ReceiveGUIController extends CyclicBehaviour {
 	public void action() {
 		final Object object = abstractAgent.getO2AObject();
 		if (object != null) {
-			if (object instanceof GUIController) {
-				abstractAgent.setGuiController((GUIController) object);
-			} else if (object instanceof AbstractAgentNode) {
-				abstractAgent.setAgentNode((AbstractAgentNode) object);
+			if (object instanceof GuiController guiController) {
+				abstractAgent.setGuiController(guiController);
+			} else if (object instanceof AbstractAgentNode node) {
+				abstractAgent.setAgentNode(node);
 			}
 			if (objectCounter == 1) {
 				logger.info("[{}] Agent connected with the controller", myAgent.getName());

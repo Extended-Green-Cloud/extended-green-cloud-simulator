@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.WeatherData;
-import com.greencloud.application.domain.location.Location;
+import com.greencloud.commons.location.Location;
 
 /**
  * Set of methods used in green power management

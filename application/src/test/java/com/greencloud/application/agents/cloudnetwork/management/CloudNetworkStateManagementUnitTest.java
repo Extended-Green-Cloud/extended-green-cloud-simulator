@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
@@ -22,11 +23,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.domain.job.ImmutableJob;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.gui.controller.GuiController;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -38,6 +39,8 @@ class CloudNetworkStateManagementUnitTest {
 
 	@Mock
 	private CloudNetworkAgent mockCloudNetwork;
+	@Mock
+	private GuiController guiController;
 	private CloudNetworkStateManagement cloudNetworkStateManagement;
 
 	// PARAMETERS USED IN TESTS
@@ -50,12 +53,12 @@ class CloudNetworkStateManagementUnitTest {
 
 	@BeforeAll
 	static void setUpAll() {
-		AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
 	void init() {
 		MOCK_JOBS = setUpCloudNetworkJobs();
+		when(mockCloudNetwork.getGuiController()).thenReturn(guiController);
 		cloudNetworkStateManagement = new CloudNetworkStateManagement(mockCloudNetwork);
 
 		doReturn(MOCK_JOBS).when(mockCloudNetwork).getNetworkJobs();

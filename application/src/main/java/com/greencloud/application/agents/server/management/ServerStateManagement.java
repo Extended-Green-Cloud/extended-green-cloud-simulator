@@ -227,7 +227,8 @@ public class ServerStateManagement {
 
 		final ServerAgentNode serverAgentNode = (ServerAgentNode) serverAgent.getAgentNode();
 		if (Objects.nonNull(serverAgentNode)) {
-			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity());
+			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(),
+					getCurrentPowerInUseForServer());
 		}
 	}
 
@@ -278,7 +279,8 @@ public class ServerStateManagement {
 		final ServerAgentNode serverAgentNode = (ServerAgentNode) serverAgent.getAgentNode();
 
 		if (Objects.nonNull(serverAgentNode)) {
-			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity());
+			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(),
+					getCurrentPowerInUseForServer());
 			serverAgentNode.updateJobsCount(getJobCount());
 			serverAgentNode.updateClientNumber(getClientNumber());
 			serverAgentNode.updateIsActive(getIsActiveState());

@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import com.greencloud.commons.args.AgentArgs;
+
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.AgentArgs;
 import runner.domain.ScenarioArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
@@ -44,7 +45,6 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 			createAgents(scenario.getServerAgentsArgs(), scenario);
 			createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
 		}
-		guiController.createEdges();
 		runAgents(AGENTS_TO_RUN);
 		runClientAgents(CLIENT_NUMBER, scenario, factory);
 	}

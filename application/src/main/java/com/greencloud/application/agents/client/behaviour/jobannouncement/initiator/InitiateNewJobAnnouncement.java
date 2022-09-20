@@ -31,8 +31,8 @@ import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.application.messages.domain.constants.MessageContentConstants;
+import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
-import com.gui.agents.domain.JobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;

@@ -8,12 +8,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
@@ -27,6 +27,7 @@ import jade.junit.jupiter.JadeExtension;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JadeExtension.class)
 @MockitoSettings(strictness = LENIENT)
+@Disabled
 class SimpleScenarioTest {
 
 	private static final Instant NOW = parse("2022-08-15T16:30:00.000Z");
@@ -50,7 +51,6 @@ class SimpleScenarioTest {
 
 	@BeforeAll
 	static void init() {
-		AbstractAgent.disableGui();
 		TimeUtils.useMockTime(NOW, ZoneId.of("UTC"));
 	}
 
