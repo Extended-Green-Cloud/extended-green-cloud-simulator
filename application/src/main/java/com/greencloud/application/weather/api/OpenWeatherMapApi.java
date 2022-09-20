@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greencloud.application.domain.location.Location;
 import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.weather.domain.CurrentWeather;
 import com.greencloud.application.weather.domain.Forecast;
+import com.greencloud.commons.location.Location;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

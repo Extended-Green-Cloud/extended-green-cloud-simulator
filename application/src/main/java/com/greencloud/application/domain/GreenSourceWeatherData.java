@@ -4,7 +4,7 @@ import org.immutables.value.Value.Immutable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.application.domain.location.Location;
+import com.greencloud.commons.location.Location;
 
 /**
  * Object storing the data passed by the Green Source in the com.greencloud.application.weather query message

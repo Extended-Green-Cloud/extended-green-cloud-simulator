@@ -35,7 +35,9 @@ public class SenseGreenSourceEvent extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		final AbstractEvent event = myGreenEnergyAgent.getAgentNode().removeEventFromStack();
+		// TODO add new event handling using websockets
+		final AbstractEvent event = null;
+		//myGreenEnergyAgent.getAgentNode().removeEventFromStack();
 
 		if (Objects.nonNull(event)) {
 			switch (event.getEventTypeEnum()) {

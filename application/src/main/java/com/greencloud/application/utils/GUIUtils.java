@@ -63,7 +63,8 @@ public class GUIUtils {
 	 */
 	public static void displayMessageArrow(final AbstractAgent agent, final List<AID> receivers) {
 		agent.getGuiController()
-				.displayMessageArrow(agent.getAgentNode(), receivers.stream().map(AID::getLocalName).toList());
+				.displayMessageArrow(agent.getAgentNode(), receivers.stream().map(AID::getLocalName)
+						.toList());
 	}
 
 	/**

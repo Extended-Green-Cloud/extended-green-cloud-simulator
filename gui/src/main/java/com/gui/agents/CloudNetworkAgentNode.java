@@ -1,17 +1,13 @@
 package com.gui.agents;
 
-import static com.gui.graph.domain.GraphStyleConstants.CLOUD_NETWORK_HIGH_TRAFFIC_STYLE;
-import static com.gui.graph.domain.GraphStyleConstants.CLOUD_NETWORK_LOW_TRAFFIC_STYLE;
-import static com.gui.graph.domain.GraphStyleConstants.CLOUD_NETWORK_MEDIUM_TRAFFIC_STYLE;
-import static com.gui.gui.utils.GUILabelUtils.createListLabel;
-import static com.gui.gui.utils.GUILabelUtils.formatToHTML;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.gui.graph.domain.GraphStyleConstants;
-import com.gui.gui.panels.domain.listlabels.AgentDetailsPanelListLabelEnum;
+import com.greencloud.commons.args.cloudnetwork.ImmutableCloudNetworkNodeArgs;
+import com.gui.message.ImmutableRegisterAgentMessage;
+import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.websocket.GuiWebSocketClient;
 
 /**
  * Agent node class representing the cloud network
@@ -29,7 +25,7 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 	 *
 	 * @param name            name of the node
 	 * @param maximumCapacity maximum capacity of cloud network
-	 * @param serverAgents    list of server com.greencloud.application.agents names
+	 * @param serverAgents    list of server agents names
 	 */
 	public CloudNetworkAgentNode(String name, double maximumCapacity, List<String> serverAgents) {
 		super(name);
@@ -38,8 +34,20 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 		this.traffic = new AtomicReference<>(0D);
 		this.totalNumberOfClients = new AtomicInteger(0);
 		this.totalNumberOfExecutedJobs = new AtomicInteger(0);
-		initializeLabelsMap();
-		createInformationPanel();
+
+	}
+
+	@Override
+	public void addToGraph(GuiWebSocketClient webSocketClient) {
+		this.webSocketClient = webSocketClient;
+		webSocketClient.send(ImmutableRegisterAgentMessage.builder()
+				.agentType("CLOUD_NETWORK")
+				.data(ImmutableCloudNetworkNodeArgs.builder()
+						.name(agentName)
+						.serverAgents(serverAgents)
+						.maximumCapacity(maximumCapacity.get())
+						.build())
+				.build());
 	}
 
 	/**
@@ -49,8 +57,11 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 	 */
 	public void updateClientNumber(final int value) {
 		this.totalNumberOfClients.set(value);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.TOTAL_NUMBER_OF_CLIENTS_LABEL)
-				.setText(formatToHTML(String.valueOf(totalNumberOfClients)));
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(value)
+				.agentName(agentName)
+				.type("SET_CLIENT_NUMBER")
+				.build());
 	}
 
 	/**
@@ -60,9 +71,11 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 	 */
 	public void updateTraffic(final double powerInUse) {
 		this.traffic.set((powerInUse / maximumCapacity.get()) * 100);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.TRAFFIC_LABEL)
-				.setText(formatToHTML(String.format("%.2f%%", traffic.get())));
-		updateGraphUI();
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.type("SET_TRAFFIC")
+				.agentName(agentName)
+				.data(powerInUse)
+				.build());
 	}
 
 	/**
@@ -72,39 +85,10 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 	 */
 	public void updateJobsCount(final int value) {
 		this.totalNumberOfExecutedJobs.set(value);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.NUMBER_OF_EXECUTED_JOBS_LABEL)
-				.setText(formatToHTML(String.valueOf(totalNumberOfExecutedJobs)));
-	}
-
-	@Override
-	public void updateGraphUI() {
-		if (traffic.get() > 85) {
-			graphService.updateNodeStyle(agentName, CLOUD_NETWORK_HIGH_TRAFFIC_STYLE);
-		} else if (traffic.get() > 50) {
-			graphService.updateNodeStyle(agentName, CLOUD_NETWORK_MEDIUM_TRAFFIC_STYLE);
-		} else if (traffic.get() > 0) {
-			graphService.updateNodeStyle(agentName, CLOUD_NETWORK_LOW_TRAFFIC_STYLE);
-		} else {
-			graphService.updateNodeStyle(agentName, GraphStyleConstants.CLOUD_NETWORK_INACTIVE_STYLE);
-		}
-	}
-
-	@Override
-	public void createEdges() {
-		serverAgents.forEach(serverName -> graphService.createAndAddEdgeToGraph(agentName, serverName, true));
-	}
-
-	@Override
-	public void initializeLabelsMap() {
-		agentDetailLabels.put(AgentDetailsPanelListLabelEnum.SERVERS_NUMBER_LABEL,
-				createListLabel(String.valueOf(serverAgents.size())));
-		agentDetailLabels.put(AgentDetailsPanelListLabelEnum.CURRENT_MAXIMUM_CAPACITY_LABEL,
-				createListLabel(String.valueOf(maximumCapacity)));
-		agentDetailLabels.put(AgentDetailsPanelListLabelEnum.TRAFFIC_LABEL,
-				createListLabel(String.format("%.2f%%", traffic.get())));
-		agentDetailLabels.put(AgentDetailsPanelListLabelEnum.TOTAL_NUMBER_OF_CLIENTS_LABEL,
-				createListLabel(String.valueOf(totalNumberOfClients)));
-		agentDetailLabels.put(AgentDetailsPanelListLabelEnum.NUMBER_OF_EXECUTED_JOBS_LABEL,
-				createListLabel(String.valueOf(totalNumberOfExecutedJobs)));
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.type("SET_JOBS_COUNT")
+				.agentName(agentName)
+				.data(value)
+				.build());
 	}
 }

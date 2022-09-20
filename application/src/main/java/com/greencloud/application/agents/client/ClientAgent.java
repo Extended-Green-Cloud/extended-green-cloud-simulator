@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.client;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.gui.GuiConnectionProvider.connectToGui;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
@@ -16,7 +17,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
-import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.domain.job.ImmutableJob;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.exception.IncorrectTaskDateException;
@@ -45,7 +45,8 @@ public class ClientAgent extends AbstractClientAgent {
 			initializeAgent();
 			final Job jobToBeExecuted = initializeAgentJob(args);
 			MDC.put(MDC_JOB_ID, jobToBeExecuted.getJobId());
-			addBehaviour(new ReceiveGUIController(this, prepareStartingBehaviour(jobToBeExecuted)));
+			connectToGui(this);
+			prepareStartingBehaviour(jobToBeExecuted).forEach(this::addBehaviour);
 		} else {
 			logger.error("Incorrect arguments: some parameters for client's job are missing -"
 					+ " check the parameters in the documentation");

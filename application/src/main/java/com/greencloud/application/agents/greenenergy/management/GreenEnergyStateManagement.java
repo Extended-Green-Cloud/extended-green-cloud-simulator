@@ -151,7 +151,8 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity(),
+					getCurrentPowerInUseForGreenSource());
 		}
 	}
 
@@ -254,7 +255,8 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity(),
+					getCurrentPowerInUseForGreenSource());
 			greenEnergyAgentNode.updateJobsCount(getJobCount());
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());

@@ -9,6 +9,12 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.client.ClientAgentArgs;
+import com.greencloud.commons.args.cloudnetwork.CloudNetworkArgs;
+import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.server.ServerAgentArgs;
 
 /**
  * Arguments of the entire scenario

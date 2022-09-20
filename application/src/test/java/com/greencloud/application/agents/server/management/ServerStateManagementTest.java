@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
@@ -46,6 +45,8 @@ import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
+import com.gui.agents.ServerAgentNode;
+import com.gui.controller.GuiControllerImpl;
 
 import jade.core.AID;
 
@@ -96,7 +97,6 @@ class ServerStateManagementTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
-		AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
@@ -392,8 +392,10 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test finishing job on back up power")
 	void testFinishingJobBackUpPower() {
+		final AID greenSourceForJob = mock(AID.class);
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
+		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
 
 		serverAgent.manage().finishJobExecution(job, false);
 
@@ -484,6 +486,8 @@ class ServerStateManagementTest {
 		doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
 		doReturn(MOCK_MANAGEMENT).when(serverAgent).manage();
+		doReturn(mock(GuiControllerImpl.class)).when(serverAgent).getGuiController();
+		doReturn(mock(ServerAgentNode.class)).when(serverAgent).getAgentNode();
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());
 	}
