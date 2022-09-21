@@ -50,7 +50,7 @@ class SimpleScenarioTest {
 
 	@BeforeAll
 	static void init() {
-		AbstractAgent.disableGui();
+		//AbstractAgent.disableGui();
 		TimeUtils.useMockTime(NOW, ZoneId.of("UTC"));
 	}
 

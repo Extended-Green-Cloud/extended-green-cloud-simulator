@@ -1,16 +1,12 @@
-package utils;
+package com.greencloud.application.utils;
 
-import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.application.domain.job.ImmutableJob;
-import com.greencloud.application.domain.job.Job;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.application.domain.job.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -20,6 +16,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.JobMapUtils.*;
@@ -37,12 +34,38 @@ public class JobMapUtilsUnitTest {
     @BeforeAll
     static void setUpAll() {
         TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
-        AbstractAgent.disableGui();
+        //AbstractAgent.disableGui();
     }
 
     @BeforeEach
     void init() {
         MOCK_JOBS = setUpJobs();
+    }
+
+    private static Stream<Arguments> parametersGetByIdAndStart() {
+        return Stream.of(
+                Arguments.of(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
+                Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
+    }
+
+    private static Stream<Arguments> parametersGetByIdAndStartInstant() {
+        return Stream.of(
+                Arguments.of(ImmutableJobInstanceIdentifier.builder()
+                        .startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
+                        .jobId("3")
+                        .build(), true),
+                Arguments.of(ImmutableJobInstanceIdentifier.builder()
+                        .startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
+                        .jobId("1")
+                        .build(), false));
+    }
+
+    private static Stream<Arguments> parametersGetById() {
+        return Stream.of(Arguments.of("5", true), Arguments.of("10000", false));
+    }
+
+    private static Stream<Arguments> parametersIsJobUnique() {
+        return Stream.of(Arguments.of("5", true), Arguments.of("1", false));
     }
 
     @ParameterizedTest

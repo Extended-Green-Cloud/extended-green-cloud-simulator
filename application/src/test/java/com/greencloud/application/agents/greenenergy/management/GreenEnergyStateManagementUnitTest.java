@@ -19,27 +19,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.ImmutablePowerJob;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 
@@ -60,35 +53,11 @@ class GreenEnergyStateManagementUnitTest {
 	@Mock
 	private static GreenPowerManagement MOCK_POWER_MANAGEMENT;
 
-	// PARAMETERS USED IN PARAMETRIZED TESTS
-
-	private static Stream<Arguments> parametersGetByIdAndStart() {
-		return Stream.of(
-				Arguments.of(Instant.parse("2022-01-01T07:00:00.000Z"), "2", true),
-				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
-	}
-
-	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
-		return Stream.of(
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("3")
-						.build(), true),
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("1")
-						.build(), false));
-	}
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("10000", false));
-	}
-
 	// TEST SET-UP
 
 	@BeforeAll
 	static void setUpAll() {
-		AbstractAgent.disableGui();
+		//AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
@@ -98,30 +67,6 @@ class GreenEnergyStateManagementUnitTest {
 	}
 
 	// TESTS
-
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStart")
-	@DisplayName("Test getting power job by id and start time")
-	void testGettingJobByIdAndStartTime(final Instant startTime, final String jobId, final boolean result) {
-		final PowerJob jobResult = mockGreenEnergyAgent.manage().getJobByIdAndStartDate(jobId, startTime);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStartInstant")
-	@DisplayName("Test getting power job by id and start time instant")
-	void testGettingJobByIdAndStartTimeInstant(final JobInstanceIdentifier jobInstance, final boolean result) {
-		final PowerJob jobResult = mockGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstance);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetById")
-	@DisplayName("Test getting power job by id")
-	void testGettingJobById(final String jobId, final boolean result) {
-		final PowerJob jobResult = mockGreenEnergyAgent.manage().getJobById(jobId);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
 
 	@Test
 	@DisplayName("Test increment started unique power job")

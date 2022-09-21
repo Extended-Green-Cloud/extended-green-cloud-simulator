@@ -96,7 +96,7 @@ class ServerStateManagementTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
-		AbstractAgent.disableGui();
+		//AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
