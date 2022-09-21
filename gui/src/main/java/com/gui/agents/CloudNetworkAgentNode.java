@@ -29,7 +29,7 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 	 *
 	 * @param name            name of the node
 	 * @param maximumCapacity maximum capacity of cloud network
-	 * @param serverAgents    list of server agents names
+	 * @param serverAgents    list of server com.greencloud.application.agents names
 	 */
 	public CloudNetworkAgentNode(String name, double maximumCapacity, List<String> serverAgents) {
 		super(name);

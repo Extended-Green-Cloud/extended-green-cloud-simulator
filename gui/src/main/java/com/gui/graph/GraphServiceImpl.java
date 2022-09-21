@@ -6,6 +6,7 @@ import static com.gui.graph.domain.GraphConfigurationConstants.LAYOUT_NODE_AREA;
 import static com.gui.graph.domain.GraphConfigurationConstants.TIMER_DELAY_MILLISECONDS;
 import static com.gui.graph.domain.GraphExceptionConstants.EDGE_NOT_FOUND;
 import static com.gui.graph.domain.GraphExceptionConstants.INCORRECT_EDGE_TYPE;
+import static com.gui.graph.domain.GraphExceptionConstants.NODES_NOT_FOUND;
 import static com.gui.graph.domain.GraphExceptionConstants.NODE_NOT_FOUND;
 import static com.gui.graph.domain.GraphStyleConstants.CLOUD_NETWORK_INACTIVE_STYLE;
 import static com.gui.graph.domain.GraphStyleConstants.CLOUD_NETWORK_NODE_SIZE;
@@ -94,7 +95,7 @@ public class GraphServiceImpl implements GraphService {
                 graph.getModel().endUpdate();
             }
         } else {
-            logger.info(NODE_NOT_FOUND);
+            logger.error(NODE_NOT_FOUND, node.getAgentName());
         }
     }
 
@@ -104,7 +105,7 @@ public class GraphServiceImpl implements GraphService {
         if (Objects.nonNull(vertexToUpdate)) {
             graphStyleService.changeGraphElementStylesheet(vertexToUpdate, graph, styleName);
         } else {
-            logger.info(NODE_NOT_FOUND);
+            logger.error(NODE_NOT_FOUND, node);
         }
     }
 
@@ -125,7 +126,7 @@ public class GraphServiceImpl implements GraphService {
                 graph.getModel().endUpdate();
             }
         } else {
-            logger.info(NODE_NOT_FOUND);
+            logger.error(NODES_NOT_FOUND, nodeSource, nodeTarget);
         }
     }
 
@@ -143,7 +144,7 @@ public class GraphServiceImpl implements GraphService {
                 logger.info(INCORRECT_EDGE_TYPE);
             }
         } else {
-            logger.info(EDGE_NOT_FOUND);
+            logger.error(EDGE_NOT_FOUND, edgeName);
         }
     }
 

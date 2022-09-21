@@ -44,7 +44,6 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 	public void addToGraph(final GraphService graphService) {
 		this.graphService = graphService;
 		graphService.createAndAddNodeToGraph(this);
-		updateGraphUI();
 	}
 
 	@Override

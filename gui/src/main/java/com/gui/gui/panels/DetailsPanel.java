@@ -10,10 +10,10 @@ import static com.gui.gui.panels.domain.PanelConstants.DETAILS_PANEL_TITLE;
 import static com.gui.gui.panels.domain.PanelConstants.IS_NETWORK_AGENT;
 import static com.gui.gui.utils.GUIComponentUtils.createDefaultAgentComboBox;
 import static com.gui.gui.utils.GUIComponentUtils.createDefaultAgentComboBoxModel;
-import static com.gui.gui.utils.GUILabelUtils.addPanelHeader;
 import static com.gui.gui.utils.GUIContainerUtils.createBorderPanel;
 import static com.gui.gui.utils.GUIContainerUtils.createDefaultEmptyPanel;
 import static com.gui.gui.utils.GUIContainerUtils.createVerticallyScrolledPanel;
+import static com.gui.gui.utils.GUILabelUtils.addPanelHeader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 
 /**
- * Panel displaying detailed data regarding agents
+ * Panel displaying detailed data regarding com.greencloud.application.agents
  */
 public class DetailsPanel {
 

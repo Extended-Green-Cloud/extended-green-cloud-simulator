@@ -53,6 +53,8 @@ public class GraphStyleServiceImpl implements GraphStyleService {
         graph.getModel().beginUpdate();
         try {
             graph.setCellStyle(newStyle, new Object[]{element});
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return;
         } finally {
             graph.getModel().endUpdate();
         }

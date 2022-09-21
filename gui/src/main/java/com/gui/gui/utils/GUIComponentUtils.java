@@ -81,9 +81,9 @@ public class GUIComponentUtils {
 	/**
 	 * Method creates the comboBox and initialize it with given agent nodes
 	 *
-	 * @param agents         agents to be put in the combobox
+	 * @param agents         com.greencloud.application.agents to be put in the combobox
 	 * @param actionListener action computed on value selection
-	 * @param type           type of agents to select from
+	 * @param type           type of com.greencloud.application.agents to select from
 	 * @return JComboBox
 	 */
 	public static JComboBox createDefaultAgentComboBox(final List<AbstractAgentNode> agents,
@@ -96,9 +96,9 @@ public class GUIComponentUtils {
 	/**
 	 * Method creates and assigns to the combobox a default model computed based on a given agent list
 	 *
-	 * @param agents   agents to be included in the model
+	 * @param agents   com.greencloud.application.agents to be included in the model
 	 * @param comboBox combo box for which the model is assigned
-	 * @param type     type of agents to select from
+	 * @param type     type of com.greencloud.application.agents to select from
 	 */
 	public static void createDefaultAgentComboBoxModel(final List<AbstractAgentNode> agents, final JComboBox comboBox,
 			final String type) {

@@ -62,10 +62,10 @@ public interface GUIController extends Runnable {
 	void addNewInformation(final String information);
 
 	/**
-	 * Method draws an arrow to show the messages flow between agents
+	 * Method draws an arrow to show the messages flow between com.greencloud.application.agents
 	 *
 	 * @param senderAgent    agent sending the message
-	 * @param receiversNames names of the agents receiving the message
+	 * @param receiversNames names of the com.greencloud.application.agents receiving the message
 	 */
 	void displayMessageArrow(final AbstractAgentNode senderAgent, final List<String> receiversNames);
 

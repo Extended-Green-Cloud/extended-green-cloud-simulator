@@ -1,11 +1,10 @@
 package runner.domain;
 
-import agents.greenenergy.domain.EnergyTypeEnum;
+import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import org.immutables.value.Value;
+import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
 
 /**
  * Arguments for the Green Source Agent
@@ -48,5 +47,5 @@ public interface GreenEnergyAgentArgs extends AgentArgs {
 	/**
 	 * @return type of energy source
 	 */
-	EnergyTypeEnum getEnergyType();
+	GreenEnergySourceTypeEnum getEnergyType();
 }

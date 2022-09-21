@@ -11,10 +11,11 @@ import static com.gui.gui.panels.domain.PanelConstants.IS_NETWORK_AGENT;
 import static com.gui.gui.utils.GUIComponentUtils.createDefaultAgentComboBox;
 import static com.gui.gui.utils.GUIComponentUtils.createDefaultAgentComboBoxModel;
 import static com.gui.gui.utils.GUIComponentUtils.createSeparator;
-import static com.gui.gui.utils.GUILabelUtils.addPanelHeader;
 import static com.gui.gui.utils.GUIContainerUtils.createBorderPanel;
 import static com.gui.gui.utils.GUIContainerUtils.createDefaultEmptyPanel;
+import static com.gui.gui.utils.GUILabelUtils.addPanelHeader;
 import static com.gui.gui.utils.domain.GUIStyleConstants.GRAY_2_COLOR;
+import static java.util.Objects.nonNull;
 
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -114,7 +115,8 @@ public class AdminPanel {
 
 	private JScrollPane getEventPanelByName(final String agentName) {
 		return (JScrollPane) Arrays.stream(eventPanel.getComponents())
-				.filter(component -> component.getName().equals(agentName))
+				.filter(component -> nonNull(component) && nonNull(component.getName()) && component.getName()
+						.equals(agentName))
 				.findFirst()
 				.orElse(null);
 	}

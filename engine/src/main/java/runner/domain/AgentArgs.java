@@ -1,7 +1,7 @@
 package runner.domain;
 
 /**
- * Common arguments of agents
+ * Common arguments of com.greencloud.application.agents
  */
 public interface AgentArgs {
 

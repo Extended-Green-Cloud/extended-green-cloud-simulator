@@ -1,0 +1,56 @@
+.numeric-input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.numeric-input-label {
+    display: inline-block;
+    font-size: 0.6rem;
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.numeric-input-active-label {
+    color: var(--green-2);
+}
+
+.numeric-input-inactive-label {
+    color: var(--gray-3);
+}
+
+.numeric-input {
+    padding: 8px 5px;
+    background: #fff;
+    border: solid 1px #cbcbcb;
+    transition: all 0.4s ease;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    font-size: var(--font-size-2);
+    font-family: var(--font-1);
+}
+
+.numeric-input-active:hover {
+    box-shadow: inset 0 0 0 1px var(--green-3);
+}
+
+.numeric-input-active:focus {
+    box-shadow: inset 0 0 0 1px var(--green-3);
+    outline: 0;
+}
+
+.numeric-input-inactive:hover {
+    box-shadow: none;
+    outline: 0;
+}
+
+.numeric-input-inactive:focus {
+    box-shadow: none;
+    outline: 0;
+}
+
+.numeric-input::placeholder {
+    font-size: var(--font-size-2);
+    font-family: var(--font-1);
+    color: var(--gray-5);
+    font-weight: 300;
+}

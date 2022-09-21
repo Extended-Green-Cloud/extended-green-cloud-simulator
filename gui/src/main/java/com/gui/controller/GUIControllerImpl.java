@@ -78,8 +78,8 @@ public class GUIControllerImpl implements GUIController {
 	@Override
 	public synchronized void addAgentNodeToGraph(final AbstractAgentNode agent) {
 		graphNodes.add(agent);
-		agent.addToGraph(graphService);
 		if (!(agent instanceof ClientAgentNode)) {
+			agent.addToGraph(graphService);
 			detailsPanel.revalidateComboBoxModel(graphNodes, false);
 			adminPanel.revalidateComboBoxModel(agent, false);
 		} else {
@@ -89,9 +89,9 @@ public class GUIControllerImpl implements GUIController {
 
 	@Override
 	public void removeAgentNodeFromGraph(final AbstractAgentNode agent) {
-		graphService.removeNodeFromGraph(agent);
 		graphNodes.remove(agent);
 		if (!(agent instanceof ClientAgentNode)) {
+			graphService.removeNodeFromGraph(agent);
 			detailsPanel.revalidateComboBoxModel(graphNodes, false);
 			adminPanel.revalidateComboBoxModel(agent, true);
 		} else {
@@ -131,7 +131,9 @@ public class GUIControllerImpl implements GUIController {
 
 	@Override
 	public void displayMessageArrow(final AbstractAgentNode senderAgent, final List<String> receiversNames) {
-		graphService.displayMessageEdges(senderAgent.getAgentName(), receiversNames);
+		if (!(senderAgent instanceof ClientAgentNode)) {
+			graphService.displayMessageEdges(senderAgent.getAgentName(), receiversNames);
+		}
 	}
 
 	private JScrollPane createMainPanel() {
