@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartStatusRequestMessage;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 
 import java.util.Date;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 
 		if (Objects.nonNull(job) && myCloudNetworkAgent.getServerForJobMap().containsKey(jobId)

@@ -17,6 +17,7 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 
 import java.time.Instant;
 import java.util.List;
@@ -135,7 +136,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	}
 
 	private void handleTransferFailure() {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransferInstance);
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),

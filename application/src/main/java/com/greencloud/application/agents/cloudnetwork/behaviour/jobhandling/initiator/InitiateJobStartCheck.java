@@ -8,6 +8,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 
 import java.util.Objects;
 
@@ -64,12 +65,12 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.info(JOB_HAS_STARTED_LOG, jobId);
 
-			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), IN_PROGRESS);
+			myCloudNetwork.getNetworkJobs().replace(getJobById(myCloudNetwork.getNetworkJobs(), jobId), IN_PROGRESS);
 			myCloudNetwork.manage().incrementStartedJobs(jobId);
 			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
 		}
@@ -83,7 +84,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = myCloudNetwork.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.error(JOB_HAS_NOT_STARTED_LOG, jobId);

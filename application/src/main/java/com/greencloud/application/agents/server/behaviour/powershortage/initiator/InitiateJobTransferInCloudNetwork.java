@@ -17,6 +17,8 @@ import static com.greencloud.application.messages.domain.factory.JobStatusMessag
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobMapUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -90,7 +92,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobInstanceId().getJobId());
 		logger.info(CNA_JOB_TRANSFER_REFUSE_LOG, myServerAgent.getOwnerCloudNetworkAgent().getLocalName(),
 				jobToTransfer.getJobInstanceId().getJobId());
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
 			informGreenSourceUponJobFinish(job, refuse.getContent());
 			updateServerStateUponJobFinish(job);
@@ -106,7 +108,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.info(CNA_JOB_TRANSFER_SUCCESSFUL_LOG, jobToTransfer.getJobInstanceId().getJobId());
@@ -125,7 +127,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			final String jobId = jobToTransfer.getJobInstanceId().getJobId();
 			informGreenSourceUponJobOnHold(jobId, failure.getContent());
@@ -154,7 +156,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		if (job.getStartTime().isBefore(getCurrentTime())) {
 			myServerAgent.manage().incrementFinishedJobs(job.getJobId());
 		}
-		if (myServerAgent.manage().isJobUnique(job.getJobId())) {
+		if (isJobUnique(myServerAgent.getServerJobs(), job.getJobId())) {
 			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
 		}
 		myServerAgent.getServerJobs().remove(job);

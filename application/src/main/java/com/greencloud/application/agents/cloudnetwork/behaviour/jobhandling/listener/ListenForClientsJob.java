@@ -8,6 +8,7 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 
 import java.util.Objects;
 
@@ -65,7 +66,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 			logger.info(SEND_CFP_RETRY_LOG, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
 		} else {
 			myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
-			final Job previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
+			final Job previousInstance = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 			if (Objects.nonNull(previousInstance)) {
 				myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
 			}

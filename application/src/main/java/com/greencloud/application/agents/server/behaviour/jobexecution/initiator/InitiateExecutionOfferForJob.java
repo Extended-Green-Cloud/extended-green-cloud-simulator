@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		final JobWithProtocol jobWithProtocol = MessagingUtils.readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
-		final Job jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job jobInstance = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 		final Integer availableCapacity = myServerAgent.manage().getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
 		if (jobInstance.getPower() > availableCapacity) {
 			myServerAgent.getServerJobs().remove(jobInstance);
@@ -85,7 +86,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		final JobInstanceIdentifier jobInstanceId = MessagingUtils.readMessageContent(reject_proposal,
 				JobInstanceIdentifier.class);
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());

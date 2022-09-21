@@ -1,16 +1,17 @@
-package utils;
+package com.greencloud.application.utils;
 
-import domain.job.AbstractJob;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
+import com.greencloud.application.domain.job.AbstractJob;
+import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.domain.job.PowerJob;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static utils.TimeUtils.getCurrentTime;
-import static utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 
 public class JobMapUtils {
 

@@ -12,16 +12,12 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_S
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.utils.JobMapUtils.getJobCount;
+import static com.greencloud.application.utils.JobMapUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
-import static mapper.JsonMapper.getMapper;
-import static utils.GUIUtils.displayMessageArrow;
-import static utils.JobMapUtils.getJobCount;
-import static utils.TimeUtils.getCurrentTime;
-import static utils.TimeUtils.isWithinTimeStamp;
-import static utils.JobMapUtils.isJobUnique;
 
 import java.time.Instant;
 import java.util.Date;
@@ -40,20 +36,12 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.gui.agents.GreenEnergyAgentNode;
 
-import agents.greenenergy.GreenEnergyAgent;
-import agents.greenenergy.behaviour.FinishJobManually;
-import common.mapper.JobMapper;
-import domain.MonitoringData;
-import domain.job.JobStatusEnum;
-import domain.job.PowerJob;
 import jade.lang.acl.ACLMessage;
-import messages.domain.factory.ReplyMessageFactory;
 
 /**
  * Set of methods used to manage the internal state of the green energy agent
@@ -203,15 +191,6 @@ public class GreenEnergyStateManagement {
 		return powerChart.values().stream().anyMatch(value -> value <= 0) ?
 				Optional.empty() :
 				Optional.of(availablePower);
-	public MonitoringData readMonitoringData(ACLMessage message, ACLMessage originalMessage) {
-		try {
-			return getMapper().readValue(message.getContent(), MonitoringData.class);
-		} catch (JsonProcessingException e) {
-			logger.info("[{}] I didn't understand the response with the weather data, sending refuse message to server",
-					greenEnergyAgent.getName());
-			greenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(originalMessage.createReply()));
-		}
-		return null;
 	}
 
 	/**
@@ -237,7 +216,7 @@ public class GreenEnergyStateManagement {
 
 		if (nonNull(greenEnergyAgentNode)) {
 			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity());
-			greenEnergyAgentNode.updateJobsCount(getJobCount());
+			greenEnergyAgentNode.updateJobsCount(getJobCount(greenEnergyAgent.getPowerJobs()));
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
 			greenEnergyAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
@@ -261,23 +240,6 @@ public class GreenEnergyStateManagement {
 	}
 
 	private synchronized Double getPower(Instant start, MonitoringData weather) {
-		var powerJobs = greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(greenEnergyAgent.getPowerJobs().get(job)))
-				.toList();
-
-		if (powerJobs.isEmpty()) {
-			return greenEnergyAgent.getCapacity(weather, start);
-		}
-
-		return powerJobs.stream()
-				.filter(job -> job.isExecutedAtTime(start))
-				.map(PowerJob::getPower)
-				.map(power -> greenEnergyAgent.getCapacity(weather, start) - power)
-				.mapToDouble(Double::doubleValue)
-				.average()
-				.orElseGet(() -> 0.0);
-	}
-
 		final double inUseCapacity = greenEnergyAgent.getPowerJobs().keySet().stream()
 				.filter(job -> ACCEPTED_JOB_STATUSES.contains(greenEnergyAgent.getPowerJobs().get(job)) &&
 						job.isExecutedAtTime(start))

@@ -8,6 +8,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 import static jade.lang.acl.ACLMessage.FAILURE;
 
 import java.time.Instant;
@@ -64,7 +65,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob powerShortageJob = MessagingUtils.readMessageContent(transferRequest, PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
 			final Instant shortageStartTime = powerShortageJob.getPowerShortageStart();
-			final Job job = myCloudNetworkAgent.manage().getJobById(jobInstance.getJobId());
+			final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstance.getJobId());
 			MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
 
 			if (Objects.nonNull(job)) {

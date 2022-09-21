@@ -8,6 +8,7 @@ import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
@@ -80,7 +81,7 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 		if (Objects.nonNull(inform)) {
 			final String jobId = jobToTransfer.getJobId();
 			MDC.put(MDC_JOB_ID, jobId);
-			if (Objects.nonNull(myServerAgent.manage().getJobById(jobId))) {
+			if (Objects.nonNull(getJobById(myServerAgent.getServerJobs(), jobId))) {
 				logger.info(GS_TRANSFER_CONFIRMED_LOG, jobId);
 				handleJobTransfer(inform);
 			} else {

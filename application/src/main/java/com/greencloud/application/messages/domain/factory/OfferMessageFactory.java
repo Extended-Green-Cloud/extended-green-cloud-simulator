@@ -1,5 +1,6 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class OfferMessageFactory {
 			final double servicePrice,
 			final String jobId,
 			final ACLMessage replyMessage) {
-		final Job job = serverAgent.manage().getJobById(jobId);
+		final Job job = getJobById(serverAgent.getServerJobs(), jobId);
 		final int availablePower = serverAgent.manage()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()

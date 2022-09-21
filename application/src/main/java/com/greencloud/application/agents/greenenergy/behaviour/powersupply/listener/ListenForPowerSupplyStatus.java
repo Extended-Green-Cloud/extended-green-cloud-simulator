@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		final ACLMessage message = myGreenEnergyAgent.receive(POWER_SUPPLY_STATUS_TEMPLATE);
 		if (nonNull(message)) {
 			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
-			final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+			final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 
 			if (nonNull(powerJob)) {
 				switch (message.getProtocol()) {

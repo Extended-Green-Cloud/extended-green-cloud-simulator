@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.NO_SERVERS_AVAILABLE_RETRY_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.NO_SERVER_RESPONSES_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 
 import java.util.List;
 import java.util.Vector;
@@ -79,7 +80,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 			if (!validProposals.isEmpty()) {
 				final ACLMessage chosenServerOffer = chooseServerToExecuteJob(validProposals);
 				final ServerData chosenServerData = MessagingUtils.readMessageContent(chosenServerOffer, ServerData.class);
-				final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+				final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 				logger.info(CHOSEN_SERVER_FOR_JOB_LOG, jobId, chosenServerOffer.getSender().getName());
 
@@ -98,7 +99,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 
 	private void handleInvalidResponses(final List<ACLMessage> proposals) {
 		logger.info(INCORRECT_PROPOSAL_FORMAT_LOG);
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		MessagingUtils.rejectJobOffers(myCloudNetworkAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
 		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
 	}

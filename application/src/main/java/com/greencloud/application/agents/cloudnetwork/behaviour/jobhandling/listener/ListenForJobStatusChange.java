@@ -15,6 +15,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFailureMessageForClient;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 
 import java.util.Objects;
 
@@ -59,7 +60,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
 			final String jobId = jobInstanceId.getJobId();
 
-			if (Objects.nonNull(myCloudNetworkAgent.manage().getJobById(jobId))) {
+			if (Objects.nonNull(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId))) {
 				MDC.put(MDC_JOB_ID, jobId);
 				switch (message.getProtocol()) {
 					case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobId);
@@ -74,17 +75,17 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	}
 
 	private void handleGreenPowerJobMessage(final String jobId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
 		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
 	}
 
 	private void handleStartedJobMessage(final String jobId) {
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 		if (!myCloudNetworkAgent.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.info(SEND_JOB_START_STATUS_LOG, jobId);
-			myCloudNetworkAgent.getNetworkJobs().replace(myCloudNetworkAgent.manage().getJobById(jobId), IN_PROGRESS);
+			myCloudNetworkAgent.getNetworkJobs().replace(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId), IN_PROGRESS);
 			myCloudNetworkAgent.manage().incrementStartedJobs(jobId);
 			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
 		}
@@ -93,26 +94,24 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	private void handleFinishJobMessage(final String jobId) {
 		final Long completedJobs = myCloudNetworkAgent.completedJob();
 		logger.info(SEND_JOB_FINISH_STATUS_LOG, jobId, completedJobs);
-		final String clientId = myCloudNetworkAgent.manage().getJobById(jobId).getClientIdentifier();
+		final String clientId = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId).getClientIdentifier();
 		updateNetworkInformation(jobId);
 		myAgent.send(prepareJobStatusMessageForClient(clientId, FINISH_JOB_PROTOCOL));
 	}
 
 	private void updateNetworkInformation(final String jobId) {
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
 	}
 
 	private void handleFailedJobMessage(final JobInstanceIdentifier jobInstanceId) {
 		logger.info(SEND_JOB_FAILED_STATUS_LOG, jobInstanceId.getJobId());
-		final String clientId = myCloudNetworkAgent
-				.manage()
-				.getJobById(jobInstanceId.getJobId())
+		final String clientId = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId())
 				.getClientIdentifier();
 		myCloudNetworkAgent
 				.getNetworkJobs()
-				.remove(myCloudNetworkAgent.manage().getJobById(jobInstanceId.getJobId()));
+				.remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstanceId.getJobId()));
 		myCloudNetworkAgent
 				.getServerForJobMap().remove(jobInstanceId.getJobId());
 		myAgent.send(prepareJobFailureMessageForClient(clientId, FAILED_JOB_PROTOCOL));

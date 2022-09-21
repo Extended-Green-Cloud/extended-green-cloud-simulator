@@ -1,10 +1,11 @@
 package utils;
 
-import agents.AbstractAgent;
-import domain.job.ImmutableJob;
-import domain.job.Job;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
+import com.greencloud.application.agents.AbstractAgent;
+import com.greencloud.application.domain.job.ImmutableJob;
+import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.utils.TimeUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,11 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.application.utils.JobMapUtils.*;
 import static java.time.Instant.parse;
 import static org.mockito.quality.Strictness.LENIENT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static utils.JobMapUtils.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)

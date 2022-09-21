@@ -5,6 +5,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.l
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -67,7 +68,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob affectedJob = readMessageContent(transferRequest);
 
 			if (Objects.nonNull(affectedJob)) {
-				final Job originalJob = myServerAgent.manage().getJobByIdAndStartDate(affectedJob.getJobInstanceId());
+				final Job originalJob = getJobByIdAndStartDate(myServerAgent.getServerJobs(), affectedJob.getJobInstanceId());
 
 				if (Objects.nonNull(originalJob)) {
 					final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);
@@ -128,7 +129,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 	}
 
 	private void schedulePowerShortageHandling(final PowerShortageJob jobTransfer, final ACLMessage transferRequest) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobTransfer.getJobInstanceId());
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
 			myServerAgent.manage().divideJobForPowerShortage(job, jobTransfer.getPowerShortageStart());
 			myServerAgent.addBehaviour(HandleServerPowerShortage.createFor(Collections.singletonList(job),

@@ -6,6 +6,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.EnumSet;
@@ -78,7 +79,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		try {
 			final JobInstanceIdentifier jobInstanceIdentifier = getMapper().readValue(message.getContent(),
 					JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(jobInstanceIdentifier);
+			return getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceIdentifier);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

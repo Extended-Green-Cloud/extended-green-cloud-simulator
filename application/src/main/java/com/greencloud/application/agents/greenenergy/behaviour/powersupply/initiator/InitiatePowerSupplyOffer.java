@@ -6,6 +6,8 @@ import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAg
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
@@ -82,7 +84,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	@Override
 	protected void handleRejectProposal(final ACLMessage rejectProposal) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(rejectProposal, JobInstanceIdentifier.class);
-		final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob powerJob = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId);
 		if (Objects.nonNull(powerJob)) {
 			myGreenEnergyAgent.getPowerJobs().remove(powerJob);
 		}
@@ -91,9 +93,9 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	}
 
 	private PowerJob findCorrespondingJob(final JobInstanceIdentifier jobInstance) {
-		PowerJob job = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstance);
+		PowerJob job = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstance);
 		if (isNull(job)) {
-			job = myGreenEnergyAgent.manage().getJobById(jobInstance.getJobId());
+			job = getJobById(myGreenEnergyAgent.getPowerJobs(), jobInstance.getJobId());
 		}
 		return job;
 	}

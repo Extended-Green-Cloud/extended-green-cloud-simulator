@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.NEW_JOB_LOOK_FOR_GS_SELECTED_GS_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 
 import java.util.List;
 import java.util.Vector;
@@ -80,7 +81,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		} else {
 			final List<ACLMessage> validProposals = MessagingUtils.retrieveValidMessages(proposals, GreenSourceData.class);
 			final boolean isJobStillProcessed = myServerAgent.getServerJobs()
-					.replace(myServerAgent.manage().getJobByIdAndStartDate(job.getJobId(), job.getStartTime()),
+					.replace(getJobByIdAndStartDate(myServerAgent.getServerJobs(), job.getJobId(), job.getStartTime()),
 							JobStatusEnum.PROCESSING, JobStatusEnum.ACCEPTED);
 
 			if (!validProposals.isEmpty() && isJobStillProcessed) {

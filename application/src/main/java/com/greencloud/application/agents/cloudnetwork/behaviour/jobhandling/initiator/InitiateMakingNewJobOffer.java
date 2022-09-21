@@ -8,6 +8,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.time.Instant;
@@ -61,7 +62,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
 		final String jobId = accept_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 		MDC.put(MDC_JOB_ID, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
@@ -81,10 +82,10 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject_proposal.getSender().getName());
 		final String jobId = reject_proposal.getContent();
-		final Job job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId));
 
 		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
 		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));

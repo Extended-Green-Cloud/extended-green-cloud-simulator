@@ -7,6 +7,8 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -97,7 +99,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -113,10 +115,10 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	private Job retrieveJobFromMessage(final ACLMessage inform) {
 		try {
 			final String jobId = MessagingUtils.readMessageContent(inform, String.class);
-			return myServerAgent.manage().getJobById(jobId);
+			return getJobById(myServerAgent.getServerJobs(), jobId);
 		} catch (IncorrectMessageContentException e) {
 			final JobInstanceIdentifier identifier = MessagingUtils.readMessageContent(inform, JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+			return getJobByIdAndStartDate(myServerAgent.getServerJobs(), identifier);
 		}
 	}
 

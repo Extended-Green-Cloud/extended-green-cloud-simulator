@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.h
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -74,7 +75,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job jobToExecute = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final Job jobToExecute = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 		if (Objects.nonNull(jobToExecute)) {
 			MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
 			logger.info(GS_TRANSFER_EXECUTION_LOG);

@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
+import static com.greencloud.application.utils.JobMapUtils.getJobByIdAndStartDate;
 import static java.util.Objects.nonNull;
 
 import java.util.Date;
@@ -51,8 +52,7 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final PowerJob job = myGreenEnergyAgent.manage()
-				.getJobByIdAndStartDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime());
+		final PowerJob job = getJobByIdAndStartDate(myGreenEnergyAgent.getPowerJobs(), jobInstanceId.getJobId(), jobInstanceId.getStartTime());
 
 		if (nonNull(job) && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
