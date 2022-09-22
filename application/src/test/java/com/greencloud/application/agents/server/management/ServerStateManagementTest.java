@@ -28,14 +28,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
@@ -57,39 +54,12 @@ class ServerStateManagementTest {
 	private static final Instant MOCK_NOW = parse("2022-01-01T11:00:00.000Z");
 	private static final int MOCK_CAPACITY = 200;
 	private static final double MOCK_PRICE = 10;
-	private static ServerStateManagement MOCK_MANAGEMENT;
+	private static ServerStateManagement MOCK_STATE_MANAGEMENT;
+	private static ServerJobManagement MOCK_JOB_MANAGEMENT;
 	private static Map<Job, JobStatusEnum> MOCK_JOBS;
 
 	@Mock
 	private static ServerAgent serverAgent;
-
-	// PARAMETERS USED IN PARAMETRIZED TESTS
-
-	private static Stream<Arguments> parametersGetByIdAndStart() {
-		return Stream.of(
-				Arguments.of(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
-				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
-	}
-
-	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
-		return Stream.of(
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("3")
-						.build(), true),
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("1")
-						.build(), false));
-	}
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("10000", false));
-	}
-
-	private static Stream<Arguments> parametersIsJobUnique() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("1", false));
-	}
 
 	// TEST SET-UP
 
@@ -112,7 +82,7 @@ class ServerStateManagementTest {
 	void testGettingAvailableCapacityForAllJobs() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
 		final Instant endTime = Instant.parse("2022-01-01T12:30:00.000Z");
-		final int availableCapacity = serverAgent.manage().getAvailableCapacity(startTime, endTime, null, null);
+		final int availableCapacity = serverAgent.manageState().getAvailableCapacity(startTime, endTime, null, null);
 
 		assertThat(availableCapacity).isEqualTo(153);
 	}
@@ -126,17 +96,36 @@ class ServerStateManagementTest {
 				.build();
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
 		final Instant endTime = Instant.parse("2022-01-01T12:30:00.000Z");
-		final int availableCapacity = serverAgent.manage().getAvailableCapacity(startTime, endTime, jobToExclude, null);
+		final int availableCapacity = serverAgent.manageState().getAvailableCapacity(startTime, endTime, jobToExclude, null);
 
 		assertThat(availableCapacity).isEqualTo(171);
 	}
 
 	@Test
+	@DisplayName("Test finishing job on back up power")
+	void testFinishingJobBackUpPower() {
+		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
+				.orElse(null);
+
+		serverAgent.manageJobs().finishJobExecution(job, false);
+
+		final JobStatusEnum updatedStatus = serverAgent.getServerJobs().entrySet().stream()
+				.filter(jobEntry -> jobEntry.getKey().getJobId().equals("3"))
+				.map(Map.Entry::getValue)
+				.findFirst().orElse(null);
+
+		assertThat(serverAgent.getServerJobs()).hasSize(5);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
+		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		assertNotNull(updatedStatus);
+		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY);
+	}
+	@Test
 	@DisplayName("Test getting available capacity for BACK UP jobs")
 	void testGettingAvailableCapacityForBackUpJobs() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
 		final Instant endTime = Instant.parse("2022-01-01T12:30:00.000Z");
-		final int availableCapacity = serverAgent.manage()
+		final int availableCapacity = serverAgent.manageState()
 				.getAvailableCapacity(startTime, endTime, null, ServerPowerSourceType.BACK_UP_POWER);
 
 		assertThat(availableCapacity).isEqualTo(188);
@@ -147,7 +136,7 @@ class ServerStateManagementTest {
 	void testGettingAvailableCapacityForGreenEnergyJobs() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
 		final Instant endTime = Instant.parse("2022-01-01T12:30:00.000Z");
-		final int availableCapacity = serverAgent.manage()
+		final int availableCapacity = serverAgent.manageState()
 				.getAvailableCapacity(startTime, endTime, null, ServerPowerSourceType.GREEN_ENERGY);
 
 		assertThat(availableCapacity).isEqualTo(173);
@@ -166,7 +155,7 @@ class ServerStateManagementTest {
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.PROCESSING);
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
 		final Instant endTime = Instant.parse("2022-01-01T12:30:00.000Z");
-		final int availableCapacity = serverAgent.manage().getAvailableCapacity(startTime, endTime, null, null);
+		final int availableCapacity = serverAgent.manageState().getAvailableCapacity(startTime, endTime, null, null);
 
 		assertThat(availableCapacity).isEqualTo(143);
 	}
@@ -179,7 +168,7 @@ class ServerStateManagementTest {
 				.availablePowerInTime(100)
 				.pricePerPowerUnit(5)
 				.build();
-		final double resultPrice = serverAgent.manage().calculateServicePrice(mockGreenSourceData);
+		final double resultPrice = serverAgent.manageState().calculateServicePrice(mockGreenSourceData);
 
 		assertThat(resultPrice).isEqualTo(75);
 	}
@@ -189,9 +178,9 @@ class ServerStateManagementTest {
 	void testIncrementStartedUniqueJob() {
 		final String jobId = "1";
 
-		serverAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isEqualTo(1);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manageState().incrementStartedJobs(jobId);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueStartedJobs().get()).isEqualTo(1);
+		assertThat(MOCK_STATE_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
@@ -207,9 +196,9 @@ class ServerStateManagementTest {
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
 		final String jobId = "1";
 
-		serverAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isZero();
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manageState().incrementStartedJobs(jobId);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueStartedJobs().get()).isZero();
+		assertThat(MOCK_STATE_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
@@ -217,9 +206,9 @@ class ServerStateManagementTest {
 	void testIncrementFinishedUniqueJob() {
 		final String jobId = "1";
 
-		serverAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manageState().incrementFinishedJobs(jobId);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
+		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
@@ -235,9 +224,9 @@ class ServerStateManagementTest {
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
 		final String jobId = "1";
 
-		serverAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isZero();
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manageState().incrementFinishedJobs(jobId);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isZero();
+		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
@@ -245,7 +234,7 @@ class ServerStateManagementTest {
 	void testUpdateMaximumCapacity() {
 		final int newCapacity = 50;
 
-		serverAgent.manage().updateMaximumCapacity(newCapacity);
+		serverAgent.manageState().updateMaximumCapacity(newCapacity);
 		assertThat(serverAgent.getCurrentMaximumCapacity()).isEqualTo(newCapacity);
 	}
 
@@ -256,7 +245,7 @@ class ServerStateManagementTest {
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5")).findFirst()
 				.orElse(null);
 
-		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
+		serverAgent.manageJobs().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
 		final JobStatusEnum statusAfterUpdate = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().equals(job))
 				.map(Map.Entry::getValue)
@@ -274,7 +263,7 @@ class ServerStateManagementTest {
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
 
-		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
+		serverAgent.manageJobs().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
 
 		final Map<Job, JobStatusEnum> updatedJobInstances = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(job.getJobId()))
@@ -307,32 +296,12 @@ class ServerStateManagementTest {
 		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
 		assertThat(serverAgent.getGreenSourceForJobMap()).hasSize(1);
 
-		serverAgent.manage().finishJobExecution(job, false);
+		serverAgent.manageJobs().finishJobExecution(job, false);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
 		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test finishing job on back up power")
-	void testFinishingJobBackUpPower() {
-		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
-				.orElse(null);
-
-		serverAgent.manage().finishJobExecution(job, false);
-
-		final JobStatusEnum updatedStatus = serverAgent.getServerJobs().entrySet().stream()
-				.filter(jobEntry -> jobEntry.getKey().getJobId().equals("3"))
-				.map(Map.Entry::getValue)
-				.findFirst().orElse(null);
-
-		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
-		assertNotNull(updatedStatus);
-		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY);
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
+		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
 	/**
@@ -404,12 +373,16 @@ class ServerStateManagementTest {
 		serverAgent.getServerJobs().putAll(MOCK_JOBS);
 		serverAgent.setCurrentMaximumCapacity(MOCK_CAPACITY);
 
-		final ServerStateManagement management = new ServerStateManagement(serverAgent);
-		MOCK_MANAGEMENT = spy(management);
+		final ServerStateManagement stateManagement = new ServerStateManagement(serverAgent);
+		MOCK_STATE_MANAGEMENT = spy(stateManagement);
+
+		final ServerJobManagement jobManagement = new ServerJobManagement(serverAgent);
+		MOCK_JOB_MANAGEMENT = spy(jobManagement);
 
 		doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
-		doReturn(MOCK_MANAGEMENT).when(serverAgent).manage();
+		doReturn(MOCK_STATE_MANAGEMENT).when(serverAgent).manageState();
+		doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manageJobs();
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());
 	}

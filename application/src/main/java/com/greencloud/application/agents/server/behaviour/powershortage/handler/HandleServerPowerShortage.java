@@ -83,11 +83,11 @@ public class HandleServerPowerShortage extends WakerBehaviour {
 					case IN_PROGRESS_BACKUP_ENERGY -> logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_BACKUP_LOG, jobId);
 					default -> logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_HOLD_LOG, jobId);
 				}
-				myServerAgent.manage().updateServerGUI();
+				myServerAgent.manageState().updateServerGUI();
 			}
 		});
 		if (Objects.nonNull(newMaximumCapacity)) {
-			myServerAgent.manage().updateMaximumCapacity(newMaximumCapacity);
+			myServerAgent.manageState().updateMaximumCapacity(newMaximumCapacity);
 		}
 	}
 }

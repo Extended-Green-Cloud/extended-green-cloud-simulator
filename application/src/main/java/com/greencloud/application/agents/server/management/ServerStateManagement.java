@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
-import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.Job;
@@ -85,27 +83,6 @@ public class ServerStateManagement {
 		final int maxUsedPower =
 				AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp(jobsOfInterest, startDate, endDate);
 		return serverAgent.getCurrentMaximumCapacity() - maxUsedPower;
-	}
-
-	/**
-	 * Method performs job finishing action
-	 *
-	 * @param jobToFinish job to be finished
-	 * @param informCNA   flag indicating whether cloud network should be informed about the job finish
-	 */
-	public void finishJobExecution(final Job jobToFinish, final boolean informCNA) {
-		final JobStatusEnum jobStatusEnum = serverAgent.getServerJobs().get(jobToFinish);
-
-		sendFinishInformation(jobToFinish, informCNA);
-		updateStateAfterJobFinish(jobToFinish);
-
-		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY)) {
-			final Map<Job, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
-					.filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
-							getCurrentTime()))
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-			supplyJobsWithBackupPower(jobsWithinTimeStamp);
-		}
 	}
 
 	/**
@@ -169,46 +146,6 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method creates new instances for given job which will be affected by the power shortage.
-	 * If the power shortage will begin after the start of job execution -> job will be divided into 2
-	 *
-	 * Example:
-	 * Job1 (start: 08:00, finish: 10:00)
-	 * Power shortage start: 09:00
-	 *
-	 * Job1Instance1: (start: 08:00, finish: 09:00) <- job not affected by power shortage
-	 * Job1Instance2: (start: 09:00, finish: 10:00) <- job affected by power shortage
-	 *
-	 * @param job                affected job
-	 * @param powerShortageStart time when power shortage starts
-	 */
-	public Job divideJobForPowerShortage(final Job job, final Instant powerShortageStart) {
-		if (powerShortageStart.isAfter(job.getStartTime()) && !powerShortageStart.equals(job.getStartTime())) {
-			final Job affectedJobInstance = JobMapper.mapToJobNewStartTime(job, powerShortageStart);
-			final Job notAffectedJobInstance = JobMapper.mapToJobNewEndTime(job, powerShortageStart);
-			final JobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
-
-			serverAgent.getServerJobs().remove(job);
-			serverAgent.getServerJobs().put(affectedJobInstance, JobStatusEnum.ON_HOLD_TRANSFER);
-			serverAgent.getServerJobs().put(notAffectedJobInstance, currentJobStatus);
-
-			serverAgent.addBehaviour(HandleJobStart.createFor(serverAgent, affectedJobInstance, false, true));
-			serverAgent.addBehaviour(HandleJobFinish.createFor(serverAgent, notAffectedJobInstance, false));
-
-			if (getCurrentTime().isBefore(notAffectedJobInstance.getStartTime())) {
-				serverAgent.addBehaviour(
-						HandleJobStart.createFor(serverAgent, notAffectedJobInstance, true, false));
-			}
-
-			return affectedJobInstance;
-		} else {
-			serverAgent.getServerJobs().replace(job, JobStatusEnum.ON_HOLD_TRANSFER);
-			updateServerGUI();
-			return job;
-		}
-	}
-
-	/**
 	 * Method updates the information on the server GUI
 	 */
 	public void updateServerGUI() {
@@ -250,42 +187,6 @@ public class ServerStateManagement {
 
 	public AtomicInteger getFinishedJobsInstances() {
 		return finishedJobsInstances;
-	}
-
-	private void sendFinishInformation(final Job jobToFinish, final boolean informCNA) {
-		final List<AID> receivers = informCNA ?
-				List.of(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()),
-						serverAgent.getOwnerCloudNetworkAgent()) :
-				Collections.singletonList(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()));
-		final ACLMessage finishJobMessage = JobStatusMessageFactory.prepareFinishMessage(jobToFinish.getJobId(), jobToFinish.getStartTime(),
-				receivers);
-
-		displayMessageArrow(serverAgent, receivers);
-		serverAgent.send(finishJobMessage);
-	}
-
-	private void updateStateAfterJobFinish(final Job jobToFinish) {
-		incrementFinishedJobs(jobToFinish.getJobId());
-		if (isJobUnique(serverAgent.getServerJobs(), jobToFinish.getJobId())) {
-			serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
-			updateClientNumberGUI();
-		}
-		serverAgent.getServerJobs().remove(jobToFinish);
-	}
-
-	private void supplyJobsWithBackupPower(final Map<Job, JobStatusEnum> jobEntries) {
-		jobEntries.entrySet().stream()
-				.filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE))
-				.forEach(jobEntry -> {
-					final Job job = jobEntry.getKey();
-					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), JobMapper.mapToJobInstanceId(job),
-							BACK_UP_POWER) >= job.getPower()) {
-						MDC.put(MDC_JOB_ID, job.getJobId());
-						logger.info("Supplying job {} with back up power", job.getJobId());
-						serverAgent.getServerJobs().replace(job, IN_PROGRESS_BACKUP_ENERGY);
-						updateServerGUI();
-					}
-				});
 	}
 
 	private int getClientNumber() {

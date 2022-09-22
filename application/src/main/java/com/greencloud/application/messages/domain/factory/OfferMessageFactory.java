@@ -63,7 +63,7 @@ public class OfferMessageFactory {
 			final String jobId,
 			final ACLMessage replyMessage) {
 		final Job job = getJobById(serverAgent.getServerJobs(), jobId);
-		final int availablePower = serverAgent.manage()
+		final int availablePower = serverAgent.manageState()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()
 				.servicePrice(servicePrice)

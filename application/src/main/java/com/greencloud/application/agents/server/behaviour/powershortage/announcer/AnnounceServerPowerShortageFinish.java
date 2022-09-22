@@ -71,9 +71,9 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 				if (isJobPresent) {
 					final JobInstanceIdentifier jobInstance = JobMapper.mapToJobInstanceId(job);
 					final int jobPower = job.getPower();
-					final int availablePower = myServerAgent.manage()
+					final int availablePower = myServerAgent.manageState()
 							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, null);
-					final int availableBackUpPower = myServerAgent.manage()
+					final int availableBackUpPower = myServerAgent.manageState()
 							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, BACK_UP_POWER);
 
 					MDC.put(MDC_JOB_ID, job.getJobId());
@@ -82,7 +82,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 					} else if (availableBackUpPower >= jobPower) {
 						logger.info(POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG, job.getJobId());
 						myServerAgent.getServerJobs().replace(job, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY);
-						myServerAgent.manage().updateServerGUI();
+						myServerAgent.manageState().updateServerGUI();
 					} else {
 						logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
 						updateJobStatus(job, jobInstance);
@@ -103,7 +103,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		finishInformation.addReceiver(myServerAgent.getOwnerCloudNetworkAgent());
 
 		displayMessageArrow(myServerAgent, finishInformation.getAllReceiver());
-		myServerAgent.manage().updateServerGUI();
+		myServerAgent.manageState().updateServerGUI();
 		myServerAgent.send(finishInformation);
 	}
 

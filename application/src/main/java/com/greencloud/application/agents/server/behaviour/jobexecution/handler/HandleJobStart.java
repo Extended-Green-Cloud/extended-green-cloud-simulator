@@ -98,7 +98,7 @@ public class HandleJobStart extends WakerBehaviour {
 
 			myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
 			sendJobStartMessage(jobId);
-			myServerAgent.manage().incrementStartedJobs(jobId);
+			myServerAgent.manageState().incrementStartedJobs(jobId);
 			myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
 		}
 	}

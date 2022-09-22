@@ -138,7 +138,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	private void handleTransferFailure() {
 		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransferInstance);
 		if (Objects.nonNull(job)) {
-			final int availableBackUpPower = myServerAgent.manage()
+			final int availableBackUpPower = myServerAgent.manageState()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),
 							jobToTransferInstance, BACK_UP_POWER);
 
@@ -150,7 +150,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 				logger.info(GS_TRANSFER_FAIL_BACK_UP_LOG, jobToTransfer.getJobId());
 				myServerAgent.getServerJobs().replace(job, IN_PROGRESS_BACKUP_ENERGY);
 			}
-			myServerAgent.manage().updateServerGUI();
+			myServerAgent.manageState().updateServerGUI();
 			displayMessageArrow(myServerAgent, greenSourceRequest.getSender());
 			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), NO_SOURCES_AVAILABLE_CAUSE_MESSAGE,
 					ACLMessage.FAILURE));

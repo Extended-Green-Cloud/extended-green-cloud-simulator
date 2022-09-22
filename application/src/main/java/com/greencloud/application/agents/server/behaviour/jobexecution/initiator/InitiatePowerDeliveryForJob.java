@@ -74,7 +74,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		} else if (proposals.isEmpty()) {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_SOURCES_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
-		} else if (myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null)
+		} else if (myServerAgent.manageState().getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null)
 				<= job.getPower()) {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_POWER_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
@@ -102,7 +102,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(NEW_JOB_LOOK_FOR_GS_SELECTED_GS_LOG, jobId, chosenGreenSource.getLocalName());
 
-		final double servicePrice = myServerAgent.manage().calculateServicePrice(offerData);
+		final double servicePrice = myServerAgent.manageState().calculateServicePrice(offerData);
 		final ACLMessage proposalMessage = OfferMessageFactory.makeServerJobOffer(myServerAgent, servicePrice, jobId,
 				replyMessage);
 		myServerAgent.getGreenSourceForJobMap().put(jobId, chosenGreenSource);

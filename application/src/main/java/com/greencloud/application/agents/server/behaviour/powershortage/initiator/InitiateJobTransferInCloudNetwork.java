@@ -154,13 +154,13 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 
 	private void updateServerStateUponJobFinish(final Job job) {
 		if (job.getStartTime().isBefore(getCurrentTime())) {
-			myServerAgent.manage().incrementFinishedJobs(job.getJobId());
+			myServerAgent.manageState().incrementFinishedJobs(job.getJobId());
 		}
 		if (isJobUnique(myServerAgent.getServerJobs(), job.getJobId())) {
 			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
 		}
 		myServerAgent.getServerJobs().remove(job);
-		myServerAgent.manage().updateServerGUI();
+		myServerAgent.manageState().updateServerGUI();
 	}
 
 	private void informGreenSourceUponJobOnHold(final String jobId, final String failureCause) {
@@ -178,7 +178,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	private void updateServerStateUponJobOnHold(final Job job) {
 		final String jobId = job.getJobId();
 		final int availableBackUpPower =
-				myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(),
+				myServerAgent.manageState().getAvailableCapacity(job.getStartTime(), job.getEndTime(),
 						jobToTransfer.getJobInstanceId(), BACK_UP_POWER);
 
 		MDC.put(MDC_JOB_ID, jobId);
@@ -192,6 +192,6 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_BACKUP_LOG, jobId);
 			myServerAgent.getServerJobs().replace(job, IN_PROGRESS_BACKUP_ENERGY);
 		}
-		myServerAgent.manage().updateServerGUI();
+		myServerAgent.manageState().updateServerGUI();
 	}
 }

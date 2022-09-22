@@ -56,7 +56,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		if (Objects.nonNull(message)) {
 			final Job job = readMessageContent(message, Job.class);
 			MDC.put(MDC_JOB_ID, job.getJobId());
-			final int availableCapacity = myServerAgent.manage()
+			final int availableCapacity = myServerAgent.manageState()
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 			final boolean validJobConditions = job.getPower() <= availableCapacity &&
 					!myServerAgent.getServerJobs().containsKey(job) &&

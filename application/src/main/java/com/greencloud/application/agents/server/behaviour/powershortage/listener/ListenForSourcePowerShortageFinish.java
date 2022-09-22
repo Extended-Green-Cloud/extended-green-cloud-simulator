@@ -66,7 +66,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 						preparePowerShortageFinishInformation(JobMapper.mapToJobInstanceId(job), cloudNetwork);
 
 				myServerAgent.getServerJobs().replace(job, getNewJobStatus(job));
-				myServerAgent.manage().updateServerGUI();
+				myServerAgent.manageState().updateServerGUI();
 				displayMessageArrow(myServerAgent, cloudNetwork);
 				myServerAgent.send(informationToCNA);
 			}

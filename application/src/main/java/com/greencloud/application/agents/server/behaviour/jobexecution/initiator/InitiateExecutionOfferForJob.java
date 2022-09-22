@@ -59,7 +59,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		final JobWithProtocol jobWithProtocol = MessagingUtils.readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
 		final Job jobInstance = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
-		final Integer availableCapacity = myServerAgent.manage().getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
+		final Integer availableCapacity = myServerAgent.manageState().getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
 		if (jobInstance.getPower() > availableCapacity) {
 			myServerAgent.getServerJobs().remove(jobInstance);
 			myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
@@ -72,7 +72,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 			myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId,
 					jobWithProtocol.getReplyProtocol()));
 		}
-		myServerAgent.manage().updateClientNumberGUI();
+		myServerAgent.manageState().updateClientNumberGUI();
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
 	}
 
