@@ -122,22 +122,6 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method returns the instance of the job for current time
-	 *
-	 * @param jobId unique job identifier
-	 * @return pair of job and current status
-	 */
-	public Map.Entry<Job, JobStatusEnum> getCurrentJobInstance(final String jobId) {
-		final Instant currentTime = getCurrentTime();
-		return serverAgent.getServerJobs().entrySet().stream().filter(jobEntry -> {
-			final Job job = jobEntry.getKey();
-			return job.getJobId().equals(jobId) && (
-					(job.getStartTime().isBefore(currentTime) && job.getEndTime().isAfter(currentTime))
-							|| job.getEndTime().equals(currentTime));
-		}).findFirst().orElse(null);
-	}
-
-	/**
 	 * Method increments the count of started jobs
 	 *
 	 * @param jobId unique job identifier

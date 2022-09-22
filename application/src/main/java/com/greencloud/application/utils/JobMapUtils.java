@@ -1,9 +1,5 @@
 package com.greencloud.application.utils;
-
-import com.greencloud.application.domain.job.AbstractJob;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.application.domain.job.*;
 
 import java.time.Instant;
 import java.util.Map;
@@ -13,6 +9,10 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_S
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 
+/**
+ * A set of utility methods that help manage and get information from the maps
+ * with structure : AbstractJob -> JobStatusEnum
+ */
 public class JobMapUtils {
 
     /**
@@ -70,6 +70,11 @@ public class JobMapUtils {
                 == 1;
     }
 
+    /**
+     *  Method return the amount of all jobs in the map that are currently accepted
+     *
+     * @param map map on which the operations are executed
+     */
     public static <T extends AbstractJob> int getJobCount(final Map<T, JobStatusEnum> map) {
         return map.entrySet().stream()
                 .filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue())
@@ -79,5 +84,22 @@ public class JobMapUtils {
                 .map(T::getJobId)
                 .collect(Collectors.toSet())
                 .size();
+    }
+
+    /**
+     * Method returns the instance of the job for current time
+     *
+     * @param map map on which the operations are executed
+     * @param jobId unique job identifier
+     * @return pair of job and current status
+     */
+    public static <T extends AbstractJob> Map.Entry<T, JobStatusEnum> getCurrentJobInstance(final Map<T, JobStatusEnum> map, final String jobId) {
+        final Instant currentTime = getCurrentTime();
+        return map.entrySet().stream().filter(jobEntry -> {
+            final T job = jobEntry.getKey();
+            return job.getJobId().equals(jobId) && (
+                    (job.getStartTime().isBefore(currentTime) && job.getEndTime().isAfter(currentTime))
+                            || job.getEndTime().equals(currentTime));
+        }).findFirst().orElse(null);
     }
 }

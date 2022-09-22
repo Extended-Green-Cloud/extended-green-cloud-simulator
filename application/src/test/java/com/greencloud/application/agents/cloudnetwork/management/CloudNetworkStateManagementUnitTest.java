@@ -36,11 +36,6 @@ class CloudNetworkStateManagementUnitTest {
 	private CloudNetworkAgent mockCloudNetwork;
 	private CloudNetworkStateManagement cloudNetworkStateManagement;
 
-	// PARAMETERS USED IN TESTS
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("1", true), Arguments.of("10000", false));
-	}
 
 	// TEST SET-UP
 

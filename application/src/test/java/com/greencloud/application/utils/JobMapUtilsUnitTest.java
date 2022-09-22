@@ -4,6 +4,7 @@ import com.greencloud.application.domain.job.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,6 +22,8 @@ import java.util.stream.Stream;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.JobMapUtils.*;
 import static java.time.Instant.parse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.quality.Strictness.LENIENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +45,7 @@ public class JobMapUtilsUnitTest {
         MOCK_JOBS = setUpJobs();
     }
 
+    // PARAMETERS USED IN TESTS
     private static Stream<Arguments> parametersGetByIdAndStart() {
         return Stream.of(
                 Arguments.of(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
@@ -68,6 +72,7 @@ public class JobMapUtilsUnitTest {
         return Stream.of(Arguments.of("5", true), Arguments.of("1", false));
     }
 
+    // TESTS
     @ParameterizedTest
     @MethodSource("parametersIsJobUnique")
     @DisplayName("Test is job unique by id")
@@ -105,6 +110,48 @@ public class JobMapUtilsUnitTest {
     void testGettingJobByIdAndStartTime(final Instant startTime, final String jobId, final boolean result) {
         final Job jobResult = getJobByIdAndStartDate(MOCK_JOBS, jobId, startTime);
         assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
+    }
+
+    @Test
+    @DisplayName("Test getting job count")
+    void testGettingJobCount() {
+        final int runningJobsCount = getJobCount(MOCK_JOBS);
+        assertThat(runningJobsCount).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("Test getting current job instance not found")
+    void testGettingCurrentJobInstanceNotFound() {
+        final Map.Entry<Job, JobStatusEnum> result = getCurrentJobInstance(MOCK_JOBS, "1");
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("Test getting current job instance one instance")
+    void testGettingCurrentJobInstanceOneInstance() {
+        final Map.Entry<Job, JobStatusEnum> result = getCurrentJobInstance(MOCK_JOBS, "2");
+
+        assertNotNull(result);
+        assertThat(result.getKey().getClientIdentifier()).isEqualTo("Client2");
+        assertThat(result.getKey().getEndTime()).isEqualTo(Instant.parse("2022-01-01T11:00:00.000Z"));
+    }
+
+    @Test
+    @DisplayName("Test getting current job instance two instances")
+    void testGettingCurrentJobInstanceTwoInstances() {
+        final Job jobProcessing = ImmutableJob.builder()
+                .jobId("1")
+                .clientIdentifier("Client1")
+                .startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+                .endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+                .power(10)
+                .build();
+        MOCK_JOBS.put(jobProcessing, JobStatusEnum.IN_PROGRESS);
+        final Map.Entry<Job, JobStatusEnum> result = getCurrentJobInstance(MOCK_JOBS, "1");
+
+        assertNotNull(result);
+        assertThat(result.getKey().getPower()).isEqualTo(10);
+        assertThat(result.getKey().getStartTime()).isEqualTo(Instant.parse("2022-01-01T10:30:00.000Z"));
     }
 
     /**

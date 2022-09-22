@@ -185,41 +185,6 @@ class ServerStateManagementTest {
 	}
 
 	@Test
-	@DisplayName("Test getting current job instance not found")
-	void testGettingCurrentJobInstanceNotFound() {
-		final Map.Entry<Job, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("1");
-		assertNull(result);
-	}
-
-	@Test
-	@DisplayName("Test getting current job instance one instance")
-	void testGettingCurrentJobInstanceOneInstance() {
-		final Map.Entry<Job, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("2");
-
-		assertNotNull(result);
-		assertThat(result.getKey().getClientIdentifier()).isEqualTo("Client2");
-		assertThat(result.getKey().getEndTime()).isEqualTo(Instant.parse("2022-01-01T11:00:00.000Z"));
-	}
-
-	@Test
-	@DisplayName("Test getting current job instance two instances")
-	void testGettingCurrentJobInstanceTwoInstances() {
-		final Job jobProcessing = ImmutableJob.builder()
-				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
-				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final Map.Entry<Job, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("1");
-
-		assertNotNull(result);
-		assertThat(result.getKey().getPower()).isEqualTo(10);
-		assertThat(result.getKey().getStartTime()).isEqualTo(Instant.parse("2022-01-01T10:30:00.000Z"));
-	}
-
-	@Test
 	@DisplayName("Test increment started unique job")
 	void testIncrementStartedUniqueJob() {
 		final String jobId = "1";
