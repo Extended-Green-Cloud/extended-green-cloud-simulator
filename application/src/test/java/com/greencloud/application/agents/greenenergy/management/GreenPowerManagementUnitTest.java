@@ -43,20 +43,24 @@ class GreenPowerManagementUnitTest {
 
 	@Mock
 	private GreenEnergyAgent greenEnergyAgent;
+	@Mock
+	private GreenEnergyPowerManagement greenPowerManagement;
 
-	private GreenPowerManagement greenPowerManagement;
+	@Mock
+	private MonitoringData MOCK_MONITORING_DATA;
 
 	@BeforeEach
 	void init() {
 		doReturn(MOCK_LOCATION).when(greenEnergyAgent).getLocation();
-		greenPowerManagement = new GreenPowerManagement(MOCK_CAPACITY, greenEnergyAgent);
+		greenPowerManagement = new GreenEnergyPowerManagement(MOCK_CAPACITY, greenEnergyAgent);
 	}
 
 	@Test
 	@DisplayName("Test get available power for wind source")
 	void testGetAvailablePowerWindSource() {
+		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
 		doReturn(WIND).when(greenEnergyAgent).getEnergyType();
-		final double result = greenPowerManagement.getAvailablePower(MOCK_WEATHER, MOCK_ZONE_TIME);
+		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, MOCK_ZONE_TIME.toInstant());
 
 		assertThat(result).isEqualTo(200);
 	}
@@ -64,8 +68,9 @@ class GreenPowerManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for solar source")
 	void testGetAvailablePowerSolarSource() {
+		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
 		doReturn(SOLAR).when(greenEnergyAgent).getEnergyType();
-		final double result = greenPowerManagement.getAvailablePower(MOCK_WEATHER, MOCK_ZONE_TIME);
+		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, MOCK_ZONE_TIME.toInstant());
 
 		assertThat(result).isCloseTo(30, Offset.offset(0.01));
 	}
@@ -73,10 +78,11 @@ class GreenPowerManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for solar source during night-time")
 	void testGetAvailablePowerSolarSourceNightTime() {
+		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
 		doReturn(SOLAR).when(greenEnergyAgent).getEnergyType();
 		final ZonedDateTime testZoneTime = ZonedDateTime.from(
 				Instant.parse("2022-01-01T00:00:00.000Z").atZone(ZoneId.of("UTC")));
-		final double result = greenPowerManagement.getAvailablePower(MOCK_WEATHER, testZoneTime);
+		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, testZoneTime.toInstant());
 
 		assertThat(result).isZero();
 	}
@@ -115,8 +121,8 @@ class GreenPowerManagementUnitTest {
 	@Test
 	@DisplayName("Test set new maximum capacity")
 	void testSetNewMaximumCapacity() {
-		assertThat(greenPowerManagement.getCurrentMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
-		greenPowerManagement.setCurrentMaximumCapacity(100);
-		assertThat(greenPowerManagement.getCurrentMaximumCapacity()).isEqualTo(100);
+		assertThat(greenPowerManagement.getMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
+		greenPowerManagement.setMaximumCapacity(100);
+		assertThat(greenPowerManagement.getMaximumCapacity()).isEqualTo(100);
 	}
 }

@@ -8,6 +8,7 @@ import static com.greencloud.application.yellowpages.domain.DFServiceConstants.G
 import java.util.List;
 import java.util.Objects;
 
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -19,7 +20,7 @@ import com.greencloud.application.agents.greenenergy.behaviour.sensor.SenseGreen
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherPeriodically;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
-import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyPowerManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.domain.location.ImmutableLocation;
 
@@ -57,9 +58,10 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 		if (Objects.nonNull(args) && args.length == 7) {
 			this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
+			this.management = new GreenEnergyManagement(this);
 			this.stateManagement = new GreenEnergyStateManagement(this);
 			try {
-				this.greenPowerManagement = new GreenPowerManagement(Integer.parseInt(args[2].toString()), this);
+				this.greenPowerManagement = new GreenEnergyPowerManagement(Integer.parseInt(args[2].toString()), this);
 				this.pricePerPowerUnit = Double.parseDouble(args[3].toString());
 				this.location = ImmutableLocation.builder()
 						.latitude(Double.parseDouble(args[4].toString()))

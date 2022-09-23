@@ -117,7 +117,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleWeatherDataForJobOnHold(final MonitoringData data) {
-		final Optional<Double> availablePower = myGreenEnergyAgent.manage()
+		final Optional<Double> availablePower = myGreenEnergyAgent.managePower()
 				.getAverageAvailablePower(powerJob, data, false);
 
 		if (availablePower.isEmpty()) {
@@ -127,7 +127,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ? ACCEPTED : IN_PROGRESS;
 
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
-			myGreenEnergyAgent.manage().updateGreenSourceGUI();
+			myGreenEnergyAgent.manageState().updateGreenSourceGUI();
 			myGreenEnergyAgent.send(preparePowerShortageFinishInformation(mapToJobInstanceId(powerJob),
 					myGreenEnergyAgent.getOwnerServer()));
 		}
@@ -135,9 +135,9 @@ public class ListenForWeatherData extends CyclicBehaviour {
 
 	private void handleWeatherDataForPeriodicCheck(final MonitoringData data) {
 		final Instant time = getCurrentTime();
-		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(0.0);
+		final double availablePower = myGreenEnergyAgent.managePower().getRemainingAvailablePower(time, data).orElse(0.0);
 
-		if (availablePower < myGreenEnergyAgent.manage().getCurrentPowerInUseForGreenSource()) {
+		if (availablePower < myGreenEnergyAgent.managePower().getCurrentPowerInUseForGreenSource()) {
 			logger.info(POWER_DROP_LOG, time);
 			myAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, time, availablePower,
 					WEATHER_CAUSE));

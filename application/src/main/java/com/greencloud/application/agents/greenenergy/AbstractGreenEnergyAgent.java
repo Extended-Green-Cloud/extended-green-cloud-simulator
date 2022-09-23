@@ -1,14 +1,13 @@
 package com.greencloud.application.agents.greenenergy;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
-import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
-import com.greencloud.application.domain.MonitoringData;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyPowerManagement;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.location.Location;
@@ -20,8 +19,9 @@ import jade.core.AID;
  */
 public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
-	protected transient GreenPowerManagement greenPowerManagement;
+	protected transient GreenEnergyPowerManagement greenPowerManagement;
 	protected transient GreenEnergyStateManagement stateManagement;
+	protected transient GreenEnergyManagement management;
 	protected transient Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
@@ -45,24 +45,6 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	public void setPricePerPowerUnit(double pricePerPowerUnit) {
 		this.pricePerPowerUnit = pricePerPowerUnit;
 	}
-
-	public Double getCapacity(MonitoringData weather, Instant startTime) {
-		final double availablePower = greenPowerManagement.getAvailablePower(weather, startTime);
-		return availablePower > getMaximumCapacity() ? getMaximumCapacity() : availablePower;
-	}
-
-	public int getMaximumCapacity() {
-		return this.greenPowerManagement.getCurrentMaximumCapacity();
-	}
-
-	public void setMaximumCapacity(int maximumCapacity) {
-		this.greenPowerManagement.setCurrentMaximumCapacity(maximumCapacity);
-	}
-
-	public int getInitialMaximumCapacity() {
-		return this.greenPowerManagement.getInitialMaximumCapacity();
-	}
-
 	public Map<PowerJob, JobStatusEnum> getPowerJobs() {
 		return powerJobs;
 	}
@@ -83,7 +65,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.monitoringAgent = monitoringAgent;
 	}
 
-	public void setGreenPowerManagement(GreenPowerManagement greenPowerManagement) {
+	public void setGreenPowerManagement(GreenEnergyPowerManagement greenPowerManagement) {
 		this.greenPowerManagement = greenPowerManagement;
 	}
 
@@ -91,7 +73,11 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		return energyType;
 	}
 
-	public GreenEnergyStateManagement manage() {
+	public GreenEnergyStateManagement manageState() {
 		return stateManagement;
 	}
+
+	public GreenEnergyPowerManagement managePower() {return greenPowerManagement; }
+
+	public GreenEnergyManagement manage() {return management; }
 }

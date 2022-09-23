@@ -98,7 +98,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 					JobStatusEnum.ACCEPTED :
 					JobStatusEnum.IN_PROGRESS;
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
-			myGreenEnergyAgent.manage().updateGreenSourceGUI();
+			myGreenEnergyAgent.manageState().updateGreenSourceGUI();
 		} else {
 			logger.info(SERVER_POWER_SHORTAGE_FINISH_NOT_FOUND_LOG, jobInstanceId.getJobId());
 		}
@@ -113,7 +113,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 		if (Objects.nonNull(jobToPutOnHold)) {
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, jobInstanceId.getJobId());
 			myGreenEnergyAgent.getPowerJobs().replace(jobToPutOnHold, JobStatusEnum.ON_HOLD);
-			myGreenEnergyAgent.manage().updateGreenSourceGUI();
+			myGreenEnergyAgent.manageState().updateGreenSourceGUI();
 		} else {
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG, jobInstanceId.getJobId());
 		}

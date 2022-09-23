@@ -76,7 +76,7 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 			}
 		});
 		if (Objects.nonNull(newMaximumCapacity)) {
-			myGreenEnergyAgent.manage().updateMaximumCapacity(newMaximumCapacity);
+			myGreenEnergyAgent.managePower().updateMaximumCapacity(newMaximumCapacity);
 		}
 	}
 }

@@ -90,7 +90,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 
 			myGreenAgent.getPowerJobs().remove(jobToTransfer);
 			if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
-				myGreenAgent.manage().incrementFinishedJobs(jobToTransfer.getJobId());
+				myGreenAgent.manageState().incrementFinishedJobs(jobToTransfer.getJobId());
 			}
 		} else {
 			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG, jobToTransfer.getJobId());
@@ -112,7 +112,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 				!cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			logger.info(SOURCE_JOB_TRANSFER_FAILURE_LOG, jobToTransfer.getJobId());
 			myGreenAgent.getPowerJobs().replace(jobToTransfer, JobStatusEnum.ON_HOLD);
-			myGreenAgent.manage().updateGreenSourceGUI();
+			myGreenAgent.manageState().updateGreenSourceGUI();
 		} else if (cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			finishNonExistingJob();
 		} else {
@@ -123,7 +123,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	private void finishNonExistingJob() {
 		myGreenAgent.getPowerJobs().remove(jobToTransfer);
 		if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
-			myGreenAgent.manage().incrementFinishedJobs(jobToTransfer.getJobId());
+			myGreenAgent.manageState().incrementFinishedJobs(jobToTransfer.getJobId());
 		}
 	}
 }

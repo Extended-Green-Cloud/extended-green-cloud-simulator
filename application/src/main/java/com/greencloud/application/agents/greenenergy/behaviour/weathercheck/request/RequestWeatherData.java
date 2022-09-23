@@ -69,7 +69,7 @@ public class RequestWeatherData extends OneShotBehaviour {
 						.build() :
 				ImmutableGreenSourceForecastData.builder()
 						.location(myGreenEnergyAgent.getLocation())
-						.timetable(myGreenEnergyAgent.manage().getJobsTimetable(powerJob))
+						.timetable(myGreenEnergyAgent.manageState().getJobsTimetable(powerJob))
 						.build();
 	}
 }

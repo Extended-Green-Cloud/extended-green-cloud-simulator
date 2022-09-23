@@ -59,7 +59,7 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 			logger.error(MANUAL_POWER_SUPPLY_FINISH_LOG);
 
 			myGreenEnergyAgent.getPowerJobs().remove(job);
-			myGreenEnergyAgent.manage().incrementFinishedJobs(job.getJobId());
+			myGreenEnergyAgent.manageState().incrementFinishedJobs(job.getJobId());
 
 			GUIUtils.displayMessageArrow(myGreenEnergyAgent, myGreenEnergyAgent.getOwnerServer());
 			myAgent.send(prepareManualFinishMessageForServer(jobInstanceId, myGreenEnergyAgent.getOwnerServer()));

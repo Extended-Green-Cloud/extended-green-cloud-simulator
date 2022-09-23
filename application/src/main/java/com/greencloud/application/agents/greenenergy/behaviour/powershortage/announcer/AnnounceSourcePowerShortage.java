@@ -85,7 +85,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 				final PowerJob jobToTransfer = myGreenAgent.manage()
 						.dividePowerJobForPowerShortage(powerJob, shortageStartTime);
 				requestJobTransferInServer(powerJob, jobToTransfer);
-				myGreenAgent.manage().updateGreenSourceGUI();
+				myGreenAgent.manageState().updateGreenSourceGUI();
 			});
 			initiatePowerShortageHandler(jobsToTransfer);
 		}
