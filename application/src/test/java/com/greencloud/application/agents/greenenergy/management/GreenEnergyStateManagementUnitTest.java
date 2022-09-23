@@ -117,16 +117,6 @@ class GreenEnergyStateManagementUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test updating maximum capacity")
-	void testUpdatingMaximumCapacity() {
-		final int newCapacity = 1000;
-		mockGreenEnergyAgent.managePower().updateMaximumCapacity(newCapacity);
-
-		assertThat(mockGreenEnergyAgent.managePower().getMaximumCapacity()).isEqualTo(1000);
-		assertThat(mockGreenEnergyAgent.managePower().getInitialMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
-	}
-
-	@Test
 	@DisplayName("Test get jobs timetable with repeatable time instances")
 	void testGetJobsTimetableRepeatableInstances() {
 		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder()
@@ -169,27 +159,27 @@ class GreenEnergyStateManagementUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test get available capacity at given moment for positive power")
+	@DisplayName("Test get available remaining capacity at given moment for positive power")
 	void testGetAvailableCapacityAtGivenMoment() {
-		doReturn(100.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
+		doReturn(100.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower(any(), any());
 		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
 				.addWeatherData(MOCK_WEATHER)
 				.build();
-		final Optional<Double> result = Optional.of(mockGreenEnergyAgent.managePower().getAvailablePower(monitoringData, mockMoment));
+		final Optional<Double> result = mockGreenEnergyAgent.managePower().getRemainingAvailablePower(mockMoment, monitoringData);
 
 		assertThat(result).isPresent().contains(10.0);
 	}
 
 	@Test
-	@DisplayName("Test get available capacity at given moment for negative power")
+	@DisplayName("Test get available remaining capacity at given moment for negative power")
 	void testGetAvailableCapacityAtGivenMomentNoPower() {
-		doReturn(50.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
+		doReturn(50.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower(any(), any());
 		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
 				.addWeatherData(MOCK_WEATHER)
 				.build();
-		final Optional<Double> result = Optional.of(mockGreenEnergyAgent.managePower().getAvailablePower(monitoringData, mockMoment));
+		final Optional<Double> result = mockGreenEnergyAgent.managePower().getRemainingAvailablePower(mockMoment, monitoringData);
 
 		assertThat(result).isEmpty();
 	}

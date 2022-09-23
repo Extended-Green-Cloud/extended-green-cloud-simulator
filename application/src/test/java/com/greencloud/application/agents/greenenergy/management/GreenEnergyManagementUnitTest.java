@@ -39,6 +39,9 @@ public class GreenEnergyManagementUnitTest {
     @Mock
     private static GreenEnergyManagement MOCK_MANAGEMENT;
 
+    @Mock
+    private static GreenEnergyStateManagement MOCK_STATE_MANAGEMENT;
+
     @BeforeEach
     void init() {
         MOCK_POWER_JOBS = setUpGreenEnergyJobs();
@@ -99,7 +102,6 @@ public class GreenEnergyManagementUnitTest {
     /**
      * Class creates mock green energy power jobs used in test scenarios.
      * The following structure was used:
-     *
      * PowerJob1 -> power: 10, time: 08:00 - 10:00, status: IN_PROGRESS,
      * PowerJob2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
      * PowerJob3 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
@@ -150,8 +152,10 @@ public class GreenEnergyManagementUnitTest {
         mockGreenEnergyAgent = spy(GreenEnergyAgent.class);
         mockGreenEnergyAgent.getPowerJobs().putAll(MOCK_POWER_JOBS);
         MOCK_MANAGEMENT = spy(new GreenEnergyManagement(mockGreenEnergyAgent));
+        MOCK_STATE_MANAGEMENT = spy(new GreenEnergyStateManagement(mockGreenEnergyAgent));
 
         doReturn(MOCK_MANAGEMENT).when(mockGreenEnergyAgent).manage();
+        doReturn(MOCK_STATE_MANAGEMENT).when(mockGreenEnergyAgent).manageState();
         doNothing().when(mockGreenEnergyAgent).addBehaviour(any());
         doNothing().when(mockGreenEnergyAgent).send(any());
     }

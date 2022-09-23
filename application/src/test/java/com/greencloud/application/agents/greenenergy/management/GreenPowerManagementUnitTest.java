@@ -1,18 +1,21 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.SOLAR;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_LOCATION;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.assertj.core.data.Offset;
+import com.greencloud.application.domain.job.ImmutablePowerJob;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.domain.job.PowerJob;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,8 @@ import com.greencloud.application.domain.WeatherData;
 class GreenPowerManagementUnitTest {
 
 	// MOCK OBJECTS
+
+	public static Map<PowerJob, JobStatusEnum> MOCK_JOBS;
 	public static final int MOCK_CAPACITY = 200;
 	public static final WeatherData MOCK_WEATHER = ImmutableWeatherData.builder()
 			.time(MOCK_TIME)
@@ -39,58 +44,24 @@ class GreenPowerManagementUnitTest {
 			.windSpeed(10.0)
 			.temperature(20.0)
 			.build();
-	public static final ZonedDateTime MOCK_ZONE_TIME = ZonedDateTime.from(MOCK_TIME.atZone(ZoneId.of("UTC")));
 
 	@Mock
-	private GreenEnergyAgent greenEnergyAgent;
+	private GreenEnergyAgent mockGreenEnergyAgent;
 	@Mock
 	private GreenEnergyPowerManagement greenPowerManagement;
 
-	@Mock
-	private MonitoringData MOCK_MONITORING_DATA;
-
 	@BeforeEach
 	void init() {
-		doReturn(MOCK_LOCATION).when(greenEnergyAgent).getLocation();
-		greenPowerManagement = new GreenEnergyPowerManagement(MOCK_CAPACITY, greenEnergyAgent);
-	}
-
-	@Test
-	@DisplayName("Test get available power for wind source")
-	void testGetAvailablePowerWindSource() {
-		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
-		doReturn(WIND).when(greenEnergyAgent).getEnergyType();
-		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, MOCK_ZONE_TIME.toInstant());
-
-		assertThat(result).isEqualTo(200);
-	}
-
-	@Test
-	@DisplayName("Test get available power for solar source")
-	void testGetAvailablePowerSolarSource() {
-		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
-		doReturn(SOLAR).when(greenEnergyAgent).getEnergyType();
-		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, MOCK_ZONE_TIME.toInstant());
-
-		assertThat(result).isCloseTo(30, Offset.offset(0.01));
-	}
-
-	@Test
-	@DisplayName("Test get available power for solar source during night-time")
-	void testGetAvailablePowerSolarSourceNightTime() {
-		doReturn(MOCK_WEATHER).when(MOCK_MONITORING_DATA).getDataForTimestamp(MOCK_ZONE_TIME.toInstant());
-		doReturn(SOLAR).when(greenEnergyAgent).getEnergyType();
-		final ZonedDateTime testZoneTime = ZonedDateTime.from(
-				Instant.parse("2022-01-01T00:00:00.000Z").atZone(ZoneId.of("UTC")));
-		final double result = greenPowerManagement.getAvailablePower(MOCK_MONITORING_DATA, testZoneTime.toInstant());
-
-		assertThat(result).isZero();
+		MOCK_JOBS = setUpGreenEnergyJobs();
+		doReturn(MOCK_LOCATION).when(mockGreenEnergyAgent).getLocation();
+		greenPowerManagement = new GreenEnergyPowerManagement(MOCK_CAPACITY, mockGreenEnergyAgent);
+		setUpGreenEnergyMock();
 	}
 
 	@Test
 	@DisplayName("Test get available power from monitoring data for exact time")
 	void testGetAvailablePowerMonitoringDataExactTime() {
-		doReturn(WIND).when(greenEnergyAgent).getEnergyType();
+		doReturn(WIND).when(mockGreenEnergyAgent).getEnergyType();
 		final MonitoringData mockMonitoringData = ImmutableMonitoringData.builder()
 				.addWeatherData(MOCK_WEATHER)
 				.build();
@@ -102,7 +73,7 @@ class GreenPowerManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power from monitoring data for nearest time")
 	void testGetAvailablePowerMonitoringDataNearestTime() {
-		doReturn(WIND).when(greenEnergyAgent).getEnergyType();
+		doReturn(WIND).when(mockGreenEnergyAgent).getEnergyType();
 		final Instant time1 = Instant.parse("2022-01-01T10:00:00.000Z");
 		final Instant time2 = Instant.parse("2022-01-01T13:00:00.000Z");
 		final MonitoringData mockMonitoringData = ImmutableMonitoringData.builder()
@@ -124,5 +95,77 @@ class GreenPowerManagementUnitTest {
 		assertThat(greenPowerManagement.getMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
 		greenPowerManagement.setMaximumCapacity(100);
 		assertThat(greenPowerManagement.getMaximumCapacity()).isEqualTo(100);
+	}
+
+	@Test
+	@DisplayName("Test updating maximum capacity")
+	void testUpdatingMaximumCapacity() {
+		final int newCapacity = 1000;
+		mockGreenEnergyAgent.managePower().updateMaximumCapacity(newCapacity);
+
+		assertThat(mockGreenEnergyAgent.managePower().getMaximumCapacity()).isEqualTo(1000);
+		assertThat(mockGreenEnergyAgent.managePower().getInitialMaximumCapacity()).isEqualTo(MOCK_CAPACITY);
+	}
+
+	// PREPARING TEST DATA
+
+	/**
+	 * Class creates mock green energy power jobs used in test scenarios.
+	 * The following structure was used:
+	 * PowerJob1 -> power: 10, time: 08:00 - 10:00, status: IN_PROGRESS,
+	 * PowerJob2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
+	 * PowerJob3 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
+	 * PowerJob4 -> power: 10,  time: 09:00 - 12:00, status: ON_HOLD
+	 * PowerJob5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
+	 */
+	private Map<PowerJob, JobStatusEnum> setUpGreenEnergyJobs() {
+		final PowerJob mockJob1 = ImmutablePowerJob.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.power(10)
+				.build();
+		final PowerJob mockJob2 = ImmutablePowerJob.builder()
+				.jobId("2")
+				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.power(20)
+				.build();
+		final PowerJob mockJob3 = ImmutablePowerJob.builder()
+				.jobId("3")
+				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(50)
+				.build();
+		final PowerJob mockJob4 = ImmutablePowerJob.builder()
+				.jobId("4")
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.power(10)
+				.build();
+		final PowerJob mockJob5 = ImmutablePowerJob.builder()
+				.jobId("5")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.power(25)
+				.build();
+		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
+		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD);
+		mockJobMap.put(mockJob4, JobStatusEnum.ON_HOLD);
+		mockJobMap.put(mockJob5, JobStatusEnum.ACCEPTED);
+		return mockJobMap;
+	}
+
+	private void setUpGreenEnergyMock() {
+		mockGreenEnergyAgent = spy(GreenEnergyAgent.class);
+		mockGreenEnergyAgent.getPowerJobs().putAll(MOCK_JOBS);
+		greenPowerManagement = spy(new GreenEnergyPowerManagement(MOCK_CAPACITY, mockGreenEnergyAgent));
+		mockGreenEnergyAgent.setGreenPowerManagement(greenPowerManagement);
+
+		doReturn(greenPowerManagement).when(mockGreenEnergyAgent).managePower();
+		doNothing().when(mockGreenEnergyAgent).addBehaviour(any());
+		doNothing().when(mockGreenEnergyAgent).send(any());
 	}
 }

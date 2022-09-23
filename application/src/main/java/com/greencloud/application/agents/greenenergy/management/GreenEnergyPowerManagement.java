@@ -164,7 +164,7 @@ public class GreenEnergyPowerManagement {
 	}
 
 	private double getWindPower(WeatherData weather) {
-		return getCurrentPowerInUseForGreenSource() * pow(
+		return currentMaximumCapacity * pow(
 				(weather.getWindSpeed() + 5 - CUT_ON_WIND_SPEED) / (RATED_WIND_SPEED - CUT_ON_WIND_SPEED), 2)
 				* TEST_MULTIPLIER;
 	}
