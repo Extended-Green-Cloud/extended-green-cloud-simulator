@@ -3,10 +3,12 @@ package com.greencloud.application.agents.server.management;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
+import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
+import com.greencloud.application.utils.TimeUtils;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import org.slf4j.Logger;
@@ -24,17 +26,18 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.utils.JobMapUtils.getJobById;
 import static com.greencloud.application.utils.JobMapUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 
-public class ServerJobManagement {
+public class ServerManagement {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerStateManagement.class);
 
     private final ServerAgent serverAgent;
 
-    public ServerJobManagement(ServerAgent serverAgent) {
+    public ServerManagement(ServerAgent serverAgent) {
         this.serverAgent = serverAgent;
     }
 
@@ -97,6 +100,19 @@ public class ServerJobManagement {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             supplyJobsWithBackupPower(jobsWithinTimeStamp);
         }
+    }
+
+    /**
+     * Method calculates the price for executing the job by given green source and server
+     *
+     * @param greenSourceData green source executing the job
+     * @return full price
+     */
+    public double calculateServicePrice(final GreenSourceData greenSourceData) {
+        var job = getJobById(serverAgent.getServerJobs(), greenSourceData.getJobId());
+        var powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
+        var computingCost = TimeUtils.differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
+        return powerCost + computingCost;
     }
 
     private void sendFinishInformation(final Job jobToFinish, final boolean informCNA) {

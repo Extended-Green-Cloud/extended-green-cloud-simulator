@@ -7,8 +7,6 @@ import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.time.Instant;
@@ -16,7 +14,6 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +31,7 @@ public class ServerJobManagementTest {
     private static final double MOCK_PRICE = 10;
     private static ServerStateManagement MOCK_STATE_MANAGEMENT;
 
-    private static ServerJobManagement MOCK_JOB_MANAGEMENT;
+    private static ServerManagement MOCK_JOB_MANAGEMENT;
     private static Map<Job, JobStatusEnum> MOCK_JOBS;
 
     @Mock
@@ -126,13 +123,13 @@ public class ServerJobManagementTest {
 
         final ServerStateManagement stateManagement = new ServerStateManagement(serverAgent);
         MOCK_STATE_MANAGEMENT = spy(stateManagement);
-        final ServerJobManagement jobManagement = new ServerJobManagement(serverAgent);
+        final ServerManagement jobManagement = new ServerManagement(serverAgent);
         MOCK_JOB_MANAGEMENT = spy(jobManagement);
 
         doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
         doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
         doReturn(MOCK_STATE_MANAGEMENT).when(serverAgent).manageState();
-        doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manageJobs();
+        doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manage();
         doNothing().when(serverAgent).addBehaviour(any());
         doNothing().when(serverAgent).send(any());
     }

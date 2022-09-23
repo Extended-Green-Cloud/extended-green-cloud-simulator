@@ -131,7 +131,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 	private void schedulePowerShortageHandling(final PowerShortageJob jobTransfer, final ACLMessage transferRequest) {
 		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
-			myServerAgent.manageJobs().divideJobForPowerShortage(job, jobTransfer.getPowerShortageStart());
+			myServerAgent.manage().divideJobForPowerShortage(job, jobTransfer.getPowerShortageStart());
 			myServerAgent.addBehaviour(HandleServerPowerShortage.createFor(Collections.singletonList(job),
 					jobTransfer.getPowerShortageStart(), myServerAgent, null));
 		} else {

@@ -78,7 +78,7 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 			jobsToTransfer.forEach(job -> {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				logger.info(POWER_SHORTAGE_START_TRANSFER_REQUEST_LOG, job.getJobId());
-				final Job jobToTransfer = myServerAgent.manageJobs().divideJobForPowerShortage(job, powerShortageStartTime);
+				final Job jobToTransfer = myServerAgent.manage().divideJobForPowerShortage(job, powerShortageStartTime);
 				final PowerShortageJob originalJobForShortage = JobMapper.mapToPowerShortageJob(job,
 						powerShortageStartTime);
 				final PowerShortageJob jobTransferForShortage = JobMapper.mapToPowerShortageJob(jobToTransfer,

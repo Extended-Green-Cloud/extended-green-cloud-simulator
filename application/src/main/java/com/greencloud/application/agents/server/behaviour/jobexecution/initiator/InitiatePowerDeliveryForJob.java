@@ -102,7 +102,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(NEW_JOB_LOOK_FOR_GS_SELECTED_GS_LOG, jobId, chosenGreenSource.getLocalName());
 
-		final double servicePrice = myServerAgent.manageState().calculateServicePrice(offerData);
+		final double servicePrice = myServerAgent.manage().calculateServicePrice(offerData);
 		final ACLMessage proposalMessage = OfferMessageFactory.makeServerJobOffer(myServerAgent, servicePrice, jobId,
 				replyMessage);
 		myServerAgent.getGreenSourceForJobMap().put(jobId, chosenGreenSource);

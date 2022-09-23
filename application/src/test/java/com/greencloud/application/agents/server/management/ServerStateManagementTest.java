@@ -21,14 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.Arguments;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -55,7 +53,7 @@ class ServerStateManagementTest {
 	private static final int MOCK_CAPACITY = 200;
 	private static final double MOCK_PRICE = 10;
 	private static ServerStateManagement MOCK_STATE_MANAGEMENT;
-	private static ServerJobManagement MOCK_JOB_MANAGEMENT;
+	private static ServerManagement MOCK_JOB_MANAGEMENT;
 	private static Map<Job, JobStatusEnum> MOCK_JOBS;
 
 	@Mock
@@ -107,7 +105,7 @@ class ServerStateManagementTest {
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
 
-		serverAgent.manageJobs().finishJobExecution(job, false);
+		serverAgent.manage().finishJobExecution(job, false);
 
 		final JobStatusEnum updatedStatus = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().getJobId().equals("3"))
@@ -168,7 +166,7 @@ class ServerStateManagementTest {
 				.availablePowerInTime(100)
 				.pricePerPowerUnit(5)
 				.build();
-		final double resultPrice = serverAgent.manageState().calculateServicePrice(mockGreenSourceData);
+		final double resultPrice = serverAgent.manage().calculateServicePrice(mockGreenSourceData);
 
 		assertThat(resultPrice).isEqualTo(75);
 	}
@@ -245,7 +243,7 @@ class ServerStateManagementTest {
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5")).findFirst()
 				.orElse(null);
 
-		serverAgent.manageJobs().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
+		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
 		final JobStatusEnum statusAfterUpdate = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().equals(job))
 				.map(Map.Entry::getValue)
@@ -263,7 +261,7 @@ class ServerStateManagementTest {
 		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
 
-		serverAgent.manageJobs().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
+		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
 
 		final Map<Job, JobStatusEnum> updatedJobInstances = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(job.getJobId()))
@@ -296,7 +294,7 @@ class ServerStateManagementTest {
 		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
 		assertThat(serverAgent.getGreenSourceForJobMap()).hasSize(1);
 
-		serverAgent.manageJobs().finishJobExecution(job, false);
+		serverAgent.manage().finishJobExecution(job, false);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
 		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
@@ -376,13 +374,13 @@ class ServerStateManagementTest {
 		final ServerStateManagement stateManagement = new ServerStateManagement(serverAgent);
 		MOCK_STATE_MANAGEMENT = spy(stateManagement);
 
-		final ServerJobManagement jobManagement = new ServerJobManagement(serverAgent);
+		final ServerManagement jobManagement = new ServerManagement(serverAgent);
 		MOCK_JOB_MANAGEMENT = spy(jobManagement);
 
 		doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
 		doReturn(MOCK_STATE_MANAGEMENT).when(serverAgent).manageState();
-		doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manageJobs();
+		doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manage();
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());
 	}

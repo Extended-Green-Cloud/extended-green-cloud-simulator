@@ -80,7 +80,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		if (nonNull(statusEnum) && statusEnum.equals(JobStatusEnum.IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.debug(SUPPLY_FINISHED_MANUALLY_LOG, job.getClientIdentifier(), job.getClientIdentifier());
-			myServerAgent.manageJobs().finishJobExecution(job, true);
+			myServerAgent.manage().finishJobExecution(job, true);
 		}
 	}
 

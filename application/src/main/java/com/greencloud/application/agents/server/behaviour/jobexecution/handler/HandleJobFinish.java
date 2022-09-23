@@ -72,7 +72,7 @@ public class HandleJobFinish extends WakerBehaviour {
 		if (Objects.nonNull(myServerAgent.getServerJobs().get(jobToExecute)) && ACCEPTED_JOB_STATUSES.contains(
 				myServerAgent.getServerJobs().get(jobToExecute))) {
 			logger.info(JOB_FINISH_LOG, jobToExecute.getJobId(), jobToExecute.getEndTime());
-			myServerAgent.manageJobs().finishJobExecution(jobToExecute, informCNA);
+			myServerAgent.manage().finishJobExecution(jobToExecute, informCNA);
 		}
 	}
 }

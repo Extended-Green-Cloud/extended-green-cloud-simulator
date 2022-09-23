@@ -1,21 +1,15 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.ALL;
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.JobMapUtils.*;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,13 +26,9 @@ import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
 import com.greencloud.application.utils.AlgorithmUtils;
 import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ServerAgentNode;
-
-import jade.core.AID;
-import jade.lang.acl.ACLMessage;
 
 /**
  * Set of utilities used to manage the internal state of the server agent
@@ -83,19 +73,6 @@ public class ServerStateManagement {
 		final int maxUsedPower =
 				AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp(jobsOfInterest, startDate, endDate);
 		return serverAgent.getCurrentMaximumCapacity() - maxUsedPower;
-	}
-
-	/**
-	 * Method calculates the price for executing the job by given green source and server
-	 *
-	 * @param greenSourceData green source executing the job
-	 * @return full price
-	 */
-	public double calculateServicePrice(final GreenSourceData greenSourceData) {
-		var job = getJobById(serverAgent.getServerJobs(), greenSourceData.getJobId());
-		var powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
-		var computingCost = TimeUtils.differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
-		return powerCost + computingCost;
 	}
 
 	/**
