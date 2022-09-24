@@ -1,17 +1,17 @@
-import React from "react"
+import React, { useContext } from "react"
 import './agent-statistics-config'
 import DetailsField from "../details-field/details-field"
 import { getStatisticsMapForAgent, mapCloudNetworkAgentFields, mapGreenEnergyAgentFields, mapMonitoringAgentFields, mapServerAgentFields } from "./agent-statistics-config"
 import SubtitleContainer from "../subtitle-container/subtitle-container"
-import { getSelectedAgent } from "store/cloud-network/api"
 import { styles } from './agent-statistics-panel-styles'
 
 import {
     Agent, AgentType, CloudNetworkAgent,
     GreenEnergyAgent, MonitoringAgent, ServerAgent
 } from "@types"
-import { useAppSelector } from "@store"
 import { Card } from '@components'
+import Badge from "components/badge/badge"
+import { useAppSelector } from "@store"
 
 
 const header = 'Agent Statistics'.toUpperCase()
@@ -23,8 +23,8 @@ const description = 'Click on an agent to display its statistics'
  * @returns JSX Element 
  */
 const AgentStatisticsPanel = () => {
-    const cloudNetworkState = useAppSelector(state => state.cloudNetwork)
-    const selectedAgent = getSelectedAgent(cloudNetworkState.agents)
+    const agentState = useAppSelector(state => state.agents)
+    const selectedAgent = agentState.agents.find(agent => agent.name === agentState.selectedAgent)
 
     const getHeader = () => {
         return !selectedAgent ?
@@ -35,14 +35,6 @@ const AgentStatisticsPanel = () => {
                     {selectedAgent.name.toUpperCase()}
                 </span>
             </div>
-    }
-
-    const getActiveBadge = (state: string) => {
-        const badgeStyle = state === 'ACTIVE' ?
-            styles.activeBadge :
-            styles.inActiveBadge
-        const style = { ...styles.badge, ...badgeStyle }
-        return (<span {...{ style }}>{state}</span>)
     }
 
     const getAgentFields = (agent: Agent) => {
@@ -65,7 +57,7 @@ const AgentStatisticsPanel = () => {
             const agentValue = { ...agentFields as any }[key] ?? ''
 
             const value = key === 'isActive' ?
-                getActiveBadge(agentValue) :
+                <Badge text={agentValue} isActive={agentValue === 'ACTIVE'} /> :
                 agentValue
             const property = key === 'isActive' ?
                 'valueObject' :

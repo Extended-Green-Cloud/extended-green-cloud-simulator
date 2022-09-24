@@ -1,5 +1,6 @@
 import { ToastContainer } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css'
+import './default-toast-styles.css'
 
 /**
  * Default toas configuration
@@ -7,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 const DefaultToast = () => {
     return (
         <ToastContainer
-            progressStyle={{ background: "var(--green-1)"}}
+            toastStyle={{ opacity: 0.9}}
             position="bottom-right"
             autoClose={4000}
             hideProgressBar={false}

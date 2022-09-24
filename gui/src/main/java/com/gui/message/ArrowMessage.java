@@ -16,7 +16,5 @@ public interface ArrowMessage {
 
 	List<String> getData();
 
-	default String getType() {
-		return "DISPLAY_MESSAGE_ARROW";
-	}
+	String getType();
 }

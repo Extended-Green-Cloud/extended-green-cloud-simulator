@@ -2,7 +2,8 @@ import React from "react"
 
 interface Styles {
     parentContainer: React.CSSProperties,
-    bannerContainer: React.CSSProperties,
+    banerContent: React.CSSProperties,
+    logoContainer: React.CSSProperties,
     bannerText: React.CSSProperties,
     bannerIcon: React.CSSProperties
 }
@@ -12,9 +13,14 @@ export const styles: Styles = {
         backgroundColor: 'var(--green-1)',
         boxShadow: 'var(--banner-shadow)',
         height: 'min-content',
-        paddingBottom: '5%'
+        paddingBottom: '10%'
     },
-    bannerContainer: {
+    banerContent: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'  
+    },
+    logoContainer: {
         display: 'flex',
         alignItems: 'center',
         color: 'var(--white)',

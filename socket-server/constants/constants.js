@@ -1,0 +1,36 @@
+const ROUTE_TYPE = {
+    NETWORK: '/network',
+    AGENT: '/agent',
+}
+
+module.exports = {
+    /**
+     * Message dispalay upon connecting client to websocket
+     */
+    WELCOMING_MESSAGE: {
+        type: 'SOCKET_CONNECTED',
+        data: 'Connection to the socket established successfully'
+    },
+    /**
+     * Mapping message type to websocket route
+     */
+    MESSAGE_ROUTES: {
+        INCREMENT_FINISHED_JOBS: ROUTE_TYPE.NETWORK,
+        INCREMENT_FAILED_JOBS: ROUTE_TYPE.NETWORK,
+        UPDATE_CURRENT_CLIENTS: ROUTE_TYPE.NETWORK,
+        UPDATE_CURRENT_PLANNED_JOBS: ROUTE_TYPE.NETWORK,
+        UPDATE_CURRENT_ACTIVE_JOBS: ROUTE_TYPE.NETWORK,
+        UPDATE_TOTAL_PRICE: ROUTE_TYPE.NETWORK,
+        SET_MAXIMUM_CAPACITY: ROUTE_TYPE.AGENT,
+        SET_TRAFFIC: ROUTE_TYPE.AGENT,
+        SET_IS_ACTIVE: ROUTE_TYPE.AGENT,
+        SET_JOBS_COUNT: ROUTE_TYPE.AGENT,
+        SET_ON_HOLD_JOBS_COUNT: ROUTE_TYPE.AGENT,
+        SET_CLIENT_NUMBER: ROUTE_TYPE.AGENT,
+        SET_CLIENT_JOB_STATUS: ROUTE_TYPE.AGENT,
+        SET_SERVER_BACK_UP_TRAFFIC: ROUTE_TYPE.AGENT,
+        REGISTER_AGENT: ROUTE_TYPE.AGENT,
+        DISPLAY_MESSAGE_ARROW: ROUTE_TYPE.AGENT,
+        HIDE_MESSAGE_ARROW: ROUTE_TYPE.AGENT
+    }
+}

@@ -1,4 +1,9 @@
-import { Agent, AgentType, CloudNetworkAgent, CloudNetworkTraffic, GraphEdge, AgentNode, GreenEnergyAgent, GreenEnergyState, MonitoringAgent, ServerAgent, ServerState } from "@types"
+import { Agent, AgentType, CloudNetworkAgent, CloudNetworkTraffic, GraphEdge, AgentNode, GreenEnergyAgent, GreenEnergyState, MonitoringAgent, ServerAgent, ServerState, MessagePayload } from "@types"
+import Cytoscape from 'cytoscape'
+
+let core: Cytoscape.Core
+
+export const setCore = (newCore: Cytoscape.Core) => core = newCore
 
 export const createEdgesForAgent = (agent: Agent): GraphEdge[] => {
     switch (agent.type) {
@@ -24,6 +29,9 @@ export const createNodeForAgent = (agent: Agent): AgentNode => {
     }
 }
 
+export const selectExistingEdges = (agents: Agent[], edges: GraphEdge[]) =>
+    edges.filter(edge => agents.find(agent => agent.name === edge.data.target) && agents.find(agent => agent.name === edge.data.source))
+
 const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent): CloudNetworkTraffic => {
     if (cloudNetwork.traffic > 85)
         return CloudNetworkTraffic.HIGH
@@ -35,6 +43,19 @@ const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent): CloudNetworkTraf
         CloudNetworkTraffic.INACTIVE
 }
 
+export const modifyEdgeState = (msg: MessagePayload, state: string) => {
+    const source = msg.agentName
+    const targets = msg.data as string[]
+
+    targets.forEach(target => {
+        const id = `${source}-${target}`
+        core.batch(() => {
+            if (core) {
+            core.edges().$id(id).css({ display: state === 'active' ? 'element' : 'none' })
+            }
+        })
+    })
+}
 
 const getServerState = (server: ServerAgent): ServerState => {
     if (server.numberOfJobsOnHold > 0)
@@ -58,12 +79,12 @@ const getGreenEnergyState = (greenEnergy: GreenEnergyAgent): GreenEnergyState =>
 
 
 const createCloudNetworkEdges = (agent: CloudNetworkAgent): GraphEdge[] =>
-    agent.serverAgents.map(serverAgent => createEdge(agent, agent.name, serverAgent, true))
+    agent.serverAgents.map(serverAgent => createEdge(agent.name, serverAgent, true))
 
 const createServerEdges = (agent: ServerAgent): GraphEdge[] => {
-    const uniEdge = createEdge(agent, agent.name, agent.cloudNetworkAgent, false)
-    const cloudNetworkEdge = createEdge(agent, agent.name, agent.cloudNetworkAgent, true)
-    const edges = agent.greenEnergyAgents.map(greenAgent => createEdge(agent, agent.name, greenAgent, true))
+    const uniEdge = createEdge(agent.name, agent.cloudNetworkAgent, false)
+    const cloudNetworkEdge = createEdge(agent.name, agent.cloudNetworkAgent, true)
+    const edges = agent.greenEnergyAgents.map(greenAgent => createEdge(agent.name, greenAgent, true))
 
     edges.push(uniEdge)
     edges.push(cloudNetworkEdge)
@@ -72,28 +93,20 @@ const createServerEdges = (agent: ServerAgent): GraphEdge[] => {
 }
 
 const createGreenEnergyEdges = (agent: GreenEnergyAgent): GraphEdge[] => {
-    const uniEdgeMonitoring = createEdge(agent, agent.name, agent.monitoringAgent, false)
-    const uniEdgeServer = createEdge(agent, agent.name, agent.serverAgent, false)
-    const directedEdgeMonitoring = createEdge(agent, agent.name, agent.monitoringAgent, true)
-    const directedEdgeServer = createEdge(agent, agent.name, agent.serverAgent, true)
+    const uniEdgeMonitoring = createEdge(agent.name, agent.monitoringAgent, false)
+    const uniEdgeServer = createEdge(agent.name, agent.serverAgent, false)
+    const directedEdgeMonitoring = createEdge(agent.name, agent.monitoringAgent, true)
+    const directedEdgeServer = createEdge(agent.name, agent.serverAgent, true)
 
     return [uniEdgeMonitoring, uniEdgeServer, directedEdgeMonitoring, directedEdgeServer]
 }
 
 const createMonitoringEdges = (agent: MonitoringAgent): GraphEdge[] =>
-    [createEdge(agent, agent.name, agent.greenEnergyAgent, true)]
+    [createEdge(agent.name, agent.greenEnergyAgent, true)]
 
 
-const createEdge = (agent: Agent, source: string, target: string, isDirected: boolean): GraphEdge => {
+const createEdge = (source: string, target: string, isDirected: boolean): GraphEdge => {
     const id = isDirected ? [source, target].join('-') : [source, target, 'BI'].join('-')
-    const prevEdge = agent.edges?.find(edge => edge.data.id === id)
-
-    if(!prevEdge) {
-        const type = isDirected ? 'directed' : 'unidirected'
-        const state = 'inactive'
-        return({ data: { id: isDirected ? id : [id, 'BI'].join('-'), source, target, type, state }, state })
-    } else {
-        const {state, ...prevState} = prevEdge.data
-        return ({ data: { state: prevEdge.state, ...prevState }, state: prevEdge.state })
-    }
+    const type = isDirected ? 'directed' : 'unidirected'
+    return ({ data: { id, source, target, type, state: 'inactive' } })
 }

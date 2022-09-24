@@ -74,7 +74,7 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String fileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GuiControllerImpl("ws://localhost:8080");
+		this.guiController = new GuiControllerImpl("ws://localhost:8080/");
 		this.fileName = fileName;
 		this.jadeRuntime = instance();
 
@@ -91,7 +91,7 @@ public abstract class AbstractScenarioService {
 	 * @param mainHostIp IP address of the main host
 	 */
 	protected AbstractScenarioService(String fileName, Integer hostId, String mainHostIp) {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080", mainHostIp));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", mainHostIp));
 		this.fileName = fileName;
 		this.jadeRuntime = instance();
 

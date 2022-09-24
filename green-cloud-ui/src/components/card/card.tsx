@@ -5,7 +5,8 @@ interface Props {
     children?: React.ReactNode,
     header?: string | React.ReactNode,
     removeScroll?: boolean,
-    containerStyle?: React.CSSProperties
+    containerStyle?: React.CSSProperties,
+    contentStyle?: React.CSSProperties
 }
 
 /**
@@ -15,17 +16,19 @@ interface Props {
  * @param {string}[header] - header displayed at the top of the container
  * @param {boolean}[removeScroll] -flag indicating whether the scroll bar   should be removed 
  * @param {object}[containerStyle] - optional styling applied to the container
+ * @param {object}[contentStyle] - optional styling applied to the content
  * @returns 
  */
 const Card = ({
     header,
     children,
     containerStyle,
+    contentStyle,
     removeScroll
 }: Props) => {
 
-    const contentStyle = removeScroll ?
-        { ...styles.cardContent } :
+    const contentFinalStyle = removeScroll ?
+        { ...styles.cardContent, ...contentStyle } :
         { ...styles.cardContent, ...styles.cardContentScroll }
     const parentContainerStyle = { ...styles.cardContainer, ...containerStyle }
 
@@ -37,7 +40,7 @@ const Card = ({
     return (
         <div style={parentContainerStyle}>
             {header && mapHeader()}
-            <div style={contentStyle}>
+            <div style={contentFinalStyle}>
                 {children}
             </div>
         </div>

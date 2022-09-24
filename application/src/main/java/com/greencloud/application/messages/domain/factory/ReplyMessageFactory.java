@@ -1,8 +1,6 @@
 package com.greencloud.application.messages.domain.factory;
 
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -85,22 +83,4 @@ public class ReplyMessageFactory {
 		return replyMessage;
 	}
 
-	/**
-	 * Method prepares the reply accept message containing the conversation topic as content protocol
-	 *
-	 * @param replyMessage  reply ACLMessage that is to be sent
-	 * @param jobId unique job instance identifier
-	 * @return reply ACLMessage
-	 */
-	public static ACLMessage prepareFailureReply(final ACLMessage replyMessage,
-												 final Object jobId) {
-		replyMessage.setProtocol(FAILED_JOB_PROTOCOL);
-		replyMessage.setPerformative(FAILURE);
-		try{
-			replyMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobId));
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return replyMessage;
-	}
 }

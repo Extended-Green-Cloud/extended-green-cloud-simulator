@@ -1,0 +1,25 @@
+.button-banner {
+    border: none;
+    display: inline-block;
+    color: var(--green-7);
+    background-color: var(--white);
+    font-family: var(--font-1);
+    font-size: 1.1rem;
+    font-weight: 400;
+    padding: 10px;
+    text-decoration: none;
+    margin-right: 30px;
+    margin-top: 10px;
+    border-radius: 3px;
+    box-shadow: var(--banner-button-shadow);
+}
+
+.button-banner:hover {
+    color: var(--white);
+    background-color: var(--green-7);
+}
+
+.button-banner:active {
+    color: var(--white);
+    background-color: var(--green-8);
+}

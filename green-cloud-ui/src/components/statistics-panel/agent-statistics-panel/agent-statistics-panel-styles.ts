@@ -2,9 +2,6 @@ import React from "react"
 
 interface Styles {
     agentContainer: React.CSSProperties,
-    badge: React.CSSProperties,
-    activeBadge: React.CSSProperties,
-    inActiveBadge: React.CSSProperties,
     agentHeader: React.CSSProperties,
     agentNameHeader: React.CSSProperties
 }
@@ -16,20 +13,6 @@ export const styles: Styles = {
         height: '45%',
         marginTop: '5%',
         marginLeft: '20px',
-    },
-    badge: {
-        display: 'block',
-        textAlign: 'center',
-        color: 'var(--white)',
-        borderRadius: '10px',
-        fontSize: '0.8rem',
-        fontWeight: '500',
-    },
-    inActiveBadge: {
-        backgroundColor: 'var(--gray-6)',
-    },
-    activeBadge: {
-        backgroundColor: 'var(--green-4)',
     },
     agentHeader: {
         display: 'flex',

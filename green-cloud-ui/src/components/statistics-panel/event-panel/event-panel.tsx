@@ -6,7 +6,7 @@ import NumericInput from "../numeric-input/numeric-input"
 import SubtitleContainer from "../subtitle-container/subtitle-container"
 import { toast } from 'react-toastify';
 
-import { cloudNetworkActions, useAppDispatch, useAppSelector, getEventByType, getSelectedAgent } from "@store"
+import { useAppDispatch, getEventByType, agentsActions, useAppSelector } from "@store"
 import { AgentEvent, EventState, EventType, PowerShortageEvent } from "@types"
 
 const header = "Agent event panel"
@@ -21,8 +21,8 @@ const topButtonLabel = "Maximum Capacity"
  * @returns JSX Element
  */
 const EventPanel = () => {
-    const cloudNetwork = useAppSelector(state => state.cloudNetwork)
-    const selectedAgent = getSelectedAgent(cloudNetwork.agents)
+    const agentState = useAppSelector(state => state.agents)
+    const selectedAgent = agentState.agents.find(agent => agent.name === agentState.selectedAgent)
     const dispatch = useAppDispatch()
 
     function handlePowerShortageTrigger(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -30,11 +30,13 @@ const EventPanel = () => {
             const { name } = selectedAgent
             const event = getEventByType(selectedAgent.events, EventType.POWER_SHORTAGE_EVENT)
 
-            if (event?.data?.newMaximumCapacity) {
+            if (!event?.data?.newMaximumCapacity && event?.state === EventState.ACTIVE) {
                 toast.info("The new maximum capacity must be specified!")
             } else {
-                dispatch(cloudNetworkActions.triggerPowerShortage(name))
-                setTimeout(() => dispatch(cloudNetworkActions.unlockPowerShortageEvent(name)), 2000)
+                const message = event?.state === EventState.ACTIVE ? 'triggered' : 'finished'
+                toast.warn(`Power shortage ${message} in ${selectedAgent.name}`)
+                dispatch(agentsActions.triggerPowerShortage(name))
+                setTimeout(() => dispatch(agentsActions.unlockPowerShortageEvent(name)), 2000)
             }
         }
     }
@@ -43,7 +45,7 @@ const EventPanel = () => {
         const newMaximumCapacity = parseFloat(e.target.value)
         const agentName = selectedAgent?.name
 
-        dispatch(cloudNetworkActions.setPowerShortageCapacity({ agentName, newMaximumCapacity }))
+        dispatch(agentsActions.setPowerShortageCapacity({ agentName, newMaximumCapacity }))
     }
 
 
@@ -108,7 +110,7 @@ const EventPanel = () => {
     return (
         <Card {...{ header, containerStyle: styles.eventContainer }}>
             <div style={styles.singleEventParentContainer}>
-                {generateEventTypes()}
+                {/* {generateEventTypes()} */}
             </div>
         </Card>
     )

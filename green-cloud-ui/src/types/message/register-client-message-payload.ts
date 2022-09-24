@@ -2,6 +2,6 @@ export type RegisterClientMessage = {
     name: string,
     jobId: string,
     power: string,
-    startDate: string,
-    endDate: string
+    start: string,
+    end: string
 }

@@ -10,10 +10,8 @@ interface Styles {
 export const styles: Styles = {
     eventContainer: {
         backgroundColor: 'var(--white)',
-        height: '95%',
-        width: '25%',
-        marginRight: '20px',
         minWidth: 'fit-content',
+        minHeight: '35%'
     },
     singleEventParentContainer: {
         display: 'flex',

@@ -2,6 +2,9 @@ package com.gui.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.gui.agents.AbstractAgentNode;
 import com.gui.message.ImmutableArrowMessage;
@@ -62,9 +65,17 @@ public class GuiControllerImpl implements GuiController {
 
 	@Override
 	public void displayMessageArrow(AbstractAgentNode senderAgent, List<String> receiversNames) {
-		webSocketClient.send(ImmutableArrowMessage.builder()
-				.agentName(senderAgent.getAgentName())
-				.data(receiversNames)
-				.build());
+//		webSocketClient.send(ImmutableArrowMessage.builder()
+//				.type("DISPLAY_MESSAGE_ARROW")
+//				.agentName(senderAgent.getAgentName())
+//				.data(receiversNames)
+//				.build());
+//		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+//		executorService.schedule(() -> webSocketClient.send(ImmutableArrowMessage.builder()
+//						.type("HIDE_MESSAGE_ARROW")
+//						.agentName(senderAgent.getAgentName())
+//						.data(receiversNames)
+//						.build()),
+//				500, TimeUnit.MILLISECONDS);
 	}
 }

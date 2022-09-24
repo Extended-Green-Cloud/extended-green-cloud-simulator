@@ -10,10 +10,11 @@ export const styles: Styles = {
         width: '70%',
         borderTop: 'var(--border-subtitle)',
         paddingTop: '15px',
+        paddingBottom: '10px',
         display: 'flex'
     },
     descriptionText: {
-        fontSize: '0.6rem',
+        fontSize: '0.7rem',
         marginLeft: '7px'
     }
 }

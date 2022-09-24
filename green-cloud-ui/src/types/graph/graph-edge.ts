@@ -5,6 +5,5 @@ export type GraphEdge = {
         source: string,
         type: string,
         state: string
-    },
-    state: string
+    }
 }

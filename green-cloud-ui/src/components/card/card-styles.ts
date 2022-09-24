@@ -13,6 +13,7 @@ export const styles: Styles = {
         flexDirection: 'column',
         padding: '15px',
         boxShadow: 'var(--card-shadow)',
+        borderBottom:'var(--border-card)'
     },
     cardHeader: {
         color: 'var(--gray-2)',
@@ -20,6 +21,7 @@ export const styles: Styles = {
     },
     cardContent: {
         flexGrow: 1,
+        height: '100%',
         marginTop: '20px',
         color: 'var(--gray-2)',
         fontWeight: '300',

@@ -3,6 +3,8 @@ import { cloudNetworkActions } from "../../cloud-network/actions"
 import { socketActions } from "../actions"
 import { MessagePayload, MessageType } from '@types'
 import { NotUndefined } from "@redux-saga/types"
+import { agentsActions } from "store/agent"
+import { modifyEdgeState } from "@utils"
 
 type Emitter = (input: NotUndefined | END) => void
 
@@ -16,34 +18,28 @@ interface MessageHandlerProps {
     emitter: Emitter
 }
 
-const ws = new WebSocket(process.env.REACT_APP_WEB_SOCKET_URL)
-
-export function establishSocketConnection() {
+export function establishSocketConnection(ws: WebSocket, address: string) {
     return eventChannel(emitter => {
+        ws = new WebSocket(address)
 
         ws.onopen = () => handleSocketOpen(emitter, ws)
         ws.onmessage = (e) => handleSocketMessage({ event: e, emitter })
         ws.onerror = (e) => handleSocketError(e)
-        ws.onclose = () => handleSocketClose()
+        ws.onclose = () => handleSocketClose(ws, address)
 
         return () => ws.close()
     })
 }
 
-export function sendMessageUsnigSocket(data: string) {
-    if (ws.readyState === WebSocket.OPEN && ws) {
-        ws.send(data)
-    }
-}
 
 const handleSocketOpen = (emitter: Emitter, ws: WebSocket) => {
     console.log("Connection was opened")
     emitter(socketActions.connectSocket())
 }
 
-const handleSocketClose = () => {
+const handleSocketClose = (ws: WebSocket, address: string) => {
     console.log("Connection was closed. Trying to reconnect")
-    setTimeout(() => { establishSocketConnection() }, 4000);
+    setTimeout(() => { establishSocketConnection(ws, address) }, 4000);
 }
 
 const handleSocketError = (error: Event) => {
@@ -54,9 +50,9 @@ const handleSocketError = (error: Event) => {
 const handleSocketMessage = ({ event, emitter }: EventHandlerProps) => {
     try {
         const msg = JSON.parse(event.data)
-        const test = msg as MessagePayload
-        console.log(test)
-        dispatchActionOnMessage({ msg: test, emitter })
+        const data = msg as MessagePayload
+        console.debug(data)
+        dispatchActionOnMessage({ msg: data, emitter })
     } catch (e: any) {
         console.error(`Error parsing : ${e.data}`)
     }
@@ -71,31 +67,31 @@ const dispatchActionOnMessage = ({ msg, emitter }: MessageHandlerProps) => {
             emitter(cloudNetworkActions.incrementFinishedJobs())
             break
         case MessageType.REGISTER_AGENT:
-            emitter(cloudNetworkActions.registerAgent(msg))
+            emitter(agentsActions.registerAgent(msg))
             break
         case MessageType.SET_CLIENT_JOB_STATUS:
-            emitter(cloudNetworkActions.setClientJobStatus(msg))
+            emitter(agentsActions.setClientJobStatus(msg))
             break
         case MessageType.SET_CLIENT_NUMBER:
-            emitter(cloudNetworkActions.setClientNumber(msg))
+            emitter(agentsActions.setClientNumber(msg))
             break
         case MessageType.SET_IS_ACTIVE:
-            emitter(cloudNetworkActions.setIsActive(msg))
+            emitter(agentsActions.setIsActive(msg))
             break
         case MessageType.SET_JOBS_COUNT:
-            emitter(cloudNetworkActions.setJobsCount(msg))
+            emitter(agentsActions.setJobsCount(msg))
             break
         case MessageType.SET_MAXIMUM_CAPACITY:
-            emitter(cloudNetworkActions.setMaximumCapacity(msg))
+            emitter(agentsActions.setMaximumCapacity(msg))
             break
         case MessageType.SET_ON_HOLD_JOBS_COUNT:
-            emitter(cloudNetworkActions.setOnHoldJobsCount(msg))
+            emitter(agentsActions.setOnHoldJobsCount(msg))
             break
         case MessageType.SET_SERVER_BACK_UP_TRAFFIC:
-            emitter(cloudNetworkActions.setServerBackUpTraffic(msg))
+            emitter(agentsActions.setServerBackUpTraffic(msg))
             break
         case MessageType.SET_TRAFFIC:
-            emitter(cloudNetworkActions.setTraffic(msg))
+            emitter(agentsActions.setTraffic(msg))
             break
         case MessageType.UPDATE_CURRENT_ACTIVE_JOBS:
             emitter(cloudNetworkActions.updateCurrentActiveJobsNumber(msg))
@@ -110,8 +106,10 @@ const dispatchActionOnMessage = ({ msg, emitter }: MessageHandlerProps) => {
             emitter(cloudNetworkActions.setTotalPrice(msg))
             break
         case MessageType.DISPLAY_MESSAGE_ARROW:
-            emitter(cloudNetworkActions.displayAgentEdge(msg))
-            setTimeout(() => emitter(cloudNetworkActions.hideAgentEdge(msg)), 2000)
+            modifyEdgeState(msg, 'active')
+            break
+        case MessageType.HIDE_MESSAGE_ARROW:
+            modifyEdgeState(msg, 'inactive')
             break
     }
 }

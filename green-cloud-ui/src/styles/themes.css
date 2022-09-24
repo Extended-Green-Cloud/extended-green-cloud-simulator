@@ -11,6 +11,8 @@
   --green-4: #76cd5c;
   --green-5: #70bd6a;
   --green-6: #7fc77a;
+  --green-7: #2b7427;
+  --green-8: #358031;
 
   --gray-1: #878787;
   --gray-2: #5e5e5e;
@@ -22,6 +24,8 @@
   --red-1: #cc2020;
   --red-2: #dd3030;
   --red-3: #dc3d3d;
+
+  --orange-1: #EF8337;
 
   --beige-1: #faf6f1;
 
@@ -36,6 +40,7 @@
   /* SHADOWS */
 
   --banner-shadow: 0px 6px 6px -6px rgba(0,0,0,0.4);
+  --banner-button-shadow: 1px 4px 8px 0px rgb(0 0 0 / 30%);
   --card-shadow: 3px 3px 13px -3px rgba(0,0,0,0.3);
   --button-shadow: 0px 1px 4px 0px #8c8c8c;
   --event-shadow: 0px 2px 9px 0px rgba(0,0,0,0.2);
@@ -46,6 +51,13 @@
   --border-event: 3px solid var(--gray-1);
   --border-detail: 6px solid var(--gray-2);
   --border-subtitle: 1px solid var(--gray-2);
+  --border-graph: 1px solid var(--green-2);
+  --border-card: 4px solid var(--green-1);
+}
+
+.__________cytoscape_container > div {
+  height: 100% !important;
+  width: 100% !important;
 }
 
 #root {

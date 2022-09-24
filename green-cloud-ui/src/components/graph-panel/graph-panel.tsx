@@ -11,7 +11,11 @@ const header = 'Cloud network structure'
  */
 const GraphPanel = () => {
     return (
-        <Card {...{header, containerStyle: styles.graphContainer, removeScroll: true}} >
+        <Card {...{
+            header, 
+            containerStyle: styles.graphContainer, 
+            contentStyle: styles.graphContent, 
+            removeScroll: true}} >
             <DisplayGraph />
         </Card>
     )

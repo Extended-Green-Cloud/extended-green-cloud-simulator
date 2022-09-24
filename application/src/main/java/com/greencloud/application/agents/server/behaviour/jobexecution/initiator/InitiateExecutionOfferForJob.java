@@ -3,6 +3,8 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.initiato
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
@@ -55,24 +57,14 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
-		final JobWithProtocol jobWithProtocol = MessagingUtils.readMessageContent(accept_proposal, JobWithProtocol.class);
+		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
+		final JobWithProtocol jobWithProtocol = readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
-		final Job jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
-		final Integer availableCapacity = myServerAgent.manage().getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
-		if (jobInstance.getPower() > availableCapacity) {
-			myServerAgent.getServerJobs().remove(jobInstance);
-			myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
-			myServerAgent.send(ReplyMessageFactory.prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
-			myServerAgent.send(ReplyMessageFactory.prepareFailureReply(accept_proposal.createReply(), jobInstanceId));
-		} else {
-			MDC.put(MDC_JOB_ID, jobInstance.getJobId());
-			logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
-			myServerAgent.getServerJobs().replace(jobInstance, JobStatusEnum.ACCEPTED);
-			myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId,
-					jobWithProtocol.getReplyProtocol()));
-		}
+		myServerAgent.getServerJobs()
+				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
+		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
 	}
 
 	/**
@@ -83,7 +75,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
-		final JobInstanceIdentifier jobInstanceId = MessagingUtils.readMessageContent(reject_proposal,
+		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject_proposal,
 				JobInstanceIdentifier.class);
 		final Job job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
