@@ -17,7 +17,7 @@ const DefaultToast = () => {
         <ToastContainer
             toastStyle={{ opacity: 0.9, marginTop: '-15px' }}
             position="top-center"
-            autoClose={30000}
+            autoClose={5000}
             limit={1}
             hideProgressBar={false}
             newestOnTop={false}
