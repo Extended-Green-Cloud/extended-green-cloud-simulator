@@ -2,7 +2,7 @@ import Card from "components/card/card"
 import { styles } from "./client-panel-styles"
 import Select, { SingleValue } from 'react-select'
 import { useAppSelector } from "@store"
-import { Agent, ClientAgent } from "@types"
+import { ClientAgent } from "@types"
 import SubtitleContainer from "components/subtitle-container/subtitle-container"
 import { useEffect, useMemo, useState } from "react"
 import { AgentOption, CLIENTS_ORDER, CLIENT_STATISTICS, GroupedAgentOption } from "./client-panel-config"
