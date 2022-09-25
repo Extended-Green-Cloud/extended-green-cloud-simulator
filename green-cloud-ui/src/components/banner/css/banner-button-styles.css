@@ -1,17 +1,16 @@
 .button-banner {
     border: none;
     display: inline-block;
-    color: var(--green-7);
-    background-color: var(--white);
-    font-family: var(--font-1);
-    font-size: 1.1rem;
-    font-weight: 400;
-    padding: 10px;
     text-decoration: none;
+    font-weight: 300;
+    padding: 7px 10px;
     margin-right: 30px;
     margin-top: 10px;
-    border-radius: 3px;
-    box-shadow: var(--banner-button-shadow);
+    color: var(--white);
+    background-color: transparent;
+    font-family: var(--font-1);
+    font-size: var(--font-size-5);
+    border-bottom: var(--border-banner-button);
 }
 
 .button-banner:hover {
@@ -22,4 +21,8 @@
 .button-banner:active {
     color: var(--white);
     background-color: var(--green-8);
+}
+
+.button-reconnect {
+    margin-right: 10px !important;
 }

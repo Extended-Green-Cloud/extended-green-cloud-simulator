@@ -14,7 +14,7 @@ export const styles: Styles = {
         display: 'flex'
     },
     descriptionText: {
-        fontSize: '0.7rem',
+        fontSize: 'var(--font-size-6)',
         marginLeft: '7px'
     }
 }

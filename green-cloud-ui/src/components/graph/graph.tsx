@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React from 'react'
 import CytoscapeComponent from "react-cytoscapejs";
 import Cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
@@ -7,8 +7,7 @@ import { GRAPH_LAYOUT, GRAPH_STYLE, GRAPH_STYLESHEET } from './graph-config';
 import { agentsActions, useAppDispatch, useAppSelector } from "@store";
 import { createNodeForAgent, selectExistingEdges, setCore } from '@utils';
 
-import { AgentType } from '@types';
-import { MOCK_AGENTS } from 'views/main-view/main-view';
+import { AgentStore, AgentType } from '@types';
 
 Cytoscape.use(fcose)
 
@@ -17,17 +16,10 @@ Cytoscape.use(fcose)
  * 
  * @returns Cytoscape graph 
  */
-export const DisplayGraph = () => {
-  //const { setSelectedNetworkAgent } = useContext(MainAgentContext)
-  const agentsState = useAppSelector(state => state.agents)
+const DisplayGraph = () => {
+  const agentsState: AgentStore = useAppSelector(state => state.agents)
   const dispatch = useAppDispatch()
   const graphNodes = agentsState.agents.filter(agent => agent.type !== AgentType.CLIENT)
-
-  //TODO: Remove this useEffect after we'll have the real data
-  useEffect(() => {
-    MOCK_AGENTS.forEach(agent => dispatch(agentsActions.registerAgent(agent)))
-    // eslint-disable-next-line
-  }, [])
 
   const elements = CytoscapeComponent.normalizeElements({
     nodes: graphNodes.map(agent => { return ({ data: createNodeForAgent(agent) }) }),
@@ -52,10 +44,12 @@ export const DisplayGraph = () => {
       layout={GRAPH_LAYOUT}
       style={GRAPH_STYLE}
       stylesheet={GRAPH_STYLESHEET}
-      minZoom={0.5}
+      minZoom={0.3}
       maxZoom={1}
       wheelSensitivity={0.1}
       {...{ cy, elements }}
     />
   )
 }
+
+export default DisplayGraph

@@ -1,12 +1,12 @@
-import React, { useContext } from "react"
-import './agent-statistics-config'
+import React from "react"
+import './agent-panel-config'
 import DetailsField from "../details-field/details-field"
-import { getStatisticsMapForAgent, mapCloudNetworkAgentFields, mapGreenEnergyAgentFields, mapMonitoringAgentFields, mapServerAgentFields } from "./agent-statistics-config"
+import { getStatisticsMapForAgent, mapCloudNetworkAgentFields, mapGreenEnergyAgentFields, mapMonitoringAgentFields, mapServerAgentFields } from "./agent-panel-config"
 import SubtitleContainer from "../subtitle-container/subtitle-container"
-import { styles } from './agent-statistics-panel-styles'
+import { styles } from './agent-panel-styles'
 
 import {
-    Agent, AgentType, CloudNetworkAgent,
+    Agent, AgentStore, AgentType, CloudNetworkAgent,
     GreenEnergyAgent, MonitoringAgent, ServerAgent
 } from "@types"
 import { Card } from '@components'
@@ -14,7 +14,7 @@ import Badge from "components/badge/badge"
 import { useAppSelector } from "@store"
 
 
-const header = 'Agent Statistics'.toUpperCase()
+const header = 'Agent Statistics'
 const description = 'Click on an agent to display its statistics'
 
 /**
@@ -23,14 +23,14 @@ const description = 'Click on an agent to display its statistics'
  * @returns JSX Element 
  */
 const AgentStatisticsPanel = () => {
-    const agentState = useAppSelector(state => state.agents)
+    const agentState: AgentStore = useAppSelector(state => state.agents)
     const selectedAgent = agentState.agents.find(agent => agent.name === agentState.selectedAgent)
 
     const getHeader = () => {
         return !selectedAgent ?
-            header :
+            header.toUpperCase() :
             <div style={styles.agentHeader}>
-                <span>{header}:</span>
+                <span>{header.toUpperCase()}:</span>
                 <span style={styles.agentNameHeader}>
                     {selectedAgent.name.toUpperCase()}
                 </span>
@@ -55,10 +55,7 @@ const AgentStatisticsPanel = () => {
             const { label, key } = field
             const agentFields = getAgentFields(agent)
             const agentValue = { ...agentFields as any }[key] ?? ''
-
-            const value = key === 'isActive' ?
-                <Badge text={agentValue} isActive={agentValue === 'ACTIVE'} /> :
-                agentValue
+            const value = formatAgentValue(agentValue, key)
             const property = key === 'isActive' ?
                 'valueObject' :
                 'value'
@@ -67,6 +64,14 @@ const AgentStatisticsPanel = () => {
         })
     }
 
+    const formatAgentValue = (value: string | number, key: string) => {
+        if (key === 'isActive')
+            return <Badge text={value as string} isActive={value === 'ACTIVE'} />
+
+        return key === 'traffic' || key === 'backUpTraffic' ?
+            [(value as number).toFixed(2), '%'].join('') :
+            value
+    }
 
     const generateDetailsFields = () => {
         if (selectedAgent) {

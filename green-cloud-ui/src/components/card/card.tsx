@@ -17,7 +17,8 @@ interface Props {
  * @param {boolean}[removeScroll] -flag indicating whether the scroll bar   should be removed 
  * @param {object}[containerStyle] - optional styling applied to the container
  * @param {object}[contentStyle] - optional styling applied to the content
- * @returns 
+ * 
+ * @returns JSX Element
  */
 const Card = ({
     header,

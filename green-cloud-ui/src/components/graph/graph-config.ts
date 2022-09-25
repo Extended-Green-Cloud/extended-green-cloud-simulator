@@ -35,36 +35,6 @@ const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
     }
 ]
 
-const EDGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
-    {
-        selector: "edge[type = 'unidirected'][state = 'inactive']",
-        style: {
-            width: 1,
-            "target-arrow-shape": "none",
-            "line-color": "#242424"
-        },
-    },
-    {
-        selector: "edge[type = 'unidirected'][state = 'active']",
-        style: {
-            width: 1,
-            "target-arrow-shape": "none",
-            "line-color": "#58B905"
-        },
-    },
-    {
-        selector: "edge[type = 'directed']",
-        style: {
-            width: 2,
-            "display": "none",
-            "target-arrow-shape": "triangle",
-            "line-color": "#58B905",
-            "line-style": "dashed",
-            "target-arrow-color": "#58B905"
-        },
-    }
-]
-
 const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
         selector: "node[type = 'CLOUD_NETWORK']",
@@ -197,14 +167,31 @@ const MONITORING_STYLESHEET: Array<cytoscape.Stylesheet> = [
             "background-image": iconWeather,
             "background-image-opacity": 1,
             "background-image-containment": "over",
-            "background-fit": 'cover'
+            "background-fit": 'cover',
         }
     }
 ]
 
+export const EDGE_UNIDIRECTED_INACTIVE = {
+    width: 1,
+    "target-arrow-shape": "none",
+    "line-color": "#242424"
+}
+export const EDGE_UNIDIRECTED_ACTIVE = {
+    width: 1,
+    "target-arrow-shape": "none",
+    "line-color": "#58B905"
+}
+export const EDGE_DIRECTED = {
+    width: 1,
+    "target-arrow-shape": "triangle",
+    "line-color": "#58B905",
+    "line-style": "dashed",
+    "target-arrow-color": "#58B905"
+}
+
 export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
     COMMON_STYLESHEET
-        .concat(EDGE_STYLESHEET)
         .concat(CNA_STYLESHEET)
         .concat(SERVER_STYLESHEET)
         .concat(GREEN_ENERGY_STYLESHEET)

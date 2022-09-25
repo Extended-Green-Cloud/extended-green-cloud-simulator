@@ -1,58 +1,84 @@
+var cors = require("cors");
+var bodyParser = require('body-parser')
 var express = require("express");
-const { WELCOMING_MESSAGE, MESSAGE_ROUTES } = require("./constants/constants");
-const { parseData } = require("./utils/parse-utils");
 var app = express();
 var expressWs = require("express-ws")(app);
 
-let currentPlanned = 0
-let currentActive = 0
-let currentClients = 0
+var { WELCOMING_MESSAGE, ROUTE_TYPES } = require("./constants/constants");
+const { MESSAGE_HANDLERS } = require("./utils/message-utils");
+var { parseData } = require("./utils/parse-utils");
+var { logNewMessage, logStateReset, logUserConnected, logState } = require('./utils/logger-utils');
+const { handlePowerShortage } = require("./utils/event-utils");
+
+let STATE = {
+  network: {
+    finishedJobsNo: 0,
+    failedJobsNo: 0,
+    totalPrice: 0,
+    currPlannedJobsNo: 0,
+    currActiveJobsNo: 0,
+    currClientsNo: 0
+  },
+  agents: {
+    agents: [],
+    clients: [],
+    connections: []
+  }
+}
+
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.ws("/", function (ws, req) {
   ws.route = '/'
-  ws.on("open", () => ws.send(JSON.stringify(WELCOMING_MESSAGE)))
+  ws.on("open", () => {
+    logUserConnected()
+    ws.send(JSON.stringify(WELCOMING_MESSAGE))
+  })
 
   ws.on("message", function (msg) {
     const message = parseData(msg)
     const type = message.type
-    const dataToPass = handleMessage(message, type)
-    console.log(dataToPass)
-    expressWs.broadcast(JSON.stringify(dataToPass), MESSAGE_ROUTES[type])
+    const messageHandler = MESSAGE_HANDLERS[type]
+
+    if (messageHandler) {
+      logNewMessage(STATE, message)
+      messageHandler(STATE, message)
+    }
   });
 });
 
-app.ws("/network", function (ws, req) {
-  ws.route = '/network'
-  ws.on("open", () => ws.send(JSON.stringify(WELCOMING_MESSAGE)))
-});
+app.get(ROUTE_TYPES.FRONT, (req, res) => {
+  res.send(JSON.stringify(STATE))
+})
 
-app.ws("/agent", function (ws, req) {
-  ws.route = '/agent'
-  ws.on("open", () => ws.send(JSON.stringify(WELCOMING_MESSAGE)))
-});
-
-
-const handleMessage = (message, type) => {
-  if (type === 'UPDATE_CURRENT_PLANNED_JOBS') {
-    currentPlanned += message.data
-    return { ...message, data: currentPlanned }
-  } else if (type === 'UPDATE_CURRENT_ACTIVE_JOBS') {
-    currentActive += message.data
-    return { ...message, data: currentActive }
-  } else if (type === 'UPDATE_CURRENT_CLIENTS') {
-    currentClients += message.data
-    return { ...message, data: currentClients }
-  }
-  return message
-}
-
-
-expressWs.broadcast = function (data, route) {
-  expressWs.getWss().clients.forEach(client => {
-    if (client.route == route) {
-      client.send(data)
+app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
+  STATE = {
+    network: {
+      finishedJobsNo: 0,
+      failedJobsNo: 0,
+      totalPrice: 0,
+      currPlannedJobsNo: 0,
+      currActiveJobsNo: 0,
+      currClientsNo: 0
+    },
+    agents: {
+      agents: [],
+      clients: [],
+      connections: []
     }
-  })
-}
+  }
+  logStateReset()
+  logState(STATE)
+})
 
-app.listen(8080);
+app.post(ROUTE_TYPES.FRONT + '/powerShortage', (req, res) => {
+  const msg = req.body
+  const dataToPass = handlePowerShortage(STATE, msg)
+  expressWs.getWss().clients.forEach(client => {
+    client.send(JSON.stringify(dataToPass))
+  })
+})
+
+app.listen(8080);  

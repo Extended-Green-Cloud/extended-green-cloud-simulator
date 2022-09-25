@@ -6,6 +6,7 @@ interface Styles {
 
 export const styles: Styles = {
     cloudContainer: {
+        flexShrink: 0,
         backgroundColor: 'var(--white)',
         height: '45%',
         marginLeft: '20px',

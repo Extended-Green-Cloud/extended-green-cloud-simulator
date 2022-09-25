@@ -13,7 +13,7 @@ export const styles: Styles = {
         flexDirection: 'column',
         padding: '15px',
         boxShadow: 'var(--card-shadow)',
-        borderBottom:'var(--border-card)'
+        borderBottom: 'var(--border-card)'
     },
     cardHeader: {
         color: 'var(--gray-2)',
@@ -25,6 +25,7 @@ export const styles: Styles = {
         marginTop: '20px',
         color: 'var(--gray-2)',
         fontWeight: '300',
+        minHeight: 0
     },
     cardContentScroll: {
         overflowY: 'scroll',

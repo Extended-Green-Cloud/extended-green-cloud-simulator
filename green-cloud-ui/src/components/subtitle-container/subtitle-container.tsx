@@ -7,7 +7,7 @@ interface Props {
 }
 
 /**
- * Component represents information subtitle that can be placed on the panels
+ * Component represents informative subtitle that can be placed on the panels
  * 
  * @param {string}[text] - text to be displayed
  * @returns JSX Element 

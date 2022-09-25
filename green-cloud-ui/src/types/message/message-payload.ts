@@ -1,10 +1,10 @@
 import { AgentType, MessageType } from "types/enum";
-import { CapacityMessage } from "./capacity-message-payload";
-import { RegisterAgent } from "./register-agent-payload";
+import { CapacityMessage } from "./payload/capacity-message-payload";
+import { RegisterAgent } from "./payload/register-agent-message-payload";
 
 export type MessagePayload = {
     type: MessageType,
     agentType?: AgentType,
     agentName?: string,
-    data?: string | string[] | number | boolean | CapacityMessage | RegisterAgent
+    data?: string | string[] | number | boolean | CapacityMessage | RegisterAgent 
 }

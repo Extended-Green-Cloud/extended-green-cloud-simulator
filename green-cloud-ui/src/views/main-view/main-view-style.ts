@@ -9,6 +9,7 @@ interface Styles {
 
 export const styles: Styles = {
     mainContainer: {
+        backgroundColor: 'var(--beige-1)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -23,19 +24,19 @@ export const styles: Styles = {
         minWidth: 'fit-content'
     },
     leftContentContainer: {
-        width: '30%',
-        flexShrink: 0,
+        width: '10%',
+        flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
-        minWidth: 'fit-content'
+        minWidth: '0'
     },
     rightContentContainer: {
-        width: '25%',
-        flexShrink: 0,
+        width: '10%',
+        flexGrow: 1,
         display: 'flex',
         height: '100%',
         flexDirection: 'column',
-        minWidth: 'fit-content',
+        minWidth: '0',
         marginRight: '20px'
     }
 }

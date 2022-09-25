@@ -8,6 +8,4 @@ export const DEFAULT_POWER_SHORTAGE_EVENT = {
     state: EventState.ACTIVE,
     disabled: false,
     type: EventType.POWER_SHORTAGE_EVENT,
-    occurenceTime: null,
-    data: null
 }

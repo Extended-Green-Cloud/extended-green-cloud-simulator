@@ -3,7 +3,7 @@ export type GraphEdge = {
         id: string
         target: string,
         source: string,
-        type: string,
-        state: string
-    }
+        type: string
+    },
+    state: string
 }

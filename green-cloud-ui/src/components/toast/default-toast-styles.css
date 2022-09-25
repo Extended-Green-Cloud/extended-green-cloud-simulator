@@ -1,23 +1,16 @@
-.Toastify__progress-bar--warning {
-    background: var(--orange-1) !important;
+.Toastify__toast-container {
+    width: fit-content;
 }
 
-.Toastify__toast--warning {
-    display: flex;
-    align-items: center;
-    min-width: fit-content;
-    opacity: 0.85;
+.Toastify__toast {
+    min-height: 0;
+    height: 50px;
 }
 
-
-.Toastify__toast--warning::before {
-    content: url("../../assets/icons/icon-exclamation.png");
-    zoom: 30%;
-    position: relative;
-    z-index: 100000;
-    margin-left: 10px;
+.Toastify__toast-body {
+    font-size: var(--font-size-4);
 }
 
-.Toastify__toast--error {
-    background: #FCA7A9 !important;
+.Toastify__progress-bar {
+    background: var(--green-6) !important;
 }

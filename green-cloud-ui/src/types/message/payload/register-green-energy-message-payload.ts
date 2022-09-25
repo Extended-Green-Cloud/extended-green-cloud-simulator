@@ -1,5 +1,5 @@
 import { EnergyType } from "types/enum"
-import { Location } from "../location"
+import { Location } from "types/location"
 
 export type RegisterGreenEnergyMessage = {
     name: string,

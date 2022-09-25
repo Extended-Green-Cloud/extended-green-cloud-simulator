@@ -20,13 +20,13 @@ export const styles: Styles = {
     },
     label: {
         textAlign: 'left',
-        width: '70%',
+        width: '50%',
         paddingLeft: '10px',
         fontWeight: '300',
         fontSize: 'var(--font-size-2)'
     },
     value: {
-        width: '30%',
+        width: '50%',
         textAlign: 'right',
         paddingRight: '10px',
     },

@@ -1,8 +1,8 @@
 import React from "react"
 
-import './cloud-statistics-config'
-import { styles } from "./cloud-statistics-panel-styles"
-import { CURRENT_CLOUD_STATISTICS } from "./cloud-statistics-config"
+import './cloud-config'
+import { styles } from "./cloud-panel-styles"
+import { CURRENT_CLOUD_STATISTICS } from "./cloud-config"
 import DetailsField from "../details-field/details-field"
 
 import { DetailField } from "@types"
@@ -16,7 +16,7 @@ const header = 'Cloud Network Statistics'
  * 
  * @returns JSX Element
  */
-const CloudStatisticsPanel = () => {
+const CloudPanel = () => {
     const cloudNetworkState = useAppSelector(state => state.cloudNetwork)
 
     const mapStatisticsToFields = (statisticsMap: DetailField[]) => {
@@ -38,4 +38,4 @@ const CloudStatisticsPanel = () => {
     )
 }
 
-export default CloudStatisticsPanel
+export default CloudPanel

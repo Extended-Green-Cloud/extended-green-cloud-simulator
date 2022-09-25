@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { MessagePayload, CloudNetworkStore } from "@types";
+import { CloudNetworkStore } from "@types";
+import { resetServerState } from './api';
 
 
 const INITIAL_STATE: CloudNetworkStore = {
@@ -9,32 +10,31 @@ const INITIAL_STATE: CloudNetworkStore = {
     finishedJobsNo: 0,
     failedJobsNo: 0,
     totalPrice: 0,
+    isServerConnected: false
 }
 
+/**
+ * Slice storing current state of cloud netork summary data
+ */
 export const cloudNetworkSlice = createSlice({
     name: 'cloudNetwork',
     initialState: INITIAL_STATE,
     reducers: {
-        incrementFinishedJobs(state) {
-            state.finishedJobsNo++
+        setNetworkData(state, action: PayloadAction<CloudNetworkStore>) {
+            Object.assign(state, action.payload)
         },
-        incrementFailedJobs(state) {
-            state.failedJobsNo++
+        startNetworkStateFetching(state) {
+            state.isServerConnected = true
         },
-        updateCurrentClientNumber(state, action: PayloadAction<MessagePayload>) {
-            state.currClientsNo = action.payload.data as number
-        },
-        updateCurrentPlannedJobsNumber(state, action: PayloadAction<MessagePayload>) {
-            Object.assign(state, {...state, currPlannedJobsNo: action.payload.data as number})
-        },
-        updateCurrentActiveJobsNumber(state, action: PayloadAction<MessagePayload>) {
-            Object.assign(state, {...state, currActiveJobsNo: action.payload.data as number})
-        },
-        setTotalPrice(state, action: PayloadAction<MessagePayload>) {
-            Object.assign(state, {...state, totalPrice: action.payload.data as number})
+        finishNetworkStateFetching(state) {
+            state.isServerConnected = false
         },
         resetCloudNetwork(state) {
-            Object.assign(state, INITIAL_STATE)
+            const { isServerConnected, ...prevState } = INITIAL_STATE
+            Object.assign(state, { ...prevState })
+            if (state.isServerConnected) {
+                resetServerState()
+            }
         }
     }
 })

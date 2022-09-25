@@ -10,7 +10,7 @@ export const styles: Styles = {
     agentContainer: {
         flexShrink: 0,
         backgroundColor: 'var(--white)',
-        height: '45%',
+        height: '40%',
         marginTop: '5%',
         marginLeft: '20px',
     },

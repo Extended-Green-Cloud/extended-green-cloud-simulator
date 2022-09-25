@@ -1,13 +1,15 @@
 import Card from "components/card/card"
-import { AgentOption, styles } from "./client-panel-styles"
+import { styles } from "./client-panel-styles"
 import Select, { SingleValue } from 'react-select'
 import { useAppSelector } from "@store"
-import { Agent, AgentType } from "@types"
-import SubtitleContainer from "components/statistics-panel/subtitle-container/subtitle-container"
-import { useState } from "react"
-import { CLIENT_STATISTICS } from "./client-panel-config"
-import DetailsField from "components/statistics-panel/details-field/details-field"
+import { Agent, ClientAgent } from "@types"
+import SubtitleContainer from "components/subtitle-container/subtitle-container"
+import { useEffect, useMemo, useState } from "react"
+import { AgentOption, CLIENTS_ORDER, CLIENT_STATISTICS, GroupedAgentOption } from "./client-panel-config"
+import DetailsField from "components/details-field/details-field"
 import Badge from "components/badge/badge"
+import { FilterOptionOption } from "react-select/dist/declarations/src/filters"
+
 
 const header = "Client panel"
 const description = "Select client from the list to diplay current job statistics"
@@ -15,27 +17,51 @@ const selectPlaceholder = "Provide client name"
 const selectNoOption = "Client not found"
 const selectNoClients = "Client list is empty"
 
-const ClientPanel = () => {
-    const { agents } = useAppSelector(state => state.agents)
-    const [selectedClient, setSelectedClient] = useState<Agent>()
-    const clients = agents.filter(agent => agent.type === AgentType.CLIENT)
 
-    const selectData = clients.map(client => {
-        return ({
-            value: client,
-            label: client.name.toUpperCase()
-        })
-    })
+/**
+ * Component representing panel displaying details regarding network clients
+ * 
+ * @returns JSX Element 
+ */
+const ClientPanel = () => {
+    const [selectedClient, setSelectedClient] = useState<AgentOption | null>()
+    const { clients } = useAppSelector(state => state.agents)
+
+    useEffect(() => {
+        if (clients.length === 0) {
+            setSelectedClient(null)
+        }
+    }, [clients])
+
+    const selectData = useMemo(() => (clients as ClientAgent[])
+        .reduce((prev, curr) => {
+            const prevGroup = prev.find(el => el.label === curr.jobStatusEnum.toString())
+            if (prevGroup) {
+                prevGroup.options.push({ label: curr.name.toUpperCase(), value: curr })
+            } else {
+                prev.push({
+                    label: curr.jobStatusEnum.toString(),
+                    options: [{ label: curr.name.toUpperCase(), value: curr }]
+                })
+            }
+            return prev
+        }, [] as GroupedAgentOption[])
+        .sort((a, b) => CLIENTS_ORDER.indexOf(a.label) - CLIENTS_ORDER.indexOf(b.label)), [clients])
+
+
+    const customFilter = (option: FilterOptionOption<AgentOption>, inputValue: string) =>
+        option.label.includes(inputValue)
 
     const handleOnChange = (value: SingleValue<AgentOption>) =>
-        setSelectedClient(value?.value)
+        setSelectedClient(value)
+
+    const handleNoOption = () => clients.length !== 0 ? selectNoOption : selectNoClients
 
     const generateClientInfo = () => {
         if (selectedClient) {
-            console.log(selectedClient)
             return CLIENT_STATISTICS.map(field => {
                 const { key, label } = field
-                const clientVal = { ...selectedClient as any }[key]
+                const clientVal = { ...selectedClient.value as any }[key]
                 const value = key === 'jobStatusEnum' ?
                     <Badge text={clientVal} /> :
                     clientVal
@@ -56,21 +82,23 @@ const ClientPanel = () => {
         }}>
             <div style={styles.clientContent}>
                 <Select
+                    value={selectedClient}
                     onChange={handleOnChange}
                     placeholder={selectPlaceholder}
-                    noOptionsMessage={() => clients.length !== 0 ? selectNoOption : selectNoClients}
+                    noOptionsMessage={handleNoOption}
                     styles={styles.select}
+                    theme={styles.selectTheme}
                     options={selectData}
                     maxMenuHeight={150}
-                    theme={styles.selectTheme}
-                    isSearchable
-                    isClearable
+                    isSearchable={true}
+                    isClearable={true}
                     isMulti={false}
+                    filterOption={customFilter}
                 />
-                {!selectedClient && <SubtitleContainer text={description} />}
-                <div style={styles.clientStatistics}>
-                    {generateClientInfo()}
-                </div>
+                {!selectedClient || clients.length === 0 ?
+                    <SubtitleContainer text={description} /> :
+                    <div style={styles.clientStatistics}>{generateClientInfo()}</div>
+                }
             </div>
         </Card>
     )

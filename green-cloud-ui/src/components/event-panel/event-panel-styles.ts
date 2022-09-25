@@ -11,7 +11,7 @@ export const styles: Styles = {
     eventContainer: {
         backgroundColor: 'var(--white)',
         minWidth: 'fit-content',
-        minHeight: '35%'
+        minHeight: '40%'
     },
     singleEventParentContainer: {
         display: 'flex',

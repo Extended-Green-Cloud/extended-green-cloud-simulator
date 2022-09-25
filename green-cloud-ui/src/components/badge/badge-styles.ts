@@ -12,9 +12,9 @@ export const styles: Styles = {
         display: 'block',
         textAlign: 'center',
         color: 'var(--white)',
-        borderRadius: '10px',
-        fontSize: '0.8rem',
+        fontSize: 'var(--font-size-4)',
         fontWeight: '500',
+        borderRadius: '10px',
     },
     inActiveBadge: {
         backgroundColor: 'var(--gray-6)',
