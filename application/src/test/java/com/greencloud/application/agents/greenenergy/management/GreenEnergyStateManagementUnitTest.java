@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
