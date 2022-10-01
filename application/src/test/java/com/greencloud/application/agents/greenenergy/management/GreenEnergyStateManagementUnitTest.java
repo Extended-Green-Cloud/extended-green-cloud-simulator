@@ -1,10 +1,10 @@
 package com.greencloud.application.agents.greenenergy.management;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
-import static agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
-import static config.constants.CacheTestConstants.MOCK_WEATHER;
-import static domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,16 +37,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import agents.AbstractAgent;
-import agents.greenenergy.GreenEnergyAgent;
-import domain.ImmutableMonitoringData;
-import domain.MonitoringData;
-import domain.job.ImmutableJobInstanceIdentifier;
-import domain.job.ImmutablePowerJob;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
-import domain.job.PowerJob;
-import utils.TimeUtils;
+import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
@@ -55,6 +46,7 @@ import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.application.utils.TimeUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -76,20 +68,15 @@ class GreenEnergyStateManagementUnitTest {
 	// PARAMETERS USED IN PARAMETRIZED TESTS
 
 	private static Stream<Arguments> parametersGetByIdAndStart() {
-		return Stream.of(
-				Arguments.of(Instant.parse("2022-01-01T07:00:00.000Z"), "2", true),
+		return Stream.of(Arguments.of(Instant.parse("2022-01-01T07:00:00.000Z"), "2", true),
 				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
 	}
 
 	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
-		return Stream.of(
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("3")
-						.build(), true),
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("1")
+		return Stream.of(Arguments.of(
+				ImmutableJobInstanceIdentifier.builder().startTime(Instant.parse("2022-01-01T06:00:00.000Z")).jobId("3")
+						.build(), true), Arguments.of(
+				ImmutableJobInstanceIdentifier.builder().startTime(Instant.parse("2022-01-01T06:00:00.000Z")).jobId("1")
 						.build(), false));
 	}
 
@@ -102,7 +89,6 @@ class GreenEnergyStateManagementUnitTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
-		AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
@@ -150,12 +136,9 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test increment started non unique power job")
 	void testIncrementStartedNonUniqueJob() {
-		final PowerJob jobProcessing = ImmutablePowerJob.builder()
-				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
-				.build();
+		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("1")
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.power(10).build();
 		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
 		final String jobId = "1";
 
@@ -177,12 +160,9 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test increment finished non unique power job")
 	void testIncrementFinishedNonUniquePowerJob() {
-		final PowerJob jobProcessing = ImmutablePowerJob.builder()
-				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
-				.build();
+		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("1")
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.power(10).build();
 		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
 		final String jobId = "1";
 
@@ -205,15 +185,13 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test power job division - power job after shortage start")
 	void testJobDivisionAfterShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream()
-				.filter(jobKey -> jobKey.getJobId().equals("5")).findFirst()
-				.orElse(null);
+		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5"))
+				.findFirst().orElse(null);
 
 		mockGreenEnergyAgent.manage().dividePowerJobForPowerShortage(Objects.requireNonNull(powerJob), startTime);
 		final JobStatusEnum statusAfterUpdate = mockGreenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(jobEntry -> jobEntry.getKey().equals(powerJob))
-				.map(Map.Entry::getValue)
-				.findFirst().orElse(null);
+				.filter(jobEntry -> jobEntry.getKey().equals(powerJob)).map(Map.Entry::getValue).findFirst()
+				.orElse(null);
 
 		assertThat(mockGreenEnergyAgent.getPowerJobs()).hasSameSizeAs(MOCK_POWER_JOBS);
 		assertTrue(mockGreenEnergyAgent.getPowerJobs().containsKey(powerJob));
@@ -224,9 +202,8 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test power job division - power job during shortage start")
 	void testPowerJobDivisionDuringShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream()
-				.filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
-				.orElse(null);
+		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2"))
+				.findFirst().orElse(null);
 
 		mockGreenEnergyAgent.manage().dividePowerJobForPowerShortage(Objects.requireNonNull(powerJob), startTime);
 
@@ -235,11 +212,9 @@ class GreenEnergyStateManagementUnitTest {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		final Map.Entry<PowerJob, JobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER))
-				.findFirst().orElse(null);
+				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER)).findFirst().orElse(null);
 		final Map.Entry<PowerJob, JobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER))
-				.findFirst().orElse(null);
+				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER)).findFirst().orElse(null);
 
 		assertThat(mockGreenEnergyAgent.getPowerJobs()).hasSize(6);
 		assertFalse(mockGreenEnergyAgent.getPowerJobs().containsKey(powerJob));
@@ -253,41 +228,28 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get jobs timetable with repeatable time instances")
 	void testGetJobsTimetableRepeatableInstances() {
-		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder()
-				.jobId("6")
-				.power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
+				.startTime(Instant.parse("2022-01-01T13:00:00.000Z")).endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
 				.build();
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
 
-		assertThat(result)
-				.hasSize(10)
-				.contains(Instant.parse("2022-01-01T13:00:00.000Z"))
+		assertThat(result).hasSize(10).contains(Instant.parse("2022-01-01T13:00:00.000Z"))
 				.contains(Instant.parse("2022-01-01T12:00:00.000Z"));
 	}
 
 	@Test
 	@DisplayName("Test get jobs timetable with job in processing")
 	void testGetJobsTimetableJobInProcessing() {
-		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder()
-				.jobId("6")
-				.power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
+				.startTime(Instant.parse("2022-01-01T13:00:00.000Z")).endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
 				.build();
-		final PowerJob jobProcessing = ImmutablePowerJob.builder()
-				.jobId("10")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
-				.build();
+		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("10")
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.power(10).build();
 		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.PROCESSING);
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
 
-		assertThat(result)
-				.hasSize(10)
-				.contains(Instant.parse("2022-01-01T13:00:00.000Z"))
+		assertThat(result).hasSize(10).contains(Instant.parse("2022-01-01T13:00:00.000Z"))
 				.contains(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.doesNotContain(Instant.parse("2022-01-01T13:30:00.000Z"));
 	}
@@ -297,9 +259,7 @@ class GreenEnergyStateManagementUnitTest {
 	void testGetAvailableCapacityAtGivenMoment() {
 		doReturn(100.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
 		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
-		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
-				.addWeatherData(MOCK_WEATHER)
-				.build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);
 
 		assertThat(result).isPresent().contains(10.0);
@@ -310,9 +270,7 @@ class GreenEnergyStateManagementUnitTest {
 	void testGetAvailableCapacityAtGivenMomentNoPower() {
 		doReturn(50.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
 		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
-		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
-				.addWeatherData(MOCK_WEATHER)
-				.build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);
 
 		assertThat(result).isEmpty();
@@ -327,15 +285,10 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for job when job is new")
 	void testGetAvailablePowerForNewJob() {
-		final PowerJob mockJob = ImmutablePowerJob.builder()
-				.jobId("100")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
-				.power(20)
-				.build();
-		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
-				.addWeatherData(MOCK_WEATHER)
-				.build();
+		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(20).build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage()
 				.getAvailablePowerForJob(mockJob, monitoringData, true);
 
@@ -345,15 +298,10 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for job when job is not new")
 	void testGetAvailablePowerForNotNewJob() {
-		final PowerJob mockJob = ImmutablePowerJob.builder()
-				.jobId("100")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
-				.power(20)
-				.build();
-		final MonitoringData monitoringData = ImmutableMonitoringData.builder()
-				.addWeatherData(MOCK_WEATHER)
-				.build();
+		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(20).build();
+		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage()
 				.getAvailablePowerForJob(mockJob, monitoringData, false);
 
@@ -373,36 +321,21 @@ class GreenEnergyStateManagementUnitTest {
 	 * PowerJob5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
 	 */
 	private Map<PowerJob, JobStatusEnum> setUpGreenEnergyJobs() {
-		final PowerJob mockJob1 = ImmutablePowerJob.builder()
-				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
-				.power(10)
-				.build();
-		final PowerJob mockJob2 = ImmutablePowerJob.builder()
-				.jobId("2")
-				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
-				.power(20)
-				.build();
-		final PowerJob mockJob3 = ImmutablePowerJob.builder()
-				.jobId("3")
-				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
-				.power(50)
-				.build();
-		final PowerJob mockJob4 = ImmutablePowerJob.builder()
-				.jobId("4")
-				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
-				.power(10)
-				.build();
-		final PowerJob mockJob5 = ImmutablePowerJob.builder()
-				.jobId("5")
-				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
-				.power(25)
-				.build();
+		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.power(10).build();
+		final PowerJob mockJob2 = ImmutablePowerJob.builder().jobId("2")
+				.startTime(Instant.parse("2022-01-01T07:00:00.000Z")).endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.power(20).build();
+		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
+				.startTime(Instant.parse("2022-01-01T06:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.power(50).build();
+		final PowerJob mockJob4 = ImmutablePowerJob.builder().jobId("4")
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z")).endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.power(10).build();
+		final PowerJob mockJob5 = ImmutablePowerJob.builder().jobId("5")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z")).endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.power(25).build();
 		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);

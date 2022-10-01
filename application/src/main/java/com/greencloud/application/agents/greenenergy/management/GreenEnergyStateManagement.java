@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.greenenergy.management;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MS;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
@@ -12,24 +13,10 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_S
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
-import static agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MS;
-import static agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_FINISH_LOG;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_START_LOG;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_FINISH_LOG;
-import static agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_START_LOG;
-import static domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
-import static domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static java.util.Objects.nonNull;
-import static utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
-import static utils.TimeUtils.getCurrentTime;
-import static utils.TimeUtils.isWithinTimeStamp;
-import static java.util.stream.Collectors.toMap;
 
 import java.time.Instant;
 import java.util.Date;
@@ -165,7 +152,7 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity(),
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity(),
 					getCurrentPowerInUseForGreenSource());
 		}
 	}
@@ -250,7 +237,7 @@ public class GreenEnergyStateManagement {
 						weather);
 		final String power = String.format("%.2f", availablePower);
 
-		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
+		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getEnergyType(), power,
 				powerJob.getStartTime(), powerJob.getEndTime());
 
 		return availablePower <= 0 ?
@@ -268,7 +255,7 @@ public class GreenEnergyStateManagement {
 	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
 		var availablePower = getPower(time, weather);
 		var power = String.format("%.2f", availablePower);
-		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getName(), greenEnergyAgent.getEnergyType(), power,
+		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getEnergyType(), power,
 				time);
 
 		return Optional.of(availablePower).filter(powerVal -> powerVal >= 0.0);
@@ -294,7 +281,7 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getMaximumCapacity(),
+			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity(),
 					getCurrentPowerInUseForGreenSource());
 			greenEnergyAgentNode.updateJobsCount(getJobCount());
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());

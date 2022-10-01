@@ -2,6 +2,7 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.handl
 
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.RETRY_CLIENT_JOB_REQUEST_LOG;
 import static com.greencloud.application.agents.client.domain.ClientAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
+import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 
 import java.time.temporal.ChronoUnit;
@@ -9,15 +10,10 @@ import java.time.temporal.ChronoUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import agents.client.ClientAgent;
-import agents.client.behaviour.df.FindCloudNetworkAgents;
-import agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import domain.job.ClientJob;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import com.greencloud.application.domain.job.Job;
-import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.application.domain.job.ClientJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.SequentialBehaviour;

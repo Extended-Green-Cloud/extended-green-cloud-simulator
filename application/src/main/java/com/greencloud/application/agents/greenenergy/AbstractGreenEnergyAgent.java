@@ -1,6 +1,5 @@
 package com.greencloud.application.agents.greenenergy;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,7 +7,6 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
-import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.commons.location.Location;

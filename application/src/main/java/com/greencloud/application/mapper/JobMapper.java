@@ -2,18 +2,10 @@ package com.greencloud.application.mapper;
 
 import java.time.Instant;
 
-import domain.job.ClientJob;
-import domain.job.ImmutableClientJob;
-import domain.job.ImmutableJobInstanceIdentifier;
-import domain.job.ImmutablePowerJob;
-import domain.job.JobInstanceIdentifier;
-import domain.job.PowerJob;
-import domain.powershortage.ImmutablePowerShortageJob;
-import domain.powershortage.PowerShortageJob;
-import com.greencloud.application.domain.job.ImmutableJob;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.ImmutablePowerJob;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.ImmutablePowerShortageJob;

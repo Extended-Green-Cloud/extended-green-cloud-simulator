@@ -9,8 +9,6 @@ import org.immutables.value.Value;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-
-
 /**
  * Object storing the data describing power request send to the green source
  */

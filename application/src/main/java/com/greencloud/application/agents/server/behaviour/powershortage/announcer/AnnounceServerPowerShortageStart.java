@@ -22,16 +22,10 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 
-import agents.server.ServerAgent;
-import agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
-import agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import domain.job.ClientJob;
-import mapper.JobMapper;
-import domain.powershortage.PowerShortageJob;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
@@ -79,12 +73,14 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 							recalculatedAvailablePower));
 		} else {
 			final List<ClientJob> jobsToKeep = findJobsWithinPower(affectedJobs, recalculatedAvailablePower);
-			final List<ClientJob> jobsToTransfer = affectedJobs.stream().filter(job -> !jobsToKeep.contains(job)).toList();
+			final List<ClientJob> jobsToTransfer = affectedJobs.stream().filter(job -> !jobsToKeep.contains(job))
+					.toList();
 
 			jobsToTransfer.forEach(job -> {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				logger.info(POWER_SHORTAGE_START_TRANSFER_REQUEST_LOG, job.getJobId());
-				final ClientJob jobToTransfer = myServerAgent.manage().divideJobForPowerShortage(job, powerShortageStartTime);
+				final ClientJob jobToTransfer = myServerAgent.manage()
+						.divideJobForPowerShortage(job, powerShortageStartTime);
 				final PowerShortageJob originalJobForShortage = JobMapper.mapToPowerShortageJob(job,
 						powerShortageStartTime);
 				final PowerShortageJob jobTransferForShortage = JobMapper.mapToPowerShortageJob(jobToTransfer,

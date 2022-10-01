@@ -27,18 +27,13 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.application.messages.domain.constants.MessageContentConstants;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
-import agents.client.ClientAgent;
-import agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
-import domain.job.ClientJob;
-import domain.job.PricedJob;
-import exception.IncorrectMessageContentException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;

@@ -11,20 +11,11 @@ import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
 import com.greencloud.application.domain.ImmutableServerData;
 import com.greencloud.application.domain.ServerData;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutablePricedJob;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.mapper.JsonMapper;
 
-import agents.greenenergy.GreenEnergyAgent;
-import agents.server.ServerAgent;
-import domain.GreenSourceData;
-import domain.ImmutableGreenSourceData;
-import domain.ImmutableServerData;
-import domain.ServerData;
-import domain.job.ImmutablePricedJob;
-import domain.job.ClientJob;
-import domain.job.PricedJob;
 import jade.lang.acl.ACLMessage;
 
 /**

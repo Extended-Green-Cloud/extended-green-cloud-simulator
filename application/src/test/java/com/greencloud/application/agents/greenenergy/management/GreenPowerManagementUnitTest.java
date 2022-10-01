@@ -109,7 +109,7 @@ class GreenPowerManagementUnitTest {
 				.build();
 
 		final double result = greenPowerManagement.getAvailablePower(mockMonitoringData, MOCK_TIME);
-		assertThat(result).isEqualTo(80000);
+		assertThat(result).isEqualTo(200);
 	}
 
 	@Test

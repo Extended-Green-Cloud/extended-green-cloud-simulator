@@ -1,18 +1,17 @@
 package agents.cloudnetwork.behaviour.powershortage.listener;
-
-import static agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_ASK_SERVERS_LOG;
-import static agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG;
-import static agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_NO_SERVERS_AVAILABLE_LOG;
-import static agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE;
-import static messages.MessagingUtils.readMessageContent;
-import static messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
-import static messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
-import static messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
-import static messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE;
-import static messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
-import static messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static messages.domain.factory.ReplyMessageFactory.prepareStringReply;
-import static utils.GUIUtils.displayMessageArrow;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_ASK_SERVERS_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_NO_SERVERS_AVAILABLE_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE;
+import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,12 +20,13 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import agents.cloudnetwork.CloudNetworkAgent;
-import agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
-import domain.job.ClientJob;
-import mapper.JobMapper;
-import domain.job.JobInstanceIdentifier;
-import domain.powershortage.PowerShortageJob;
+import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
+import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.powershortage.PowerShortageJob;
+import com.greencloud.application.mapper.JobMapper;
+
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

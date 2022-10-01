@@ -17,17 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import agents.server.ServerAgent;
-import agents.server.behaviour.jobexecution.handler.HandleJobStart;
-import domain.job.ClientJob;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
-import exception.IncorrectMessageContentException;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
@@ -70,7 +64,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		if (Objects.nonNull(inform)) {
 			switch (inform.getProtocol()) {
 				case MANUAL_JOB_FINISH_PROTOCOL -> handlePowerSupplyManualFinishMessage(inform);
-				default -> handlePowerConfirmationMessage(inform);
+				default -> handlePowerResponseMessage(inform);
 			}
 		} else {
 			block();
@@ -88,18 +82,22 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 	}
 
-	private void handlePowerConfirmationMessage(final ACLMessage inform) {
+	private void handlePowerResponseMessage(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = MessagingUtils.readMessageContent(inform,
 				JobInstanceIdentifier.class);
 		final String messageType = inform.getProtocol();
 		final String jobId = jobInstanceId.getJobId();
 
-		if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
-			MDC.put(MDC_JOB_ID, jobId);
-			logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
-			announceBookedJob(myServerAgent);
+		if(inform.getPerformative() == ACLMessage.INFORM) {
+			if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
+				MDC.put(MDC_JOB_ID, jobId);
+				logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
+				announceBookedJob(myServerAgent);
+			}
+			scheduleJobExecution(jobInstanceId, messageType);
+		} else {
+
 		}
-		scheduleJobExecution(jobInstanceId, messageType);
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
@@ -121,7 +119,8 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 			final String jobId = MessagingUtils.readMessageContent(inform, String.class);
 			return myServerAgent.manage().getJobById(jobId);
 		} catch (IncorrectMessageContentException e) {
-			final JobInstanceIdentifier identifier = MessagingUtils.readMessageContent(inform, JobInstanceIdentifier.class);
+			final JobInstanceIdentifier identifier = MessagingUtils.readMessageContent(inform,
+					JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
 		}
 	}

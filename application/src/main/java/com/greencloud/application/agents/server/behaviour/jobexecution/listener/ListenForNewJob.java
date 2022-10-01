@@ -14,16 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import agents.server.ServerAgent;
-import agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
-import mapper.JobMapper;
-import domain.job.ClientJob;
-import domain.job.JobStatusEnum;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 
@@ -59,7 +54,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(JobHandlingMessageTemplates.NEW_JOB_CFP_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final ClientJob job = readMessageContent(message, Job.class);
+			final ClientJob job = readMessageContent(message, ClientJob.class);
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			final int availableCapacity = myServerAgent.manage()
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);

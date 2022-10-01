@@ -17,13 +17,9 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
-import agents.cloudnetwork.CloudNetworkAgent;
-import agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
-import domain.job.ClientJob;
-import domain.job.JobStatusEnum;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 

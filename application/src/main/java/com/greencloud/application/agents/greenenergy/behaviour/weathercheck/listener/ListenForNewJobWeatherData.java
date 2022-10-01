@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.TOO_BAD_WEATHER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_FOR_JOB_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -40,7 +41,6 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
 	private final MessageTemplate template;
-	private final String guid;
 	private final ACLMessage cfp;
 	private final PowerJob powerJob;
 	private final SequentialBehaviour parentBehaviour;
@@ -56,7 +56,6 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			final SequentialBehaviour parentBehaviour) {
 		this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()), MatchConversationId(cfp.getConversationId()));
 		this.myGreenEnergyAgent = myGreenAgent;
-		this.guid = myGreenEnergyAgent.getName();
 		this.cfp = cfp;
 		this.powerJob = powerJob;
 		this.parentBehaviour = parentBehaviour;
@@ -106,7 +105,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent, averageAvailablePower.get(),
 					jobId, cfp.createReply());
 			displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
-			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer));
+			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer, data));
 		}
 	}
 
@@ -114,7 +113,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		try {
 			return MessagingUtils.readMessageContent(message, MonitoringData.class);
 		} catch (Exception e) {
-			logger.info(INCORRECT_WEATHER_DATA_FORMAT_LOG, guid);
+			logger.info(INCORRECT_WEATHER_DATA_FORMAT_LOG);
 			handleRefusal();
 		}
 		return null;

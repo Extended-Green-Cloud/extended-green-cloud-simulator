@@ -15,20 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import agents.server.ServerAgent;
-import agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
-import agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import agents.server.behaviour.powershortage.initiator.InitiateJobTransferInGreenSources;
-import domain.job.ClientJob;
-import mapper.JobMapper;
-import domain.job.PowerJob;
-import domain.powershortage.PowerShortageJob;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInGreenSources;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
@@ -75,7 +67,8 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob affectedJob = readMessageContent(transferRequest);
 
 			if (Objects.nonNull(affectedJob)) {
-				final ClientJob originalJob = myServerAgent.manage().getJobByIdAndStartDate(affectedJob.getJobInstanceId());
+				final ClientJob originalJob = myServerAgent.manage()
+						.getJobByIdAndStartDate(affectedJob.getJobInstanceId());
 
 				if (Objects.nonNull(originalJob)) {
 					final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);

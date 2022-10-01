@@ -3,12 +3,12 @@ package com.greencloud.application.utils.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import domain.job.PowerJob;
+import com.greencloud.application.domain.job.PowerJob;
 
 /**
  * Class which represents a job list which is used in algorithm finding set of jobs withing given power
  */
-public class SubJobList <T extends PowerJob> {
+public class SubJobList<T extends PowerJob> {
 	public int size;
 	public List<T> subList;
 

@@ -1,9 +1,8 @@
-package utils;
-
-import static java.util.Objects.nonNull;
-import static utils.TimeUtils.divideIntoSubIntervals;
-import static utils.domain.JobWithTime.TimeType.START_TIME;
 package com.greencloud.application.utils;
+
+import static com.greencloud.application.utils.TimeUtils.divideIntoSubIntervals;
+import static com.greencloud.application.utils.domain.JobWithTime.TimeType.START_TIME;
+import static java.util.Objects.nonNull;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -19,12 +18,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import agents.greenenergy.management.GreenPowerManagement;
-import domain.MonitoringData;
-import domain.job.PowerJob;
-import utils.domain.JobWithTime;
-import utils.domain.SubJobList;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
+import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.utils.domain.JobWithTime;
 import com.greencloud.application.utils.domain.SubJobList;
@@ -55,12 +50,12 @@ public class AlgorithmUtils {
 		jobsWithTimeMap.forEach(jobWithTime -> {
 			if (jobWithTime.timeType.equals(START_TIME)) {
 				openIntervalJobs.add((T) jobWithTime.job);
-				lastIntervalPower.updateAndGet(power -> power + jobWithTime.job.getPower());
+				lastIntervalPower.updateAndGet(power -> power + ((PowerJob) jobWithTime.job).getPower());
 			} else {
 				openIntervalJobs.remove(jobWithTime.job);
 				powerInIntervals.add(lastIntervalPower.get());
 				lastIntervalPower.set(
-						openIntervalJobs.isEmpty() ? 0 : lastIntervalPower.get() - jobWithTime.job.getPower());
+						openIntervalJobs.isEmpty() ? 0 : lastIntervalPower.get() - ((PowerJob) jobWithTime.job).getPower());
 			}
 		});
 
@@ -156,9 +151,9 @@ public class AlgorithmUtils {
 
 		jobsWithTimeMap.forEach(jobWithTime -> {
 			if (jobWithTime.timeType.equals(START_TIME)) {
-				lastIntervalPower.updateAndGet(power -> power + jobWithTime.job.getPower());
+				lastIntervalPower.updateAndGet(power -> power + ((PowerJob)jobWithTime.job).getPower());
 			} else {
-				lastIntervalPower.updateAndGet(power -> power - jobWithTime.job.getPower());
+				lastIntervalPower.updateAndGet(power -> power - ((PowerJob)jobWithTime.job).getPower());
 			}
 			powerInIntervals.removeIf(entry -> entry.getKey().equals(jobWithTime.time));
 			powerInIntervals.addLast(Map.entry(jobWithTime.time, lastIntervalPower.get()));
@@ -192,7 +187,7 @@ public class AlgorithmUtils {
 		final int comparingTimeResult = job1.time.compareTo(job2.time);
 
 		if (job1.job.equals(job2.job) && comparingTimeResult == 0) {
-			return job1.timeType.equals(JobWithTime.TimeType.START_TIME) ? 1 : -1;
+			return job1.timeType.equals(START_TIME) ? 1 : -1;
 		}
 		return comparingTimeResult;
 	}

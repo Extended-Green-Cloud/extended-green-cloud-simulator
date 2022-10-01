@@ -8,6 +8,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.WEATHER_CAUSE;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;

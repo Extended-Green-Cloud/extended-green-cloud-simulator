@@ -16,13 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.gui.agents.CloudNetworkAgentNode;
-
-import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.ClientJob;
-import domain.job.JobStatusEnum;
 
 /**
  * Set of utilities used to manage the state of the cloud network

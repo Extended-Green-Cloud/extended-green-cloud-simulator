@@ -30,7 +30,7 @@ import com.greencloud.application.agents.server.behaviour.jobexecution.handler.H
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
@@ -39,15 +39,6 @@ import com.greencloud.application.utils.AlgorithmUtils;
 import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ServerAgentNode;
 
-import agents.server.ServerAgent;
-import agents.server.behaviour.jobexecution.handler.HandleJobFinish;
-import agents.server.behaviour.jobexecution.handler.HandleJobStart;
-import agents.server.domain.ServerPowerSourceType;
-import domain.job.ClientJob;
-import mapper.JobMapper;
-import domain.GreenSourceData;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
@@ -126,7 +117,8 @@ public class ServerStateManagement {
 	public double calculateServicePrice(final GreenSourceData greenSourceData) {
 		var job = getJobById(greenSourceData.getJobId());
 		var powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
-		var computingCost = TimeUtils.differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
+		var computingCost =
+				TimeUtils.differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
 		return powerCost + computingCost;
 	}
 
@@ -331,7 +323,8 @@ public class ServerStateManagement {
 				List.of(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()),
 						serverAgent.getOwnerCloudNetworkAgent()) :
 				Collections.singletonList(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()));
-		final ACLMessage finishJobMessage = JobStatusMessageFactory.prepareFinishMessage(jobToFinish.getJobId(), jobToFinish.getStartTime(),
+		final ACLMessage finishJobMessage = JobStatusMessageFactory.prepareFinishMessage(jobToFinish.getJobId(),
+				jobToFinish.getStartTime(),
 				receivers);
 
 		displayMessageArrow(serverAgent, receivers);

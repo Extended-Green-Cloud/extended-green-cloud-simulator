@@ -12,11 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.ClientJob;
-import domain.powershortage.PowerShortageJob;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.AID;

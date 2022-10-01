@@ -1,7 +1,9 @@
 package com.greencloud.application.agents.client;
 
-import static utils.TimeUtils.convertToSimulationTime;
-import static utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.gui.GuiConnectionProvider.connectToGui;
+import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -12,20 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import agents.client.behaviour.df.FindCloudNetworkAgents;
-import agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
-import behaviours.ReceiveGUIController;
-import domain.job.ClientJob;
-import domain.job.ImmutableClientJob;
-import exception.IncorrectTaskDateException;
 import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
-import com.greencloud.application.domain.job.ImmutableJob;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.exception.IncorrectTaskDateException;
 import com.greencloud.application.utils.TimeUtils;
+
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.SequentialBehaviour;

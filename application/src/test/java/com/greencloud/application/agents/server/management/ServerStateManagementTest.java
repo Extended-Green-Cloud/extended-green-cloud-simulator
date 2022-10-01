@@ -39,25 +39,15 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
-import com.greencloud.application.domain.job.ImmutableJob;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ServerAgentNode;
-import com.gui.controller.GuiControllerImpl;
+import com.gui.controller.GuiController;
 
-import agents.AbstractAgent;
-import agents.server.ServerAgent;
-import agents.server.domain.ServerPowerSourceType;
-import domain.GreenSourceData;
-import domain.ImmutableGreenSourceData;
-import domain.job.ClientJob;
-import domain.job.ImmutableClientJob;
-import domain.job.ImmutableJobInstanceIdentifier;
-import domain.job.JobInstanceIdentifier;
-import domain.job.JobStatusEnum;
 import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
@@ -496,7 +486,7 @@ class ServerStateManagementTest {
 		doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
 		doReturn(MOCK_MANAGEMENT).when(serverAgent).manage();
-		doReturn(mock(GuiControllerImpl.class)).when(serverAgent).getGuiController();
+		doReturn(mock(GuiController.class)).when(serverAgent).getGuiController();
 		doReturn(mock(ServerAgentNode.class)).when(serverAgent).getAgentNode();
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());

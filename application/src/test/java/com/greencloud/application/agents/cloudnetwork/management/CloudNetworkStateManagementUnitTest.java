@@ -23,16 +23,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import agents.AbstractAgent;
-import agents.cloudnetwork.CloudNetworkAgent;
-import domain.job.ClientJob;
-import domain.job.ImmutableClientJob;
-import domain.job.JobStatusEnum;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.ImmutableJob;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.gui.controller.GuiController;
+
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
