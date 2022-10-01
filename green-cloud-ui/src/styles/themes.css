@@ -1,0 +1,138 @@
+:root {
+
+  /* COLORS */
+
+  --white: #ffffff;
+  --black: #000000;
+
+  --green-1: #4ba146;
+  --green-2: #179d10;
+  --green-3: #66ca60;
+  --green-4: #76cd5c;
+  --green-5: #70bd6a;
+  --green-6: #7fc77a;
+  --green-7: #2b7427;
+  --green-8: #358031;
+
+  --gray-1: #878787;
+  --gray-2: #5e5e5e;
+  --gray-3: #262626;
+  --gray-4: #eaeaea;
+  --gray-5: #e3e2e2;
+  --gray-6: #5e5b5b;
+
+  --red-1: #cc2020;
+  --red-2: #dd3030;
+  --red-3: #dc3d3d;
+
+  --orange-1: #db8b52;
+
+  --beige-1: #f8f7f5;
+
+  /* FONTS */
+
+  --font-1: 'Inter', 'sans-serif';
+
+  --font-size-1: 1.5rem;
+  --font-size-2: 0.75rem;
+  --font-size-3: 1rem;
+  --font-size-4: 0.8rem;
+  --font-size-5: 0.9rem;
+  --font-size-6: 0.7rem;
+  --font-size-7: 0.65rem;
+
+  /* SHADOWS */
+
+  --banner-shadow: 0px 6px 6px -6px rgba(0, 0, 0, 0.4);
+  --card-shadow: 3px 3px 13px -3px rgba(0, 0, 0, 0.3);
+  --button-shadow: 0px 1px 4px 0px #8c8c8c;
+  --event-shadow: 0px 2px 9px 0px rgba(0, 0, 0, 0.2);
+
+  /* BORDERS */
+
+  --border-agent-panel: 1.5px solid var(--green-1);
+  --border-event: 3px solid var(--gray-1);
+  --border-detail: 6px solid var(--gray-2);
+  --border-subtitle: 1px solid var(--gray-2);
+  --border-graph: 1px solid var(--green-2);
+  --border-card: 4px solid var(--green-1);
+  --border-banner-button: 1px solid var(--white) !important;
+}
+
+#root {
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 20px;
+  height: 20px;
+}
+
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cdcdcd;
+  border-left: 12px solid #ffffff;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9c9c9c;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #aeaeae;
+}
+
+::-webkit-scrollbar-track {
+  background: #f2f2f2;
+  border-left: 12px solid #ffffff;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-track:hover {
+  background: #f2f2f2;
+}
+
+::-webkit-scrollbar-track:active {
+  background: #f2f2f2;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.__________cytoscape_container>div {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

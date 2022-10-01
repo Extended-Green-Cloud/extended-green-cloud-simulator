@@ -4,39 +4,79 @@
 <Configuration status="warn">
 	<Appenders>
 		<!-- Console appender configuration -->
-		<Console name="console" target="SYSTEM_OUT">
-			<PatternLayout
-				pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L] %m%n" />
+		</Console>
+		<Console name="ConsoleWithJobId" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 		</Console>
 
-		<!--    <RollingFile name="fileLogger"
-			  fileName="logs/app.log"
-			  filePattern="logs/app-%d{yyyy-MM-dd-HH}.log">
-			  <PatternLayout>
-				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-				</pattern>
-			  </PatternLayout>
-			  <Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
-				<SizeBasedTriggeringPolicy size="10MB" />
-			  </Policies>
-			  &lt;!&ndash; Max 10 files will be created everyday &ndash;&gt;
-			  <DefaultRolloverStrategy max="10">
-				<Delete basePath="logs" maxDepth="10">
-				  &lt;!&ndash; Delete all files older than 30 days &ndash;&gt;
-				  <IfLastModified age="30d" />
-				</Delete>
-			  </DefaultRolloverStrategy>
-			</RollingFile>-->
+		<Routing name="RoutingByAgent">
+			<Routes pattern="$${ctx:agentName}">
+				<!-- This route is chosen if ThreadContext has no value for key agentName. -->
+				<Route key="$${ctx:agentName}">
+					<RollingFile name="Rolling-default" fileName="logs/default.log"
+						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
+							<SizeBasedTriggeringPolicy size="10 MB" />
+						</Policies>
+					</RollingFile>
+				</Route>
 
+				<!-- This route is chosen if ThreadContext has a value for agentName
+					 The value dynamically determines the name of the log file. -->
+				<Route>
+					<RollingFile name="Rolling-${ctx:agentName}" fileName="logs/${ctx:agentName}.log"
+						filePattern="./logs/${date:yyyy-MM}/${ctx:agentName}-other-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
+							<SizeBasedTriggeringPolicy size="10 MB" />
+						</Policies>
+					</RollingFile>
+				</Route>
+			</Routes>
+		</Routing>
+		<Routing name="RoutingByJobId">
+			<Routes pattern="$${ctx:jobId}">
+				<!-- This route is chosen if ThreadContext has no value for key jobId. -->
+				<Route key="$${ctx:jobId}">
+					<RollingFile name="Rolling-default" fileName="logs/jobs/default.log"
+						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
+							<SizeBasedTriggeringPolicy size="10 MB" />
+						</Policies>
+					</RollingFile>
+				</Route>
+
+				<!-- This route is chosen if ThreadContext has a value for jobId
+					 The value dynamically determines the name of the log file. -->
+				<Route>
+					<RollingFile name="Rolling-${ctx:jobId}" fileName="logs/jobs/${ctx:jobId}.log"
+						filePattern="./logs/jobs/${date:yyyy-MM}/${ctx:jobId}-other-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
+							<SizeBasedTriggeringPolicy size="10 MB" />
+						</Policies>
+					</RollingFile>
+				</Route>
+			</Routes>
+		</Routing>
 	</Appenders>
 	<Loggers>
 		<!-- Root logger referring to console appender -->
-		<Root level="info" additivity="false">
-			<AppenderRef ref="console" />
-			<!--
-				  <AppenderRef ref="fileLogger" />
-			-->
+		<Root level="debug">
+			<AppenderRef ref="Console" />
 		</Root>
+		<Logger name="com.greencloud.application" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleWithJobId" />
+			<AppenderRef ref="RoutingByAgent" />
+			<AppenderRef ref="RoutingByJobId" />
+		</Logger>
 	</Loggers>
 </Configuration>

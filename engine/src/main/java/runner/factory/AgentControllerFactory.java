@@ -1,10 +1,10 @@
 package runner.factory;
 
+import com.greencloud.commons.args.AgentArgs;
 import com.gui.agents.AbstractAgentNode;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.AgentArgs;
 import runner.domain.ScenarioArgs;
 
 /**

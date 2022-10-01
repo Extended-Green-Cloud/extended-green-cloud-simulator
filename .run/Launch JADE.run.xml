@@ -11,7 +11,7 @@
 				<option name="ENABLED" value="true" />
 			</pattern>
 			<pattern>
-				<option name="PATTERN" value="agents.client.*" />
+				<option name="PATTERN" value="runner.agent.*" />
 				<option name="ENABLED" value="true" />
 			</pattern>
 			<pattern>

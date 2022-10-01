@@ -1,13 +1,13 @@
 package com.gui.agents;
 
-import static com.gui.gui.panels.domain.listlabels.AgentDetailsPanelListLabelEnum.CURRENT_MAXIMUM_CAPACITY_LABEL;
-import static com.gui.gui.utils.GUILabelUtils.formatToHTML;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.gui.gui.panels.domain.listlabels.AgentDetailsPanelListLabelEnum;
+import com.gui.message.ImmutableCapacity;
+import com.gui.message.ImmutableIsActiveMessage;
+import com.gui.message.ImmutableSetMaximumCapacityMessage;
+import com.gui.message.ImmutableSetNumericValueMessage;
 
 /**
  * Class represents abstract generic agent node which is a part of cloud network
@@ -17,7 +17,6 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	protected final double initialMaximumCapacity;
 	protected final AtomicReference<Double> currentMaximumCapacity;
 	protected final AtomicBoolean isActive;
-	protected final AtomicReference<Double> traffic;
 	protected final AtomicInteger numberOfExecutedJobs;
 	protected final AtomicInteger numberOfJobsOnHold;
 
@@ -32,7 +31,6 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 		this.initialMaximumCapacity = maximumCapacity;
 		this.currentMaximumCapacity = new AtomicReference<>(maximumCapacity);
 		this.isActive = new AtomicBoolean(false);
-		this.traffic = new AtomicReference<>(0D);
 		this.numberOfExecutedJobs = new AtomicInteger(0);
 		this.numberOfJobsOnHold = new AtomicInteger(0);
 	}
@@ -42,13 +40,15 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	 *
 	 * @param maxCapacity new maximum capacity
 	 */
-	public void updateMaximumCapacity(final int maxCapacity) {
+	public void updateMaximumCapacity(final int maxCapacity, final int powerInUse) {
 		this.currentMaximumCapacity.set((double) maxCapacity);
-		this.traffic.set(currentMaximumCapacity.get() != 0 ? ((traffic.get() / maxCapacity) * 100) : 0);
-		agentDetailLabels.get(CURRENT_MAXIMUM_CAPACITY_LABEL).setText(formatToHTML(String.valueOf(maxCapacity)));
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.TRAFFIC_LABEL)
-				.setText(formatToHTML(String.format("%.2f%%", traffic.get())));
-		updateGraphUI();
+		webSocketClient.send(ImmutableSetMaximumCapacityMessage.builder()
+				.agentName(agentName)
+				.data(ImmutableCapacity.builder()
+						.maximumCapacity(maxCapacity)
+						.powerInUse(powerInUse)
+						.build())
+				.build());
 	}
 
 	/**
@@ -57,10 +57,11 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	 * @param powerInUse current power in use
 	 */
 	public void updateTraffic(final double powerInUse) {
-		this.traffic.set(currentMaximumCapacity.get() != 0 ? ((powerInUse / currentMaximumCapacity.get()) * 100) : 0);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.TRAFFIC_LABEL)
-				.setText(formatToHTML(String.format("%.2f%%", traffic.get())));
-		updateGraphUI();
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(powerInUse)
+				.agentName(agentName)
+				.type("SET_TRAFFIC")
+				.build());
 	}
 
 	/**
@@ -69,10 +70,10 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	 * @param isActive information if the network node is active
 	 */
 	public void updateIsActive(final boolean isActive) {
-		this.isActive.set(isActive);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.IS_ACTIVE_LABEL)
-				.setText(formatToHTML(isActive ? "ACTIVE" : "INACTIVE"));
-		updateGraphUI();
+		webSocketClient.send(ImmutableIsActiveMessage.builder()
+				.data(isActive)
+				.agentName(agentName)
+				.build());
 	}
 
 	/**
@@ -81,9 +82,11 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	 * @param value new jobs count
 	 */
 	public void updateJobsCount(final int value) {
-		this.numberOfExecutedJobs.set(value);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.NUMBER_OF_EXECUTED_JOBS_LABEL)
-				.setText(formatToHTML(String.valueOf(numberOfExecutedJobs)));
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(value)
+				.agentName(agentName)
+				.type("SET_JOBS_COUNT")
+				.build());
 	}
 
 	/**
@@ -92,9 +95,10 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 	 * @param value number of jobs that are on hold
 	 */
 	public void updateJobsOnHoldCount(final int value) {
-		numberOfJobsOnHold.set(value);
-		agentDetailLabels.get(AgentDetailsPanelListLabelEnum.JOBS_ON_HOLD_LABEL)
-				.setText(formatToHTML(String.valueOf(numberOfJobsOnHold)));
-		updateGraphUI();
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(value)
+				.agentName(agentName)
+				.type("SET_ON_HOLD_JOBS_COUNT")
+				.build());
 	}
 }

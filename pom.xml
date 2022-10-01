@@ -15,6 +15,7 @@
 		<module>application</module>
 		<module>gui</module>
 		<module>test</module>
+		<module>commons</module>
 	</modules>
 
 	<properties>

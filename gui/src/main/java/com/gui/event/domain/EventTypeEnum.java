@@ -1,7 +1,5 @@
 package com.gui.event.domain;
 
-import static com.gui.gui.utils.GUILabelUtils.formatToHTML;
-
 /**
  * Enum defining types of the environment events
  */
@@ -26,13 +24,13 @@ public enum EventTypeEnum {
 	 * @return label indicating that the event can be started
 	 */
 	public String getEventLabelStart() {
-		return formatToHTML(eventLabelStart);
+		return null;
 	}
 
 	/**
 	 * @return label indicating that the event can be finished
 	 */
 	public String getEventLabelFinish() {
-		return formatToHTML(eventLabelFinish);
+		return null;
 	}
 }
