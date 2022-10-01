@@ -1,4 +1,4 @@
-import { iconPause, iconBattery } from "@assets"
+import { iconPause, iconBattery, iconWeather } from "@assets"
 import React from "react"
 
 const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
