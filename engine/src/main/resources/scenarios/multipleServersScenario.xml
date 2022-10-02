@@ -12,17 +12,17 @@
 	</monitoringAgentsArgs>
 	<greenEnergyAgentsArgs>
 		<greenenergyAgent>
-			<name>WindFarm2</name>
+			<name>WindFarm1</name>
 			<monitoringAgent>Weather1</monitoringAgent>
 			<ownerSever>Server1</ownerSever>
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>20000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>WindFarm1</name>
+			<name>WindFarm2</name>
 			<monitoringAgent>Weather2</monitoringAgent>
 			<ownerSever>Server2</ownerSever>
 			<latitude>52</latitude>

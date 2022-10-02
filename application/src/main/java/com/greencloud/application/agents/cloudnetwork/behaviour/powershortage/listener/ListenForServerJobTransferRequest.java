@@ -100,8 +100,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 				CNA_JOB_CFP_PROTOCOL);
 
 		displayMessageArrow(myCloudNetworkAgent, remainingServers);
-		myAgent.addBehaviour(new InitiateJobTransferRequest(myAgent, cfp, originalRequest, newPowerShortageJob,
-				jobToTransfer.getClientIdentifier()));
+		myAgent.addBehaviour(new InitiateJobTransferRequest(myAgent, cfp, originalRequest, newPowerShortageJob));
 	}
 
 	private void replyWithFailedTransferForNoServers(final ACLMessage originalRequest) {

@@ -11,8 +11,6 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
 import static jade.lang.acl.MessageTemplate.and;
 
-import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -36,7 +34,7 @@ import jade.proto.states.MsgReceiver;
  */
 public class ListenForServerTransferConfirmation extends MsgReceiver {
 
-	private static final int EXPIRATION_TIME = 2000;
+	private static final int EXPIRATION_TIME = 20000;
 	private static final Logger logger = LoggerFactory.getLogger(ListenForServerTransferConfirmation.class);
 
 	private final CloudNetworkAgent myCloudNetworkAgent;
@@ -47,7 +45,8 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	private ListenForServerTransferConfirmation(final Agent agent, final MessageTemplate template,
 			final DataStore dataStore, final ACLMessage replyMessage, final PowerShortageJob powerShortageJob,
 			final AID server) {
-		super(agent, template, EXPIRATION_TIME, dataStore, null);
+		super(agent, template, EXPIRATION_TIME, dataStore,
+				"CONFIRMATION_TRANSFER_" + powerShortageJob.getJobInstanceId().getJobId());
 		this.replyMessage = replyMessage;
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
 		this.powerShortageJob = powerShortageJob;
@@ -84,19 +83,16 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	 */
 	@Override
 	protected void handleMessage(ACLMessage msg) {
-		if (Objects.nonNull(msg)) {
-			MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
-			logger.info(SERVER_TRANSFER_CONFIRMED_LOG, powerShortageJob.getJobInstanceId().getJobId());
+		MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
+		logger.info(SERVER_TRANSFER_CONFIRMED_LOG, powerShortageJob.getJobInstanceId().getJobId());
 
-			final ACLMessage replyToServerRequest = prepareReply(replyMessage, TRANSFER_SUCCESSFUL_MESSAGE, INFORM);
+		final ACLMessage replyToServerRequest = prepareReply(replyMessage, TRANSFER_SUCCESSFUL_MESSAGE, INFORM);
 
-			displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
 
-			myCloudNetworkAgent.send(replyToServerRequest);
-			myCloudNetworkAgent.addBehaviour(
-					HandleJobTransferToServer.createFor(myCloudNetworkAgent, powerShortageJob, server));
-			myAgent.removeBehaviour(this);
-		}
+		myCloudNetworkAgent.send(replyToServerRequest);
+		myCloudNetworkAgent.addBehaviour(
+				HandleJobTransferToServer.createFor(myCloudNetworkAgent, powerShortageJob, server));
 	}
 
 }

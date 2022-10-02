@@ -55,9 +55,10 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
-		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
+		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
 		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
 	}

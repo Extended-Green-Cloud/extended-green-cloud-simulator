@@ -65,6 +65,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	protected void handleAllResponses(Vector responses, Vector acceptances) {
 		final List<ACLMessage> proposals = MessagingUtils.retrieveProposals(responses);
 
+		MDC.put(MDC_JOB_ID, job.getJobId());
 		myServerAgent.stoppedJobProcessing();
 		if (responses.isEmpty()) {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_RESPONSE_LOG);

@@ -3,6 +3,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.list
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.FINISH_POWER_SUPPLY_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.START_POWER_SUPPLY_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_STATUS_TEMPLATE;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
@@ -10,6 +11,7 @@ import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
@@ -61,12 +63,14 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 	}
 
 	private void handlePowerSupplyStart(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
+		MDC.put(MDC_JOB_ID, powerJob.getJobId());
 		logger.info(START_POWER_SUPPLY_LOG, jobInstance.getJobId());
 		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
 		myGreenEnergyAgent.manage().incrementStartedJobs(jobInstance.getJobId());
 	}
 
 	private void handlePowerSupplyFinish(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
+		MDC.put(MDC_JOB_ID, powerJob.getJobId());
 		logger.info(FINISH_POWER_SUPPLY_LOG, jobInstance.getJobId());
 		myGreenEnergyAgent.getPowerJobs().remove(powerJob);
 		if (powerJob.getStartTime().isBefore(TimeUtils.getCurrentTime())) {
