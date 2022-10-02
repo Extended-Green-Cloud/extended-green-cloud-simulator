@@ -31,6 +31,9 @@ import static com.greencloud.application.utils.JobMapUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 
+/**
+ *  Set of methods used in the Server Agent's behaviours
+ */
 public class ServerManagement {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerStateManagement.class);
@@ -44,11 +47,9 @@ public class ServerManagement {
     /**
      * Method creates new instances for given job which will be affected by the power shortage.
      * If the power shortage will begin after the start of job execution -> job will be divided into 2
-     *
      * Example:
      * Job1 (start: 08:00, finish: 10:00)
      * Power shortage start: 09:00
-     *
      * Job1Instance1: (start: 08:00, finish: 09:00) <- job not affected by power shortage
      * Job1Instance2: (start: 09:00, finish: 10:00) <- job affected by power shortage
      *
