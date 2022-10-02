@@ -155,4 +155,15 @@ public class JobMapper {
 	public static JobInstanceIdentifier mapToJobInstanceId(final ClientJob job) {
 		return ImmutableJobInstanceIdentifier.builder().jobId(job.getJobId()).startTime(job.getStartTime()).build();
 	}
+
+	/**
+	 * @param powerShortageJob job affected by power shortage
+	 * @return JobInstanceIdentifier
+	 */
+	public static JobInstanceIdentifier mapToJobInstanceId(final PowerShortageJob powerShortageJob) {
+		return ImmutableJobInstanceIdentifier.builder()
+				.jobId(powerShortageJob.getJobInstanceId().getJobId())
+				.startTime(powerShortageJob.getPowerShortageStart())
+				.build();
+	}
 }

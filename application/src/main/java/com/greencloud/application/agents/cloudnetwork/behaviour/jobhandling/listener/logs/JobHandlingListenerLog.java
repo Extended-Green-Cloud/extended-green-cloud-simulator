@@ -12,6 +12,8 @@ public class JobHandlingListenerLog {
 			"Sending call for proposal to Server Agents for a job request with jobId {}!";
 
 	// JOB STATUS CHANGE LOG MESSAGES
+	public static final String JOB_CONFIRMED_STATUS_LOG =
+			"Job {} has been confirmed as accepted in server";
 	public static final String SEND_GREEN_POWER_STATUS_LOG =
 			"Sending information that the job {} is executed again using green power";
 	public static final String SEND_JOB_START_STATUS_LOG =

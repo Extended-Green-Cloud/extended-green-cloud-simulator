@@ -5,8 +5,11 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.li
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FINISHED_MANUALLY_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareConfirmationMessage;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
+import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -88,12 +91,13 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final String messageType = inform.getProtocol();
 		final String jobId = jobInstanceId.getJobId();
 
-		if(inform.getPerformative() == ACLMessage.INFORM) {
+		if (inform.getPerformative() == ACLMessage.INFORM) {
 			if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
 				MDC.put(MDC_JOB_ID, jobId);
 				logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
 				announceBookedJob(myServerAgent);
 			}
+			confirmJobAcceptance(jobInstanceId, messageType.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL));
 			scheduleJobExecution(jobInstanceId, messageType);
 		} else {
 
@@ -112,6 +116,16 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		} else {
 			logger.info(JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
 		}
+	}
+
+	private void confirmJobAcceptance(final JobInstanceIdentifier jobInstanceId, final boolean isTransferred) {
+		myServerAgent.getServerJobs()
+				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
+		myServerAgent.manage().updateClientNumberGUI();
+
+		displayMessageArrow(myServerAgent, myServerAgent.getOwnerCloudNetworkAgent());
+		myServerAgent.send(
+				prepareConfirmationMessage(jobInstanceId, myServerAgent.getOwnerCloudNetworkAgent(), isTransferred));
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage inform) {

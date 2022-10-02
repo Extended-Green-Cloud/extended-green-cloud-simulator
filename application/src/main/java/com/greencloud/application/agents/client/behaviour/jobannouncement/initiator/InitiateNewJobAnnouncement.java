@@ -70,7 +70,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	 */
 	@Override
 	protected Vector prepareCfps(final ACLMessage callForProposal) {
-		logger.info(SEND_CFP_TO_CLOUD_LOG, job.getJobId());
+		logger.info(SEND_CFP_TO_CLOUD_LOG);
 		final Vector<ACLMessage> vector = new Vector<>();
 		final List<AID> cloudNetworks = (List<AID>) getParent().getDataStore().get(CLOUD_NETWORK_AGENTS);
 		vector.add(createCallForProposal(job, cloudNetworks, CLIENT_JOB_CFP_PROTOCOL));

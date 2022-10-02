@@ -17,7 +17,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.application.messages.domain.factory.OfferMessageFactory;
@@ -80,9 +79,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		} else {
 			final List<ACLMessage> validProposals = MessagingUtils.retrieveValidMessages(proposals,
 					GreenSourceData.class);
-			final boolean isJobStillProcessed = myServerAgent.getServerJobs()
-					.replace(myServerAgent.manage().getJobByIdAndStartDate(job.getJobId(), job.getStartTime()),
-							JobStatusEnum.PROCESSING, JobStatusEnum.ACCEPTED);
+			final boolean isJobStillProcessed = myServerAgent.getServerJobs().containsKey(job);
 
 			if (!validProposals.isEmpty() && isJobStillProcessed) {
 				final ACLMessage chosenGreenSourceOffer = myServerAgent.chooseGreenSourceToExecuteJob(validProposals);

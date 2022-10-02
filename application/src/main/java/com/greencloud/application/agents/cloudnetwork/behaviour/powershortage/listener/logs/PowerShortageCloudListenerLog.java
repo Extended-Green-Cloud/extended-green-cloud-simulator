@@ -13,4 +13,8 @@ public class PowerShortageCloudListenerLog {
 	public static final String SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG =
 			"Job {} for transfer was not found in cloud network";
 
+	// POWER SHORTAGE CONFIRMATION LOG MESSAGES
+	public static final String SERVER_TRANSFER_CONFIRMED_LOG =
+			"Transfer of the job {} was confirmed. Sending information to affected server.";
+
 }

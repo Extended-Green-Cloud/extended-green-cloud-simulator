@@ -77,6 +77,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 	private void initiateNegotiationWithPowerSources(final ClientJob job, final ACLMessage cnaMessage) {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG);
+
 		myServerAgent.getServerJobs().putIfAbsent(job, JobStatusEnum.PROCESSING);
 		myServerAgent.tookJobIntoProcessing();
 

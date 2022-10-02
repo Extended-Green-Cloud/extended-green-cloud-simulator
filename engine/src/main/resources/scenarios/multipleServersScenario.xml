@@ -28,7 +28,7 @@
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>20000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
@@ -38,7 +38,7 @@
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>20000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
@@ -46,19 +46,19 @@
 		<serverAgentsArgs>
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>50000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>50000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<price>15.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server3</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>50000</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<price>15.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

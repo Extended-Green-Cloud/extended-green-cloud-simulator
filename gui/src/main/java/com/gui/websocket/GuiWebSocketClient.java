@@ -21,7 +21,9 @@ public class GuiWebSocketClient extends WebSocketClient {
 
 	public void send(Object message) {
 		try {
-			super.send(mapper.writeValueAsString(message));
+			if (super.isOpen()) {
+				super.send(mapper.writeValueAsString(message));
+			}
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

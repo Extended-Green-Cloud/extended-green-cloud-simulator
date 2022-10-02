@@ -7,11 +7,11 @@ public class MessageProtocolConstants {
 
 	/**
 	 * Call for proposals protocols
-	 * CLIENT_JOB_CFP_PROTOCOL   - protocol used in client's call for proposal message that is sent to cloud networks while looking
+	 * CLIENT_JOB_CFP_PROTOCOL           - protocol used in client's call for proposal message that is sent to cloud networks while looking
 	 * for the network for job execution
-	 * CNA_JOB_CFP_PROTOCOL      - protocol used in cloud network's call for proposal message that is sent to the servers while
+	 * CNA_JOB_CFP_PROTOCOL              - protocol used in cloud network's call for proposal message that is sent to the servers while
 	 * looking for the server which will execute the job
-	 * SERVER_JOB_CFP_PROTOCOL   - protocol used in the server's call for proposal message that is sent to the green sources while
+	 * SERVER_JOB_CFP_PROTOCOL           - protocol used in the server's call for proposal message that is sent to the green sources while
 	 * looking for the green source which will supply the server with power needed for the job execution
 	 */
 	public static final String CLIENT_JOB_CFP_PROTOCOL = "CLIENT_JOB_CFP";
@@ -20,6 +20,8 @@ public class MessageProtocolConstants {
 
 	/**
 	 * Job status protocols
+	 * CONFIRMED_JOB_PROTOCOL 	   - protocol used in messages informing that the job has been confirmed as accepted
+	 * CONFIRMED_TRANSFER_PROTOCOL - protocol used in messages informing that the job transfer has been confirmed as accepted
 	 * FINISH_JOB_PROTOCOL         - protocol used in messages informing the agent that the job execution has finished
 	 * MANUAL_JOB_FINISH_PROTOCOL  - protocol used in messages informing that the job had to be finished manually because the time
 	 * after which the information about job being finished has passed
@@ -29,6 +31,8 @@ public class MessageProtocolConstants {
 	 * BACK_UP_POWER_JOB_PROTOCOL  - protocol used in messages informing that the job is executed using the back-up power
 	 * GREEN_POWER_JOB_PROTOCOL    - protocol used in messages informing the client that the job is executed using green power
 	 */
+	public static final String CONFIRMED_JOB_PROTOCOL = "CONFIRMED";
+	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER";
 	public static final String FINISH_JOB_PROTOCOL = "FINISH";
 	public static final String MANUAL_JOB_FINISH_PROTOCOL = "MANUAL_FINISH";
 	public static final String STARTED_JOB_PROTOCOL = "STARTED";

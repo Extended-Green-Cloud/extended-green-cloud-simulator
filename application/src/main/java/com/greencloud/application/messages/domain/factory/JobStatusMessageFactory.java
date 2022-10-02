@@ -1,6 +1,7 @@
 package com.greencloud.application.messages.domain.factory;
 
-import static jade.lang.acl.ACLMessage.FAILURE;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 
@@ -36,6 +37,29 @@ public class JobStatusMessageFactory {
 		return informationMessage;
 	}
 
+	/**
+	 * Method prepares the information message confirming that the job was accepted and will be
+	 * executed by selected server
+	 *
+	 * @param jobInstanceId   unique job instance
+	 * @param receiver        CNA to which the message is to be sent
+	 * @param isDueToTransfer flag indicating if the job is part of the transfer
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareConfirmationMessage(final JobInstanceIdentifier jobInstanceId,
+			final AID receiver, final boolean isDueToTransfer) {
+		final ACLMessage informationMessage = new ACLMessage(INFORM);
+		final String protocol = isDueToTransfer ? CONFIRMED_TRANSFER_PROTOCOL : CONFIRMED_JOB_PROTOCOL;
+
+		try {
+			informationMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobInstanceId));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		informationMessage.setProtocol(protocol);
+		informationMessage.addReceiver(receiver);
+		return informationMessage;
+	}
 
 	/**
 	 * Method prepares the information message about the job execution finish which is to be sent

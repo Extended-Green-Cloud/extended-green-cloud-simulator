@@ -1,18 +1,23 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.JOB_CONFIRMED_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_GREEN_POWER_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_JOB_FINISH_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_JOB_START_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_CHANGE_TEMPLATE;
+import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -20,8 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
+import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.HandleDelayedJob;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.utils.TimeUtils;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -59,8 +67,9 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			if (Objects.nonNull(myCloudNetworkAgent.manage().getJobById(jobId))) {
 				MDC.put(MDC_JOB_ID, jobId);
 				switch (message.getProtocol()) {
-					case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobId);
+					case CONFIRMED_JOB_PROTOCOL -> handleConfirmedJobMessage(jobId);
 					case STARTED_JOB_PROTOCOL -> handleStartedJobMessage(jobId);
+					case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobId);
 					case POWER_SHORTAGE_FINISH_ALERT_PROTOCOL -> handleGreenPowerJobMessage(jobId);
 				}
 			}
@@ -69,10 +78,13 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		}
 	}
 
-	private void handleGreenPowerJobMessage(final String jobId) {
+	private void handleConfirmedJobMessage(final String jobId) {
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
-		logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
-		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
+
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
+		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
+		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 	}
 
 	private void handleStartedJobMessage(final String jobId) {
@@ -94,9 +106,22 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		myAgent.send(prepareJobStatusMessageForClient(clientId, FINISH_JOB_PROTOCOL));
 	}
 
+	private void handleGreenPowerJobMessage(final String jobId) {
+		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
+		logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
+		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
+	}
+
 	private void updateNetworkInformation(final String jobId) {
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
+	}
+
+	private Date calculateExpectedJobStart(final ClientJob job) {
+		final Instant startTime = TimeUtils.getCurrentTime().isAfter(job.getStartTime()) ?
+				TimeUtils.getCurrentTime() :
+				job.getStartTime();
+		return Date.from(startTime.plusSeconds(MAX_ERROR_IN_JOB_START));
 	}
 }
