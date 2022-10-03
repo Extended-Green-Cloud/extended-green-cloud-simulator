@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.gui.agents.CloudNetworkAgentNode;
 

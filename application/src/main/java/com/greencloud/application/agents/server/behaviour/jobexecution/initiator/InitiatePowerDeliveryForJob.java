@@ -17,7 +17,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.MessagingUtils;
@@ -38,7 +38,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 
 	private final ACLMessage replyMessage;
 	private final ServerAgent myServerAgent;
-	private final Job job;
+	private final ClientJob job;
 
 	/**
 	 * Behaviour constructor
@@ -48,7 +48,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	 * @param replyMessage reply message sent to cloud network after receiving the green sources' responses
 	 */
 	public InitiatePowerDeliveryForJob(final Agent agent, final ACLMessage powerRequest, final ACLMessage replyMessage,
-			final Job job) {
+			final ClientJob job) {
 		super(agent, powerRequest);
 		this.replyMessage = replyMessage;
 		this.job = job;
@@ -79,7 +79,8 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_POWER_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
 		} else {
-			final List<ACLMessage> validProposals = MessagingUtils.retrieveValidMessages(proposals, GreenSourceData.class);
+			final List<ACLMessage> validProposals = MessagingUtils.retrieveValidMessages(proposals,
+					GreenSourceData.class);
 			final boolean isJobStillProcessed = myServerAgent.getServerJobs()
 					.replace(getJobByIdAndStartDate(myServerAgent.getServerJobs(), job.getJobId(), job.getStartTime()),
 							JobStatusEnum.PROCESSING, JobStatusEnum.ACCEPTED);

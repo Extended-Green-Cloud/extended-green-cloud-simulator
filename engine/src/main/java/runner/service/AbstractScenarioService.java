@@ -27,8 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.gui.controller.GUIController;
-import com.gui.controller.GUIControllerImpl;
+import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.client.ClientAgentArgs;
+import com.greencloud.commons.args.client.ImmutableClientAgentArgs;
+import com.gui.controller.GuiController;
+import com.gui.controller.GuiControllerImpl;
 
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -36,9 +39,6 @@ import jade.core.Runtime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.AgentArgs;
-import runner.domain.ClientAgentArgs;
-import runner.domain.ImmutableClientAgentArgs;
 import runner.domain.ScenarioArgs;
 import runner.factory.AgentControllerFactory;
 import runner.service.domain.exception.InvalidScenarioException;
@@ -61,7 +61,7 @@ public abstract class AbstractScenarioService {
 	protected static final XmlMapper xmlMapper = new XmlMapper();
 	protected static final ExecutorService executorService = Executors.newCachedThreadPool();
 
-	protected final GUIController guiController;
+	protected final GuiController guiController;
 	protected final String fileName;
 	protected final Runtime jadeRuntime;
 	protected final ContainerController mainContainer;
@@ -74,7 +74,7 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String fileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GUIControllerImpl();
+		this.guiController = new GuiControllerImpl("ws://localhost:8080/");
 		this.fileName = fileName;
 		this.jadeRuntime = instance();
 
@@ -91,7 +91,7 @@ public abstract class AbstractScenarioService {
 	 * @param mainHostIp IP address of the main host
 	 */
 	protected AbstractScenarioService(String fileName, Integer hostId, String mainHostIp) {
-		this.guiController = new GUIControllerImpl();
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", mainHostIp));
 		this.fileName = fileName;
 		this.jadeRuntime = instance();
 
@@ -138,14 +138,13 @@ public abstract class AbstractScenarioService {
 			final int randomPower = MIN_JOB_POWER + random.nextInt(MAX_JOB_POWER);
 			final int randomStart = START_TIME_MIN + random.nextInt(START_TIME_MAX);
 			final int randomEnd = randomStart + 1 + random.nextInt(END_TIME_MAX);
-			final ClientAgentArgs clientAgentArgs =
-					ImmutableClientAgentArgs.builder()
-							.name(format("Client%d", idx))
-							.jobId(String.valueOf(idx))
-							.power(String.valueOf(randomPower))
-							.start(String.valueOf(randomStart))
-							.end(String.valueOf(randomEnd))
-							.build();
+			final ClientAgentArgs clientAgentArgs = ImmutableClientAgentArgs.builder()
+					.name(format("Client%d", idx))
+					.jobId(String.valueOf(idx))
+					.power(String.valueOf(randomPower))
+					.start(String.valueOf(randomStart))
+					.end(String.valueOf(randomEnd))
+					.build();
 			final AgentController agentController = runAgentController(clientAgentArgs, scenario, factory);
 			try {
 				agentController.start();

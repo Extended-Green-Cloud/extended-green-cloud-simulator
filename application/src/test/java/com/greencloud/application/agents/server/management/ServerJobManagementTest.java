@@ -1,8 +1,8 @@
 package com.greencloud.application.agents.server.management;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.ImmutableJob;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,8 +16,6 @@ import java.util.Map;
 
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static java.time.Instant.parse;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doNothing;
@@ -32,7 +30,7 @@ public class ServerJobManagementTest {
     private static ServerStateManagement MOCK_STATE_MANAGEMENT;
 
     private static ServerManagement MOCK_JOB_MANAGEMENT;
-    private static Map<Job, JobStatusEnum> MOCK_JOBS;
+    private static Map<ClientJob, JobStatusEnum> MOCK_JOBS;
 
     @Mock
     private static ServerAgent serverAgent;
@@ -63,50 +61,50 @@ public class ServerJobManagementTest {
      * Job5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
      * Job6 -> power: 15, time: 11:30 - 13:00, status: ON_HOLD_TRANSFER
      */
-    private Map<Job, JobStatusEnum> setUpServerJobs() {
-        final Job mockJob1 = ImmutableJob.builder()
+    private Map<ClientJob, JobStatusEnum> setUpServerJobs() {
+        final ClientJob mockJob1 = ImmutableClientJob.builder()
                 .jobId("1")
                 .clientIdentifier("Client1")
                 .startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T10:30:00.000Z"))
                 .power(10)
                 .build();
-        final Job mockJob2 = ImmutableJob.builder()
+        final ClientJob mockJob2 = ImmutableClientJob.builder()
                 .jobId("2")
                 .clientIdentifier("Client2")
                 .startTime(Instant.parse("2022-01-01T07:30:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
                 .power(12)
                 .build();
-        final Job mockJob3 = ImmutableJob.builder()
+        final ClientJob mockJob3 = ImmutableClientJob.builder()
                 .jobId("3")
                 .clientIdentifier("Client3")
                 .startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
                 .power(5)
                 .build();
-        final Job mockJob4 = ImmutableJob.builder()
+        final ClientJob mockJob4 = ImmutableClientJob.builder()
                 .jobId("4")
                 .clientIdentifier("Client4")
                 .startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
                 .power(2)
                 .build();
-        final Job mockJob5 = ImmutableJob.builder()
+        final ClientJob mockJob5 = ImmutableClientJob.builder()
                 .jobId("5")
                 .clientIdentifier("Client5")
                 .startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
                 .power(25)
                 .build();
-        final Job mockJob6 = ImmutableJob.builder()
+        final ClientJob mockJob6 = ImmutableClientJob.builder()
                 .jobId("6")
                 .clientIdentifier("Client6")
                 .startTime(Instant.parse("2022-01-01T11:30:00.000Z"))
                 .endTime(Instant.parse("2022-01-01T13:00:00.000Z"))
                 .power(15)
                 .build();
-        final Map<Job, JobStatusEnum> mockJobMap = new HashMap<>();
+        final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
         mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
         mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY);
         mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE);

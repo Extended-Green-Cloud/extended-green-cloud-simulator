@@ -12,8 +12,8 @@ import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
 import com.greencloud.application.domain.ImmutableServerData;
 import com.greencloud.application.domain.ServerData;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutablePricedJob;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.mapper.JsonMapper;
 
@@ -62,7 +62,7 @@ public class OfferMessageFactory {
 			final double servicePrice,
 			final String jobId,
 			final ACLMessage replyMessage) {
-		final Job job = getJobById(serverAgent.getServerJobs(), jobId);
+		final ClientJob job = getJobById(serverAgent.getServerJobs(), jobId);
 		final int availablePower = serverAgent.manageState()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()

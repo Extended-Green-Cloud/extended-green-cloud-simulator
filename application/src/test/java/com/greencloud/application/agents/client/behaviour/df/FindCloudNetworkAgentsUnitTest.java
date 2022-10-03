@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.yellowpages.YellowPagesService;
-import com.gui.controller.GUIController;
+import com.gui.controller.GuiController;
 
 import jade.core.AID;
 import jade.core.behaviours.SequentialBehaviour;
@@ -27,7 +27,7 @@ class FindCloudNetworkAgentsUnitTest {
 	@Mock
 	private ClientAgent clientAgent;
 	@Mock
-	private GUIController guiController;
+	private GuiController guiController;
 	private FindCloudNetworkAgents testedBehaviour;
 
 	@BeforeEach
@@ -41,7 +41,6 @@ class FindCloudNetworkAgentsUnitTest {
 	void shouldDeleteAgentWhenNoCNAgentsFound() {
 		// given
 		testedBehaviour.setAgent(clientAgent);
-		when(clientAgent.getName()).thenReturn("testName");
 
 		// when
 		try (var yellowPagesService = mockStatic(YellowPagesService.class)) {

@@ -1,4 +1,4 @@
 export type PowerShortageEventData = {
-    agentName?: string,
+    agentName: string,
     newMaximumCapacity: number
 }

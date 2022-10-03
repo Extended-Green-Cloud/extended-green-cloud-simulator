@@ -2,6 +2,7 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.handl
 
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.RETRY_CLIENT_JOB_REQUEST_LOG;
 import static com.greencloud.application.agents.client.domain.ClientAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
+import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 
 import java.time.temporal.ChronoUnit;
@@ -12,8 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
-import com.greencloud.application.domain.job.Job;
-import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.application.domain.job.ClientJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.SequentialBehaviour;
@@ -27,7 +27,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleClientJobRequestRetry.class);
 
 	private final ClientAgent myClientAgent;
-	private final Job job;
+	private final ClientJob job;
 
 	/**
 	 * Behaviour constructor.
@@ -36,7 +36,7 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	 * @param timeout time after which the retry will be triggered
 	 * @param job     job for which the retry is triggered
 	 */
-	public HandleClientJobRequestRetry(Agent agent, long timeout, Job job) {
+	public HandleClientJobRequestRetry(Agent agent, long timeout, ClientJob job) {
 		super(agent, timeout);
 		this.job = job;
 		this.myClientAgent = (ClientAgent) agent;
@@ -51,9 +51,9 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 		logger.info(RETRY_CLIENT_JOB_REQUEST_LOG);
 	}
 
-	private SequentialBehaviour prepareStartingBehaviour(final Job job) {
+	private SequentialBehaviour prepareStartingBehaviour(final ClientJob job) {
 		recalculateJobTimeInterval();
-		final Job jobForRetry = JobMapper.mapToJobWithNewTime(job, myClientAgent.getSimulatedJobStart(),
+		final ClientJob jobForRetry = mapToJobWithNewTime(job, myClientAgent.getSimulatedJobStart(),
 				myClientAgent.getSimulatedJobEnd());
 
 		var startingBehaviour = new SequentialBehaviour(myAgent);

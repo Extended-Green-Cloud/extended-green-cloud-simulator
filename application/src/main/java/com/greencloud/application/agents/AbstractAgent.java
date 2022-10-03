@@ -3,7 +3,7 @@ package com.greencloud.application.agents;
 import java.util.Objects;
 
 import com.gui.agents.AbstractAgentNode;
-import com.gui.controller.GUIController;
+import com.gui.controller.GuiController;
 
 import jade.core.Agent;
 
@@ -12,19 +12,10 @@ import jade.core.Agent;
  */
 public abstract class AbstractAgent extends Agent {
 
-	private GUIController guiController;
+	private GuiController guiController;
 	private AbstractAgentNode agentNode;
 
-	public AbstractAgent() {
-	}
-
-	/**
-	 * Class constructor
-	 *
-	 * @param guiController controller through which the agent can communicate with GUI
-	 */
-	public AbstractAgent(GUIController guiController) {
-		this.guiController = guiController;
+	protected AbstractAgent() {
 	}
 
 	@Override
@@ -49,11 +40,11 @@ public abstract class AbstractAgent extends Agent {
 		this.agentNode = agentNode;
 	}
 
-	public GUIController getGuiController() {
+	public GuiController getGuiController() {
 		return guiController;
 	}
 
-	public void setGuiController(GUIController guiController) {
+	public void setGuiController(GuiController guiController) {
 		this.guiController = guiController;
 	}
 }

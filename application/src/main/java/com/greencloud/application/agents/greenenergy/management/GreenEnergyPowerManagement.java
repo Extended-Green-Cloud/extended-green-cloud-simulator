@@ -1,13 +1,11 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.CUT_ON_WIND_SPEED;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MOCK_SOLAR_ENERGY;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.RATED_WIND_SPEED;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.TEST_MULTIPLIER;
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.*;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.*;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
+import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static java.lang.Math.min;
@@ -23,7 +21,9 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.WeatherData;
-import com.greencloud.application.domain.location.Location;
+import com.greencloud.commons.location.Location;
 import org.slf4j.MDC;
 
 /**
@@ -111,6 +111,39 @@ public class GreenEnergyPowerManagement {
 	}
 
 	/**
+	 * Computes power available during computation of the job being processed
+	 *
+	 * @param powerJob job of interest
+	 * @param weather  monitoring data with com.greencloud.application.weather for requested timetable
+	 * @param isNewJob flag indicating whether job of interest is a processed new job
+	 * @return available power as decimal or empty optional if power not available
+	 */
+	public synchronized Optional<Double> getAvailablePowerForJob(final PowerJob powerJob,
+																 final MonitoringData weather, final boolean isNewJob) {
+		final Set<JobStatusEnum> jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
+		final Set<PowerJob> powerJobsOfInterest = greenEnergyAgent.getPowerJobs().entrySet().stream()
+				.filter(job -> jobStatuses.contains(job.getValue()))
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
+		final double availablePower =
+				getMinimalAvailablePowerDuringTimeStamp(
+						powerJobsOfInterest,
+						powerJob.getStartTime(),
+						powerJob.getEndTime(),
+						INTERVAL_LENGTH_MS,
+						greenEnergyAgent.managePower(),
+						weather);
+		final String power = String.format("%.2f", availablePower);
+
+		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getEnergyType(), power,
+				powerJob.getStartTime(), powerJob.getEndTime());
+
+		return availablePower <= 0 ?
+				Optional.empty() :
+				Optional.of(availablePower);
+	}
+
+	/**
 	 * Method returns the current power in use by the green source
 	 */
 	public int getCurrentPowerInUseForGreenSource() {
@@ -131,7 +164,7 @@ public class GreenEnergyPowerManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.managePower().getMaximumCapacity());
+			greenEnergyAgentNode.updateMaximumCapacity(getMaximumCapacity(), getCurrentPowerInUseForGreenSource());
 		}
 	}
 

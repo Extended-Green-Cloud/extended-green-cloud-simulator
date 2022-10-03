@@ -18,12 +18,12 @@ import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.ImmutableWeatherData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.WeatherData;
-import com.greencloud.application.domain.location.Location;
 import com.greencloud.application.exception.APIFetchInternalException;
 import com.greencloud.application.weather.api.OpenWeatherMapApi;
 import com.greencloud.application.weather.cache.WeatherCache;
 import com.greencloud.application.weather.domain.AbstractWeather;
 import com.greencloud.application.weather.domain.FutureWeather;
+import com.greencloud.commons.location.Location;
 
 /**
  * Set of methods used in weather management

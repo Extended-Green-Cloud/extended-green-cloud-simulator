@@ -1,15 +1,18 @@
-import { Agent, AgentType, CloudNetworkAgent, CloudNetworkTraffic, GraphEdge, AgentNode, GreenEnergyAgent, GreenEnergyState, MonitoringAgent, ServerAgent, ServerState } from "@types"
+import { Agent, AgentType, CloudNetworkAgent, CloudNetworkTraffic, GraphEdge, AgentNode, GreenEnergyAgent, GreenEnergyState, ServerAgent, ServerState } from "@types"
+import { EDGE_DIRECTED, EDGE_UNIDIRECTED_ACTIVE, EDGE_UNIDIRECTED_INACTIVE } from "components/graph/graph-config"
+import Cytoscape from 'cytoscape'
 
-export const createEdgesForAgent = (agent: Agent): GraphEdge[] => {
-    switch (agent.type) {
-        case AgentType.CLOUD_NETWORK: return createCloudNetworkEdges(agent as CloudNetworkAgent)
-        case AgentType.SERVER: return createServerEdges(agent as ServerAgent)
-        case AgentType.GREEN_ENERGY: return createGreenEnergyEdges(agent as GreenEnergyAgent)
-        case AgentType.MONITORING: return createMonitoringEdges(agent as MonitoringAgent)
-        default: return []
-    }
-}
+let core: Cytoscape.Core
 
+export const setCore = (newCore: Cytoscape.Core) => core = newCore
+
+/**
+ * Method creates an agent node from given agent
+ * 
+ * @param {Agent}[agent] - agent for which the node is to be created 
+ * 
+ * @returns AgentNode
+ */
 export const createNodeForAgent = (agent: Agent): AgentNode => {
     const node = { id: agent.name, label: agent.name, type: agent.type }
     switch (agent.type) {
@@ -24,6 +27,33 @@ export const createNodeForAgent = (agent: Agent): AgentNode => {
     }
 }
 
+/**
+ * Method selects from the set of nodes, the ones that can be constructed (based on current agents connected to cloud network)
+ * 
+ * @param {Agent[]}[agents] - agents that are currently present in cloud network 
+ * @param {GraphEdge[]}[edges] - set of all edges
+ * 
+ * @returns GraphEdge[]
+ */
+export const selectExistingEdges = (agents: Agent[], edges: GraphEdge[]) =>
+    edges.filter(edge => agents.find(agent => agent.name === edge.data.target) && agents.find(agent => agent.name === edge.data.source))
+        .map(edge => {
+            core?.edges()?.$id(edge.data.id).css({ ...getEdgeStyle(edge) })
+            return edge
+        })
+
+
+const getEdgeStyle = (edge: GraphEdge) => {
+    if (edge.data.type === 'unidirected')
+        return edge.state === 'active' ?
+            EDGE_UNIDIRECTED_ACTIVE :
+            EDGE_UNIDIRECTED_INACTIVE
+
+    return edge.state === 'active' ?
+        { display: 'element', ...EDGE_DIRECTED } :
+        { display: 'none', ...EDGE_DIRECTED }
+}
+
 const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent): CloudNetworkTraffic => {
     if (cloudNetwork.traffic > 85)
         return CloudNetworkTraffic.HIGH
@@ -34,7 +64,6 @@ const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent): CloudNetworkTraf
         CloudNetworkTraffic.LOW :
         CloudNetworkTraffic.INACTIVE
 }
-
 
 const getServerState = (server: ServerAgent): ServerState => {
     if (server.numberOfJobsOnHold > 0)
@@ -54,46 +83,4 @@ const getGreenEnergyState = (greenEnergy: GreenEnergyAgent): GreenEnergyState =>
     return greenEnergy.isActive ?
         GreenEnergyState.ACTIVE :
         GreenEnergyState.INACTIVE
-}
-
-
-const createCloudNetworkEdges = (agent: CloudNetworkAgent): GraphEdge[] =>
-    agent.serverAgents.map(serverAgent => createEdge(agent, agent.name, serverAgent, true))
-
-const createServerEdges = (agent: ServerAgent): GraphEdge[] => {
-    const uniEdge = createEdge(agent, agent.name, agent.cloudNetworkAgent, false)
-    const cloudNetworkEdge = createEdge(agent, agent.name, agent.cloudNetworkAgent, true)
-    const edges = agent.greenEnergyAgents.map(greenAgent => createEdge(agent, agent.name, greenAgent, true))
-
-    edges.push(uniEdge)
-    edges.push(cloudNetworkEdge)
-
-    return edges
-}
-
-const createGreenEnergyEdges = (agent: GreenEnergyAgent): GraphEdge[] => {
-    const uniEdgeMonitoring = createEdge(agent, agent.name, agent.monitoringAgent, false)
-    const uniEdgeServer = createEdge(agent, agent.name, agent.serverAgent, false)
-    const directedEdgeMonitoring = createEdge(agent, agent.name, agent.monitoringAgent, true)
-    const directedEdgeServer = createEdge(agent, agent.name, agent.serverAgent, true)
-
-    return [uniEdgeMonitoring, uniEdgeServer, directedEdgeMonitoring, directedEdgeServer]
-}
-
-const createMonitoringEdges = (agent: MonitoringAgent): GraphEdge[] =>
-    [createEdge(agent, agent.name, agent.greenEnergyAgent, true)]
-
-
-const createEdge = (agent: Agent, source: string, target: string, isDirected: boolean): GraphEdge => {
-    const id = isDirected ? [source, target].join('-') : [source, target, 'BI'].join('-')
-    const prevEdge = agent.edges?.find(edge => edge.data.id === id)
-
-    if(!prevEdge) {
-        const type = isDirected ? 'directed' : 'unidirected'
-        const state = 'inactive'
-        return({ data: { id: isDirected ? id : [id, 'BI'].join('-'), source, target, type, state }, state })
-    } else {
-        const {state, ...prevState} = prevEdge.data
-        return ({ data: { state: prevEdge.state, ...prevState }, state: prevEdge.state })
-    }
 }

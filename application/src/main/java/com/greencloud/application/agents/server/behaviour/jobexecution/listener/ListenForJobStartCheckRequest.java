@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
@@ -55,7 +55,7 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 					ReplyMessageFactory.prepareStringReply(request.createReply(), "REQUEST PROCESSING", AGREE));
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(JOB_START_STATUS_RECEIVED_REQUEST_LOG, jobId);
-			final Map.Entry<Job, JobStatusEnum> jobInstance = getCurrentJobInstance(myServerAgent.getServerJobs(), jobId);
+			final Map.Entry<ClientJob, JobStatusEnum> jobInstance = getCurrentJobInstance(myServerAgent.getServerJobs(), jobId);
 			myServerAgent.send(createReplyWithJobStatus(request, jobInstance));
 		} else {
 			block();
@@ -63,7 +63,7 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 	}
 
 	private ACLMessage createReplyWithJobStatus(final ACLMessage message,
-			final Map.Entry<Job, JobStatusEnum> jobInstance) {
+			final Map.Entry<ClientJob, JobStatusEnum> jobInstance) {
 		return Objects.nonNull(jobInstance) && JobStatusEnum.RUNNING_JOB_STATUSES.contains(jobInstance.getValue()) ?
 				ReplyMessageFactory.prepareStringReply(message.createReply(), "JOB STARTED", INFORM) :
 				ReplyMessageFactory.prepareStringReply(message.createReply(), "JOB HAS NOT STARTED", FAILURE);

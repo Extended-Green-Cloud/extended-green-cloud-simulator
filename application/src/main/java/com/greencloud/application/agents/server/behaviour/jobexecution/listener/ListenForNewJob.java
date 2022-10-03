@@ -18,7 +18,7 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 
@@ -54,7 +54,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(JobHandlingMessageTemplates.NEW_JOB_CFP_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final Job job = readMessageContent(message, Job.class);
+			final ClientJob job = readMessageContent(message, ClientJob.class);
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			final int availableCapacity = myServerAgent.manageState()
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
@@ -74,7 +74,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		}
 	}
 
-	private void initiateNegotiationWithPowerSources(final Job job, final ACLMessage cnaMessage) {
+	private void initiateNegotiationWithPowerSources(final ClientJob job, final ACLMessage cnaMessage) {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG);
 		myServerAgent.getServerJobs().putIfAbsent(job, JobStatusEnum.PROCESSING);

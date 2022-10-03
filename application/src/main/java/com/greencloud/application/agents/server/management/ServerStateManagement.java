@@ -21,13 +21,11 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
-import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.utils.AlgorithmUtils;
-import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ServerAgentNode;
 
 /**
@@ -66,7 +64,7 @@ public class ServerStateManagement {
 		final Set<JobStatusEnum> statuses = Objects.isNull(powerSourceType) ?
 				ALL.getJobStatuses() :
 				powerSourceType.getJobStatuses();
-		final Set<Job> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
+		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !JobMapper.mapToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job)))
 				.collect(Collectors.toSet());
@@ -118,7 +116,8 @@ public class ServerStateManagement {
 
 		final ServerAgentNode serverAgentNode = (ServerAgentNode) serverAgent.getAgentNode();
 		if (Objects.nonNull(serverAgentNode)) {
-			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity());
+			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(),
+					getCurrentPowerInUseForServer());
 		}
 	}
 
@@ -129,7 +128,8 @@ public class ServerStateManagement {
 		final ServerAgentNode serverAgentNode = (ServerAgentNode) serverAgent.getAgentNode();
 
 		if (Objects.nonNull(serverAgentNode)) {
-			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity());
+			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(),
+					getCurrentPowerInUseForServer());
 			serverAgentNode.updateJobsCount(getJobCount(serverAgent.getServerJobs()));
 			serverAgentNode.updateClientNumber(getClientNumber());
 			serverAgentNode.updateIsActive(getIsActiveState());

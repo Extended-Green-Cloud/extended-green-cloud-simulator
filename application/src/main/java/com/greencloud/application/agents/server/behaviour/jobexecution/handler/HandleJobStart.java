@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
@@ -35,7 +35,7 @@ public class HandleJobStart extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleJobStart.class);
 
 	private final ServerAgent myServerAgent;
-	private final Job jobToExecute;
+	private final ClientJob jobToExecute;
 	private final boolean informCNAStart;
 	private final boolean informCNAFinish;
 
@@ -49,7 +49,7 @@ public class HandleJobStart extends WakerBehaviour {
 	 * @param informCNAFinish flag indicating whether the cloud network should be informed about job finish
 	 */
 	private HandleJobStart(Agent agent, Date startDate,
-			final Job job,
+			final ClientJob job,
 			final boolean informCNAStart,
 			final boolean informCNAFinish) {
 		super(agent, startDate);
@@ -70,7 +70,7 @@ public class HandleJobStart extends WakerBehaviour {
 	 * @return behaviour to be run
 	 */
 	public static HandleJobStart createFor(final ServerAgent serverAgent,
-			final Job job,
+			final ClientJob job,
 			final boolean informCNAStart,
 			final boolean informCNAFinish) {
 		final Instant startDate = getCurrentTime().isAfter(job.getStartTime()) ? getCurrentTime() : job.getStartTime();

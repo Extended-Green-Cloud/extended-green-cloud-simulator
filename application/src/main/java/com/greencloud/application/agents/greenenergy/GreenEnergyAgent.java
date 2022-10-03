@@ -22,7 +22,7 @@ import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTyp
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyPowerManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
-import com.greencloud.application.domain.location.ImmutableLocation;
+import com.greencloud.commons.location.ImmutableLocation;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;

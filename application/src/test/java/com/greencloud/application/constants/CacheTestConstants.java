@@ -6,8 +6,6 @@ import java.util.List;
 
 import com.greencloud.application.domain.ImmutableWeatherData;
 import com.greencloud.application.domain.WeatherData;
-import com.greencloud.application.domain.location.ImmutableLocation;
-import com.greencloud.application.domain.location.Location;
 import com.greencloud.application.weather.domain.Clouds;
 import com.greencloud.application.weather.domain.Coord;
 import com.greencloud.application.weather.domain.CurrentWeather;
@@ -24,6 +22,8 @@ import com.greencloud.application.weather.domain.ImmutableWind;
 import com.greencloud.application.weather.domain.Main;
 import com.greencloud.application.weather.domain.Weather;
 import com.greencloud.application.weather.domain.Wind;
+import com.greencloud.commons.location.ImmutableLocation;
+import com.greencloud.commons.location.Location;
 
 /**
  * Class stores constants used in testing cache methods and classes

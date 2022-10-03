@@ -7,7 +7,7 @@ public class PowerSupplyInitiatorLog {
 
 	// POWER SUPPLY OFFER LOG MESSAGES
 	public static final String SEND_POWER_SUPPLY_RESPONSE_LOG =
-			"Sending information regarding job {} back to server agent";
+			"Sending information regarding job {} acceptance back to server agent";
 	public static final String POWER_SUPPLY_PROPOSAL_REJECTED_LOG =
 			"Server rejected the job proposal";
 

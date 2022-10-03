@@ -1,0 +1,16 @@
+.Toastify__toast-container {
+    width: fit-content;
+}
+
+.Toastify__toast {
+    min-height: 0;
+    height: 50px;
+}
+
+.Toastify__toast-body {
+    font-size: var(--font-size-4);
+}
+
+.Toastify__progress-bar {
+    background: var(--green-6) !important;
+}

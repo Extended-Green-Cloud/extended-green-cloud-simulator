@@ -1,4 +1,4 @@
-import { iconPause, iconBattery } from "@assets"
+import { iconPause, iconBattery, iconWeather } from "@assets"
 import React from "react"
 
 const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
@@ -35,48 +35,13 @@ const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
     }
 ]
 
-const EDGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
-    {
-        selector: "edge[type = 'unidirected'][state = 'inactive']",
-        style: {
-            width: 1,
-            "target-arrow-shape": "none",
-            "line-color": "#242424"
-        },
-    },
-    {
-        selector: "edge[type = 'unidirected'][state = 'active']",
-        style: {
-            width: 1,
-            "target-arrow-shape": "none",
-            "line-color": "#58B905"
-        },
-    },
-    {
-        selector: "edge[type = 'directed'][state = 'active']",
-        style: {
-            width: 2,
-            "target-arrow-shape": "triangle",
-            "line-color": "#58B905",
-            "line-style": "dashed",
-            "target-arrow-color": "#58B905"
-        },
-    },
-    {
-        selector: "edge[type = 'directed'][state = 'inactive']",
-        style: {
-            display: 'none'
-        },
-    }
-]
-
 const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
         selector: "node[type = 'CLOUD_NETWORK']",
         style: {
-            width: "40",
-            height: "40",
-            shape: "ellipse",
+            width: "60",
+            height: "60",
+            shape: "barrel",
         }
     },
     {
@@ -109,12 +74,12 @@ const SERVER_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
         selector: "node[type = 'SERVER']",
         style: {
-            width: "25",
-            height: "25",
+            width: "35",
+            height: "35",
             shape: "ellipse",
             "background-color": "#ffffff",
             "border-opacity": 1,
-            "border-width": 3
+            "border-width": 5
         }
     },
     {
@@ -153,9 +118,9 @@ const GREEN_ENERGY_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
         selector: "node[type = 'GREEN_ENERGY']",
         style: {
-            width: "15",
-            height: "15",
-            shape: "ellipse",
+            width: "20",
+            height: "20",
+            shape: "round-octagon",
             "border-opacity": 1,
             "border-width": 3
         }
@@ -190,17 +155,39 @@ const MONITORING_STYLESHEET: Array<cytoscape.Stylesheet> = [
     {
         selector: "node[type = 'MONITORING']",
         style: {
-            width: "10",
-            height: "10",
-            shape: "rectangle",
-            "background-color": "#44A70D"
+            width: "20",
+            height: "20",
+            shape: "ellipse",
+            "border-color": "#429647",
+            "background-color": "#ffffff",
+            "background-image": iconWeather,
+            "background-image-opacity": 1,
+            "background-image-containment": "over",
+            "background-fit": 'cover',
         }
     }
 ]
 
+export const EDGE_UNIDIRECTED_INACTIVE = {
+    width: 1,
+    "target-arrow-shape": "none",
+    "line-color": "#242424"
+}
+export const EDGE_UNIDIRECTED_ACTIVE = {
+    width: 1,
+    "target-arrow-shape": "none",
+    "line-color": "#58B905"
+}
+export const EDGE_DIRECTED = {
+    width: 1,
+    "target-arrow-shape": "triangle",
+    "line-color": "#58B905",
+    "line-style": "dashed",
+    "target-arrow-color": "#58B905"
+}
+
 export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
     COMMON_STYLESHEET
-        .concat(EDGE_STYLESHEET)
         .concat(CNA_STYLESHEET)
         .concat(SERVER_STYLESHEET)
         .concat(GREEN_ENERGY_STYLESHEET)
@@ -213,12 +200,13 @@ export const GRAPH_LAYOUT = {
     animation: true,
     nodeDimensionsIncludeLabels: true,
     padding: 20,
-    nodeRepulsion: 6000,
-    edgeElasticity: 0.45,
+    packComponents: false,
+    nodeRepulsion: 3000,
+    edgeElasticity: 0.05,
     gravity: 0.2,
-    idealEdgeLength: 30,
-    nodeSeparation: 30,
-    sampleSize: 30,
+    idealEdgeLength: 40,
+    nodeSeparation: 60,
+    sampleSize: 50,
 }
 
 export const GRAPH_STYLE: React.CSSProperties = {

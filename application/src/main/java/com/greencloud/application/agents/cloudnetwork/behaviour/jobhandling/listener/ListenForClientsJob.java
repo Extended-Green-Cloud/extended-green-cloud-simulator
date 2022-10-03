@@ -18,7 +18,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -51,7 +51,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(NEW_JOB_REQUEST_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final Job job = readMessageContent(message, Job.class);
+			final ClientJob job = readMessageContent(message, ClientJob.class);
 			final String jobId = job.getJobId();
 			MDC.put(MDC_JOB_ID, jobId);
 			handleRetryProcess(jobId);
@@ -66,7 +66,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 			logger.info(SEND_CFP_RETRY_LOG, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
 		} else {
 			myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
-			final Job previousInstance = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
+			final ClientJob previousInstance = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 			if (Objects.nonNull(previousInstance)) {
 				myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
 			}
@@ -74,7 +74,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		}
 	}
 
-	private void sendCFPToServers(final Job job, final ACLMessage message) {
+	private void sendCFPToServers(final ClientJob job, final ACLMessage message) {
 		final ACLMessage cfp = createCallForProposal(job, myCloudNetworkAgent.getOwnedServers(),
 				CNA_JOB_CFP_PROTOCOL);
 

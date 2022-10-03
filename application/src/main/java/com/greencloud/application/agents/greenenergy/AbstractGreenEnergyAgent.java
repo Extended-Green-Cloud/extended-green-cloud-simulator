@@ -10,7 +10,7 @@ import com.greencloud.application.agents.greenenergy.management.GreenEnergyState
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyPowerManagement;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
-import com.greencloud.application.domain.location.Location;
+import com.greencloud.commons.location.Location;
 
 import jade.core.AID;
 
@@ -45,6 +45,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	public void setPricePerPowerUnit(double pricePerPowerUnit) {
 		this.pricePerPowerUnit = pricePerPowerUnit;
 	}
+
 	public Map<PowerJob, JobStatusEnum> getPowerJobs() {
 		return powerJobs;
 	}

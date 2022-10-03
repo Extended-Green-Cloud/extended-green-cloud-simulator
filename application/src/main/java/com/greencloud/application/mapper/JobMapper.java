@@ -2,10 +2,10 @@ package com.greencloud.application.mapper;
 
 import java.time.Instant;
 
-import com.greencloud.application.domain.job.ImmutableJob;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.ImmutablePowerJob;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.ImmutablePowerShortageJob;
@@ -20,7 +20,7 @@ public class JobMapper {
 	 * @param job job to be mapped to power job
 	 * @return PowerJob
 	 */
-	public static PowerJob mapJobToPowerJob(final Job job) {
+	public static PowerJob mapJobToPowerJob(final ClientJob job) {
 		return ImmutablePowerJob.builder()
 				.jobId(job.getJobId())
 				.power(job.getPower())
@@ -33,7 +33,7 @@ public class JobMapper {
 	 * @param powerJob power job to be mapped to job
 	 * @return PowerJob
 	 */
-	public static PowerJob mapToPowerJob(final Job powerJob, final Instant startTime) {
+	public static PowerJob mapToPowerJob(final ClientJob powerJob, final Instant startTime) {
 		return ImmutablePowerJob.builder()
 				.jobId(powerJob.getJobId())
 				.power(powerJob.getPower())
@@ -47,8 +47,8 @@ public class JobMapper {
 	 * @param startTime new job start time
 	 * @return Job
 	 */
-	public static Job mapToJobNewStartTime(final Job job, final Instant startTime) {
-		return ImmutableJob.builder()
+	public static ClientJob mapToJobNewStartTime(final ClientJob job, final Instant startTime) {
+		return ImmutableClientJob.builder()
 				.clientIdentifier(job.getClientIdentifier())
 				.jobId(job.getJobId())
 				.power(job.getPower())
@@ -61,8 +61,8 @@ public class JobMapper {
 	 * @param job job to be mapped to job
 	 * @return Job
 	 */
-	public static Job mapToJobNewEndTime(final Job job, final Instant endTime) {
-		return ImmutableJob.builder()
+	public static ClientJob mapToJobNewEndTime(final ClientJob job, final Instant endTime) {
+		return ImmutableClientJob.builder()
 				.clientIdentifier(job.getClientIdentifier())
 				.jobId(job.getJobId())
 				.power(job.getPower())
@@ -105,8 +105,8 @@ public class JobMapper {
 	 * @param startTime new job start time
 	 * @return PowerJob
 	 */
-	public static Job mapToJobWithNewTime(final Job job, final Instant startTime, final Instant endTime) {
-		return ImmutableJob.builder()
+	public static ClientJob mapToJobWithNewTime(final ClientJob job, final Instant startTime, final Instant endTime) {
+		return ImmutableClientJob.builder()
 				.jobId(job.getJobId())
 				.clientIdentifier(job.getClientIdentifier())
 				.power(job.getPower())
@@ -129,7 +129,7 @@ public class JobMapper {
 	 * @param startTime power shortage start time
 	 * @return PowerShortageJob
 	 */
-	public static PowerShortageJob mapToPowerShortageJob(final Job job, final Instant startTime) {
+	public static PowerShortageJob mapToPowerShortageJob(final ClientJob job, final Instant startTime) {
 		return ImmutablePowerShortageJob.builder()
 				.jobInstanceId(mapToJobInstanceId(job))
 				.powerShortageStart(startTime)
@@ -152,7 +152,7 @@ public class JobMapper {
 	 * @param job Job object
 	 * @return JobInstanceIdentifier
 	 */
-	public static JobInstanceIdentifier mapToJobInstanceId(final Job job) {
+	public static JobInstanceIdentifier mapToJobInstanceId(final ClientJob job) {
 		return ImmutableJobInstanceIdentifier.builder().jobId(job.getJobId()).startTime(job.getStartTime()).build();
 	}
 }

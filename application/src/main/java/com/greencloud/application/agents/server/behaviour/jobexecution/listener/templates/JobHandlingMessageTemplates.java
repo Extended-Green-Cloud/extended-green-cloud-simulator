@@ -6,6 +6,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static jade.lang.acl.ACLMessage.CFP;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
@@ -22,7 +23,8 @@ public class JobHandlingMessageTemplates {
 
 	public static final MessageTemplate NEW_JOB_CFP_TEMPLATE = and(MatchPerformative(CFP),
 			MatchProtocol(CNA_JOB_CFP_PROTOCOL));
-	public static final MessageTemplate POWER_SUPPLY_UPDATE_TEMPLATE = and(MatchPerformative(INFORM),
+	public static final MessageTemplate POWER_SUPPLY_UPDATE_TEMPLATE = and(
+			or(MatchPerformative(INFORM), MatchPerformative(FAILURE)),
 			or(or(MatchProtocol(SERVER_JOB_CFP_PROTOCOL), MatchProtocol(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL))
 					, MatchProtocol(MANUAL_JOB_FINISH_PROTOCOL)));
 	public static final MessageTemplate JOB_STATUS_REQUEST_TEMPLATE = and(MatchPerformative(REQUEST),

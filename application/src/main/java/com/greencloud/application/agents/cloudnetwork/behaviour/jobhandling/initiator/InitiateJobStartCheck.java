@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -65,7 +65,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
+		final ClientJob job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.info(JOB_HAS_STARTED_LOG, jobId);
@@ -84,7 +84,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
+		final ClientJob job = getJobById(myCloudNetwork.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.error(JOB_HAS_NOT_STARTED_LOG, jobId);

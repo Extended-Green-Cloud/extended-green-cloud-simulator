@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
@@ -18,7 +18,7 @@ import jade.core.AID;
 public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
-	protected Map<Job, JobStatusEnum> networkJobs;
+	protected Map<ClientJob, JobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
 	protected Map<String, Integer> jobRequestRetries;
 	protected AtomicLong completedJobs;
@@ -45,7 +45,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		return serverForJobMap;
 	}
 
-	public Map<Job, JobStatusEnum> getNetworkJobs() {
+	public Map<ClientJob, JobStatusEnum> getNetworkJobs() {
 		return networkJobs;
 	}
 

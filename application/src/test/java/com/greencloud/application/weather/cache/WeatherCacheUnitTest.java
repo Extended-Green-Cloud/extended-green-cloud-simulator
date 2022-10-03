@@ -17,8 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.greencloud.application.domain.location.ImmutableLocation;
-import com.greencloud.application.domain.location.Location;
 import com.greencloud.application.weather.domain.AbstractWeather;
 import com.greencloud.application.weather.domain.CurrentWeather;
 import com.greencloud.application.weather.domain.Forecast;
@@ -26,6 +24,8 @@ import com.greencloud.application.weather.domain.FutureWeather;
 import com.greencloud.application.weather.domain.ImmutableCurrentWeather;
 import com.greencloud.application.weather.domain.ImmutableForecast;
 import com.greencloud.application.weather.domain.ImmutableFutureWeather;
+import com.greencloud.commons.location.ImmutableLocation;
+import com.greencloud.commons.location.Location;
 
 class WeatherCacheUnitTest {
 

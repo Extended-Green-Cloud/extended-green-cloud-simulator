@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.application.messages.domain.constants.MessageContentConstants;
+import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
-import com.gui.agents.domain.JobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -46,7 +46,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 
 	private static final Logger logger = LoggerFactory.getLogger(InitiateNewJobAnnouncement.class);
 
-	private final transient Job job;
+	private final transient ClientJob job;
 	private final ClientAgent myClientAgent;
 
 	/**
@@ -56,7 +56,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 	 * @param cfp   call for proposal message containing job details that will be sent to Cloud Network Agents
 	 * @param job   the job that the client want to be executed
 	 */
-	public InitiateNewJobAnnouncement(final Agent agent, final ACLMessage cfp, final Job job) {
+	public InitiateNewJobAnnouncement(final Agent agent, final ACLMessage cfp, final ClientJob job) {
 		super(agent, cfp);
 		this.myClientAgent = (ClientAgent) agent;
 		this.job = job;

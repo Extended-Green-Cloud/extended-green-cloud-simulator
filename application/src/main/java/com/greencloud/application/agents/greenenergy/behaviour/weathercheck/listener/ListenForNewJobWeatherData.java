@@ -40,7 +40,6 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
 	private final MessageTemplate template;
-	private final String guid;
 	private final ACLMessage cfp;
 	private final PowerJob powerJob;
 	private final SequentialBehaviour parentBehaviour;
@@ -56,7 +55,6 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			final SequentialBehaviour parentBehaviour) {
 		this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()), MatchConversationId(cfp.getConversationId()));
 		this.myGreenEnergyAgent = myGreenAgent;
-		this.guid = myGreenEnergyAgent.getName();
 		this.cfp = cfp;
 		this.powerJob = powerJob;
 		this.parentBehaviour = parentBehaviour;
@@ -92,7 +90,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private void handleInform(final MonitoringData data) {
 		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.managePower()
-				.getAverageAvailablePower(powerJob, data, true);
+				.getAvailablePowerForJob(powerJob, data, true);
 		final String jobId = powerJob.getJobId();
 
 		if (averageAvailablePower.isEmpty()) {
@@ -106,7 +104,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent, averageAvailablePower.get(),
 					jobId, cfp.createReply());
 			displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
-			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer));
+			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer, data));
 		}
 	}
 
@@ -114,7 +112,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		try {
 			return MessagingUtils.readMessageContent(message, MonitoringData.class);
 		} catch (Exception e) {
-			logger.info(INCORRECT_WEATHER_DATA_FORMAT_LOG, guid);
+			logger.info(INCORRECT_WEATHER_DATA_FORMAT_LOG);
 			handleRefusal();
 		}
 		return null;

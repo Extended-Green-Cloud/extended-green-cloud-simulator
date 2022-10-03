@@ -22,7 +22,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
@@ -62,15 +62,17 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		final ACLMessage transferRequest = myAgent.receive(
 				PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE);
 		if (Objects.nonNull(transferRequest)) {
-			final PowerShortageJob powerShortageJob = MessagingUtils.readMessageContent(transferRequest, PowerShortageJob.class);
+			final PowerShortageJob powerShortageJob = MessagingUtils.readMessageContent(transferRequest,
+					PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
 			final Instant shortageStartTime = powerShortageJob.getPowerShortageStart();
-			final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstance.getJobId());
+			final ClientJob job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobInstance.getJobId());
 			MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
 
 			if (Objects.nonNull(job)) {
 				myCloudNetworkAgent.send(
-						ReplyMessageFactory.prepareReply(transferRequest.createReply(), PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE, ACLMessage.AGREE));
+						ReplyMessageFactory.prepareReply(transferRequest.createReply(),
+								PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE, ACLMessage.AGREE));
 				final List<AID> remainingServers = getRemainingServers(transferRequest.getSender());
 
 				if (!remainingServers.isEmpty()) {
@@ -91,9 +93,9 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		}
 	}
 
-	private void askRemainingServersToTransferJob(final List<AID> remainingServers, final Job originalJob,
+	private void askRemainingServersToTransferJob(final List<AID> remainingServers, final ClientJob originalJob,
 			final Instant shortageStartTime, final ACLMessage originalRequest) {
-		final Job jobToTransfer = prepareJobToTransfer(originalJob, shortageStartTime);
+		final ClientJob jobToTransfer = prepareJobToTransfer(originalJob, shortageStartTime);
 		final PowerShortageJob newPowerShortageJob = JobMapper.mapToPowerShortageJob(jobToTransfer, shortageStartTime);
 		final ACLMessage cfp = CallForProposalMessageFactory.createCallForProposal(jobToTransfer, remainingServers,
 				CNA_JOB_CFP_PROTOCOL);
@@ -110,7 +112,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		myCloudNetworkAgent.send(reply);
 	}
 
-	private Job prepareJobToTransfer(final Job job, final Instant shortageStartTime) {
+	private ClientJob prepareJobToTransfer(final ClientJob job, final Instant shortageStartTime) {
 		final Instant startTime = job.getStartTime().isAfter(shortageStartTime) ?
 				job.getStartTime() :
 				shortageStartTime;

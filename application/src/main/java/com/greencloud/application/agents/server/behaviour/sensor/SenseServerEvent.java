@@ -34,7 +34,9 @@ public class SenseServerEvent extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		final AbstractEvent event = myServerAgent.getAgentNode().removeEventFromStack();
+		// TODO add new event handling using websockets
+		final AbstractEvent event = null;
+		//myServerAgent.getAgentNode().removeEventFromStack();
 
 		if (Objects.nonNull(event)) {
 			switch (event.getEventTypeEnum()) {

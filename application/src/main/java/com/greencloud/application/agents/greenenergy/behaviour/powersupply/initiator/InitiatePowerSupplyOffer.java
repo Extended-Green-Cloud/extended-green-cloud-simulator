@@ -23,6 +23,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
+import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.JobWithProtocol;
@@ -42,16 +43,19 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 
 	private static final Logger logger = LoggerFactory.getLogger(InitiatePowerSupplyOffer.class);
 	private final GreenEnergyAgent myGreenEnergyAgent;
+	private final MonitoringData weather;
 
 	/**
 	 * Behaviour constructor.
 	 *
-	 * @param agent agent which is executing the behaviour
-	 * @param msg   proposal message that is sent to the Server Agent
+	 * @param agent   agent which is executing the behaviour
+	 * @param msg     proposal message that is sent to the Server Agent
+	 * @param weather weather at the time when new job is to be executed
 	 */
-	public InitiatePowerSupplyOffer(final Agent agent, final ACLMessage msg) {
+	public InitiatePowerSupplyOffer(final Agent agent, final ACLMessage msg, final MonitoringData weather) {
 		super(agent, msg);
 		this.myGreenEnergyAgent = (GreenEnergyAgent) agent;
+		this.weather = weather;
 	}
 
 	/**
@@ -65,15 +69,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage acceptProposal) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(acceptProposal, JobWithProtocol.class);
 		final PowerJob job = findCorrespondingJob(jobWithProtocol.getJobInstanceIdentifier());
-		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
-				calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
-
-		myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);
-		myAgent.addBehaviour(manualFinishBehaviour);
-		MDC.put(MDC_JOB_ID, job.getJobId());
-		logger.info(SEND_POWER_SUPPLY_RESPONSE_LOG, job.getJobId());
-		displayMessageArrow(myGreenEnergyAgent, acceptProposal.getSender());
-		sendResponseToServer(acceptProposal, jobWithProtocol);
+		handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
 	}
 
 	/**
@@ -100,15 +96,28 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		return job;
 	}
 
-	private void sendResponseToServer(final ACLMessage acceptProposal, final JobWithProtocol jobWithProtocol) {
-		final ACLMessage response = ReplyMessageFactory.prepareReply(acceptProposal.createReply(),
-				jobWithProtocol.getJobInstanceIdentifier(), INFORM);
-		response.setProtocol(jobWithProtocol.getReplyProtocol());
-		myAgent.send(response);
-	}
-
 	private Date calculateExpectedJobEndTime(final PowerJob job) {
 		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
 		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+	}
+
+	private void handleAcceptPowerSupply(final PowerJob job, final ACLMessage acceptProposal,
+			final JobWithProtocol jobWithProtocol) {
+		myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);
+		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
+				calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
+		myAgent.addBehaviour(manualFinishBehaviour);
+		MDC.put(MDC_JOB_ID, job.getJobId());
+		logger.info(SEND_POWER_SUPPLY_RESPONSE_LOG, job.getJobId());
+		displayMessageArrow(myGreenEnergyAgent, acceptProposal.getSender());
+		sendResponseToServer(acceptProposal, jobWithProtocol, INFORM);
+	}
+
+	private void sendResponseToServer(final ACLMessage acceptProposal, final JobWithProtocol jobWithProtocol,
+			final int protocol) {
+		final ACLMessage response = ReplyMessageFactory.prepareReply(acceptProposal.createReply(),
+				jobWithProtocol.getJobInstanceIdentifier(), protocol);
+		response.setProtocol(jobWithProtocol.getReplyProtocol());
+		myAgent.send(response);
 	}
 }

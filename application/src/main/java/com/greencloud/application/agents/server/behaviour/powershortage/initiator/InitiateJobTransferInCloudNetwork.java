@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.AID;
@@ -92,7 +92,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobInstanceId().getJobId());
 		logger.info(CNA_JOB_TRANSFER_REFUSE_LOG, myServerAgent.getOwnerCloudNetworkAgent().getLocalName(),
 				jobToTransfer.getJobInstanceId().getJobId());
-		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
+		final ClientJob job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
 			informGreenSourceUponJobFinish(job, refuse.getContent());
 			updateServerStateUponJobFinish(job);
@@ -108,7 +108,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
+		final ClientJob job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.info(CNA_JOB_TRANSFER_SUCCESSFUL_LOG, jobToTransfer.getJobInstanceId().getJobId());
@@ -127,7 +127,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
+		final ClientJob job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobToTransfer.getJobInstanceId());
 		if (nonNull(job)) {
 			final String jobId = jobToTransfer.getJobInstanceId().getJobId();
 			informGreenSourceUponJobOnHold(jobId, failure.getContent());
@@ -135,7 +135,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		}
 	}
 
-	private void informGreenSourceUponJobFinish(final Job job, final String refuseCause) {
+	private void informGreenSourceUponJobFinish(final ClientJob job, final String refuseCause) {
 		if (isNull(greenSourceRequest) || nonNull(refuseCause)) {
 			final List<AID> receivers = List.of(myServerAgent.getGreenSourceForJobMap().get(job.getJobId()));
 			final ACLMessage finishJobMessage = prepareFinishMessage(job.getJobId(), job.getStartTime(), receivers);
@@ -152,7 +152,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		}
 	}
 
-	private void updateServerStateUponJobFinish(final Job job) {
+	private void updateServerStateUponJobFinish(final ClientJob job) {
 		if (job.getStartTime().isBefore(getCurrentTime())) {
 			myServerAgent.manageState().incrementFinishedJobs(job.getJobId());
 		}
@@ -175,7 +175,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		}
 	}
 
-	private void updateServerStateUponJobOnHold(final Job job) {
+	private void updateServerStateUponJobOnHold(final ClientJob job) {
 		final String jobId = job.getJobId();
 		final int availableBackUpPower =
 				myServerAgent.manageState().getAvailableCapacity(job.getStartTime(), job.getEndTime(),

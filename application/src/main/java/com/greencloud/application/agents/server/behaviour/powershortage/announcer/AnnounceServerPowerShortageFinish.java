@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
@@ -57,7 +57,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 	public void action() {
 		logger.info(POWER_SHORTAGE_FINISH_DETECTED_LOG);
 		myServerAgent.setCurrentMaximumCapacity(myServerAgent.getInitialMaximumCapacity());
-		final List<Job> affectedJobs = getJobsOnHold();
+		final List<ClientJob> affectedJobs = getJobsOnHold();
 
 		if (affectedJobs.isEmpty()) {
 			logger.info(POWER_SHORTAGE_FINISH_UPDATE_CAPACITY_LOG);
@@ -92,7 +92,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		}
 	}
 
-	private void updateJobStatus(final Job job, final JobInstanceIdentifier jobInstance) {
+	private void updateJobStatus(final ClientJob job, final JobInstanceIdentifier jobInstance) {
 		final JobStatusEnum newStatus = job.getStartTime().isAfter(getCurrentTime()) ?
 				JobStatusEnum.ACCEPTED :
 				JobStatusEnum.IN_PROGRESS;
@@ -107,7 +107,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		myServerAgent.send(finishInformation);
 	}
 
-	private List<Job> getJobsOnHold() {
+	private List<ClientJob> getJobsOnHold() {
 		return myServerAgent.getServerJobs().entrySet().stream()
 				.filter(job -> job.getValue().equals(JobStatusEnum.ON_HOLD)
 						&& job.getKey().getEndTime().isAfter(TimeUtils.getCurrentTime()))

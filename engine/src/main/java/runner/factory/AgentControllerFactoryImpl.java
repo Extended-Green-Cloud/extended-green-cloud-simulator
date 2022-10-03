@@ -7,24 +7,24 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
+import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.client.ClientAgentArgs;
+import com.greencloud.commons.args.client.ImmutableClientAgentArgs;
+import com.greencloud.commons.args.cloudnetwork.CloudNetworkArgs;
+import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.server.ServerAgentArgs;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
 import com.gui.agents.GreenEnergyAgentNode;
 import com.gui.agents.MonitoringAgentNode;
 import com.gui.agents.ServerAgentNode;
-import com.gui.agents.domain.AgentLocation;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.AgentArgs;
-import runner.domain.ClientAgentArgs;
-import runner.domain.CloudNetworkArgs;
-import runner.domain.GreenEnergyAgentArgs;
-import runner.domain.MonitoringAgentArgs;
 import runner.domain.ScenarioArgs;
-import runner.domain.ServerAgentArgs;
 
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
@@ -42,10 +42,12 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			final String startDate = formatToDate(clientAgent.getStart());
 			final String endDate = formatToDate(clientAgent.getEnd());
 
-			return containerController.createNewAgent(clientAgent.getName(), "com.greencloud.application.agents.client.ClientAgent",
+			return containerController.createNewAgent(clientAgent.getName(),
+					"com.greencloud.application.agents.client.ClientAgent",
 					new Object[] { startDate, endDate, clientAgent.getPower(), clientAgent.getJobId() });
 		} else if (agentArgs instanceof ServerAgentArgs serverAgent) {
-			return containerController.createNewAgent(serverAgent.getName(), "com.greencloud.application.agents.server.ServerAgent",
+			return containerController.createNewAgent(serverAgent.getName(),
+					"com.greencloud.application.agents.server.ServerAgent",
 					new Object[] { serverAgent.getOwnerCloudNetwork(), serverAgent.getPrice(),
 							serverAgent.getMaximumCapacity() });
 		} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
@@ -72,11 +74,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	@Override
 	public AbstractAgentNode createAgentNode(AgentArgs agentArgs, ScenarioArgs scenarioArgs) {
 		if (agentArgs instanceof ClientAgentArgs clientArgs) {
-			final String startDate = formatToDate(clientArgs.getStart());
-			final String endDate = formatToDate(clientArgs.getEnd());
-
-			return new ClientAgentNode(clientArgs.getName(), clientArgs.getJobId(), startDate, endDate,
-					clientArgs.getPower());
+			return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
+					.withStart(formatToDate(clientArgs.getStart()))
+					.withEnd(formatToDate(clientArgs.getEnd())));
 		}
 		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
 			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
@@ -89,11 +89,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), maximumCapacity, serverList);
 		}
 		if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
-			return new GreenEnergyAgentNode(greenEnergyAgentArgs.getName(),
-					Double.parseDouble(greenEnergyAgentArgs.getMaximumCapacity()),
-					greenEnergyAgentArgs.getMonitoringAgent(),
-					greenEnergyAgentArgs.getOwnerSever(),
-					new AgentLocation(greenEnergyAgentArgs.getLatitude(), greenEnergyAgentArgs.getLongitude()));
+			return new GreenEnergyAgentNode(greenEnergyAgentArgs);
 		}
 		if (agentArgs instanceof MonitoringAgentArgs monitoringAgentArgs) {
 			final GreenEnergyAgentArgs ownerGreenSource = scenarioArgs.getGreenEnergyAgentsArgs().stream()

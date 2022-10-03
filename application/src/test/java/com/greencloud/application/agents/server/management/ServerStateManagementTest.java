@@ -6,7 +6,6 @@ import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -35,12 +34,14 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
-import com.greencloud.application.domain.job.ImmutableJob;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.Job;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
+import com.gui.agents.ServerAgentNode;
+import com.gui.controller.GuiController;
 
 import jade.core.AID;
 
@@ -54,7 +55,7 @@ class ServerStateManagementTest {
 	private static final double MOCK_PRICE = 10;
 	private static ServerStateManagement MOCK_STATE_MANAGEMENT;
 	private static ServerManagement MOCK_JOB_MANAGEMENT;
-	private static Map<Job, JobStatusEnum> MOCK_JOBS;
+	private static Map<ClientJob, JobStatusEnum> MOCK_JOBS;
 
 	@Mock
 	private static ServerAgent serverAgent;
@@ -64,7 +65,6 @@ class ServerStateManagementTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
-		//AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
@@ -102,7 +102,7 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test finishing job on back up power")
 	void testFinishingJobBackUpPower() {
-		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
+		final ClientJob job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
 
 		serverAgent.manage().finishJobExecution(job, false);
@@ -143,7 +143,7 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test getting available capacity for ALL jobs with PROCESSING")
 	void testGettingAvailableCapacityForAllJobsIncludingProcessing() {
-		final Job jobProcessing = ImmutableJob.builder()
+		final ClientJob jobProcessing = ImmutableClientJob.builder()
 				.jobId("1000")
 				.clientIdentifier("Client1000")
 				.startTime(Instant.parse("2022-01-01T05:00:00.000Z"))
@@ -184,7 +184,7 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test increment started non unique job")
 	void testIncrementStartedNonUniqueJob() {
-		final Job jobProcessing = ImmutableJob.builder()
+		final ClientJob jobProcessing = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
@@ -212,7 +212,7 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test increment finished non unique job")
 	void testIncrementFinishedNonUniqueJob() {
-		final Job jobProcessing = ImmutableJob.builder()
+		final ClientJob jobProcessing = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
@@ -240,7 +240,7 @@ class ServerStateManagementTest {
 	@DisplayName("Test job division - job after shortage start")
 	void testJobDivisionAfterShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5")).findFirst()
+		final ClientJob job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5")).findFirst()
 				.orElse(null);
 
 		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
@@ -258,19 +258,19 @@ class ServerStateManagementTest {
 	@DisplayName("Test job division - job during shortage start")
 	void testJobDivisionDuringShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final Job job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
+		final ClientJob job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
 
 		serverAgent.manage().divideJobForPowerShortage(Objects.requireNonNull(job), startTime);
 
-		final Map<Job, JobStatusEnum> updatedJobInstances = serverAgent.getServerJobs().entrySet().stream()
+		final Map<ClientJob, JobStatusEnum> updatedJobInstances = serverAgent.getServerJobs().entrySet().stream()
 				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(job.getJobId()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		final Map.Entry<Job, JobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
+		final Map.Entry<ClientJob, JobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
 				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER))
 				.findFirst().orElse(null);
-		final Map.Entry<Job, JobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
+		final Map.Entry<ClientJob, JobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
 				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER))
 				.findFirst().orElse(null);
 
@@ -287,7 +287,7 @@ class ServerStateManagementTest {
 	@DisplayName("Test finishing job not on back up power")
 	void testFinishingJobNotBackUpPower() {
 		final AID greenSourceForJob = mock(AID.class);
-		final Job job = MOCK_JOBS.keySet().stream()
+		final ClientJob job = MOCK_JOBS.keySet().stream()
 				.filter(jobKey -> jobKey.getJobId().equals("1")).findFirst()
 				.orElse(null);
 
@@ -313,50 +313,50 @@ class ServerStateManagementTest {
 	 * Job5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
 	 * Job6 -> power: 15, time: 11:30 - 13:00, status: ON_HOLD_TRANSFER
 	 */
-	private Map<Job, JobStatusEnum> setUpServerJobs() {
-		final Job mockJob1 = ImmutableJob.builder()
+	private Map<ClientJob, JobStatusEnum> setUpServerJobs() {
+		final ClientJob mockJob1 = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:30:00.000Z"))
 				.power(10)
 				.build();
-		final Job mockJob2 = ImmutableJob.builder()
+		final ClientJob mockJob2 = ImmutableClientJob.builder()
 				.jobId("2")
 				.clientIdentifier("Client2")
 				.startTime(Instant.parse("2022-01-01T07:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.power(12)
 				.build();
-		final Job mockJob3 = ImmutableJob.builder()
+		final ClientJob mockJob3 = ImmutableClientJob.builder()
 				.jobId("3")
 				.clientIdentifier("Client3")
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.power(5)
 				.build();
-		final Job mockJob4 = ImmutableJob.builder()
+		final ClientJob mockJob4 = ImmutableClientJob.builder()
 				.jobId("4")
 				.clientIdentifier("Client4")
 				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.power(2)
 				.build();
-		final Job mockJob5 = ImmutableJob.builder()
+		final ClientJob mockJob5 = ImmutableClientJob.builder()
 				.jobId("5")
 				.clientIdentifier("Client5")
 				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.power(25)
 				.build();
-		final Job mockJob6 = ImmutableJob.builder()
+		final ClientJob mockJob6 = ImmutableClientJob.builder()
 				.jobId("6")
 				.clientIdentifier("Client6")
 				.startTime(Instant.parse("2022-01-01T11:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T13:00:00.000Z"))
 				.power(15)
 				.build();
-		final Map<Job, JobStatusEnum> mockJobMap = new HashMap<>();
+		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY);
 		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE);
@@ -381,6 +381,8 @@ class ServerStateManagementTest {
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
 		doReturn(MOCK_STATE_MANAGEMENT).when(serverAgent).manageState();
 		doReturn(MOCK_JOB_MANAGEMENT).when(serverAgent).manage();
+		doReturn(mock(GuiController.class)).when(serverAgent).getGuiController();
+		doReturn(mock(ServerAgentNode.class)).when(serverAgent).getAgentNode();
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());
 	}

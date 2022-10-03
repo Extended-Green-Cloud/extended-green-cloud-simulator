@@ -2,27 +2,28 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.Arguments;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.ImmutableJob;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.gui.controller.GuiController;
+
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -30,10 +31,12 @@ class CloudNetworkStateManagementUnitTest {
 
 	// MOCK OBJECTS
 
-	private Map<Job, JobStatusEnum> MOCK_JOBS;
+	private Map<ClientJob, JobStatusEnum> MOCK_JOBS;
 
 	@Mock
 	private CloudNetworkAgent mockCloudNetwork;
+	@Mock
+	private GuiController guiController;
 	private CloudNetworkStateManagement cloudNetworkStateManagement;
 
 
@@ -41,12 +44,12 @@ class CloudNetworkStateManagementUnitTest {
 
 	@BeforeAll
 	static void setUpAll() {
-		//AbstractAgent.disableGui();
 	}
 
 	@BeforeEach
 	void init() {
 		MOCK_JOBS = setUpCloudNetworkJobs();
+		when(mockCloudNetwork.getGuiController()).thenReturn(guiController);
 		cloudNetworkStateManagement = new CloudNetworkStateManagement(mockCloudNetwork);
 
 		doReturn(MOCK_JOBS).when(mockCloudNetwork).getNetworkJobs();
@@ -86,29 +89,29 @@ class CloudNetworkStateManagementUnitTest {
 	 * Job2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
 	 * Job3 -> power: 50,  time: 06:00 - 15:00, status: ACCEPTED
 	 */
-	private Map<Job, JobStatusEnum> setUpCloudNetworkJobs() {
-		final Job mockJob1 = ImmutableJob.builder()
+	private Map<ClientJob, JobStatusEnum> setUpCloudNetworkJobs() {
+		final ClientJob mockJob1 = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
 				.power(10)
 				.build();
-		final Job mockJob2 = ImmutableJob.builder()
+		final ClientJob mockJob2 = ImmutableClientJob.builder()
 				.jobId("2")
 				.clientIdentifier("Client2")
 				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.power(20)
 				.build();
-		final Job mockJob3 = ImmutableJob.builder()
+		final ClientJob mockJob3 = ImmutableClientJob.builder()
 				.jobId("3")
 				.clientIdentifier("Client3")
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.power(50)
 				.build();
-		final Map<Job, JobStatusEnum> mockJobMap = new HashMap<>();
+		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob3, JobStatusEnum.ACCEPTED);

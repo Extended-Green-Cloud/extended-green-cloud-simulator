@@ -21,7 +21,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.HandleDelayedJob;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
 
@@ -62,7 +62,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
 		final String jobId = accept_proposal.getContent();
-		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
+		final ClientJob job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 		MDC.put(MDC_JOB_ID, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, JobStatusEnum.ACCEPTED);
@@ -82,7 +82,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject_proposal.getSender().getName());
 		final String jobId = reject_proposal.getContent();
-		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
+		final ClientJob job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId));
@@ -91,7 +91,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 
-	private Date calculateExpectedJobStart(final Job job) {
+	private Date calculateExpectedJobStart(final ClientJob job) {
 		final Instant startTime = TimeUtils.getCurrentTime().isAfter(job.getStartTime()) ?
 				TimeUtils.getCurrentTime() :
 				job.getStartTime();

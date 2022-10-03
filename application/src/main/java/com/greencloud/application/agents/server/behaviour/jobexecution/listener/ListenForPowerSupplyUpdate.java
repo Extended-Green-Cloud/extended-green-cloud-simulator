@@ -23,7 +23,7 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
@@ -66,7 +66,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		if (Objects.nonNull(inform)) {
 			switch (inform.getProtocol()) {
 				case MANUAL_JOB_FINISH_PROTOCOL -> handlePowerSupplyManualFinishMessage(inform);
-				default -> handlePowerConfirmationMessage(inform);
+				default -> handlePowerResponseMessage(inform);
 			}
 		} else {
 			block();
@@ -74,7 +74,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
-		final Job job = retrieveJobFromMessage(inform);
+		final ClientJob job = retrieveJobFromMessage(inform);
 		final JobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
 
 		if (nonNull(statusEnum) && statusEnum.equals(JobStatusEnum.IN_PROGRESS)) {
@@ -84,22 +84,26 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 	}
 
-	private void handlePowerConfirmationMessage(final ACLMessage inform) {
+	private void handlePowerResponseMessage(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = MessagingUtils.readMessageContent(inform,
 				JobInstanceIdentifier.class);
 		final String messageType = inform.getProtocol();
 		final String jobId = jobInstanceId.getJobId();
 
-		if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
-			MDC.put(MDC_JOB_ID, jobId);
-			logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
-			announceBookedJob(myServerAgent);
+		if(inform.getPerformative() == ACLMessage.INFORM) {
+			if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
+				MDC.put(MDC_JOB_ID, jobId);
+				logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
+				announceBookedJob(myServerAgent);
+			}
+			scheduleJobExecution(jobInstanceId, messageType);
+		} else {
+
 		}
-		scheduleJobExecution(jobInstanceId, messageType);
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final Job job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
+		final ClientJob job = getJobByIdAndStartDate(myServerAgent.getServerJobs(), jobInstanceId);
 
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -112,7 +116,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 	}
 
-	private Job retrieveJobFromMessage(final ACLMessage inform) {
+	private ClientJob retrieveJobFromMessage(final ACLMessage inform) {
 		try {
 			final String jobId = MessagingUtils.readMessageContent(inform, String.class);
 			return getJobById(myServerAgent.getServerJobs(), jobId);

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.Agent;
@@ -30,7 +30,7 @@ public class HandleServerPowerShortage extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleServerPowerShortage.class);
 
 	private final ServerAgent myServerAgent;
-	private final List<Job> affectedJobs;
+	private final List<ClientJob> affectedJobs;
 	private final Integer newMaximumCapacity;
 
 	/**
@@ -42,7 +42,7 @@ public class HandleServerPowerShortage extends WakerBehaviour {
 	 * @param newMaximumCapacity maximum capacity value available during power shortage
 	 *                           (if null then it means that shortage does not concern server directly)
 	 */
-	private HandleServerPowerShortage(Agent myAgent, Date shortageTime, List<Job> affectedJobs,
+	private HandleServerPowerShortage(Agent myAgent, Date shortageTime, List<ClientJob> affectedJobs,
 			final Integer newMaximumCapacity) {
 		super(myAgent, shortageTime);
 		this.myServerAgent = (ServerAgent) myAgent;
@@ -58,7 +58,7 @@ public class HandleServerPowerShortage extends WakerBehaviour {
 	 * @param newMaximumPower maximum power value during power shortage
 	 * @return behaviour scheduling the power shortage handling
 	 */
-	public static HandleServerPowerShortage createFor(final List<Job> affectedJobs,
+	public static HandleServerPowerShortage createFor(final List<ClientJob> affectedJobs,
 			final Instant shortageStartTime, final ServerAgent serverAgent, final Integer newMaximumPower) {
 		final Instant startTime = getCurrentTime().isAfter(shortageStartTime) ?
 				getCurrentTime() :

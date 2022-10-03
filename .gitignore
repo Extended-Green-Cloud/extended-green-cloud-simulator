@@ -31,3 +31,4 @@
 /green-cloud-ui/package-lock.json
 /socket-server/node_modules
 /socket-server/package-lock.json
+/commons/target/*

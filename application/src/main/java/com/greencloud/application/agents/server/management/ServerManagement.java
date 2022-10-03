@@ -4,7 +4,7 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
@@ -56,10 +56,10 @@ public class ServerManagement {
      * @param job                affected job
      * @param powerShortageStart time when power shortage starts
      */
-    public Job divideJobForPowerShortage(final Job job, final Instant powerShortageStart) {
+    public ClientJob divideJobForPowerShortage(final ClientJob job, final Instant powerShortageStart) {
         if (powerShortageStart.isAfter(job.getStartTime()) && !powerShortageStart.equals(job.getStartTime())) {
-            final Job affectedJobInstance = JobMapper.mapToJobNewStartTime(job, powerShortageStart);
-            final Job notAffectedJobInstance = JobMapper.mapToJobNewEndTime(job, powerShortageStart);
+            final ClientJob affectedJobInstance = JobMapper.mapToJobNewStartTime(job, powerShortageStart);
+            final ClientJob notAffectedJobInstance = JobMapper.mapToJobNewEndTime(job, powerShortageStart);
             final JobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
 
             serverAgent.getServerJobs().remove(job);
@@ -88,14 +88,14 @@ public class ServerManagement {
      * @param jobToFinish job to be finished
      * @param informCNA   flag indicating whether cloud network should be informed about the job finish
      */
-    public void finishJobExecution(final Job jobToFinish, final boolean informCNA) {
+    public void finishJobExecution(final ClientJob jobToFinish, final boolean informCNA) {
         final JobStatusEnum jobStatusEnum = serverAgent.getServerJobs().get(jobToFinish);
 
         sendFinishInformation(jobToFinish, informCNA);
         updateStateAfterJobFinish(jobToFinish);
 
         if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY)) {
-            final Map<Job, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
+            final Map<ClientJob, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
                     .filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
                             getCurrentTime()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -116,7 +116,7 @@ public class ServerManagement {
         return powerCost + computingCost;
     }
 
-    private void sendFinishInformation(final Job jobToFinish, final boolean informCNA) {
+    private void sendFinishInformation(final ClientJob jobToFinish, final boolean informCNA) {
         final List<AID> receivers = informCNA ?
                 List.of(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()),
                         serverAgent.getOwnerCloudNetworkAgent()) :
@@ -128,7 +128,7 @@ public class ServerManagement {
         serverAgent.send(finishJobMessage);
     }
 
-    private void updateStateAfterJobFinish(final Job jobToFinish) {
+    private void updateStateAfterJobFinish(final ClientJob jobToFinish) {
         serverAgent.manageState().incrementFinishedJobs(jobToFinish.getJobId());
         if (isJobUnique(serverAgent.getServerJobs(), jobToFinish.getJobId())) {
             serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
@@ -137,11 +137,11 @@ public class ServerManagement {
         serverAgent.getServerJobs().remove(jobToFinish);
     }
 
-    private void supplyJobsWithBackupPower(final Map<Job, JobStatusEnum> jobEntries) {
+    private void supplyJobsWithBackupPower(final Map<ClientJob, JobStatusEnum> jobEntries) {
         jobEntries.entrySet().stream()
                 .filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE))
                 .forEach(jobEntry -> {
-                    final Job job = jobEntry.getKey();
+                    final ClientJob job = jobEntry.getKey();
                     if (serverAgent.manageState().getAvailableCapacity(job.getStartTime(), job.getEndTime(), JobMapper.mapToJobInstanceId(job),
                             BACK_UP_POWER) >= job.getPower()) {
                         MDC.put(MDC_JOB_ID, job.getJobId());

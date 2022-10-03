@@ -15,7 +15,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateJobStartCheck;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -51,7 +51,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final Job job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
+		final ClientJob job = getJobById(myCloudNetworkAgent.getNetworkJobs(), jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 
 		if (Objects.nonNull(job) && myCloudNetworkAgent.getServerForJobMap().containsKey(jobId)

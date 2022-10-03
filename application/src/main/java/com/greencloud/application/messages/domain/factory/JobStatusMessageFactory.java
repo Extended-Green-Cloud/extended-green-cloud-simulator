@@ -1,6 +1,5 @@
 package com.greencloud.application.messages.domain.factory;
 
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 
@@ -36,20 +35,6 @@ public class JobStatusMessageFactory {
 		return informationMessage;
 	}
 
-	/**
-	 * Method prepares the failure message about the job execution which is to be sent
-	 * to the client
-	 *
-	 * @param clientId client global name
-	 * @return failure ACLMessage
-	 */
-	public static ACLMessage prepareJobFailureMessageForClient(final String clientId, final String protocol) {
-		final ACLMessage failureMessage = new ACLMessage(FAILURE);
-		failureMessage.setContent(protocol);
-		failureMessage.setProtocol(protocol);
-		failureMessage.addReceiver(new AID(clientId, AID.ISGUID));
-		return failureMessage;
-	}
 
 	/**
 	 * Method prepares the information message about the job execution finish which is to be sent

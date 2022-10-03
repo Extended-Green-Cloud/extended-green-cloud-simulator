@@ -17,7 +17,7 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.server.management.ServerManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.Job;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
@@ -35,7 +35,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected int currentMaximumCapacity;
 	protected double pricePerHour;
 	protected volatile AtomicLong currentlyProcessing;
-	protected volatile ConcurrentMap<Job, JobStatusEnum> serverJobs;
+	protected volatile ConcurrentMap<ClientJob, JobStatusEnum> serverJobs;
 	protected Map<String, AID> greenSourceForJobMap;
 	protected List<AID> ownedGreenSources;
 	protected AID ownerCloudNetworkAgent;
@@ -91,7 +91,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return pricePerHour;
 	}
 
-	public Map<Job, JobStatusEnum> getServerJobs() {
+	public Map<ClientJob, JobStatusEnum> getServerJobs() {
 		return serverJobs;
 	}
 
