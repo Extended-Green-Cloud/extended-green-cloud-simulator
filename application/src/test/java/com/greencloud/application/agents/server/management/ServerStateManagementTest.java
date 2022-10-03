@@ -100,10 +100,31 @@ class ServerStateManagementTest {
 	}
 
 	@Test
+	@DisplayName("Test finishing job not on back up power")
+	void testFinishingJobNotBackUpPower() {
+		final AID greenSourceForJob = mock(AID.class);
+		final ClientJob job = MOCK_JOBS.keySet().stream()
+				.filter(jobKey -> jobKey.getJobId().equals("1")).findFirst()
+				.orElse(null);
+
+		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
+		assertThat(serverAgent.getGreenSourceForJobMap()).hasSize(1);
+
+		serverAgent.manage().finishJobExecution(job, false);
+
+		assertThat(serverAgent.getServerJobs()).hasSize(5);
+		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
+		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
+		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+	}
+
+	@Test
 	@DisplayName("Test finishing job on back up power")
 	void testFinishingJobBackUpPower() {
+		final AID greenSourceForJob = mock(AID.class);
 		final ClientJob job = MOCK_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2")).findFirst()
 				.orElse(null);
+		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
 
 		serverAgent.manage().finishJobExecution(job, false);
 
@@ -281,25 +302,6 @@ class ServerStateManagementTest {
 		assertNotNull(jobInProgress);
 		assertThat(jobOnHold.getKey().getStartTime()).isEqualTo(startTime);
 		assertThat(jobInProgress.getKey().getEndTime()).isEqualTo(startTime);
-	}
-
-	@Test
-	@DisplayName("Test finishing job not on back up power")
-	void testFinishingJobNotBackUpPower() {
-		final AID greenSourceForJob = mock(AID.class);
-		final ClientJob job = MOCK_JOBS.keySet().stream()
-				.filter(jobKey -> jobKey.getJobId().equals("1")).findFirst()
-				.orElse(null);
-
-		serverAgent.getGreenSourceForJobMap().put(Objects.requireNonNull(job).getJobId(), greenSourceForJob);
-		assertThat(serverAgent.getGreenSourceForJobMap()).hasSize(1);
-
-		serverAgent.manage().finishJobExecution(job, false);
-
-		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
-		assertThat(MOCK_STATE_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
-		assertThat(MOCK_STATE_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
 	/**

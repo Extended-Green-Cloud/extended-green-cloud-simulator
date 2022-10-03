@@ -105,9 +105,10 @@ public class GreenEnergyPowerManagement {
 	 * @return power in Watts
 	 */
 	public double getAvailablePower(MonitoringData monitoringData, Instant dateTime) {
-		var weather = monitoringData.getDataForTimestamp(dateTime)
+		final WeatherData weather = monitoringData.getDataForTimestamp(dateTime)
 				.orElse(getNearestWeather(monitoringData, dateTime));
-		return getAvailablePower(weather, dateTime.atZone(UTC));
+		final double availablePower = getAvailablePower(weather, dateTime.atZone(UTC));
+		return availablePower > currentMaximumCapacity ? currentMaximumCapacity : availablePower;
 	}
 
 	/**
