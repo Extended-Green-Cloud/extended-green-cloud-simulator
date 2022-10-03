@@ -16,5 +16,7 @@ public class PowerShortageCloudListenerLog {
 	// POWER SHORTAGE CONFIRMATION LOG MESSAGES
 	public static final String SERVER_TRANSFER_CONFIRMED_LOG =
 			"Transfer of the job {} was confirmed. Sending information to affected server.";
+	public static final String SERVER_TRANSFER_FAILED_LOG =
+			"Transfer of the job {} has failed. Sending information to affected server.";
 
 }

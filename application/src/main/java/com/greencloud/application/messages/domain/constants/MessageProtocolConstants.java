@@ -30,6 +30,8 @@ public class MessageProtocolConstants {
 	 * DELAYED_JOB_PROTOCOL        - protocol used in messages informing that the job execution started with the delay
 	 * BACK_UP_POWER_JOB_PROTOCOL  - protocol used in messages informing that the job is executed using the back-up power
 	 * GREEN_POWER_JOB_PROTOCOL    - protocol used in messages informing the client that the job is executed using green power
+	 * FAILED_JOB_PROTOCOL         - protocol used in messages informing that the job execution has failed
+	 * FAILED_TRANSFER_PROTOCOL    - protocol used in messages informing that the job transfer has failed
 	 */
 	public static final String CONFIRMED_JOB_PROTOCOL = "CONFIRMED";
 	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER";
@@ -40,6 +42,9 @@ public class MessageProtocolConstants {
 	public static final String DELAYED_JOB_PROTOCOL = "DELAYED";
 	public static final String BACK_UP_POWER_JOB_PROTOCOL = "BACK_UP_POWER_JOB_PROTOCOL";
 	public static final String GREEN_POWER_JOB_PROTOCOL = "GREEN_POWER_JOB_PROTOCOL";
+	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
+	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";
+
 
 	/**
 	 * Power shortage protocols
@@ -60,7 +65,6 @@ public class MessageProtocolConstants {
 	public static final String POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL = "POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL";
 	public static final String SERVER_POWER_SHORTAGE_ALERT_PROTOCOL = "SERVER_POWER_SHORTAGE_ALERT_PROTOCOL";
 	public static final String POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL = "POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL";
-	public static final String CANCELLED_TRANSFER_PROTOCOL = "CANCELLED_TRANSFER_PROTOCOL";
 
 	/**
 	 * Dynamic com.greencloud.application.weather handling related protocols

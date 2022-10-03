@@ -2,6 +2,8 @@ package com.greencloud.application.messages.domain.factory;
 
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 
@@ -59,6 +61,21 @@ public class JobStatusMessageFactory {
 		informationMessage.setProtocol(protocol);
 		informationMessage.addReceiver(receiver);
 		return informationMessage;
+	}
+
+	/**
+	 * Method prepares the failure message about the job execution which is to be sent
+	 * to the client
+	 *
+	 * @param clientId client global name
+	 * @return failure ACLMessage
+	 */
+	public static ACLMessage prepareJobFailureMessageForClient(final String clientId) {
+		final ACLMessage failureMessage = new ACLMessage(FAILURE);
+		failureMessage.setContent(FAILED_JOB_PROTOCOL);
+		failureMessage.setProtocol(FAILED_JOB_PROTOCOL);
+		failureMessage.addReceiver(new AID(clientId, AID.ISGUID));
+		return failureMessage;
 	}
 
 	/**

@@ -13,6 +13,8 @@ public class JobHandlingListenerLog {
 	// POWER SUPPLY UPDATE LOG MESSAGES
 	public static final String SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG = "Announcing new job {} in network!";
 	public static final String SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG = "Scheduling the execution of the job {}";
+	public static final String SUPPLY_CONFIRMATION_INFORM_CNA_LOG = "Confirming job {} execution";
+	public static final String SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG = "Confirming job {} transfer";
 	public static final String SUPPLY_CONFIRMATION_JOB_FINISHED_LOG =
 			"Job {} must have been finished or transferred before its execution";
 	public static final String SUPPLY_FINISHED_MANUALLY_LOG =

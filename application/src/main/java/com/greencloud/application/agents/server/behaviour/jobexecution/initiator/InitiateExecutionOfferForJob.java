@@ -1,10 +1,14 @@
 package com.greencloud.application.agents.server.behaviour.jobexecution.initiator;
 
+import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_ACCEPT_PROPOSAL_FAILURE_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
@@ -16,7 +20,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobWithProtocol;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -57,10 +60,15 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept_proposal, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
-		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
-		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
-		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
+		final ClientJob jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final int availableCapacity = myServerAgent.manage()
+				.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
+
+		if (jobInstance.getPower() > availableCapacity) {
+			passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept_proposal);
+		} else {
+			acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
+		}
 	}
 
 	/**
@@ -79,6 +87,30 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SERVER_OFFER_REJECT_LOG, reject_proposal.getSender().getLocalName());
-		myServerAgent.send(ReplyMessageFactory.prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
+		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
+	}
+
+	private void passJobExecutionFailure(final ClientJob jobInstance, final JobInstanceIdentifier jobInstanceId,
+			final String protocol, final ACLMessage cnaAccept) {
+		MDC.put(MDC_JOB_ID, jobInstance.getJobId());
+		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_FAILURE_LOG, jobInstance.getJobId());
+		myServerAgent.getServerJobs().remove(jobInstance);
+		myServerAgent.getGreenSourceForJobMap().remove(jobInstance.getJobId());
+
+		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
+		displayMessageArrow(myServerAgent, cnaAccept.getSender());
+
+		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
+		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId,
+				protocol.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL)));
+	}
+
+	private void acceptGreenSourceForJobExecution(final JobInstanceIdentifier jobInstanceId,
+			final JobWithProtocol jobWithProtocol) {
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
+		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
+		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
+		myAgent.send(
+				prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
 	}
 }

@@ -1,6 +1,10 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +31,7 @@ public class ReplyMessageFactory {
 	public static ACLMessage prepareReply(ACLMessage reply, Object responseData, Integer performative) {
 		reply.setPerformative(performative);
 		try {
-			reply.setContent(JsonMapper.getMapper().writeValueAsString(responseData));
+			reply.setContent(getMapper().writeValueAsString(responseData));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -76,7 +80,26 @@ public class ReplyMessageFactory {
 				.build();
 		replyMessage.setPerformative(ACCEPT_PROPOSAL);
 		try {
-			replyMessage.setContent(JsonMapper.getMapper().writeValueAsString(pricedJob));
+			replyMessage.setContent(getMapper().writeValueAsString(pricedJob));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return replyMessage;
+	}
+
+	/**
+	 * Method prepares the reply accept message containing the conversation topic as content protocol
+	 *
+	 * @param replyMessage  reply ACLMessage that is to be sent
+	 * @param jobId unique job instance identifier
+	 * @return reply ACLMessage
+	 */
+	public static ACLMessage prepareFailureReply(final ACLMessage replyMessage,
+			final Object jobId, final boolean isTransfer) {
+		replyMessage.setProtocol(isTransfer? FAILED_TRANSFER_PROTOCOL : FAILED_JOB_PROTOCOL);
+		replyMessage.setPerformative(FAILURE);
+		try{
+			replyMessage.setContent(getMapper().writeValueAsString(jobId));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

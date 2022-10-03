@@ -1,15 +1,20 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener;
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_CONFIRMED_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_FAILED_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_CONFIRMATION_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.SERVER_INTERNAL_FAILURE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
 import static jade.lang.acl.MessageTemplate.and;
+
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +39,7 @@ import jade.proto.states.MsgReceiver;
  */
 public class ListenForServerTransferConfirmation extends MsgReceiver {
 
-	private static final int EXPIRATION_TIME = 20000;
+	private static final long EXPIRATION_TIME = 20000;
 	private static final Logger logger = LoggerFactory.getLogger(ListenForServerTransferConfirmation.class);
 
 	private final CloudNetworkAgent myCloudNetworkAgent;
@@ -45,8 +50,7 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	private ListenForServerTransferConfirmation(final Agent agent, final MessageTemplate template,
 			final DataStore dataStore, final ACLMessage replyMessage, final PowerShortageJob powerShortageJob,
 			final AID server) {
-		super(agent, template, EXPIRATION_TIME, dataStore,
-				"CONFIRMATION_TRANSFER_" + powerShortageJob.getJobInstanceId().getJobId());
+		super(agent, template, System.currentTimeMillis() + EXPIRATION_TIME, dataStore, null);
 		this.replyMessage = replyMessage;
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
 		this.powerShortageJob = powerShortageJob;
@@ -83,16 +87,26 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	 */
 	@Override
 	protected void handleMessage(ACLMessage msg) {
-		MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
-		logger.info(SERVER_TRANSFER_CONFIRMED_LOG, powerShortageJob.getJobInstanceId().getJobId());
+		if (Objects.nonNull(msg)) {
+			if (msg.getPerformative() == INFORM) {
+				MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
+				logger.info(SERVER_TRANSFER_CONFIRMED_LOG, powerShortageJob.getJobInstanceId().getJobId());
 
-		final ACLMessage replyToServerRequest = prepareReply(replyMessage, TRANSFER_SUCCESSFUL_MESSAGE, INFORM);
+				final ACLMessage replyToServerRequest = prepareReply(replyMessage, TRANSFER_SUCCESSFUL_MESSAGE, INFORM);
+				displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+				myCloudNetworkAgent.send(replyToServerRequest);
+				myCloudNetworkAgent.addBehaviour(
+						HandleJobTransferToServer.createFor(myCloudNetworkAgent, powerShortageJob, server));
+			}
+			else {
+				MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
+				logger.info(SERVER_TRANSFER_FAILED_LOG, powerShortageJob.getJobInstanceId().getJobId());
 
-		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
-
-		myCloudNetworkAgent.send(replyToServerRequest);
-		myCloudNetworkAgent.addBehaviour(
-				HandleJobTransferToServer.createFor(myCloudNetworkAgent, powerShortageJob, server));
+				final ACLMessage replyToServerRequest = prepareReply(replyMessage, SERVER_INTERNAL_FAILURE_CAUSE_MESSAGE, FAILURE);
+				displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+				myCloudNetworkAgent.send(replyToServerRequest);
+			}
+		}
 	}
 
 }

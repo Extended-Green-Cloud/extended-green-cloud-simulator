@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.server.behaviour.jobexecution.listener;
 
+import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
+import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FINISHED_MANUALLY_LOG;
@@ -119,6 +121,11 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void confirmJobAcceptance(final JobInstanceIdentifier jobInstanceId, final boolean isTransferred) {
+		final String logMessage = isTransferred ?
+				SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG :
+				SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
+		logger.info(logMessage, jobInstanceId.getJobId());
 		myServerAgent.getServerJobs()
 				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
