@@ -105,8 +105,7 @@ public class InitiateJobTransferRequest extends ContractNetInitiator {
 		final ACLMessage replyToChosenOffer = prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
 				jobTransfer.getJobInstanceId(), POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL);
 		displayMessageArrow(myCloudNetworkAgent, chosenServer);
-		myAgent.addBehaviour(createFor(myCloudNetworkAgent, serverRequest.createReply(), jobTransfer, chosenServer,
-				this.getDataStore()));
+		myAgent.addBehaviour(createFor(myCloudNetworkAgent, serverRequest.createReply(), jobTransfer, chosenServer));
 		myAgent.send(replyToChosenOffer);
 	}
 

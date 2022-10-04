@@ -85,7 +85,8 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 
 	private List<PowerJob> getJobsOnHold() {
 		return myGreenAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(JobStatusEnum.ON_HOLD) &&
+				.filter(job -> (job.getValue().equals(JobStatusEnum.ON_HOLD_PLANNED)
+						|| job.getValue().equals(JobStatusEnum.ON_HOLD)) &&
 						job.getKey().getEndTime().isAfter(getCurrentTime()))
 				.map(Map.Entry::getKey)
 				.toList();

@@ -32,8 +32,10 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListenForSourcePowerShortageFinish.class);
 	private static final EnumSet<JobStatusEnum> POWER_SHORTAGE_STATUSES = EnumSet.of(
+			JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED,
 			JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY,
-			JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE);
+			JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE,
+			JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED);
 
 	private ServerAgent myServerAgent;
 

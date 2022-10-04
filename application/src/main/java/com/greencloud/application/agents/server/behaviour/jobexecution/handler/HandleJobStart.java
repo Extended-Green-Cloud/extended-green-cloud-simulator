@@ -1,10 +1,20 @@
 package com.greencloud.application.agents.server.behaviour.jobexecution.handler;
 
+import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_ALREADY_STARTED_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_GREEN_SOURCE_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_INFORM_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_PRESENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
+import static com.greencloud.application.domain.job.JobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -20,7 +30,6 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -88,19 +97,34 @@ public class HandleJobStart extends WakerBehaviour {
 		final String jobId = jobToExecute.getJobId();
 		MDC.put(MDC_JOB_ID, jobId);
 
-		if (!myServerAgent.getGreenSourceForJobMap().containsKey(jobId)) {
-			logger.info(JOB_START_NO_GREEN_SOURCE_LOG, jobId);
-		} else if (!myServerAgent.getServerJobs().containsKey(jobToExecute)) {
-			logger.info(JOB_START_NO_PRESENT_LOG, jobId);
-		} else {
-			final String logMessage = informCNAStart ? JOB_START_LOG : JOB_START_NO_INFORM_LOG;
-			logger.info(logMessage, jobId);
+		if (PLANNED_JOB_STATUSES.contains(myServerAgent.getServerJobs().getOrDefault(jobToExecute, ACCEPTED))) {
+			if (!myServerAgent.getServerJobs().containsKey(jobToExecute)) {
+				logger.info(JOB_START_NO_PRESENT_LOG, jobId);
+			} else if (!myServerAgent.getGreenSourceForJobMap().containsKey(jobId)) {
+				logger.info(JOB_START_NO_GREEN_SOURCE_LOG, jobId);
+			} else {
+				final String logMessage = informCNAStart ? JOB_START_LOG : JOB_START_NO_INFORM_LOG;
+				logger.info(logMessage, jobId);
 
-			myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
-			sendJobStartMessage(jobId);
-			myServerAgent.manage().incrementStartedJobs(jobId);
-			myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
+				substituteJobStatus();
+				sendJobStartMessage(jobId);
+				myServerAgent.manage().incrementStartedJobs(jobId);
+				myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
+			}
+		} else {
+			logger.info(JOB_ALREADY_STARTED_LOG, jobId);
 		}
+	}
+
+	private void substituteJobStatus() {
+		myServerAgent.getServerJobs()
+				.replace(jobToExecute, ACCEPTED, IN_PROGRESS);
+		myServerAgent.getServerJobs()
+				.replace(jobToExecute, ON_HOLD_SOURCE_SHORTAGE_PLANNED, ON_HOLD_SOURCE_SHORTAGE);
+		myServerAgent.getServerJobs()
+				.replace(jobToExecute, ON_HOLD_PLANNED, ON_HOLD);
+		myServerAgent.getServerJobs()
+				.replace(jobToExecute, IN_PROGRESS_BACKUP_ENERGY_PLANNED, IN_PROGRESS_BACKUP_ENERGY);
 	}
 
 	private void sendJobStartMessage(final String jobId) {

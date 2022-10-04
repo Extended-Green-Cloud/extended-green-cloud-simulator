@@ -143,10 +143,10 @@ const GREEN_ENERGY_STYLESHEET: Array<cytoscape.Stylesheet> = [
         selector: "node[type = 'GREEN_ENERGY'][state = 'on_hold']",
         style: {
             "border-color": "#DB432C",
-            "background-color": "#8AE423",
+            "background-color": "var(--red-1)",
             "background-image": iconPause,
             "background-image-opacity": 1,
-            "background-fit": 'contain'
+            "background-fit": 'cover'
         }
     }
 ]

@@ -111,8 +111,10 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(jobToPutOnHold)) {
+			final boolean hasStarted = !jobToPutOnHold.getStartTime().isAfter(getCurrentTime());
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, jobInstanceId.getJobId());
-			myGreenEnergyAgent.getPowerJobs().replace(jobToPutOnHold, JobStatusEnum.ON_HOLD);
+			myGreenEnergyAgent.getPowerJobs()
+					.replace(jobToPutOnHold, hasStarted ? JobStatusEnum.ON_HOLD : JobStatusEnum.ON_HOLD_PLANNED);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG, jobInstanceId.getJobId());

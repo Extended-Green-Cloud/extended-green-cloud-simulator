@@ -110,8 +110,10 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		if (myGreenAgent.getPowerJobs().containsKey(jobToTransfer) &&
 				!cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
+			final boolean hasJobStarted = !jobToTransfer.getStartTime().isAfter(getCurrentTime());
 			logger.info(SOURCE_JOB_TRANSFER_FAILURE_LOG, jobToTransfer.getJobId());
-			myGreenAgent.getPowerJobs().replace(jobToTransfer, JobStatusEnum.ON_HOLD);
+			myGreenAgent.getPowerJobs()
+					.replace(jobToTransfer, hasJobStarted ? JobStatusEnum.ON_HOLD : JobStatusEnum.ON_HOLD_PLANNED);
 			myGreenAgent.manage().updateGreenSourceGUI();
 		} else if (cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			finishNonExistingJob();

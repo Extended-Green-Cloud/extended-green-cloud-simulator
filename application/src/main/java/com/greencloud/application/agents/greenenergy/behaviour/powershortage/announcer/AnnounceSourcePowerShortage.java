@@ -117,8 +117,8 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	}
 
 	private List<PowerJob> getAffectedPowerJobs() {
-		final EnumSet<JobStatusEnum> notAffectedJobs = EnumSet.of(JobStatusEnum.PROCESSING, JobStatusEnum.ON_HOLD,
-				JobStatusEnum.ON_HOLD_TRANSFER);
+		final EnumSet<JobStatusEnum> notAffectedJobs = EnumSet.of(JobStatusEnum.PROCESSING, JobStatusEnum.ON_HOLD_PLANNED,
+				JobStatusEnum.ON_HOLD_TRANSFER, JobStatusEnum.ON_HOLD);
 		return myGreenAgent.getPowerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(powerJobToInclude) || !job.equals(powerJobToInclude))
 				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) && !notAffectedJobs.contains(

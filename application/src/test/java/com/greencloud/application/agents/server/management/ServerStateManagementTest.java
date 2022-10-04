@@ -1,6 +1,6 @@
 package com.greencloud.application.agents.server.management;
 
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -408,7 +408,7 @@ class ServerStateManagementTest {
 		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 		assertNotNull(updatedStatus);
-		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY);
+		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY_PLANNED);
 	}
 
 	/**
@@ -467,8 +467,8 @@ class ServerStateManagementTest {
 				.build();
 		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY);
-		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE);
+		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED);
+		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED);
 		mockJobMap.put(mockJob4, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob5, JobStatusEnum.ACCEPTED);
 		mockJobMap.put(mockJob6, ON_HOLD_TRANSFER);
