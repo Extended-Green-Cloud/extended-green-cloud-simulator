@@ -85,6 +85,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 				case FAILED_JOB_PROTOCOL -> {
 					logger.info(CLIENT_JOB_FAILED_LOG);
 					myClientAgent.getGuiController().updateClientsCountByValue(-1);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
 					myClientAgent.doDelete();
 				}
 			}

@@ -16,7 +16,8 @@ export const CLIENTS_ORDER = [
     JobStatus.ON_HOLD.toString(), 
     JobStatus.DELAYED.toString(), 
     JobStatus.REJECTED.toString(), 
-    JobStatus.FINISHED.toString()
+    JobStatus.FINISHED.toString(),
+    JobStatus.FAILED.toString()
 ]
 
 export interface AgentOption {

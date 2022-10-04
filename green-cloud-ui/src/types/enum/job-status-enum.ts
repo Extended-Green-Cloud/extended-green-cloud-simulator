@@ -6,5 +6,6 @@ export enum JobStatus {
     FINISHED = "FINISHED" as any,
     ON_BACK_UP = "ON_BACK_UP" as any,
     ON_HOLD = "ON_HOLD" as any,
-    REJECTED = "REJECTED" as any
+    REJECTED = "REJECTED" as any,
+    FAILED = "FAILED" as any
 }

@@ -51,16 +51,12 @@ public class ServerStateManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerStateManagement.class);
 
-	protected final AtomicInteger uniqueStartedJobs;
-	protected final AtomicInteger uniqueFinishedJobs;
 	protected final AtomicInteger startedJobsInstances;
 	protected final AtomicInteger finishedJobsInstances;
 	private final ServerAgent serverAgent;
 
 	public ServerStateManagement(ServerAgent serverAgent) {
 		this.serverAgent = serverAgent;
-		this.uniqueStartedJobs = new AtomicInteger(0);
-		this.uniqueFinishedJobs = new AtomicInteger(0);
 		this.startedJobsInstances = new AtomicInteger(0);
 		this.finishedJobsInstances = new AtomicInteger(0);
 	}
@@ -193,10 +189,6 @@ public class ServerStateManagement {
 	 * @param jobId unique job identifier
 	 */
 	public void incrementStartedJobs(final String jobId) {
-		if (isJobUnique(jobId)) {
-			uniqueStartedJobs.getAndAdd(1);
-			logger.info("Started job {}. Number of unique started jobs is {}", jobId, uniqueStartedJobs);
-		}
 		startedJobsInstances.getAndAdd(1);
 		logger.info("Started job instance {}. Number of started job instances is {}", jobId, startedJobsInstances);
 		updateServerGUI();
@@ -209,11 +201,6 @@ public class ServerStateManagement {
 	 */
 	public void incrementFinishedJobs(final String jobId) {
 		MDC.put(MDC_JOB_ID, jobId);
-		if (isJobUnique(jobId)) {
-			uniqueFinishedJobs.getAndAdd(1);
-			logger.info("Finished job {}. Number of unique finished jobs is {} out of {} started", jobId,
-					uniqueFinishedJobs, uniqueStartedJobs);
-		}
 		finishedJobsInstances.getAndAdd(1);
 		logger.info("Finished job instance {}. Number of finished job instances is {} out of {} started", jobId,
 				finishedJobsInstances, startedJobsInstances);
@@ -302,14 +289,6 @@ public class ServerStateManagement {
 		if (Objects.nonNull(serverAgentNode)) {
 			serverAgentNode.updateClientNumber(getClientNumber());
 		}
-	}
-
-	public AtomicInteger getUniqueStartedJobs() {
-		return uniqueStartedJobs;
-	}
-
-	public AtomicInteger getUniqueFinishedJobs() {
-		return uniqueFinishedJobs;
 	}
 
 	public AtomicInteger getStartedJobsInstances() {

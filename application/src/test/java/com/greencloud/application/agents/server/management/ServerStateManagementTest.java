@@ -264,7 +264,6 @@ class ServerStateManagementTest {
 		final String jobId = "1";
 
 		serverAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -282,7 +281,6 @@ class ServerStateManagementTest {
 		final String jobId = "1";
 
 		serverAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isZero();
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -292,7 +290,6 @@ class ServerStateManagementTest {
 		final String jobId = "1";
 
 		serverAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -310,7 +307,6 @@ class ServerStateManagementTest {
 		final String jobId = "1";
 
 		serverAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isZero();
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -385,7 +381,6 @@ class ServerStateManagementTest {
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
 		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -405,7 +400,6 @@ class ServerStateManagementTest {
 				.findFirst().orElse(null);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 		assertNotNull(updatedStatus);
 		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY_PLANNED);

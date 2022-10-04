@@ -126,7 +126,6 @@ class GreenEnergyStateManagementUnitTest {
 		final String jobId = "1";
 
 		mockGreenEnergyAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -140,7 +139,6 @@ class GreenEnergyStateManagementUnitTest {
 		final String jobId = "1";
 
 		mockGreenEnergyAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueStartedJobs().get()).isZero();
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -150,7 +148,6 @@ class GreenEnergyStateManagementUnitTest {
 		final String jobId = "1";
 
 		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isEqualTo(1);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 
@@ -164,7 +161,6 @@ class GreenEnergyStateManagementUnitTest {
 		final String jobId = "1";
 
 		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getUniqueFinishedJobs().get()).isZero();
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 

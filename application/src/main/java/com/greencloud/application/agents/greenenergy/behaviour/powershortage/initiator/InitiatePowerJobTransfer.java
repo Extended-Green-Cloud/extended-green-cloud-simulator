@@ -88,10 +88,11 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 			final String jobId = jobToTransfer.getJobId();
 			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG, jobId);
 
-			myGreenAgent.getPowerJobs().remove(jobToTransfer);
 			if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
 				myGreenAgent.manage().incrementFinishedJobs(jobToTransfer.getJobId());
 			}
+			myGreenAgent.getPowerJobs().remove(jobToTransfer);
+			myGreenAgent.manage().updateGreenSourceGUI();
 		} else {
 			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG, jobToTransfer.getJobId());
 		}
@@ -123,9 +124,10 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	}
 
 	private void finishNonExistingJob() {
-		myGreenAgent.getPowerJobs().remove(jobToTransfer);
 		if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
 			myGreenAgent.manage().incrementFinishedJobs(jobToTransfer.getJobId());
 		}
+		myGreenAgent.getPowerJobs().remove(jobToTransfer);
+		myGreenAgent.manage().updateGreenSourceGUI();
 	}
 }

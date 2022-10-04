@@ -49,8 +49,6 @@ import com.gui.agents.GreenEnergyAgentNode;
 public class GreenEnergyStateManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyStateManagement.class);
-	protected final AtomicInteger uniqueStartedJobs;
-	protected final AtomicInteger uniqueFinishedJobs;
 	protected final AtomicInteger startedJobsInstances;
 	protected final AtomicInteger finishedJobsInstances;
 	private final GreenEnergyAgent greenEnergyAgent;
@@ -62,8 +60,6 @@ public class GreenEnergyStateManagement {
 	 */
 	public GreenEnergyStateManagement(GreenEnergyAgent greenEnergyAgent) {
 		this.greenEnergyAgent = greenEnergyAgent;
-		this.uniqueStartedJobs = new AtomicInteger(0);
-		this.uniqueFinishedJobs = new AtomicInteger(0);
 		this.startedJobsInstances = new AtomicInteger(0);
 		this.finishedJobsInstances = new AtomicInteger(0);
 	}
@@ -116,10 +112,6 @@ public class GreenEnergyStateManagement {
 	 */
 	public void incrementStartedJobs(final String jobId) {
 		MDC.put(MDC_JOB_ID, jobId);
-		if (isJobUnique(jobId)) {
-			uniqueStartedJobs.getAndAdd(1);
-			logger.info(UNIQUE_POWER_JOB_START_LOG, jobId, uniqueStartedJobs);
-		}
 		startedJobsInstances.getAndAdd(1);
 		logger.info(DUPLICATED_POWER_JOB_START_LOG, jobId, startedJobsInstances);
 		updateGreenSourceGUI();
@@ -132,15 +124,9 @@ public class GreenEnergyStateManagement {
 	 */
 	public void incrementFinishedJobs(final String jobId) {
 		MDC.put(MDC_JOB_ID, jobId);
-		if (isJobUnique(jobId)) {
-			uniqueFinishedJobs.getAndAdd(1);
-			logger.info(UNIQUE_POWER_JOB_FINISH_LOG, jobId,
-					uniqueFinishedJobs, uniqueStartedJobs);
-		}
 		finishedJobsInstances.getAndAdd(1);
 		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobId,
 				finishedJobsInstances, startedJobsInstances);
-		updateGreenSourceGUI();
 	}
 
 	/**
@@ -291,14 +277,6 @@ public class GreenEnergyStateManagement {
 		}
 	}
 
-	public AtomicInteger getUniqueStartedJobs() {
-		return uniqueStartedJobs;
-	}
-
-	public AtomicInteger getUniqueFinishedJobs() {
-		return uniqueFinishedJobs;
-	}
-
 	public AtomicInteger getStartedJobsInstances() {
 		return startedJobsInstances;
 	}
@@ -314,14 +292,6 @@ public class GreenEnergyStateManagement {
 				.mapToInt(PowerJob::getPower)
 				.sum();
 		return greenEnergyAgent.manageGreenPower().getAvailablePower(weather, start) - inUseCapacity;
-	}
-
-	private boolean isJobUnique(final String jobId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.toList()
-				.size()
-				== 1;
 	}
 
 	private int getOnHoldJobCount() {

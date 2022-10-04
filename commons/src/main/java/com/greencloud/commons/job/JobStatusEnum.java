@@ -12,6 +12,7 @@ public enum JobStatusEnum {
 	FINISHED("FINISHED"),
 	ON_BACK_UP("ON BACK UP"),
     ON_HOLD("ON_HOLD"),
+	FAILED("FAILED"),
 	REJECTED("REJECTED");
 
 	private final String status;
