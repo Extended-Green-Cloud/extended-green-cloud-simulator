@@ -113,7 +113,7 @@ public class ClientAgent extends AbstractClientAgent {
 		startingBehaviour.addSubBehaviour(new FindCloudNetworkAgents());
 		startingBehaviour.addSubBehaviour(new InitiateNewJobAnnouncement(this, null, job));
 		return List.of(
-				new ListenForJobUpdate(this),
+				new ListenForJobUpdate(this, job),
 				startingBehaviour
 		);
 	}

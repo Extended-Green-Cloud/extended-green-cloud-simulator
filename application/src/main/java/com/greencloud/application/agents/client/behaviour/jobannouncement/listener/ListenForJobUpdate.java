@@ -1,14 +1,18 @@
 package com.greencloud.application.agents.client.behaviour.jobannouncement.listener;
 
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.logs.JobAnnouncementInitiatorLog.NO_CLOUD_AVAILABLE_RETRY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_BACK_UP_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_RETRY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_GREEN_POWER_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.templates.JobAnnouncementMessageTemplates.CLIENT_JOB_UPDATE_TEMPLATE;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.MAX_RETRIES;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.RETRY_PAUSE_MILLISECONDS;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
@@ -25,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
+import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
 import com.greencloud.application.agents.client.domain.ClientAgentConstants;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -40,15 +46,17 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForJobUpdate.class);
 
 	private final ClientAgent myClientAgent;
+	private final ClientJob job;
 
 	/**
 	 * Behaviours constructor.
 	 *
 	 * @param clientAgent agent executing the behaviour
 	 */
-	public ListenForJobUpdate(final ClientAgent clientAgent) {
+	public ListenForJobUpdate(final ClientAgent clientAgent, final ClientJob job) {
 		super(clientAgent);
 		this.myClientAgent = clientAgent;
+		this.job = job;
 	}
 
 	/**
@@ -83,10 +91,16 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
 				}
 				case FAILED_JOB_PROTOCOL -> {
-					logger.info(CLIENT_JOB_FAILED_LOG);
-					myClientAgent.getGuiController().updateClientsCountByValue(-1);
-					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
-					myClientAgent.doDelete();
+					if (myClientAgent.getRetries() < MAX_RETRIES) {
+						logger.info(CLIENT_JOB_FAILED_RETRY_LOG, myClientAgent.getRetries());
+						myClientAgent.retry();
+						myClientAgent.addBehaviour(new HandleClientJobRequestRetry(myAgent, RETRY_PAUSE_MILLISECONDS, job));
+					} else {
+						logger.info(CLIENT_JOB_FAILED_LOG);
+						myClientAgent.getGuiController().updateClientsCountByValue(-1);
+						((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+						myClientAgent.doDelete();
+					}
 				}
 			}
 		} else {
