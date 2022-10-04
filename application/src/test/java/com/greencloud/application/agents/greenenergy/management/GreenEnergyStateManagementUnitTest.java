@@ -2,8 +2,6 @@ package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -338,8 +336,8 @@ class GreenEnergyStateManagementUnitTest {
 		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD);
-		mockJobMap.put(mockJob4, JobStatusEnum.ON_HOLD);
+		mockJobMap.put(mockJob3, JobStatusEnum.ON_HOLD_PLANNED);
+		mockJobMap.put(mockJob4, JobStatusEnum.ON_HOLD_PLANNED);
 		mockJobMap.put(mockJob5, JobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}

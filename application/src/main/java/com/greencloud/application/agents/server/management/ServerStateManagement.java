@@ -3,11 +3,13 @@ package com.greencloud.application.agents.server.management;
 import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.ALL;
 import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
+import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -99,7 +101,7 @@ public class ServerStateManagement {
 		sendFinishInformation(jobToFinish, informCNA);
 		updateStateAfterJobFinish(jobToFinish);
 
-		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY)) {
+		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
 			final Map<ClientJob, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
 					.filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
 							getCurrentTime()))
@@ -342,14 +344,18 @@ public class ServerStateManagement {
 
 	private void supplyJobsWithBackupPower(final Map<ClientJob, JobStatusEnum> jobEntries) {
 		jobEntries.entrySet().stream()
-				.filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE))
+				.filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE_PLANNED) ||
+						job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE))
 				.forEach(jobEntry -> {
 					final ClientJob job = jobEntry.getKey();
 					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), JobMapper.mapToJobInstanceId(job),
 							BACK_UP_POWER) >= job.getPower()) {
+						final JobStatusEnum status = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE) ?
+								IN_PROGRESS_BACKUP_ENERGY :
+								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 						MDC.put(MDC_JOB_ID, job.getJobId());
 						logger.info("Supplying job {} with back up power", job.getJobId());
-						serverAgent.getServerJobs().replace(job, IN_PROGRESS_BACKUP_ENERGY);
+						serverAgent.getServerJobs().replace(job, status);
 						updateServerGUI();
 					}
 				});
@@ -357,7 +363,7 @@ public class ServerStateManagement {
 
 	private int getJobCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
+				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(Collectors.toSet()).size();
 	}

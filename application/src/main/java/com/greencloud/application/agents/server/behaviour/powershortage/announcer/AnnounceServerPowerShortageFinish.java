@@ -8,6 +8,9 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.a
 import static com.greencloud.application.agents.server.behaviour.powershortage.announcer.logs.PowerShortageServerAnnouncerLog.POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG;
 import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -80,8 +83,12 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 					if (availablePower < jobPower && availableBackUpPower < jobPower) {
 						logger.info(POWER_SHORTAGE_FINISH_LEAVE_ON_HOLD_LOG, job.getJobId());
 					} else if (availableBackUpPower >= jobPower) {
+						final JobStatusEnum status = myServerAgent.getServerJobs().get(job)
+								.equals(JobStatusEnum.ON_HOLD) ?
+								IN_PROGRESS_BACKUP_ENERGY :
+								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 						logger.info(POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG, job.getJobId());
-						myServerAgent.getServerJobs().replace(job, JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY);
+						myServerAgent.getServerJobs().replace(job, status);
 						myServerAgent.manage().updateServerGUI();
 					} else {
 						logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
@@ -109,7 +116,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 
 	private List<ClientJob> getJobsOnHold() {
 		return myServerAgent.getServerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(JobStatusEnum.ON_HOLD)
+				.filter(job -> (job.getValue().equals(JobStatusEnum.ON_HOLD_PLANNED) || job.getValue().equals(ON_HOLD))
 						&& job.getKey().getEndTime().isAfter(TimeUtils.getCurrentTime()))
 				.map(Map.Entry::getKey)
 				.toList();

@@ -77,7 +77,7 @@ const getServerState = (server: ServerAgent): ServerState => {
 }
 
 const getGreenEnergyState = (greenEnergy: GreenEnergyAgent): GreenEnergyState => {
-    if (greenEnergy.numberOfJobsOnHold > 0)
+    if (greenEnergy.numberOfJobsOnHold > 0 && greenEnergy.numberOfExecutedJobs > 0)
         return GreenEnergyState.ON_HOLD
 
     return greenEnergy.isActive ?

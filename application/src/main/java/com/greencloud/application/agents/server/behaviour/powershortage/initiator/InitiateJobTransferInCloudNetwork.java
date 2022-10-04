@@ -9,8 +9,11 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
@@ -74,6 +77,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleAgree(ACLMessage agree) {
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobInstanceId().getJobId());
 		logger.info(CNA_JOB_TRANSFER_PROCESSING_LOG, myServerAgent.getOwnerCloudNetworkAgent().getLocalName(),
 				jobToTransfer.getJobInstanceId().getJobId());
 	}
@@ -178,17 +182,20 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		final int availableBackUpPower =
 				myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(),
 						jobToTransfer.getJobInstanceId(), BACK_UP_POWER);
+		final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
 
 		MDC.put(MDC_JOB_ID, jobId);
 		if (isNull(greenSourceRequest)) {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_HOLD_LOG, jobId);
-			myServerAgent.getServerJobs().replace(job, ON_HOLD);
+			myServerAgent.getServerJobs().replace(job, hasStarted ? ON_HOLD : ON_HOLD_PLANNED);
 		} else if (availableBackUpPower <= job.getPower()) {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_HOLD_SOURCE_LOG, jobId);
-			myServerAgent.getServerJobs().replace(job, ON_HOLD_SOURCE_SHORTAGE);
+			myServerAgent.getServerJobs()
+					.replace(job, hasStarted ? ON_HOLD_SOURCE_SHORTAGE : ON_HOLD_SOURCE_SHORTAGE_PLANNED);
 		} else {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_BACKUP_LOG, jobId);
-			myServerAgent.getServerJobs().replace(job, IN_PROGRESS_BACKUP_ENERGY);
+			myServerAgent.getServerJobs()
+					.replace(job, hasStarted ? IN_PROGRESS_BACKUP_ENERGY : IN_PROGRESS_BACKUP_ENERGY_PLANNED);
 		}
 		myServerAgent.manage().updateServerGUI();
 	}

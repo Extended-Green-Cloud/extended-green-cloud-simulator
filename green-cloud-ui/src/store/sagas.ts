@@ -32,7 +32,7 @@ function* fetchState() {
                 put(agentsActions.setAgentsData(data.agents)),
                 put(cloudNetworkActions.setNetworkData(data.network))
             ])
-            yield delay(100);
+            yield delay(200);
         } catch (err: any) {
             if (err.code === 'ERR_NETWORK') {
                 console.error('Server is disconnected')

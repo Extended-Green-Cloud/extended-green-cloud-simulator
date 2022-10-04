@@ -11,6 +11,7 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
 import static jade.lang.acl.MessageTemplate.and;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -26,7 +27,6 @@ import com.greencloud.application.mapper.JsonMapper;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.DataStore;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.states.MsgReceiver;
@@ -45,10 +45,8 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	private final AID server;
 
 	private ListenForServerTransferConfirmation(final Agent agent, final MessageTemplate template,
-			final DataStore dataStore, final ACLMessage replyMessage, final PowerShortageJob powerShortageJob,
-			final AID server) {
-		super(agent, template, EXPIRATION_TIME + System.currentTimeMillis(), dataStore,
-				"CONFIRMATION_TRANSFER_" + powerShortageJob.getJobInstanceId().getJobId());
+			final ACLMessage replyMessage, final PowerShortageJob powerShortageJob, final AID server) {
+		super(agent, template, EXPIRATION_TIME + System.currentTimeMillis(), null, null);
 		this.replyMessage = replyMessage;
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
 		this.powerShortageJob = powerShortageJob;
@@ -62,19 +60,23 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	 * @param replyMessage     reply message sent to Server informing about the transfer status
 	 * @param powerShortageJob job that is being transferred
 	 * @param server           server to which the job is transferred
-	 * @param dataStore        data store
 	 */
 	public static Behaviour createFor(final Agent agent, final ACLMessage replyMessage,
-			final PowerShortageJob powerShortageJob, final AID server, final DataStore dataStore) {
+			final PowerShortageJob powerShortageJob, final AID server) {
 		final MessageTemplate template = and(SERVER_JOB_TRANSFER_CONFIRMATION_TEMPLATE,
 				MatchContent(getExpectedContent(powerShortageJob)));
-		return new ListenForServerTransferConfirmation(agent, template, dataStore, replyMessage, powerShortageJob,
+		return new ListenForServerTransferConfirmation(agent, template, replyMessage, powerShortageJob,
 				server);
 	}
 
 	private static String getExpectedContent(final PowerShortageJob powerShortageJob) {
 		try {
-			return JsonMapper.getMapper().writeValueAsString(mapToJobInstanceId(powerShortageJob));
+			final Instant startTime = powerShortageJob.getJobInstanceId().getStartTime()
+					.isAfter(powerShortageJob.getPowerShortageStart()) ?
+					powerShortageJob.getJobInstanceId().getStartTime() :
+					powerShortageJob.getPowerShortageStart();
+			return JsonMapper.getMapper()
+					.writeValueAsString(mapToJobInstanceId(powerShortageJob.getJobInstanceId(), startTime));
 		} catch (JsonProcessingException e) {
 			return null;
 		}

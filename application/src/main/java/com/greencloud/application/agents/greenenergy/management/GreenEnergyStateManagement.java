@@ -12,6 +12,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
+import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -334,9 +335,8 @@ public class GreenEnergyStateManagement {
 
 	private int getJobCount() {
 		return greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(job.getValue())
-						&& isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue())
+						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.map(Map.Entry::getKey)
 				.map(PowerJob::getJobId)
 				.collect(Collectors.toSet())

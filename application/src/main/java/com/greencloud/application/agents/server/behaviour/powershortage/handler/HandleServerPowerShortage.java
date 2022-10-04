@@ -80,7 +80,8 @@ public class HandleServerPowerShortage extends WakerBehaviour {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				switch (jobStatus) {
 					case ON_HOLD_TRANSFER -> logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_HOLD_TEMPORARY_LOG, jobId);
-					case IN_PROGRESS_BACKUP_ENERGY -> logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_BACKUP_LOG, jobId);
+					case IN_PROGRESS_BACKUP_ENERGY_PLANNED, IN_PROGRESS_BACKUP_ENERGY ->
+							logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_BACKUP_LOG, jobId);
 					default -> logger.info(POWER_SHORTAGE_HANDLE_JOB_ON_HOLD_LOG, jobId);
 				}
 				myServerAgent.manage().updateServerGUI();
