@@ -14,8 +14,6 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
 import static jade.lang.acl.MessageTemplate.and;
 
-import java.util.Objects;
-
 import java.time.Instant;
 import java.util.Objects;
 
@@ -104,14 +102,15 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 				myCloudNetworkAgent.send(replyToServerRequest);
 				myCloudNetworkAgent.addBehaviour(
 						HandleJobTransferToServer.createFor(myCloudNetworkAgent, powerShortageJob, server));
-			}
-		} else {
-			MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
-			logger.info(SERVER_TRANSFER_FAILED_LOG, powerShortageJob.getJobInstanceId().getJobId());
+			} else {
+				MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
+				logger.info(SERVER_TRANSFER_FAILED_LOG, powerShortageJob.getJobInstanceId().getJobId());
 
-			final ACLMessage replyToServerRequest = prepareReply(replyMessage, SERVER_INTERNAL_FAILURE_CAUSE_MESSAGE, FAILURE);
-			displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
-			myCloudNetworkAgent.send(replyToServerRequest);
+				final ACLMessage replyToServerRequest = prepareReply(replyMessage,
+						SERVER_INTERNAL_FAILURE_CAUSE_MESSAGE, FAILURE);
+				displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
+				myCloudNetworkAgent.send(replyToServerRequest);
+			}
 		}
 	}
 
