@@ -29,4 +29,14 @@ public class WeatherCheckListenerLog {
 	public static final String POWER_SUPPLY_PROPOSAL_LOG =
 			"Replying with propose message to server for job with id {}.";
 
+	// JOB RE-SUPPLY REQUEST WEATHER LOG MESSAGES
+	public static final String WEATHER_UNAVAILABLE_RE_SUPPLY_JOB_LOG =
+			"The data for the job is not available. Job {} cannot be supplied with green energy";
+	public static final String RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG =
+			"There is not enough available power. Job {} cannot be supplied with green energy";
+	public static final String RE_SUPPLY_FAILURE_JOB_NOT_FOUND_LOG =
+			"There is not enough available power. Job {} cannot be supplied with green energy";
+	public static final String RE_SUPPLY_JOB_WITH_GREEN_ENERGY_LOG =
+			"Job {} is being supplied again using the green energy";
+
 }

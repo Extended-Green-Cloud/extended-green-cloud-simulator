@@ -3,6 +3,7 @@ package com.greencloud.application.agents.server.behaviour.powershortage.listene
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_SHORTAGE_FINISH_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates.SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
@@ -31,11 +32,6 @@ import jade.lang.acl.ACLMessage;
 public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListenForSourcePowerShortageFinish.class);
-	private static final EnumSet<JobStatusEnum> POWER_SHORTAGE_STATUSES = EnumSet.of(
-			JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED,
-			JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY,
-			JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE,
-			JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED);
 
 	private ServerAgent myServerAgent;
 
@@ -59,7 +55,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		if (Objects.nonNull(inform)) {
 			final ClientJob job = getJobFromMessage(inform);
 
-			if (Objects.nonNull(job) && POWER_SHORTAGE_STATUSES.contains(myServerAgent.getServerJobs().get(job))) {
+			if (Objects.nonNull(job) && POWER_SHORTAGE_SOURCE_STATUSES.contains(myServerAgent.getServerJobs().get(job))) {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				logger.info(GS_SHORTAGE_FINISH_LOG, job.getJobId());
 				final AID cloudNetwork = myServerAgent.getOwnerCloudNetworkAgent();

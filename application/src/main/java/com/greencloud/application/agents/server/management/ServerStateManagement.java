@@ -1,12 +1,12 @@
 package com.greencloud.application.agents.server.management;
 
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.ALL;
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
-import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
+import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
@@ -32,7 +32,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
@@ -67,18 +66,17 @@ public class ServerStateManagement {
 	/**
 	 * Method computes the available capacity (of given type) for the specified time frame.
 	 *
-	 * @param startDate       starting date
-	 * @param endDate         end date
-	 * @param jobToExclude    (optional) job which will be excluded from the power calculation
-	 * @param powerSourceType type of the source which is being used to power-up the job
-	 *                        (if not provided then type is ALL)
+	 * @param startDate    starting date
+	 * @param endDate      end date
+	 * @param jobToExclude (optional) job which will be excluded from the power calculation
+	 * @param statusEnums  set of statuses of jobs that are taken into account while calculating in use power (optional)
 	 * @return available power
 	 */
 	public synchronized int getAvailableCapacity(final Instant startDate, final Instant endDate,
-			final JobInstanceIdentifier jobToExclude, final ServerPowerSourceType powerSourceType) {
-		final Set<JobStatusEnum> statuses = Objects.isNull(powerSourceType) ?
-				ALL.getJobStatuses() :
-				powerSourceType.getJobStatuses();
+			final JobInstanceIdentifier jobToExclude, final Set<JobStatusEnum> statusEnums) {
+		final Set<JobStatusEnum> statuses = Objects.isNull(statusEnums) ?
+				ACCEPTED_JOB_STATUSES :
+				statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !JobMapper.mapToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job)))
@@ -351,7 +349,7 @@ public class ServerStateManagement {
 				.forEach(jobEntry -> {
 					final ClientJob job = jobEntry.getKey();
 					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), JobMapper.mapToJobInstanceId(job),
-							BACK_UP_POWER) >= job.getPower()) {
+							BACK_UP_POWER_STATUSES) >= job.getPower()) {
 						final JobStatusEnum status = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE) ?
 								IN_PROGRESS_BACKUP_ENERGY :
 								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -389,7 +387,8 @@ public class ServerStateManagement {
 
 	private int getOnHoldJobsCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> JOB_ON_HOLD.contains(job.getValue()) && isWithinTimeStamp(job.getKey().getStartTime(),
+				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
+						job.getKey().getStartTime(),
 						job.getKey().getEndTime(), getCurrentTime())).toList().size();
 	}
 

@@ -28,18 +28,18 @@ import com.greencloud.application.agents.server.behaviour.powershortage.handler.
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 
 import jade.core.AID;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.proto.states.MsgReceiver;
 
 /**
  * Behaviour listens for the message from Green Source which confirms the power transfer
  */
-public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
+public class ListenForSourceJobTransferConfirmation extends MsgReceiver {
 
+	private static final long EXPIRATION_TIME = 3000L;
 	private static final Logger logger = LoggerFactory.getLogger(ListenForSourceJobTransferConfirmation.class);
 
-	private final MessageTemplate messageTemplate;
 	private final ServerAgent myServerAgent;
 	private final JobInstanceIdentifier jobToTransfer;
 	private final ACLMessage greenSourceRequest;
@@ -57,12 +57,11 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 			JobInstanceIdentifier jobInstanceId,
 			Instant powerShortageTime,
 			ACLMessage greenSourceRequest) {
-		super(agent);
+		super(agent, createListenerTemplate(jobInstanceId), System.currentTimeMillis() + EXPIRATION_TIME, null, null);
 		this.myServerAgent = agent;
 		this.greenSourceRequest = greenSourceRequest;
 		this.jobToTransfer = jobInstanceId;
 		this.powerShortageStart = powerShortageTime;
-		this.messageTemplate = createListenerTemplate(jobInstanceId);
 	}
 
 	private static MessageTemplate createListenerTemplate(final JobInstanceIdentifier jobInstanceId) {
@@ -80,9 +79,7 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 	 * It schedules the transfer execution and sends the response to Green Source which requested the transfer.
 	 */
 	@Override
-	public void action() {
-		final ACLMessage msg = myAgent.receive(messageTemplate);
-
+	public void handleMessage(final ACLMessage msg) {
 		if (Objects.nonNull(msg)) {
 			final String jobId = jobToTransfer.getJobId();
 			if (msg.getPerformative() == INFORM) {

@@ -1,6 +1,9 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JsonMapper;
@@ -30,6 +33,24 @@ public class PowerShortageMessageFactory {
 			e.printStackTrace();
 		}
 		message.setProtocol(MessageProtocolConstants.POWER_SHORTAGE_ALERT_PROTOCOL);
+		message.addReceiver(receiver);
+		return message;
+	}
+
+	/**
+	 * Method prepares the message containing the request regarding job green power re-supply
+	 *
+	 * @param job job affected by source power shortage to be supplied again using green power
+	 * @return request ACLMessage
+	 */
+	public static ACLMessage prepareGreenPowerSupplyRequest(final ClientJob job, final AID receiver) {
+		final ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
+		try {
+			message.setContent(JsonMapper.getMapper().writeValueAsString(mapToJobInstanceId(job)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		message.setProtocol(MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL);
 		message.addReceiver(receiver);
 		return message;
 	}
@@ -65,6 +86,7 @@ public class PowerShortageMessageFactory {
 	 */
 	public static ACLMessage preparePowerShortageFinishInformation(final JobInstanceIdentifier jobInstanceId,
 			final AID receiver) {
-		return prepareJobPowerShortageInformation(jobInstanceId, receiver, MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL);
+		return prepareJobPowerShortageInformation(jobInstanceId, receiver,
+				MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL);
 	}
 }

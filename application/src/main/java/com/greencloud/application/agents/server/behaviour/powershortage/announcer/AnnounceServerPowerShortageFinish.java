@@ -6,8 +6,8 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.a
 import static com.greencloud.application.agents.server.behaviour.powershortage.announcer.logs.PowerShortageServerAnnouncerLog.POWER_SHORTAGE_FINISH_UPDATE_JOB_STATUS_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.announcer.logs.PowerShortageServerAnnouncerLog.POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.announcer.logs.PowerShortageServerAnnouncerLog.POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG;
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
@@ -77,7 +77,8 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 					final int availablePower = myServerAgent.manage()
 							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, null);
 					final int availableBackUpPower = myServerAgent.manage()
-							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, BACK_UP_POWER);
+							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance,
+									BACK_UP_POWER_STATUSES);
 
 					MDC.put(MDC_JOB_ID, job.getJobId());
 					if (availablePower < jobPower && availableBackUpPower < jobPower) {

@@ -12,6 +12,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
+import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourcePowerShortageJobs;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
@@ -82,7 +83,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForSourceJobTransferRequest(),
 				new SenseServerEvent(this),
 				new ListenForJobStartCheckRequest(),
-				new ListenForSourcePowerShortageFinish()
+				new ListenForSourcePowerShortageFinish(),
+				new HandleSourcePowerShortageJobs(this)
 		);
 	}
 }

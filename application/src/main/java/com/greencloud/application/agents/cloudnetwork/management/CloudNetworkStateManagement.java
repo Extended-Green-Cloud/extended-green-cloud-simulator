@@ -3,12 +3,11 @@ package com.greencloud.application.agents.cloudnetwork.management;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.FINISHED_JOB_COUNT_LOG;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.STARTED_JOB_COUNT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
 import static java.util.Objects.nonNull;
 
-import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -110,9 +109,8 @@ public class CloudNetworkStateManagement {
 	}
 
 	private int getJobInProgressCount() {
-		final EnumSet<JobStatusEnum> jobStatusesToExclude = EnumSet.of(ACCEPTED, PROCESSING);
 		return cloudNetworkAgent.getNetworkJobs().entrySet().stream()
-				.filter(job -> !jobStatusesToExclude.contains(job.getValue()))
+				.filter(job -> job.getValue().equals(IN_PROGRESS))
 				.toList()
 				.size();
 	}

@@ -13,7 +13,6 @@ import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -117,12 +116,10 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	}
 
 	private List<PowerJob> getAffectedPowerJobs() {
-		final EnumSet<JobStatusEnum> notAffectedJobs = EnumSet.of(JobStatusEnum.PROCESSING, JobStatusEnum.ON_HOLD_PLANNED,
-				JobStatusEnum.ON_HOLD_TRANSFER, JobStatusEnum.ON_HOLD);
 		return myGreenAgent.getPowerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(powerJobToInclude) || !job.equals(powerJobToInclude))
-				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) && !notAffectedJobs.contains(
-						myGreenAgent.getPowerJobs().get(job)))
+				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) &&
+						myGreenAgent.getPowerJobs().get(job).equals(JobStatusEnum.IN_PROGRESS))
 				.toList();
 	}
 

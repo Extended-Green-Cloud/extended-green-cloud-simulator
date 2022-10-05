@@ -45,7 +45,7 @@ public class RequestWeatherPeriodically extends TickerBehaviour {
 							PERIODIC_WEATHER_CHECK_PROTOCOL, null));
 			sequentialBehaviour.addSubBehaviour(
 					new ListenForWeatherData(myGreenEnergyAgent, null, PERIODIC_WEATHER_CHECK_PROTOCOL,
-							PERIODIC_WEATHER_CHECK_PROTOCOL, sequentialBehaviour));
+							PERIODIC_WEATHER_CHECK_PROTOCOL, sequentialBehaviour, null));
 			myAgent.addBehaviour(sequentialBehaviour);
 		}
 	}

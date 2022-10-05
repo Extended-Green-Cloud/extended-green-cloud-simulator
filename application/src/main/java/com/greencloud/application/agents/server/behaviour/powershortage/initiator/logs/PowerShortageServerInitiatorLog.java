@@ -5,6 +5,14 @@ package com.greencloud.application.agents.server.behaviour.powershortage.initiat
  */
 public class PowerShortageServerInitiatorLog {
 
+	// POWER SHORTAGE RE-SUPPLYING JOBS WITH GREEN ENERGY LOG MESSAGES
+	public static final String SERVER_RE_SUPPLY_JOB_PROCESSING_LOG = "Green source agreed to process if job {} can be supplied using green energy";
+	public static final String SERVER_RE_SUPPLY_NOT_FOUND_LOG = "Job {} was not found in green source";
+	public static final String SERVER_RE_SUPPLY_FAILED_LOG = "Green Source failed to re-supply job {} with green power. Cause: {}";
+	public static final String SERVER_RE_SUPPLY_REFUSE_NOT_FOUND_SERVER_LOG = "Job {} was not found in server";
+	public static final String SERVER_RE_SUPPLY_REFUSE_LOG = "Green source refused to supply job {} again with green power";
+	public static final String SERVER_RE_SUPPLY_SUCCESSFUL_LOG = "Green source successfully supplied job {} again with green power. Changing job status in server";
+
 	// POWER SHORTAGE GREEN SOURCE TRANSFER LOG MESSAGES
 	public static final String GS_TRANSFER_NO_RESPONSE_RETRIEVED_LOG = "No responses were retrieved for job transfer";
 	public static final String GS_TRANSFER_NONE_AVAILABLE_LOG =

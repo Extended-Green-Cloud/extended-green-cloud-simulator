@@ -5,8 +5,8 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.GS_TRANSFER_FAIL_NO_BACK_UP_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.GS_TRANSFER_NONE_AVAILABLE_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.GS_TRANSFER_NO_RESPONSE_RETRIEVED_LOG;
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
@@ -60,7 +60,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	 * Behaviour constructor
 	 *
 	 * @param agent              agent which executes the behaviour
-	 * @param powerRequest       call for proposal sent to GSAs containing the details regarding job to be transfered
+	 * @param powerRequest       call for proposal sent to GSAs containing the details regarding job to be transferred
 	 * @param greenSourceRequest green source power transfer request
 	 * @param jobToTransfer      job to be transferred
 	 * @param powerShortageStart time when the power shortage starts
@@ -130,7 +130,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),
-							jobToTransferInstance, BACK_UP_POWER);
+							jobToTransferInstance, BACK_UP_POWER_STATUSES);
 			final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
 
 			MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());

@@ -23,4 +23,8 @@ public class PowerShortageSourceListenerLog {
 	public static final String SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG =
 			"Job {} to put on hold was not found";
 
+	// RE-SUPPLYING JOB WITH GREEN ENERGY LOG MESSAGES
+	public static final String SERVER_JOB_RE_SUPPLY_REQUEST_LOG = "Verifying if job {} can be supplied with green energy";
+	public static final String SERVER_JOB_RE_SUPPLY_REQUEST_NOT_FOUND_LOG = "Job {} is no longer existing in given green energy source";
+
 }

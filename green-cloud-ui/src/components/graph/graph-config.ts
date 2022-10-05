@@ -41,7 +41,7 @@ const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
         style: {
             width: "60",
             height: "60",
-            shape: "barrel",
+            shape: "round-octagon",
         }
     },
     {
@@ -120,7 +120,7 @@ const GREEN_ENERGY_STYLESHEET: Array<cytoscape.Stylesheet> = [
         style: {
             width: "20",
             height: "20",
-            shape: "round-octagon",
+            shape: "ellipse",
             "border-opacity": 1,
             "border-width": 3
         }
@@ -195,10 +195,10 @@ export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
 
 export const GRAPH_LAYOUT = {
     name: 'fcose',
-    quality: "proof",
+    quality: "draft",
     fit: true,
     animation: true,
-    nodeDimensionsIncludeLabels: true,
+    animationDuration: 1000,
     padding: 20,
     packComponents: false,
     nodeRepulsion: 3000,

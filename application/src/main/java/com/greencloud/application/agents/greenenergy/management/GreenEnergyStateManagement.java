@@ -6,12 +6,10 @@ import static com.greencloud.application.agents.greenenergy.management.logs.Gree
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_START_LOG;
-import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_FINISH_LOG;
-import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.UNIQUE_POWER_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
+import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
@@ -296,7 +294,7 @@ public class GreenEnergyStateManagement {
 
 	private int getOnHoldJobCount() {
 		return greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> JOB_ON_HOLD.contains(job.getValue())
+				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue())
 						&& isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.toList()

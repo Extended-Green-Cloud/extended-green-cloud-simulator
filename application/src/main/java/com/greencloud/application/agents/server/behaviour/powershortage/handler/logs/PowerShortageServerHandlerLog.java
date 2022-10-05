@@ -14,4 +14,7 @@ public class PowerShortageServerHandlerLog {
 	// POWER SHORTAGE IN GREEN SOURCE HANDLING JOB TRANSFER LOG MESSAGES
 	public static final String GS_TRANSFER_EXECUTION_LOG = "Transferring job between green sources";
 
+	// POWER SHORTAGE IN GREEN SOURCE HANDLING AFFECTED NOT TRANSFERRED JOBS
+	public static final String SERVER_INITIATE_JOB_RE_SUPPLY_LOG = "Trying to supply job {} using green power";
+
 }

@@ -6,8 +6,8 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_PUT_ON_HOLD_SOURCE_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_REFUSE_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_SUCCESSFUL_LOG;
-import static com.greencloud.application.agents.server.domain.ServerPowerSourceType.BACK_UP_POWER;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
@@ -181,7 +181,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		final String jobId = job.getJobId();
 		final int availableBackUpPower =
 				myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(),
-						jobToTransfer.getJobInstanceId(), BACK_UP_POWER);
+						jobToTransfer.getJobInstanceId(), BACK_UP_POWER_STATUSES);
 		final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
 
 		MDC.put(MDC_JOB_ID, jobId);

@@ -52,18 +52,19 @@ public class MessageProtocolConstants {
 	 * Power shortage protocols
 	 * POWER_SHORTAGE_ALERT_PROTOCOL                - protocol used in messages informing the agent that the power shortage was detected
 	 * POWER_SHORTAGE_FINISH_ALERT_PROTOCOL         - protocol used in messages informing that the power shortage for given agent has finished
-	 * POWER_SHORTAGE_TRANSFER_REFUSAL              - protocol used in messages informing that the power transfer was unsuccessful
-	 * POWER_SHORTAGE_SOURCE_TRANSFER_PROTOCOL      - protocol used in messages informing the agent that the transfer of the job between green
-	 * sources caused by the power shortage was established
-	 * SERVER_POWER_SHORTAGE_ALERT_PROTOCOL         - protocol used in messages informing the agent that the transfer of the job between servers
-	 * caused by the power shortage was established
-	 * POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL       - protocol used in power confirmation messages sent by the green sources indicating that the power
-	 * is sent to supply the jobs coming from transfer
-	 * CANCELLED_TRANSFER_PROTOCOL                  - protocol informing that the job transfer should be cancelled
+	 * SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL       - protocol used in messages informing that the job should be put on hold in green source due to
+	 * server power shortage
+	 * SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL     - protocol used in messages informing the server want to verify if given job can be supplied again using
+	 * green energy
+	 * POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL     - protocol used in messages confirming that new green source will supplied affected job with green power
+	 * SERVER_POWER_SHORTAGE_ALERT_PROTOCOL         - protocol used in informing that the server is affected by the power shortage
+	 * POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL       - protocol informing that the job is being transferred on servers' level (between servers from given CNA, not
+	 * between green sources from given Server)
 	 */
 	public static final String POWER_SHORTAGE_ALERT_PROTOCOL = "POWER_SHORTAGE_ALERT_PROTOCOL";
 	public static final String POWER_SHORTAGE_FINISH_ALERT_PROTOCOL = "POWER_SHORTAGE_FINISH_ALERT_PROTOCOL";
 	public static final String SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL = "SERVER_POWER_SHORTAGE_ON_HOLD";
+	public static final String SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL = "SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL";
 	public static final String POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL = "POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL";
 	public static final String SERVER_POWER_SHORTAGE_ALERT_PROTOCOL = "SERVER_POWER_SHORTAGE_ALERT_PROTOCOL";
 	public static final String POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL = "POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL";

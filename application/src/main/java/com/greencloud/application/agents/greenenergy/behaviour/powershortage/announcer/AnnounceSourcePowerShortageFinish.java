@@ -79,7 +79,7 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 				new RequestWeatherData(myGreenAgent, conversationId, ON_HOLD_JOB_CHECK_PROTOCOL, affectedJob));
 		sequentialBehaviour.addSubBehaviour(
 				new ListenForWeatherData(myGreenAgent, affectedJob, ON_HOLD_JOB_CHECK_PROTOCOL, conversationId,
-						sequentialBehaviour));
+						sequentialBehaviour, null));
 		return sequentialBehaviour;
 	}
 
