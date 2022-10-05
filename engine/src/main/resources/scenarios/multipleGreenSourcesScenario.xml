@@ -19,7 +19,7 @@
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>WindFarm3</name>
+			<name>WindFarm2</name>
 			<monitoringAgent>Weather2</monitoringAgent>
 			<ownerSever>Server</ownerSever>
 			<latitude>52</latitude>
@@ -33,7 +33,7 @@
 		<serverAgentsArgs>
 			<name>Server</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>500</maximumCapacity>
+			<maximumCapacity>400</maximumCapacity>
 			<price>10.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

@@ -10,6 +10,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -30,11 +31,13 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
+import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.agents.server.domain.ServerPowerSourceType;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
 import com.greencloud.application.utils.AlgorithmUtils;
@@ -97,13 +100,33 @@ public class ServerStateManagement {
 		sendFinishInformation(jobToFinish, informCNA);
 		updateStateAfterJobFinish(jobToFinish);
 
-		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
+		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || jobStatusEnum.equals(
+				IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
 			final Map<ClientJob, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
 					.filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
 							getCurrentTime()))
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			supplyJobsWithBackupPower(jobsWithinTimeStamp);
 		}
+	}
+
+	/**
+	 * Method resends the job transfer request to parent Cloud Network
+	 *
+	 * @param jobInstanceId      job that is to be transferred
+	 * @param powerShortageStart time when the power shortage starts
+	 * @param request            initial green source request
+	 */
+	public void passTransferRequestToCloudNetwork(final JobInstanceIdentifier jobInstanceId,
+			final Instant powerShortageStart,
+			final ACLMessage request) {
+		final PowerShortageJob jobTransfer = JobMapper.mapToPowerShortageJob(jobInstanceId, powerShortageStart);
+		final AID cloudNetwork = serverAgent.getOwnerCloudNetworkAgent();
+		final ACLMessage transferMessage = preparePowerShortageTransferRequest(jobTransfer, cloudNetwork);
+
+		displayMessageArrow(serverAgent, cloudNetwork);
+		serverAgent.addBehaviour(new InitiateJobTransferInCloudNetwork(serverAgent, transferMessage, request,
+				jobTransfer));
 	}
 
 	/**

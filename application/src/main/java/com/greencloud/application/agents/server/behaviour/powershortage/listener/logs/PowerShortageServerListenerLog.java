@@ -13,6 +13,7 @@ public class PowerShortageServerListenerLog {
 
 	// POWER SHORTAGE IN GREEN SOURCE TRANSFER CONFIRMATION LOG MESSAGES
 	public static final String GS_TRANSFER_JOB_FINISHED_LOG = "Job execution finished before transfer";
+	public static final String GS_TRANSFER_FAILED_LOG = "Job {} transfer has failed in green source. Passing transfer request to Cloud Network";
 	public static final String GS_TRANSFER_CONFIRMED_LOG =
 			"Scheduling the job {} transfer. Sending confirmation to green source";
 

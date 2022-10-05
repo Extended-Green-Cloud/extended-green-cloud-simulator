@@ -16,7 +16,6 @@ import static com.greencloud.application.messages.MessagingUtils.retrieveProposa
 import static com.greencloud.application.messages.MessagingUtils.retrieveValidMessages;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SOURCES_AVAILABLE_CAUSE_MESSAGE;
-import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -36,11 +35,9 @@ import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.PowerJob;
-import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
-import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
@@ -97,7 +94,8 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 			handleTransferFailure();
 		} else if (proposals.isEmpty()) {
 			logger.info(GS_TRANSFER_NONE_AVAILABLE_LOG, jobToTransfer.getJobId());
-			forwardRequestToCloudNetwork();
+			myServerAgent.manage()
+					.passTransferRequestToCloudNetwork(jobToTransferInstance, powerShortageStart, greenSourceRequest);
 		} else {
 			final List<ACLMessage> validProposals = retrieveValidMessages(proposals, GreenSourceData.class);
 			if (!validProposals.isEmpty()) {
@@ -110,23 +108,13 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 		}
 	}
 
-	private void forwardRequestToCloudNetwork() {
-		final PowerShortageJob jobTransfer = JobMapper.mapToPowerShortageJob(jobToTransfer, powerShortageStart);
-		final AID cloudNetwork = myServerAgent.getOwnerCloudNetworkAgent();
-		final ACLMessage transferMessage = preparePowerShortageTransferRequest(jobTransfer, cloudNetwork);
-		displayMessageArrow(myServerAgent, cloudNetwork);
-		myServerAgent.addBehaviour(
-				new InitiateJobTransferInCloudNetwork(myServerAgent, transferMessage, greenSourceRequest,
-						jobTransfer));
-	}
-
 	private void initiateTransferForGreenSource(final String jobId, final ACLMessage chosenOffer) {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(GS_TRANSFER_CHOSEN_GS_LOG, jobId, chosenOffer.getSender().getLocalName());
 
 		displayMessageArrow(myServerAgent, chosenOffer.getSender());
 		myServerAgent.addBehaviour(
-				new ListenForSourceJobTransferConfirmation(myServerAgent, jobToTransferInstance,
+				new ListenForSourceJobTransferConfirmation(myServerAgent, jobToTransferInstance, powerShortageStart,
 						greenSourceRequest));
 		myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
 				jobToTransferInstance, POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL));
