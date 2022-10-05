@@ -73,7 +73,7 @@ public class GUIUtils {
 	 * @param agent     agent being the sender
 	 * @param receivers iterator of addresses of the receivers
 	 */
-	public static void displayMessageArrow(final AbstractAgent agent, final Iterator<AID> receivers) {
+	public static void displayMessageArrow(final AbstractAgent agent, final Iterator receivers) {
 		final Iterable<AID> iterable = () -> receivers;
 		final Stream<AID> stream = StreamSupport.stream(iterable.spliterator(), false);
 		agent.getGuiController().displayMessageArrow(agent.getAgentNode(), stream.map(AID::getLocalName).toList());

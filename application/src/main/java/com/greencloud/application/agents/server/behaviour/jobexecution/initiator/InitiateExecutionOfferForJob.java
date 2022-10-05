@@ -5,6 +5,8 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
@@ -92,6 +94,10 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 
 	private void passJobExecutionFailure(final ClientJob jobInstance, final JobInstanceIdentifier jobInstanceId,
 			final String protocol, final ACLMessage cnaAccept) {
+		final String responseProtocol = protocol.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL) ?
+				FAILED_TRANSFER_PROTOCOL :
+				FAILED_JOB_PROTOCOL;
+
 		MDC.put(MDC_JOB_ID, jobInstance.getJobId());
 		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_FAILURE_LOG, jobInstance.getJobId());
 		myServerAgent.getServerJobs().remove(jobInstance);
@@ -101,8 +107,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		displayMessageArrow(myServerAgent, cnaAccept.getSender());
 
 		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
-		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId,
-				protocol.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL)));
+		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId, responseProtocol));
 	}
 
 	private void acceptGreenSourceForJobExecution(final JobInstanceIdentifier jobInstanceId,

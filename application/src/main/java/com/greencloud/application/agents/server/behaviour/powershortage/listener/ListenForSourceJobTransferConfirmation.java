@@ -62,6 +62,7 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 	private static MessageTemplate createListenerTemplate(final JobInstanceIdentifier jobInstanceId) {
 		try {
 			final String expectedContent = getMapper().writeValueAsString(jobInstanceId);
+			System.out.println(expectedContent);
 			return and(MatchContent(expectedContent), SOURCE_JOB_TRANSFER_CONFIRMATION_TEMPLATE);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -75,17 +76,21 @@ public class ListenForSourceJobTransferConfirmation extends CyclicBehaviour {
 	 */
 	@Override
 	public void action() {
-		final ACLMessage inform = myAgent.receive(messageTemplate);
+		final ACLMessage msg = myAgent.receive(messageTemplate);
 
-		if (Objects.nonNull(inform)) {
-			final String jobId = jobToTransfer.getJobId();
-			MDC.put(MDC_JOB_ID, jobId);
-			if (Objects.nonNull(myServerAgent.manage().getJobById(jobId))) {
-				logger.info(GS_TRANSFER_CONFIRMED_LOG, jobId);
-				handleJobTransfer(inform);
+		if (Objects.nonNull(msg)) {
+			if(msg.getPerformative() == INFORM) {
+				final String jobId = jobToTransfer.getJobId();
+				MDC.put(MDC_JOB_ID, jobId);
+				if (Objects.nonNull(myServerAgent.manage().getJobById(jobId))) {
+					logger.info(GS_TRANSFER_CONFIRMED_LOG, jobId);
+					handleJobTransfer(msg);
+				} else {
+					logger.info(GS_TRANSFER_JOB_FINISHED_LOG);
+					handleJobFinish(jobId, msg.getSender());
+				}
 			} else {
-				logger.info(GS_TRANSFER_JOB_FINISHED_LOG);
-				handleJobFinish(jobId, inform.getSender());
+				//TODO
 			}
 		} else {
 			block();

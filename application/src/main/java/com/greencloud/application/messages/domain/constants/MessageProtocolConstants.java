@@ -20,18 +20,19 @@ public class MessageProtocolConstants {
 
 	/**
 	 * Job status protocols
-	 * CONFIRMED_JOB_PROTOCOL 	   - protocol used in messages informing that the job has been confirmed as accepted
-	 * CONFIRMED_TRANSFER_PROTOCOL - protocol used in messages informing that the job transfer has been confirmed as accepted
-	 * FINISH_JOB_PROTOCOL         - protocol used in messages informing the agent that the job execution has finished
-	 * MANUAL_JOB_FINISH_PROTOCOL  - protocol used in messages informing that the job had to be finished manually because the time
+	 * CONFIRMED_JOB_PROTOCOL 	       - protocol used in messages informing that the job has been confirmed as accepted
+	 * CONFIRMED_TRANSFER_PROTOCOL     - protocol used in messages informing that the job transfer has been confirmed as accepted
+	 * FINISH_JOB_PROTOCOL             - protocol used in messages informing the agent that the job execution has finished
+	 * MANUAL_JOB_FINISH_PROTOCOL      - protocol used in messages informing that the job had to be finished manually because the time
 	 * after which the information about job being finished has passed
-	 * STARTED_JOB_PROTOCOL        - protocol used in messages informing the agent that the job execution has started
-	 * JOB_START_STATUS_PROTOCOL   - protocol used in messages with request of the update regarding the job start status
-	 * DELAYED_JOB_PROTOCOL        - protocol used in messages informing that the job execution started with the delay
-	 * BACK_UP_POWER_JOB_PROTOCOL  - protocol used in messages informing that the job is executed using the back-up power
-	 * GREEN_POWER_JOB_PROTOCOL    - protocol used in messages informing the client that the job is executed using green power
-	 * FAILED_JOB_PROTOCOL         - protocol used in messages informing that the job execution has failed
-	 * FAILED_TRANSFER_PROTOCOL    - protocol used in messages informing that the job transfer has failed
+	 * STARTED_JOB_PROTOCOL            - protocol used in messages informing the agent that the job execution has started
+	 * JOB_START_STATUS_PROTOCOL       - protocol used in messages with request of the update regarding the job start status
+	 * DELAYED_JOB_PROTOCOL            - protocol used in messages informing that the job execution started with the delay
+	 * BACK_UP_POWER_JOB_PROTOCOL  	   - protocol used in messages informing that the job is executed using the back-up power
+	 * GREEN_POWER_JOB_PROTOCOL    	   - protocol used in messages informing the client that the job is executed using green power
+	 * FAILED_JOB_PROTOCOL         	   - protocol used in messages informing that the job execution has failed
+	 * FAILED_TRANSFER_PROTOCOL        - protocol used in messages informing that the job transfer has failed
+	 * FAILED_SOURCE_TRANSFER_PROTOCOL - protocol used in messages informing that the job transfer between green sources has failed
 	 */
 	public static final String CONFIRMED_JOB_PROTOCOL = "CONFIRMED";
 	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER";
@@ -44,6 +45,7 @@ public class MessageProtocolConstants {
 	public static final String GREEN_POWER_JOB_PROTOCOL = "GREEN_POWER_JOB_PROTOCOL";
 	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
 	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";
+	public static final String FAILED_SOURCE_TRANSFER_PROTOCOL = "FAILED_SOURCE_TRANSFER_PROTOCOL";
 
 
 	/**
@@ -69,13 +71,10 @@ public class MessageProtocolConstants {
 	/**
 	 * Dynamic com.greencloud.application.weather handling related protocols
 	 *
-	 * SERVER_JOB_START_CHECK_PROTOCOL      - protocol used in messages to check whether the com.greencloud.application.weather haven't has changed since
-	 * accepting the job
 	 * ON_HOLD_JOB_CHECK_PROTOCOL           - protocol used in messages that check the com.greencloud.application.weather before putting the job which was on hold back
 	 * to in progress
 	 * PERIODIC_WEATHER_CHECK_PROTOCOL      - protocol used in messages that check periodically the current com.greencloud.application.weather
 	 */
-	public static final String SERVER_JOB_START_CHECK_PROTOCOL = "SERVER_JOB_START_CHECK_PROTOCOL";
 	public static final String ON_HOLD_JOB_CHECK_PROTOCOL = "ON_HOLD_JOB_CHECK_PROTOCOL";
 	public static final String PERIODIC_WEATHER_CHECK_PROTOCOL = "PERIODIC_WEATHER_CHECK_PROTOCOL";
 }

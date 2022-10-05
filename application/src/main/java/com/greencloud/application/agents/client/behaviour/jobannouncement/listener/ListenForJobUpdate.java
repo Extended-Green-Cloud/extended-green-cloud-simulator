@@ -92,7 +92,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 				}
 				case FAILED_JOB_PROTOCOL -> {
 					if (myClientAgent.getRetries() < MAX_RETRIES) {
-						logger.info(CLIENT_JOB_FAILED_RETRY_LOG, myClientAgent.getRetries());
+						logger.info(CLIENT_JOB_FAILED_RETRY_LOG, myClientAgent.getRetries() + 1);
 						myClientAgent.retry();
 						myClientAgent.addBehaviour(new HandleClientJobRequestRetry(myAgent, RETRY_PAUSE_MILLISECONDS, job));
 					} else {

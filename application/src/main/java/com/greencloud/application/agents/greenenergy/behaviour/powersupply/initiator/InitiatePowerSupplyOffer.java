@@ -1,10 +1,17 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator;
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.POWER_SUPPLY_PROPOSAL_REJECTED_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.SEND_POWER_SUPPLY_FAILURE_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.SEND_POWER_SUPPLY_RESPONSE_LOG;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_SOURCE_TRANSFER_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -14,6 +21,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,20 +109,51 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 
 	private void handleAcceptPowerSupply(final PowerJob job, final ACLMessage acceptProposal,
 			final JobWithProtocol jobWithProtocol) {
+		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.manage()
+				.getAvailablePowerForJob(job, weather, true);
+
+		if (averageAvailablePower.isEmpty() || job.getPower() > averageAvailablePower.get()) {
+			sendPowerFailureInformation(job, jobWithProtocol, acceptProposal);
+		} else {
+			sendPowerConfirmationMessage(job, jobWithProtocol, acceptProposal);
+		}
+	}
+
+	private void sendPowerConfirmationMessage(final PowerJob job, final JobWithProtocol jobWithProtocol,
+			final ACLMessage proposal) {
+		MDC.put(MDC_JOB_ID, job.getJobId());
+		logger.info(SEND_POWER_SUPPLY_RESPONSE_LOG, job.getJobId());
 		myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);
+
 		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
 				calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
 		myAgent.addBehaviour(manualFinishBehaviour);
-		MDC.put(MDC_JOB_ID, job.getJobId());
-		logger.info(SEND_POWER_SUPPLY_RESPONSE_LOG, job.getJobId());
-		displayMessageArrow(myGreenEnergyAgent, acceptProposal.getSender());
-		sendResponseToServer(acceptProposal, jobWithProtocol, INFORM);
+
+		displayMessageArrow(myGreenEnergyAgent, proposal.getSender());
+		sendResponseToServer(proposal, jobWithProtocol);
 	}
 
-	private void sendResponseToServer(final ACLMessage acceptProposal, final JobWithProtocol jobWithProtocol,
-			final int protocol) {
+	private void sendPowerFailureInformation(final PowerJob job, final JobWithProtocol jobWithProtocol,
+			final ACLMessage proposal) {
+		logger.info(SEND_POWER_SUPPLY_FAILURE_LOG, job.getJobId());
+		myGreenEnergyAgent.getPowerJobs().remove(job);
+
+		final String responseProtocol =
+				jobWithProtocol.getReplyProtocol().equals(POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL) ?
+						FAILED_SOURCE_TRANSFER_PROTOCOL :
+						jobWithProtocol.getReplyProtocol().equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL) ?
+								FAILED_TRANSFER_PROTOCOL :
+								FAILED_JOB_PROTOCOL;
+		final ACLMessage failureMessage = prepareFailureReply(proposal.createReply(),
+				jobWithProtocol.getJobInstanceIdentifier(), responseProtocol);
+
+		displayMessageArrow(myGreenEnergyAgent, proposal.getSender());
+		myGreenEnergyAgent.send(failureMessage);
+	}
+
+	private void sendResponseToServer(final ACLMessage acceptProposal, final JobWithProtocol jobWithProtocol) {
 		final ACLMessage response = ReplyMessageFactory.prepareReply(acceptProposal.createReply(),
-				jobWithProtocol.getJobInstanceIdentifier(), protocol);
+				jobWithProtocol.getJobInstanceIdentifier(), INFORM);
 		response.setProtocol(jobWithProtocol.getReplyProtocol());
 		myAgent.send(response);
 	}

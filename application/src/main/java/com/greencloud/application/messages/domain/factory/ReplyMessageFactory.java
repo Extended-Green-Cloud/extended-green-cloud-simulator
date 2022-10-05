@@ -91,15 +91,16 @@ public class ReplyMessageFactory {
 	 * Method prepares the reply accept message containing the conversation topic as content protocol
 	 *
 	 * @param replyMessage  reply ACLMessage that is to be sent
-	 * @param jobId unique job instance identifier
+	 * @param content unique job instance identifier
+	 * @param protocol message protocol
 	 * @return reply ACLMessage
 	 */
 	public static ACLMessage prepareFailureReply(final ACLMessage replyMessage,
-			final Object jobId, final boolean isTransfer) {
-		replyMessage.setProtocol(isTransfer? FAILED_TRANSFER_PROTOCOL : FAILED_JOB_PROTOCOL);
+			final Object content, final String protocol) {
+		replyMessage.setProtocol(protocol);
 		replyMessage.setPerformative(FAILURE);
 		try{
-			replyMessage.setContent(getMapper().writeValueAsString(jobId));
+			replyMessage.setContent(getMapper().writeValueAsString(content));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

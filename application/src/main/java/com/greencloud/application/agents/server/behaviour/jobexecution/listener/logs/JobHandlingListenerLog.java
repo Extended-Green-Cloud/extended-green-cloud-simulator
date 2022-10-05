@@ -15,6 +15,8 @@ public class JobHandlingListenerLog {
 	public static final String SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG = "Scheduling the execution of the job {}";
 	public static final String SUPPLY_CONFIRMATION_INFORM_CNA_LOG = "Confirming job {} execution";
 	public static final String SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG = "Confirming job {} transfer";
+	public static final String SUPPLY_FAILURE_INFORM_CNA_LOG = "Job {} execution has failed in green source";
+	public static final String SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG = "Job {} transfer has failed in green source";
 	public static final String SUPPLY_CONFIRMATION_JOB_FINISHED_LOG =
 			"Job {} must have been finished or transferred before its execution";
 	public static final String SUPPLY_FINISHED_MANUALLY_LOG =

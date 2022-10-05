@@ -64,6 +64,27 @@ public class JobStatusMessageFactory {
 	}
 
 	/**
+	 * Method prepares the information message about the job acceptance failure at the given server
+	 *
+	 * @param jobInstanceId   unique job instance
+	 * @param receiver        CNA to which the message is to be sent
+	 * @param protocol protocol added to the message
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareFailureMessage(final JobInstanceIdentifier jobInstanceId,
+			final AID receiver, final String protocol) {
+		final ACLMessage informationMessage = new ACLMessage(FAILURE);
+		try {
+			informationMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobInstanceId));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		informationMessage.setProtocol(protocol);
+		informationMessage.addReceiver(receiver);
+		return informationMessage;
+	}
+
+	/**
 	 * Method prepares the failure message about the job execution which is to be sent
 	 * to the client
 	 *
