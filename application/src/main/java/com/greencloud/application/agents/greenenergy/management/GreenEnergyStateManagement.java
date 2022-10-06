@@ -123,8 +123,7 @@ public class GreenEnergyStateManagement {
 	public void incrementFinishedJobs(final String jobId) {
 		MDC.put(MDC_JOB_ID, jobId);
 		finishedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobId,
-				finishedJobsInstances, startedJobsInstances);
+		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobId, finishedJobsInstances, startedJobsInstances);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package com.greencloud.application.agents.greenenergy;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
@@ -23,7 +24,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	protected transient Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
-	protected transient Map<PowerJob, JobStatusEnum> powerJobs;
+	protected volatile ConcurrentMap<PowerJob, JobStatusEnum> powerJobs;
 	protected AID monitoringAgent;
 	protected AID ownerServer;
 
