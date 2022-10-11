@@ -15,6 +15,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNE
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PLANNED_JOB_STATUSES;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -108,7 +109,7 @@ public class HandleJobStart extends WakerBehaviour {
 
 				substituteJobStatus();
 				sendJobStartMessage(jobId);
-				myServerAgent.manage().incrementStartedJobs(jobId);
+				myServerAgent.manage().incrementStartedJobs(mapToJobInstanceId(jobToExecute));
 				myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
 			}
 		} else {

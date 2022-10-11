@@ -123,44 +123,24 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test increment started unique power job")
 	void testIncrementStartedUniqueJob() {
-		final String jobId = "1";
+		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.build();
 
-		mockGreenEnergyAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment started non unique power job")
-	void testIncrementStartedNonUniqueJob() {
-		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10).build();
-		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final String jobId = "1";
-
-		mockGreenEnergyAgent.manage().incrementStartedJobs(jobId);
+		mockGreenEnergyAgent.manage().incrementStartedJobs(jobInstanceId);
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
 	@DisplayName("Test increment finished unique power job")
 	void testIncrementFinishedUniquePowerJob() {
-		final String jobId = "1";
+		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.build();
 
-		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment finished non unique power job")
-	void testIncrementFinishedNonUniquePowerJob() {
-		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10).build();
-		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final String jobId = "1";
-
-		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobId);
+		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 

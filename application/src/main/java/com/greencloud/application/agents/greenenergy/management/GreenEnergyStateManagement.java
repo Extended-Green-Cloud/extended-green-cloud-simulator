@@ -106,24 +106,25 @@ public class GreenEnergyStateManagement {
 	/**
 	 * Method increments the count of started jobs
 	 *
-	 * @param jobId unique job identifier
+	 * @param jobInstanceId job identifier
 	 */
-	public void incrementStartedJobs(final String jobId) {
-		MDC.put(MDC_JOB_ID, jobId);
+	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		startedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_START_LOG, jobId, startedJobsInstances);
+		logger.info(DUPLICATED_POWER_JOB_START_LOG, jobInstanceId, startedJobsInstances);
 		updateGreenSourceGUI();
 	}
 
 	/**
 	 * Method increments the count of finished jobs
 	 *
-	 * @param jobId unique identifier of the job
+	 * @param jobInstanceId identifier of the job
 	 */
-	public void incrementFinishedJobs(final String jobId) {
-		MDC.put(MDC_JOB_ID, jobId);
+	public void incrementFinishedJobs(final JobInstanceIdentifier jobInstanceId) {
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		finishedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobId, finishedJobsInstances, startedJobsInstances);
+		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, jobInstanceId,
+				finishedJobsInstances, startedJobsInstances);
 	}
 
 	/**

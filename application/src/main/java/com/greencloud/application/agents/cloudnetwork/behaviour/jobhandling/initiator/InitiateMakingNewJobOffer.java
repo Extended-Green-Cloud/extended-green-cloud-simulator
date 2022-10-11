@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.ini
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.REJECT_SERVER_PROPOSAL_LOG;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
@@ -51,7 +52,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
 		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
-		final String jobId = accept_proposal.getContent();
+		final String jobId = readMessageContent(accept_proposal, String.class);
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
@@ -67,7 +68,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	@Override
 	protected void handleRejectProposal(final ACLMessage reject_proposal) {
 		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject_proposal.getSender().getName());
-		final String jobId = reject_proposal.getContent();
+		final String jobId = readMessageContent(reject_proposal, String.class);
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);

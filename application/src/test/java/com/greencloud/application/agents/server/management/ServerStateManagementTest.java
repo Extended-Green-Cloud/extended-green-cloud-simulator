@@ -262,52 +262,24 @@ class ServerStateManagementTest {
 	@Test
 	@DisplayName("Test increment started unique job")
 	void testIncrementStartedUniqueJob() {
-		final String jobId = "1";
-
-		serverAgent.manage().incrementStartedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment started non unique job")
-	void testIncrementStartedNonUniqueJob() {
-		final ClientJob jobProcessing = ImmutableClientJob.builder()
+		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
 				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
+				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final String jobId = "1";
 
-		serverAgent.manage().incrementStartedJobs(jobId);
+		serverAgent.manage().incrementStartedJobs(jobInstanceId);
 		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
 	}
 
 	@Test
 	@DisplayName("Test increment finished unique job")
 	void testIncrementFinishedUniqueJob() {
-		final String jobId = "1";
-
-		serverAgent.manage().incrementFinishedJobs(jobId);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment finished non unique job")
-	void testIncrementFinishedNonUniqueJob() {
-		final ClientJob jobProcessing = ImmutableClientJob.builder()
+		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
 				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.power(10)
+				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final String jobId = "1";
 
-		serverAgent.manage().incrementFinishedJobs(jobId);
+		serverAgent.manage().incrementFinishedJobs(jobInstanceId);
 		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
 	}
 

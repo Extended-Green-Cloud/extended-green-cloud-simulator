@@ -10,6 +10,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD_ST
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -78,7 +79,7 @@ public class ServerStateManagement {
 				ACCEPTED_JOB_STATUSES :
 				statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
-				.filter(job -> Objects.isNull(jobToExclude) || !JobMapper.mapToJobInstanceId(job).equals(jobToExclude))
+				.filter(job -> Objects.isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job)))
 				.collect(Collectors.toSet());
 		final int maxUsedPower =
@@ -207,23 +208,24 @@ public class ServerStateManagement {
 	/**
 	 * Method increments the count of started jobs
 	 *
-	 * @param jobId unique job identifier
+	 * @param jobInstanceId job identifier
 	 */
-	public void incrementStartedJobs(final String jobId) {
+	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		startedJobsInstances.getAndAdd(1);
-		logger.info("Started job instance {}. Number of started job instances is {}", jobId, startedJobsInstances);
+		logger.info("Started job instance {}. Number of started job instances is {}", jobInstanceId, startedJobsInstances);
 		updateServerGUI();
 	}
 
 	/**
 	 * Method increments the count of finished jobs
 	 *
-	 * @param jobId unique identifier of the job
+	 * @param jobInstanceId identifier of the job
 	 */
-	public void incrementFinishedJobs(final String jobId) {
-		MDC.put(MDC_JOB_ID, jobId);
+	public void incrementFinishedJobs(final JobInstanceIdentifier jobInstanceId) {
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		finishedJobsInstances.getAndAdd(1);
-		logger.info("Finished job instance {}. Number of finished job instances is {} out of {} started", jobId,
+		logger.info("Finished job instance {}. Number of finished job instances is {} out of {} started", jobInstanceId,
 				finishedJobsInstances, startedJobsInstances);
 		updateServerGUI();
 	}
@@ -334,7 +336,7 @@ public class ServerStateManagement {
 	}
 
 	private void updateStateAfterJobFinish(final ClientJob jobToFinish) {
-		incrementFinishedJobs(jobToFinish.getJobId());
+		incrementFinishedJobs(mapToJobInstanceId(jobToFinish));
 		if (isJobUnique(jobToFinish.getJobId())) {
 			serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
 			updateClientNumberGUI();
@@ -348,7 +350,7 @@ public class ServerStateManagement {
 						job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE))
 				.forEach(jobEntry -> {
 					final ClientJob job = jobEntry.getKey();
-					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), JobMapper.mapToJobInstanceId(job),
+					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), mapToJobInstanceId(job),
 							BACK_UP_POWER_STATUSES) >= job.getPower()) {
 						final JobStatusEnum status = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE) ?
 								IN_PROGRESS_BACKUP_ENERGY :

@@ -9,15 +9,20 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
+
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.application.exception.IncorrectMessageContentException;
 
 import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
@@ -63,8 +68,9 @@ public class InitiateJobGreenEnergySupply extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleRefuse(ACLMessage refuse) {
+		final String cause = getRefusalCause(refuse);
 		MDC.put(MDC_JOB_ID, jobToSupply.getJobId());
-		if (refuse.getContent().equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
+		if (Objects.nonNull(cause) && cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			logger.info(SERVER_RE_SUPPLY_NOT_FOUND_LOG, jobToSupply.getJobId());
 		} else {
 			logger.info(SERVER_RE_SUPPLY_REFUSE_LOG, jobToSupply.getJobId());
@@ -109,6 +115,14 @@ public class InitiateJobGreenEnergySupply extends AchieveREInitiator {
 				return ACCEPTED;
 			default:
 				return null;
+		}
+	}
+
+	private String getRefusalCause(final ACLMessage refuse) {
+		try {
+			return getMapper().readValue(refuse.getContent(), String.class);
+		} catch (IncorrectMessageContentException | JsonProcessingException e) {
+			return null;
 		}
 	}
 }
