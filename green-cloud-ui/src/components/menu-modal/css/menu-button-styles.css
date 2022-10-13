@@ -1,0 +1,39 @@
+.button-banner {
+    border: none;
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 400;
+    text-align: left;
+    padding-left: 15px !important;
+    padding: 7px 10px;
+    margin-top: 10px;
+    width: 100%;
+    color: var(--gray-3);
+    background-color: var(--gray-7);
+    border-radius: 7px;
+    font-family: var(--font-1);
+    font-size: var(--font-size-5);
+    border-left: var(--border-banner-button);
+}
+
+.button-banner:hover {
+    background-color: var(--gray-5);
+}
+
+.button-banner:active {
+    border-left-color: var(--green-9);
+    background-color: var(--gray-7);
+}
+
+.button-disconnected {
+    border-left-color: var(--red-2);
+}
+
+.button-disconnected:hover {
+    border-left-color: var(--red-1);
+}
+
+.button-disconnected:active {
+    border-left-color: var(--red-2);
+}
+

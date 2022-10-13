@@ -5,7 +5,8 @@ interface Styles {
     banerContent: React.CSSProperties,
     logoContainer: React.CSSProperties,
     bannerText: React.CSSProperties,
-    bannerIcon: React.CSSProperties
+    bannerCloudIcon: React.CSSProperties,
+    bannerMenuIcon: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -16,9 +17,13 @@ export const styles: Styles = {
         paddingBottom: '10%'
     },
     banerContent: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'  
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    bannerMenuIcon: {
+        height: '50px',
+        opacity: 0.95,
     },
     logoContainer: {
         display: 'flex',
@@ -35,7 +40,7 @@ export const styles: Styles = {
         paddingLeft: '15px',
         opacity: '0.85',
     },
-    bannerIcon: {
+    bannerCloudIcon: {
         height: '90%',
         opacity: '0.85',
     }

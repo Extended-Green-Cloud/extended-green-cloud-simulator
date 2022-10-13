@@ -4,6 +4,7 @@
 
   --white: #ffffff;
   --black: #000000;
+  --black-transparent: #000000c5;
 
   --green-1: #4ba146;
   --green-2: #179d10;
@@ -13,6 +14,7 @@
   --green-6: #7fc77a;
   --green-7: #2b7427;
   --green-8: #358031;
+  --green-9: #266e22;
 
   --gray-1: #878787;
   --gray-2: #5e5e5e;
@@ -20,6 +22,7 @@
   --gray-4: #eaeaea;
   --gray-5: #e3e2e2;
   --gray-6: #5e5b5b;
+  --gray-7: #f1f1f1;
 
   --red-1: #cc2020;
   --red-2: #dd3030;
@@ -40,6 +43,7 @@
   --font-size-5: 0.9rem;
   --font-size-6: 0.7rem;
   --font-size-7: 0.65rem;
+  --font-size-8: 1.2rem;
 
   /* SHADOWS */
 
@@ -51,12 +55,13 @@
   /* BORDERS */
 
   --border-agent-panel: 1.5px solid var(--green-1);
-  --border-event: 3px solid var(--gray-1);
+  --border-event: 4px solid var(--gray-1);
   --border-detail: 6px solid var(--gray-2);
   --border-subtitle: 1px solid var(--gray-2);
   --border-graph: 1px solid var(--green-2);
   --border-card: 4px solid var(--green-1);
-  --border-banner-button: 1px solid var(--white) !important;
+  --border-banner-button: 10px solid var(--green-1) !important;
+  --border-menu: 1.5px solid var(--gray-1);
 }
 
 #root {

@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { styles } from './banner-styles'
-import { iconCloud } from '@assets'
+import { iconCloud, iconMenu } from '@assets'
 import './css/banner-button-styles.css'
-import { agentsActions, cloudNetworkActions, useAppDispatch, useAppSelector } from '@store'
+import MenuModal from 'components/menu-modal/menu-modal'
 
 const header = 'Green cloud network'
 
@@ -12,39 +12,22 @@ const header = 'Green cloud network'
  * @returns JSX Element 
  */
 const TopBanner = () => {
-    const dispatch = useAppDispatch()
-    const { isServerConnected } = useAppSelector(state => state.cloudNetwork)
-
-    const handleOnReset = () => {
-        dispatch(cloudNetworkActions.resetCloudNetwork())
-        dispatch(agentsActions.resetAgents())
-    }
-
-    const handleOnStop = () => {
-        if (isServerConnected) {
-            dispatch(cloudNetworkActions.finishNetworkStateFetching())
-            dispatch(agentsActions.resetAgents())
-        } else {
-            dispatch(cloudNetworkActions.startNetworkStateFetching())
-        }
-    }
+    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
 
     return (
         <div style={styles.parentContainer}>
             <div style={styles.banerContent}>
                 <div style={styles.logoContainer}>
-                    <img style={styles.bannerIcon} src={iconCloud} alt='Cloud icon' />
+                    <img style={styles.bannerCloudIcon} src={iconCloud} alt='Cloud icon' />
                     <span style={styles.bannerText}>{header.toUpperCase()}</span>
                 </div>
                 <div>
-                    <button className='button-banner button-reconnect' onClick={handleOnReset}>
-                        {'Reset simulation'.toUpperCase()}
-                    </button>
-                    <button className='button-banner' onClick={handleOnStop}>
-                        {(isServerConnected ? 'Disconnect server' : 'Connect to server').toUpperCase()}
+                    <button className='menu-button' onClick={() => setIsMenuOpen(true)}>
+                        <img style={styles.bannerMenuIcon} src={iconMenu} alt='Menu icon' />
                     </button>
                 </div>
             </div>
+            <MenuModal {...{ isMenuOpen, setIsMenuOpen }} />
         </div>
     )
 }
