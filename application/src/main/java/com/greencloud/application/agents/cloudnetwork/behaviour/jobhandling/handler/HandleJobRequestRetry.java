@@ -44,6 +44,6 @@ public class HandleJobRequestRetry extends WakerBehaviour {
 	protected void onWake() {
 		myAgent.send(originalMessage);
 		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(TRIGGER_RETRY_LOG, guid, jobId);
+		logger.info(TRIGGER_RETRY_LOG, jobId);
 	}
 }
