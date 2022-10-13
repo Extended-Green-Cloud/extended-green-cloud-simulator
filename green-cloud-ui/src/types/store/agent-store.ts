@@ -5,5 +5,6 @@ export type AgentStore = {
     agents: Agent[],
     clients: Agent[],
     connections: GraphEdge[],
-    selectedAgent: string | null
+    selectedAgent: string | null,
+    selectedClient: string | null
 }

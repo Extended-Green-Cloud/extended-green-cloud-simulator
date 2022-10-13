@@ -55,6 +55,7 @@
   /* BORDERS */
 
   --border-agent-panel: 1.5px solid var(--green-1);
+  --border-client-list: 1px solid var(--gray-5);
   --border-event: 4px solid var(--gray-1);
   --border-detail: 6px solid var(--gray-2);
   --border-subtitle: 1px solid var(--gray-2);

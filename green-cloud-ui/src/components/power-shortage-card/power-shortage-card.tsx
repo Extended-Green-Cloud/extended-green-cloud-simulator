@@ -1,5 +1,5 @@
 import { useState } from "react"
-import './css/event-panel-button-styles.css'
+import './css/power-shortage-card-styles.css'
 
 import { agentsActions, useAppDispatch } from "@store"
 import { AgentEvent, EventState } from "@types"
@@ -16,6 +16,7 @@ interface Props {
 const placeholder = 'Provide maximum capacity'
 const buttonWaitLabel = 'Wait before next event triggering'
 const topButtonLabel = "Maximum Capacity"
+const title = "Power Shortage"
 
 /**
  * Component represents card used to trigger power shortage for given agent
@@ -58,13 +59,16 @@ const PowerShortageCard = ({ event, label, agentName }: Props) => {
 
     return (
         <>
-            <NumericInput {...{
-                value: inputVal,
-                handleChange: handlePowerShortageChange,
-                label: topButtonLabel,
-                disabled,
-                placeholder
-            }} />
+            <div>
+                <span className="event-title">{title.toUpperCase()}</span>
+                <NumericInput {...{
+                    value: inputVal,
+                    handleChange: handlePowerShortageChange,
+                    label: topButtonLabel,
+                    disabled,
+                    placeholder
+                }} />
+            </div>
             <button className={getButtonStyle()} onClick={handlePowerShortageTrigger} disabled={event.disabled}>
                 {buttonLabel.toUpperCase()}
             </button>

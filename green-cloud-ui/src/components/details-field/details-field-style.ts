@@ -17,6 +17,7 @@ export const styles: Styles = {
         paddingBottom: '5px',
         backgroundColor: 'var(--gray-4)',
         borderLeft: 'var(--border-detail)',
+        borderRadius: 7
     },
     label: {
         textAlign: 'left',

@@ -6,8 +6,11 @@ interface Styles {
     clientContainer: React.CSSProperties,
     clientStatistics: React.CSSProperties,
     clientContent: React.CSSProperties,
+    checkBox: React.CSSProperties,
+    checkContainer: React.CSSProperties,
     select: StylesConfig<AgentOption>,
-    selectTheme: ThemeConfig
+    selectTheme: ThemeConfig,
+    collapse: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -21,6 +24,7 @@ export const styles: Styles = {
     clientContent: {
         height: '100%',
         display: 'flex',
+        overflowY: 'scroll',
         flexDirection: 'column'
     },
     clientStatistics: {
@@ -29,10 +33,38 @@ export const styles: Styles = {
         msOverflowY: 'scroll',
         height: '100%'
     },
+    checkBox: {
+        width: '100px',
+        fontSize: 'var(--font-size-6)',
+        fontFamily: 'var(--font-1)',
+        marginRight: '5px'
+    },
+    checkContainer: {
+        marginBottom: '10px',
+        display: 'table',
+        marginLeft: '5px'
+    },
+    collapse: {
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        fontSize: 'var(--font-size-4)',
+        marginBottom: '5px',
+        backgroundColor: 'var(--green-3)',
+        padding: '2px 5px',
+        color: 'var(--white)',
+        borderRadius: 4,
+    },
     select: {
         container: (styles: any) => ({
             ...styles,
             paddingBottom: '10px'
+        }),
+        control: (styles: any) => ({
+            ...styles,
+            width: '99.5%',
+            margin: 'auto'
         }),
         placeholder: (styles: any) => ({
             ...styles,
@@ -49,7 +81,7 @@ export const styles: Styles = {
             fontWeight: 400,
             marginLeft: '5px',
             width: '50%',
-            borderBottom: '1px solid var(--green-1)'
+            borderBottom: 'var(--border-client-list)'
         }),
         noOptionsMessage: (styles: any) => ({
             ...styles,
@@ -57,13 +89,14 @@ export const styles: Styles = {
         }),
         menu: (styles: any) => ({
             ...styles,
-            marginTop: '-8px'
+            marginTop: '2px',
+            border: '1px solid var(--gray-5)'
         })
     },
     selectTheme: (theme: Theme) => {
         return ({
             ...theme,
-            borderRadius: 0,
+            borderRadius: 7,
             colors: {
                 ...theme.colors,
                 text: 'orangered',

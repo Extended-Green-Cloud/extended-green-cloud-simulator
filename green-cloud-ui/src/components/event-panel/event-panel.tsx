@@ -19,7 +19,7 @@ const noEventsText = "Agent does not have any available event actions"
 const EventPanel = () => {
     const agentState = useAppSelector(state => state.agents)
     const selectedAgent = agentState.agents.find(agent => agent.name === agentState.selectedAgent)
-
+    const eventContainerStyle = { ...styles.singleEventParentContainer, justifyContent: selectedAgent && selectedAgent?.events.length !== 0 ? 'center' : undefined }
 
     const getEventFields = (event: AgentEvent, eventEntry: any) => {
         if (selectedAgent) {
@@ -38,7 +38,6 @@ const EventPanel = () => {
             const fields = getEventFields(event, eventEntry)
             return (
                 <div style={styles.singleEventContainer}>
-                    <span style={styles.eventTitle}>{eventEntry.title.toUpperCase()}</span>
                     {fields}
                 </div>
             )
@@ -57,7 +56,7 @@ const EventPanel = () => {
 
     return (
         <Card {...{ header, containerStyle: styles.eventContainer }}>
-            <div style={styles.singleEventParentContainer}>
+            <div style={eventContainerStyle}>
                 {generateEventTypes()}
             </div>
         </Card>

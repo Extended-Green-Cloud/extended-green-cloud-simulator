@@ -3,8 +3,7 @@ export const EVENT_MAP = {
         labels: {
             'ACTIVE': 'Start power shortage',
             'INACTIVE': 'Finish power shortage'
-        },
-        title: 'Power shortage'
+        }
     }
 }
 

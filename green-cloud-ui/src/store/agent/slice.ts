@@ -6,7 +6,8 @@ const INITIAL_STATE: AgentStore = {
     agents: [],
     clients: [],
     connections: [],
-    selectedAgent: null
+    selectedAgent: null,
+    selectedClient: null
 }
 
 /**
@@ -28,6 +29,9 @@ export const agentSlice = createSlice({
         },
         setSelectedAgent(state, action: PayloadAction<string>) {
             state.selectedAgent = action.payload
+        },
+        setSelectedClient(state, action: PayloadAction<string | null>) {
+            state.selectedClient = action.payload
         },
         resetAgents(state) {
             Object.assign(state, INITIAL_STATE)

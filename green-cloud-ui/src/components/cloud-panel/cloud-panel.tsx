@@ -23,7 +23,7 @@ const CloudPanel = () => {
         return statisticsMap.map(field => {
             const { key, label } = field
             const value = { ...cloudNetworkState }[key] ?? ''
-            return (<DetailsField {...{ label, value }} />)
+            return (<DetailsField {...{ label, value, key }} />)
         })
     }
 

@@ -13,7 +13,8 @@ export const styles: Styles = {
         flexDirection: 'column',
         padding: '15px',
         boxShadow: 'var(--card-shadow)',
-        borderBottom: 'var(--border-card)'
+        borderBottom: 'var(--border-card)',
+        borderRadius: 10
     },
     cardHeader: {
         color: 'var(--gray-2)',

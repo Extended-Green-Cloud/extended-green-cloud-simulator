@@ -10,7 +10,6 @@ export const CLIENT_STATISTICS = [
 
 export const CLIENTS_ORDER = [
     JobStatus.CREATED.toString(), 
-    JobStatus.PROCESSING.toString(), 
     JobStatus.IN_PROGRESS.toString(), 
     JobStatus.ON_BACK_UP.toString(), 
     JobStatus.ON_HOLD.toString(), 
@@ -21,7 +20,7 @@ export const CLIENTS_ORDER = [
 ]
 
 export interface AgentOption {
-    value: Agent,
+    value: Agent | null,
     label: string
 }
 

@@ -1,6 +1,5 @@
 export enum JobStatus {
     CREATED = "CREATED" as any,
-    PROCESSING = "PROCESSING" as any,
     IN_PROGRESS = "IN_PROGRESS" as any,
     DELAYED = "DELAYED" as any,
     FINISHED = "FINISHED" as any,

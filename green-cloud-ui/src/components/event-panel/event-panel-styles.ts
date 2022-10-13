@@ -3,7 +3,6 @@ import React from "react"
 interface Styles {
     eventContainer: React.CSSProperties,
     singleEventContainer: React.CSSProperties,
-    eventTitle: React.CSSProperties,
     singleEventParentContainer: React.CSSProperties
 }
 
@@ -14,21 +13,21 @@ export const styles: Styles = {
         minHeight: '40%'
     },
     singleEventParentContainer: {
+        height: '100%',
         display: 'flex',
         flexDirection: 'column'
     },
     singleEventContainer: {
         display: 'flex',
+        minHeight: 'fit-content',
+        flexGrow: 0.5,
+        justifyContent: 'space-between',
         flexDirection: 'column',
-        padding: '15px 10px',
+        padding: '10px',
         margin: '10px',
         borderLeft: 'var(--border-event)',
         boxShadow: 'var(--event-shadow)',
-    },
-    eventTitle: {
-        fontSize: '0.8rem',
-        marginBottom: '15px',
-        paddingBottom: '5px',
-        fontWeight: 400
+        borderTopLeftRadius: 7,
+        borderBottomLeftRadius: 7,
     }
 }
