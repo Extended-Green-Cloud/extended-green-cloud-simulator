@@ -51,11 +51,11 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 		eventsQueue.add(event);
 	}
 
-	public void setDatabaseClient(TimescaleDatabase databaseClient) {
-		this.databaseClient = databaseClient;
-	}
-
 	public TimescaleDatabase getDatabaseClient() {
 		return databaseClient;
+	}
+
+	public void setDatabaseClient(TimescaleDatabase databaseClient) {
+		this.databaseClient = databaseClient;
 	}
 }

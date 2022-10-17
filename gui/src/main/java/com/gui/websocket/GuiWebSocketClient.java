@@ -14,7 +14,7 @@ public class GuiWebSocketClient extends WebSocketClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketClient.class);
 
-	protected static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+	protected static final ObjectMapper mapper = new ObjectMapper();
 
 	public GuiWebSocketClient(URI serverUri) {
 		super(serverUri);

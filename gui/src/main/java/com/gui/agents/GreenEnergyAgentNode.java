@@ -5,7 +5,7 @@ import static java.lang.Double.parseDouble;
 import java.util.Optional;
 
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyNodeArgs;
+import com.greencloud.commons.args.greenenergy.ImmutableGreenEnergyNodeArgs;
 import com.greencloud.commons.location.ImmutableLocation;
 import com.greencloud.commons.location.Location;
 import com.gui.event.domain.PowerShortageEvent;
