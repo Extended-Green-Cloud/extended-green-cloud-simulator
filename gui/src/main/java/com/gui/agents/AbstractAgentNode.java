@@ -1,7 +1,10 @@
 package com.gui.agents;
 
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.gui.event.domain.AbstractEvent;
 import com.gui.websocket.GuiWebSocketClient;
 
 /**
@@ -11,6 +14,7 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 
 	protected String agentName;
 	protected GuiWebSocketClient webSocketClient;
+	protected Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 
 	/**
 	 * Class constructor
@@ -41,4 +45,7 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 		return Objects.hash(agentName);
 	}
 
+	public void addEvent(AbstractEvent event) {
+		eventsQueue.add(event);
+	}
 }

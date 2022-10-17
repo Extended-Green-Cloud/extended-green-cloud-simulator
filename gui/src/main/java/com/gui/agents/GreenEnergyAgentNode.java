@@ -2,10 +2,13 @@ package com.gui.agents;
 
 import static java.lang.Double.parseDouble;
 
+import java.util.Optional;
+
 import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.greenenergy.ImmutableGreenEnergyNodeArgs;
 import com.greencloud.commons.location.ImmutableLocation;
 import com.greencloud.commons.location.Location;
+import com.gui.event.domain.PowerShortageEvent;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.websocket.GuiWebSocketClient;
 
@@ -49,5 +52,9 @@ public class GreenEnergyAgentNode extends AbstractNetworkAgentNode {
 						.energyType(energyType)
 						.build())
 				.build());
+	}
+
+	public Optional<PowerShortageEvent> getEvent() {
+		return Optional.ofNullable((PowerShortageEvent) eventsQueue.poll());
 	}
 }

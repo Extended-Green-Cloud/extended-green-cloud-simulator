@@ -1,10 +1,12 @@
 package com.gui.agents;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.greencloud.commons.args.server.ImmutableServerNodeArgs;
+import com.gui.event.domain.PowerShortageEvent;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.websocket.GuiWebSocketClient;
@@ -79,5 +81,9 @@ public class ServerAgentNode extends AbstractNetworkAgentNode {
 				.agentName(agentName)
 				.type("SET_CLIENT_NUMBER")
 				.build());
+	}
+
+	public Optional<PowerShortageEvent> getEvent() {
+		return Optional.ofNullable((PowerShortageEvent) eventsQueue.poll());
 	}
 }

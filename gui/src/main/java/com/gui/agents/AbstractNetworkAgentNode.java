@@ -4,10 +4,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.gui.message.ImmutableCapacity;
 import com.gui.message.ImmutableIsActiveMessage;
 import com.gui.message.ImmutableSetMaximumCapacityMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.message.domain.ImmutableCapacity;
 
 /**
  * Class represents abstract generic agent node which is a part of cloud network

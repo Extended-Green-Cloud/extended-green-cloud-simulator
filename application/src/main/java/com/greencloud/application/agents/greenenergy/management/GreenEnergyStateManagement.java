@@ -240,8 +240,7 @@ public class GreenEnergyStateManagement {
 	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
 		var availablePower = getPower(time, weather);
 		var power = String.format("%.2f", availablePower);
-		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getEnergyType(), power,
-				time);
+		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getEnergyType(), power, time);
 
 		return Optional.of(availablePower).filter(powerVal -> powerVal >= 0.0);
 	}

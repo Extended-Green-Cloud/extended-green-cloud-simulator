@@ -1,20 +1,21 @@
 package com.greencloud.application.agents.greenenergy.behaviour.sensor;
 
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
+import static java.util.Objects.isNull;
 
-import java.util.Objects;
+import java.util.Optional;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortage;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortageFinish;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants;
-import com.gui.event.domain.AbstractEvent;
+import com.gui.agents.GreenEnergyAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
 
 import jade.core.behaviours.TickerBehaviour;
 
 /**
- * Behaviour listens for the outside world events
+ * Behaviour listens for the outside world eventsQueue
  */
 public class SenseGreenSourceEvent extends TickerBehaviour {
 
@@ -35,25 +36,20 @@ public class SenseGreenSourceEvent extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		// TODO add new event handling using websockets
-		final AbstractEvent event = null;
-		//myGreenEnergyAgent.getAgentNode().removeEventFromStack();
+		var greenEnergyAgentNode = (GreenEnergyAgentNode) myGreenEnergyAgent.getAgentNode();
 
-		if (Objects.nonNull(event)) {
-			switch (event.getEventTypeEnum()) {
-				case POWER_SHORTAGE -> {
-					final PowerShortageEvent powerShortageEvent = (PowerShortageEvent) event;
-
-					if (powerShortageEvent.isIndicateFinish()) {
-						myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortageFinish(myGreenEnergyAgent));
-					} else {
-						myGreenEnergyAgent.addBehaviour(
-								new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, event.getOccurrenceTime(),
-										(double) powerShortageEvent.getNewMaximumPower(), PHYSICAL_CAUSE));
-					}
-				}
-			}
+		if (isNull(greenEnergyAgentNode)) {
+			return;
 		}
 
+		Optional<PowerShortageEvent> latestEvent = greenEnergyAgentNode.getEvent();
+		latestEvent.ifPresent(event -> {
+			if (event.isFinished()) {
+				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortageFinish(myGreenEnergyAgent));
+			} else {
+				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent,
+						null, event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), PHYSICAL_CAUSE));
+			}
+		});
 	}
 }

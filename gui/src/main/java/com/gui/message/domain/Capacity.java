@@ -1,4 +1,4 @@
-package com.gui.message;
+package com.gui.message.domain;
 
 import org.immutables.value.Value;
 
