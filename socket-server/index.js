@@ -82,7 +82,7 @@ app.post(ROUTE_TYPES.FRONT + '/powerShortage', (req, res) => {
   const msg = req.body
   const dataToPass = handlePowerShortage(STATE, msg)
   expressWs.getWss().clients.forEach(client => {
-    if (client.route == '/powerShortage') {
+    if (client.route === '/powerShortage') {
       client.send(JSON.stringify(dataToPass))
     }
   })
