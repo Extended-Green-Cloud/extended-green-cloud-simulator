@@ -32,10 +32,8 @@ app.use(bodyParser.json())
 
 app.ws("/", function (ws, req) {
   ws.route = '/'
-  ws.on("open", () => {
-    logUserConnected()
-    ws.send(JSON.stringify(WELCOMING_MESSAGE))
-  })
+  logUserConnected()
+  ws.send(JSON.stringify(WELCOMING_MESSAGE))
 
   ws.on("message", function (msg) {
     const message = parseData(msg)
@@ -48,6 +46,13 @@ app.ws("/", function (ws, req) {
     }
   });
 });
+
+app.ws("/powerShortage", function (ws, req) {
+  ws.route = '/powerShortage'
+  logUserConnected()
+  ws.send(JSON.stringify(WELCOMING_MESSAGE))
+});
+
 
 app.get(ROUTE_TYPES.FRONT, (req, res) => {
   res.send(JSON.stringify(STATE))
@@ -77,7 +82,9 @@ app.post(ROUTE_TYPES.FRONT + '/powerShortage', (req, res) => {
   const msg = req.body
   const dataToPass = handlePowerShortage(STATE, msg)
   expressWs.getWss().clients.forEach(client => {
-    client.send(JSON.stringify(dataToPass))
+    if(client.route == '/powerShortage') {
+      client.send(JSON.stringify(dataToPass))
+    }
   })
 })
 

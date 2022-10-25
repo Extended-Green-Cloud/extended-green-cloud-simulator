@@ -15,12 +15,13 @@ public class GuiControllerImpl implements GuiController {
 
 	public GuiControllerImpl(String mainHostUri) {
 		webSocketClient = new GuiWebSocketClient(URI.create(mainHostUri));
-		webSocketListener = new GuiWebSocketListener(URI.create(mainHostUri + "/powerShortage"));
+		webSocketListener = new GuiWebSocketListener(URI.create(mainHostUri + "powerShortage"));
 	}
 
 	@Override
 	public void run() {
 		webSocketClient.connect();
+		webSocketListener.connect();
 	}
 
 	@Override
@@ -32,11 +33,6 @@ public class GuiControllerImpl implements GuiController {
 	@Override
 	public void removeAgentNodeFromGraph(AbstractAgentNode agentNode) {
 		// TODO
-	}
-
-	@Override
-	public void createEdges() {
-		// TODO FOR REMOVAL?
 	}
 
 	@Override

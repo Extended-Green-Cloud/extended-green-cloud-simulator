@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,11 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 
 	public void addAgentNode(AbstractAgentNode agentNode) {
 		agentNodes.put(agentNode.getAgentName(), agentNode);
+	}
+
+	@Override
+	public void onOpen(ServerHandshake serverHandshake) {
+		logger.info("Connected to event listener");
 	}
 
 	@Override

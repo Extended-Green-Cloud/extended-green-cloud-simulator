@@ -29,11 +29,6 @@ public interface GuiController extends Runnable {
 	void removeAgentNodeFromGraph(final AbstractAgentNode agentNode);
 
 	/**
-	 * Method creates edges based on existing nodes
-	 */
-	void createEdges();
-
-	/**
 	 * Method updates the clients number by given value
 	 *
 	 * @param value value to be added to the clients number

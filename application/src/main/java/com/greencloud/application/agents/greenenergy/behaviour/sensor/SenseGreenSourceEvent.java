@@ -15,7 +15,7 @@ import com.gui.event.domain.PowerShortageEvent;
 import jade.core.behaviours.TickerBehaviour;
 
 /**
- * Behaviour listens for the outside world eventsQueue
+ * Behaviour listens and reads the environmental eventsQueue
  */
 public class SenseGreenSourceEvent extends TickerBehaviour {
 

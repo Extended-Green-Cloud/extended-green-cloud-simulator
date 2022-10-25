@@ -7,7 +7,7 @@ package com.greencloud.application.agents.greenenergy.domain;
  * <p> MAX_ERROR_IN_JOB_FINISH 		  			- variation in milliseconds of job finish time </p>
  * <p> INTERVAL_LENGTH_MS					    - length of the sub-interval used in calculating available power </p>
  * <p> PERIODIC_WEATHER_CHECK_TIMEOUT 			- timeout in between consecutive weather checks </p>
- * <p> GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT  - timeout in between consecutive environment eventsQueue checks </p>
+ * <p> GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT  - timeout in between reading consecutive environmental events </p>
  * <p> CUT_ON_WIND_SPEED 			  			- speed in blade rotation </p>
  * <p> RATED_WIND_SPEED 			  			- wind speed at which wind turbine produces maximum power, given in meters per second </p>
  * <p> TEST_MULTIPLIER				  			- multiplier used in manipulating power management in conducted tests (1 = getting true result) </p>

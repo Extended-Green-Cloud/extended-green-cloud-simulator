@@ -41,7 +41,8 @@ module.exports = {
                     type: EVENT_TYPE.POWER_SHORTAGE_EVENT,
                     data: {
                         newMaximumCapacity: maxCapacity,
-                        occurenceTime: getEventOccurenceTime()
+                        occurrenceTime: getEventOccurenceTime(),
+                        isFinished: event.state !== EVENT_STATE.ACTIVE
                     }
                 }
                 event.state = event.state === EVENT_STATE.ACTIVE ?
