@@ -8,15 +8,17 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.li
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FINISHED_MANUALLY_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareConfirmationMessage;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFailureMessage;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -34,7 +36,6 @@ import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
-import com.greencloud.application.messages.MessagingUtils;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -92,7 +93,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void handlePowerResponseMessage(final ACLMessage msg) {
-		final JobInstanceIdentifier jobInstanceId = MessagingUtils.readMessageContent(msg,
+		final JobInstanceIdentifier jobInstanceId = readMessageContent(msg,
 				JobInstanceIdentifier.class);
 		final String messageType = msg.getProtocol();
 		final String jobId = jobInstanceId.getJobId();
@@ -155,17 +156,16 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
 		displayMessageArrow(myServerAgent, myServerAgent.getOwnerCloudNetworkAgent());
-		myServerAgent.send(
-				prepareFailureMessage(jobInstanceId, myServerAgent.getOwnerCloudNetworkAgent(), protocol));
+		myServerAgent.send(prepareJobStatusMessage(jobInstanceId, protocol, myServerAgent, FAILURE));
 
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
-			final String jobId = MessagingUtils.readMessageContent(msg, String.class);
+			final String jobId = readMessageContent(msg, String.class);
 			return myServerAgent.manage().getJobById(jobId);
 		} catch (IncorrectMessageContentException e) {
-			final JobInstanceIdentifier identifier = MessagingUtils.readMessageContent(msg,
+			final JobInstanceIdentifier identifier = readMessageContent(msg,
 					JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
 		}

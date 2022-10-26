@@ -1,20 +1,23 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener;
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.JOB_CONFIRMED_STATUS_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_BACK_UP_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_GREEN_POWER_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_JOB_FAILED_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_JOB_FINISH_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_JOB_START_STATUS_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_ON_HOLD_STATUS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_CHANGE_TEMPLATE;
 import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFailureMessageForClient;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
@@ -74,7 +77,8 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 					case FAILED_JOB_PROTOCOL -> handleFailedJobMessage(jobId);
 					case STARTED_JOB_PROTOCOL -> handleStartedJobMessage(jobId);
 					case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobId);
-					case POWER_SHORTAGE_FINISH_ALERT_PROTOCOL -> handleGreenPowerJobMessage(jobId);
+					case GREEN_POWER_JOB_PROTOCOL, ON_HOLD_JOB_PROTOCOL, BACK_UP_POWER_JOB_PROTOCOL ->
+							handleJobStatusUpdateMessage(jobId, message.getProtocol());
 				}
 			}
 		} else {
@@ -112,11 +116,16 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		myAgent.send(prepareJobStatusMessageForClient(clientId, FINISH_JOB_PROTOCOL));
 	}
 
-	private void handleGreenPowerJobMessage(final String jobId) {
+	private void handleJobStatusUpdateMessage(final String jobId, String protocol) {
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
-		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), GREEN_POWER_JOB_PROTOCOL));
+
+		switch (protocol) {
+			case ON_HOLD_JOB_PROTOCOL -> logger.info(SEND_ON_HOLD_STATUS_LOG, jobId);
+			case GREEN_POWER_JOB_PROTOCOL -> logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
+			case BACK_UP_POWER_JOB_PROTOCOL -> logger.info(SEND_BACK_UP_STATUS_LOG, jobId);
+		}
+		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), protocol));
 	}
 
 	private void handleFailedJobMessage(final String jobId) {

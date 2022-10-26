@@ -4,7 +4,6 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
@@ -75,18 +74,5 @@ public class PowerShortageMessageFactory {
 		message.setProtocol(protocol);
 		message.addReceiver(receiver);
 		return message;
-	}
-
-	/**
-	 * Method prepares the message informing about the finish of the shortage in power for given agent
-	 *
-	 * @param jobInstanceId unique identifier of the job instance
-	 * @param receiver      message receiver
-	 * @return inform ACLMessage
-	 */
-	public static ACLMessage preparePowerShortageFinishInformation(final JobInstanceIdentifier jobInstanceId,
-			final AID receiver) {
-		return prepareJobPowerShortageInformation(jobInstanceId, receiver,
-				MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL);
 	}
 }

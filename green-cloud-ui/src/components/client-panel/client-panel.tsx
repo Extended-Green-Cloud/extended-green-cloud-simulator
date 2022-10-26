@@ -46,7 +46,7 @@ const ClientPanel = () => {
     }, [clients, dispatch])
 
     const selectData = useMemo(() => (clients as ClientAgent[])
-        .filter(client => jobStatusMap.find(el => el.jobStatus === client.jobStatusEnum.toString())?.isSelected)
+        .filter(client => jobStatusMap.find(el => el.jobStatus === client.jobStatusEnum.toString().replaceAll('_', ' '))?.isSelected)
         .reduce((prev, curr) => {
             const prevGroup = prev.find(el => el.label === curr.jobStatusEnum.toString())
             if (prevGroup) {

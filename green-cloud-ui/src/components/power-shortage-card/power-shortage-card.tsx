@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import './css/power-shortage-card-styles.css'
 
 import { agentsActions, useAppDispatch } from "@store"
@@ -31,6 +31,10 @@ const PowerShortageCard = ({ event, label, agentName }: Props) => {
     const [inputVal, setInputVal] = useState<number>()
     const dispatch = useAppDispatch()
 
+    useEffect(() => {
+        setInputVal(undefined)
+    }, [agentName])
+
     const getButtonStyle = () => {
         const eventStyle = event.state === EventState.ACTIVE ?
             'active-button' :
@@ -46,7 +50,7 @@ const PowerShortageCard = ({ event, label, agentName }: Props) => {
     }
 
     function handlePowerShortageTrigger(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-        if (!inputVal && event?.state === EventState.ACTIVE) {
+        if (typeof inputVal === 'undefined' && event?.state === EventState.ACTIVE) {
             toast.dismiss()
             toast.info("The new maximum capacity must be specified!")
         } else {
@@ -54,6 +58,7 @@ const PowerShortageCard = ({ event, label, agentName }: Props) => {
             toast.dismiss()
             toast.warn(`Power shortage ${message} in ${agentName}`)
             dispatch(agentsActions.triggerPowerShortage({ agentName, newMaximumCapacity: inputVal as number }))
+            setInputVal(undefined)
         }
     }
 

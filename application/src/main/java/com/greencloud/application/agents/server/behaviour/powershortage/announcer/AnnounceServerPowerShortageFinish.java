@@ -11,7 +11,11 @@ import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
@@ -84,13 +88,19 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 					if (availablePower < jobPower && availableBackUpPower < jobPower) {
 						logger.info(POWER_SHORTAGE_FINISH_LEAVE_ON_HOLD_LOG, job.getJobId());
 					} else if (availableBackUpPower >= jobPower) {
-						final JobStatusEnum status = myServerAgent.getServerJobs().get(job)
-								.equals(JobStatusEnum.ON_HOLD) ?
+						final boolean hasJobStarted = myServerAgent.getServerJobs().get(job)
+								.equals(JobStatusEnum.ON_HOLD);
+						final JobStatusEnum status = hasJobStarted ?
 								IN_PROGRESS_BACKUP_ENERGY :
 								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 						logger.info(POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG, job.getJobId());
 						myServerAgent.getServerJobs().replace(job, status);
 						myServerAgent.manage().updateServerGUI();
+
+						if (hasJobStarted) {
+							myServerAgent.manage()
+									.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_PROTOCOL);
+						}
 					} else {
 						logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
 						updateJobStatus(job, jobInstance);
@@ -101,14 +111,20 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 	}
 
 	private void updateJobStatus(final ClientJob job, final JobInstanceIdentifier jobInstance) {
-		final JobStatusEnum newStatus = job.getStartTime().isAfter(getCurrentTime()) ?
+		final boolean hasStarted = job.getStartTime().isAfter(getCurrentTime());
+		final JobStatusEnum newStatus = hasStarted ?
 				JobStatusEnum.ACCEPTED :
 				JobStatusEnum.IN_PROGRESS;
 		myServerAgent.getServerJobs().replace(job, newStatus);
 
 		final AID greenSource = myServerAgent.getGreenSourceForJobMap().get(job.getJobId());
-		final ACLMessage finishInformation = preparePowerShortageFinishInformation(jobInstance, greenSource);
+		final ACLMessage finishInformation = prepareJobPowerShortageInformation(jobInstance, greenSource,
+				POWER_SHORTAGE_FINISH_ALERT_PROTOCOL);
 		finishInformation.addReceiver(myServerAgent.getOwnerCloudNetworkAgent());
+
+		if (hasStarted) {
+			myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_PROTOCOL);
+		}
 
 		displayMessageArrow(myServerAgent, finishInformation.getAllReceiver());
 		myServerAgent.manage().updateServerGUI();

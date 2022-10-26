@@ -9,13 +9,13 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -31,6 +31,8 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -107,8 +109,8 @@ public class HandleJobStart extends WakerBehaviour {
 				final String logMessage = informCNAStart ? JOB_START_LOG : JOB_START_NO_INFORM_LOG;
 				logger.info(logMessage, jobId);
 
-				substituteJobStatus();
 				sendJobStartMessage(jobId);
+				substituteJobStatus();
 				myServerAgent.manage().incrementStartedJobs(mapToJobInstanceId(jobToExecute));
 				myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
 			}
@@ -118,14 +120,29 @@ public class HandleJobStart extends WakerBehaviour {
 	}
 
 	private void substituteJobStatus() {
-		myServerAgent.getServerJobs()
-				.replace(jobToExecute, ACCEPTED, IN_PROGRESS);
-		myServerAgent.getServerJobs()
-				.replace(jobToExecute, ON_HOLD_SOURCE_SHORTAGE_PLANNED, ON_HOLD_SOURCE_SHORTAGE);
-		myServerAgent.getServerJobs()
-				.replace(jobToExecute, ON_HOLD_PLANNED, ON_HOLD);
-		myServerAgent.getServerJobs()
-				.replace(jobToExecute, IN_PROGRESS_BACKUP_ENERGY_PLANNED, IN_PROGRESS_BACKUP_ENERGY);
+		final JobStatusEnum currentStatus = myServerAgent.getServerJobs().get(jobToExecute);
+		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToExecute);
+
+		switch (currentStatus) {
+			case ACCEPTED -> {
+				myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, GREEN_POWER_JOB_PROTOCOL);
+			}
+			case ON_HOLD_SOURCE_SHORTAGE_PLANNED -> {
+				myServerAgent.getServerJobs().replace(jobToExecute, ON_HOLD_SOURCE_SHORTAGE);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+			}
+			case ON_HOLD_PLANNED -> {
+				myServerAgent.getServerJobs().replace(jobToExecute, ON_HOLD);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+			}
+			case IN_PROGRESS_BACKUP_ENERGY_PLANNED -> {
+				myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS_BACKUP_ENERGY);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, BACK_UP_POWER_JOB_PROTOCOL);
+			}
+			case ON_HOLD_TRANSFER ->
+					myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+		}
 	}
 
 	private void sendJobStartMessage(final String jobId) {

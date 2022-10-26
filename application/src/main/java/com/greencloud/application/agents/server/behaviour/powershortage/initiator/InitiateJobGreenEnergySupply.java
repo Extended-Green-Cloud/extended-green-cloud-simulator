@@ -9,7 +9,9 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 
 import java.util.Objects;
@@ -110,6 +112,8 @@ public class InitiateJobGreenEnergySupply extends AchieveREInitiator {
 	private JobStatusEnum getNewJobStatus(final JobStatusEnum previousStatus) {
 		switch (previousStatus) {
 			case ON_HOLD_SOURCE_SHORTAGE, IN_PROGRESS_BACKUP_ENERGY:
+				myServerAgent.manage()
+						.informCNAAboutStatusChange(mapToJobInstanceId(jobToSupply), GREEN_POWER_JOB_PROTOCOL);
 				return IN_PROGRESS;
 			case ON_HOLD_SOURCE_SHORTAGE_PLANNED, IN_PROGRESS_BACKUP_ENERGY_PLANNED:
 				return ACCEPTED;

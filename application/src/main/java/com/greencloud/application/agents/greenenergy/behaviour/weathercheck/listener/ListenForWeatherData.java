@@ -19,12 +19,13 @@ import static com.greencloud.application.domain.powershortage.PowerShortageCause
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.RE_SUPPLY_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.WEATHER_UNAVAILABLE_CAUSE_MESSAGE;
-import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.FAILURE;
@@ -149,8 +150,8 @@ public class ListenForWeatherData extends CyclicBehaviour {
 
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
-			myGreenEnergyAgent.send(preparePowerShortageFinishInformation(mapToJobInstanceId(powerJob),
-					myGreenEnergyAgent.getOwnerServer()));
+			myGreenEnergyAgent.send(prepareJobPowerShortageInformation(mapToJobInstanceId(powerJob),
+					myGreenEnergyAgent.getOwnerServer(), POWER_SHORTAGE_FINISH_ALERT_PROTOCOL));
 		}
 	}
 

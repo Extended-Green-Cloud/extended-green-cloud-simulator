@@ -26,15 +26,12 @@ module.exports = {
             const event = getEventByType(agent.events, EVENT_TYPE.POWER_SHORTAGE_EVENT)
 
             if (event) {
-                const eventState = event.state === EVENT_STATE.ACTIVE ?
-                    'triggered' :
-                    'finished'
+                const isEventActive = event.state === EVENT_STATE.ACTIVE
+                const eventState = isEventActive ? 'triggered' : 'finished'
                 logPowerShortageEvent(agent.name, eventState)
-                const maxCapacity = data.data.newMaximumCapacity
+                const maxCapacity = isEventActive? data.data.newMaximumCapacity : agent.initialMaximumCapacity
 
-                agent.currentMaximumCapacity = EVENT_STATE.ACTIVE === event.state ?
-                    maxCapacity :
-                    agent.initialMaximumCapacity
+                agent.currentMaximumCapacity = maxCapacity
                 event.disabled = true
                 const dataToReturn = {
                     agentName: agent.name,
@@ -45,9 +42,7 @@ module.exports = {
                         isFinished: event.state !== EVENT_STATE.ACTIVE
                     }
                 }
-                event.state = event.state === EVENT_STATE.ACTIVE ?
-                    EVENT_STATE.INACTIVE :
-                    EVENT_STATE.ACTIVE;
+                event.state = isEventActive ? EVENT_STATE.INACTIVE : EVENT_STATE.ACTIVE;
 
                 unlockEvent(event)
                 return dataToReturn

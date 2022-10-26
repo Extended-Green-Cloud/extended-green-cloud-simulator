@@ -16,6 +16,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
@@ -23,6 +25,7 @@ import static com.greencloud.application.messages.domain.factory.PowerShortageMe
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -154,7 +157,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		} else {
 			displayMessageArrow(myServerAgent, greenSourceRequest.getSender());
 			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), TRANSFER_SUCCESSFUL_MESSAGE,
-					ACLMessage.INFORM));
+					INFORM));
 		}
 	}
 
@@ -192,14 +195,29 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		if (isNull(greenSourceRequest)) {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_HOLD_LOG, jobId);
 			myServerAgent.getServerJobs().replace(job, hasStarted ? ON_HOLD : ON_HOLD_PLANNED);
+
+			if (hasStarted) {
+				myServerAgent.manage()
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_PROTOCOL);
+			}
 		} else if (availableBackUpPower <= job.getPower()) {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_HOLD_SOURCE_LOG, jobId);
 			myServerAgent.getServerJobs()
 					.replace(job, hasStarted ? ON_HOLD_SOURCE_SHORTAGE : ON_HOLD_SOURCE_SHORTAGE_PLANNED);
+
+			if (hasStarted) {
+				myServerAgent.manage()
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_PROTOCOL);
+			}
 		} else {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_BACKUP_LOG, jobId);
 			myServerAgent.getServerJobs()
 					.replace(job, hasStarted ? IN_PROGRESS_BACKUP_ENERGY : IN_PROGRESS_BACKUP_ENERGY_PLANNED);
+
+			if (hasStarted) {
+				myServerAgent.manage()
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_PROTOCOL);
+			}
 		}
 		myServerAgent.manage().updateServerGUI();
 	}

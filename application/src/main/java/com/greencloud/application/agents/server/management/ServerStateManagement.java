@@ -11,10 +11,12 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static jade.lang.acl.ACLMessage.INFORM;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -213,7 +215,8 @@ public class ServerStateManagement {
 	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		startedJobsInstances.getAndAdd(1);
-		logger.info("Started job instance {}. Number of started job instances is {}", jobInstanceId, startedJobsInstances);
+		logger.info("Started job instance {}. Number of started job instances is {}", jobInstanceId,
+				startedJobsInstances);
 		updateServerGUI();
 	}
 
@@ -312,6 +315,17 @@ public class ServerStateManagement {
 		if (Objects.nonNull(serverAgentNode)) {
 			serverAgentNode.updateClientNumber(getClientNumber());
 		}
+	}
+
+	/**
+	 * Method informs CNA that the status of given job has changed
+	 *
+	 * @param jobInstance job which status has changed
+	 * @param protocol    protocol giving information about a new status
+	 */
+	public void informCNAAboutStatusChange(final JobInstanceIdentifier jobInstance, final String protocol) {
+		final ACLMessage information = prepareJobStatusMessage(jobInstance, protocol, serverAgent, INFORM);
+		serverAgent.send(information);
 	}
 
 	public AtomicInteger getStartedJobsInstances() {

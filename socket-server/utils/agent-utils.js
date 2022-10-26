@@ -24,7 +24,7 @@ const registerCloudNetwork = (data) => {
 }
 
 const registerGreenEnergy = (data) => {
-    const events = [INITIAL_POWER_SHORTAGE_STATE]
+    const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)]
 
     return {
         type: AGENT_TYPES.GREEN_ENERGY,
@@ -36,7 +36,7 @@ const registerGreenEnergy = (data) => {
 }
 
 const registerServer = (data) => {
-    const events = [INITIAL_POWER_SHORTAGE_STATE]
+    const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)]
 
     return {
         type: AGENT_TYPES.SERVER,

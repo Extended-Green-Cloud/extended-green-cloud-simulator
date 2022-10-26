@@ -4,12 +4,12 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.l
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates.SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
-import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageFinishInformation;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
-import java.util.EnumSet;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.mapper.JobMapper;
 
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
@@ -55,17 +54,16 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		if (Objects.nonNull(inform)) {
 			final ClientJob job = getJobFromMessage(inform);
 
-			if (Objects.nonNull(job) && POWER_SHORTAGE_SOURCE_STATUSES.contains(myServerAgent.getServerJobs().get(job))) {
+			if (Objects.nonNull(job) && POWER_SHORTAGE_SOURCE_STATUSES.contains(
+					myServerAgent.getServerJobs().get(job))) {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				logger.info(GS_SHORTAGE_FINISH_LOG, job.getJobId());
 				final AID cloudNetwork = myServerAgent.getOwnerCloudNetworkAgent();
-				final ACLMessage informationToCNA =
-						preparePowerShortageFinishInformation(JobMapper.mapToJobInstanceId(job), cloudNetwork);
 
 				myServerAgent.getServerJobs().replace(job, getNewJobStatus(job));
 				myServerAgent.manage().updateServerGUI();
 				displayMessageArrow(myServerAgent, cloudNetwork);
-				myServerAgent.send(informationToCNA);
+				myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_PROTOCOL);
 			}
 		} else {
 			block();

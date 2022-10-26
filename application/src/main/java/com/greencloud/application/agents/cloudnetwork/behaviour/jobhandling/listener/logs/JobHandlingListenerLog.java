@@ -16,6 +16,10 @@ public class JobHandlingListenerLog {
 			"Job {} has been confirmed as accepted in server";
 	public static final String SEND_GREEN_POWER_STATUS_LOG =
 			"Sending information that the job {} is executed again using green power";
+	public static final String SEND_BACK_UP_STATUS_LOG =
+			"Sending information that the job {} is executed using back-up power";
+	public static final String SEND_ON_HOLD_STATUS_LOG =
+			"Sending information that the job {} has been put on hold";
 	public static final String SEND_JOB_START_STATUS_LOG =
 			"Sending information that the job {} execution has started";
 	public static final String SEND_JOB_FINISH_STATUS_LOG =

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.mapper.JsonMapper;
@@ -25,7 +26,7 @@ import jade.lang.acl.ACLMessage;
 public class JobStatusMessageFactory {
 
 	/**
-	 * Method prepares the information message about the job execution start which is to be sent
+	 * Method prepares the information message about the job execution status which is to be sent
 	 * to the client
 	 *
 	 * @param clientId client global name
@@ -36,6 +37,29 @@ public class JobStatusMessageFactory {
 		informationMessage.setProtocol(protocol);
 		informationMessage.setContent(protocol);
 		informationMessage.addReceiver(new AID(clientId, AID.ISGUID));
+		return informationMessage;
+	}
+
+	/**
+	 * Method prepares the message about the job changing its status
+	 *
+	 * @param jobInstanceId unique job instance
+	 * @param server        server that is sending the message
+	 * @param protocol      flag message type to be sent
+	 * @param performative  message performative
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobStatusMessage(final JobInstanceIdentifier jobInstanceId, final String protocol,
+			final ServerAgent server, int performative) {
+		final ACLMessage informationMessage = new ACLMessage(performative);
+
+		try {
+			informationMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobInstanceId));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		informationMessage.setProtocol(protocol);
+		informationMessage.addReceiver(server.getOwnerCloudNetworkAgent());
 		return informationMessage;
 	}
 
@@ -53,27 +77,6 @@ public class JobStatusMessageFactory {
 		final ACLMessage informationMessage = new ACLMessage(INFORM);
 		final String protocol = isDueToTransfer ? CONFIRMED_TRANSFER_PROTOCOL : CONFIRMED_JOB_PROTOCOL;
 
-		try {
-			informationMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobInstanceId));
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		informationMessage.setProtocol(protocol);
-		informationMessage.addReceiver(receiver);
-		return informationMessage;
-	}
-
-	/**
-	 * Method prepares the information message about the job acceptance failure at the given server
-	 *
-	 * @param jobInstanceId   unique job instance
-	 * @param receiver        CNA to which the message is to be sent
-	 * @param protocol protocol added to the message
-	 * @return inform ACLMessage
-	 */
-	public static ACLMessage prepareFailureMessage(final JobInstanceIdentifier jobInstanceId,
-			final AID receiver, final String protocol) {
-		final ACLMessage informationMessage = new ACLMessage(FAILURE);
 		try {
 			informationMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobInstanceId));
 		} catch (JsonProcessingException e) {
