@@ -12,8 +12,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BA
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
@@ -99,7 +99,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 
 						if (hasJobStarted) {
 							myServerAgent.manage()
-									.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_PROTOCOL);
+									.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
 						}
 					} else {
 						logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
@@ -123,7 +123,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 		finishInformation.addReceiver(myServerAgent.getOwnerCloudNetworkAgent());
 
 		if (hasStarted) {
-			myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_PROTOCOL);
+			myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_ID);
 		}
 
 		displayMessageArrow(myServerAgent, finishInformation.getAllReceiver());

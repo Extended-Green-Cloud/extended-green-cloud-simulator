@@ -13,9 +13,9 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.application.domain.job.JobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -126,22 +126,21 @@ public class HandleJobStart extends WakerBehaviour {
 		switch (currentStatus) {
 			case ACCEPTED -> {
 				myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS);
-				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, GREEN_POWER_JOB_PROTOCOL);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, GREEN_POWER_JOB_ID);
 			}
 			case ON_HOLD_SOURCE_SHORTAGE_PLANNED -> {
 				myServerAgent.getServerJobs().replace(jobToExecute, ON_HOLD_SOURCE_SHORTAGE);
-				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_ID);
 			}
 			case ON_HOLD_PLANNED -> {
 				myServerAgent.getServerJobs().replace(jobToExecute, ON_HOLD);
-				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_ID);
 			}
 			case IN_PROGRESS_BACKUP_ENERGY_PLANNED -> {
 				myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS_BACKUP_ENERGY);
-				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, BACK_UP_POWER_JOB_PROTOCOL);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, BACK_UP_POWER_JOB_ID);
 			}
-			case ON_HOLD_TRANSFER ->
-					myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_PROTOCOL);
+			case ON_HOLD_TRANSFER -> myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_ID);
 		}
 	}
 

@@ -321,10 +321,10 @@ public class ServerStateManagement {
 	 * Method informs CNA that the status of given job has changed
 	 *
 	 * @param jobInstance job which status has changed
-	 * @param protocol    protocol giving information about a new status
+	 * @param type    new status type
 	 */
-	public void informCNAAboutStatusChange(final JobInstanceIdentifier jobInstance, final String protocol) {
-		final ACLMessage information = prepareJobStatusMessage(jobInstance, protocol, serverAgent, INFORM);
+	public void informCNAAboutStatusChange(final JobInstanceIdentifier jobInstance, final String type) {
+		final ACLMessage information = prepareJobStatusMessage(jobInstance, type, serverAgent);
 		serverAgent.send(information);
 	}
 

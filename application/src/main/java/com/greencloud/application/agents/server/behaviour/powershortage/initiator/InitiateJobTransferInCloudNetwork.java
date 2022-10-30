@@ -16,8 +16,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
@@ -198,7 +198,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 
 			if (hasStarted) {
 				myServerAgent.manage()
-						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_PROTOCOL);
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_ID);
 			}
 		} else if (availableBackUpPower <= job.getPower()) {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_HOLD_SOURCE_LOG, jobId);
@@ -207,7 +207,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 
 			if (hasStarted) {
 				myServerAgent.manage()
-						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_PROTOCOL);
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_ID);
 			}
 		} else {
 			logger.info(CNA_JOB_TRANSFER_PUT_ON_BACKUP_LOG, jobId);
@@ -216,7 +216,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 
 			if (hasStarted) {
 				myServerAgent.manage()
-						.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_PROTOCOL);
+						.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
 			}
 		}
 		myServerAgent.manage().updateServerGUI();

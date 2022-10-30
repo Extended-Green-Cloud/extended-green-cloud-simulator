@@ -12,12 +12,13 @@ import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetwork
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.GREEN_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFailureMessageForClient;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
@@ -77,8 +78,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 					case FAILED_JOB_PROTOCOL -> handleFailedJobMessage(jobId);
 					case STARTED_JOB_PROTOCOL -> handleStartedJobMessage(jobId);
 					case FINISH_JOB_PROTOCOL -> handleFinishJobMessage(jobId);
-					case GREEN_POWER_JOB_PROTOCOL, ON_HOLD_JOB_PROTOCOL, BACK_UP_POWER_JOB_PROTOCOL ->
-							handleJobStatusUpdateMessage(jobId, message.getProtocol());
+					case CHANGE_JOB_STATUS_PROTOCOL -> handleJobStatusUpdateMessage(jobId, message.getConversationId());
 				}
 			}
 		} else {
@@ -116,16 +116,16 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		myAgent.send(prepareJobStatusMessageForClient(clientId, FINISH_JOB_PROTOCOL));
 	}
 
-	private void handleJobStatusUpdateMessage(final String jobId, String protocol) {
+	private void handleJobStatusUpdateMessage(final String jobId, String type) {
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 		MDC.put(MDC_JOB_ID, jobId);
 
-		switch (protocol) {
-			case ON_HOLD_JOB_PROTOCOL -> logger.info(SEND_ON_HOLD_STATUS_LOG, jobId);
-			case GREEN_POWER_JOB_PROTOCOL -> logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
-			case BACK_UP_POWER_JOB_PROTOCOL -> logger.info(SEND_BACK_UP_STATUS_LOG, jobId);
+		switch (type) {
+			case ON_HOLD_JOB_ID -> logger.info(SEND_ON_HOLD_STATUS_LOG, jobId);
+			case GREEN_POWER_JOB_ID -> logger.info(SEND_GREEN_POWER_STATUS_LOG, jobId);
+			case BACK_UP_POWER_JOB_ID -> logger.info(SEND_BACK_UP_STATUS_LOG, jobId);
 		}
-		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), protocol));
+		myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), CHANGE_JOB_STATUS_PROTOCOL, type));
 	}
 
 	private void handleFailedJobMessage(final String jobId) {

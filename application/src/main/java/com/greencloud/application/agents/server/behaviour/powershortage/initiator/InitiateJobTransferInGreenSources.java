@@ -15,15 +15,13 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
 import static com.greencloud.application.messages.MessagingUtils.retrieveValidMessages;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.BACK_UP_POWER_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SOURCES_AVAILABLE_CAUSE_MESSAGE;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-import static jade.lang.acl.ACLMessage.INFORM;
 
 import java.time.Instant;
 import java.util.List;
@@ -145,7 +143,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 						.replace(job, hasStarted ? ON_HOLD_SOURCE_SHORTAGE : ON_HOLD_SOURCE_SHORTAGE_PLANNED);
 
 				if (hasStarted) {
-					myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_PROTOCOL);
+					myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_ID);
 				}
 			} else {
 				logger.info(GS_TRANSFER_FAIL_BACK_UP_LOG, jobToTransfer.getJobId());
@@ -154,7 +152,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 
 				if (hasStarted) {
 					myServerAgent.manage()
-							.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_PROTOCOL);
+							.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
 				}
 			}
 			myServerAgent.manage().updateServerGUI();

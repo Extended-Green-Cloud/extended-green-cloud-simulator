@@ -14,6 +14,7 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
 import static com.greencloud.application.messages.MessagingUtils.retrieveValidMessages;
+import static com.greencloud.application.messages.domain.constants.MessageContentConstants.INVALID_JOB_ID_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CLIENT_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
@@ -115,7 +116,7 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 		logger.info(INVALID_CLOUD_PROPOSAL_LOG);
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.REJECTED);
-		rejectJobOffers(myClientAgent, MessageContentConstants.INVALID_JOB_ID_MESSAGE, null, proposals);
+		rejectJobOffers(myClientAgent, INVALID_JOB_ID_MESSAGE, null, proposals);
 	}
 
 	private void handleRetryProcess() {

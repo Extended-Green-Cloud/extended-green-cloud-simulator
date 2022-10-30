@@ -1,5 +1,6 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
@@ -30,12 +31,32 @@ public class JobStatusMessageFactory {
 	 * to the client
 	 *
 	 * @param clientId client global name
+	 * @param protocol protocol of the message
 	 * @return inform ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final String clientId, final String protocol) {
 		final ACLMessage informationMessage = new ACLMessage(INFORM);
 		informationMessage.setProtocol(protocol);
 		informationMessage.setContent(protocol);
+		informationMessage.addReceiver(new AID(clientId, AID.ISGUID));
+		return informationMessage;
+	}
+
+	/**
+	 * Method prepares the information message about the job execution status which is to be sent
+	 * to the client
+	 *
+	 * @param clientId       client global name
+	 * @param protocol       protocol of the message
+	 * @param conversationId type of the message passed for the client
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobStatusMessageForClient(final String clientId, final String protocol,
+			final String conversationId) {
+		final ACLMessage informationMessage = new ACLMessage(INFORM);
+		informationMessage.setProtocol(protocol);
+		informationMessage.setContent(protocol);
+		informationMessage.setConversationId(conversationId);
 		informationMessage.addReceiver(new AID(clientId, AID.ISGUID));
 		return informationMessage;
 	}
@@ -60,6 +81,22 @@ public class JobStatusMessageFactory {
 		}
 		informationMessage.setProtocol(protocol);
 		informationMessage.addReceiver(server.getOwnerCloudNetworkAgent());
+		return informationMessage;
+	}
+
+	/**
+	 * Method prepares the message about the job changing its status
+	 *
+	 * @param jobInstanceId  unique job instance
+	 * @param server         server that is sending the message
+	 * @param conversationId conversation identifier informing about message type
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobStatusMessage(final JobInstanceIdentifier jobInstanceId,
+			final String conversationId, final ServerAgent server) {
+		final ACLMessage informationMessage = prepareJobStatusMessage(jobInstanceId, CHANGE_JOB_STATUS_PROTOCOL, server,
+				INFORM);
+		informationMessage.setConversationId(conversationId);
 		return informationMessage;
 	}
 
