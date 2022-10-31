@@ -78,15 +78,14 @@ public class AlgorithmUtils {
 	 */
 	public static <T extends PowerJob, N extends JobWithTime> double getMinimalAvailablePowerDuringTimeStamp(
 			final Set<T> jobList, final Instant startTime, final Instant endTime, final long intervalLength,
-			final GreenPowerManagement greenPowerManagement,
-			final MonitoringData monitoringData) {
+			final GreenPowerManagement greenPowerManagement, final MonitoringData monitoringData) {
 		final List<N> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
 
 		final Deque<Map.Entry<Instant, Integer>> powerInIntervals = jobsWithTimeMap.isEmpty() ?
 				new ArrayDeque<>() :
 				getPowerForJobIntervals(jobsWithTimeMap.subList(0, jobsWithTimeMap.size() - 1));
 		final Set<Instant> subIntervals = divideIntoSubIntervals(startTime, endTime, intervalLength);
-		final AtomicReference<Double> minimumAvailablePower = new AtomicReference<>(Double.MAX_VALUE);
+		final AtomicReference<Double> minimumAvailablePower = new AtomicReference<>((double) greenPowerManagement.getCurrentMaximumCapacity());
 		final AtomicReference<Map.Entry<Instant, Integer>> lastOpenedPowerInterval = new AtomicReference<>(null);
 
 		subIntervals.stream()
