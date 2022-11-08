@@ -16,6 +16,7 @@
 		<module>gui</module>
 		<module>test</module>
 		<module>commons</module>
+		<module>knowledge-database</module>
 	</modules>
 
 	<properties>
