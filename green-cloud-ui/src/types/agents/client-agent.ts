@@ -1,10 +1,10 @@
-import { JobStatus } from "types/enum/job-status-enum";
-import { CommonAgentInterface } from "./common/common-agent";
+import { JobStatus } from 'types/enum/job-status-enum'
+import { CommonAgentInterface } from './common/common-agent'
 
 export interface ClientAgent extends CommonAgentInterface {
-    jobId: string,
-    power: string,
-    start: string,
-    end: string,
-    jobStatusEnum: JobStatus
+   jobId: string
+   power: string
+   start: string
+   end: string
+   jobStatusEnum: JobStatus
 }

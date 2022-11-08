@@ -1,5 +1,5 @@
-import { CommonAgentInterface } from "./common/common-agent";
+import { CommonAgentInterface } from './common/common-agent'
 
 export interface MonitoringAgent extends CommonAgentInterface {
-    greenEnergyAgent: string
+   greenEnergyAgent: string
 }

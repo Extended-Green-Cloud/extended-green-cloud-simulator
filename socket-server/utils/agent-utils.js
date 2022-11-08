@@ -58,39 +58,22 @@ const registerMonitoring = (data) => {
     }
 }
 
-const createCloudNetworkEdges = (agent) =>
-    agent.serverAgents.map(serverAgent => createEdge(agent.name, serverAgent, true))
-
 const createServerEdges = (agent) => {
-    const uniEdge = createEdge(agent.name, agent.cloudNetworkAgent, false)
-    const cloudNetworkEdge = createEdge(agent.name, agent.cloudNetworkAgent, true)
-    const edges = agent.greenEnergyAgents.map(greenAgent => createEdge(agent.name, greenAgent, true))
-
-    edges.push(uniEdge)
-    edges.push(cloudNetworkEdge)
-
-    return edges
+    const cloudNetworkEdge = createEdge(agent.name, agent.cloudNetworkAgent)
+    
+    return [cloudNetworkEdge]
 }
 
 const createGreenEnergyEdges = (agent) => {
-    const uniEdgeMonitoring = createEdge(agent.name, agent.monitoringAgent, false)
-    const uniEdgeServer = createEdge(agent.name, agent.serverAgent, false)
-    const directedEdgeMonitoring = createEdge(agent.name, agent.monitoringAgent, true)
-    const directedEdgeServer = createEdge(agent.name, agent.serverAgent, true)
+    const edgeMonitoring = createEdge(agent.name, agent.monitoringAgent)
+    const edgeServer = createEdge(agent.name, agent.serverAgent)
 
-    return [uniEdgeMonitoring, uniEdgeServer, directedEdgeMonitoring, directedEdgeServer]
+    return [edgeMonitoring, edgeServer]
 }
 
-const createMonitoringEdges = (agent) =>
-    [createEdge(agent.name, agent.greenEnergyAgent, true)]
-
-
-const createEdge = (source, target, isDirected) => {
-    const id = isDirected ?
-        [source, target].join('-') :
-        [source, target, 'BI'].join('-')
-    const type = isDirected ? 'directed' : 'unidirected'
-    return ({ data: { id, source, target, type }, state: 'inactive' })
+const createEdge = (source, target) => {
+    const id = [source, target, 'BI'].join('-')
+    return ({ data: { id, source, target }, state: 'inactive' })
 }
 
 module.exports = {
@@ -116,10 +99,8 @@ module.exports = {
     },
     createAgentConnections: function (agent) {
         switch (agent.type) {
-            case AGENT_TYPES.CLOUD_NETWORK: return createCloudNetworkEdges(agent)
             case AGENT_TYPES.SERVER: return createServerEdges(agent)
             case AGENT_TYPES.GREEN_ENERGY: return createGreenEnergyEdges(agent)
-            case AGENT_TYPES.MONITORING: return createMonitoringEdges(agent)
             default: return []
         }
     }

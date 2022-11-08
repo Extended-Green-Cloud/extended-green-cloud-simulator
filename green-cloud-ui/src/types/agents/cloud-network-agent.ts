@@ -1,9 +1,9 @@
-import { CommonAgentInterface } from "./common/common-agent";
+import { CommonAgentInterface } from './common/common-agent'
 
 export interface CloudNetworkAgent extends CommonAgentInterface {
-    serverAgents: string[],
-    maximumCapacity: number,
-    traffic: number,
-    totalNumberOfClients: number,
-    totalNumberOfExecutedJobs: number
+   serverAgents: string[]
+   maximumCapacity: number
+   traffic: number
+   totalNumberOfClients: number
+   totalNumberOfExecutedJobs: number
 }

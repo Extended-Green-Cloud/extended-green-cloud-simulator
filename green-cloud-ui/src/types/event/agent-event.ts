@@ -1,7 +1,7 @@
-import { EventState, EventType } from "types/enum";
+import { EventState, EventType } from 'types/enum'
 
 export interface AgentEvent {
-    disabled: boolean,
-    state: EventState,
-    type: EventType,
+   disabled: boolean
+   state: EventState
+   type: EventType
 }

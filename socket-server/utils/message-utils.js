@@ -134,27 +134,6 @@ const handleRegisterAgent = (state, msg) => {
     }
 }
 
-const handleArrowDisplay = (state, msg) => {
-    msg.data.forEach((target) => {
-        const id = [msg.agentName, target].join('-')
-        const connection = state.agents.connections.find(el => el.data.id === id)
-
-        if (connection) {
-            connection.state = 'active'
-        }
-    })
-}
-
-const handleArrowHide = (state, msg) => {
-    msg.data.forEach((target) => {
-        const id = [msg.agentName, target].join('-')
-        const connection = state.agents.connections.find(el => el.data.id === id)
-
-        if (connection)
-            connection.state = 'inactive'
-    })
-}
-
 module.exports = {
     MESSAGE_HANDLERS: {
         INCREMENT_FINISHED_JOBS: handleIncrementFinishJobs,
@@ -171,8 +150,6 @@ module.exports = {
         SET_CLIENT_NUMBER: handleSetClientNumber,
         SET_CLIENT_JOB_STATUS: handleSetClientJobStatus,
         SET_SERVER_BACK_UP_TRAFFIC: handleSetBackUpTraffic,
-        REGISTER_AGENT: handleRegisterAgent,
-        DISPLAY_MESSAGE_ARROW: handleArrowDisplay,
-        HIDE_MESSAGE_ARROW: handleArrowHide
+        REGISTER_AGENT: handleRegisterAgent
     }
 }

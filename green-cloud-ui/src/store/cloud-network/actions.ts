@@ -1,4 +1,4 @@
-import { cloudNetworkSlice } from "./slice";
+import { cloudNetworkSlice } from './slice'
 
 /**
  * Set of cloud network actions

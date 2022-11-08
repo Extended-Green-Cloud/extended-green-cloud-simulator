@@ -1,27 +1,27 @@
 import { configureStore } from '@reduxjs/toolkit'
-import createSagaMiddleware from 'redux-saga';
+import createSagaMiddleware from 'redux-saga'
 import { cloudNetworkSlice } from './cloud-network'
-import rootSagas from './sagas';
+import rootSagas from './sagas'
 import { crashMiddleware, loggingMiddleware } from '@middleware'
-import { agentSlice } from './agent';
+import { agentSlice } from './agent'
 
-const sagaMiddleware = createSagaMiddleware();
+const sagaMiddleware = createSagaMiddleware()
 
 /**
  * Application store
  */
 export const store = configureStore({
-    reducer: {
-        cloudNetwork: cloudNetworkSlice.reducer,
-        agents: agentSlice.reducer
-    },
-    middleware: (getDefaultMiddleware) => {
-        return getDefaultMiddleware({ thunk: false }).concat([
-            crashMiddleware, 
-            sagaMiddleware,
-            loggingMiddleware,
-        ])
-      },
+   reducer: {
+      cloudNetwork: cloudNetworkSlice.reducer,
+      agents: agentSlice.reducer,
+   },
+   middleware: (getDefaultMiddleware) => {
+      return getDefaultMiddleware({ thunk: false }).concat([
+         crashMiddleware,
+         sagaMiddleware,
+         loggingMiddleware,
+      ])
+   },
 })
 
 /**
@@ -34,4 +34,4 @@ export type RootState = ReturnType<typeof store.getState>
  */
 export type AppDispatch = typeof store.dispatch
 
-sagaMiddleware.run(rootSagas);
+sagaMiddleware.run(rootSagas)

@@ -1,7 +1,7 @@
-import { AgentType } from "types/enum"
+import { AgentType } from 'types/enum'
 
 export interface CommonAgentNodeInterface {
-    id: string
-    label: string,
-    type: AgentType
+   id: string
+   label: string
+   type: AgentType
 }
