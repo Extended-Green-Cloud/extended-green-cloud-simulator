@@ -64,15 +64,16 @@ const handleSetActive = (state, msg) => {
     if (agent) {
         agent.isActive = msg.data
 
-        if (agent.type === AGENT_TYPES.SERVER) {
-            state.agents.connections
-                .filter(connection => connection.data.type === 'unidirected')
-                .forEach(connection => {
-                    if (connection.data.source === agent.name || connection.data.target === agent.name) {
-                        connection.state = agent.isActive ? 'active' : 'inactive'
-                    }
-                })
-        }
+        state.agents.connections
+            .forEach(connection => {
+                if (connection.data.source === agent.name || connection.data.target === agent.name) {
+                    const secondAgent = connection.data.source === agent.name ?
+                        getAgentByName(state.agents.agents, connection.data.target) :
+                        getAgentByName(state.agents.agents, connection.data.source)
+                    console.log(secondAgent)
+                    connection.state = agent.isActive && secondAgent.isActive ? 'active' : 'inactive'
+                }
+            })
     }
 }
 
