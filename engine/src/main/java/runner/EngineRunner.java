@@ -19,7 +19,7 @@ public class EngineRunner {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
 		String scenarioStructure = "multipleClientsSimpleScenario";
-		Optional<String> scenarioEvents = Optional.of("simpleScenarioEvents");
+		Optional<String> scenarioEvents = Optional.empty();
 
 		if (MULTI_CONTAINER) {
 			runMultiContainerService(scenarioStructure, scenarioEvents);
