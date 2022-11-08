@@ -6,11 +6,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 /**
  * Mapper used to parse the retrieved message objects
  */
-public class JsonMapper {
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+public final class JsonMapper {
 
-	static {
-		MAPPER.registerModule(new JavaTimeModule());
+	private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+
+	private JsonMapper() {
 	}
 
 	public static ObjectMapper getMapper() {
