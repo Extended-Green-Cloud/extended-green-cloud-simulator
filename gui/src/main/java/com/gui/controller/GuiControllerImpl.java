@@ -1,7 +1,6 @@
 package com.gui.controller;
 
 import java.net.URI;
-import java.util.List;
 
 import com.gui.agents.AbstractAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
@@ -63,22 +62,5 @@ public class GuiControllerImpl implements GuiController {
 	@Override
 	public void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName) {
 		webSocketListener.triggerPowerShortage(powerShortageEvent, agentName);
-	}
-
-	@Override
-	public void displayMessageArrow(AbstractAgentNode senderAgent, List<String> receiversNames) {
-		/*TODO should be uncommented or removed
-		webSocketClient.send(ImmutableArrowMessage.builder()
-				.type("DISPLAY_MESSAGE_ARROW")
-				.agentName(senderAgent.getAgentName())
-				.data(receiversNames)
-				.build());
-		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-		executorService.schedule(() -> webSocketClient.send(ImmutableArrowMessage.builder()
-						.type("HIDE_MESSAGE_ARROW")
-						.agentName(senderAgent.getAgentName())
-						.data(receiversNames)
-						.build()),
-				500, TimeUnit.MILLISECONDS);*/
 	}
 }

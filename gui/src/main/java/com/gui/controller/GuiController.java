@@ -1,7 +1,5 @@
 package com.gui.controller;
 
-import java.util.List;
-
 import com.gui.agents.AbstractAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
 
@@ -54,16 +52,8 @@ public interface GuiController extends Runnable {
 	 * Method triggers the power shortage event in the Cloud Network for specified agent
 	 *
 	 * @param powerShortageEvent data for event triggering
-	 * @param agentName name of the agent for which the event is being triggered
+	 * @param agentName          name of the agent for which the event is being triggered
 	 */
 	void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName);
-
-	/**
-	 * Method draws an arrow to show the messages flow between com.greencloud.application.agents
-	 *
-	 * @param senderAgent    agent sending the message
-	 * @param receiversNames names of the com.greencloud.application.agents receiving the message
-	 */
-	void displayMessageArrow(final AbstractAgentNode senderAgent, final List<String> receiversNames);
 
 }

@@ -12,7 +12,6 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
@@ -129,7 +128,6 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 				calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
 		myAgent.addBehaviour(manualFinishBehaviour);
 
-		displayMessageArrow(myGreenEnergyAgent, proposal.getSender());
 		sendResponseToServer(proposal, jobWithProtocol);
 	}
 
@@ -147,7 +145,6 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		final ACLMessage failureMessage = prepareFailureReply(proposal.createReply(),
 				jobWithProtocol.getJobInstanceIdentifier(), responseProtocol);
 
-		displayMessageArrow(myGreenEnergyAgent, proposal.getSender());
 		myGreenEnergyAgent.send(failureMessage);
 	}
 

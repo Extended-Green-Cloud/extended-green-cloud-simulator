@@ -2,7 +2,6 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.logs.WeatherCheckRequestLog.WEATHER_REQUEST_SENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -58,7 +57,6 @@ public class RequestWeatherData extends OneShotBehaviour {
 		logger.info(WEATHER_REQUEST_SENT_LOG);
 		final ACLMessage request = PowerCheckMessageFactory.preparePowerCheckRequest(myGreenEnergyAgent,
 				createMessageContent(), conversationId, protocol);
-		displayMessageArrow(myGreenEnergyAgent, myGreenEnergyAgent.getMonitoringAgent());
 		myAgent.send(request);
 	}
 

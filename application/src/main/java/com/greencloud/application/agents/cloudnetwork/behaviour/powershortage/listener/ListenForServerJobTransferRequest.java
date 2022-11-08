@@ -7,7 +7,6 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.FAILURE;
 
 import java.time.Instant;
@@ -99,14 +98,12 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		final ACLMessage cfp = CallForProposalMessageFactory.createCallForProposal(jobToTransfer, remainingServers,
 				CNA_JOB_CFP_PROTOCOL);
 
-		displayMessageArrow(myCloudNetworkAgent, remainingServers);
 		myAgent.addBehaviour(new InitiateJobTransferRequest(myAgent, cfp, originalRequest, newPowerShortageJob));
 	}
 
 	private void replyWithFailedTransferForNoServers(final ACLMessage originalRequest) {
 		final ACLMessage reply = ReplyMessageFactory.prepareReply(originalRequest.createReply(),
 				NO_SERVER_AVAILABLE_CAUSE_MESSAGE, FAILURE);
-		displayMessageArrow(myCloudNetworkAgent, originalRequest.getSender());
 		myCloudNetworkAgent.send(reply);
 	}
 

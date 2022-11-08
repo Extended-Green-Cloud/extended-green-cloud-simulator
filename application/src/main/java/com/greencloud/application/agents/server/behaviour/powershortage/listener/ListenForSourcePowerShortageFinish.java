@@ -7,7 +7,6 @@ import static com.greencloud.application.domain.job.JobStatusEnum.POWER_SHORTAGE
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
@@ -21,7 +20,6 @@ import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
-import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -58,11 +56,9 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 					myServerAgent.getServerJobs().get(job))) {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				logger.info(GS_SHORTAGE_FINISH_LOG, job.getJobId());
-				final AID cloudNetwork = myServerAgent.getOwnerCloudNetworkAgent();
 
 				myServerAgent.getServerJobs().replace(job, getNewJobStatus(job));
 				myServerAgent.manage().updateServerGUI();
-				displayMessageArrow(myServerAgent, cloudNetwork);
 				myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_ID);
 			}
 		} else {

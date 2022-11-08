@@ -17,7 +17,6 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -151,7 +150,6 @@ public class HandleJobStart extends WakerBehaviour {
 				: Collections.singletonList(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()));
 		final ACLMessage startedJobMessage = prepareJobStartedMessage(jobId, jobToExecute.getStartTime(), receivers);
 
-		displayMessageArrow(myServerAgent, receivers);
 		myAgent.send(startedJobMessage);
 	}
 }

@@ -6,7 +6,6 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import org.slf4j.Logger;
@@ -47,15 +46,14 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 * Method handles ACCEPT_PROPOSAL message retrieved from the Client Agent.
 	 * It sends accept proposal to the chosen for job execution Server Agent and updates the network state.
 	 *
-	 * @param accept_proposal received accept proposal message
+	 * @param accept received accept proposal message
 	 */
 	@Override
-	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
+	protected void handleAcceptProposal(final ACLMessage accept) {
 		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
-		final String jobId = readMessageContent(accept_proposal, String.class);
+		final String jobId = readMessageContent(accept, String.class);
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
-		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
 		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
 	}
 
@@ -63,18 +61,17 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 * Method handles REJECT_PROPOSAL message retrieved from the Client Agent.
 	 * It sends reject proposal to the Server Agent previously chosen for the job execution.
 	 *
-	 * @param reject_proposal received reject proposal message
+	 * @param reject received reject proposal message
 	 */
 	@Override
-	protected void handleRejectProposal(final ACLMessage reject_proposal) {
-		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject_proposal.getSender().getName());
-		final String jobId = readMessageContent(reject_proposal, String.class);
+	protected void handleRejectProposal(final ACLMessage reject) {
+		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject.getSender().getName());
+		final String jobId = readMessageContent(reject, String.class);
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
 
-		displayMessageArrow(myCloudNetworkAgent, replyMessage.getAllReceiver());
 		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 }

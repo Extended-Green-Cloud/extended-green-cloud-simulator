@@ -20,7 +20,6 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SOURCES_AVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -115,7 +114,6 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(GS_TRANSFER_CHOSEN_GS_LOG, jobId, chosenOffer.getSender().getLocalName());
 
-		displayMessageArrow(myServerAgent, chosenOffer.getSender());
 		myServerAgent.addBehaviour(
 				new ListenForSourceJobTransferConfirmation(myServerAgent, jobToTransferInstance, powerShortageStart,
 						greenSourceRequest));
@@ -129,6 +127,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 	}
 
 	private void handleTransferFailure() {
+		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
@@ -136,29 +135,36 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 							jobToTransferInstance, BACK_UP_POWER_STATUSES);
 			final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
 
-			MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 			if (availableBackUpPower < jobToTransfer.getPower()) {
-				logger.info(GS_TRANSFER_FAIL_NO_BACK_UP_LOG, jobToTransfer.getJobId());
-				myServerAgent.getServerJobs()
-						.replace(job, hasStarted ? ON_HOLD_SOURCE_SHORTAGE : ON_HOLD_SOURCE_SHORTAGE_PLANNED);
-
-				if (hasStarted) {
-					myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_ID);
-				}
+				putJobOnHold(job, hasStarted);
 			} else {
-				logger.info(GS_TRANSFER_FAIL_BACK_UP_LOG, jobToTransfer.getJobId());
-				myServerAgent.getServerJobs()
-						.replace(job, hasStarted ? IN_PROGRESS_BACKUP_ENERGY : IN_PROGRESS_BACKUP_ENERGY_PLANNED);
-
-				if (hasStarted) {
-					myServerAgent.manage()
-							.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
-				}
+				putJobOnBackUp(job, hasStarted);
 			}
+
 			myServerAgent.manage().updateServerGUI();
-			displayMessageArrow(myServerAgent, greenSourceRequest.getSender());
 			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), NO_SOURCES_AVAILABLE_CAUSE_MESSAGE,
 					ACLMessage.FAILURE));
+		}
+	}
+
+	private void putJobOnHold(final ClientJob job, final boolean hasStarted) {
+		logger.info(GS_TRANSFER_FAIL_NO_BACK_UP_LOG, jobToTransfer.getJobId());
+		myServerAgent.getServerJobs()
+				.replace(job, hasStarted ? ON_HOLD_SOURCE_SHORTAGE : ON_HOLD_SOURCE_SHORTAGE_PLANNED);
+
+		if (hasStarted) {
+			myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), ON_HOLD_JOB_ID);
+		}
+	}
+
+	private void putJobOnBackUp(final ClientJob job, final boolean hasStarted) {
+		logger.info(GS_TRANSFER_FAIL_BACK_UP_LOG, jobToTransfer.getJobId());
+		myServerAgent.getServerJobs()
+				.replace(job, hasStarted ? IN_PROGRESS_BACKUP_ENERGY : IN_PROGRESS_BACKUP_ENERGY_PLANNED);
+
+		if (hasStarted) {
+			myServerAgent.manage()
+					.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
 		}
 	}
 }

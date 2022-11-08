@@ -8,7 +8,6 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 			final List<PowerJob> jobsToKeep = findJobsWithinPower(affectedJobs, maxAvailablePower);
 			final List<PowerJob> jobsToTransfer = prepareJobsToTransfer(affectedJobs, jobsToKeep);
 
-			if(jobsToTransfer.isEmpty()) {
+			if (jobsToTransfer.isEmpty()) {
 				handlePowerShortageWithoutTransfer();
 				return;
 			}
@@ -110,7 +109,6 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 		final ACLMessage transferMessage = preparePowerShortageTransferRequest(
 				JobMapper.mapToPowerShortageJob(originalJob, shortageStartTime), myGreenAgent.getOwnerServer());
 
-		displayMessageArrow(myGreenAgent, myGreenAgent.getOwnerServer());
 		myGreenAgent.addBehaviour(new InitiatePowerJobTransfer(myGreenAgent, transferMessage, jobToTransfer));
 	}
 

@@ -16,7 +16,6 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareConfirmationMessage;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static java.util.Objects.isNull;
@@ -72,9 +71,10 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final ACLMessage inform = myAgent.receive(JobHandlingMessageTemplates.POWER_SUPPLY_UPDATE_TEMPLATE);
 
 		if (Objects.nonNull(inform)) {
-			switch (inform.getProtocol()) {
-				case MANUAL_JOB_FINISH_PROTOCOL -> handlePowerSupplyManualFinishMessage(inform);
-				default -> handlePowerResponseMessage(inform);
+			if(inform.getProtocol().equals(MANUAL_JOB_FINISH_PROTOCOL)) {
+				handlePowerSupplyManualFinishMessage(inform);
+			} else {
+				handlePowerResponseMessage(inform);
 			}
 		} else {
 			block();
@@ -93,8 +93,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void handlePowerResponseMessage(final ACLMessage msg) {
-		final JobInstanceIdentifier jobInstanceId = readMessageContent(msg,
-				JobInstanceIdentifier.class);
+		final JobInstanceIdentifier jobInstanceId = readMessageContent(msg, JobInstanceIdentifier.class);
 		final String messageType = msg.getProtocol();
 		final String jobId = jobInstanceId.getJobId();
 
@@ -135,7 +134,6 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 
-		displayMessageArrow(myServerAgent, myServerAgent.getOwnerCloudNetworkAgent());
 		myServerAgent.send(
 				prepareConfirmationMessage(jobInstanceId, myServerAgent.getOwnerCloudNetworkAgent(), isTransferred));
 	}
@@ -155,7 +153,6 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
-		displayMessageArrow(myServerAgent, myServerAgent.getOwnerCloudNetworkAgent());
 		myServerAgent.send(prepareJobStatusMessage(jobInstanceId, protocol, myServerAgent, FAILURE));
 
 	}
@@ -165,8 +162,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 			final String jobId = readMessageContent(msg, String.class);
 			return myServerAgent.manage().getJobById(jobId);
 		} catch (IncorrectMessageContentException e) {
-			final JobInstanceIdentifier identifier = readMessageContent(msg,
-					JobInstanceIdentifier.class);
+			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
 		}
 	}

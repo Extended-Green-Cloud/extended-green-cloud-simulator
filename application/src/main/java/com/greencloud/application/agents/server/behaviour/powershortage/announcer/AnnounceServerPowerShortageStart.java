@@ -9,7 +9,6 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -102,7 +101,6 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 		final Behaviour transferRequest = new InitiateJobTransferInCloudNetwork(myServerAgent, transferMessage, null,
 				jobToTransfer);
 
-		displayMessageArrow(myServerAgent, cloudNetwork);
 		myServerAgent.addBehaviour(transferRequest);
 	}
 
@@ -111,7 +109,6 @@ public class AnnounceServerPowerShortageStart extends OneShotBehaviour {
 		final ACLMessage powerShortageInformation = prepareJobPowerShortageInformation(originalJob, greenSource,
 				SERVER_POWER_SHORTAGE_ALERT_PROTOCOL);
 
-		displayMessageArrow(myServerAgent, greenSource);
 		myServerAgent.send(powerShortageInformation);
 	}
 

@@ -7,7 +7,6 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.util.Objects;
 
@@ -77,7 +76,6 @@ public class ListenForClientsJob extends CyclicBehaviour {
 		final ACLMessage cfp = createCallForProposal(job, myCloudNetworkAgent.getOwnedServers(),
 				CNA_JOB_CFP_PROTOCOL);
 
-		displayMessageArrow(myCloudNetworkAgent, myCloudNetworkAgent.getOwnedServers());
 		myCloudNetworkAgent.getNetworkJobs().put(job, JobStatusEnum.PROCESSING);
 		myAgent.addBehaviour(new InitiateNewJobExecutorLookup(myAgent, cfp, message, job.getJobId()));
 	}

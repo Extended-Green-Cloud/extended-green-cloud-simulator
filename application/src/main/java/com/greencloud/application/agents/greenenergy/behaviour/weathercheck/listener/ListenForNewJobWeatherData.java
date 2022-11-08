@@ -6,7 +6,8 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.TOO_BAD_WEATHER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_FOR_JOB_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
+import static jade.lang.acl.ACLMessage.INFORM;
+import static jade.lang.acl.ACLMessage.REFUSE;
 import static jade.lang.acl.MessageTemplate.MatchConversationId;
 import static jade.lang.acl.MessageTemplate.MatchSender;
 import static jade.lang.acl.MessageTemplate.and;
@@ -53,7 +54,8 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 	 */
 	public ListenForNewJobWeatherData(GreenEnergyAgent myGreenAgent, final ACLMessage cfp, final PowerJob powerJob,
 			final SequentialBehaviour parentBehaviour) {
-		this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()), MatchConversationId(cfp.getConversationId()));
+		this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()),
+				MatchConversationId(cfp.getConversationId()));
 		this.myGreenEnergyAgent = myGreenAgent;
 		this.cfp = cfp;
 		this.powerJob = powerJob;
@@ -74,12 +76,11 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			final MonitoringData data = readMonitoringData(message);
 
 			if (nonNull(data)) {
-				switch (message.getPerformative()) {
-					case ACLMessage.REFUSE -> {
-						logger.info(WEATHER_UNAVAILABLE_FOR_JOB_LOG);
-						handleRefusal();
-					}
-					case ACLMessage.INFORM -> handleInform(data);
+				if(message.getPerformative() == REFUSE) {
+					logger.info(WEATHER_UNAVAILABLE_FOR_JOB_LOG);
+					handleRefusal();
+				} else if (message.getPerformative() == INFORM) {
+					handleInform(data);
 				}
 				myAgent.removeBehaviour(parentBehaviour);
 			}
@@ -101,9 +102,9 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			handleRefusal();
 		} else {
 			logger.info(POWER_SUPPLY_PROPOSAL_LOG, jobId);
-			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent, averageAvailablePower.get(),
+			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent,
+					averageAvailablePower.get(),
 					jobId, cfp.createReply());
-			displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
 			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer, data));
 		}
 	}
@@ -120,7 +121,6 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private void handleRefusal() {
 		myGreenEnergyAgent.getPowerJobs().remove(powerJob);
-		displayMessageArrow(myGreenEnergyAgent, cfp.getSender());
 		myGreenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp.createReply()));
 	}
 }

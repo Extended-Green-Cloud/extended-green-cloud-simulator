@@ -16,7 +16,6 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.List;
@@ -76,41 +75,50 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 						myServerAgent.getGreenSourceForJobMap().containsKey(job.getJobId());
 
 				if (isJobPresent) {
-					final JobInstanceIdentifier jobInstance = JobMapper.mapToJobInstanceId(job);
-					final int jobPower = job.getPower();
-					final int availablePower = myServerAgent.manage()
-							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, null);
-					final int availableBackUpPower = myServerAgent.manage()
-							.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance,
-									BACK_UP_POWER_STATUSES);
-
-					MDC.put(MDC_JOB_ID, job.getJobId());
-					if (availablePower < jobPower && availableBackUpPower < jobPower) {
-						logger.info(POWER_SHORTAGE_FINISH_LEAVE_ON_HOLD_LOG, job.getJobId());
-					} else if (availableBackUpPower >= jobPower) {
-						final boolean hasJobStarted = myServerAgent.getServerJobs().get(job)
-								.equals(JobStatusEnum.ON_HOLD);
-						final JobStatusEnum status = hasJobStarted ?
-								IN_PROGRESS_BACKUP_ENERGY :
-								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
-						logger.info(POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG, job.getJobId());
-						myServerAgent.getServerJobs().replace(job, status);
-						myServerAgent.manage().updateServerGUI();
-
-						if (hasJobStarted) {
-							myServerAgent.manage()
-									.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
-						}
-					} else {
-						logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
-						updateJobStatus(job, jobInstance);
-					}
+					handlePowerShortageFinish(job);
 				}
 			});
 		}
 	}
 
-	private void updateJobStatus(final ClientJob job, final JobInstanceIdentifier jobInstance) {
+	private void handlePowerShortageFinish(final ClientJob job) {
+		final JobInstanceIdentifier jobInstance = JobMapper.mapToJobInstanceId(job);
+		final int jobPower = job.getPower();
+		final int availablePower = myServerAgent.manage()
+				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance, null);
+		final int availableBackUpPower = myServerAgent.manage()
+				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobInstance,
+						BACK_UP_POWER_STATUSES);
+
+		MDC.put(MDC_JOB_ID, job.getJobId());
+
+		if (availablePower < jobPower && availableBackUpPower < jobPower) {
+			logger.info(POWER_SHORTAGE_FINISH_LEAVE_ON_HOLD_LOG, job.getJobId());
+		} else if (availableBackUpPower >= jobPower) {
+			logger.info(POWER_SHORTAGE_FINISH_USE_BACK_UP_LOG, job.getJobId());
+			supplyJobWithBackUpPower(job);
+		} else {
+			logger.info(POWER_SHORTAGE_FINISH_USE_GREEN_ENERGY_LOG, job.getJobId());
+			supplyJobWithGreenEnergy(job, jobInstance);
+		}
+	}
+
+	private void supplyJobWithBackUpPower(final ClientJob job) {
+		final boolean hasJobStarted = myServerAgent.getServerJobs().get(job)
+				.equals(JobStatusEnum.ON_HOLD);
+		final JobStatusEnum status = hasJobStarted ?
+				IN_PROGRESS_BACKUP_ENERGY :
+				IN_PROGRESS_BACKUP_ENERGY_PLANNED;
+		myServerAgent.getServerJobs().replace(job, status);
+		myServerAgent.manage().updateServerGUI();
+
+		if (hasJobStarted) {
+			myServerAgent.manage()
+					.informCNAAboutStatusChange(mapToJobInstanceId(job), BACK_UP_POWER_JOB_ID);
+		}
+	}
+
+	private void supplyJobWithGreenEnergy(final ClientJob job, final JobInstanceIdentifier jobInstance) {
 		final boolean hasStarted = job.getStartTime().isAfter(getCurrentTime());
 		final JobStatusEnum newStatus = hasStarted ?
 				JobStatusEnum.ACCEPTED :
@@ -126,7 +134,6 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 			myServerAgent.manage().informCNAAboutStatusChange(mapToJobInstanceId(job), GREEN_POWER_JOB_ID);
 		}
 
-		displayMessageArrow(myServerAgent, finishInformation.getAllReceiver());
 		myServerAgent.manage().updateServerGUI();
 		myServerAgent.send(finishInformation);
 	}

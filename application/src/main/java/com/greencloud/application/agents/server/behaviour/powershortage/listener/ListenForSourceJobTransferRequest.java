@@ -4,7 +4,6 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.l
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -109,7 +108,6 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 		final ACLMessage cfp = CallForProposalMessageFactory.createCallForProposal(powerJob,
 				remainingGreenSources, MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL);
 
-		displayMessageArrow(myServerAgent, remainingGreenSources);
 		myAgent.addBehaviour(
 				new InitiateJobTransferInGreenSources(myAgent, cfp, transferRequest, powerJob, shortageStartTime));
 	}
@@ -122,7 +120,6 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 		final ACLMessage transferMessage = PowerShortageMessageFactory.preparePowerShortageTransferRequest(affectedJob,
 				cloudNetwork);
 
-		displayMessageArrow(myServerAgent, cloudNetwork);
 		myServerAgent.addBehaviour(
 				new InitiateJobTransferInCloudNetwork(myServerAgent, transferMessage, gsTransferRequest,
 						jobToTransfer));

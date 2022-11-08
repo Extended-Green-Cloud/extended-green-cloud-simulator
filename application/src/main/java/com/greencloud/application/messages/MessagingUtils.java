@@ -1,6 +1,5 @@
 package com.greencloud.application.messages;
 
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.util.List;
@@ -27,8 +26,8 @@ public class MessagingUtils {
 	 * @param responses all responses
 	 * @return responses which are the proposals
 	 */
-	public static List<ACLMessage> retrieveProposals(final Vector responses) {
-		return ((Vector<ACLMessage>) responses).stream()
+	public static List<ACLMessage> retrieveProposals(final Vector<ACLMessage> responses) {
+		return responses.stream()
 				.filter(response -> response.getPerformative() == ACLMessage.PROPOSE)
 				.toList();
 	}
@@ -46,10 +45,8 @@ public class MessagingUtils {
 			final ACLMessage chosenOffer, final List<ACLMessage> receivedOffers) {
 		receivedOffers.stream()
 				.filter(offer -> !offer.equals(chosenOffer))
-				.forEach(offer -> {
-					displayMessageArrow(agent, offer.getSender());
-					agent.send(ReplyMessageFactory.prepareReply(offer.createReply(), jobInstanceId, REJECT_PROPOSAL));
-				});
+				.forEach(offer -> agent.send(
+						ReplyMessageFactory.prepareReply(offer.createReply(), jobInstanceId, REJECT_PROPOSAL)));
 	}
 
 	/**
@@ -65,10 +62,8 @@ public class MessagingUtils {
 			final List<ACLMessage> receivedOffers) {
 		receivedOffers.stream()
 				.filter(offer -> !offer.equals(chosenOffer))
-				.forEach(offer -> {
-					displayMessageArrow(agent, offer.getSender());
-					agent.send(ReplyMessageFactory.prepareStringReply(offer.createReply(), jobId, REJECT_PROPOSAL));
-				});
+				.forEach(offer -> agent.send(
+						ReplyMessageFactory.prepareStringReply(offer.createReply(), jobId, REJECT_PROPOSAL)));
 	}
 
 	/**

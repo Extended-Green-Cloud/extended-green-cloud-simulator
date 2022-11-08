@@ -6,7 +6,6 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 
 import java.util.Objects;
 
@@ -66,7 +65,6 @@ public class ListenForNewJob extends CyclicBehaviour {
 				initiateNegotiationWithPowerSources(job, message);
 			} else {
 				logger.info(JobHandlingListenerLog.SERVER_NEW_JOB_LACK_OF_POWER_LOG);
-				displayMessageArrow(myServerAgent, message.getSender());
 				myAgent.send(prepareRefuseReply(message.createReply()));
 			}
 		} else {
@@ -84,7 +82,6 @@ public class ListenForNewJob extends CyclicBehaviour {
 		final ACLMessage cfp = createCallForProposal(JobMapper.mapJobToPowerJob(job),
 				myServerAgent.getOwnedGreenSources(), SERVER_JOB_CFP_PROTOCOL);
 
-		displayMessageArrow(myServerAgent, myServerAgent.getOwnedGreenSources());
 		myAgent.addBehaviour(new InitiatePowerDeliveryForJob(myAgent, cfp, cnaMessage.createReply(), job));
 	}
 }

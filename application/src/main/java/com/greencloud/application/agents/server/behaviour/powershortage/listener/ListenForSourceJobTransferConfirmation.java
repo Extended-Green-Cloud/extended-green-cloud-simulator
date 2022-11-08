@@ -9,7 +9,6 @@ import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
@@ -27,7 +26,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourceJobTransfer;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 
-import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.states.MsgReceiver;
@@ -89,7 +87,7 @@ public class ListenForSourceJobTransferConfirmation extends MsgReceiver {
 					handleJobTransfer(msg);
 				} else {
 					logger.info(GS_TRANSFER_JOB_FINISHED_LOG);
-					handleJobFinish(msg.getSender());
+					handleJobFinish();
 				}
 			} else {
 				MDC.put(MDC_JOB_ID, jobId);
@@ -103,16 +101,13 @@ public class ListenForSourceJobTransferConfirmation extends MsgReceiver {
 	}
 
 	private void handleJobTransfer(final ACLMessage inform) {
-		final AID greenSourceSender = greenSourceRequest.getSender();
-		displayMessageArrow(myServerAgent, greenSourceSender);
 		myServerAgent.send(prepareReply(greenSourceRequest.createReply(), TRANSFER_SUCCESSFUL_MESSAGE, INFORM));
 		myAgent.addBehaviour(HandleSourceJobTransfer.createFor(myServerAgent, jobToTransfer, inform.getSender()));
 	}
 
-	private void handleJobFinish(final AID responseSender) {
+	private void handleJobFinish() {
 		final ACLMessage failTransferMessage = prepareReply(greenSourceRequest.createReply(),
 				JOB_NOT_FOUND_CAUSE_MESSAGE, FAILURE);
-		displayMessageArrow(myServerAgent, responseSender);
 		myServerAgent.send(failTransferMessage);
 	}
 }

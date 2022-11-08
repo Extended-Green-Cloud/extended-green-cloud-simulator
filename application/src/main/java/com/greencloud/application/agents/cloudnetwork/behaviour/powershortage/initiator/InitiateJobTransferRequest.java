@@ -13,7 +13,6 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.FAILURE;
 
 import java.util.List;

@@ -8,7 +8,6 @@ import static com.greencloud.application.agents.monitoring.domain.MonitoringAgen
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
@@ -58,7 +57,6 @@ public class ServeForecastWeather extends CyclicBehaviour {
 			final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
 			final ACLMessage response = prepareWeatherResponse(message, requestData);
 
-			displayMessageArrow(monitoringAgent, message.getSender());
 			monitoringAgent.send(response);
 		} else {
 			block();

@@ -23,7 +23,6 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
@@ -148,14 +147,14 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		if (isNull(greenSourceRequest) || nonNull(refuseCause)) {
 			final List<AID> receivers = List.of(myServerAgent.getGreenSourceForJobMap().get(job.getJobId()));
 			final ACLMessage finishJobMessage = prepareFinishMessage(job.getJobId(), job.getStartTime(), receivers);
-			displayMessageArrow(myServerAgent, receivers);
+
 			myServerAgent.send(finishJobMessage);
 
 			if (nonNull(greenSourceRequest)) {
 				myServerAgent.send(prepareReply(greenSourceRequest.createReply(), refuseCause, ACLMessage.FAILURE));
 			}
 		} else {
-			displayMessageArrow(myServerAgent, greenSourceRequest.getSender());
+
 			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), TRANSFER_SUCCESSFUL_MESSAGE,
 					INFORM));
 		}
@@ -175,11 +174,9 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	private void informGreenSourceUponJobOnHold(final String jobId, final String failureCause) {
 		if (isNull(greenSourceRequest)) {
 			final AID receiver = myServerAgent.getGreenSourceForJobMap().get(jobId);
-			displayMessageArrow(myServerAgent, receiver);
 			myServerAgent.send(prepareJobPowerShortageInformation(jobToTransfer, receiver,
 					SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL));
 		} else {
-			displayMessageArrow(myServerAgent, greenSourceRequest.getSender());
 			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), failureCause, ACLMessage.FAILURE));
 		}
 	}

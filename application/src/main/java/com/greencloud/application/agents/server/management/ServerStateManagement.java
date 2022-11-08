@@ -13,10 +13,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_ST
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
-import static jade.lang.acl.ACLMessage.INFORM;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -125,7 +123,6 @@ public class ServerStateManagement {
 		final AID cloudNetwork = serverAgent.getOwnerCloudNetworkAgent();
 		final ACLMessage transferMessage = preparePowerShortageTransferRequest(jobTransfer, cloudNetwork);
 
-		displayMessageArrow(serverAgent, cloudNetwork);
 		serverAgent.addBehaviour(new InitiateJobTransferInCloudNetwork(serverAgent, transferMessage, request,
 				jobTransfer));
 	}
@@ -321,7 +318,7 @@ public class ServerStateManagement {
 	 * Method informs CNA that the status of given job has changed
 	 *
 	 * @param jobInstance job which status has changed
-	 * @param type    new status type
+	 * @param type        new status type
 	 */
 	public void informCNAAboutStatusChange(final JobInstanceIdentifier jobInstance, final String type) {
 		final ACLMessage information = prepareJobStatusMessage(jobInstance, type, serverAgent);
@@ -345,7 +342,6 @@ public class ServerStateManagement {
 				jobToFinish.getStartTime(),
 				receivers);
 
-		displayMessageArrow(serverAgent, receivers);
 		serverAgent.send(finishJobMessage);
 	}
 

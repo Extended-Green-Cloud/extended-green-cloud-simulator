@@ -11,7 +11,6 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.GUIUtils.displayMessageArrow;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import org.slf4j.Logger;
@@ -56,18 +55,18 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	 * It schedules the job execution, updates the network data and responds with ACCEPT_PROPOSAL to the
 	 * chosen Green Source Agent
 	 *
-	 * @param accept_proposal accept proposal message retrieved from the Cloud Network
+	 * @param accept accept proposal message retrieved from the Cloud Network
 	 */
 	@Override
-	protected void handleAcceptProposal(final ACLMessage accept_proposal) {
-		final JobWithProtocol jobWithProtocol = readMessageContent(accept_proposal, JobWithProtocol.class);
+	protected void handleAcceptProposal(final ACLMessage accept) {
+		final JobWithProtocol jobWithProtocol = readMessageContent(accept, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
 		final ClientJob jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 		final int availableCapacity = myServerAgent.manage()
 				.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
 
 		if (jobInstance.getPower() > availableCapacity) {
-			passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept_proposal);
+			passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept);
 		} else {
 			acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
 		}
@@ -77,18 +76,18 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	 * Method handles REJECT_PROPOSAL response received from the Cloud Network Agents.
 	 * It forwards the REJECT_PROPOSAL to the Green Source Agent
 	 *
-	 * @param reject_proposal reject proposal message retrieved from the Cloud Network
+	 * @param reject reject proposal message retrieved from the Cloud Network
 	 */
 	@Override
-	protected void handleRejectProposal(final ACLMessage reject_proposal) {
-		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject_proposal,
+	protected void handleRejectProposal(final ACLMessage reject) {
+		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject,
 				JobInstanceIdentifier.class);
 		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
-		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
+
 		MDC.put(MDC_JOB_ID, job.getJobId());
-		logger.info(SERVER_OFFER_REJECT_LOG, reject_proposal.getSender().getLocalName());
+		logger.info(SERVER_OFFER_REJECT_LOG, reject.getSender().getLocalName());
 		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
 	}
 
@@ -103,9 +102,6 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		myServerAgent.getServerJobs().remove(jobInstance);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstance.getJobId());
 
-		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
-		displayMessageArrow(myServerAgent, cnaAccept.getSender());
-
 		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
 		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId, responseProtocol));
 	}
@@ -114,7 +110,6 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 			final JobWithProtocol jobWithProtocol) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG);
-		displayMessageArrow(myServerAgent, replyMessage.getAllReceiver());
 		myAgent.send(
 				prepareAcceptReplyWithProtocol(replyMessage, jobInstanceId, jobWithProtocol.getReplyProtocol()));
 	}
