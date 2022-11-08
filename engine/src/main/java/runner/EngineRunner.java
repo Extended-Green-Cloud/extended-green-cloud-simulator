@@ -5,6 +5,7 @@ import static runner.service.domain.ScenarioConstants.HOST_NAME;
 import static runner.service.domain.ScenarioConstants.MAIN_HOST;
 import static runner.service.domain.ScenarioConstants.MULTI_CONTAINER;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import jade.wrapper.StaleProxyException;
@@ -17,28 +18,29 @@ import runner.service.SingleContainerScenarioService;
 public class EngineRunner {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenario = "multipleClientsSimpleScenario";
+		String scenarioStructure = "multipleClientsSimpleScenario";
+		Optional<String> scenarioEvents = Optional.of("simpleScenarioEvents");
 
 		if (MULTI_CONTAINER) {
-			runMultiContainerService(scenario);
+			runMultiContainerService(scenarioStructure, scenarioEvents);
 		} else {
-			runSingleContainerService(scenario);
+			runSingleContainerService(scenarioStructure, scenarioEvents);
 		}
 	}
 
-	public static void runSingleContainerService(String scenario)
+	public static void runSingleContainerService(String scenarioStructure, Optional<String> scenarioEvents)
 			throws StaleProxyException, ExecutionException, InterruptedException {
-		var scenarioService = new SingleContainerScenarioService(scenario);
+		var scenarioService = new SingleContainerScenarioService(scenarioStructure, scenarioEvents);
 		scenarioService.run();
 	}
 
-	public static void runMultiContainerService(String scenario)
+	public static void runMultiContainerService(String scenarioStructure, Optional<String> scenarioEvents)
 			throws StaleProxyException, ExecutionException, InterruptedException {
 		MultiContainerScenarioService scenarioService;
 		if (MAIN_HOST) {
-			scenarioService = new MultiContainerScenarioService(scenario);
+			scenarioService = new MultiContainerScenarioService(scenarioStructure);
 		} else {
-			scenarioService = new MultiContainerScenarioService(scenario, HOST_ID, HOST_NAME);
+			scenarioService = new MultiContainerScenarioService(scenarioStructure, scenarioEvents, HOST_ID, HOST_NAME);
 		}
 		scenarioService.run();
 	}

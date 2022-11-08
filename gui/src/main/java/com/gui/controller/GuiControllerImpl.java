@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import com.gui.agents.AbstractAgentNode;
+import com.gui.event.domain.PowerShortageEvent;
 import com.gui.message.ImmutableUpdateSingleValueMessage;
 import com.gui.websocket.GuiWebSocketClient;
 import com.gui.websocket.GuiWebSocketListener;
@@ -57,6 +58,11 @@ public class GuiControllerImpl implements GuiController {
 				.data(value)
 				.type("UPDATE_CURRENT_PLANNED_JOBS")
 				.build());
+	}
+
+	@Override
+	public void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName) {
+		webSocketListener.triggerPowerShortage(powerShortageEvent, agentName);
 	}
 
 	@Override

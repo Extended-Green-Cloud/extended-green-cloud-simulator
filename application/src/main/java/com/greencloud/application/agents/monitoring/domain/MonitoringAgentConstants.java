@@ -19,7 +19,7 @@ import com.greencloud.application.domain.MonitoringData;
 public class MonitoringAgentConstants {
 
 	public static final boolean OFFLINE_MODE = true;
-	public static final double BAD_STUB_PROBABILITY = 0.2;
+	public static final double BAD_STUB_PROBABILITY = 0;
 	public static final MonitoringData STUB_DATA =
 			ImmutableMonitoringData.builder()
 					.addWeatherData(ImmutableWeatherData.builder()

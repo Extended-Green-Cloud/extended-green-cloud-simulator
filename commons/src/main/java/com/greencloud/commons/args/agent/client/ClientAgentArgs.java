@@ -1,10 +1,10 @@
-package com.greencloud.commons.args.client;
+package com.greencloud.commons.args.agent.client;
 
 import org.immutables.value.Value.Immutable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.agent.AgentArgs;
 
 /**
  * Arguments of Client Agent

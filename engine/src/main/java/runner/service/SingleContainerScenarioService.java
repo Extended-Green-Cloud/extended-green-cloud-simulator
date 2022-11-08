@@ -6,13 +6,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.agent.AgentArgs;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioArgs;
+import runner.domain.ScenarioStructureArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
@@ -27,29 +28,36 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 
 	/**
 	 * Runs single scenario service with a single controller on a single physical host.
-	 * @param fileName name of the XML scenario document
+	 *
+	 * @param scenarioStructureFileName name of the XML scenario document containing network structure
+	 * @param scenarioEventsFileName    (optional) name of the XML scenario document containing list of events triggered during scenario execution
 	 */
-	public SingleContainerScenarioService(String fileName)
+	public SingleContainerScenarioService(String scenarioStructureFileName, Optional<String> scenarioEventsFileName)
 			throws StaleProxyException, ExecutionException, InterruptedException {
-		super(fileName);
+		super(scenarioStructureFileName, scenarioEventsFileName);
 		this.factory = new AgentControllerFactoryImpl(mainContainer);
 	}
 
 	@Override
 	public void run() {
-		final File scenarioFile = readFile(fileName);
-		final ScenarioArgs scenario = parseScenario(scenarioFile);
-		if (Objects.nonNull(scenario.getAgentsArgs())) {
-			createAgents(scenario.getMonitoringAgentsArgs(), scenario);
-			createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);
-			createAgents(scenario.getServerAgentsArgs(), scenario);
-			createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
+		final File scenarioStructureFile = readFile(scenarioStructureFileName);
+		final ScenarioStructureArgs scenarioStructure = parseScenarioStructure(scenarioStructureFile);
+		if (Objects.nonNull(scenarioStructure.getAgentsArgs())) {
+			createAgents(scenarioStructure.getMonitoringAgentsArgs(), scenarioStructure);
+			createAgents(scenarioStructure.getGreenEnergyAgentsArgs(), scenarioStructure);
+			createAgents(scenarioStructure.getServerAgentsArgs(), scenarioStructure);
+			createAgents(scenarioStructure.getCloudNetworkAgentsArgs(), scenarioStructure);
 		}
 		runAgents(AGENTS_TO_RUN);
-		runClientAgents(CLIENT_NUMBER, scenario, factory);
+
+		if (Objects.isNull(scenarioEventsFileName)) {
+			runClientAgents(CLIENT_NUMBER, factory);
+		} else {
+			eventService.runScenarioEvents(factory);
+		}
 	}
 
-	private void createAgents(List<?> agentArgsList, ScenarioArgs scenario) {
+	private void createAgents(List<?> agentArgsList, ScenarioStructureArgs scenario) {
 		agentArgsList.forEach(agentArgs -> {
 			var args = (AgentArgs) agentArgs;
 			AGENTS_TO_RUN.add(runAgentController(args, scenario, factory));

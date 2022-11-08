@@ -1,4 +1,4 @@
-package com.greencloud.commons.args;
+package com.greencloud.commons.args.agent;
 
 /**
  * Common arguments of agents

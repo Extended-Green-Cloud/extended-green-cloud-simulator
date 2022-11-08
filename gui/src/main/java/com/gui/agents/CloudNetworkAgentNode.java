@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.greencloud.commons.args.cloudnetwork.ImmutableCloudNetworkNodeArgs;
+import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkNodeArgs;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.websocket.GuiWebSocketClient;

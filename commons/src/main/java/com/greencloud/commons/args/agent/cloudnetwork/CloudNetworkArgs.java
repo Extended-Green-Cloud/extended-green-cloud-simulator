@@ -1,11 +1,11 @@
-package com.greencloud.commons.args.cloudnetwork;
+package com.greencloud.commons.args.agent.cloudnetwork;
 
 import org.immutables.value.Value.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.agent.AgentArgs;
 
 /**
  * Arguments for the Cloud Network Agent

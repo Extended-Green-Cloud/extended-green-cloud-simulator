@@ -1,0 +1,16 @@
+<ScenarioEventsArgs>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>2</occurrenceTime>
+		<name>Client1</name>
+		<jobId>1</jobId>
+		<start>2</start>
+		<end>10</end>
+		<power>100</power>
+	</event>
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>9</occurrenceTime>
+		<agentName>Wind</agentName>
+		<newMaximumCapacity>10</newMaximumCapacity>
+		<isFinished>false</isFinished>
+	</event>
+</ScenarioEventsArgs>

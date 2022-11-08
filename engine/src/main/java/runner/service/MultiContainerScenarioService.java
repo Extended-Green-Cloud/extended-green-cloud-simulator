@@ -1,21 +1,23 @@
 package runner.service;
 
-import static runner.service.domain.ScenarioConstants.CLIENTS_CONTAINER_ID;
+import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.service.domain.ScenarioConstants.CLIENT_NUMBER;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.greencloud.commons.args.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.server.ServerAgentArgs;
+import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
+import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioArgs;
+import runner.domain.ScenarioStructureArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
@@ -32,11 +34,11 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	 * Service's constructor for the main host. Main host is responsible for running Main-Container
 	 * which contains within itself Jade's RMA, SNIFFER, DFService.
 	 *
-	 * @param fileName name of the XML scenario document
+	 * @param scenarioStructureFileName name of the XML scenario document containing network structure
 	 */
-	public MultiContainerScenarioService(String fileName)
+	public MultiContainerScenarioService(String scenarioStructureFileName)
 			throws StaleProxyException, ExecutionException, InterruptedException {
-		super(fileName);
+		super(scenarioStructureFileName, Optional.empty());
 	}
 
 	/**
@@ -44,12 +46,14 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	 * all agents underlying to the CloudNetworkAgent corresponding to
 	 * the given host id.
 	 *
-	 * @param fileName   name of the XML scenario document
-	 * @param hostId     number of the host id
-	 * @param mainHostIp IP address of the main host
+	 * @param fileName               name of the XML scenario document
+	 * @param hostId                 number of the host id
+	 * @param mainHostIp             IP address of the main host
+	 * @param scenarioEventsFileName (optional) name of the XML scenario document containing list of events triggered during scenario execution
 	 */
-	public MultiContainerScenarioService(String fileName, Integer hostId, String mainHostIp) {
-		super(fileName, hostId, mainHostIp);
+	public MultiContainerScenarioService(String fileName, Optional<String> scenarioEventsFileName, Integer hostId,
+			String mainHostIp) {
+		super(fileName, hostId, mainHostIp, scenarioEventsFileName);
 		mainHost = false;
 		this.hostId = hostId;
 	}
@@ -65,23 +69,28 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 			return;
 		}
 
-		File scenarioFile = readFile(fileName);
-		ScenarioArgs scenario = parseScenario(scenarioFile);
+		File scenarioFile = readFile(scenarioStructureFileName);
+		ScenarioStructureArgs scenario = parseScenarioStructure(scenarioFile);
 
-		if (hostId == CLIENTS_CONTAINER_ID) {
-			runClients(scenario);
+		if (hostId == CLIENTS_CONTAINER_ID.ordinal()) {
+			if (Objects.nonNull(scenarioEventsFileName)) {
+				var factory = new AgentControllerFactoryImpl(mainContainer);
+				eventService.runScenarioEvents(factory);
+			} else {
+				runClients();
+			}
 		} else {
 			List<AgentController> controllers = runCloudNetworkContainers(scenario, hostId);
 			runAgents(controllers);
 		}
 	}
 
-	private void runClients(ScenarioArgs scenario) {
+	private void runClients() {
 		AgentControllerFactory clientFactory = new AgentControllerFactoryImpl(mainContainer);
-		runClientAgents(CLIENT_NUMBER, scenario, clientFactory);
+		runClientAgents(CLIENT_NUMBER, clientFactory);
 	}
 
-	private List<AgentController> runCloudNetworkContainers(ScenarioArgs scenario, Integer hostId) {
+	private List<AgentController> runCloudNetworkContainers(ScenarioStructureArgs scenario, Integer hostId) {
 		var cloudNetworkArgs = scenario.getCloudNetworkAgentsArgs();
 		var serversArgs = scenario.getServerAgentsArgs();
 		var sourcesArgs = scenario.getGreenEnergyAgentsArgs();
@@ -90,7 +99,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		return addAgentsToContainer(cloudNetworkArgs.get(hostId - 1), scenario, serversArgs, sourcesArgs, monitorsArgs);
 	}
 
-	private List<AgentController> addAgentsToContainer(CloudNetworkArgs cloudNetworkArgs, ScenarioArgs scenario,
+	private List<AgentController> addAgentsToContainer(CloudNetworkArgs cloudNetworkArgs, ScenarioStructureArgs scenario,
 			List<ServerAgentArgs> serversArgs, List<GreenEnergyAgentArgs> sourcesArgs,
 			List<MonitoringAgentArgs> monitorsArgs) {
 		var factory = new AgentControllerFactoryImpl(mainContainer);

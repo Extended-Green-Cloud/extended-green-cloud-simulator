@@ -1,10 +1,10 @@
-package com.greencloud.commons.args.greenenergy;
+package com.greencloud.commons.args.agent.greenenergy;
 
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.args.AgentArgs;
+import com.greencloud.commons.args.agent.AgentArgs;
 
 /**
  * Arguments for the Green Source Agent

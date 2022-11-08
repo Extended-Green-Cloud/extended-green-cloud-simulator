@@ -72,11 +72,15 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 		logPowerShortageStart();
 		final List<PowerJob> affectedJobs = getAffectedPowerJobs();
 		if (affectedJobs.isEmpty() && Objects.isNull(powerJobToInclude)) {
-			logger.info(POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG);
-			initiatePowerShortageHandler(Collections.emptyList());
+			handlePowerShortageWithoutTransfer();
 		} else {
 			final List<PowerJob> jobsToKeep = findJobsWithinPower(affectedJobs, maxAvailablePower);
 			final List<PowerJob> jobsToTransfer = prepareJobsToTransfer(affectedJobs, jobsToKeep);
+
+			if(jobsToTransfer.isEmpty()) {
+				handlePowerShortageWithoutTransfer();
+				return;
+			}
 
 			jobsToTransfer.forEach(powerJob -> {
 				MDC.put(MDC_JOB_ID, powerJob.getJobId());
@@ -88,6 +92,11 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 			});
 			initiatePowerShortageHandler(jobsToTransfer);
 		}
+	}
+
+	private void handlePowerShortageWithoutTransfer() {
+		logger.info(POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG);
+		initiatePowerShortageHandler(Collections.emptyList());
 	}
 
 	private void initiatePowerShortageHandler(final List<PowerJob> jobsToTransfer) {

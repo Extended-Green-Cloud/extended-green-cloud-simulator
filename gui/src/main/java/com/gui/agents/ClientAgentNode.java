@@ -4,7 +4,7 @@ import static com.greencloud.commons.job.JobStatusEnum.CREATED;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.greencloud.commons.args.client.ClientAgentArgs;
+import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;

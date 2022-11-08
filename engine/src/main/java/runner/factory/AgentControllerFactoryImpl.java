@@ -7,13 +7,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
-import com.greencloud.commons.args.AgentArgs;
-import com.greencloud.commons.args.client.ClientAgentArgs;
-import com.greencloud.commons.args.client.ImmutableClientAgentArgs;
-import com.greencloud.commons.args.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.server.ServerAgentArgs;
+import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.args.agent.client.ClientAgentArgs;
+import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
+import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
+import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
@@ -24,7 +24,7 @@ import com.gui.agents.ServerAgentNode;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioArgs;
+import runner.domain.ScenarioStructureArgs;
 
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
@@ -72,7 +72,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	}
 
 	@Override
-	public AbstractAgentNode createAgentNode(AgentArgs agentArgs, ScenarioArgs scenarioArgs) {
+	public AbstractAgentNode createAgentNode(AgentArgs agentArgs, ScenarioStructureArgs scenarioArgs) {
 		if (agentArgs instanceof ClientAgentArgs clientArgs) {
 			return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
 					.withStart(formatToDate(clientArgs.getStart()))

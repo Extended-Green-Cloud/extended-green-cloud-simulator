@@ -28,6 +28,17 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 		agentNodes.put(agentNode.getAgentName(), agentNode);
 	}
 
+	/**
+	 * Method triggers power shortage event in the specified agent
+	 *
+	 * @param powerShortageEvent data for the power shortage event
+	 * @param agentName          agent for which the event is triggered
+	 */
+	public void triggerPowerShortage(PowerShortageEvent powerShortageEvent, String agentName) {
+		AbstractAgentNode agentNode = agentNodes.get(agentName);
+		agentNode.addEvent(powerShortageEvent);
+	}
+
 	@Override
 	public void onOpen(ServerHandshake serverHandshake) {
 		logger.info("Connected to event listener");
@@ -43,9 +54,8 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 
 	private void handlePowerShortageMessage(String message) {
 		PowerShortageMessage powerShortageMessage = readPowerShortage(message);
-		AbstractAgentNode agentNode = agentNodes.get(powerShortageMessage.getAgentName());
 		PowerShortageEvent powerShortageEvent = new PowerShortageEvent(powerShortageMessage);
-		agentNode.addEvent(powerShortageEvent);
+		triggerPowerShortage(powerShortageEvent, powerShortageMessage.getAgentName());
 	}
 
 	private PowerShortageMessage readPowerShortage(String message) {

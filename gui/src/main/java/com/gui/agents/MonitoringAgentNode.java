@@ -1,6 +1,6 @@
 package com.gui.agents;
 
-import com.greencloud.commons.args.monitoring.ImmutableMonitoringNodeArgs;
+import com.greencloud.commons.args.agent.monitoring.ImmutableMonitoringNodeArgs;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.websocket.GuiWebSocketClient;
 

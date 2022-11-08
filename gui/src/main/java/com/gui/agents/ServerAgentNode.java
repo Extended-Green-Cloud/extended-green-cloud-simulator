@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.greencloud.commons.args.server.ImmutableServerNodeArgs;
+import com.greencloud.commons.args.agent.server.ImmutableServerNodeArgs;
 import com.gui.event.domain.PowerShortageEvent;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;

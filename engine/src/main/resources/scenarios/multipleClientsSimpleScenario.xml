@@ -1,4 +1,4 @@
-<ScenarioArgs>
+<ScenarioStructureArgs>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
 			<name>Weather1</name>
@@ -61,4 +61,4 @@
 			<name>CNA</name>
 		</cloudNetworkAgent>
 	</cloudNetworkAgentsArgs>
-</ScenarioArgs>
+</ScenarioStructureArgs>
