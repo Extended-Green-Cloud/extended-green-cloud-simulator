@@ -153,7 +153,7 @@ public abstract class AbstractScenarioService {
 			final int randomPower = MIN_JOB_POWER + random.nextInt(MAX_JOB_POWER);
 			final int randomStart = START_TIME_MIN + random.nextInt(START_TIME_MAX);
 			final int randomEnd = randomStart + 1 + random.nextInt(END_TIME_MAX);
-			final int randomDeadline = randomEnd + 1 + random.nextInt(DEADLINE_MAX);
+			final int randomDeadline = randomEnd + 3 + random.nextInt(DEADLINE_MAX);
 			final ClientAgentArgs clientAgentArgs = ImmutableClientAgentArgs.builder()
 					.name(format("Client%d", idx))
 					.jobId(String.valueOf(idx))

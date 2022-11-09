@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.client.behaviour.jobannouncement.handler;
 
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.JOB_FINISHES_AFTER_DEADLINE;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.RETRY_CLIENT_JOB_REQUEST_LOG;
 import static com.greencloud.application.agents.client.domain.ClientAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
@@ -7,6 +8,8 @@ import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime
 
 import java.time.temporal.ChronoUnit;
 
+import com.greencloud.commons.job.JobStatusEnum;
+import com.gui.agents.ClientAgentNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +50,18 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		myAgent.addBehaviour(prepareStartingBehaviour(job));
+		recalculateJobTimeInterval();
 		logger.info(RETRY_CLIENT_JOB_REQUEST_LOG);
+		if(!jobFinishesBeforeDeadline()) {
+			logger.info(JOB_FINISHES_AFTER_DEADLINE);
+			myClientAgent.getGuiController().updateClientsCountByValue(-1);
+			((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+			return;
+		}
+		myAgent.addBehaviour(prepareStartingBehaviour(job));
 	}
 
 	private SequentialBehaviour prepareStartingBehaviour(final ClientJob job) {
-		recalculateJobTimeInterval();
 		final ClientJob jobForRetry = mapToJobWithNewTime(job, myClientAgent.getSimulatedJobStart(),
 				myClientAgent.getSimulatedJobEnd());
 
@@ -68,5 +77,9 @@ public class HandleClientJobRequestRetry extends WakerBehaviour {
 				myClientAgent.getSimulatedJobStart().plus(simulationAdjustment, ChronoUnit.MILLIS));
 		myClientAgent.setSimulatedJobEnd(
 				myClientAgent.getSimulatedJobEnd().plus(simulationAdjustment, ChronoUnit.MILLIS));
+	}
+
+	private boolean jobFinishesBeforeDeadline() {
+		return myClientAgent.getSimulatedJobEnd().isBefore(myClientAgent.getSimulatedDeadline());
 	}
 }

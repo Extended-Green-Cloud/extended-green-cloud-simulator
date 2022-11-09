@@ -10,7 +10,6 @@ public class ScenarioConstants {
 	public static final int START_TIME_MIN = 1;
 	public static final int START_TIME_MAX = 3;
 	public static final int END_TIME_MAX = 5;
-
 	public static final int DEADLINE_MAX = 5;
 
 	public static final boolean MULTI_CONTAINER = false;
