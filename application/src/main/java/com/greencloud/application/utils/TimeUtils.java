@@ -3,6 +3,7 @@ package com.greencloud.application.utils;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -11,8 +12,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,11 +31,14 @@ public class TimeUtils {
 	private static final Logger logger = LoggerFactory.getLogger(TimeUtils.class);
 	private static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
-	private static final Long TIME_ERROR = 5L;
+
 	private static final int MILLISECOND_MULTIPLIER = 1000;
-	private static final int HOUR_DIVIDER = 3600;
-	private static final int SECONDS_FOR_HOUR = 3;
+	private static final int SECONDS_IN_HOUR = 3600;
+	private static final int SECONDS_PER_HOUR = 5;
+	private static final Long TIME_ERROR = 5L;
+
 	private static Clock CLOCK = Clock.systemDefaultZone();
+	private static Instant SYSTEM_START_TIME = null;
 
 	/**
 	 * Mapper used to convert the date written as string to the instant date
@@ -75,7 +79,20 @@ public class TimeUtils {
 	 * @return time in milliseconds
 	 */
 	public static long convertToSimulationTime(final long seconds) {
-		return (long) (((double) seconds / HOUR_DIVIDER) * SECONDS_FOR_HOUR * MILLISECOND_MULTIPLIER);
+		return (long) (((double) seconds / SECONDS_IN_HOUR) * SECONDS_PER_HOUR * MILLISECOND_MULTIPLIER);
+	}
+
+	/**
+	 * Method converts the current simulation time into the real time
+	 *
+	 * @param time time which is representing simulation time
+	 * @return Instant being a time representing a real time
+	 */
+	public static Instant convertToRealTime(final Instant time) {
+		final long simulationTimeDifference = Duration.between(SYSTEM_START_TIME, time).toMillis();
+		final long realTimeMultiplier = SECONDS_IN_HOUR / SECONDS_PER_HOUR;
+		final long realTimeDifference = simulationTimeDifference * realTimeMultiplier;
+		return SYSTEM_START_TIME.plusMillis(realTimeDifference);
 	}
 
 	/**
@@ -100,7 +117,7 @@ public class TimeUtils {
 	 * @return time in hours
 	 */
 	public static double differenceInHours(final Instant startTime, final Instant endTime) {
-		return (double) SECONDS.between(startTime, endTime) / HOUR_DIVIDER;
+		return (double) SECONDS.between(startTime, endTime) / SECONDS_IN_HOUR;
 	}
 
 	/**
@@ -135,5 +152,14 @@ public class TimeUtils {
 	public static void useMockTime(Instant instant, ZoneId zone) {
 		CLOCK = Clock.fixed(instant, zone);
 		TimeZone.setDefault(TimeZone.getTimeZone(zone));
+	}
+
+	/**
+	 * Method sets the system start time to the current time
+	 */
+	public static void setSystemStartTime() {
+		if (Objects.isNull(SYSTEM_START_TIME)) {
+			SYSTEM_START_TIME = Instant.now();
+		}
 	}
 }

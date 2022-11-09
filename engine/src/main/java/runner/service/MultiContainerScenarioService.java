@@ -1,5 +1,6 @@
 package runner.service;
 
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.service.domain.ScenarioConstants.CLIENT_NUMBER;
 
@@ -73,6 +74,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		ScenarioStructureArgs scenario = parseScenarioStructure(scenarioFile);
 
 		if (hostId == CLIENTS_CONTAINER_ID.ordinal()) {
+			setSystemStartTime();
 			if (Objects.nonNull(scenarioEventsFileName)) {
 				var factory = new AgentControllerFactoryImpl(mainContainer);
 				eventService.runScenarioEvents(factory);
