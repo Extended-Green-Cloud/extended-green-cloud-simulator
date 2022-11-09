@@ -60,6 +60,11 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 	 */
 	public void triggerPowerShortage(PowerShortageEvent powerShortageEvent, String agentName) {
 		AbstractAgentNode agentNode = agentNodes.get(agentName);
+
+		if (Objects.isNull(agentNode)) {
+			logger.error("Agent {} was not found. Power shortage couldn't be triggered", agentName);
+			return;
+		}
 		agentNode.addEvent(powerShortageEvent);
 	}
 
