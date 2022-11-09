@@ -1,10 +1,12 @@
 package com.greencloud.application.agents.monitoring.management;
 
+import static com.greencloud.application.constants.CacheTestConstants.MOCK_CURRENT_WEATHER;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_FORECAST;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_FUTURE_WEATHER;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_LOCATION;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_TIME;
 import static com.greencloud.application.exception.domain.ExceptionMessages.WEATHER_API_INTERNAL_ERROR;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -28,9 +30,12 @@ import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.exception.APIFetchInternalException;
 import com.greencloud.application.weather.api.OpenWeatherMapApi;
 import com.greencloud.application.weather.cache.WeatherCache;
+import com.greencloud.application.weather.domain.Clouds;
+import com.greencloud.application.weather.domain.CurrentWeather;
 import com.greencloud.application.weather.domain.Forecast;
 import com.greencloud.application.weather.domain.FutureWeather;
 import com.greencloud.application.weather.domain.ImmutableClouds;
+import com.greencloud.application.weather.domain.ImmutableCurrentWeather;
 import com.greencloud.application.weather.domain.ImmutableForecast;
 import com.greencloud.application.weather.domain.ImmutableFutureWeather;
 import com.greencloud.application.weather.domain.ImmutableWind;
@@ -61,6 +66,54 @@ class MonitoringWeatherManagementUnitTest {
 		mockCache = WeatherCache.getInstance();
 		prepareCache();
 		monitoringWeatherManagement = new MonitoringWeatherManagement(mockAPI, mockCache);
+	}
+
+	@Test
+	@DisplayName("Test getting current com.greencloud.application.weather present in cache")
+	void testGetWeatherPresentInCache() {
+		final Forecast currentForecast = ImmutableForecast.copyOf(MOCK_FORECAST)
+				.withList(ImmutableFutureWeather.copyOf(MOCK_FUTURE_WEATHER).withTimestamp(
+						now()));
+		mockCache.updateCache(MOCK_LOCATION, currentForecast);
+
+		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
+
+		assertThat(result.getWeatherData()).hasSize(1);
+		assertThat(result.getWeatherData().get(0).getCloudCover()).isEqualTo(5.5);
+	}
+
+	@Test
+	@DisplayName("Test getting current com.greencloud.application.weather for api call")
+	void testGetWeatherApiCall() {
+		final Clouds newClouds = ImmutableClouds.builder().all(200.0).build();
+		final CurrentWeather currentWeather = ImmutableCurrentWeather.copyOf(MOCK_CURRENT_WEATHER)
+				.withClouds(newClouds)
+				.withTimestamp(now());
+		doReturn(currentWeather).when(mockAPI).getWeather(MOCK_LOCATION);
+		assertThat(mockCache.getForecast(MOCK_LOCATION, now())).isEmpty();
+
+		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
+
+		// Validate return
+
+		assertThat(result.getWeatherData()).hasSize(1);
+		assertThat(result.getWeatherData().get(0).getCloudCover()).isEqualTo(200.0);
+		assertThat(result.getWeatherData().get(0).getTemperature()).isEqualTo(10.0);
+
+		// Validate cache update
+
+		assertThat(mockCache.getForecast(MOCK_LOCATION, now())).isPresent();
+		assertThat(mockCache.getForecast(MOCK_LOCATION, now()).get().getClouds()).isEqualTo(newClouds);
+	}
+
+	@Test
+	@DisplayName("Test getting current com.greencloud.application.weather for api call not present")
+	void testGetWeatherApiCallNotPresent() {
+		doReturn(null).when(mockAPI).getWeather(MOCK_LOCATION);
+
+		assertThatThrownBy(() -> monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER))
+				.isInstanceOf(APIFetchInternalException.class)
+				.hasMessage(WEATHER_API_INTERNAL_ERROR);
 	}
 
 	@Test
