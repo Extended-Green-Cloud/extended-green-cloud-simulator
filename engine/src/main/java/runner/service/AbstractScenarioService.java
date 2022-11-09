@@ -4,12 +4,7 @@ import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
-import static runner.service.domain.ScenarioConstants.MAX_JOB_POWER;
-import static runner.service.domain.ScenarioConstants.MIN_JOB_POWER;
-import static runner.service.domain.ScenarioConstants.RESOURCE_SCENARIO_PATH;
-import static runner.service.domain.ScenarioConstants.START_TIME_MAX;
-import static runner.service.domain.ScenarioConstants.START_TIME_MIN;
+import static runner.service.domain.ScenarioConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,12 +153,14 @@ public abstract class AbstractScenarioService {
 			final int randomPower = MIN_JOB_POWER + random.nextInt(MAX_JOB_POWER);
 			final int randomStart = START_TIME_MIN + random.nextInt(START_TIME_MAX);
 			final int randomEnd = randomStart + 1 + random.nextInt(END_TIME_MAX);
+			final int randomDeadline = randomEnd + 1 + random.nextInt(DEADLINE_MAX);
 			final ClientAgentArgs clientAgentArgs = ImmutableClientAgentArgs.builder()
 					.name(format("Client%d", idx))
 					.jobId(String.valueOf(idx))
 					.power(String.valueOf(randomPower))
 					.start(String.valueOf(randomStart))
 					.end(String.valueOf(randomEnd))
+					.deadline(String.valueOf(randomDeadline))
 					.build();
 			final AgentController agentController = runAgentController(clientAgentArgs, null, factory);
 			runAgent(agentController, RUN_CLIENT_AGENT_PAUSE);

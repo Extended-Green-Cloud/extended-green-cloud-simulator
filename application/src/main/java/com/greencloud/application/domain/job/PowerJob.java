@@ -33,6 +33,11 @@ public interface PowerJob {
 	Instant getEndTime();
 
 	/**
+	 * @return time before which job has to end
+	 */
+	Instant getDeadline();
+
+	/**
 	 * @return power that is to be delivered
 	 */
 	int getPower();
