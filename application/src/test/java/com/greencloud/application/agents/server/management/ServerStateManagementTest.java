@@ -4,6 +4,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_
 import static com.greencloud.application.domain.job.JobStatusEnum.GREEN_ENERGY_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -98,6 +99,7 @@ class ServerStateManagementTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
+		setSystemStartTimeMock(MOCK_NOW);
 	}
 
 	@BeforeEach

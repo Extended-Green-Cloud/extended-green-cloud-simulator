@@ -196,8 +196,8 @@ public class GreenEnergyStateManagement {
 								convertToRealTime(candidateJob.getStartTime()),
 								convertToRealTime(candidateJob.getEndTime())),
 						Stream.concat(
-								validJobs.stream().map(PowerJob::getStartTime),
-								validJobs.stream().map(PowerJob::getEndTime)))
+								validJobs.stream().map(job -> convertToRealTime(job.getStartTime())),
+								validJobs.stream().map(job -> convertToRealTime(job.getEndTime()))))
 				.distinct()
 				.toList();
 	}

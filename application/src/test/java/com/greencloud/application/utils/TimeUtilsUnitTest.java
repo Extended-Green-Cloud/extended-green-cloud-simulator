@@ -16,13 +16,10 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.within;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
@@ -31,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Percentage;
-import org.assertj.core.data.TemporalUnitOffset;
 import org.assertj.core.data.TemporalUnitWithinOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -195,7 +191,8 @@ class TimeUtilsUnitTest {
 		setSystemStartTime();
 		TimeUnit.SECONDS.sleep(2);
 		setSystemStartTime();
-		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now().minus(2, SECONDS), new TemporalUnitWithinOffset(100, MILLIS));
+		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now().minus(2, SECONDS),
+				new TemporalUnitWithinOffset(100, MILLIS));
 	}
 
 	@Test
