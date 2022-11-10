@@ -1,5 +1,6 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
 import static com.greencloud.application.utils.AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +33,6 @@ import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.PowerJob;
-
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -640,5 +641,28 @@ class AlgorithmUtilsUnitTest {
 		doReturn(MOCK_CAPACITY).when(POWER_MANAGEMENT).getCurrentMaximumCapacity();
 		doReturn(MOCK_CAPACITY).when(POWER_MANAGEMENT).getInitialMaximumCapacity();
 		doReturn(100.0).when(POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
+	}
+
+	// Error calculation tests
+
+	@Test
+	@DisplayName("Test computing power calculation error for time intervals larger than 10 min")
+	void testComputeIncorrectMaximumValProbabilityMoreThan10() {
+		final Instant startTime = Instant.parse("2022-01-01T08:30:00Z");
+		final Instant endTime = Instant.parse("2022-01-01T10:30:00Z");
+		final long interval = 20;
+
+		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isEqualTo(0.5,
+				Offset.offset(0D));
+	}
+
+	@Test
+	@DisplayName("Test computing power calculation error for time intervals smaller than 10 min")
+	void testComputeIncorrectMaximumValProbabilityLessThan10() {
+		final Instant startTime = Instant.parse("2022-01-01T08:30:00Z");
+		final Instant endTime = Instant.parse("2022-01-01T10:30:00Z");
+		final long interval = 5;
+
+		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isZero();
 	}
 }

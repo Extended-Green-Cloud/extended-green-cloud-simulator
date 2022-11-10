@@ -286,6 +286,18 @@ class GreenEnergyStateManagementUnitTest {
 		assertThat(result).contains(70.0);
 	}
 
+	@Test
+	@DisplayName("Test computing overall error for job")
+	void testComputeCombinedPowerError() {
+		final PowerJob mockJob = ImmutablePowerJob.builder()
+				.jobId("100")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T08:00:10.000Z"))
+				.power(20)
+				.build();
+		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.02);
+	}
+
 	// PREPARING TEST DATA
 
 	/**
