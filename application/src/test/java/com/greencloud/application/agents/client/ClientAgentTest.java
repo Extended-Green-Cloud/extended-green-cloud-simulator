@@ -30,7 +30,7 @@ class ClientAgentTest {
 	private static final Instant NOW = parse("2022-08-15T16:30:00.000Z");
 
 	@JadeAgent(name = "test_agent", type = "com.greencloud.application.agents.client.ClientAgent", arguments = { "15/08/2022 16:30",
-			"15/08/2022 18:30", "100", "1" })
+			"15/08/2022 18:30", "15/08/2022 19:00", "100", "1" })
 	private ClientAgent agent;
 
 	@BeforeAll

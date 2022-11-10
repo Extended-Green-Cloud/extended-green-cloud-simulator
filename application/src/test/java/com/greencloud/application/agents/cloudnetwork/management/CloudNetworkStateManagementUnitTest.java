@@ -113,6 +113,7 @@ class CloudNetworkStateManagementUnitTest {
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.power(10)
 				.build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder()
@@ -120,6 +121,7 @@ class CloudNetworkStateManagementUnitTest {
 				.clientIdentifier("Client2")
 				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T19:00:00.000Z"))
 				.power(20)
 				.build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder()
@@ -127,6 +129,7 @@ class CloudNetworkStateManagementUnitTest {
 				.clientIdentifier("Client3")
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T15:15:00.000Z"))
 				.power(50)
 				.build();
 		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
