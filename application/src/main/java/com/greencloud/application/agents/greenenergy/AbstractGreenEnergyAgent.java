@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.greenenergy;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,10 +29,12 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	protected volatile ConcurrentMap<PowerJob, JobStatusEnum> powerJobs;
 	protected AID monitoringAgent;
 	protected AID ownerServer;
+	protected double weatherPredictionError;
 
 	AbstractGreenEnergyAgent() {
 		super.setup();
 		this.powerJobs = new ConcurrentHashMap<>();
+		this.weatherPredictionError = INITIAL_WEATHER_PREDICTION_ERROR;
 	}
 
 	public AID getOwnerServer() {
@@ -63,6 +67,14 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public void setMonitoringAgent(AID monitoringAgent) {
 		this.monitoringAgent = monitoringAgent;
+	}
+
+	public double getWeatherPredictionError() {
+		return weatherPredictionError;
+	}
+
+	public void setWeatherPredictionError(double weatherPredictionError) {
+		this.weatherPredictionError = weatherPredictionError;
 	}
 
 	public void setGreenPowerManagement(GreenPowerManagement greenPowerManagement) {
