@@ -83,15 +83,18 @@ public class OfferMessageFactory {
 	 *
 	 * @param greenEnergyAgent      green energy which is making the power supply offer
 	 * @param averageAvailablePower power available during job execution
+	 * @param predictionError       error associated with power calculations
 	 * @param jobId                 unique identifier of the job of interest
 	 * @param replyMessage          reply message as which the power supply offer is to be sent
 	 * @return proposal ACLMessage
 	 */
 	public static ACLMessage makeGreenEnergyPowerSupplyOffer(final GreenEnergyAgent greenEnergyAgent,
-			final double averageAvailablePower, final String jobId, final ACLMessage replyMessage) {
+			final double averageAvailablePower, final double predictionError, final String jobId,
+			final ACLMessage replyMessage) {
 		final GreenSourceData responseData = ImmutableGreenSourceData.builder()
 				.pricePerPowerUnit(greenEnergyAgent.getPricePerPowerUnit())
 				.availablePowerInTime(averageAvailablePower)
+				.powerPredictionError(predictionError)
 				.jobId(jobId)
 				.build();
 		return ReplyMessageFactory.prepareReply(replyMessage, responseData, PROPOSE);

@@ -26,6 +26,11 @@ public interface GreenSourceData {
 	double getPricePerPowerUnit();
 
 	/**
+	 * @return error associated with power calculations
+	 */
+	double getPowerPredictionError();
+
+	/**
 	 * @return unique identifier of the given job of interest
 	 */
 	String getJobId();

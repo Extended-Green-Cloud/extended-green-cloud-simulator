@@ -4,6 +4,7 @@ import static com.greencloud.application.utils.TimeUtils.divideIntoSubIntervals;
 import static com.greencloud.application.utils.domain.JobWithTime.TimeType.START_TIME;
 import static java.util.Objects.nonNull;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -144,6 +145,29 @@ public class AlgorithmUtils {
 			sums.addAll(newSums);
 		});
 		return result.get().subList;
+	}
+
+	/**
+	 * Method computes the margin of error taking into account 95% CI for given time range and sub interval length.
+	 * It was assumed that the duration of time range in ms corresponds to the population size.
+	 * The number of sub intervals (i.e. the time frame values) corresponds to the sample size.
+	 * The calculation evaluates the margin of error for the proportion
+	 *
+	 * @param startTime      start time of the interval (in real time)
+	 * @param endTime        end time of the interval (in real time)
+	 * @param intervalLength length of single sub-interval in minutes
+	 * @return margin of error
+	 */
+	public static double computeMarginOfErrorForInterval(final Instant startTime, final Instant endTime,
+			final long intervalLength) {
+		final Set<Instant> subIntervals = divideIntoSubIntervals(startTime, endTime, intervalLength * MILLIS_IN_MIN);
+		final long sampleSize = subIntervals.size();
+		final long populationSize = Duration.between(startTime, endTime).toMillis();
+		final double zScore = 1.96;
+		final double sampleProportion = (double) sampleSize / populationSize;
+
+		return zScore * Math.sqrt((sampleProportion * (1 - sampleProportion)) / (double) sampleSize);
+
 	}
 
 	private static <T extends PowerJob> Deque<Map.Entry<Instant, Integer>> getPowerForJobIntervals(

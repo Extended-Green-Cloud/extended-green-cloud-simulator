@@ -104,6 +104,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 			logger.info(POWER_SUPPLY_PROPOSAL_LOG, jobId);
 			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent,
 					averageAvailablePower.get(),
+					myGreenEnergyAgent.manage().computeCombinedPowerError(powerJob),
 					jobId, cfp.createReply());
 			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer, data));
 		}

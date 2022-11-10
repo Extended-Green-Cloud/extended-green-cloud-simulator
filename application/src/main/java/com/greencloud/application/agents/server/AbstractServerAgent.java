@@ -1,10 +1,10 @@
 package com.greencloud.application.agents.server;
 
 import static com.greencloud.application.agents.server.domain.ServerAgentConstants.JOB_PROCESSING_LIMIT;
+import static com.greencloud.application.agents.server.domain.ServerAgentConstants.MAX_AVAILABLE_POWER_DIFFERENCE;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,18 +54,25 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	 * @return chosen offer
 	 */
 	public ACLMessage chooseGreenSourceToExecuteJob(final List<ACLMessage> greenSourceOffers) {
-		final Comparator<ACLMessage> compareGreenSources =
-				Comparator.comparingDouble(
-						greenSource -> {
-							try {
-								return getMapper()
-										.readValue(greenSource.getContent(), GreenSourceData.class)
-										.getAvailablePowerInTime();
-							} catch (final JsonProcessingException e) {
-								return Double.MAX_VALUE;
-							}
-						});
-		return greenSourceOffers.stream().min(compareGreenSources).orElseThrow();
+		return greenSourceOffers.stream().min(this::compareGreenSourceOffers).orElseThrow();
+	}
+
+	private int compareGreenSourceOffers(final ACLMessage offer1, final ACLMessage offer2) {
+		GreenSourceData greenSource1;
+		GreenSourceData greenSource2;
+		try {
+			greenSource1 = getMapper().readValue(offer1.getContent(), GreenSourceData.class);
+			greenSource2 = getMapper().readValue(offer2.getContent(), GreenSourceData.class);
+		} catch (JsonProcessingException e) {
+			return Integer.MAX_VALUE;
+		}
+		double powerDifference = greenSource1.getAvailablePowerInTime() - greenSource2.getAvailablePowerInTime();
+		int errorDifference = (int) (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
+		return (int) (errorDifference != 0 ?
+				MAX_AVAILABLE_POWER_DIFFERENCE.isValidValue((long) powerDifference) ?
+						errorDifference :
+						powerDifference
+				: powerDifference);
 	}
 
 	public int getInitialMaximumCapacity() {
