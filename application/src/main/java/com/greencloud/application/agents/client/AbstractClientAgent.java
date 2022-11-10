@@ -14,6 +14,8 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected AID chosenCloudNetworkAgent;
 	protected Instant simulatedJobStart;
 	protected Instant simulatedJobEnd;
+
+	protected Instant simulatedDeadline;
 	protected Integer retries;
 	protected boolean announced;
 
@@ -41,6 +43,10 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	public void setSimulatedJobEnd(Instant simulatedJobEnd) {
 		this.simulatedJobEnd = simulatedJobEnd;
 	}
+
+	public Instant getSimulatedDeadline() { return simulatedDeadline; }
+
+	public void setSimulatedDeadline(Instant simulatedDeadline) { this.simulatedDeadline = simulatedDeadline; }
 
 	public Integer getRetries() {
 		return retries;

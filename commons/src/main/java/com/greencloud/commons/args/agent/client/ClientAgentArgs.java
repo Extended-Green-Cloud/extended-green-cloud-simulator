@@ -30,6 +30,11 @@ public interface ClientAgentArgs extends AgentArgs {
 	String getEnd();
 
 	/**
+	 * @return time before which the job execution has to end
+	 */
+	String getDeadline();
+
+	/**
 	 * @return power required for the job
 	 */
 	String getPower();

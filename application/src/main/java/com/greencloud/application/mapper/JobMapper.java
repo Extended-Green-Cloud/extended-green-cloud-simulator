@@ -26,6 +26,7 @@ public class JobMapper {
 				.power(job.getPower())
 				.startTime(job.getStartTime())
 				.endTime(job.getEndTime())
+				.deadline(job.getDeadline())
 				.build();
 	}
 
@@ -39,6 +40,7 @@ public class JobMapper {
 				.power(powerJob.getPower())
 				.startTime(startTime)
 				.endTime(powerJob.getEndTime())
+				.deadline(powerJob.getDeadline())
 				.build();
 	}
 
@@ -54,6 +56,7 @@ public class JobMapper {
 				.power(job.getPower())
 				.startTime(startTime)
 				.endTime(job.getEndTime())
+				.deadline(job.getDeadline())
 				.build();
 	}
 
@@ -68,6 +71,7 @@ public class JobMapper {
 				.power(job.getPower())
 				.startTime(job.getStartTime())
 				.endTime(endTime)
+				.deadline(job.getDeadline())
 				.build();
 	}
 
@@ -82,6 +86,7 @@ public class JobMapper {
 				.power(powerJob.getPower())
 				.startTime(startTime)
 				.endTime(powerJob.getEndTime())
+				.deadline(powerJob.getDeadline())
 				.build();
 	}
 
@@ -96,6 +101,7 @@ public class JobMapper {
 				.power(powerJob.getPower())
 				.startTime(powerJob.getStartTime())
 				.endTime(endTime)
+				.deadline(powerJob.getDeadline())
 				.build();
 	}
 
@@ -112,6 +118,7 @@ public class JobMapper {
 				.power(job.getPower())
 				.startTime(startTime)
 				.endTime(endTime)
+				.deadline(job.getDeadline())
 				.build();
 	}
 
