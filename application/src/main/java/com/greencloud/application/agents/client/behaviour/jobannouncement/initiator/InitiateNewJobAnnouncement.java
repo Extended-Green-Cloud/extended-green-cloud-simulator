@@ -31,7 +31,6 @@ import com.greencloud.application.agents.client.behaviour.jobannouncement.handle
 import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
-import com.greencloud.application.messages.domain.constants.MessageContentConstants;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -121,8 +120,8 @@ public class InitiateNewJobAnnouncement extends ContractNetInitiator {
 
 	private void handleRetryProcess() {
 		if (myClientAgent.getRetries() < MAX_RETRIES) {
-			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG, myClientAgent.getRetries());
 			myClientAgent.retry();
+			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG, myClientAgent.getRetries());
 			myClientAgent.addBehaviour(new HandleClientJobRequestRetry(myAgent, RETRY_PAUSE_MILLISECONDS, job));
 		} else {
 			logger.info(NO_CLOUD_AVAILABLE_NO_RETRY_LOG);

@@ -1,4 +1,4 @@
-package domain;
+package com.database.knowledge.domain;
 
 /**
  * Master interface that must be extended by all monitoring data types that is

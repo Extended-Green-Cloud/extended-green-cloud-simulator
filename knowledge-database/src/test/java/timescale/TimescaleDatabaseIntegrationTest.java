@@ -1,6 +1,6 @@
 package timescale;
 
-import static domain.DataType.PROCESSED_API_REQUEST;
+import static com.database.knowledge.domain.DataType.PROCESSED_API_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import domain.AgentData;
-import domain.DataType;
-import domain.MonitoringData;
+import com.database.knowledge.domain.AgentData;
+import com.database.knowledge.domain.DataType;
+import com.database.knowledge.domain.MonitoringData;
+import com.database.knowledge.timescale.TimescaleDatabase;
+
 import domain.agent.monitoring.ImmutableProcessedApiRequest;
 
 @ExtendWith(MockitoExtension.class)

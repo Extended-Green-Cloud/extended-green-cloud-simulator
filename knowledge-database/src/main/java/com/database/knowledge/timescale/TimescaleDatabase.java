@@ -1,12 +1,12 @@
-package timescale;
+package com.database.knowledge.timescale;
 
+import static com.database.knowledge.timescale.TimescaleCommands.CREATE_HYPERTABLE;
+import static com.database.knowledge.timescale.TimescaleCommands.CREATE_MONITORING_DATA;
+import static com.database.knowledge.timescale.TimescaleCommands.DROP_MONITORING_DATA;
+import static com.database.knowledge.timescale.TimescaleCommands.SET_HYPERTABLE_CHUNK_TO_15_SEC;
+import static com.database.knowledge.timescale.TimescaleQueries.GET_LAST_5_SEC_DATA;
+import static com.database.knowledge.timescale.TimescaleQueries.INSERT_MONITORING_DATA;
 import static java.lang.String.format;
-import static timescale.TimescaleQueries.CREATE_HYPERTABLE;
-import static timescale.TimescaleQueries.CREATE_MONITORING_DATA;
-import static timescale.TimescaleQueries.DROP_MONITORING_DATA;
-import static timescale.TimescaleQueries.GET_LAST_5_SEC_DATA;
-import static timescale.TimescaleQueries.INSERT_MONITORING_DATA;
-import static timescale.TimescaleQueries.SET_HYPERTABLE_CHUNK_TO_15_SEC;
 
 import java.io.Closeable;
 import java.sql.Connection;
@@ -18,18 +18,17 @@ import java.util.Properties;
 
 import org.postgresql.util.PGobject;
 
+import com.database.knowledge.domain.AgentData;
+import com.database.knowledge.domain.DataType;
+import com.database.knowledge.domain.MonitoringData;
+import com.database.knowledge.timescale.exception.ClosingDatabaseException;
+import com.database.knowledge.timescale.exception.ConnectDatabaseException;
+import com.database.knowledge.timescale.exception.InitDatabaseException;
+import com.database.knowledge.timescale.exception.ReadDataException;
+import com.database.knowledge.timescale.exception.WriteDataException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import domain.AgentData;
-import domain.DataType;
-import domain.MonitoringData;
-import timescale.exception.ClosingDatabaseException;
-import timescale.exception.ConnectDatabaseException;
-import timescale.exception.InitDatabaseException;
-import timescale.exception.ReadDataException;
-import timescale.exception.WriteDataException;
 
 public class TimescaleDatabase implements Closeable {
 

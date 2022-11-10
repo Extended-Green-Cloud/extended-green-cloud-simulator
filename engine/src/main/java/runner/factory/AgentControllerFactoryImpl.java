@@ -41,10 +41,11 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		if (agentArgs instanceof ClientAgentArgs clientAgent) {
 			final String startDate = formatToDate(clientAgent.getStart());
 			final String endDate = formatToDate(clientAgent.getEnd());
+			final String deadline = formatToDate(clientAgent.getDeadline());
 
 			return containerController.createNewAgent(clientAgent.getName(),
 					"com.greencloud.application.agents.client.ClientAgent",
-					new Object[] { startDate, endDate, clientAgent.getPower(), clientAgent.getJobId() });
+					new Object[] { startDate, endDate, deadline, clientAgent.getPower(), clientAgent.getJobId() });
 		} else if (agentArgs instanceof ServerAgentArgs serverAgent) {
 			return containerController.createNewAgent(serverAgent.getName(),
 					"com.greencloud.application.agents.server.ServerAgent",
