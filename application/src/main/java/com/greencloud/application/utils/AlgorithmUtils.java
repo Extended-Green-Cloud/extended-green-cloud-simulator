@@ -148,25 +148,20 @@ public class AlgorithmUtils {
 	}
 
 	/**
-	 * Method computes the margin of error taking into account 95% CI for given time range and sub interval length.
-	 * It was assumed that the duration of time range in ms corresponds to the population size.
-	 * The number of sub intervals (i.e. the time frame values) corresponds to the sample size.
-	 * The calculation evaluates the margin of error for the proportion
+	 * Method computes the probability that the computed maximum value is incorrect (it was assumed that the smallest time interval is equal to 10 min)
 	 *
 	 * @param startTime      start time of the interval (in real time)
 	 * @param endTime        end time of the interval (in real time)
 	 * @param intervalLength length of single sub-interval in minutes
 	 * @return margin of error
 	 */
-	public static double computeMarginOfErrorForInterval(final Instant startTime, final Instant endTime,
+	public static double computeIncorrectMaximumValProbability(final Instant startTime, final Instant endTime,
 			final long intervalLength) {
 		final Set<Instant> subIntervals = divideIntoSubIntervals(startTime, endTime, intervalLength * MILLIS_IN_MIN);
-		final long sampleSize = subIntervals.size();
-		final long populationSize = Duration.between(startTime, endTime).toMillis();
-		final double zScore = 1.96;
-		final double sampleProportion = (double) sampleSize / populationSize;
+		final long sampleSize = (long) subIntervals.size() - 1;
+		final double populationSize = (double) Duration.between(startTime, endTime).toMinutes() / 10;
 
-		return zScore * Math.sqrt((sampleProportion * (1 - sampleProportion)) / (double) sampleSize);
+		return 1 - sampleSize / populationSize;
 
 	}
 
