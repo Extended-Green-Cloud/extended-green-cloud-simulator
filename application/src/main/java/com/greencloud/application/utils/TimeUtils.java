@@ -37,8 +37,9 @@ public class TimeUtils {
 	private static final int SECONDS_PER_HOUR = 5;
 	private static final Long TIME_ERROR = 5L;
 
-	private static Clock CLOCK = Clock.systemDefaultZone();
+	//TODO store this information in the database so that all agents has access to it
 	public static Instant SYSTEM_START_TIME = null;
+	private static Clock CLOCK = Clock.systemDefaultZone();
 
 	/**
 	 * Mapper used to convert the date written as string to the instant date
@@ -90,9 +91,9 @@ public class TimeUtils {
 	 */
 	public static Instant convertToRealTime(final Instant time) {
 		final long simulationTimeDifference = Duration.between(SYSTEM_START_TIME, time).toMillis();
-		final long realTimeMultiplier = SECONDS_IN_HOUR / SECONDS_PER_HOUR;
-		final long realTimeDifference = simulationTimeDifference * realTimeMultiplier;
-		return SYSTEM_START_TIME.plusMillis(realTimeDifference);
+		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
+		final double realTimeDifference = simulationTimeDifference * realTimeMultiplier;
+		return SYSTEM_START_TIME.plusMillis((long) realTimeDifference);
 	}
 
 	/**
