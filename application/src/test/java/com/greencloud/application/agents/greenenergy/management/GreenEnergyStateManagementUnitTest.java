@@ -295,7 +295,7 @@ class GreenEnergyStateManagementUnitTest {
 				.endTime(Instant.parse("2022-01-01T08:00:10.000Z"))
 				.power(20)
 				.build();
-		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.02);
+		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.03);
 	}
 
 	// PREPARING TEST DATA

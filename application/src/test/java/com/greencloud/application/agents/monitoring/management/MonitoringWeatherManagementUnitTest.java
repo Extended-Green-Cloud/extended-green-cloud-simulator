@@ -48,6 +48,7 @@ class MonitoringWeatherManagementUnitTest {
 	// MOCKED OBJECTS
 	public static final GreenSourceWeatherData MOCK_GS_WEATHER = ImmutableGreenSourceWeatherData.builder()
 			.location(MOCK_LOCATION)
+			.predictionError(0.02)
 			.build();
 	public static final GreenSourceForecastData MOCK_GS_FORECAST = ImmutableGreenSourceForecastData.builder()
 			.location(MOCK_LOCATION)

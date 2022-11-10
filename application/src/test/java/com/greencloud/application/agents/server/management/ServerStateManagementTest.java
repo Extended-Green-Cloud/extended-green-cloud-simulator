@@ -181,6 +181,7 @@ class ServerStateManagementTest {
 				.jobId("1")
 				.availablePowerInTime(100)
 				.pricePerPowerUnit(5)
+				.powerPredictionError(0.02)
 				.build();
 		final double resultPrice = serverAgent.manage().calculateServicePrice(mockGreenSourceData);
 

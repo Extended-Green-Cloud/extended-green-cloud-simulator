@@ -1,7 +1,9 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.SUB_INTERVAL_ERROR;
 import static com.greencloud.application.utils.TimeUtils.divideIntoSubIntervals;
 import static com.greencloud.application.utils.domain.JobWithTime.TimeType.START_TIME;
+import static java.lang.Math.max;
 import static java.util.Objects.nonNull;
 
 import java.time.Duration;
@@ -161,7 +163,7 @@ public class AlgorithmUtils {
 		final long sampleSize = (long) subIntervals.size() - 1;
 		final double populationSize = (double) Duration.between(startTime, endTime).toMinutes() / 10;
 
-		return 1 - sampleSize / populationSize;
+		return SUB_INTERVAL_ERROR + max(1 - sampleSize / populationSize, 0);
 
 	}
 

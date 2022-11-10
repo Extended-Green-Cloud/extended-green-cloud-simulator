@@ -12,6 +12,7 @@ package com.greencloud.application.agents.greenenergy.domain;
  * <p> TEST_MULTIPLIER				  			- multiplier used in manipulating power management in conducted tests (1 = getting true result) </p>
  * <p> MOCK_SOLAR_ENERGY			  			- flag indicating that the solar energy should be mocked, not calculated </p>
  * <p> INITIAL_WEATHER_PREDICTION_ERROR			- error of weather prediction </p>
+ * <p> SUB_INTERVAL_ERROR						- error associated with obtaining the maximum value based on the sub intervals </p>
  */
 public class GreenEnergyAgentConstants {
 
@@ -24,5 +25,6 @@ public class GreenEnergyAgentConstants {
 	public static final int TEST_MULTIPLIER = 1;
 	public static final boolean MOCK_SOLAR_ENERGY = true;
 	public static final double INITIAL_WEATHER_PREDICTION_ERROR = 0.02;
+	public static final double SUB_INTERVAL_ERROR = 0.01;
 
 }

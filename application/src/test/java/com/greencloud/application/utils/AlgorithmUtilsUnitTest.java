@@ -652,7 +652,7 @@ class AlgorithmUtilsUnitTest {
 		final Instant endTime = Instant.parse("2022-01-01T10:30:00Z");
 		final long interval = 20;
 
-		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isEqualTo(0.5,
+		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isEqualTo(0.51,
 				Offset.offset(0D));
 	}
 
@@ -663,6 +663,6 @@ class AlgorithmUtilsUnitTest {
 		final Instant endTime = Instant.parse("2022-01-01T10:30:00Z");
 		final long interval = 5;
 
-		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isZero();
+		assertThat(computeIncorrectMaximumValProbability(startTime, endTime, interval)).isEqualTo(0.01);
 	}
 }
