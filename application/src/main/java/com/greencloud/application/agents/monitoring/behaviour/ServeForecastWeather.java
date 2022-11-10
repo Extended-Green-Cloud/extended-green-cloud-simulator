@@ -11,6 +11,7 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
+import static java.lang.Math.max;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -76,7 +77,8 @@ public class ServeForecastWeather extends CyclicBehaviour {
 
 	private MonitoringData getWeatherDataForPeriodicCheck(final ACLMessage message) {
 		final GreenSourceWeatherData requestData = readMessageContent(message, GreenSourceWeatherData.class);
-		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < BAD_STUB_PROBABILITY) {
+		final double incorrectPredictionProbability = max(BAD_STUB_PROBABILITY - requestData.getPredictionError(), 0);
+		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < incorrectPredictionProbability) {
 			return BAD_STUB_DATA;
 		} else {
 			return OFFLINE_MODE ?

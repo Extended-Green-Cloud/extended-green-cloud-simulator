@@ -64,6 +64,7 @@ public class RequestWeatherData extends OneShotBehaviour {
 		return isNull(powerJob) ?
 				ImmutableGreenSourceWeatherData.builder()
 						.location(myGreenEnergyAgent.getLocation())
+						.predictionError(myGreenEnergyAgent.getWeatherPredictionError())
 						.build() :
 				ImmutableGreenSourceForecastData.builder()
 						.location(myGreenEnergyAgent.getLocation())

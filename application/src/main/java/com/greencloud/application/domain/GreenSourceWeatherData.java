@@ -18,4 +18,6 @@ public interface GreenSourceWeatherData {
 	 * @return location for which the com.greencloud.application.weather is to be retrieved
 	 */
 	Location getLocation();
+
+	double getPredictionError();
 }
