@@ -1,34 +1,37 @@
 package com.database.knowledge.timescale;
 
-import static com.database.knowledge.timescale.TimescaleCommands.CREATE_HYPERTABLE;
-import static com.database.knowledge.timescale.TimescaleCommands.CREATE_MONITORING_DATA;
-import static com.database.knowledge.timescale.TimescaleCommands.DROP_MONITORING_DATA;
-import static com.database.knowledge.timescale.TimescaleCommands.SET_HYPERTABLE_CHUNK_TO_15_SEC;
-import static com.database.knowledge.timescale.TimescaleQueries.GET_LAST_5_SEC_DATA;
-import static com.database.knowledge.timescale.TimescaleQueries.INSERT_MONITORING_DATA;
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_ACTIONS;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_HYPERTABLE;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_DATA;
+import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIONS;
+import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
+import static com.database.knowledge.timescale.DdlCommands.INSERT_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_15_SEC;
 import static java.lang.String.format;
 
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
-import org.postgresql.util.PGobject;
-
-import com.database.knowledge.domain.AgentData;
-import com.database.knowledge.domain.DataType;
-import com.database.knowledge.domain.MonitoringData;
+import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.MonitoringData;
+import com.database.knowledge.domain.goal.AdaptationGoal;
+import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.exception.ClosingDatabaseException;
 import com.database.knowledge.timescale.exception.ConnectDatabaseException;
 import com.database.knowledge.timescale.exception.InitDatabaseException;
 import com.database.knowledge.timescale.exception.ReadDataException;
 import com.database.knowledge.timescale.exception.WriteDataException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class TimescaleDatabase implements Closeable {
 
@@ -37,9 +40,8 @@ public class TimescaleDatabase implements Closeable {
 	private static final String PASSWORD = "password";
 	private static final String DATABASE_HOST_NAME = "127.0.0.1";
 
-	private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
 	private final Connection sqlConnection;
+	private final JdbcStatementsExecutor statementsExecutor;
 
 	public TimescaleDatabase() {
 		try {
@@ -47,6 +49,7 @@ public class TimescaleDatabase implements Closeable {
 		} catch (SQLException exception) {
 			throw new ConnectDatabaseException(exception);
 		}
+		statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 	}
 
 	@Override
@@ -65,7 +68,7 @@ public class TimescaleDatabase implements Closeable {
 		try {
 			dropTableIfExists(sqlConnection);
 			createSchema(sqlConnection);
-		} catch (SQLException exception) {
+		} catch (SQLException | JsonProcessingException exception) {
 			throw new InitDatabaseException(exception);
 		}
 	}
@@ -77,24 +80,45 @@ public class TimescaleDatabase implements Closeable {
 	 * @param dataType type of the data to be written
 	 * @param data     data to be written, must be serializable to JSON
 	 */
-	public void writeData(String aid, DataType dataType, MonitoringData data) {
+	public void writeMonitoringData(String aid, DataType dataType, MonitoringData data) {
 		try {
-			executeWriteStatement(aid, dataType, data);
+			statementsExecutor.executeWriteStatement(aid, dataType, data);
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new WriteDataException(exception);
 		}
 	}
 
-	public void executeWriteStatement(String aid, DataType dataType, MonitoringData data) throws SQLException,
-			JsonProcessingException {
-		var jsonObject = new PGobject();
-		jsonObject.setType("json");
-		jsonObject.setValue(objectMapper.writeValueAsString(data));
-		try (var statement = sqlConnection.prepareStatement(INSERT_MONITORING_DATA)) {
-			statement.setString(1, aid);
-			statement.setString(2, dataType.toString());
-			statement.setObject(3, jsonObject);
-			statement.executeUpdate();
+	/**
+	 * Updates given adaptation action with additional goals changes data
+	 *
+	 * @param actionId    id of the adaptation action to update
+	 * @param goalChanges additional goals changes data for the given adaptation action
+	 * @return updated {@link AdaptationAction}
+	 */
+	public AdaptationAction updateAdaptationAction(Integer actionId, Map<GoalEnum, Double> goalChanges) {
+		try {
+			var action = readAdaptationAction(actionId);
+			action.mergeActionResults(goalChanges);
+			action.increaseRuns();
+			statementsExecutor.executeUpdateActionStatement(action);
+			return readAdaptationAction(actionId);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
+	 * Sets given adaptation action as again available
+	 *
+	 * @param actionId id of the adaption action to update
+	 * @return updated {@link AdaptationAction}
+	 */
+	public AdaptationAction releaseAdaptationAction(Integer actionId) {
+		try {
+			statementsExecutor.executeReleaseActionStatement(actionId);
+			return readAdaptationAction(actionId);
+		} catch (SQLException exception) {
+			throw new WriteDataException(exception);
 		}
 	}
 
@@ -103,30 +127,51 @@ public class TimescaleDatabase implements Closeable {
 	 *
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */
-	public List<AgentData> readData() {
+	public List<AgentData> readMonitoringData() {
 		try {
-			return executeReadStatement();
+			return statementsExecutor.executeReadMonitoringDataStatement();
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new ReadDataException(exception);
 		}
 	}
 
-	private List<AgentData> executeReadStatement() throws SQLException, JsonProcessingException {
-		try (var statement = sqlConnection.prepareStatement(GET_LAST_5_SEC_DATA)) {
-			try (var resultSet = statement.executeQuery()) {
-				var result = new ArrayList<AgentData>();
-				while (resultSet.next()) {
-					var type = DataType.valueOf(resultSet.getString(3));
-					var agentData = new AgentData(
-							resultSet.getTimestamp(1).toInstant(),
-							resultSet.getString(2),
-							type,
-							objectMapper.readValue(resultSet.getObject(4).toString(), type.getDataTypeClass())
-					);
-					result.add(agentData);
-				}
-				return result;
-			}
+	/**
+	 * Provides reading capability of predefined and hardcoded into the database adaptation goals
+	 *
+	 * @return List of {@link AdaptationGoal}s
+	 */
+	public List<AdaptationGoal> readAdaptationGoals() {
+		try {
+			return statementsExecutor.executeReadAdaptationGoalsStatement();
+		} catch (SQLException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides reading capability of predefined and hardcoded into the database adaptation actions
+	 *
+	 * @return List of {@link AdaptationAction}
+	 */
+	public List<AdaptationAction> readAdaptationActions() {
+		try {
+			return statementsExecutor.executeReadAdaptationActionsStatement();
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides reading capability of predefined and hardcoded into the database adaptation action
+	 *
+	 * @param actionId id of the adaptation action to be returned
+	 * @return List of {@link AdaptationAction}
+	 */
+	public AdaptationAction readAdaptationAction(Integer actionId) {
+		try {
+			return statementsExecutor.executeReadAdaptationActionStatement(actionId);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
 		}
 	}
 
@@ -141,17 +186,25 @@ public class TimescaleDatabase implements Closeable {
 	private void dropTableIfExists(Connection sqlConnection) throws SQLException {
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(DROP_MONITORING_DATA);
+			statement.execute(DROP_ADAPTATION_GOALS);
+			statement.execute(DROP_ADAPTATION_ACTIONS);
 		}
 	}
 
-	private void createSchema(Connection sqlConnection) throws SQLException {
+	private void createSchema(Connection sqlConnection) throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_MONITORING_DATA);
+			statement.execute(CREATE_ADAPTATION_GOALS);
+			statement.execute(CREATE_ADAPTATION_ACTIONS);
 		}
 
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_15_SEC);
+			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
+			for (var action : getAdaptationActions()) {
+				statementsExecutor.executeWriteStatement(action);
+			}
 		}
 	}
 }

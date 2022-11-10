@@ -1,4 +1,4 @@
-package com.database.knowledge.domain;
+package com.database.knowledge.domain.agent;
 
 import com.database.knowledge.domain.agent.monitoring.ProcessedApiRequest;
 
