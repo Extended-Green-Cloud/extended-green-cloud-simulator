@@ -38,7 +38,7 @@ public class TimeUtils {
 	private static final Long TIME_ERROR = 5L;
 
 	private static Clock CLOCK = Clock.systemDefaultZone();
-	private static Instant SYSTEM_START_TIME = null;
+	public static Instant SYSTEM_START_TIME = null;
 
 	/**
 	 * Mapper used to convert the date written as string to the instant date
@@ -161,5 +161,12 @@ public class TimeUtils {
 		if (Objects.isNull(SYSTEM_START_TIME)) {
 			SYSTEM_START_TIME = Instant.now();
 		}
+	}
+
+	/**
+	 * Method sets the system start time to mock value
+	 */
+	public static void setSystemStartTimeMock(Instant instant) {
+		SYSTEM_START_TIME = instant;
 	}
 }
