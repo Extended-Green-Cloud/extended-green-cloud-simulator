@@ -104,6 +104,7 @@ public class ScenarioEventService {
 				.power(String.valueOf(newClientEvent.getPower()))
 				.start(String.valueOf(newClientEvent.getStart()))
 				.end(String.valueOf(newClientEvent.getEnd()))
+				.deadline(String.valueOf(newClientEvent.getDeadline()))
 				.build();
 		final AgentController agentController = scenarioService.runAgentController(clientAgentArgs, null, factory);
 		scenarioService.runAgent(agentController, 0);

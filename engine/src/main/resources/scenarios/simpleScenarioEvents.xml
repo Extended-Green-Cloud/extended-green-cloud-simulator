@@ -5,6 +5,7 @@
 		<jobId>1</jobId>
 		<start>2</start>
 		<end>10</end>
+		<deadline>12</deadline>
 		<power>100</power>
 	</event>
 	<event type="POWER_SHORTAGE_EVENT">

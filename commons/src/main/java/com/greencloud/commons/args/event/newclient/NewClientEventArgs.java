@@ -40,6 +40,11 @@ public interface NewClientEventArgs extends EventArgs {
 	Integer getEnd();
 
 	/**
+	 * @return deadline beore which job has to end
+	 */
+	Integer getDeadline();
+
+	/**
 	 * @return power required for the job
 	 */
 	Integer getPower();
