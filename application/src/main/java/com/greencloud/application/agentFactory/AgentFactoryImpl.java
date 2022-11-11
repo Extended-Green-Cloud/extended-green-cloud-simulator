@@ -17,6 +17,9 @@ public class AgentFactoryImpl implements AgentFactory{
     static private int monitoringAgentsCreated = 0;
     static private int greenEnergyAgentsCreated = 0;
 
+    public AgentFactoryImpl() {
+
+    }
     @Override
     public ServerAgentArgs createServerAgent(String ownerCNA, String maximumCapacity, String price) {
 
