@@ -5,7 +5,6 @@ import static com.greencloud.application.gui.GuiConnectionProvider.connectToGui;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
-import java.sql.Time;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -84,7 +83,7 @@ public class ClientAgent extends AbstractClientAgent {
 				doDelete();
 			}
 			if (deadline.isBefore(endTime)) {
-				logger.error("The job deadline cannot be befode job execution end time!");
+				logger.error("The job deadline cannot be before job execution end time!");
 				doDelete();
 			}
 			prepareSimulatedTimes(startTime, endTime, deadline);

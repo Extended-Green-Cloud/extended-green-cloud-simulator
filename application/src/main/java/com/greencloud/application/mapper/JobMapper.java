@@ -56,6 +56,7 @@ public class JobMapper {
 				.power(powerJob.getPower())
 				.startTime(convertToRealTime(powerJob.getStartTime()))
 				.endTime(convertToRealTime(powerJob.getEndTime()))
+				.deadline(convertToRealTime(powerJob.getDeadline()))
 				.build();
 	}
 
