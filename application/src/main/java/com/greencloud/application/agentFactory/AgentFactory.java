@@ -1,25 +1,41 @@
 package com.greencloud.application.agentFactory;
 
-import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.agents.monitoring.MonitoringAgent;
-import com.greencloud.application.agents.server.ServerAgent;
+import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 
 public interface AgentFactory {
     /**
-     * Method create new server agent that can be connected to the network
-     * @return newly created server agent
+     * Method creates new server agent args that can be used to initialize new agent
+     * @param ownerCNA - required argument specifying owner CNA
+     * @param maximumCapacity - optional argument specifying server's maximum capacity
+     * @param price - optional argument specifying server's price
+     * @return newly created server agent args
      */
-    ServerAgent createServerAgent();
+    ServerAgentArgs createServerAgent(String ownerCNA, String maximumCapacity, String price);
 
     /**
-     * Method create new server agent that can be connected to the network
-     * @return newly created server agent
+     * Method creates new green energy agent args that can be used to initialize new agent
+     * @param monitoringAgentName required argument specifying monitoring agent name
+     * @param ownerServerName required argument specifying owner server name
+     * @param latitude optional argument specifying latitude
+     * @param longitude optional argument specifying longitude
+     * @param maximumCapacity optional argument specifying maximumCapacity
+     * @param pricePerPowerUnit optional argument specifying price per power unit
+     * @param energyType optional argument specifying energy type
+     * @return newly green energy agent args
      */
-    GreenEnergyAgent createGreenEnergyAgent();
+    GreenEnergyAgentArgs createGreenEnergyAgent(String monitoringAgentName,
+                                                String ownerServerName,
+                                                String latitude,
+                                                String longitude,
+                                                String maximumCapacity,
+                                                String pricePerPowerUnit,
+                                                String energyType);
 
     /**
-     * Method create new server agent that can be connected to the network
-     * @return newly created server agent
+     * Method creates new monitoring agent args that can be used to initialize new agent
+     * @return newly created monitoring agent args
      */
-    MonitoringAgent createMonitoringAgent();
+    MonitoringAgentArgs createMonitoringAgent();
 }
