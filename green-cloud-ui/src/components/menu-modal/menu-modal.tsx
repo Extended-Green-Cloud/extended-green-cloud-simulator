@@ -55,6 +55,7 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
       <ReactModal
          style={styles.modalStyle}
          isOpen={isMenuOpen}
+         appElement={document.getElementById('root') as HTMLElement}
          onRequestClose={() => setIsMenuOpen(false)}
          shouldCloseOnOverlayClick={true}
       >

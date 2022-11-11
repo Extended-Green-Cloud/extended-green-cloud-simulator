@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
 import com.greencloud.commons.args.event.newclient.PowerShortageEventArgs;
+import com.greencloud.commons.exception.InvalidScenarioEventStructure;
 
 /**
  * Generic interface containing common properties for defining scenario events
@@ -38,4 +39,16 @@ public interface EventArgs {
 	 * @return number of seconds after which the event should be triggered
 	 */
 	Integer getOccurrenceTime();
+
+	/**
+	 * Method verifies the correctness of generic event structure
+	 */
+	@Value.Check
+	default void check() {
+		if (getOccurrenceTime() < 1) {
+			throw new InvalidScenarioEventStructure(
+					String.format("Occurrence time %d is invalid. The time should be greater than 1",
+							getOccurrenceTime()));
+		}
+	}
 }

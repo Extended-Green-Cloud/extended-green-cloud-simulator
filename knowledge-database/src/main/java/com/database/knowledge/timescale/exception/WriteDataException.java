@@ -1,4 +1,4 @@
-package timescale.exception;
+package com.database.knowledge.timescale.exception;
 
 public class WriteDataException extends RuntimeException {
 

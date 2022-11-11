@@ -70,7 +70,6 @@ const handleSetActive = (state, msg) => {
                     const secondAgent = connection.data.source === agent.name ?
                         getAgentByName(state.agents.agents, connection.data.target) :
                         getAgentByName(state.agents.agents, connection.data.source)
-                    console.log(secondAgent)
                     connection.state = agent.isActive && secondAgent.isActive ? 'active' : 'inactive'
                 }
             })

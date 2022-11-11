@@ -1,5 +1,7 @@
 package com.greencloud.application.mapper;
 
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+
 import java.time.Instant;
 
 import com.greencloud.application.domain.job.ClientJob;
@@ -41,6 +43,19 @@ public class JobMapper {
 				.startTime(startTime)
 				.endTime(powerJob.getEndTime())
 				.deadline(powerJob.getDeadline())
+				.build();
+	}
+
+	/**
+	 * @param powerJob power job to be mapped to job
+	 * @return PowerJob
+	 */
+	public static PowerJob mapToPowerJobRealTime(final PowerJob powerJob) {
+		return ImmutablePowerJob.builder()
+				.jobId(powerJob.getJobId())
+				.power(powerJob.getPower())
+				.startTime(convertToRealTime(powerJob.getStartTime()))
+				.endTime(convertToRealTime(powerJob.getEndTime()))
 				.build();
 	}
 
@@ -127,7 +142,20 @@ public class JobMapper {
 	 * @return JobInstanceIdentifier
 	 */
 	public static JobInstanceIdentifier mapToJobInstanceId(final PowerJob powerJob) {
-		return ImmutableJobInstanceIdentifier.builder().jobId(powerJob.getJobId()).startTime(powerJob.getStartTime())
+		return ImmutableJobInstanceIdentifier.builder()
+				.jobId(powerJob.getJobId())
+				.startTime(powerJob.getStartTime())
+				.build();
+	}
+
+	/**
+	 * @param jobInstanceId JobInstanceIdentifier object
+	 * @return JobInstanceIdentifier
+	 */
+	public static JobInstanceIdentifier mapToJobInstanceIdWithRealTime(final JobInstanceIdentifier jobInstanceId) {
+		return ImmutableJobInstanceIdentifier.builder()
+				.jobId(jobInstanceId.getJobId())
+				.startTime(convertToRealTime(jobInstanceId.getStartTime()))
 				.build();
 	}
 

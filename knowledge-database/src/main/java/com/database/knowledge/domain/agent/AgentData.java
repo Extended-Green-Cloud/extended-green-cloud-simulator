@@ -1,4 +1,4 @@
-package domain;
+package com.database.knowledge.domain.agent;
 
 import java.time.Instant;
 

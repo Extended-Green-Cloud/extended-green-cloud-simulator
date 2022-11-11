@@ -11,6 +11,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
@@ -212,7 +213,8 @@ public class ServerStateManagement {
 	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		startedJobsInstances.getAndAdd(1);
-		logger.info("Started job instance {}. Number of started job instances is {}", jobInstanceId,
+		logger.info("Started job instance {}. Number of started job instances is {}",
+				mapToJobInstanceIdWithRealTime(jobInstanceId),
 				startedJobsInstances);
 		updateServerGUI();
 	}
@@ -225,7 +227,8 @@ public class ServerStateManagement {
 	public void incrementFinishedJobs(final JobInstanceIdentifier jobInstanceId) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		finishedJobsInstances.getAndAdd(1);
-		logger.info("Finished job instance {}. Number of finished job instances is {} out of {} started", jobInstanceId,
+		logger.info("Finished job instance {}. Number of finished job instances is {} out of {} started",
+				mapToJobInstanceIdWithRealTime(jobInstanceId),
 				finishedJobsInstances, startedJobsInstances);
 		updateServerGUI();
 	}

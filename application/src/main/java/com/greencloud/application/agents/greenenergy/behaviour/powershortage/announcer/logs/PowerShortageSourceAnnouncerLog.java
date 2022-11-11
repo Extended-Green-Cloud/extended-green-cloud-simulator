@@ -7,9 +7,9 @@ public class PowerShortageSourceAnnouncerLog {
 
 	// POWER SHORTAGE IN SOURCE STARTED LOG MESSAGES
 	public static final String POWER_SHORTAGE_SOURCE_START_LOG =
-			"Power shortage was detected! Power shortage will happen at: {}";
+			"Power shortage was detected! Power shortage will happen in simulation at: {} (real time: {})";
 	public static final String POWER_SHORTAGE_SOURCE_START_WEATHER_LOG =
-			"Weather-caused power shortage was detected! Power shortage will happen at: {}";
+			"Weather-caused power shortage was detected! Power shortage will happen in simulation at: {} (real time: {})";
 	public static final String POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG =
 			"Power shortage won't affect any jobs";
 	public static final String POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG = "Requesting job {} transfer in parent Server";

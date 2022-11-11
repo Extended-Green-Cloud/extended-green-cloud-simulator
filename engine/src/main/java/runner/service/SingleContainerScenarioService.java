@@ -1,5 +1,6 @@
 package runner.service;
 
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static runner.service.domain.ScenarioConstants.CLIENT_NUMBER;
 
 import java.io.File;
@@ -49,6 +50,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 			createAgents(scenarioStructure.getCloudNetworkAgentsArgs(), scenarioStructure);
 		}
 		runAgents(AGENTS_TO_RUN);
+		setSystemStartTime();
 
 		if (Objects.isNull(scenarioEventsFileName)) {
 			runClientAgents(CLIENT_NUMBER, factory);

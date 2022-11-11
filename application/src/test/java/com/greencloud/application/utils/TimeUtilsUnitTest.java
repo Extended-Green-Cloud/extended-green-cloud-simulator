@@ -1,13 +1,19 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.application.utils.TimeUtils.SYSTEM_START_TIME;
 import static com.greencloud.application.utils.TimeUtils.convertToInstantTime;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 import static com.greencloud.application.utils.TimeUtils.differenceInHours;
 import static com.greencloud.application.utils.TimeUtils.divideIntoSubIntervals;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTimeMinusError;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,9 +24,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Percentage;
+import org.assertj.core.data.TemporalUnitWithinOffset;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,6 +47,11 @@ class TimeUtilsUnitTest {
 				Arguments.of(Instant.parse("2022-01-01T10:00:00.000Z"), true),
 				Arguments.of(Instant.parse("2022-01-01T12:00:00.000Z"), false)
 		);
+	}
+
+	@BeforeEach
+	void resetMockStartTime() {
+		setSystemStartTimeMock(null);
 	}
 
 	@Test
@@ -97,7 +111,7 @@ class TimeUtilsUnitTest {
 	@DisplayName("Test converting 2h to simulation time")
 	void testConversionFullHoursToSimulationTime() {
 		final long seconds = 7200;
-		final long expectedMilliseconds = 6000;
+		final long expectedMilliseconds = 10000;
 
 		final long resultMilliseconds = convertToSimulationTime(seconds);
 		assertThat(resultMilliseconds).isEqualTo(expectedMilliseconds);
@@ -107,7 +121,7 @@ class TimeUtilsUnitTest {
 	@DisplayName("Test converting 15 minutes to simulation time")
 	void testConversionMinutesToSimulationTime() {
 		final long seconds = 900;
-		final long expectedMilliseconds = 750;
+		final long expectedMilliseconds = 1250;
 
 		final long resultMilliseconds = convertToSimulationTime(seconds);
 		assertThat(resultMilliseconds).isEqualTo(expectedMilliseconds);
@@ -162,5 +176,32 @@ class TimeUtilsUnitTest {
 				.contains(startTime)
 				.contains(endTime);
 
+	}
+
+	@Test
+	@DisplayName("Test set system start time for system null")
+	void testSetSystemStartTimeForNull() {
+		setSystemStartTime();
+		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now(), new TemporalUnitWithinOffset(100, MILLIS));
+	}
+
+	@Test
+	@DisplayName("Test set system start time for system not null")
+	void testSetSystemStartTimeForNotNull() throws InterruptedException {
+		setSystemStartTime();
+		TimeUnit.SECONDS.sleep(2);
+		setSystemStartTime();
+		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now().minus(2, SECONDS),
+				new TemporalUnitWithinOffset(100, MILLIS));
+	}
+
+	@Test
+	@DisplayName("Test convert to real time for 10 000 ms")
+	void testConvertToRealTime() {
+		final Instant simulatedInstant = Instant.parse("2022-01-01T09:00:10.000Z");
+		final Instant expectedDate = Instant.parse("2022-01-01T11:00:00.000Z");
+
+		setSystemStartTimeMock(Instant.parse("2022-01-01T09:00:00.000Z"));
+		assertThat(convertToRealTime(simulatedInstant)).isEqualTo(expectedDate);
 	}
 }

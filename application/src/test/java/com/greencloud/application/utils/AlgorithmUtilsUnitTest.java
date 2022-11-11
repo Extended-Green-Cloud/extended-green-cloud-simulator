@@ -38,7 +38,7 @@ import com.greencloud.application.domain.job.PowerJob;
 class AlgorithmUtilsUnitTest {
 
 	// MOCK OBJECTS
-	private static final long MOCK_INTERVALS_LENGTH = 1200000L;
+	private static final long MOCK_INTERVALS_LENGTH = 2L;
 	private static final int MOCK_CAPACITY = 100;
 	private static final Instant MOCK_TIME = Instant.parse("2022-01-01T10:00:00Z");
 	private static MonitoringData MOCK_MONITORING_DATA;
@@ -430,7 +430,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobList, startTime, endTime,
 				MOCK_INTERVALS_LENGTH, POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(200);
+		assertThat(result).isEqualTo(100);
 	}
 
 	@Test
@@ -447,7 +447,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(190);
+		assertThat(result).isEqualTo(90);
 	}
 
 	@Test
@@ -467,7 +467,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(170);
+		assertThat(result).isEqualTo(70);
 	}
 
 	@Test
@@ -487,7 +487,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(150);
+		assertThat(result).isEqualTo(50);
 	}
 
 	@Test
@@ -507,7 +507,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(150);
+		assertThat(result).isEqualTo(50);
 	}
 
 	@Test
@@ -527,7 +527,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(150);
+		assertThat(result).isEqualTo(50);
 	}
 
 	@Test
@@ -547,7 +547,7 @@ class AlgorithmUtilsUnitTest {
 		final double result = getMinimalAvailablePowerDuringTimeStamp(jobSet, startTime, endTime, MOCK_INTERVALS_LENGTH,
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
-		assertThat(result).isEqualTo(170);
+		assertThat(result).isEqualTo(70);
 	}
 
 	@Test
@@ -639,6 +639,6 @@ class AlgorithmUtilsUnitTest {
 
 		doReturn(MOCK_CAPACITY).when(POWER_MANAGEMENT).getCurrentMaximumCapacity();
 		doReturn(MOCK_CAPACITY).when(POWER_MANAGEMENT).getInitialMaximumCapacity();
-		doReturn(200.0).when(POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
+		doReturn(100.0).when(POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
 	}
 }

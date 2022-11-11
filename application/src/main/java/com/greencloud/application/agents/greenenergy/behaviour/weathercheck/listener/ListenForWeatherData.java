@@ -27,6 +27,7 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.WEATHER_UNAVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -156,7 +157,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleWeatherDataForPeriodicCheck(final MonitoringData data) {
-		final Instant time = getCurrentTime();
+		final Instant time = convertToRealTime(getCurrentTime());
 		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(-1.0);
 
 		if (availablePower < 0) {

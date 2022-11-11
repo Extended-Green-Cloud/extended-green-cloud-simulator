@@ -8,6 +8,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -133,6 +134,6 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	private void logPowerShortageStart() {
 		final String logMessage = cause.equals(PHYSICAL_CAUSE) ? POWER_SHORTAGE_SOURCE_START_LOG :
 				POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
-		logger.info(logMessage, shortageStartTime);
+		logger.info(logMessage, shortageStartTime, convertToRealTime(shortageStartTime));
 	}
 }

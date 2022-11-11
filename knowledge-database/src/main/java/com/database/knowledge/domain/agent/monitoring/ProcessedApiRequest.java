@@ -1,11 +1,10 @@
-package domain.agent.monitoring;
+package com.database.knowledge.domain.agent.monitoring;
 
 import org.immutables.value.Value;
 
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import domain.MonitoringData;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableProcessedApiRequest.class)

@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.monitoring.domain.MonitoringAgen
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_PROBABILITY;
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.OFFLINE_MODE;
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -20,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.monitoring.MonitoringAgent;
 import com.greencloud.application.domain.GreenSourceForecastData;
+import com.greencloud.application.domain.GreenSourceWeatherData;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.mapper.JsonMapper;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -54,8 +55,11 @@ public class ServeForecastWeather extends CyclicBehaviour {
 
 		if (Objects.nonNull(message)) {
 			logger.info(SERVE_FORECAST_LOG);
-			final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
-			final ACLMessage response = prepareWeatherResponse(message, requestData);
+			final boolean isPeriodicCheck = message.getConversationId().equals(PERIODIC_WEATHER_CHECK_PROTOCOL);
+			final MonitoringData data = isPeriodicCheck ?
+					getWeatherDataForPeriodicCheck(message) :
+					getWeatherForecast(message);
+			final ACLMessage response = prepareResponseMessage(data, message);
 
 			monitoringAgent.send(response);
 		} else {
@@ -63,27 +67,34 @@ public class ServeForecastWeather extends CyclicBehaviour {
 		}
 	}
 
-	private ACLMessage prepareWeatherResponse(final ACLMessage message, final GreenSourceForecastData requestData) {
-		final boolean isPeriodicCheck = message.getConversationId().equals(PERIODIC_WEATHER_CHECK_PROTOCOL);
+	private MonitoringData getWeatherForecast(final ACLMessage message) {
+		final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
+		return OFFLINE_MODE ?
+				STUB_DATA :
+				monitoringAgent.manageWeather().getForecast(requestData);
+	}
+
+	private MonitoringData getWeatherDataForPeriodicCheck(final ACLMessage message) {
+		final GreenSourceWeatherData requestData = readMessageContent(message, GreenSourceWeatherData.class);
+		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < BAD_STUB_PROBABILITY) {
+			return BAD_STUB_DATA;
+		} else {
+			return OFFLINE_MODE ?
+					STUB_DATA :
+					monitoringAgent.manageWeather().getWeather(requestData);
+		}
+	}
+
+	private ACLMessage prepareResponseMessage(final MonitoringData data, final ACLMessage message) {
 		final ACLMessage response = message.createReply();
 		response.setPerformative(INFORM);
 		try {
-			if (isPeriodicCheck && (double) STUB_DATA_RANDOM.nextInt(100) / 100 < BAD_STUB_PROBABILITY) {
-				response.setContent(JsonMapper.getMapper().writeValueAsString(BAD_STUB_DATA));
-			} else if (OFFLINE_MODE) {
-				response.setContent(JsonMapper.getMapper().writeValueAsString(STUB_DATA));
-			} else {
-				response.setContent(JsonMapper.getMapper().writeValueAsString(useApi(requestData)));
-			}
+			response.setContent(getMapper().writeValueAsString(data));
 		} catch (IOException e) {
 			e.printStackTrace();
 			response.setPerformative(REFUSE);
 		}
 		response.setConversationId(message.getConversationId());
 		return response;
-	}
-
-	private MonitoringData useApi(GreenSourceForecastData requestData) {
-		return monitoringAgent.manageWeather().getForecast(requestData);
 	}
 }
