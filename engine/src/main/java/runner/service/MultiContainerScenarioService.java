@@ -66,12 +66,13 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	 */
 	@Override
 	public void run() {
-		if (mainHost) {
-			return;
-		}
-
 		File scenarioFile = readFile(scenarioStructureFileName);
 		ScenarioStructureArgs scenario = parseScenarioStructure(scenarioFile);
+
+		if (mainHost) {
+			runSchedulerContainer(scenario);
+			return;
+		}
 
 		if (hostId == CLIENTS_CONTAINER_ID.ordinal()) {
 			setSystemStartTime();
@@ -92,6 +93,13 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		runClientAgents(CLIENT_NUMBER, clientFactory);
 	}
 
+	private void runSchedulerContainer(ScenarioStructureArgs scenario) {
+		final AgentControllerFactory factory = new AgentControllerFactoryImpl(mainContainer);
+		final AgentController schedulerController = runAgentController(scenario.getSchedulerAgentArgs(),
+				scenario, factory);
+		runAgent(schedulerController, RUN_AGENT_PAUSE);
+	}
+
 	private List<AgentController> runCloudNetworkContainers(ScenarioStructureArgs scenario, Integer hostId) {
 		var cloudNetworkArgs = scenario.getCloudNetworkAgentsArgs();
 		var serversArgs = scenario.getServerAgentsArgs();
@@ -101,7 +109,8 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		return addAgentsToContainer(cloudNetworkArgs.get(hostId - 1), scenario, serversArgs, sourcesArgs, monitorsArgs);
 	}
 
-	private List<AgentController> addAgentsToContainer(CloudNetworkArgs cloudNetworkArgs, ScenarioStructureArgs scenario,
+	private List<AgentController> addAgentsToContainer(CloudNetworkArgs cloudNetworkArgs,
+			ScenarioStructureArgs scenario,
 			List<ServerAgentArgs> serversArgs, List<GreenEnergyAgentArgs> sourcesArgs,
 			List<MonitoringAgentArgs> monitorsArgs) {
 		var factory = new AgentControllerFactoryImpl(mainContainer);

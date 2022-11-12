@@ -53,7 +53,7 @@ public abstract class AbstractScenarioService {
 
 	private static final Long GRAPH_INITIALIZATION_PAUSE = 7L;
 	private static final Integer RUN_CLIENT_AGENT_PAUSE = 150;
-	private static final Integer RUN_AGENT_PAUSE = 100;
+	protected static final Integer RUN_AGENT_PAUSE = 100;
 
 	protected static final XmlMapper xmlMapper = new XmlMapper();
 	protected static final ExecutorService executorService = Executors.newCachedThreadPool();
