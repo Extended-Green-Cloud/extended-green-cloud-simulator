@@ -64,7 +64,9 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 1 Job")
 	void testMaximumCapacityForOneJob() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final Set<ClientJob> jobList = Set.of(mockJob1);
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00Z");
@@ -79,10 +81,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 2 Jobs overlapping in time interval")
 	void testMaximumCapacityForTwoOverlappingJobs() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T10:30:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2);
@@ -98,10 +104,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 2 Jobs starting before time interval")
 	void testMaximumCapacityForJobStartingBeforeTimeInterval() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T07:30:00Z")).endTime(Instant.parse("2022-01-01T10:15:00Z"))
+				.startTime(Instant.parse("2022-01-01T07:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T10:15:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2);
@@ -117,10 +127,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 2 Jobs finishing after time interval")
 	void testMaximumCapacityForJobFinishingAfterTimeInterval() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T10:30:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T10:45:00Z")).endTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:45:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2);
@@ -136,10 +150,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 2 Jobs overlapping time interval")
 	void testMaximumCapacityForJobOverlappingTimeInterval() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T09:15:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T09:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2);
@@ -155,13 +173,19 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 3 Jobs with 1 outside interval")
 	void testMaximumCapacityForJobOutsideInterval() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T11:10:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:10:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T10:15:00Z")).endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder().jobId("3").clientIdentifier("Test Client 3")
-				.startTime(Instant.parse("2022-01-01T07:15:00Z")).endTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T07:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2, mockJob3);
@@ -177,10 +201,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Test maximum capacity calculation for 2 non-overlapping Jobs")
 	void testMaximumCapacityForNoOverlappingJobs() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T11:15:00Z")).endTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 
 		final Set<ClientJob> jobList = Set.of(mockJob1, mockJob2);
@@ -206,25 +234,39 @@ class AlgorithmUtilsUnitTest {
 
 	private Set<ClientJob> jobsForFirstComplicatedScenario() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(1).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:00:00Z")).endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(2).build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder().jobId("3").clientIdentifier("Test Client 3")
-				.startTime(Instant.parse("2022-01-01T08:40:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:40:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(3).build();
 		final ClientJob mockJob4 = ImmutableClientJob.builder().jobId("4").clientIdentifier("Test Client 4")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(4).build();
 		final ClientJob mockJob5 = ImmutableClientJob.builder().jobId("5").clientIdentifier("Test Client 5")
-				.startTime(Instant.parse("2022-01-01T10:45:00Z")).endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:45:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final ClientJob mockJob6 = ImmutableClientJob.builder().jobId("6").clientIdentifier("Test Client 6")
-				.startTime(Instant.parse("2022-01-01T11:15:00Z")).endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(6).build();
 		final ClientJob mockJob7 = ImmutableClientJob.builder().jobId("7").clientIdentifier("Test Client 7")
-				.startTime(Instant.parse("2022-01-01T12:15:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		return Set.of(mockJob1, mockJob2, mockJob3, mockJob4, mockJob5, mockJob6, mockJob7);
 	}
@@ -245,7 +287,9 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for 1 job")
 	void testJobsWithinPowerForOneJob() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1);
 		final int maxPower = 10;
@@ -261,7 +305,9 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for 1 job with too much power")
 	void testJobsWithinPowerForOneJobTooMuchPower() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1);
 		final int maxPower = 10;
@@ -275,10 +321,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for two jobs with too much power")
 	void testJobsWithinPowerForTwoJobsTooMuchPower() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1, mockJob2);
 		final int maxPower = 10;
@@ -294,10 +344,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for two jobs with one greater power")
 	void testJobsWithinPowerForTwoJobsOneGreaterPower() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(8).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1, mockJob2);
 		final int maxPower = 10;
@@ -313,10 +367,14 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for two jobs both included")
 	void testJobsWithinPowerForTwoJobsBothInsidePower() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(8).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1, mockJob2);
 		final int maxPower = 15;
@@ -332,13 +390,19 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for 3 jobs all within power")
 	void testJobsWithinPowerForThreeJobsWithinPower() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder().jobId("3").clientIdentifier("Test Client 3")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(4).build();
 		final List<ClientJob> mockJobs = List.of(mockJob1, mockJob2, mockJob3);
 		final int maxPower = 15;
@@ -367,13 +431,19 @@ class AlgorithmUtilsUnitTest {
 	@DisplayName("Jobs within power for power job")
 	void testJobsWithinPowerForPowerJob() {
 		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final PowerJob mockJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(4).build();
 		final List<PowerJob> mockJobs = List.of(mockJob1, mockJob2, mockJob3);
 		final int maxPower = 10;
@@ -389,31 +459,49 @@ class AlgorithmUtilsUnitTest {
 
 	private List<ClientJob> jobsForComplicatedPowerScenario() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder().jobId("2").clientIdentifier("Test Client 2")
-				.startTime(Instant.parse("2022-01-01T08:00:00Z")).endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder().jobId("3").clientIdentifier("Test Client 3")
-				.startTime(Instant.parse("2022-01-01T08:40:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:40:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(3).build();
 		final ClientJob mockJob4 = ImmutableClientJob.builder().jobId("4").clientIdentifier("Test Client 4")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(2).build();
 		final ClientJob mockJob5 = ImmutableClientJob.builder().jobId("5").clientIdentifier("Test Client 5")
-				.startTime(Instant.parse("2022-01-01T10:45:00Z")).endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:45:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(16).build();
 		final ClientJob mockJob6 = ImmutableClientJob.builder().jobId("6").clientIdentifier("Test Client 6")
-				.startTime(Instant.parse("2022-01-01T11:15:00Z")).endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(26).build();
 		final ClientJob mockJob7 = ImmutableClientJob.builder().jobId("7").clientIdentifier("Test Client 7")
-				.startTime(Instant.parse("2022-01-01T12:15:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(7).build();
 		final ClientJob mockJob8 = ImmutableClientJob.builder().jobId("8").clientIdentifier("Test Client 8")
-				.startTime(Instant.parse("2022-01-01T11:15:00Z")).endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(8).build();
 		final ClientJob mockJob9 = ImmutableClientJob.builder().jobId("9").clientIdentifier("Test Client 9")
-				.startTime(Instant.parse("2022-01-01T12:15:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:15:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(14).build();
 		return List.of(mockJob1, mockJob2, mockJob3, mockJob4, mockJob5, mockJob6, mockJob7, mockJob8, mockJob9);
 	}
@@ -439,7 +527,9 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForOneJob() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob);
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00Z");
@@ -456,10 +546,14 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForJobsOverlapping() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T08:00:00Z")).endTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T09:00:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T08:30:00Z");
@@ -476,10 +570,14 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForJobsOverlappingStart() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T06:00:00Z")).endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T06:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T07:00:00Z")).endTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T07:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(30).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T07:30:00Z");
@@ -496,10 +594,14 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForJobsOverlappingEnd() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T11:00:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(30).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T07:30:00Z");
@@ -516,10 +618,14 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForJobsEntireInterval() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T10:30:00Z")).endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(30).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T10:00:00Z");
@@ -536,10 +642,14 @@ class AlgorithmUtilsUnitTest {
 	void testMinimalAvailablePowerForNonOverlapping() {
 		prepareMockManagement();
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T12:30:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(30).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T10:30:00Z");
@@ -560,10 +670,14 @@ class AlgorithmUtilsUnitTest {
 		doReturn(150.0).when(POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(),
 				argThat((instant -> instant.isAfter(Instant.parse("2022-01-01T11:00:00Z")))));
 		final PowerJob mockPowerJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T10:00:00Z")).endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T10:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockPowerJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T11:30:00Z")).endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T11:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(30).build();
 		final Set<PowerJob> jobSet = Set.of(mockPowerJob1, mockPowerJob2);
 		final Instant startTime = Instant.parse("2022-01-01T07:30:00Z");
@@ -609,25 +723,39 @@ class AlgorithmUtilsUnitTest {
 
 	private Set<PowerJob> jobsForComplicatedMinimalPowerScenario() {
 		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T06:30:00Z")).endTime(Instant.parse("2022-01-01T07:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T06:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T07:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5).build();
 		final PowerJob mockJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T07:00:00Z")).endTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T07:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
-				.startTime(Instant.parse("2022-01-01T07:30:00Z")).endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T07:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T09:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 		final PowerJob mockJob4 = ImmutablePowerJob.builder().jobId("4")
-				.startTime(Instant.parse("2022-01-01T08:30:00Z")).endTime(Instant.parse("2022-01-01T08:55:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:55:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(2).build();
 		final PowerJob mockJob5 = ImmutablePowerJob.builder().jobId("5")
-				.startTime(Instant.parse("2022-01-01T08:50:00Z")).endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T08:50:00Z"))
+				.endTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15).build();
 		final PowerJob mockJob6 = ImmutablePowerJob.builder().jobId("6")
-				.startTime(Instant.parse("2022-01-01T12:00:00Z")).endTime(Instant.parse("2022-01-01T13:30:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:00:00Z"))
+				.endTime(Instant.parse("2022-01-01T13:30:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(70).build();
 		final PowerJob mockJob7 = ImmutablePowerJob.builder().jobId("7")
-				.startTime(Instant.parse("2022-01-01T12:30:00Z")).endTime(Instant.parse("2022-01-01T14:00:00Z"))
+				.startTime(Instant.parse("2022-01-01T12:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T14:00:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 
 		return Set.of(mockJob1, mockJob2, mockJob3, mockJob4, mockJob5, mockJob6, mockJob7);

@@ -8,6 +8,7 @@ import java.util.Set;
  */
 public enum JobStatusEnum {
 
+	CREATED,
 	PROCESSING,
 	ACCEPTED,
 	IN_PROGRESS,

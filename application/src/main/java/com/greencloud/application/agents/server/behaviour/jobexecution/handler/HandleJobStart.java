@@ -18,9 +18,9 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static java.util.Collections.singletonList;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -147,7 +147,7 @@ public class HandleJobStart extends WakerBehaviour {
 		final List<AID> receivers = informCNAStart
 				? List.of(myServerAgent.getGreenSourceForJobMap().get(jobId),
 				myServerAgent.getOwnerCloudNetworkAgent())
-				: Collections.singletonList(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()));
+				: singletonList(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()));
 		final ACLMessage startedJobMessage = prepareJobStartedMessage(jobId, jobToExecute.getStartTime(), receivers);
 
 		myAgent.send(startedJobMessage);

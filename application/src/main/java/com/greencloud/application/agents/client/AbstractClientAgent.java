@@ -11,10 +11,8 @@ import jade.core.AID;
  */
 public abstract class AbstractClientAgent extends AbstractAgent {
 
-	protected AID chosenCloudNetworkAgent;
 	protected Instant simulatedJobStart;
 	protected Instant simulatedJobEnd;
-
 	protected Instant simulatedDeadline;
 	protected Integer retries;
 	protected boolean announced;
@@ -22,10 +20,6 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected AbstractClientAgent() {
 		super.setup();
 		retries = 0;
-	}
-
-	public void setChosenCloudNetworkAgent(AID chosenCloudNetworkAgent) {
-		this.chosenCloudNetworkAgent = chosenCloudNetworkAgent;
 	}
 
 	public Instant getSimulatedJobStart() {

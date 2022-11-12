@@ -23,6 +23,7 @@ class JobMapperTest {
 			.jobId("1")
 			.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 			.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+			.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 			.power(10)
 			.build();
 	private static final JobInstanceIdentifier MOCK_JOB_INSTANCE = ImmutableJobInstanceIdentifier.builder()

@@ -6,8 +6,6 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.lis
 public class JobHandlingListenerLog {
 
 	// CLIENTS JOB LISTENER LOG MESSAGES
-	public static final String SEND_CFP_RETRY_LOG =
-			"Sending call for proposal to Server Agents for a job request with jobId {}, {} retry.";
 	public static final String SEND_CFP_NEW_LOG =
 			"Sending call for proposal to Server Agents for a job request with jobId {}!";
 

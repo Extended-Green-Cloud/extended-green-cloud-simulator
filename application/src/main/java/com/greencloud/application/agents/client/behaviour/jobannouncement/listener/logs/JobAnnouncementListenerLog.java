@@ -6,7 +6,10 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.liste
 public class JobAnnouncementListenerLog {
 
 	// JOB UPDATE LOG MESSAGES
+	public static final String CLIENT_JOB_SCHEDULED_LOG = "My job has been scheduled for execution!";
+	public static final String CLIENT_JOB_PROCESSED_LOG = "The execution of my job is being processed!";
 	public static final String CLIENT_JOB_DELAY_LOG = "The execution of my job has some delay! :(";
+	public static final String CLIENT_JOB_POSTPONE_LOG = "The execution of my job is being postponed.";
 	public static final String CLIENT_JOB_BACK_UP_LOG = "My job is being executed using the back up power!";
 	public static final String CLIENT_JOB_GREEN_POWER_LOG = "My job is again being executed using the green power!";
 	public static final String CLIENT_JOB_ON_HOLD_LOG = "My job has been put on hold :(!";
@@ -15,5 +18,4 @@ public class JobAnnouncementListenerLog {
 	public static final String CLIENT_JOB_FINISH_ON_TIME_LOG = "The execution of my job finished on time! :)";
 	public static final String CLIENT_JOB_FINISH_DELAY_LOG = "The execution of my job finished with a delay equal to {}! :(";
 	public static final String CLIENT_JOB_FAILED_LOG = "The execution of my job has failed :(";
-	public static final String CLIENT_JOB_FAILED_RETRY_LOG = "The execution of my job has failed. Retrying for {} time to have the job executed";
 }

@@ -164,6 +164,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client1000")
 				.startTime(Instant.parse("2022-01-01T05:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10)
 				.build();
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.PROCESSING);
@@ -213,6 +214,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10)
 				.build();
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
@@ -256,6 +258,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10)
 				.build();
 		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
@@ -398,6 +401,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10)
 				.build();
 		final ClientJob mockJob2 = ImmutableClientJob.builder()
@@ -405,6 +409,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client2")
 				.startTime(Instant.parse("2022-01-01T07:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(12)
 				.build();
 		final ClientJob mockJob3 = ImmutableClientJob.builder()
@@ -412,6 +417,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client3")
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(5)
 				.build();
 		final ClientJob mockJob4 = ImmutableClientJob.builder()
@@ -419,6 +425,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client4")
 				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(2)
 				.build();
 		final ClientJob mockJob5 = ImmutableClientJob.builder()
@@ -426,6 +433,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client5")
 				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(25)
 				.build();
 		final ClientJob mockJob6 = ImmutableClientJob.builder()
@@ -433,6 +441,7 @@ class ServerStateManagementTest {
 				.clientIdentifier("Client6")
 				.startTime(Instant.parse("2022-01-01T11:30:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T13:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(15)
 				.build();
 		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();

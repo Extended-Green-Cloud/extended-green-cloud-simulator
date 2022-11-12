@@ -1,5 +1,8 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
@@ -142,6 +145,18 @@ public class TimeUtils {
 		subIntervals.add(endTime);
 
 		return subIntervals;
+	}
+
+	/**
+	 * Method computes new time by postponing the previous one by given (in real time) minutes amount
+	 *
+	 * @param time    time to be postponed
+	 * @param minutes minutes used to postpone the time
+	 * @return Instant being the postponed time
+	 */
+	public static Instant postponeTime(final Instant time, final long minutes) {
+		final long simulationAdjustment = convertToSimulationTime(minutes * 60);
+		return time.plus(simulationAdjustment, MILLIS);
 	}
 
 	/**

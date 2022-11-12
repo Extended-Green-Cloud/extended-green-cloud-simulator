@@ -9,15 +9,16 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.li
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FINISHED_MANUALLY_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_TRANSFER_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareConfirmationMessage;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -71,7 +72,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final ACLMessage inform = myAgent.receive(JobHandlingMessageTemplates.POWER_SUPPLY_UPDATE_TEMPLATE);
 
 		if (Objects.nonNull(inform)) {
-			if(inform.getProtocol().equals(MANUAL_JOB_FINISH_PROTOCOL)) {
+			if (inform.getProtocol().equals(MANUAL_JOB_FINISH_PROTOCOL)) {
 				handlePowerSupplyManualFinishMessage(inform);
 			} else {
 				handlePowerResponseMessage(inform);
@@ -128,14 +129,13 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final String logMessage = isTransferred ?
 				SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG :
 				SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
+		final String conversationId = isTransferred ? CONFIRMED_JOB_TRANSFER_ID : CONFIRMED_JOB_ID;
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 		myServerAgent.getServerJobs()
 				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
-
-		myServerAgent.send(
-				prepareConfirmationMessage(jobInstanceId, myServerAgent.getOwnerCloudNetworkAgent(), isTransferred));
+		myServerAgent.send(prepareJobStatusMessageForCNA(jobInstanceId, conversationId, myServerAgent));
 	}
 
 	private void failJobAcceptance(final String protocol, final JobInstanceIdentifier jobInstanceId,
@@ -153,7 +153,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
-		myServerAgent.send(prepareJobStatusMessage(jobInstanceId, protocol, myServerAgent, FAILURE));
+		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
 
 	}
 

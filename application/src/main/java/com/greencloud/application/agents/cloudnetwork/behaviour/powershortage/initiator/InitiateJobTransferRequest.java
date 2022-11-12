@@ -5,6 +5,7 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.powershor
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.initiator.logs.PowerShortageCloudInitiatorLog.SERVER_TRANSFER_NO_SERVERS_AVAILABLE_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.ListenForServerTransferConfirmation.createFor;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.domain.ServerData;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
-import com.greencloud.application.mapper.JsonMapper;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -66,7 +66,7 @@ public class InitiateJobTransferRequest extends ContractNetInitiator {
 	/**
 	 * Method processes Server Agent responses.
 	 * It selects one server to which the job will be transferred.
-	 * If no servers are available, it sends the information to server with power shortage that the transfer was
+	 * If no servers are available, it sends the information to Server with power shortage that the transfer was
 	 * unsuccessful.
 	 *
 	 * @param responses   retrieved responses from Server Agents
@@ -126,8 +126,8 @@ public class InitiateJobTransferRequest extends ContractNetInitiator {
 		final ServerData server1;
 		final ServerData server2;
 		try {
-			server1 = JsonMapper.getMapper().readValue(serverOffer1.getContent(), ServerData.class);
-			server2 = JsonMapper.getMapper().readValue(serverOffer2.getContent(), ServerData.class);
+			server1 = getMapper().readValue(serverOffer1.getContent(), ServerData.class);
+			server2 = getMapper().readValue(serverOffer2.getContent(), ServerData.class);
 			return server1.getAvailablePower() - server2.getAvailablePower();
 		} catch (JsonProcessingException e) {
 			return Integer.MAX_VALUE;

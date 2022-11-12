@@ -56,6 +56,7 @@ public class JobMapper {
 				.power(powerJob.getPower())
 				.startTime(convertToRealTime(powerJob.getStartTime()))
 				.endTime(convertToRealTime(powerJob.getEndTime()))
+				.deadline(convertToRealTime(powerJob.getDeadline()))
 				.build();
 	}
 
@@ -213,6 +214,18 @@ public class JobMapper {
 			final Instant startTime) {
 		return ImmutableJobInstanceIdentifier.builder()
 				.jobId(jobInstanceId.getJobId())
+				.startTime(startTime)
+				.build();
+	}
+
+	/**
+	 * @param jobId     job identifier
+	 * @param startTime job instance start time
+	 * @return JobInstanceIdentifier
+	 */
+	public static JobInstanceIdentifier mapToJobInstanceId(final String jobId, final Instant startTime) {
+		return ImmutableJobInstanceIdentifier.builder()
+				.jobId(jobId)
 				.startTime(startTime)
 				.build();
 	}

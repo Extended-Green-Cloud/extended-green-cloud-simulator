@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator;
 
+import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.REJECT_SERVER_PROPOSAL_LOG;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog;
 import com.greencloud.application.domain.job.ClientJob;
 
 import jade.core.Agent;
@@ -20,7 +20,7 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.ProposeInitiator;
 
 /**
- * Behaviour sends proposal with job execution offer to the client
+ * Behaviour sends proposal with job execution offer to the Scheduler
  */
 public class InitiateMakingNewJobOffer extends ProposeInitiator {
 
@@ -33,7 +33,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 * Behaviour constructor.
 	 *
 	 * @param agent        agent which is executing the behaviour
-	 * @param msg          proposal message with job execution price that will be sent to the client
+	 * @param msg          proposal message with job execution price that will be sent to the scheduler
 	 * @param replyMessage reply message sent to server with ACCEPT/REJECT proposal
 	 */
 	public InitiateMakingNewJobOffer(final Agent agent, final ACLMessage msg, final ACLMessage replyMessage) {
@@ -43,14 +43,14 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	}
 
 	/**
-	 * Method handles ACCEPT_PROPOSAL message retrieved from the Client Agent.
+	 * Method handles ACCEPT_PROPOSAL message retrieved from the Scheduler Agent.
 	 * It sends accept proposal to the chosen for job execution Server Agent and updates the network state.
 	 *
 	 * @param accept received accept proposal message
 	 */
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept) {
-		logger.info(JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG);
+		logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 		final String jobId = readMessageContent(accept, String.class);
 		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
 
@@ -58,7 +58,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	}
 
 	/**
-	 * Method handles REJECT_PROPOSAL message retrieved from the Client Agent.
+	 * Method handles REJECT_PROPOSAL message retrieved from the Scheduler Agent.
 	 * It sends reject proposal to the Server Agent previously chosen for the job execution.
 	 *
 	 * @param reject received reject proposal message

@@ -22,7 +22,7 @@ import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
- * Behaviour passes to the client the information that the job execution has some delay.
+ * Behaviour verifies if the job execution has started on time
  */
 public class HandleDelayedJob extends WakerBehaviour {
 
@@ -46,7 +46,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 
 	/**
 	 * Method verifies if the job execution has started at the correct time. If there is some delay - it sends the request
-	 * to the server to provide information about the job start
+	 * to the Server to provide information about the job start
 	 */
 	@Override
 	protected void onWake() {

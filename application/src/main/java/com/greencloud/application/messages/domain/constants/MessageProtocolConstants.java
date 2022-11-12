@@ -7,39 +7,31 @@ public class MessageProtocolConstants {
 
 	/**
 	 * Call for proposals protocols
-	 * CLIENT_JOB_CFP_PROTOCOL           - protocol used in client's call for proposal message that is sent to cloud networks while looking
+	 * SCHEDULER_JOB_CFP_PROTOCOL         - protocol used in scheduler's call for proposal message that is sent to cloud networks while looking
 	 * for the network for job execution
 	 * CNA_JOB_CFP_PROTOCOL              - protocol used in cloud network's call for proposal message that is sent to the servers while
 	 * looking for the server which will execute the job
 	 * SERVER_JOB_CFP_PROTOCOL           - protocol used in the server's call for proposal message that is sent to the green sources while
 	 * looking for the green source which will supply the server with power needed for the job execution
 	 */
-	public static final String CLIENT_JOB_CFP_PROTOCOL = "CLIENT_JOB_CFP";
+	public static final String SCHEDULER_JOB_CFP_PROTOCOL = "CLIENT_JOB_CFP";
 	public static final String CNA_JOB_CFP_PROTOCOL = "CNA_JOB_CFP";
 	public static final String SERVER_JOB_CFP_PROTOCOL = "SERVER_JOB_CFP";
 
 	/**
-	 * Job status protocols
-	 * CONFIRMED_JOB_PROTOCOL 	       - protocol used in messages informing that the job has been confirmed as accepted
-	 * CONFIRMED_TRANSFER_PROTOCOL     - protocol used in messages informing that the job transfer has been confirmed as accepted
-	 * FINISH_JOB_PROTOCOL             - protocol used in messages informing the agent that the job execution has finished
+	 * Job state protocols
+	 * ANNOUNCED_JOB_PROTOCOL		   - protocol used in messages informing that the job has been announced in network
 	 * MANUAL_JOB_FINISH_PROTOCOL      - protocol used in messages informing that the job had to be finished manually because the time
 	 * after which the information about job being finished has passed
-	 * STARTED_JOB_PROTOCOL            - protocol used in messages informing the agent that the job execution has started
 	 * JOB_START_STATUS_PROTOCOL       - protocol used in messages with request of the update regarding the job start status
-	 * DELAYED_JOB_PROTOCOL            - protocol used in messages informing that the job execution started with the delay
 	 * CHANGE_JOB_STATUS_PROTOCOL      - protocol used in messages informing that the status of the job has changed
 	 * FAILED_JOB_PROTOCOL         	   - protocol used in messages informing that the job execution has failed
 	 * FAILED_TRANSFER_PROTOCOL        - protocol used in messages informing that the job transfer has failed
 	 * FAILED_SOURCE_TRANSFER_PROTOCOL - protocol used in messages informing that the job transfer between green sources has failed
 	 */
-	public static final String CONFIRMED_JOB_PROTOCOL = "CONFIRMED";
-	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER";
-	public static final String FINISH_JOB_PROTOCOL = "FINISH";
+	public static final String ANNOUNCED_JOB_PROTOCOL = "ANNOUNCED";
 	public static final String MANUAL_JOB_FINISH_PROTOCOL = "MANUAL_FINISH";
-	public static final String STARTED_JOB_PROTOCOL = "STARTED";
 	public static final String JOB_START_STATUS_PROTOCOL = "START_STATUS_PROTOCOL";
-	public static final String DELAYED_JOB_PROTOCOL = "DELAYED";
 	public static final String CHANGE_JOB_STATUS_PROTOCOL = "CHANGE_JOB_STATUS_PROTOCOL";
 	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
 	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";

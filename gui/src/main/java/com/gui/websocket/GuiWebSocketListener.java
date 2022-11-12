@@ -26,7 +26,9 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 	}
 
 	public void addAgentNode(AbstractAgentNode agentNode) {
-		agentNodes.put(agentNode.getAgentName(), agentNode);
+		if (Objects.nonNull(agentNode)) {
+			agentNodes.put(agentNode.getAgentName(), agentNode);
+		}
 	}
 
 	/**

@@ -20,10 +20,11 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareFinishMessage;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -146,12 +147,12 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	private void informGreenSourceUponJobFinish(final ClientJob job, final String refuseCause) {
 		if (isNull(greenSourceRequest) || nonNull(refuseCause)) {
 			final List<AID> receivers = List.of(myServerAgent.getGreenSourceForJobMap().get(job.getJobId()));
-			final ACLMessage finishJobMessage = prepareFinishMessage(job.getJobId(), job.getStartTime(), receivers);
+			final ACLMessage finishJobMessage = prepareJobFinishMessage(job.getJobId(), job.getStartTime(), receivers);
 
 			myServerAgent.send(finishJobMessage);
 
 			if (nonNull(greenSourceRequest)) {
-				myServerAgent.send(prepareReply(greenSourceRequest.createReply(), refuseCause, ACLMessage.FAILURE));
+				myServerAgent.send(prepareReply(greenSourceRequest.createReply(), refuseCause, FAILURE));
 			}
 		} else {
 
@@ -177,7 +178,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 			myServerAgent.send(prepareJobPowerShortageInformation(jobToTransfer, receiver,
 					SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL));
 		} else {
-			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), failureCause, ACLMessage.FAILURE));
+			myServerAgent.send(prepareReply(greenSourceRequest.createReply(), failureCause, FAILURE));
 		}
 	}
 

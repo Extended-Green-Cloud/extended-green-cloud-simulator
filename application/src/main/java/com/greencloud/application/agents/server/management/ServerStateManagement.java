@@ -12,7 +12,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE
 import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessage;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -40,7 +41,6 @@ import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.domain.factory.JobStatusMessageFactory;
 import com.greencloud.application.utils.AlgorithmUtils;
 import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ServerAgentNode;
@@ -324,7 +324,7 @@ public class ServerStateManagement {
 	 * @param type        new status type
 	 */
 	public void informCNAAboutStatusChange(final JobInstanceIdentifier jobInstance, final String type) {
-		final ACLMessage information = prepareJobStatusMessage(jobInstance, type, serverAgent);
+		final ACLMessage information = prepareJobStatusMessageForCNA(jobInstance, type, serverAgent);
 		serverAgent.send(information);
 	}
 
@@ -341,8 +341,7 @@ public class ServerStateManagement {
 				List.of(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()),
 						serverAgent.getOwnerCloudNetworkAgent()) :
 				Collections.singletonList(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()));
-		final ACLMessage finishJobMessage = JobStatusMessageFactory.prepareFinishMessage(jobToFinish.getJobId(),
-				jobToFinish.getStartTime(),
+		final ACLMessage finishJobMessage = prepareJobFinishMessage(jobToFinish.getJobId(), jobToFinish.getStartTime(),
 				receivers);
 
 		serverAgent.send(finishJobMessage);

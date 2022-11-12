@@ -1,6 +1,7 @@
 package com.gui.controller;
 
 import java.net.URI;
+import java.util.Objects;
 
 import com.gui.agents.AbstractAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
@@ -26,8 +27,10 @@ public class GuiControllerImpl implements GuiController {
 
 	@Override
 	public void addAgentNodeToGraph(AbstractAgentNode agent) {
-		webSocketListener.addAgentNode(agent);
-		agent.addToGraph(webSocketClient);
+		if (Objects.nonNull(agent)) {
+			webSocketListener.addAgentNode(agent);
+			agent.addToGraph(webSocketClient);
+		}
 	}
 
 	@Override

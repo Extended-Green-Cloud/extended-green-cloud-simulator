@@ -28,11 +28,11 @@ class FindCloudNetworkAgentsUnitTest {
 	private ClientAgent clientAgent;
 	@Mock
 	private GuiController guiController;
-	private FindCloudNetworkAgents testedBehaviour;
+	private FindSchedulerAgent testedBehaviour;
 
 	@BeforeEach
 	void init() {
-		testedBehaviour = new FindCloudNetworkAgents();
+		testedBehaviour = new FindSchedulerAgent();
 		SequentialBehaviour parentBehaviour = new SequentialBehaviour();
 		parentBehaviour.addSubBehaviour(testedBehaviour);
 	}

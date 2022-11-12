@@ -15,17 +15,13 @@ public class JobHandlingInitiatorLog {
 
 	// FINDING JOB EXECUTOR LOG MESSAGES
 	public static final String NO_SERVER_RESPONSES_LOG = "No responses were retrieved";
-	public static final String NO_SERVERS_AVAILABLE_RETRIES_LIMIT_LOG =
-			"No Servers available - reached limit of retires - sending refuse message to client";
-	public static final String NO_SERVERS_AVAILABLE_RETRY_LOG =
-			"No Servers available - schedule {} retry to process the message";
 	public static final String CHOSEN_SERVER_FOR_JOB_LOG =
-			"Chosen Server for the job {}: {}. Sending job execution offer to Client";
+			"Chosen Server for the job {}: {}. Sending job execution offer to Scheduler Agent";
 	public static final String INCORRECT_PROPOSAL_FORMAT_LOG =
 			"I didn't understand any proposal from Server Agents";
 
 	// JOB OFFER MAKING LOG MESSAGES
 	public static final String ACCEPT_SERVER_PROPOSAL_LOG = "Sending ACCEPT_PROPOSAL to Server Agent";
-	public static final String REJECT_SERVER_PROPOSAL_LOG = "Client {} rejected the job proposal";
+	public static final String REJECT_SERVER_PROPOSAL_LOG = "Scheduler {} rejected the job proposal";
 
 }

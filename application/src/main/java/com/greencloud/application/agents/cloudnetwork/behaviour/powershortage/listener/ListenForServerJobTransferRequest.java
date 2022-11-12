@@ -4,10 +4,17 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.powershor
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_NO_SERVERS_AVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToJobNewStartTime;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,8 +31,6 @@ import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.MessagingUtils;
-import com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
@@ -60,17 +65,15 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		final ACLMessage transferRequest = myAgent.receive(
 				PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE);
 		if (Objects.nonNull(transferRequest)) {
-			final PowerShortageJob powerShortageJob = MessagingUtils.readMessageContent(transferRequest,
-					PowerShortageJob.class);
+			final PowerShortageJob powerShortageJob = readMessageContent(transferRequest, PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
 			final Instant shortageStartTime = powerShortageJob.getPowerShortageStart();
 			final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobInstance.getJobId());
 			MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
 
 			if (Objects.nonNull(job)) {
-				myCloudNetworkAgent.send(
-						ReplyMessageFactory.prepareReply(transferRequest.createReply(),
-								PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE, ACLMessage.AGREE));
+				myCloudNetworkAgent.send(prepareReply(transferRequest.createReply(),
+						TRANSFER_PROCESSING_MESSAGE, AGREE));
 				final List<AID> remainingServers = getRemainingServers(transferRequest.getSender());
 
 				if (!remainingServers.isEmpty()) {
@@ -82,8 +85,8 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 				}
 			} else {
 				logger.info(SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG, jobInstance.getJobId());
-				final ACLMessage refuseMessage = ReplyMessageFactory.prepareStringReply(transferRequest.createReply(),
-						JOB_NOT_FOUND_CAUSE_MESSAGE, ACLMessage.REFUSE);
+				final ACLMessage refuseMessage = prepareStringReply(transferRequest.createReply(),
+						JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE);
 				myCloudNetworkAgent.send(refuseMessage);
 			}
 		} else {
@@ -102,7 +105,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 	}
 
 	private void replyWithFailedTransferForNoServers(final ACLMessage originalRequest) {
-		final ACLMessage reply = ReplyMessageFactory.prepareReply(originalRequest.createReply(),
+		final ACLMessage reply = prepareReply(originalRequest.createReply(),
 				NO_SERVER_AVAILABLE_CAUSE_MESSAGE, FAILURE);
 		myCloudNetworkAgent.send(reply);
 	}
@@ -111,7 +114,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 		final Instant startTime = job.getStartTime().isAfter(shortageStartTime) ?
 				job.getStartTime() :
 				shortageStartTime;
-		return JobMapper.mapToJobNewStartTime(job, startTime);
+		return mapToJobNewStartTime(job, startTime);
 	}
 
 	private List<AID> getRemainingServers(final AID serverSender) {

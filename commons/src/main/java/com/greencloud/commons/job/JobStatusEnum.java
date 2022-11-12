@@ -6,6 +6,8 @@ package com.greencloud.commons.job;
 public enum JobStatusEnum {
 
 	CREATED("BEFORE SEND"),
+	SCHEDULED("SCHEDULED"),
+	PROCESSED("PROCESSED"),
 	IN_PROGRESS("IN PROGRESS"),
 	DELAYED("DELAYED"),
 	FINISHED("FINISHED"),

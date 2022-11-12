@@ -14,6 +14,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Service which provides the methods used in communication with the DF
@@ -64,7 +65,7 @@ public class YellowPagesService {
 	 * @param agent       agent which is searching through the DF
 	 * @param serviceType type of the service to be searched
 	 * @param ownership   name of the owner to be searched
-	 * @return list of agent addresses found in DF
+	 * @return list of agent addresses found in DF or empty list if no agents found
 	 */
 	public static List<AID> search(Agent agent, String serviceType, String ownership) {
 		try {
@@ -78,7 +79,7 @@ public class YellowPagesService {
 	}
 
 	/**
-	 * Method searches the DF for the com.greencloud.application.agents with given service type
+	 * Method searches the DF for the agents with given service type
 	 *
 	 * @param agent       agent which is searching through the DF
 	 * @param serviceType type of the service to be searched
@@ -89,7 +90,37 @@ public class YellowPagesService {
 			return Arrays.stream(DFService.search(agent, prepareAgentDescriptionTemplate(serviceType)))
 					.map(DFAgentDescription::getName).toList();
 		} catch (FIPAException e) {
-			logger.info("Haven't found any com.greencloud.application.agents because {}", e.getMessage());
+			logger.info("Haven't found any agents because {}", e.getMessage());
+		}
+
+		return emptyList();
+	}
+
+	/**
+	 * Method subscribes a given agent service for the subscriber agent.
+	 *
+	 * @param subscriber  agent subscribing given service
+	 * @param serviceType type of the service to be subscribed
+	 * @return subscription ACLMessage
+	 */
+	public static ACLMessage prepareSubscription(final Agent subscriber, final String serviceType) {
+		return DFService.createSubscriptionMessage(subscriber, subscriber.getDefaultDF(),
+				prepareAgentDescriptionTemplate(serviceType), null);
+	}
+
+	/**
+	 * Method decodes the received notification and retrieves newly introduced agents
+	 *
+	 * @param inform notification received from DF
+	 * @return AID list of registered agents
+	 */
+	public static List<AID> decodeSubscription(final ACLMessage inform) {
+		try {
+			return Arrays.stream(DFService.decodeNotification(inform.getContent()))
+					.map(DFAgentDescription::getName)
+					.toList();
+		} catch (FIPAException e) {
+			logger.info("An error occurred while decoding the notification: {}", e.getMessage());
 		}
 
 		return emptyList();

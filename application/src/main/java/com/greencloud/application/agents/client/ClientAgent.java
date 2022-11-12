@@ -5,7 +5,6 @@ import static com.greencloud.application.gui.GuiConnectionProvider.connectToGui;
 import static com.greencloud.application.utils.TimeUtils.convertToSimulationTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
-import java.sql.Time;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -15,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.client.behaviour.df.FindCloudNetworkAgents;
+import com.greencloud.application.agents.client.behaviour.df.FindSchedulerAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
 import com.greencloud.application.domain.job.ClientJob;
@@ -44,7 +43,6 @@ public class ClientAgent extends AbstractClientAgent {
 		final Object[] args = getArguments();
 
 		if (Objects.nonNull(args) && args.length == 5) {
-			initializeAgent();
 			final ClientJob jobToBeExecuted = initializeAgentJob(args);
 			MDC.put(MDC_JOB_ID, jobToBeExecuted.getJobId());
 			connectToGui(this);
@@ -65,10 +63,6 @@ public class ClientAgent extends AbstractClientAgent {
 		super.takeDown();
 	}
 
-	private void initializeAgent() {
-		this.chosenCloudNetworkAgent = null;
-	}
-
 	private ClientJob initializeAgentJob(final Object[] arguments) {
 		try {
 			final Instant startTime = TimeUtils.convertToInstantTime(arguments[0].toString());
@@ -84,7 +78,7 @@ public class ClientAgent extends AbstractClientAgent {
 				doDelete();
 			}
 			if (deadline.isBefore(endTime)) {
-				logger.error("The job deadline cannot be befode job execution end time!");
+				logger.error("The job deadline cannot be before job execution end time!");
 				doDelete();
 			}
 			prepareSimulatedTimes(startTime, endTime, deadline);
@@ -119,11 +113,8 @@ public class ClientAgent extends AbstractClientAgent {
 
 	private List<Behaviour> prepareStartingBehaviour(final ClientJob job) {
 		var startingBehaviour = new SequentialBehaviour(this);
-		startingBehaviour.addSubBehaviour(new FindCloudNetworkAgents());
-		startingBehaviour.addSubBehaviour(new InitiateNewJobAnnouncement(this, null, job));
-		return List.of(
-				new ListenForJobUpdate(this, job),
-				startingBehaviour
-		);
+		startingBehaviour.addSubBehaviour(new FindSchedulerAgent());
+		startingBehaviour.addSubBehaviour(new InitiateNewJobAnnouncement(this, job));
+		return List.of(new ListenForJobUpdate(this), startingBehaviour);
 	}
 }

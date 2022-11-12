@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener;
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_CFP_NEW_LOG;
-import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.logs.JobHandlingListenerLog.SEND_CFP_RETRY_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.NEW_JOB_REQUEST_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
@@ -23,11 +22,11 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
- * Behaviour handles upcoming call for proposals from clients
+ * Behaviour handles upcoming call for proposals from Scheduler Agent
  */
-public class ListenForClientsJob extends CyclicBehaviour {
+public class ListenForScheduledJob extends CyclicBehaviour {
 
-	private static final Logger logger = LoggerFactory.getLogger(ListenForClientsJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(ListenForScheduledJob.class);
 
 	private CloudNetworkAgent myCloudNetworkAgent;
 
@@ -41,7 +40,7 @@ public class ListenForClientsJob extends CyclicBehaviour {
 	}
 
 	/**
-	 * Method listens for the upcoming job call for proposals from the Client Agents.
+	 * Method listens for the upcoming job call for proposals from the Scheduler Agent.
 	 * It announces the job to the network by sending call for proposal with job characteristics to owned Server Agents.
 	 */
 	@Override
@@ -50,33 +49,19 @@ public class ListenForClientsJob extends CyclicBehaviour {
 
 		if (Objects.nonNull(message)) {
 			final ClientJob job = readMessageContent(message, ClientJob.class);
-			final String jobId = job.getJobId();
-			MDC.put(MDC_JOB_ID, jobId);
-			handleRetryProcess(jobId);
+			MDC.put(MDC_JOB_ID, job.getJobId());
 			sendCFPToServers(job, message);
 		} else {
 			block();
 		}
 	}
 
-	private void handleRetryProcess(final String jobId) {
-		if (myCloudNetworkAgent.getJobRequestRetries().containsKey(jobId)) {
-			logger.info(SEND_CFP_RETRY_LOG, jobId, myCloudNetworkAgent.getJobRequestRetries().get(jobId));
-		} else {
-			myCloudNetworkAgent.getJobRequestRetries().put(jobId, 0);
-			final ClientJob previousInstance = myCloudNetworkAgent.manage().getJobById(jobId);
-			if (Objects.nonNull(previousInstance)) {
-				myCloudNetworkAgent.getNetworkJobs().remove(previousInstance);
-			}
-			logger.info(SEND_CFP_NEW_LOG, jobId);
-		}
-	}
-
 	private void sendCFPToServers(final ClientJob job, final ACLMessage message) {
+		logger.info(SEND_CFP_NEW_LOG, job.getJobId());
 		final ACLMessage cfp = createCallForProposal(job, myCloudNetworkAgent.getOwnedServers(),
 				CNA_JOB_CFP_PROTOCOL);
 
 		myCloudNetworkAgent.getNetworkJobs().put(job, JobStatusEnum.PROCESSING);
-		myAgent.addBehaviour(new InitiateNewJobExecutorLookup(myAgent, cfp, message, job.getJobId()));
+		myAgent.addBehaviour(new InitiateNewJobExecutorLookup(myAgent, cfp, message, job));
 	}
 }

@@ -3,25 +3,31 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.liste
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_BACK_UP_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_LOG;
-import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_RETRY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_GREEN_POWER_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_ON_HOLD_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_POSTPONE_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_PROCESSED_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_SCHEDULED_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.templates.JobAnnouncementMessageTemplates.CLIENT_JOB_UPDATE_TEMPLATE;
-import static com.greencloud.application.agents.client.domain.ClientAgentConstants.MAX_RETRIES;
-import static com.greencloud.application.agents.client.domain.ClientAgentConstants.RETRY_PAUSE_MILLISECONDS;
+import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.DELAYED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.POSTPONED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.PROCESSING_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.JobStatusEnum.SCHEDULED;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -31,9 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleClientJobRequestRetry;
 import com.greencloud.application.agents.client.domain.ClientAgentConstants;
-import com.greencloud.application.domain.job.ClientJob;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -48,17 +52,15 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(ListenForJobUpdate.class);
 
 	private final ClientAgent myClientAgent;
-	private final ClientJob job;
 
 	/**
 	 * Behaviours constructor.
 	 *
 	 * @param clientAgent agent executing the behaviour
 	 */
-	public ListenForJobUpdate(final ClientAgent clientAgent, final ClientJob job) {
+	public ListenForJobUpdate(final ClientAgent clientAgent) {
 		super(clientAgent);
 		this.myClientAgent = clientAgent;
-		this.job = job;
 	}
 
 	/**
@@ -69,49 +71,52 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			switch (message.getProtocol()) {
-				case STARTED_JOB_PROTOCOL -> {
+			switch (message.getConversationId()) {
+				case SCHEDULED_JOB_ID -> {
+					logger.info(CLIENT_JOB_SCHEDULED_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(SCHEDULED);
+				}
+				case PROCESSING_JOB_ID -> {
+					logger.info(CLIENT_JOB_PROCESSED_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(PROCESSED);
+				}
+				case STARTED_JOB_ID -> {
 					checkIfJobStartedOnTime();
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
 				}
-				case FINISH_JOB_PROTOCOL -> {
+				case DELAYED_JOB_ID -> {
+					logger.info(CLIENT_JOB_DELAY_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.DELAYED);
+				}
+				case BACK_UP_POWER_JOB_ID -> {
+					logger.info(CLIENT_JOB_BACK_UP_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.ON_BACK_UP);
+				}
+				case GREEN_POWER_JOB_ID -> {
+					logger.info(CLIENT_JOB_GREEN_POWER_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
+				}
+				case ON_HOLD_JOB_ID -> {
+					logger.info(CLIENT_JOB_ON_HOLD_LOG);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.ON_HOLD);
+				}
+				case FINISH_JOB_ID -> {
 					checkIfJobFinishedOnTime();
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FINISHED);
 					myClientAgent.getGuiController().updateClientsCountByValue(-1);
 					myClientAgent.doDelete();
 				}
-				case DELAYED_JOB_PROTOCOL -> {
-					logger.info(CLIENT_JOB_DELAY_LOG);
-					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.DELAYED);
+				case POSTPONED_JOB_ID -> {
+					logger.info(CLIENT_JOB_POSTPONE_LOG);
+					myClientAgent.retry();
+					myClientAgent.setSimulatedJobStart(postponeTime(myClientAgent.getSimulatedJobStart(), JOB_RETRY_MINUTES_ADJUSTMENT));
+					myClientAgent.setSimulatedJobEnd(postponeTime(myClientAgent.getSimulatedJobEnd(), JOB_RETRY_MINUTES_ADJUSTMENT));
 				}
-				case CHANGE_JOB_STATUS_PROTOCOL -> {
-					switch (message.getConversationId()) {
-						case BACK_UP_POWER_JOB_ID -> {
-							logger.info(CLIENT_JOB_BACK_UP_LOG);
-							((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.ON_BACK_UP);
-						}
-						case GREEN_POWER_JOB_ID -> {
-							logger.info(CLIENT_JOB_GREEN_POWER_LOG);
-							((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.IN_PROGRESS);
-						}
-						case ON_HOLD_JOB_ID -> {
-							logger.info(CLIENT_JOB_ON_HOLD_LOG);
-							((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.ON_HOLD);
-						}
-					}
-				}
-				case FAILED_JOB_PROTOCOL -> {
-					if (myClientAgent.getRetries() < MAX_RETRIES) {
-						logger.info(CLIENT_JOB_FAILED_RETRY_LOG, myClientAgent.getRetries() + 1);
-						myClientAgent.retry();
-						myClientAgent.addBehaviour(
-								new HandleClientJobRequestRetry(myAgent, RETRY_PAUSE_MILLISECONDS, job));
-					} else {
-						logger.info(CLIENT_JOB_FAILED_LOG);
-						myClientAgent.getGuiController().updateClientsCountByValue(-1);
-						((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
-						myClientAgent.doDelete();
-					}
+				case FAILED_JOB_ID -> {
+					logger.info(CLIENT_JOB_FAILED_LOG);
+					myClientAgent.getGuiController().updateClientsCountByValue(-1);
+					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+					myClientAgent.doDelete();
 				}
 			}
 		} else {

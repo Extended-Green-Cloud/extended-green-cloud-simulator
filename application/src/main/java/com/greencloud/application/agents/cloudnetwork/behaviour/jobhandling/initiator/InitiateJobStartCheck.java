@@ -5,9 +5,8 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_STATUS_IS_CHECKED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DELAYED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForScheduler;
 
 import java.util.Objects;
 
@@ -23,7 +22,7 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
 
 /**
- * Behaviour retrieves the job start status from the server agent
+ * Behaviour retrieves the job start status from the Server Agent
  */
 public class InitiateJobStartCheck extends AchieveREInitiator {
 
@@ -46,7 +45,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	}
 
 	/**
-	 * Method handles the AGREE message informing that the request is being processed by the server
+	 * Method handles the AGREE message informing that the request is being processed by the Server
 	 *
 	 * @param agree server agreement message
 	 */
@@ -58,7 +57,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 
 	/**
 	 * Method handles the INFORM message confirming that the job execution has started.
-	 * It sends the confirmation to the client
+	 * It sends the confirmation to the Scheduler
 	 *
 	 * @param inform server inform message
 	 */
@@ -71,13 +70,13 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 
 			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), IN_PROGRESS);
 			myCloudNetwork.manage().incrementStartedJobs(jobId);
-			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), STARTED_JOB_PROTOCOL));
+			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetwork, jobId, STARTED_JOB_ID));
 		}
 	}
 
 	/**
 	 * Method handles the FAILURE message informing that the job execution has not started.
-	 * It sends the delay message to the client
+	 * It sends the delay message to the Scheduler
 	 *
 	 * @param failure failure message
 	 */
@@ -87,7 +86,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.error(JOB_HAS_NOT_STARTED_LOG, jobId);
-			myAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), DELAYED_JOB_PROTOCOL));
+			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetwork, jobId, STARTED_JOB_ID));
 		}
 	}
 }

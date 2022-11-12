@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.cloudnetwork.behaviour.df.FindServerAgents;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForClientsJob;
+import com.greencloud.application.agents.cloudnetwork.behaviour.df.FindSchedulerAndServerAgents;
+import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForScheduledJob;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForJobStatusChange;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.ListenForServerJobTransferRequest;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
@@ -58,8 +58,8 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 
 	private SequentialBehaviour prepareStartingBehaviour() {
 		var startingBehaviour = new SequentialBehaviour(this);
-		startingBehaviour.addSubBehaviour(new FindServerAgents());
-		startingBehaviour.addSubBehaviour(new ListenForClientsJob());
+		startingBehaviour.addSubBehaviour(new FindSchedulerAndServerAgents());
+		startingBehaviour.addSubBehaviour(new ListenForScheduledJob());
 		return startingBehaviour;
 	}
 }

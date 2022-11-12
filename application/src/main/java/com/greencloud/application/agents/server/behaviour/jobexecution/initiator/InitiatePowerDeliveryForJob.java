@@ -5,6 +5,7 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.NEW_JOB_LOOK_FOR_GS_NO_SOURCES_AVAILABLE_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.NEW_JOB_LOOK_FOR_GS_SELECTED_GS_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 			if (!validProposals.isEmpty() && isJobStillProcessed) {
 				final ACLMessage chosenGreenSourceOffer = myServerAgent.chooseGreenSourceToExecuteJob(validProposals);
 				proposeServerOffer(chosenGreenSourceOffer);
-				rejectJobOffers(myServerAgent, JobMapper.mapToJobInstanceId(job), chosenGreenSourceOffer, proposals);
+				rejectJobOffers(myServerAgent, mapToJobInstanceId(job), chosenGreenSourceOffer, proposals);
 			} else {
 				handleInvalidProposals(proposals);
 			}
@@ -109,13 +110,13 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	}
 
 	private void handleInvalidProposals(final List<ACLMessage> proposals) {
-		rejectJobOffers(myServerAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
+		rejectJobOffers(myServerAgent, mapToJobInstanceId(job), null, proposals);
 		refuseToExecuteJob(proposals);
 	}
 
 	private void refuseToExecuteJob(final List<ACLMessage> proposals) {
 		myServerAgent.getServerJobs().remove(job);
 		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
-		rejectJobOffers(myServerAgent, JobMapper.mapToJobInstanceId(job), null, proposals);
+		rejectJobOffers(myServerAgent, mapToJobInstanceId(job), null, proposals);
 	}
 }

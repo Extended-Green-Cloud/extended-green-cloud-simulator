@@ -20,9 +20,9 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	protected transient CloudNetworkStateManagement stateManagement;
 	protected Map<ClientJob, JobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
-	protected Map<String, Integer> jobRequestRetries;
 	protected AtomicLong completedJobs;
 	protected List<AID> ownedServers;
+	protected AID scheduler;
 
 	AbstractCloudNetworkAgent() {
 		super.setup();
@@ -37,7 +37,6 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 		serverForJobMap = new HashMap<>();
 		networkJobs = new HashMap<>();
-		jobRequestRetries = new HashMap<>();
 		completedJobs = new AtomicLong(0L);
 	}
 
@@ -47,10 +46,6 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public Map<ClientJob, JobStatusEnum> getNetworkJobs() {
 		return networkJobs;
-	}
-
-	public Map<String, Integer> getJobRequestRetries() {
-		return jobRequestRetries;
 	}
 
 	public Long completedJob() {
@@ -63,6 +58,14 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public void setOwnedServers(List<AID> ownedServers) {
 		this.ownedServers = ownedServers;
+	}
+
+	public AID getScheduler() {
+		return scheduler;
+	}
+
+	public void setScheduler(AID scheduler) {
+		this.scheduler = scheduler;
 	}
 
 	public CloudNetworkStateManagement manage() {

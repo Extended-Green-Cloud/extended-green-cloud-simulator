@@ -40,6 +40,11 @@ public interface NewClientEventArgs extends EventArgs {
 	Integer getEnd();
 
 	/**
+	 * @return number of hours after which the job will reach execution deadline
+	 */
+	Integer getDeadline();
+
+	/**
 	 * @return power required for the job
 	 */
 	Integer getPower();
@@ -67,6 +72,12 @@ public interface NewClientEventArgs extends EventArgs {
 		if (getEnd() <= getStart()) {
 			throw new InvalidScenarioEventStructure(
 					String.format("Given end time: %d is invalid. The end time must be greater than start time (%d)",
+							getEnd(), getStart()));
+		}
+		if (getDeadline() < getEnd()) {
+			throw new InvalidScenarioEventStructure(
+					String.format(
+							"Given deadline time: %d is invalid. The deadline time must be greater or equal to the end time (%d)",
 							getEnd(), getStart()));
 		}
 		if (getPower() <= 0) {

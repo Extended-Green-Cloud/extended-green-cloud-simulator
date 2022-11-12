@@ -12,6 +12,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
@@ -34,7 +35,6 @@ import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.JobWithProtocol;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -149,7 +149,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	}
 
 	private void sendResponseToServer(final ACLMessage acceptProposal, final JobWithProtocol jobWithProtocol) {
-		final ACLMessage response = ReplyMessageFactory.prepareReply(acceptProposal.createReply(),
+		final ACLMessage response = prepareReply(acceptProposal.createReply(),
 				jobWithProtocol.getJobInstanceIdentifier(), INFORM);
 		response.setProtocol(jobWithProtocol.getReplyProtocol());
 		myAgent.send(response);

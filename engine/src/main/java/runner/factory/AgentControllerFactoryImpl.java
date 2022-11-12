@@ -13,12 +13,14 @@ import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
 import com.gui.agents.GreenEnergyAgentNode;
 import com.gui.agents.MonitoringAgentNode;
+import com.gui.agents.SchedulerAgentNode;
 import com.gui.agents.ServerAgentNode;
 
 import jade.wrapper.AgentController;
@@ -68,6 +70,13 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return containerController.createNewAgent(monitoringAgent.getName(),
 					"com.greencloud.application.agents.monitoring.MonitoringAgent",
 					new Object[] {});
+		} else if (agentArgs instanceof SchedulerAgentArgs schedulerAgent) {
+			return containerController.createNewAgent(agentArgs.getName(),
+					"com.greencloud.application.agents.scheduler.SchedulerAgent",
+					new Object[] {
+							schedulerAgent.getDeadlineWeight(),
+							schedulerAgent.getPowerWeight()
+					});
 		}
 		return null;
 	}
@@ -77,7 +86,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		if (agentArgs instanceof ClientAgentArgs clientArgs) {
 			return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
 					.withStart(formatToDate(clientArgs.getStart()))
-					.withEnd(formatToDate(clientArgs.getEnd())));
+					.withEnd(formatToDate(clientArgs.getEnd()))
+					.withDeadline(formatToDate(clientArgs.getDeadline())));
 		}
 		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
 			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
@@ -113,6 +123,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return new ServerAgentNode(serverAgentArgs.getName(),
 					Double.parseDouble(serverAgentArgs.getMaximumCapacity()), serverAgentArgs.getOwnerCloudNetwork(),
 					greenSourceNames);
+		}
+		if (agentArgs instanceof SchedulerAgentArgs schedulerAgentArgs) {
+			return new SchedulerAgentNode(schedulerAgentArgs);
 		}
 		return null;
 	}

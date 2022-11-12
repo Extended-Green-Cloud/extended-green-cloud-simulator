@@ -5,8 +5,8 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_STATUS_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FINISH_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.STARTED_JOB_PROTOCOL;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
@@ -52,9 +52,9 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 			final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
 
 			if (nonNull(powerJob)) {
-				switch (message.getProtocol()) {
-					case FINISH_JOB_PROTOCOL -> handlePowerSupplyFinish(powerJob, jobInstanceId);
-					case STARTED_JOB_PROTOCOL -> handlePowerSupplyStart(powerJob, jobInstanceId);
+				switch (message.getConversationId()) {
+					case FINISH_JOB_ID -> handlePowerSupplyFinish(powerJob, jobInstanceId);
+					case STARTED_JOB_ID -> handlePowerSupplyStart(powerJob, jobInstanceId);
 				}
 			}
 		} else {

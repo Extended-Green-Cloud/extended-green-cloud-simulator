@@ -21,7 +21,7 @@ import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 
 /**
- * Behaviour updates internal cloud network state according to the job transfer
+ * Behaviour updates internal Cloud Network state according to the job transfer
  */
 public class HandleJobTransferToServer extends WakerBehaviour {
 
@@ -64,8 +64,8 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	}
 
 	/**
-	 * Method transfers the job between servers.
-	 * It updates the internal state of the cloud network
+	 * Method transfers the job between Servers.
+	 * It updates the internal state of the Cloud Network
 	 */
 	@Override
 	protected void onWake() {

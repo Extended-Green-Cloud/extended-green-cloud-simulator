@@ -205,7 +205,9 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get jobs timetable with repeatable time instances")
 	void testGetJobsTimetableRepeatableInstances() {
 		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z")).endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.build();
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
 
@@ -218,10 +220,14 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get jobs timetable with job in processing")
 	void testGetJobsTimetableJobInProcessing() {
 		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z")).endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.build();
 		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("10")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z")).endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.PROCESSING);
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
@@ -264,7 +270,9 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get available power for job when job is new")
 	void testGetAvailablePowerForNewJob() {
 		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage()
@@ -277,7 +285,9 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get available power for job when job is not new")
 	void testGetAvailablePowerForNotNewJob() {
 		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage()
@@ -293,6 +303,7 @@ class GreenEnergyStateManagementUnitTest {
 				.jobId("100")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T08:00:10.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20)
 				.build();
 		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.03);
@@ -312,19 +323,29 @@ class GreenEnergyStateManagementUnitTest {
 	 */
 	private Map<PowerJob, JobStatusEnum> setUpGreenEnergyJobs() {
 		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
-				.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final PowerJob mockJob2 = ImmutablePowerJob.builder().jobId("2")
-				.startTime(Instant.parse("2022-01-01T07:00:00.000Z")).endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
-				.startTime(Instant.parse("2022-01-01T06:00:00.000Z")).endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(50).build();
 		final PowerJob mockJob4 = ImmutablePowerJob.builder().jobId("4")
-				.startTime(Instant.parse("2022-01-01T09:00:00.000Z")).endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final PowerJob mockJob5 = ImmutablePowerJob.builder().jobId("5")
-				.startTime(Instant.parse("2022-01-01T11:00:00.000Z")).endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(25).build();
 		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);

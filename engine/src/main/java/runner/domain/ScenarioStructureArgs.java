@@ -10,6 +10,7 @@ import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 
 /**
@@ -17,8 +18,10 @@ import com.greencloud.commons.args.agent.server.ServerAgentArgs;
  */
 public class ScenarioStructureArgs implements Serializable {
 
+	@JacksonXmlElementWrapper(localName = "schedulerAgent")
+	private SchedulerAgentArgs schedulerAgentArgs;
 	@JacksonXmlElementWrapper(localName = "cloudNetworkAgentsArgs")
-	private List<com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs> cloudNetworkAgentsArgs;
+	private List<CloudNetworkArgs> cloudNetworkAgentsArgs;
 	@JacksonXmlElementWrapper(localName = "serverAgentsArgs")
 	private List<ServerAgentArgs> serverAgentsArgs;
 	@JacksonXmlElementWrapper(localName = "monitoringAgentsArgs")
@@ -63,6 +66,10 @@ public class ScenarioStructureArgs implements Serializable {
 		return greenEnergyAgentsArgs;
 	}
 
+	public SchedulerAgentArgs getSchedulerAgentArgs() {
+		return schedulerAgentArgs;
+	}
+
 	/**
 	 * Method concatenates the scenario arguments into one stream
 	 *
@@ -73,9 +80,11 @@ public class ScenarioStructureArgs implements Serializable {
 		var cloudNetworkArgs = cloudNetworkAgentsArgs.stream().map(AgentArgs.class::cast);
 		var monitoringArgs = monitoringAgentsArgs.stream().map(AgentArgs.class::cast);
 		var greenEnergyArgs = greenEnergyAgentsArgs.stream().map(AgentArgs.class::cast);
+		var schedulerArgs = List.of(schedulerAgentArgs).stream().map(AgentArgs.class::cast);
 
-		return concat(monitoringArgs,
-				concat(greenEnergyArgs,
-						concat(serverArgs, cloudNetworkArgs))).toList();
+		return concat(schedulerArgs,
+				concat(monitoringArgs,
+						concat(greenEnergyArgs,
+								concat(serverArgs, cloudNetworkArgs)))).toList();
 	}
 }
