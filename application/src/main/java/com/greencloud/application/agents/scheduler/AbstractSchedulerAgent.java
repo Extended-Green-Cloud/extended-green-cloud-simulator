@@ -35,9 +35,6 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	 */
 	protected AbstractSchedulerAgent() {
 		super.setup();
-
-		this.jobsToBeExecuted = new PriorityBlockingQueue<>(QUEUE_CAPACITY_THRESHOLD,
-				Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();

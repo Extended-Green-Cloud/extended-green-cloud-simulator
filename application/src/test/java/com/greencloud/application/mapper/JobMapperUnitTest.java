@@ -17,7 +17,7 @@ import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.PowerJob;
 
-class JobMapperTest {
+class JobMapperUnitTest {
 
 	private static final PowerJob MOCK_POWER_JOB = ImmutablePowerJob.builder()
 			.jobId("1")
@@ -61,6 +61,16 @@ class JobMapperTest {
 		final JobInstanceIdentifier result = mapToJobInstanceIdWithRealTime(MOCK_JOB_INSTANCE);
 
 		assertThat(result.getStartTime()).isEqualTo(Instant.parse("2022-01-31T08:00:00.000Z"));
+		assertThat(result.getJobId()).isEqualTo("1");
+	}
+
+	@Test
+	@DisplayName("Test map to job instance id")
+	void testMapToJobInstanceId() {
+		final Instant mockStart = Instant.parse("2022-01-01T08:00:00.000Z");
+		final JobInstanceIdentifier result = mapToJobInstanceId("1", mockStart);
+
+		assertThat(result.getStartTime()).isEqualTo(Instant.parse("2022-01-01T08:00:00.000Z"));
 		assertThat(result.getJobId()).isEqualTo("1");
 	}
 }

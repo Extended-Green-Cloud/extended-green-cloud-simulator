@@ -9,6 +9,7 @@ import static com.greencloud.application.utils.TimeUtils.divideIntoSubIntervals;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTimeMinusError;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.application.utils.TimeUtils.postponeTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
@@ -203,5 +204,24 @@ class TimeUtilsUnitTest {
 
 		setSystemStartTimeMock(Instant.parse("2022-01-01T09:00:00.000Z"));
 		assertThat(convertToRealTime(simulatedInstant)).isEqualTo(expectedDate);
+	}
+
+	@Test
+	@DisplayName("Test convert to real time for 10 000 ms")
+	void testConvertToRealTimeFromMillis() {
+		final long expectedResult = 120;
+		final long testMillis = 10000;
+
+		assertThat(convertToRealTime(testMillis)).isEqualTo(expectedResult);
+	}
+
+	@Test
+	@DisplayName("Test calculating postponed time")
+	void testPostponeTime() {
+		final int testPostponeDelay = 60;
+		final Instant testInstant = Instant.parse("2022-01-01T09:00:00.000Z");
+		final Instant expectedInstant = Instant.parse("2022-01-01T09:00:05.000Z");
+
+		assertThat(postponeTime(testInstant, testPostponeDelay)).isEqualTo(expectedInstant);
 	}
 }

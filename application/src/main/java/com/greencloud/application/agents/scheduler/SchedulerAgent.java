@@ -6,8 +6,10 @@ import static com.greencloud.application.yellowpages.domain.DFServiceConstants.S
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +51,11 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 2) {
+		if (Objects.nonNull(args) && args.length == 3) {
 			try {
 				final double deadlineWeight = Double.parseDouble(args[0].toString());
 				final double powerWeight = Double.parseDouble(args[1].toString());
+				final int maxQueueSize = Integer.parseInt(args[2].toString());
 
 				if (deadlineWeight < 0 || powerWeight < 0
 						|| deadlineWeight > 1 || powerWeight > 1
@@ -60,11 +63,14 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 					logger.info("Incorrect arguments: Weights must be from range [0,1] and must sum to 1!");
 					doDelete();
 				}
-				this.configManagement = new SchedulerConfigurationManagement();
+				if (maxQueueSize < 1) {
+					logger.info("Incorrect arguments: Queue size must be a positive integer!");
+					doDelete();
+				}
+				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize);
 				this.stateManagement = new SchedulerStateManagement(this);
-
-				this.config().setDeadlineWeightPriority(Double.parseDouble(args[0].toString()));
-				this.config().setPowerWeightPriority(Double.parseDouble(args[1].toString()));
+				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
+						Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
 
 				register(this, SCHEDULER_SERVICE_TYPE, SCHEDULER_SERVICE_NAME);
 			} catch (final NumberFormatException e) {

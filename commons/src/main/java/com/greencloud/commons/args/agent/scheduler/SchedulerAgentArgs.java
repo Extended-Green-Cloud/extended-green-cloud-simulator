@@ -23,6 +23,11 @@ public interface SchedulerAgentArgs extends AgentArgs {
 	 */
 	Double getPowerWeight();
 
+	/**
+	 * @return preferred maximum scheduled job queue size
+	 */
+	Integer getMaximumQueueSize();
+
 	@Value.Check
 	default void check() {
 		if(getDeadlineWeight() < 0 || getDeadlineWeight() > 1) {
@@ -33,6 +38,9 @@ public interface SchedulerAgentArgs extends AgentArgs {
 		}
 		if(getPowerWeight() + getDeadlineWeight() != 1) {
 			throw new InvalidParameterException("Sum of weight values must be equal to 1");
+		}
+		if(getMaximumQueueSize() < 1) {
+			throw new InvalidParameterException("Maximum queue size must be a positive integer");
 		}
 	}
 }

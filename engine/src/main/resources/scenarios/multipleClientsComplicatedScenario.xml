@@ -3,6 +3,7 @@
 		<name>Scheduler</name>
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
+		<maximumQueueSize>10000000</maximumQueueSize>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>

@@ -75,7 +75,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					"com.greencloud.application.agents.scheduler.SchedulerAgent",
 					new Object[] {
 							schedulerAgent.getDeadlineWeight(),
-							schedulerAgent.getPowerWeight()
+							schedulerAgent.getPowerWeight(),
+							schedulerAgent.getMaximumQueueSize()
 					});
 		}
 		return null;

@@ -11,6 +11,21 @@ public class SchedulerConfigurationManagement {
 
 	private double deadlineWeightPriority;
 	private double powerWeightPriority;
+	private int maximumQueueSize;
+
+	/**
+	 * Constructor
+	 *
+	 * @param deadlineWeightPriority initial weight of deadline priority
+	 * @param powerWeightPriority    initial weight of power priority
+	 * @param maximumQueueSize       maximum queue size
+	 */
+	public SchedulerConfigurationManagement(double deadlineWeightPriority, double powerWeightPriority,
+			int maximumQueueSize) {
+		this.deadlineWeightPriority = deadlineWeightPriority;
+		this.powerWeightPriority = powerWeightPriority;
+		this.maximumQueueSize = maximumQueueSize;
+	}
 
 	/**
 	 * Method computes the priority for the given job
@@ -25,12 +40,7 @@ public class SchedulerConfigurationManagement {
 	private double getTimeToDeadline(final ClientJob clientJob) {
 		return Duration.between(clientJob.getEndTime(), clientJob.getDeadline()).toMillis();
 	}
-
-	public void setDeadlineWeightPriority(double deadlineWeightPriority) {
-		this.deadlineWeightPriority = deadlineWeightPriority;
-	}
-
-	public void setPowerWeightPriority(double powerWeightPriority) {
-		this.powerWeightPriority = powerWeightPriority;
+	public int getMaximumQueueSize() {
+		return maximumQueueSize;
 	}
 }
