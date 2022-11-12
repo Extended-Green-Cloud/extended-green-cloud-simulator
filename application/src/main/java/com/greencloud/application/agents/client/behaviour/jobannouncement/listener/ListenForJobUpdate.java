@@ -24,6 +24,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.PROCESSING_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
@@ -130,7 +131,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
 			logger.info(CLIENT_JOB_START_ON_TIME_LOG);
 		} else {
-			logger.info(CLIENT_JOB_START_DELAY_LOG, timeDifference);
+			logger.info(CLIENT_JOB_START_DELAY_LOG, convertToRealTime(timeDifference));
 		}
 	}
 

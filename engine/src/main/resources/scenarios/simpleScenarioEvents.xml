@@ -3,41 +3,14 @@
 		<occurrenceTime>2</occurrenceTime>
 		<name>Client1</name>
 		<jobId>1</jobId>
-		<start>10</start>
-		<end>11</end>
-		<deadline>150</deadline>
-		<power>200</power>
-	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client2</name>
-		<jobId>2</jobId>
 		<start>2</start>
-		<end>5</end>
+		<end>10</end>
 		<deadline>15</deadline>
 		<power>100</power>
 	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client3</name>
-		<jobId>3</jobId>
-		<start>2</start>
-		<end>7</end>
-		<deadline>15</deadline>
-		<power>200</power>
-	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client4</name>
-		<jobId>4</jobId>
-		<start>2</start>
-		<end>5</end>
-		<deadline>15</deadline>
-		<power>300</power>
-	</event>
 	<event type="POWER_SHORTAGE_EVENT">
 		<occurrenceTime>9</occurrenceTime>
-		<agentName>Wind</agentName>
+		<agentName>WindFarm1</agentName>
 		<newMaximumCapacity>10</newMaximumCapacity>
 		<isFinished>false</isFinished>
 	</event>

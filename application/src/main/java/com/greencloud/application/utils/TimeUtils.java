@@ -1,8 +1,6 @@
 package com.greencloud.application.utils;
 
-import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
@@ -97,6 +95,18 @@ public class TimeUtils {
 		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
 		final double realTimeDifference = simulationTimeDifference * realTimeMultiplier;
 		return SYSTEM_START_TIME.plusMillis((long) realTimeDifference);
+	}
+
+	/**
+	 * Method converts the current simulation time into the real time
+	 *
+	 * @param millis time in milliseconds
+	 * @return time in minutes of real time
+	 */
+	public static long convertToRealTime(final long millis) {
+		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
+		final double realTimeDifference = millis * realTimeMultiplier;
+		return (long) realTimeDifference / (MILLISECOND_MULTIPLIER * 60);
 	}
 
 	/**

@@ -5,6 +5,8 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
@@ -24,7 +26,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.HandleSourcePowerShortage;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.InitiatePowerJobTransfer;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageCause;
 import com.greencloud.application.mapper.JobMapper;
@@ -127,7 +128,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 		return myGreenAgent.getPowerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(powerJobToInclude) || !job.equals(powerJobToInclude))
 				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) &&
-						myGreenAgent.getPowerJobs().get(job).equals(JobStatusEnum.IN_PROGRESS))
+						List.of(IN_PROGRESS, ACCEPTED).contains(myGreenAgent.getPowerJobs().get(job)))
 				.toList();
 	}
 

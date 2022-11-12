@@ -13,7 +13,7 @@ import java.time.temporal.ValueRange;
 public class SchedulerAgentConstants {
 
 	public static final int QUEUE_CAPACITY_THRESHOLD = 10000000;
-	public static final int SEND_NEXT_JOB_TIMEOUT = 500;
+	public static final int SEND_NEXT_JOB_TIMEOUT = 200;
 	public static final ValueRange MAX_TRAFFIC_DIFFERENCE = ValueRange.of(-2, 2);
 	public static final Integer JOB_RETRY_MINUTES_ADJUSTMENT = 60;
 }
