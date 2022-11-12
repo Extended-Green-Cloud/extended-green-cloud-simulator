@@ -1,6 +1,6 @@
-package domain;
+package com.database.knowledge.domain.agent;
 
-import domain.agent.monitoring.ProcessedApiRequest;
+import com.database.knowledge.domain.agent.monitoring.ProcessedApiRequest;
 
 public enum DataType {
 
