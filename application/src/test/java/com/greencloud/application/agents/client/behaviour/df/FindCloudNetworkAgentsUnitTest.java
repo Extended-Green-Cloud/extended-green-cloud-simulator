@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.client.behaviour.df;
 
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
+import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -38,13 +39,13 @@ class FindCloudNetworkAgentsUnitTest {
 	}
 
 	@Test
-	void shouldDeleteAgentWhenNoCNAgentsFound() {
+	void shouldDeleteAgentWhenNoSchedulerAgentsFound() {
 		// given
 		testedBehaviour.setAgent(clientAgent);
 
 		// when
 		try (var yellowPagesService = mockStatic(YellowPagesService.class)) {
-			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, CNA_SERVICE_TYPE))
+			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, SCHEDULER_SERVICE_TYPE))
 					.thenReturn(emptyList());
 
 			testedBehaviour.onStart();
@@ -63,7 +64,7 @@ class FindCloudNetworkAgentsUnitTest {
 
 		// when
 		try (var yellowPagesService = mockStatic(YellowPagesService.class)) {
-			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, CNA_SERVICE_TYPE))
+			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, SCHEDULER_SERVICE_TYPE))
 					.thenReturn(List.of(new AID("test", true)));
 
 			testedBehaviour.onStart();

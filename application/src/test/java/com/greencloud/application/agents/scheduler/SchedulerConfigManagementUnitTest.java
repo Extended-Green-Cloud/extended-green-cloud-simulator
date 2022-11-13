@@ -33,7 +33,7 @@ public class SchedulerConfigManagementUnitTest {
 	@Test
 	@DisplayName("Test computation of job priority")
 	void testGetJobPriority() {
-		final double expectedResult = 2160070;
+		final double expectedResult = 5040030;
 		assertThat(schedulerConfigManagement.getJobPriority(mockJob)).isEqualTo(expectedResult);
 	}
 }
