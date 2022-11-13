@@ -46,7 +46,7 @@ class SimpleScenarioTest {
 	private CloudNetworkAgent cloudNetworkAgent;
 
 	@JadeAgent(name = "client", type = "com.greencloud.application.agents.client.ClientAgent", arguments = { "15/08/2022 16:30",
-			"15/08/2022 18:30", "100", "1" })
+			"15/08/2022 18:30", "15/08/2022 19:30", "100", "1" })
 	private ClientAgent clientAgent;
 
 	@BeforeAll
