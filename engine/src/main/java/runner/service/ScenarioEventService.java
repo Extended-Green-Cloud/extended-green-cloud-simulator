@@ -4,7 +4,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -14,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
 import com.greencloud.commons.args.event.EventArgs;
+import com.greencloud.commons.args.event.EventTypeEnum;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
 import com.greencloud.commons.args.event.newclient.PowerShortageEventArgs;
+import com.greencloud.commons.exception.InvalidScenarioEventStructure;
 import com.gui.event.domain.PowerShortageEvent;
 
 import jade.wrapper.AgentController;
@@ -28,8 +32,8 @@ import runner.factory.AgentControllerFactory;
 public class ScenarioEventService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScenarioEventService.class);
-	private final AbstractScenarioService scenarioService;
 	private static final int POWER_SHORTAGE_START_DELAY = 1;
+	private final AbstractScenarioService scenarioService;
 
 	/**
 	 * Default constructor
@@ -48,7 +52,33 @@ public class ScenarioEventService {
 	public void runScenarioEvents(final AgentControllerFactory factory) {
 		final File scenarioEventsFile = scenarioService.readFile(scenarioService.scenarioEventsFileName);
 		final ScenarioEventsArgs scenarioEvents = scenarioService.parseScenarioEvents(scenarioEventsFile);
+		validateScenarioStructure(scenarioEvents);
 		scheduleScenarioEvents(scenarioEvents.getEventArgs(), factory);
+	}
+
+	private void validateScenarioStructure(final ScenarioEventsArgs scenarioEvents) {
+		final List<NewClientEventArgs> newClientEvents = scenarioEvents.getEventArgs().stream()
+				.filter(eventArgs -> eventArgs.getType().equals(
+						EventTypeEnum.NEW_CLIENT_EVENT))
+				.map(NewClientEventArgs.class::cast)
+				.toList();
+		validateClientDuplicates(newClientEvents);
+	}
+
+	private void validateClientDuplicates(final List<NewClientEventArgs> clientEventArgs) {
+		final Set<String> clientNameSet = new HashSet<>();
+		final Set<Integer> jobIdSet = new HashSet<>();
+
+		clientEventArgs.forEach(client -> {
+			if (!clientNameSet.add(client.getName())) {
+				throw new InvalidScenarioEventStructure(
+						String.format("Clients must have unique names. Duplicated client name: %s", client.getName()));
+			}
+			if (!jobIdSet.add(client.getJobId())) {
+				throw new InvalidScenarioEventStructure(
+						String.format("Specified job ids must be unique. Duplicated job id: %d", client.getJobId()));
+			}
+		});
 	}
 
 	private void scheduleScenarioEvents(final List<EventArgs> eventArgs, final AgentControllerFactory factory) {
@@ -70,7 +100,7 @@ public class ScenarioEventService {
 		final NewClientEventArgs newClientEvent = (NewClientEventArgs) event;
 		final ClientAgentArgs clientAgentArgs = ImmutableClientAgentArgs.builder()
 				.name(newClientEvent.getName())
-				.jobId(newClientEvent.getJobId())
+				.jobId(String.valueOf(newClientEvent.getJobId()))
 				.power(String.valueOf(newClientEvent.getPower()))
 				.start(String.valueOf(newClientEvent.getStart()))
 				.end(String.valueOf(newClientEvent.getEnd()))

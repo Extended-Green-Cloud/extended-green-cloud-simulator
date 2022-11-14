@@ -1,11 +1,14 @@
 package com.greencloud.commons.args.event.newclient;
 
+import static com.greencloud.commons.args.event.EventTypeEnum.NEW_CLIENT_EVENT;
+
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.event.EventArgs;
+import com.greencloud.commons.exception.InvalidScenarioEventStructure;
 
 /**
  * Interface containing properties of scenario event that generates new client in Cloud Network
@@ -24,7 +27,7 @@ public interface NewClientEventArgs extends EventArgs {
 	/**
 	 * @return unique job identifier
 	 */
-	String getJobId();
+	Integer getJobId();
 
 	/**
 	 * @return number of hours after which the job execution should start
@@ -40,4 +43,35 @@ public interface NewClientEventArgs extends EventArgs {
 	 * @return power required for the job
 	 */
 	Integer getPower();
+
+	/**
+	 * Method verifies the correctness of new client event structure
+	 */
+	@Override
+	@Value.Check
+	default void check() {
+		EventArgs.super.check();
+
+		if (!getType().equals(NEW_CLIENT_EVENT)) {
+			throw new InvalidScenarioEventStructure("Invalid event type. Acceptable event type is: NEW_CLIENT_EVENT");
+		}
+		if (getJobId() < 1) {
+			throw new InvalidScenarioEventStructure(
+					String.format("Given job id: %d is invalid. The job id must be at least equal to 1", getJobId()));
+		}
+		if (getStart() < 1) {
+			throw new InvalidScenarioEventStructure(
+					String.format("Given start time: %d is invalid. The start time must be at least equal to 1",
+							getStart()));
+		}
+		if (getEnd() <= getStart()) {
+			throw new InvalidScenarioEventStructure(
+					String.format("Given end time: %d is invalid. The end time must be greater than start time (%d)",
+							getEnd(), getStart()));
+		}
+		if (getPower() <= 0) {
+			throw new InvalidScenarioEventStructure(
+					String.format("Given power: %d is invalid. The power must be a positive number", getPower()));
+		}
+	}
 }

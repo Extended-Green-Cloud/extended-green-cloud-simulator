@@ -119,4 +119,12 @@ class GreenPowerManagementUnitTest {
 		greenPowerManagement.setCurrentMaximumCapacity(100);
 		assertThat(greenPowerManagement.getCurrentMaximumCapacity()).isEqualTo(100);
 	}
+
+	@Test
+	@DisplayName("Test get initial maximum capacity")
+	void testGetMaximumCapacity() {
+		assertThat(greenPowerManagement.getInitialMaximumCapacity()).isEqualTo(200);
+		greenPowerManagement.setCurrentMaximumCapacity(100);
+		assertThat(greenPowerManagement.getInitialMaximumCapacity()).isEqualTo(200);
+	}
 }

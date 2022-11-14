@@ -29,9 +29,10 @@ export const cloudNetworkSlice = createSlice({
          state.isServerConnected = false
       },
       resetCloudNetwork(state) {
+         // eslint-disable-next-line @typescript-eslint/no-unused-vars
          const { isServerConnected, ...prevState } = INITIAL_STATE
          Object.assign(state, { ...prevState })
-         if (isServerConnected) {
+         if (state.isServerConnected) {
             resetServerState()
          }
       },

@@ -16,7 +16,7 @@ package com.greencloud.application.agents.greenenergy.domain;
 public class GreenEnergyAgentConstants {
 
 	public static final Long MAX_ERROR_IN_JOB_FINISH = 500L;
-	public static final Long INTERVAL_LENGTH_MS = 500L;
+	public static final Long INTERVAL_LENGTH_MIN = 10L;
 	public static final Long PERIODIC_WEATHER_CHECK_TIMEOUT = 1000L;
 	public static final Long GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT = 100L;
 	public static final Double CUT_ON_WIND_SPEED = 5.0;

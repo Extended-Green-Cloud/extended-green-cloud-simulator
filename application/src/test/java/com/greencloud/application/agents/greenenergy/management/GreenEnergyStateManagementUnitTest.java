@@ -3,6 +3,9 @@ package com.greencloud.application.agents.greenenergy.management;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,7 +46,6 @@ import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.PowerJob;
-import com.greencloud.application.utils.TimeUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -85,7 +87,8 @@ class GreenEnergyStateManagementUnitTest {
 
 	@BeforeAll
 	static void setUpAll() {
-		TimeUtils.useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
+		useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
+		setSystemStartTimeMock(Instant.parse("2022-01-01T05:00:00.000Z"));
 	}
 
 	@BeforeEach
@@ -206,8 +209,9 @@ class GreenEnergyStateManagementUnitTest {
 				.build();
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
 
-		assertThat(result).hasSize(10).contains(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.contains(Instant.parse("2022-01-01T12:00:00.000Z"));
+		assertThat(result).hasSize(10)
+				.contains(convertToRealTime(Instant.parse("2022-01-01T13:00:00.000Z")))
+				.contains(convertToRealTime(Instant.parse("2022-01-01T12:00:00.000Z")));
 	}
 
 	@Test
@@ -222,9 +226,10 @@ class GreenEnergyStateManagementUnitTest {
 		mockGreenEnergyAgent.getPowerJobs().put(jobProcessing, JobStatusEnum.PROCESSING);
 		final List<Instant> result = mockGreenEnergyAgent.manage().getJobsTimetable(mockCandidatePowerJob);
 
-		assertThat(result).hasSize(10).contains(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.contains(Instant.parse("2022-01-01T12:00:00.000Z"))
-				.doesNotContain(Instant.parse("2022-01-01T13:30:00.000Z"));
+		assertThat(result).hasSize(10)
+				.contains(convertToRealTime(Instant.parse("2022-01-01T13:00:00.000Z")))
+				.contains(convertToRealTime(Instant.parse("2022-01-01T12:00:00.000Z")))
+				.doesNotContain(convertToRealTime(Instant.parse("2022-01-01T13:30:00.000Z")));
 	}
 
 	@Test
