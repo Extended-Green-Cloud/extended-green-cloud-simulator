@@ -1,5 +1,6 @@
 package com.greencloud.application.agentFactory;
 
+import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
@@ -12,7 +13,7 @@ public interface AgentFactory {
      * @param price - optional argument specifying server's price
      * @return newly created server agent args
      */
-    ServerAgentArgs createServerAgent(String ownerCNA, String maximumCapacity, String price);
+    ServerAgentArgs createServerAgent(String ownerCNA, Integer maximumCapacity, Integer price);
 
     /**
      * Method creates new green energy agent args that can be used to initialize new agent
@@ -27,11 +28,11 @@ public interface AgentFactory {
      */
     GreenEnergyAgentArgs createGreenEnergyAgent(String monitoringAgentName,
                                                 String ownerServerName,
-                                                String latitude,
-                                                String longitude,
-                                                String maximumCapacity,
-                                                String pricePerPowerUnit,
-                                                String energyType);
+                                                Integer latitude,
+                                                Integer longitude,
+                                                Integer maximumCapacity,
+                                                Integer pricePerPowerUnit,
+                                                GreenEnergySourceTypeEnum energyType);
 
     /**
      * Method creates new monitoring agent args that can be used to initialize new agent
