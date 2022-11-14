@@ -32,7 +32,6 @@ import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;

@@ -17,7 +17,7 @@ public final class DdlCommands {
 			data JSON NOT NULL)
 			""";
 	static final String CREATE_HYPERTABLE = "SELECT create_hypertable('monitoring_data', 'time')";
-	static final String SET_HYPERTABLE_CHUNK_TO_15_SEC = "SELECT set_chunk_time_interval('monitoring_data', 15000000)";
+	static final String SET_HYPERTABLE_CHUNK_TO_5_SEC = "SELECT set_chunk_time_interval('monitoring_data', 5000000)";
 
 	/**
 	 * Adaptation goals table

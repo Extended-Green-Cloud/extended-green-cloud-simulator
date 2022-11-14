@@ -3,7 +3,7 @@ package com.database.knowledge.timescale;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
-import static com.database.knowledge.timescale.DmlQueries.GET_LAST_5_SEC_DATA;
+import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
@@ -90,7 +90,7 @@ public class JdbcStatementsExecutor {
 	}
 
 	List<AgentData> executeReadMonitoringDataStatement() throws SQLException, JsonProcessingException {
-		try (var statement = sqlConnection.prepareStatement(GET_LAST_5_SEC_DATA)) {
+		try (var statement = sqlConnection.prepareStatement(GET_LAST_1_SEC_DATA)) {
 			try (var resultSet = statement.executeQuery()) {
 				var result = new ArrayList<AgentData>();
 				while (resultSet.next()) {

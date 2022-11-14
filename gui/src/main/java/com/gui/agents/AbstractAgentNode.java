@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.event.domain.AbstractEvent;
 import com.gui.websocket.GuiWebSocketClient;
 
@@ -14,6 +15,7 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 
 	protected String agentName;
 	protected GuiWebSocketClient webSocketClient;
+	protected TimescaleDatabase databaseClient;
 	protected Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 
 	/**
@@ -47,5 +49,13 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 
 	public void addEvent(AbstractEvent event) {
 		eventsQueue.add(event);
+	}
+
+	public void setDatabaseClient(TimescaleDatabase databaseClient) {
+		this.databaseClient = databaseClient;
+	}
+
+	public TimescaleDatabase getDatabaseClient() {
+		return databaseClient;
 	}
 }

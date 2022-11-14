@@ -10,8 +10,8 @@ public final class DmlQueries {
 	 */
 	static final String INSERT_MONITORING_DATA =
 			"INSERT INTO monitoring_data (time, aid, data_type, data) VALUES (now(), ?, ?, ?)";
-	static final String GET_LAST_5_SEC_DATA =
-			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '5s'";
+	static final String GET_LAST_1_SEC_DATA =
+			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
 
 	/**
 	 * Adaptation goals table query

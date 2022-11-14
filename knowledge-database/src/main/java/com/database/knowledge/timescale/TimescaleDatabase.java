@@ -9,7 +9,7 @@ import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIO
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
 import static com.database.knowledge.timescale.DdlCommands.INSERT_ADAPTATION_GOALS;
-import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_15_SEC;
+import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_5_SEC;
 import static java.lang.String.format;
 
 import java.io.Closeable;
@@ -38,14 +38,18 @@ public class TimescaleDatabase implements Closeable {
 	private static final String DATABASE_NAME = "postgres";
 	private static final String USER = "postgres";
 	private static final String PASSWORD = "password";
-	private static final String DATABASE_HOST_NAME = "127.0.0.1";
+	private static final String LOCAL_DATABASE_HOST_NAME = "127.0.0.1";
 
 	private final Connection sqlConnection;
 	private final JdbcStatementsExecutor statementsExecutor;
 
 	public TimescaleDatabase() {
+		this(LOCAL_DATABASE_HOST_NAME);
+	}
+
+	public TimescaleDatabase(String hostName) {
 		try {
-			sqlConnection = connect();
+			sqlConnection = connect(hostName);
 		} catch (SQLException exception) {
 			throw new ConnectDatabaseException(exception);
 		}
@@ -175,8 +179,8 @@ public class TimescaleDatabase implements Closeable {
 		}
 	}
 
-	private Connection connect() throws SQLException {
-		String url = format("jdbc:postgresql://%s:5432/%s?user=%s&password=%s", DATABASE_HOST_NAME, DATABASE_NAME, USER,
+	private Connection connect(String hostName) throws SQLException {
+		String url = format("jdbc:postgresql://%s:5432/%s?user=%s&password=%s", hostName, DATABASE_NAME, USER,
 				PASSWORD);
 		var properties = new Properties();
 		properties.setProperty("rewriteBatchedInserts", "true");
@@ -200,7 +204,7 @@ public class TimescaleDatabase implements Closeable {
 
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
-			statement.execute(SET_HYPERTABLE_CHUNK_TO_15_SEC);
+			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
 			for (var action : getAdaptationActions()) {
 				statementsExecutor.executeWriteStatement(action);

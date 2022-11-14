@@ -20,7 +20,6 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.AGREE;
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.util.Objects;
@@ -38,7 +37,6 @@ import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.lang.acl.ACLMessage;

@@ -15,5 +15,6 @@ public class ScenarioConstants {
 	public static final boolean MULTI_CONTAINER = false;
 	public static final boolean MAIN_HOST = true;
 	public static final String HOST_NAME = "127.0.0.1";
+	public static final String DATABASE_HOST_NAME = "127.0.0.1";
 	public static final int HOST_ID = 0;
 }

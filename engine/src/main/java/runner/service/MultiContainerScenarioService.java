@@ -115,19 +115,15 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 			List<MonitoringAgentArgs> monitorsArgs) {
 		var factory = new AgentControllerFactoryImpl(mainContainer);
 		var servers = serversArgs.stream()
-				.filter(server -> server.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
-				.toList();
+				.filter(server -> server.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()));
 		var sources = sourcesArgs.stream()
-				.filter(source -> servers.stream().anyMatch(server -> server.getName().equals(source.getOwnerSever())))
-				.toList();
+				.filter(source -> servers.anyMatch(server -> server.getName().equals(source.getOwnerSever())));
 		var monitors = monitorsArgs.stream()
-				.filter(monitor -> sources.stream()
-						.anyMatch(source -> source.getMonitoringAgent().equals(monitor.getName())))
-				.toList();
+				.filter(monitor -> sources.anyMatch(source -> source.getMonitoringAgent().equals(monitor.getName())));
 		var controllers = new ArrayList<AgentController>();
-		controllers.addAll(monitors.stream().map(m -> runAgentController(m, scenario, factory)).toList());
-		controllers.addAll(sources.stream().map(s -> runAgentController(s, scenario, factory)).toList());
-		controllers.addAll(servers.stream().map(s -> runAgentController(s, scenario, factory)).toList());
+		controllers.addAll(monitors.map(m -> runAgentController(m, scenario, factory)).toList());
+		controllers.addAll(sources.map(s -> runAgentController(s, scenario, factory)).toList());
+		controllers.addAll(servers.map(s -> runAgentController(s, scenario, factory)).toList());
 		controllers.add(runAgentController(cloudNetworkArgs, scenario, factory));
 		return controllers;
 	}

@@ -4,7 +4,14 @@ import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static runner.service.domain.ScenarioConstants.*;
+import static runner.service.domain.ScenarioConstants.DATABASE_HOST_NAME;
+import static runner.service.domain.ScenarioConstants.DEADLINE_MAX;
+import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
+import static runner.service.domain.ScenarioConstants.MAX_JOB_POWER;
+import static runner.service.domain.ScenarioConstants.MIN_JOB_POWER;
+import static runner.service.domain.ScenarioConstants.RESOURCE_SCENARIO_PATH;
+import static runner.service.domain.ScenarioConstants.START_TIME_MAX;
+import static runner.service.domain.ScenarioConstants.START_TIME_MIN;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +29,7 @@ import java.util.stream.LongStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.database.knowledge.timescale.TimescaleDatabase;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
@@ -64,6 +72,7 @@ public abstract class AbstractScenarioService {
 	protected final String scenarioEventsFileName;
 	protected final Runtime jadeRuntime;
 	protected final ContainerController mainContainer;
+	protected final TimescaleDatabase timescaleDatabase;
 
 	/**
 	 * Constructor called by {@link MultiContainerScenarioService} and {@link SingleContainerScenarioService}
@@ -79,7 +88,9 @@ public abstract class AbstractScenarioService {
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
+		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
 
+		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
 		mainContainer = runMainController();
 		runJadeGui();
@@ -99,7 +110,9 @@ public abstract class AbstractScenarioService {
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
+		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
 
+		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
 		mainContainer = runAgentsContainer(hostId.toString(), mainHostIp);
 	}
@@ -137,6 +150,7 @@ public abstract class AbstractScenarioService {
 		try {
 			agentController = factory.createAgentController(args);
 			var agentNode = factory.createAgentNode(args, scenario);
+			agentNode.setDatabaseClient(timescaleDatabase);
 			guiController.addAgentNodeToGraph(agentNode);
 			agentController.putO2AObject(guiController, AgentController.ASYNC);
 			agentController.putO2AObject(agentNode, AgentController.ASYNC);
@@ -180,6 +194,7 @@ public abstract class AbstractScenarioService {
 			controller.activate();
 			TimeUnit.MILLISECONDS.sleep(pause);
 		} catch (StaleProxyException | InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new JadeControllerException("Failed to run agent controller", e);
 		}
 	}
@@ -212,6 +227,7 @@ public abstract class AbstractScenarioService {
 		try {
 			return executorService.submit(() -> jadeRuntime.createAgentContainer(profile)).get();
 		} catch (InterruptedException | ExecutionException e) {
+			Thread.currentThread().interrupt();
 			if (containerName.equals(CLIENTS_CONTAINER_ID.toString())) {
 				throw new JadeContainerException("Failed to create Agent Clients container", e);
 			}
