@@ -26,9 +26,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ImmutableClientJob;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)

@@ -24,9 +24,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.controller.GuiController;
 
 

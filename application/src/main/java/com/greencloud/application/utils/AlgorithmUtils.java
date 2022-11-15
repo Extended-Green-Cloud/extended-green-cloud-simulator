@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.utils.domain.JobWithTime;
 import com.greencloud.application.utils.domain.SubJobList;
 

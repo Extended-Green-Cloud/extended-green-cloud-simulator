@@ -19,8 +19,8 @@ import com.greencloud.application.agents.server.behaviour.powershortage.handler.
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInGreenSources;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.mapper.JsonMapper;

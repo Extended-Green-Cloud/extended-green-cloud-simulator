@@ -9,8 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ImmutableClientJob;
 
 public class SchedulerConfigManagementUnitTest {
 

@@ -17,5 +17,6 @@ public class JobAnnouncementListenerLog {
 	public static final String CLIENT_JOB_START_DELAY_LOG = "The execution of my job started {} min after the preferred start time";
 	public static final String CLIENT_JOB_FINISH_ON_TIME_LOG = "The execution of my job finished on time! :)";
 	public static final String CLIENT_JOB_FINISH_DELAY_LOG = "The execution of my job finished with a delay equal to {}! :(";
+	public static final String CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG = "The execution of my job finished (with delay {} min) before deadline";
 	public static final String CLIENT_JOB_FAILED_LOG = "The execution of my job has failed :(";
 }

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;

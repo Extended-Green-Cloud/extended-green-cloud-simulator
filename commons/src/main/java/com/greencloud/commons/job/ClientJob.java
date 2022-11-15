@@ -1,4 +1,4 @@
-package com.greencloud.application.domain.job;
+package com.greencloud.commons.job;
 
 import org.immutables.value.Value.Immutable;
 

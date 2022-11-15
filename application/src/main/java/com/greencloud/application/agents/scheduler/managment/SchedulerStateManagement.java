@@ -15,7 +15,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 /**
  * Set of utilities used to manage the state of scheduler agent
@@ -61,8 +61,7 @@ public class SchedulerStateManagement {
 		final ClientJob adjustedJob = mapToJobWithNewTime(job,
 				postponeTime(job.getStartTime(), JOB_RETRY_MINUTES_ADJUSTMENT),
 				postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT));
-		schedulerAgent.getClientJobs().remove(job);
-		schedulerAgent.getClientJobs().put(adjustedJob, CREATED);
+		swapJobInstances(adjustedJob, job);
 
 		if (!schedulerAgent.getJobsToBeExecuted().offer(adjustedJob)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -70,6 +69,12 @@ public class SchedulerStateManagement {
 		}
 		return true;
 	}
+
+	public void swapJobInstances(final ClientJob newInstance, final ClientJob prevInstance) {
+		schedulerAgent.getClientJobs().remove(prevInstance);
+		schedulerAgent.getClientJobs().put(newInstance, CREATED);
+	}
+
 
 	private boolean isJobAfterDeadline(final ClientJob job) {
 		final Instant endAfterPostpone = postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT);

@@ -33,7 +33,7 @@ import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.list
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.Agent;

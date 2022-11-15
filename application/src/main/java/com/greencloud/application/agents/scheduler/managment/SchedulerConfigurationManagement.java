@@ -2,7 +2,7 @@ package com.greencloud.application.agents.scheduler.managment;
 
 import java.time.Duration;
 
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 /**
  * Set of utilities used to manage the configuration of scheduler agent
