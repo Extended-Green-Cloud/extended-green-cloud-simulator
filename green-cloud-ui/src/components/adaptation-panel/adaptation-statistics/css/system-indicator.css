@@ -1,0 +1,9 @@
+.system-indicator:hover {
+    background-color: var(--gray-8);
+}
+
+.system-indicator {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 7px;
+}

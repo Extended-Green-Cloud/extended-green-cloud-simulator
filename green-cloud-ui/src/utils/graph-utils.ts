@@ -13,7 +13,7 @@ import {
 import {
    EDGE_UNIDIRECTED_ACTIVE,
    EDGE_UNIDIRECTED_INACTIVE,
-} from 'components/graph/graph-config'
+} from 'components/graph-panel/graph/graph-config'
 import Cytoscape from 'cytoscape'
 
 let core: Cytoscape.Core

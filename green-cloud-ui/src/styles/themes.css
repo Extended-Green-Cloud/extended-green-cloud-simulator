@@ -7,22 +7,21 @@
   --black-transparent: #000000c5;
 
   --green-1: #4ba146;
-  --green-2: #179d10;
-  --green-3: #66ca60;
-  --green-4: #76cd5c;
-  --green-5: #70bd6a;
-  --green-6: #7fc77a;
-  --green-7: #2b7427;
-  --green-8: #358031;
-  --green-9: #266e22;
+  --green-2: #76cd5c;
+  --green-3: #70bd6a;
+  --green-4: #7fc77a;
+  --green-5: #266e22;
+  --green-6: #55b14e;
 
   --gray-1: #878787;
   --gray-2: #5e5e5e;
-  --gray-3: #262626;
+  --gray-3: #3e3e3e;
   --gray-4: #eaeaea;
   --gray-5: #e3e2e2;
   --gray-6: #5e5b5b;
   --gray-7: #f1f1f1;
+  --gray-8: #cfcfcf;
+  --gray-9: #fdfcfc;
 
   --red-1: #cc2020;
   --red-2: #dd3030;
@@ -43,7 +42,8 @@
   --font-size-5: 0.9rem;
   --font-size-6: 0.7rem;
   --font-size-7: 0.65rem;
-  --font-size-8: 1.2rem;
+  --font-size-8: 1.1rem;
+  --font-size-9: 1.05rem;
 
   /* SHADOWS */
 
@@ -58,11 +58,12 @@
   --border-client-list: 1px solid var(--gray-5);
   --border-event: 4px solid var(--gray-1);
   --border-detail: 6px solid var(--gray-2);
-  --border-subtitle: 1px solid var(--gray-2);
-  --border-graph: 1px solid var(--green-2);
+  --border-left-green: 10px solid var(--green-1);
+  --border-gray: 1px solid var(--gray-2);
+  --border-gray-bold: 10px solid var(--gray-2);
   --border-card: 4px solid var(--green-1);
   --border-banner-button: 10px solid var(--green-1) !important;
-  --border-menu: 1.5px solid var(--gray-1);
+  --border-modal: 1.5px solid var(--gray-1);
 }
 
 #root {
@@ -79,6 +80,22 @@ body {
   font-family: 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.common-button {
+  background: none;
+  display: inline-block;
+	color: inherit;
+	border: none;
+	font: inherit;
+	cursor: pointer;
+	outline: none;
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.common-button:focus { 
+  outline: none; 
 }
 
 ::-webkit-scrollbar {

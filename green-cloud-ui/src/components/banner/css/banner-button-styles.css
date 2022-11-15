@@ -1,21 +1,14 @@
 .menu-button {
-    background: none;
-	color: inherit;
-	border: none;
 	padding: 5px;
     padding-bottom: 2px !important;
-	font: inherit;
-	cursor: pointer;
-	outline: inherit;
-    margin-right: 10px;
-    margin-top: 5px;
-    border-radius: 7px;
+    margin-right: 15px;
+    margin-top: 10px;
 }
 
 .menu-button:hover {
-    background-color: var(--green-5);
+    background-color: var(--green-3);
 }
 
 .menu-button:active {
-    background-color: var(--green-6);
+    background-color: var(--green-4);
 }
