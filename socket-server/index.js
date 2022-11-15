@@ -12,9 +12,9 @@ const { handlePowerShortage } = require("./utils/event-utils");
 
 let STATE = {
   network: {
+    scheduler: null,
     finishedJobsNo: 0,
     failedJobsNo: 0,
-    totalPrice: 0,
     currPlannedJobsNo: 0,
     currActiveJobsNo: 0,
     currClientsNo: 0
@@ -61,9 +61,9 @@ app.get(ROUTE_TYPES.FRONT, (req, res) => {
 app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
   STATE = {
     network: {
+      scheduler: null,
       finishedJobsNo: 0,
       failedJobsNo: 0,
-      totalPrice: 0,
       currPlannedJobsNo: 0,
       currActiveJobsNo: 0,
       currClientsNo: 0
