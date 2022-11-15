@@ -27,12 +27,11 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;

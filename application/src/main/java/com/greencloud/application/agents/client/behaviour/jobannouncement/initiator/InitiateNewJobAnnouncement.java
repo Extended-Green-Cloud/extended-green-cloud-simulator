@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.core.Agent;

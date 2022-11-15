@@ -1,9 +1,6 @@
 package com.greencloud.application.agents.scheduler;
 
-import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.QUEUE_CAPACITY_THRESHOLD;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -12,7 +9,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;

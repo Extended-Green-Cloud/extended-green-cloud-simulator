@@ -2,7 +2,7 @@ package com.greencloud.application.utils.domain;
 
 import java.time.Instant;
 
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 
 /**
  * Class which maps the job and its time instance and is used in the power calculation algorithm

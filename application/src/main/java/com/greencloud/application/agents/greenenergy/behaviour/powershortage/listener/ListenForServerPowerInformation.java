@@ -20,7 +20,6 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.AGREE;
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.util.Objects;
@@ -34,11 +33,10 @@ import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.list
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.lang.acl.ACLMessage;

@@ -12,7 +12,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableGreenSourceForecastData;
 import com.greencloud.application.domain.ImmutableGreenSourceWeatherData;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.domain.factory.PowerCheckMessageFactory;
 
 import jade.core.behaviours.OneShotBehaviour;

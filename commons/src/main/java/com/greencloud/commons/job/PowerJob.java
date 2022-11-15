@@ -1,6 +1,4 @@
-package com.greencloud.application.domain.job;
-
-import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+package com.greencloud.commons.job;
 
 import java.time.Instant;
 
@@ -43,6 +41,6 @@ public interface PowerJob {
 	int getPower();
 
 	default boolean isExecutedAtTime(Instant timestamp) {
-		return isWithinTimeStamp(getStartTime(), getEndTime(), timestamp);
+		return !timestamp.isBefore(getStartTime()) && timestamp.isBefore(getEndTime());
 	}
 }

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.AID;

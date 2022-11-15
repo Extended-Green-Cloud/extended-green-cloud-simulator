@@ -22,7 +22,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.InitiatePowerSupplyOffer;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.application.messages.domain.factory.OfferMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;

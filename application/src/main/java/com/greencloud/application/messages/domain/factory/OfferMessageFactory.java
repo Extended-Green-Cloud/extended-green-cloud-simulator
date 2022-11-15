@@ -11,7 +11,7 @@ import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
 import com.greencloud.application.domain.ImmutableServerData;
 import com.greencloud.application.domain.ServerData;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutablePricedJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.mapper.JsonMapper;

@@ -15,7 +15,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 /**
  * Set of utilities used to manage the state of scheduler agent

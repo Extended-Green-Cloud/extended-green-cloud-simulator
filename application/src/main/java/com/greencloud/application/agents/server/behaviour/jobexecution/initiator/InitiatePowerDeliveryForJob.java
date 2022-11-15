@@ -17,8 +17,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.application.messages.domain.factory.OfferMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;

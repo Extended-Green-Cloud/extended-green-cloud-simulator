@@ -19,7 +19,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;

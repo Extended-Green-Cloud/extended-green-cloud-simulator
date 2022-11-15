@@ -34,9 +34,9 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferConfirmation;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 

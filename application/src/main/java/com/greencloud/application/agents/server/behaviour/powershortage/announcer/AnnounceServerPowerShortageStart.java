@@ -21,7 +21,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleServerPowerShortage;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 
