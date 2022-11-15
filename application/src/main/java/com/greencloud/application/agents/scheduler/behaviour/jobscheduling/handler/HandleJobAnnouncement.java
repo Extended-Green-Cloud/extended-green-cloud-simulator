@@ -20,6 +20,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
 import com.greencloud.commons.job.ClientJob;
+import com.gui.agents.SchedulerAgentNode;
 
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -60,6 +61,7 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 
 				myScheduler.getClientJobs().replace(jobToExecute, CREATED, PROCESSING);
 				myScheduler.send(clientMessage);
+				myScheduler.manage().updateJobQueue();
 				myScheduler.addBehaviour(new InitiateCNALookup(myScheduler, cfp, jobToExecute));
 			}
 		}
