@@ -16,6 +16,6 @@ public class SchedulerAgentConstants {
 	public static final int SEND_NEXT_JOB_TIMEOUT = 100;
 	public static final ValueRange MAX_TRAFFIC_DIFFERENCE = ValueRange.of(-2, 2);
 	public static final Integer JOB_RETRY_MINUTES_ADJUSTMENT = 60;
-	public static final int JOB_PROCESSING_TIME_ADJUSTMENT = 300;
+	public static final int JOB_PROCESSING_TIME_ADJUSTMENT = 200;
 	public static final int JOB_PROCESSING_DEADLINE_ADJUSTMENT = 200;
 }

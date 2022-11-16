@@ -31,9 +31,9 @@ public class ReceiveGUIController extends CyclicBehaviour {
 	 * @param agent             agent executing the behaviour
 	 * @param initialBehaviours initial behaviour for given agent
 	 */
-	public ReceiveGUIController(final Agent agent, final List<Behaviour> initialBehaviours) {
+	public ReceiveGUIController(final AbstractAgent agent, final List<Behaviour> initialBehaviours) {
 		super(agent);
-		this.abstractAgent = (AbstractAgent) agent;
+		this.abstractAgent = agent;
 		this.initialBehaviours = initialBehaviours;
 		this.objectCounter = 0;
 	}
@@ -54,6 +54,7 @@ public class ReceiveGUIController extends CyclicBehaviour {
 				logger.info("[{}] Agent connected with the controller", myAgent.getName());
 				ParallelBehaviour behaviour = new ParallelBehaviour();
 				initialBehaviours.forEach(behaviour::addSubBehaviour);
+				behaviour.addSubBehaviour(new ReportHealthCheck(abstractAgent));
 				abstractAgent.addBehaviour(behaviour);
 			}
 			objectCounter++;
