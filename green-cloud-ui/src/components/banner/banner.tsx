@@ -27,7 +27,7 @@ const TopBanner = () => {
             </div>
             <div>
                <button
-                  className="menu-button"
+                  className="menu-button common-button"
                   onClick={() => setIsMenuOpen(true)}
                >
                   <img

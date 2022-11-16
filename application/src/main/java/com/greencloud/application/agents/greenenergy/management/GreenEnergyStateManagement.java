@@ -41,7 +41,7 @@ import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handl
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.gui.agents.GreenEnergyAgentNode;
 

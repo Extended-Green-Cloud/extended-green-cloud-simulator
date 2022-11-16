@@ -4,14 +4,16 @@ import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 
 import java.time.Instant;
 
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
+
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.ImmutablePowerJob;
+
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.PowerJob;
 import com.greencloud.application.domain.powershortage.ImmutablePowerShortageJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ImmutableClientJob;
+import com.greencloud.commons.job.ImmutablePowerJob;
+import com.greencloud.commons.job.PowerJob;
 
 /**
  * Class provides set of methods mapping job classes

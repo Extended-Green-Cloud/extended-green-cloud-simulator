@@ -21,10 +21,6 @@ const handleUpdateCurrentActiveJobs = (state, msg) => {
     state.network.currActiveJobsNo += msg.data
 }
 
-const handleUpdateTotalPrice = (state, msg) => {
-    state.network.totalPrice = msg.data
-}
-
 const handleSetMaximumCapacity = (state, msg) => {
     const agent = getAgentByName(state.agents.agents, msg.agentName)
     const { maximumCapacity, powerInUse } = msg.data
@@ -115,11 +111,20 @@ const handleSetClientJobStatus = (state, msg) => {
     }
 }
 
+const handleUpdateJobQueue = (state, msg) => {
+    const scheduler = state.network.scheduler
+    scheduler.scheduledJobs = msg.data.map(job => job.jobId)
+}
+
 const handleRegisterAgent = (state, msg) => {
     const agentType = msg.agentType
     const registerData = msg.data
 
-    if (!getAgentByName(state.agents.agents, registerData.name)) {
+    if(agentType === AGENT_TYPES.SCHEDULER) {
+        const newAgent = registerAgent(registerData, agentType)
+        state.network.scheduler = newAgent
+    }
+    else if (!getAgentByName(state.agents.agents, registerData.name)) {
         const newAgent = registerAgent(registerData, agentType)
 
         if (newAgent) {
@@ -141,7 +146,7 @@ module.exports = {
         UPDATE_CURRENT_CLIENTS: handleUpdateCurrentClients,
         UPDATE_CURRENT_PLANNED_JOBS: handleUpdateCurrentPlannedJobs,
         UPDATE_CURRENT_ACTIVE_JOBS: handleUpdateCurrentActiveJobs,
-        UPDATE_TOTAL_PRICE: handleUpdateTotalPrice,
+        UPDATE_JOB_QUEUE: handleUpdateJobQueue,
         SET_MAXIMUM_CAPACITY: handleSetMaximumCapacity,
         SET_TRAFFIC: handleSetTraffic,
         SET_IS_ACTIVE: handleSetActive,

@@ -3,7 +3,7 @@ package com.greencloud.application.messages.domain.factory;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;

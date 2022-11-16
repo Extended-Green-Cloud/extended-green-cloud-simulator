@@ -4,6 +4,7 @@ import { cloudNetworkSlice } from './cloud-network'
 import rootSagas from './sagas'
 import { crashMiddleware, loggingMiddleware } from '@middleware'
 import { agentSlice } from './agent'
+import { managingSystemSlice } from './managing-system'
 
 const sagaMiddleware = createSagaMiddleware()
 
@@ -14,6 +15,7 @@ export const store = configureStore({
    reducer: {
       cloudNetwork: cloudNetworkSlice.reducer,
       agents: agentSlice.reducer,
+      managingSystem: managingSystemSlice.reducer,
    },
    middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware({ thunk: false }).concat([

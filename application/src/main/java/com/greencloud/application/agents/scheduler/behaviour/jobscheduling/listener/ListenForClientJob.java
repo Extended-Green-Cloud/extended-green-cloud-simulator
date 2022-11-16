@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
-import com.greencloud.application.domain.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
+import com.gui.agents.SchedulerAgentNode;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -66,6 +67,7 @@ public class ListenForClientJob extends CyclicBehaviour {
 		mySchedulerAgent.getClientJobs().put(job, CREATED);
 		if (mySchedulerAgent.getJobsToBeExecuted().offer(job)) {
 			logger.info(JOB_ENQUEUED_SUCCESSFULLY_LOG, job.getJobId());
+			mySchedulerAgent.manage().updateJobQueue();
 			mySchedulerAgent.send(prepareJobStatusMessageForClient(client, SCHEDULED_JOB_ID));
 		} else {
 			logger.info(QUEUE_THRESHOLD_EXCEEDED_LOG);

@@ -11,7 +11,7 @@ import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTyp
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.application.domain.job.PowerJob;
+import com.greencloud.commons.job.PowerJob;
 import com.greencloud.commons.location.Location;
 
 import jade.core.AID;

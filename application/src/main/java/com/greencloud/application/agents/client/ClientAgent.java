@@ -17,11 +17,10 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.client.behaviour.df.FindSchedulerAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
-import com.greencloud.application.domain.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.exception.IncorrectTaskDateException;
 import com.greencloud.application.utils.TimeUtils;
-
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ImmutableClientJob;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.SequentialBehaviour;

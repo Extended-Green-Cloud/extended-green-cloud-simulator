@@ -63,6 +63,22 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
+	public void updateFailedJobsCountByValue(int value) {
+		webSocketClient.send(ImmutableUpdateSingleValueMessage.builder()
+				.data(value)
+				.type("INCREMENT_FAILED_JOBS")
+				.build());
+	}
+
+	@Override
+	public void updateFinishedJobsCountByValue(int value) {
+		webSocketClient.send(ImmutableUpdateSingleValueMessage.builder()
+				.data(value)
+				.type("INCREMENT_FINISHED_JOBS")
+				.build());
+	}
+
+	@Override
 	public void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName) {
 		webSocketListener.triggerPowerShortage(powerShortageEvent, agentName);
 	}

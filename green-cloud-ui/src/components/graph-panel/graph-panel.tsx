@@ -1,6 +1,6 @@
 import React from 'react'
-import Card from 'components/card/card'
-import DisplayGraph from 'components/graph/graph'
+import Card from 'components/common/card/card'
+import DisplayGraph from 'components/graph-panel/graph/graph'
 import { styles } from './graph-panel-styles'
 
 const header = 'Cloud network structure'
