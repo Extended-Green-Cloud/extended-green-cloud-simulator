@@ -8,16 +8,23 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SPLIT_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
+import com.greencloud.application.domain.job.SplitJob;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.agents.SchedulerAgentNode;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -30,7 +37,7 @@ public class ListenForClientJob extends CyclicBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListenForClientJob.class);
 
-	private SchedulerAgent mySchedulerAgent;
+	private SchedulerAgent myScheduler;
 
 	/**
 	 * Method casts the abstract agent to the agent of type SchedulerAgent
@@ -38,7 +45,7 @@ public class ListenForClientJob extends CyclicBehaviour {
 	@Override
 	public void onStart() {
 		super.onStart();
-		mySchedulerAgent = (SchedulerAgent) myAgent;
+		myScheduler = (SchedulerAgent) myAgent;
 	}
 
 	/**
@@ -60,17 +67,49 @@ public class ListenForClientJob extends CyclicBehaviour {
 	}
 
 	private void addJobToPriorityQueue(final ClientJob job, final String client) {
-		if (mySchedulerAgent.getClientJobs().containsKey(job)) {
-			logger.info(JOB_ALREADY_EXISTING_LOG, job.getJobId(), mySchedulerAgent.getClientJobs().get(job));
+		if (myScheduler.getClientJobs().containsKey(job)) {
+			logger.info(JOB_ALREADY_EXISTING_LOG, job.getJobId(), myScheduler.getClientJobs().get(job));
 			return;
 		}
-		mySchedulerAgent.getClientJobs().put(job, CREATED);
-		if (mySchedulerAgent.getJobsToBeExecuted().offer(job)) {
+
+		if (job.getPower() >= myScheduler.config().getJobSplitThreshold()) {
+			splitJobAndPutToQueue(job, client);
+		} else {
+			putJobToQueue(job, client);
+		}
+	}
+
+	private void splitJobAndPutToQueue(ClientJob job, String client) {
+		var jobParts = splitJob(job);
+		var messageContent = new SplitJob(jobParts);
+		myScheduler.send(prepareJobStatusMessageForClient(client, messageContent, SPLIT_JOB_ID));
+		jobParts.forEach(jobPart -> {
+			myScheduler.getJobParts().put(job.getJobId(), jobPart);
+			putJobToQueue(jobPart, client);
+		});
+	}
+
+	private void putJobToQueue(ClientJob job, String client) {
+		myScheduler.getClientJobs().put(job, CREATED);
+		if (myScheduler.getJobsToBeExecuted().offer(job)) {
 			logger.info(JOB_ENQUEUED_SUCCESSFULLY_LOG, job.getJobId());
-			mySchedulerAgent.manage().updateJobQueue();
-			mySchedulerAgent.send(prepareJobStatusMessageForClient(client, SCHEDULED_JOB_ID));
+			myScheduler.manage().updateJobQueue();
+			myScheduler.send(prepareJobStatusMessageForClient(client, job.getJobId(), SCHEDULED_JOB_ID));
 		} else {
 			logger.info(QUEUE_THRESHOLD_EXCEEDED_LOG);
 		}
+	}
+
+	private List<ClientJob> splitJob(ClientJob clientJob) {
+		return IntStream.range(0, myScheduler.config().getSplittingFactor())
+				.mapToObj(i -> createJobPart(clientJob, i + 1)).collect(toList());
+	}
+
+	private ClientJob createJobPart(ClientJob clientJob, int partNumber) {
+		return ImmutableClientJob.builder()
+				.from(clientJob)
+				.jobId(format("%s#part%d", clientJob.getJobId(), partNumber))
+				.power(clientJob.getPower() / myScheduler.config().getSplittingFactor())
+				.build();
 	}
 }

@@ -6,11 +6,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 
@@ -27,6 +29,8 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected SchedulerConfigurationManagement configManagement;
 	protected SchedulerStateManagement stateManagement;
 
+	protected Multimap<String, ClientJob> jobParts;
+
 	/**
 	 * Default constructor.
 	 */
@@ -35,6 +39,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
+		this.jobParts = ArrayListMultimap.create();
 	}
 
 	/**
@@ -63,6 +68,13 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	 */
 	public List<AID> getAvailableCloudNetworks() {
 		return availableCloudNetworks;
+	}
+
+	/**
+	 * @return multimap of jobs parts
+	 */
+	public Multimap<String, ClientJob> getJobParts() {
+		return jobParts;
 	}
 
 	/**

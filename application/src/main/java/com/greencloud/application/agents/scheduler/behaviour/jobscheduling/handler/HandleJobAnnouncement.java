@@ -19,6 +19,7 @@ import static com.greencloud.application.messages.domain.factory.JobStatusMessag
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.Objects.isNull;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -30,7 +31,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
 import com.greencloud.commons.job.ClientJob;
-import com.gui.agents.SchedulerAgentNode;
 
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -55,31 +55,42 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 
 	@Override
 	protected void onTick() {
-		if (myScheduler.getAvailableCloudNetworks().isEmpty()) {
-			logger.info(NO_AVAILABLE_CNA_LOG);
-		} else if (!myScheduler.getJobsToBeExecuted().isEmpty()) {
-			final ClientJob jobToExecute = myScheduler.getJobsToBeExecuted().poll();
-
-			if (Objects.nonNull(jobToExecute) && myScheduler.getClientJobs().get(jobToExecute).equals(CREATED)) {
-				MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
-				final ClientJob adjustedJob = getAdjustedJob(jobToExecute);
-
-				if(Objects.nonNull(adjustedJob)) {
-					logger.info(ANNOUNCE_JOB_CNA_LOG, jobToExecute.getJobId());
-
-					final ACLMessage cfp = createCallForProposal(jobToExecute, myScheduler.getAvailableCloudNetworks(),
-							SCHEDULER_JOB_CFP_PROTOCOL);
-					final ACLMessage clientMessage = prepareJobStatusMessageForClient(
-							jobToExecute.getClientIdentifier(),
-							PROCESSING_JOB_ID);
-
-					myScheduler.getClientJobs().replace(jobToExecute, CREATED, PROCESSING);
-					myScheduler.send(clientMessage);
-					myScheduler.manage().updateJobQueue();
-					myScheduler.addBehaviour(new InitiateCNALookup(myScheduler, cfp, jobToExecute));
-				}
-			}
+		if (myScheduler.getJobsToBeExecuted().isEmpty()) {
+			// do nothing
+			return;
 		}
+
+		if (myScheduler.getAvailableCloudNetworks().isEmpty()) {
+			// do nothing
+			MDC.clear();
+			logger.info(NO_AVAILABLE_CNA_LOG);
+			return;
+		}
+
+		final ClientJob jobToExecute = myScheduler.getJobsToBeExecuted().poll();
+		if (Objects.nonNull(jobToExecute) && myScheduler.getClientJobs().get(jobToExecute).equals(CREATED)) {
+			announceJobToCloudNetworkAgents(jobToExecute);
+		}
+	}
+
+	private void announceJobToCloudNetworkAgents(ClientJob jobToExecute) {
+		MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
+		final ClientJob adjustedJob = getAdjustedJob(jobToExecute);
+		if (isNull(adjustedJob)) {
+			// do nothing
+			return;
+		}
+
+		logger.info(ANNOUNCE_JOB_CNA_LOG, jobToExecute.getJobId());
+		final ACLMessage cfp = createCallForProposal(jobToExecute, myScheduler.getAvailableCloudNetworks(),
+				SCHEDULER_JOB_CFP_PROTOCOL);
+		final ACLMessage clientMessage = prepareJobStatusMessageForClient(jobToExecute.getClientIdentifier(),
+				jobToExecute.getJobId(), PROCESSING_JOB_ID);
+
+		myScheduler.getClientJobs().replace(jobToExecute, CREATED, PROCESSING);
+		myScheduler.send(clientMessage);
+		myScheduler.manage().updateJobQueue();
+		myScheduler.addBehaviour(new InitiateCNALookup(myScheduler, cfp, jobToExecute));
 	}
 
 	private ClientJob getAdjustedJob(final ClientJob job) {
@@ -93,7 +104,7 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 		if (newAdjustedEnd.isAfter(job.getDeadline().plusMillis(JOB_PROCESSING_DEADLINE_ADJUSTMENT))) {
 			logger.info(JOB_EXECUTION_AFTER_DEADLINE_LOG, job.getJobId());
 			myScheduler.getClientJobs().remove(job);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), FAILED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(), FAILED_JOB_ID));
 			return null;
 		}
 

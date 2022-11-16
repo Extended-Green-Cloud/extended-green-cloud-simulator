@@ -24,4 +24,9 @@ public interface JobTimeFrames {
 	 * @return adjusted job end time
 	 */
 	Instant getNewJobEnd();
+
+	/**
+	 * @return id of the job, required to handle split jobs
+	 */
+	String getJobId();
 }

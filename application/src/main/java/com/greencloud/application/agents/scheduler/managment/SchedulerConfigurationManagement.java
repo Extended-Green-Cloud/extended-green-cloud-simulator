@@ -12,6 +12,8 @@ public class SchedulerConfigurationManagement {
 	private double deadlineWeightPriority;
 	private double powerWeightPriority;
 	private int maximumQueueSize;
+	private int jobSplitThreshold;
+	private int splittingFactor;
 
 	/**
 	 * Constructor
@@ -19,12 +21,15 @@ public class SchedulerConfigurationManagement {
 	 * @param deadlineWeightPriority initial weight of deadline priority
 	 * @param powerWeightPriority    initial weight of power priority
 	 * @param maximumQueueSize       maximum queue size
+	 *                               //@param jobSplitThreshold	 job size at which splitting will be triggered, can be adjusted by the ManagingAgent
 	 */
 	public SchedulerConfigurationManagement(double deadlineWeightPriority, double powerWeightPriority,
 			int maximumQueueSize) {
 		this.deadlineWeightPriority = deadlineWeightPriority;
 		this.powerWeightPriority = powerWeightPriority;
 		this.maximumQueueSize = maximumQueueSize;
+		this.jobSplitThreshold = 40;
+		this.splittingFactor = 4;
 	}
 
 	/**
@@ -40,7 +45,16 @@ public class SchedulerConfigurationManagement {
 	private double getTimeToDeadline(final ClientJob clientJob) {
 		return Duration.between(clientJob.getEndTime(), clientJob.getDeadline()).toMillis();
 	}
+
 	public int getMaximumQueueSize() {
 		return maximumQueueSize;
+	}
+
+	public int getJobSplitThreshold() {
+		return jobSplitThreshold;
+	}
+
+	public int getSplittingFactor() {
+		return splittingFactor;
 	}
 }

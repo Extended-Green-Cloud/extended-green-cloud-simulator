@@ -32,10 +32,10 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -159,7 +159,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
-			final String jobId = readMessageContent(msg, String.class);
+			final String jobId = msg.getContent();
 			return myServerAgent.manage().getJobById(jobId);
 		} catch (IncorrectMessageContentException e) {
 			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);

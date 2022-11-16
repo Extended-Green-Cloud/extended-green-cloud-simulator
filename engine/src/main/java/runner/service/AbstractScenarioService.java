@@ -164,9 +164,9 @@ public abstract class AbstractScenarioService {
 	protected void runClientAgents(long agentsNumber, AgentControllerFactory factory) {
 		var random = ThreadLocalRandom.current();
 		LongStream.rangeClosed(1, agentsNumber).forEach(idx -> {
-			final int randomPower = MIN_JOB_POWER + random.nextInt(MAX_JOB_POWER);
-			final int randomStart = START_TIME_MIN + random.nextInt(START_TIME_MAX);
-			final int randomEnd = randomStart + 1 + random.nextInt(END_TIME_MAX);
+			final int randomPower = random.nextInt(MIN_JOB_POWER, MAX_JOB_POWER);
+			final int randomStart = random.nextInt(START_TIME_MIN, START_TIME_MAX);
+			final int randomEnd = random.nextInt(randomStart + 2, END_TIME_MAX);
 			final int randomDeadline = randomEnd + 3 + random.nextInt(DEADLINE_MAX);
 			final ClientAgentArgs clientAgentArgs = ImmutableClientAgentArgs.builder()
 					.name(format("Client%d", idx))

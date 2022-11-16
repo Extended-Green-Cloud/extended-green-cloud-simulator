@@ -23,6 +23,7 @@ import com.greencloud.application.domain.job.ImmutableJobTimeFrames;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -65,14 +66,17 @@ public class JobStatusMessageFactory {
 	}
 
 	/**
-	 * Method prepares the information message about the job execution status sent to client
+	 * Method prepares the information message about the job execution status sent to client with job id as message
+	 * content
 	 *
 	 * @param client         client to which the message is sent
+	 * @param content        content passed to client
 	 * @param conversationId type of the message passed for the client
 	 * @return inform ACLMessage
 	 */
-	public static ACLMessage prepareJobStatusMessageForClient(final String client, final String conversationId) {
-		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), conversationId, conversationId);
+	public static ACLMessage prepareJobStatusMessageForClient(final String client, final Object content,
+			final String conversationId) {
+		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), content, conversationId);
 	}
 
 	/**
@@ -86,6 +90,7 @@ public class JobStatusMessageFactory {
 		final JobTimeFrames jobTimeFrames = ImmutableJobTimeFrames.builder()
 				.newJobStart(adjustedJob.getStartTime())
 				.newJobEnd(adjustedJob.getEndTime())
+				.jobId(adjustedJob.getJobId())
 				.build();
 		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), jobTimeFrames, RE_SCHEDULED_JOB_ID);
 	}
@@ -173,10 +178,14 @@ public class JobStatusMessageFactory {
 			final String conversationId) {
 		final ACLMessage informationMessage = new ACLMessage(INFORM);
 		informationMessage.setProtocol(CHANGE_JOB_STATUS_PROTOCOL);
-		try {
-			informationMessage.setContent(getMapper().writeValueAsString(content));
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+		if (content instanceof String stringContent) {
+			informationMessage.setContent(stringContent);
+		} else {
+			try {
+				informationMessage.setContent(getMapper().writeValueAsString(content));
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		}
 		informationMessage.setConversationId(conversationId);
 		receivers.forEach(informationMessage::addReceiver);

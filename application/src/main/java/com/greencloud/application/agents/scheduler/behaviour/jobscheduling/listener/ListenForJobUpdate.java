@@ -5,11 +5,11 @@ import static com.greencloud.application.agents.scheduler.behaviour.jobschedulin
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
-import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static java.util.Objects.isNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +29,7 @@ import jade.lang.acl.ACLMessage;
  */
 public class ListenForJobUpdate extends CyclicBehaviour {
 
-	private static final Logger logger = LoggerFactory.getLogger(ListenForClientJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(ListenForJobUpdate.class);
 
 	private SchedulerAgent mySchedulerAgent;
 
@@ -51,7 +51,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(JOB_UPDATE_TEMPLATE);
 
 		if (Objects.nonNull(message)) {
-			final String jobId = readMessageContent(message, String.class);
+			final String jobId = message.getContent();
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(JOB_UPDATE_RECEIVED_LOG, jobId);
 			handleJobStatusChange(jobId, message.getConversationId());
@@ -63,15 +63,31 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	private void handleJobStatusChange(final String jobId, final String type) {
 		final ClientJob job = mySchedulerAgent.manage().getJobById(jobId);
 
-		if (Objects.nonNull(job)) {
-			if (type.equals(STARTED_JOB_ID)) {
-				mySchedulerAgent.getClientJobs().replace(job, PROCESSING, IN_PROGRESS);
-			} else if (List.of(FINISH_JOB_ID, FAILED_JOB_ID).contains(type)) {
-				mySchedulerAgent.getClientJobs().remove(job);
-				mySchedulerAgent.getCnaForJobMap().remove(jobId);
-			}
-			final ACLMessage messageToClient = prepareJobStatusMessageForClient(job.getClientIdentifier(), type);
-			mySchedulerAgent.send(messageToClient);
+		if (isNull(job)) {
+			// do nothing
+			return;
+		}
+
+		if (type.equals(STARTED_JOB_ID)) {
+			mySchedulerAgent.getClientJobs().replace(job, PROCESSING, IN_PROGRESS);
+		} else if (List.of(FINISH_JOB_ID, FAILED_JOB_ID).contains(type)) {
+			mySchedulerAgent.getClientJobs().remove(job);
+			mySchedulerAgent.getCnaForJobMap().remove(jobId);
+			mySchedulerAgent.getJobParts().values()
+					.stream()
+					.filter(j -> j.getJobId().equals(jobId))
+					.findFirst()
+					.ifPresent(jobPart -> handleJobPartStatusChange(jobId, jobPart, type));
+		}
+		final ACLMessage messageToClient = prepareJobStatusMessageForClient(job.getClientIdentifier(), jobId, type);
+		mySchedulerAgent.send(messageToClient);
+	}
+
+	private void handleJobPartStatusChange(String jobId, ClientJob jobPart, String type) {
+		var originalJobId = jobId.split("#")[0];
+		mySchedulerAgent.getJobParts().remove(originalJobId, jobPart);
+		if (type.equals(FAILED_JOB_ID)) {
+			// TODO handle canceling rest of the job parts in CNA, SERVER and GREEN ENERGY agents - next pull request
 		}
 	}
 }

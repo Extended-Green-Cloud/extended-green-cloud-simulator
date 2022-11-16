@@ -19,5 +19,12 @@ public class JobAnnouncementListenerLog {
 	public static final String CLIENT_JOB_FINISH_DELAY_LOG = "The execution of my job finished with a delay equal to {}! :(";
 	public static final String CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG = "The execution of my job finished (with delay {} min) before deadline";
 	public static final String CLIENT_JOB_FAILED_LOG = "The execution of my job has failed :(";
+	public static final String CLIENT_JOB_SPLIT_LOG = "My job has been split.";
 	public static final String CLIENT_JOB_RESCHEDULED_LOG = "The time frames of my job has been adjusted.";
+	public static final String CLIENT_JOB_FINISHED_LOG = "Job finished! Agent shutdown initiated!";
+
+	// SPLIT JOB LOGS
+	public static final String ALL_PARTS_STARTED = "All job parts started!";
+	public static final String ALL_PARTS_FINISHED = "All job parts finished! Agent shutdown initiated.";
+	public static final String PART_FAILED = "One of my job parts failed! Agent shutdown initiated.";
 }

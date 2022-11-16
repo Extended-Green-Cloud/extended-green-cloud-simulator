@@ -68,6 +68,10 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-guava</artifactId>
+		</dependency>
 		<!-- Immutables -->
 		<dependency>
 			<groupId>org.immutables</groupId>
@@ -84,6 +88,12 @@
 			<groupId>org.shredzone.commons</groupId>
 			<artifactId>commons-suncalc</artifactId>
 			<version>3.5</version>
+		</dependency>
+		<!-- Guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
 		</dependency>
 		<!-- Testing -->
 		<dependency>

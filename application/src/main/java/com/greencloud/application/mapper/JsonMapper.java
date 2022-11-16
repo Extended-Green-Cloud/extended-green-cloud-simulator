@@ -1,6 +1,7 @@
 package com.greencloud.application.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
@@ -8,7 +9,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 public final class JsonMapper {
 
-	private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+	private static final ObjectMapper MAPPER = new ObjectMapper()
+			.registerModules(new GuavaModule())
+			.registerModule(new JavaTimeModule());
 
 	private JsonMapper() {
 	}

@@ -1,13 +1,15 @@
 package com.gui.agents;
 
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.List;
 
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
+import com.gui.message.ImmutableSplitJobMessage;
+import com.gui.message.domain.ImmutableJobStatus;
+import com.gui.message.domain.ImmutableSplitJob;
 import com.gui.websocket.GuiWebSocketClient;
 
 /**
@@ -16,7 +18,6 @@ import com.gui.websocket.GuiWebSocketClient;
 public class ClientAgentNode extends AbstractAgentNode {
 
 	private final ClientAgentArgs args;
-	private final AtomicReference<JobStatusEnum> jobStatusEnum;
 
 	/**
 	 * Client node constructor
@@ -26,7 +27,6 @@ public class ClientAgentNode extends AbstractAgentNode {
 	public ClientAgentNode(ClientAgentArgs args) {
 		super(args.getName());
 		this.args = args;
-		this.jobStatusEnum = new AtomicReference<>(CREATED);
 	}
 
 	@Override
@@ -44,10 +44,45 @@ public class ClientAgentNode extends AbstractAgentNode {
 	 * @param jobStatusEnum new job status
 	 */
 	public void updateJobStatus(final JobStatusEnum jobStatusEnum) {
-		this.jobStatusEnum.set(jobStatusEnum);
 		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
-				.data(jobStatusEnum.getStatus())
+				.data(ImmutableJobStatus.builder()
+						.status(jobStatusEnum.getStatus())
+						.splitJobId(null)
+						.build())
 				.agentName(agentName)
 				.build());
 	}
+
+	/**
+	 * Function to inform about a job split
+	 *
+	 * @param jobParts job parts created after the split
+	 */
+	public void informAboutSplitJob(List<ClientJob> jobParts) {
+		webSocketClient.send(ImmutableSplitJobMessage.builder()
+				.addAllData(jobParts.stream().map(jobPart -> ImmutableSplitJob.builder()
+						.power(jobPart.getPower())
+						.startDate(jobPart.getStartTime())
+						.endDate(jobPart.getEndTime())
+						.splitJobId(jobPart.getJobId())
+						.build()).toList())
+				.jobId(args.getJobId())
+				.build());
+	}
+
+	/**
+	 * Function informs about the job status for a part of job
+	 *
+	 * @param jobStatusEnum new job status
+	 */
+	public void updateJobStatus(final JobStatusEnum jobStatusEnum, String jobPartId) {
+		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
+				.data(ImmutableJobStatus.builder()
+						.status(jobStatusEnum.getStatus())
+						.splitJobId(jobPartId)
+						.build())
+				.agentName(agentName)
+				.build());
+	}
+
 }

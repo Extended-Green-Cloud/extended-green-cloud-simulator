@@ -44,6 +44,7 @@ public class ClientAgent extends AbstractClientAgent {
 		if (Objects.nonNull(args) && args.length == 5) {
 			final ClientJob jobToBeExecuted = initializeAgentJob(args);
 			MDC.put(MDC_JOB_ID, jobToBeExecuted.getJobId());
+			setMyJob(jobToBeExecuted);
 			connectToGui(this);
 			prepareStartingBehaviour(jobToBeExecuted).forEach(this::addBehaviour);
 		} else {

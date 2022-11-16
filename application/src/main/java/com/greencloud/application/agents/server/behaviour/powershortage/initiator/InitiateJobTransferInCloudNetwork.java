@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -101,7 +101,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 				jobToTransfer.getJobInstanceId().getJobId());
 		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransfer.getJobInstanceId());
 		if (Objects.nonNull(job)) {
-			final String cause = readMessageContent(refuse, String.class);
+			final String cause = refuse.getContent();
 			informGreenSourceUponJobFinish(job, cause);
 			updateServerStateUponJobFinish(job);
 		}
