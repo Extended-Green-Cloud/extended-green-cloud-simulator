@@ -41,12 +41,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
-import com.greencloud.commons.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.agents.ServerAgentNode;
 import com.gui.controller.GuiController;
 

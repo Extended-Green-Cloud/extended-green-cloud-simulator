@@ -42,9 +42,9 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.PowerJob;
 
 @ExtendWith(MockitoExtension.class)

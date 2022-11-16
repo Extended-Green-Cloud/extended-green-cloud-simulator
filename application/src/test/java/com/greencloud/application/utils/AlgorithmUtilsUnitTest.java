@@ -30,8 +30,8 @@ import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.ImmutableWeatherData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.application.domain.job.ImmutableClientJob;
-import com.greencloud.application.domain.job.ImmutablePowerJob;
+import com.greencloud.commons.job.ImmutableClientJob;
+import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.PowerJob;
 
 @ExtendWith(MockitoExtension.class)

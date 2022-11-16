@@ -1,6 +1,5 @@
 package com.greencloud.application.mapper;
 
-
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerJobRealTime;
@@ -13,8 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.ImmutablePowerJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.PowerJob;
 
 class JobMapperUnitTest {
