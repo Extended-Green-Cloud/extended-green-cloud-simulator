@@ -2,6 +2,7 @@ package com.greencloud.application.agents.scheduler.managment;
 
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
+import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
@@ -72,9 +73,11 @@ public class SchedulerStateManagement {
 
 	public void swapJobInstances(final ClientJob newInstance, final ClientJob prevInstance) {
 		schedulerAgent.getClientJobs().remove(prevInstance);
+		MDC.put(MDC_JOB_ID, newInstance.getJobId());
+		logger.info(JOB_TIME_ADJUSTED_LOG, newInstance.getJobId(), newInstance.getStartTime(),
+				newInstance.getEndTime());
 		schedulerAgent.getClientJobs().put(newInstance, CREATED);
 	}
-
 
 	private boolean isJobAfterDeadline(final ClientJob job) {
 		final Instant endAfterPostpone = postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT);

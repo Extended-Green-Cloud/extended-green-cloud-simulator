@@ -3,6 +3,7 @@ package com.greencloud.application.messages.domain.factory;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
@@ -18,8 +19,10 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableJobTimeFrames;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobTimeFrames;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -70,6 +73,21 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final String client, final String conversationId) {
 		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), conversationId, conversationId);
+	}
+
+	/**
+	 * Method prepares the information message sent to client containing adjusted job time frames
+	 *
+	 * @param client      client to which the message is sent
+	 * @param adjustedJob job with adjusted time frames
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobAdjustmentMessage(final String client, final ClientJob adjustedJob) {
+		final JobTimeFrames jobTimeFrames = ImmutableJobTimeFrames.builder()
+				.newJobStart(adjustedJob.getStartTime())
+				.newJobEnd(adjustedJob.getEndTime())
+				.build();
+		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), jobTimeFrames, RE_SCHEDULED_JOB_ID);
 	}
 
 	/**

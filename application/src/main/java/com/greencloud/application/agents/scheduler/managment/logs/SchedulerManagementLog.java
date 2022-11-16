@@ -8,4 +8,5 @@ public class SchedulerManagementLog {
 	// STATE MANAGER
 	public static final String FULL_JOBS_QUEUE_LOG = "Postponed job {} was successfully added but the "
 			+ "queue reached the threshold. Consider adjusting the queue size!";
+	public static final String JOB_TIME_ADJUSTED_LOG = "Job {} has adjusted time frames. New job start: {}, new job edn: {}";
 }

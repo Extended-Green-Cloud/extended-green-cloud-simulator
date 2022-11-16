@@ -8,6 +8,6 @@ import java.time.temporal.ValueRange;
  * <p> MAX_TIME_DIFFERENCE	- maximum job delay time </p>
  */
 public class ClientAgentConstants {
-	public static final ValueRange MAX_TIME_DIFFERENCE = ValueRange.of(-1500, 1500);
+	public static final ValueRange MAX_TIME_DIFFERENCE = ValueRange.of(-200, 200);
 	public static final String SCHEDULER_AGENT = "SCHEDULER_AGENT";
 }

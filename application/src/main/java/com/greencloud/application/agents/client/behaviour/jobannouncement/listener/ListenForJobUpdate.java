@@ -10,11 +10,14 @@ import static com.greencloud.application.agents.client.behaviour.jobannouncement
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_ON_HOLD_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_POSTPONE_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_PROCESSED_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_RESCHEDULED_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_SCHEDULED_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_START_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.templates.JobAnnouncementMessageTemplates.CLIENT_JOB_UPDATE_TEMPLATE;
+import static com.greencloud.application.agents.client.domain.ClientAgentConstants.MAX_TIME_DIFFERENCE;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
+import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.DELAYED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
@@ -23,6 +26,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.POSTPONED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.PROCESSING_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
@@ -39,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.agents.client.domain.ClientAgentConstants;
+import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -111,14 +115,23 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 				case POSTPONED_JOB_ID -> {
 					logger.info(CLIENT_JOB_POSTPONE_LOG);
 					myClientAgent.retry();
-					myClientAgent.setSimulatedJobStart(postponeTime(myClientAgent.getSimulatedJobStart(), JOB_RETRY_MINUTES_ADJUSTMENT));
-					myClientAgent.setSimulatedJobEnd(postponeTime(myClientAgent.getSimulatedJobEnd(), JOB_RETRY_MINUTES_ADJUSTMENT));
+					myClientAgent.setSimulatedJobStart(
+							postponeTime(myClientAgent.getSimulatedJobStart(), JOB_RETRY_MINUTES_ADJUSTMENT));
+					myClientAgent.setSimulatedJobEnd(
+							postponeTime(myClientAgent.getSimulatedJobEnd(), JOB_RETRY_MINUTES_ADJUSTMENT));
 				}
 				case FAILED_JOB_ID -> {
 					logger.info(CLIENT_JOB_FAILED_LOG);
 					myClientAgent.getGuiController().updateClientsCountByValue(-1);
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
 					myClientAgent.doDelete();
+				}
+				case RE_SCHEDULED_JOB_ID -> {
+					final JobTimeFrames newTimeFrames = readMessageContent(message, JobTimeFrames.class);
+					logger.info(CLIENT_JOB_RESCHEDULED_LOG);
+					myClientAgent.setSimulatedJobStart(newTimeFrames.getNewJobStart());
+					myClientAgent.setSimulatedJobEnd(newTimeFrames.getNewJobEnd());
+
 				}
 			}
 		} else {
@@ -129,7 +142,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	private void checkIfJobStartedOnTime() {
 		final Instant startTime = getCurrentTime();
 		final long timeDifference = ChronoUnit.MILLIS.between(myClientAgent.getSimulatedJobStart(), startTime);
-		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
+		if (MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
 			logger.info(CLIENT_JOB_START_ON_TIME_LOG);
 		} else {
 			logger.info(CLIENT_JOB_START_DELAY_LOG, convertToRealTime(timeDifference));
@@ -138,13 +151,17 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 	private void checkIfJobFinishedOnTime() {
 		final Instant endTime = getCurrentTime();
-		final long timeDifference = ChronoUnit.MILLIS.between(endTime, myClientAgent.getSimulatedJobEnd());
-		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
-			logger.info(CLIENT_JOB_FINISH_ON_TIME_LOG);
-		} else if(endTime.isBefore(myClientAgent.getSimulatedDeadline())){
+
+		if (!myClientAgent.getSimulatedDeadline().isBefore(endTime)) {
+			final long timeDifference = ChronoUnit.MILLIS.between(endTime, myClientAgent.getSimulatedJobEnd());
 			logger.info(CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG, -1 * convertToRealTime(timeDifference));
-		}  else {
-			logger.info(CLIENT_JOB_FINISH_DELAY_LOG, timeDifference);
+		} else {
+			final long deadlineDifference = ChronoUnit.MILLIS.between(endTime, myClientAgent.getSimulatedDeadline());
+			if (MAX_TIME_DIFFERENCE.isValidValue(deadlineDifference)) {
+				logger.info(CLIENT_JOB_FINISH_ON_TIME_LOG);
+			} else {
+				logger.info(CLIENT_JOB_FINISH_DELAY_LOG, deadlineDifference);
+			}
 		}
 	}
 }

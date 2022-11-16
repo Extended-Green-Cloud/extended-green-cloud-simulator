@@ -3,6 +3,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.hand
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.logs.PowerSupplyHandlerLog.MANUAL_POWER_SUPPLY_FINISH_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 import static java.util.Objects.nonNull;
 
@@ -57,7 +58,9 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.error(MANUAL_POWER_SUPPLY_FINISH_LOG);
 
-			myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
+			if(RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
+				myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
+			}
 			myGreenEnergyAgent.getPowerJobs().remove(job);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 

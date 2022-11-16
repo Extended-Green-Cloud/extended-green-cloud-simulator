@@ -7,6 +7,7 @@ public class MessageConversationConstants {
 
 	/**
 	 * SCHEDULED_JOB_ID		   	   - conversation id used in messages informing that the job has been scheduled for execution
+	 * RE_SCHEDULED_JOB_ID		   - conversation id used in messages informing that the job time frames has been adjusted
 	 * PROCESSING_JOB_ID		   - conversation id used in messages informing that the job execution is being processed
 	 * CONFIRMED_JOB_ID			   - conversation id used in messages informing that the job execution has been confirmed
 	 * CONFIRMED_JOB_TRANSFER_ID   - conversation id used in messages informing that the job transfer has been confirmed
@@ -20,6 +21,7 @@ public class MessageConversationConstants {
 	 * FAILED_JOB_ID			   - conversation id used in messages informing that the job execution has failed
 	 */
 	public static final String SCHEDULED_JOB_ID = "SCHEDULED_JOB_ID";
+	public static final String RE_SCHEDULED_JOB_ID = "RE_SCHEDULED_JOB_ID";
 	public static final String PROCESSING_JOB_ID = "PROCESSING_JOB_ID";
 	public static final String CONFIRMED_JOB_ID = "CONFIRMED_JOB_ID";
 	public static final String CONFIRMED_JOB_TRANSFER_ID = "CONFIRMED_JOB_TRANSFER_ID";
