@@ -64,8 +64,7 @@ public class SchedulerStateManagement {
 		final ClientJob adjustedJob = mapToJobWithNewTime(job,
 				postponeTime(job.getStartTime(), JOB_RETRY_MINUTES_ADJUSTMENT),
 				postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT));
-		schedulerAgent.getClientJobs().remove(job);
-		schedulerAgent.getClientJobs().put(adjustedJob, CREATED);
+		swapJobInstances(adjustedJob, job);
 
 		if (!schedulerAgent.getJobsToBeExecuted().offer(adjustedJob)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -79,7 +78,19 @@ public class SchedulerStateManagement {
 	 * Method updates GUI with new job queue
 	 */
 	public void updateJobQueue() {
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(schedulerAgent.getJobsToBeExecuted());
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(
+				schedulerAgent.getJobsToBeExecuted());
+	}
+
+	/**
+	 * Method swaps existing job instance with the new one that has adjusted time frames
+	 *
+	 * @param newInstance  new job instance
+	 * @param prevInstance old job instance
+	 */
+	public void swapJobInstances(final ClientJob newInstance, final ClientJob prevInstance) {
+		schedulerAgent.getClientJobs().remove(prevInstance);
+		schedulerAgent.getClientJobs().put(newInstance, CREATED);
 	}
 
 	private boolean isJobAfterDeadline(final ClientJob job) {

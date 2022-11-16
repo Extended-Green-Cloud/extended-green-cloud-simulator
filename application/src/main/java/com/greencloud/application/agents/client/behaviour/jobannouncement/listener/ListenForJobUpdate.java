@@ -3,6 +3,7 @@ package com.greencloud.application.agents.client.behaviour.jobannouncement.liste
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_BACK_UP_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_LOG;
+import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FINISH_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_GREEN_POWER_LOG;
@@ -142,7 +143,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		final long timeDifference = ChronoUnit.MILLIS.between(endTime, myClientAgent.getSimulatedJobEnd());
 		if (ClientAgentConstants.MAX_TIME_DIFFERENCE.isValidValue(timeDifference)) {
 			logger.info(CLIENT_JOB_FINISH_ON_TIME_LOG);
-		} else {
+		} else if(endTime.isBefore(myClientAgent.getSimulatedDeadline())){
+			logger.info(CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG, -1 * convertToRealTime(timeDifference));
+		}  else {
 			logger.info(CLIENT_JOB_FINISH_DELAY_LOG, timeDifference);
 		}
 	}
