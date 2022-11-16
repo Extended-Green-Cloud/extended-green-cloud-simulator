@@ -23,6 +23,15 @@ let STATE = {
     agents: [],
     clients: [],
     connections: []
+  },
+  managingSystem: {
+    systemIndicator: 0,
+    jobSuccessRatio: 0,
+    performedAdaptations: 0,
+    weakAdaptations: 0,
+    strongAdaptations: 0,
+    adaptationLogs: [],
+    adaptationGoals: []
   }
 }
 
@@ -72,6 +81,15 @@ app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
       agents: [],
       clients: [],
       connections: []
+    },
+    managingSystem: {
+      systemIndicator: 0,
+      jobSuccessRatio: 0,
+      performedAdaptations: 0,
+      weakAdaptations: 0,
+      strongAdaptations: 0,
+      adaptationLogs: [],
+      adaptationGoals: []
     }
   }
   logStateReset()

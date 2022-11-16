@@ -120,7 +120,7 @@ const handleRegisterAgent = (state, msg) => {
     const agentType = msg.agentType
     const registerData = msg.data
 
-    if(agentType === AGENT_TYPES.SCHEDULER) {
+    if (agentType === AGENT_TYPES.SCHEDULER) {
         const newAgent = registerAgent(registerData, agentType)
         state.network.scheduler = newAgent
     }
@@ -139,6 +139,33 @@ const handleRegisterAgent = (state, msg) => {
     }
 }
 
+const handleRegisterManaging = (state, msg) => {
+    const adaptationGoals = msg.data
+    state.managingSystem.adaptationGoals = adaptationGoals
+}
+
+const handleUpdateIndicators = (state, msg) => {
+    const { systemIndicator, jobSuccessRatio } = msg.data
+    state.managingSystem.systemIndicator = systemIndicator
+    state.managingSystem.jobSuccessRatio = jobSuccessRatio
+}
+
+const handleAddAdaptationLog = (state, msg) => {
+    state.managingSystem.adaptationLogs.push(msg.data)
+}
+
+const handleIncrementAdaptationsCount = (state, msg) => {
+    state.managingSystem.performedAdaptations += 1
+}
+
+const handleIncrementWeakAdaptations = (state, msg) => {
+    state.managingSystem.weakAdaptations += 1
+}
+
+const handleIncrementStrongAdaptations = (state, msg) => {
+    state.managingSystem.strongAdaptations += 1
+}
+
 module.exports = {
     MESSAGE_HANDLERS: {
         INCREMENT_FINISHED_JOBS: handleIncrementFinishJobs,
@@ -155,6 +182,12 @@ module.exports = {
         SET_CLIENT_NUMBER: handleSetClientNumber,
         SET_CLIENT_JOB_STATUS: handleSetClientJobStatus,
         SET_SERVER_BACK_UP_TRAFFIC: handleSetBackUpTraffic,
-        REGISTER_AGENT: handleRegisterAgent
+        REGISTER_AGENT: handleRegisterAgent,
+        REGISTER_MANAGING: handleRegisterManaging,
+        UPDATE_INDICATORS: handleUpdateIndicators,
+        ADD_ADAPTATION_LOG: handleAddAdaptationLog,
+        INCREMENT_ADAPTATIONS_COUNT: handleIncrementAdaptationsCount,
+        INCREMENT_WEAK_ADAPTATIONS: handleIncrementWeakAdaptations,
+        INCREMENT_STRONG_ADAPTATIONS: handleIncrementStrongAdaptations
     }
 }
