@@ -167,6 +167,26 @@ public class AlgorithmUtils {
 
 	}
 
+	/**
+	 * Method computes the next number in the Fibonacci sequence
+	 *
+	 * @param n previous number
+	 */
+	public static int nextFibonacci(int n) {
+		double a = n * (1 + Math.sqrt(5)) / 2.0;
+		return (int)Math.round(a);
+	}
+
+	/**
+	 * Method computes the previous number in the Fibonacci sequence
+	 *
+	 * @param n current number
+	 */
+	public static int previousFibonacci(int n) {
+		double a = n / ((1 + Math.sqrt(5)) / 2.0);
+		return (int)Math.round(a);
+	}
+
 	private static <T extends PowerJob> Deque<Map.Entry<Instant, Integer>> getPowerForJobIntervals(
 			final List<? extends JobWithTime<T>> jobsWithTimeMap) {
 		final Deque<Map.Entry<Instant, Integer>> powerInIntervals = new ArrayDeque<>();
@@ -214,5 +234,7 @@ public class AlgorithmUtils {
 		}
 		return comparingTimeResult;
 	}
+
+
 
 }

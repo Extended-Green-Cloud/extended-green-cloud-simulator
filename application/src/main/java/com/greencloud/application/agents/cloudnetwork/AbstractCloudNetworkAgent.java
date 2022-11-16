@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.greencloud.application.agents.AbstractAgent;
+import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkMonitorManagement;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
@@ -18,8 +19,11 @@ import jade.core.AID;
 public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
+
+	protected transient CloudNetworkMonitorManagement monitorManagement;
 	protected Map<ClientJob, JobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
+	protected Map <AID, Integer> weightsForServersMap;
 	protected AtomicLong completedJobs;
 	protected List<AID> ownedServers;
 	protected AID scheduler;
@@ -66,6 +70,14 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public void setScheduler(AID scheduler) {
 		this.scheduler = scheduler;
+	}
+
+	public Map<AID, Integer> getWeightsForServersMap() {
+		return weightsForServersMap;
+	}
+
+	public void setWeightsForServersMap(Map<AID, Integer> weightsForServersMap) {
+		this.weightsForServersMap = weightsForServersMap;
 	}
 
 	public CloudNetworkStateManagement manage() {

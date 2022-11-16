@@ -104,20 +104,23 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	}
 
 	private ACLMessage chooseServerToExecuteJob(final List<ACLMessage> serverOffers) {
+
 		return serverOffers.stream().min(this::compareServerOffers).orElseThrow();
 	}
 
 	private int compareServerOffers(final ACLMessage serverOffer1, final ACLMessage serverOffer2) {
 		ServerData server1;
 		ServerData server2;
+		int weight1 = myCloudNetworkAgent.getWeightsForServersMap().get(serverOffer1.getSender());
+		int weight2 = myCloudNetworkAgent.getWeightsForServersMap().get(serverOffer2.getSender());
 		try {
 			server1 = getMapper().readValue(serverOffer1.getContent(), ServerData.class);
 			server2 = getMapper().readValue(serverOffer2.getContent(), ServerData.class);
 		} catch (JsonProcessingException e) {
 			return Integer.MAX_VALUE;
 		}
-		int powerDifference = server1.getAvailablePower() - server2.getAvailablePower();
-		int priceDifference = (int) (server1.getServicePrice() - server2.getServicePrice());
+		int powerDifference = (server1.getAvailablePower() * weight1) - (server2.getAvailablePower() * weight2);
+		int priceDifference = (int) ((server1.getServicePrice() * 1/weight1) - (server2.getServicePrice() * 1/weight2));
 		return CloudNetworkAgentConstants.MAX_POWER_DIFFERENCE.isValidIntValue(powerDifference) ?
 				priceDifference :
 				powerDifference;

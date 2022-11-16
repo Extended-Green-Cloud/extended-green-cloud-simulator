@@ -8,6 +8,7 @@ import static com.greencloud.application.yellowpages.domain.DFServiceConstants.C
 import java.util.Collections;
 import java.util.List;
 
+import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkMonitorManagement;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.behaviour.df.FindSchedulerAndServerAgents;
@@ -46,6 +47,7 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 	private void initializeAgent() {
 		register(this, CNA_SERVICE_TYPE, CNA_SERVICE_NAME);
 		this.stateManagement = new CloudNetworkStateManagement(this);
+		this.monitorManagement = new CloudNetworkMonitorManagement(this);
 	}
 
 	private List<Behaviour> prepareBehaviours() {
