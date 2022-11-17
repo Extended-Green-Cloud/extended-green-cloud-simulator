@@ -4,8 +4,8 @@ import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVE
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import com.database.knowledge.domain.goal.GoalEnum;
 
@@ -69,14 +69,13 @@ public class AdaptationAction {
 	 * @param newActionResults new action results provided by Managing Agent when saved to database
 	 */
 	public void mergeActionResults(Map<GoalEnum, Double> newActionResults) {
-		IntStream.range(MAXIMIZE_JOB_SUCCESS_RATIO.ordinal(), DISTRIBUTE_TRAFFIC_EVENLY.ordinal() + 1)
-				.forEach(i -> {
-					if (runs == 0) {
-						actionResults.put(GoalEnum.values()[i], newActionResults.get(GoalEnum.values()[i]));
-					} else {
-						actionResults.put(GoalEnum.values()[i], getUpdatedGoalChange(i, newActionResults));
-					}
-				});
+		Arrays.stream(GoalEnum.values()).forEach(goalEnum -> {
+			if (runs == 0) {
+				actionResults.put(goalEnum, newActionResults.get(goalEnum));
+			} else {
+				actionResults.put(goalEnum, getUpdatedGoalChange(goalEnum, newActionResults));
+			}
+		});
 	}
 
 	public Boolean getAvailable() {
@@ -96,8 +95,7 @@ public class AdaptationAction {
 		this.runs += 1;
 	}
 
-	private double getUpdatedGoalChange(int goalId, Map<GoalEnum, Double> newActionResults) {
-		return (actionResults.get(GoalEnum.values()[goalId]) * runs + newActionResults.get(GoalEnum.values()[goalId]))
-			   / (runs + 1);
+	private double getUpdatedGoalChange(GoalEnum goal, Map<GoalEnum, Double> newActionResults) {
+		return (actionResults.get(goal) * runs + newActionResults.get(goal)) / (runs + 1);
 	}
 }
