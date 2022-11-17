@@ -18,16 +18,20 @@ public class CloudNetworkMonitorManagement {
         this.cloudNetworkAgent = cloudNetworkAgent;
     }
 
-    public Map<AID, Integer> getPercentages() {
+    /**
+     * Method returns the map where key is the owned server and value is the (weight / sum of weights) * 100
+     * @return map where key is the owned server and value is the (weight / sum of weights) * 100
+     */
+    public Map<AID, Double> getPercentages() {
         int sum = cloudNetworkAgent
                 .getWeightsForServersMap()
                 .values()
                 .stream()
                 .mapToInt(i -> i)
                 .sum();
-        Map<AID, Integer> percentages = new HashMap<>();
+        Map<AID, Double> percentages = new HashMap<>();
         for (Map.Entry<AID, Integer> entry : cloudNetworkAgent.getWeightsForServersMap().entrySet()) {
-            percentages.put(entry.getKey(), (entry.getValue() / sum) * 100);
+            percentages.put(entry.getKey(), (double) ((entry.getValue() * 100) / sum));
         }
         return percentages;
     }
