@@ -5,6 +5,9 @@ import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 
+/**
+ * Interface with a set methods that create extra agents with specified parameters
+ */
 public interface AgentFactory {
     /**
      * Method creates new server agent args that can be used to initialize new agent

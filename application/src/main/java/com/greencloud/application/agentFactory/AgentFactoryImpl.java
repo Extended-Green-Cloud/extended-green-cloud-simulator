@@ -7,6 +7,8 @@ import com.greencloud.commons.args.agent.monitoring.ImmutableMonitoringAgentArgs
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+
+import java.time.temporal.ValueRange;
 import java.util.Objects;
 
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.*;
@@ -26,6 +28,12 @@ public class AgentFactoryImpl implements AgentFactory{
 
         if(Objects.isNull(ownerCNA)) {
             throw new IllegalArgumentException("ownerCna should not be null");
+        }
+        if(Objects.nonNull(maximumCapacity) && maximumCapacity < 0) {
+            throw new IllegalArgumentException("maximumCapacity cannot be null");
+        }
+        if(Objects.nonNull(price) && price < 0) {
+            throw new IllegalArgumentException("price cannot be null");
         }
 
         serverAgentsCreated += 1;
@@ -51,6 +59,18 @@ public class AgentFactoryImpl implements AgentFactory{
 
         if(Objects.isNull(monitoringAgentName) || Objects.isNull(ownerServerName)) {
             throw new IllegalArgumentException("monitoringAgentName and ownerServerName should not be null");
+        }
+        if(Objects.nonNull(maximumCapacity) && maximumCapacity < 0) {
+            throw new IllegalArgumentException("maximumCapacity cannot be null");
+        }
+        if(Objects.nonNull(pricePerPowerUnit) && pricePerPowerUnit < 0) {
+            throw new IllegalArgumentException("pricePerPowerUnit cannot be null");
+        }
+        if(Objects.nonNull(latitude) && ValueRange.of(-90, 90).isValidIntValue(latitude)) {
+            throw new IllegalArgumentException("latitude cannot be null");
+        }
+        if(Objects.nonNull(longitude) && ValueRange.of(-180, 180).isValidIntValue(longitude)) {
+            throw new IllegalArgumentException("longitude cannot be null");
         }
 
         greenEnergyAgentsCreated += 1;
