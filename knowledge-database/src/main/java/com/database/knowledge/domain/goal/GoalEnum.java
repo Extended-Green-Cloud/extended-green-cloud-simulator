@@ -2,6 +2,8 @@ package com.database.knowledge.domain.goal;
 
 import java.util.Arrays;
 
+import com.database.knowledge.exception.InvalidGoalIdentifierException;
+
 public enum GoalEnum {
 
 	MAXIMIZE_JOB_SUCCESS_RATIO(1),
@@ -14,14 +16,14 @@ public enum GoalEnum {
 		this.adaptationGoalId = adaptationGoalId;
 	}
 
-	public int getAdaptationGoalId() {
-		return adaptationGoalId;
-	}
-
 	public static GoalEnum getByGoalId(final int adaptationGoalId) {
 		return Arrays.stream(values()).
 				filter(goal -> adaptationGoalId == goal.adaptationGoalId)
 				.findFirst()
-				.orElse(null);
+				.orElseThrow(() -> new InvalidGoalIdentifierException(adaptationGoalId));
+	}
+
+	public int getAdaptationGoalId() {
+		return adaptationGoalId;
 	}
 }
