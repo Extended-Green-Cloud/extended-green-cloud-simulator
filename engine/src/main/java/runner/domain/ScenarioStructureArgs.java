@@ -4,11 +4,13 @@ import static java.util.stream.Stream.concat;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
@@ -18,6 +20,8 @@ import com.greencloud.commons.args.agent.server.ServerAgentArgs;
  */
 public class ScenarioStructureArgs implements Serializable {
 
+	@JacksonXmlElementWrapper(localName = "managingAgent")
+	private ManagingAgentArgs managingAgentArgs;
 	@JacksonXmlElementWrapper(localName = "schedulerAgent")
 	private SchedulerAgentArgs schedulerAgentArgs;
 	@JacksonXmlElementWrapper(localName = "cloudNetworkAgentsArgs")
@@ -35,15 +39,21 @@ public class ScenarioStructureArgs implements Serializable {
 	/**
 	 * Scenario constructor.
 	 *
+	 * @param managingAgentArgs      managing agent
+	 * @param schedulerAgentArgs     scheduler agent
 	 * @param cloudNetworkAgentsArgs list of cloud network com.greencloud.application.agents
 	 * @param serverAgentsArgs       list of server com.greencloud.application.agents
 	 * @param monitoringAgentsArgs   list of monitoring com.greencloud.application.agents
 	 * @param greenEnergyAgentsArgs  list of green energy source com.greencloud.application.agents
 	 */
-	public ScenarioStructureArgs(List<CloudNetworkArgs> cloudNetworkAgentsArgs,
+	public ScenarioStructureArgs(ManagingAgentArgs managingAgentArgs,
+			SchedulerAgentArgs schedulerAgentArgs,
+			List<CloudNetworkArgs> cloudNetworkAgentsArgs,
 			List<ServerAgentArgs> serverAgentsArgs,
 			List<MonitoringAgentArgs> monitoringAgentsArgs,
 			List<GreenEnergyAgentArgs> greenEnergyAgentsArgs) {
+		this.managingAgentArgs = managingAgentArgs;
+		this.schedulerAgentArgs = schedulerAgentArgs;
 		this.cloudNetworkAgentsArgs = cloudNetworkAgentsArgs;
 		this.serverAgentsArgs = serverAgentsArgs;
 		this.monitoringAgentsArgs = monitoringAgentsArgs;
@@ -70,6 +80,10 @@ public class ScenarioStructureArgs implements Serializable {
 		return schedulerAgentArgs;
 	}
 
+	public ManagingAgentArgs getManagingAgentArgs() {
+		return managingAgentArgs;
+	}
+
 	/**
 	 * Method concatenates the scenario arguments into one stream
 	 *
@@ -80,11 +94,13 @@ public class ScenarioStructureArgs implements Serializable {
 		var cloudNetworkArgs = cloudNetworkAgentsArgs.stream().map(AgentArgs.class::cast);
 		var monitoringArgs = monitoringAgentsArgs.stream().map(AgentArgs.class::cast);
 		var greenEnergyArgs = greenEnergyAgentsArgs.stream().map(AgentArgs.class::cast);
-		var schedulerArgs = List.of(schedulerAgentArgs).stream().map(AgentArgs.class::cast);
+		var schedulerArgs = Stream.of(schedulerAgentArgs).map(AgentArgs.class::cast);
+		var managingArgs = Stream.of(managingAgentArgs).map(AgentArgs.class::cast);
 
-		return concat(schedulerArgs,
-				concat(monitoringArgs,
-						concat(greenEnergyArgs,
-								concat(serverArgs, cloudNetworkArgs)))).toList();
+		return concat(managingArgs,
+				concat(schedulerArgs,
+						concat(monitoringArgs,
+								concat(greenEnergyArgs,
+										concat(serverArgs, cloudNetworkArgs))))).toList();
 	}
 }

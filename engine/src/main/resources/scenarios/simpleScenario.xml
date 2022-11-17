@@ -1,4 +1,8 @@
 <ScenarioStructureArgs>
+	<managingAgent>
+		<name>ManagingSystem</name>
+		<systemQualityThreshold>0.7</systemQualityThreshold>
+	</managingAgent>
 	<schedulerAgent>
 		<name>Scheduler</name>
 		<deadlineWeight>0.5</deadlineWeight>
