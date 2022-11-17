@@ -36,7 +36,7 @@ function* fetchState() {
          yield all([
             put(agentsActions.setAgentsData(data.agents)),
             put(cloudNetworkActions.setNetworkData(data.network)),
-            put(managinSystemActions.setAdaptationData(data.managinSystem)),
+            put(managinSystemActions.setAdaptationData(data.managingSystem)),
          ])
          yield delay(200)
       } catch (err: any) {

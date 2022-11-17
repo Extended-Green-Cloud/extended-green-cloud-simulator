@@ -1,8 +1,12 @@
-import { AdaptationGoal, AdaptationLog } from 'types/adaptation'
+import {
+   AdaptationGoal,
+   AdaptationGoalQuality,
+   AdaptationLog,
+} from 'types/adaptation'
 
 export type ManagingSystemStore = {
    systemIndicator: number
-   jobSuccessRatio: number
+   goalQualityIndicators: AdaptationGoalQuality[]
    performedAdaptations: number
    weakAdaptations: number
    strongAdaptations: number

@@ -145,25 +145,23 @@ const handleRegisterManaging = (state, msg) => {
 }
 
 const handleUpdateIndicators = (state, msg) => {
-    const { systemIndicator, jobSuccessRatio } = msg.data
-    state.managingSystem.systemIndicator = systemIndicator
-    state.managingSystem.jobSuccessRatio = jobSuccessRatio
+    state.managingSystem.systemIndicator = msg.systemIndicator
+    const goalQualities = Object.entries(msg.data).map(([key, value]) => ({ id: key, quality: value }))
+    state.managingSystem.goalQualityIndicators = goalQualities
 }
 
 const handleAddAdaptationLog = (state, msg) => {
     state.managingSystem.adaptationLogs.push(msg.data)
 }
 
-const handleIncrementAdaptationsCount = (state, msg) => {
-    state.managingSystem.performedAdaptations += 1
-}
-
 const handleIncrementWeakAdaptations = (state, msg) => {
     state.managingSystem.weakAdaptations += 1
+    state.managingSystem.performedAdaptations += 1
 }
 
 const handleIncrementStrongAdaptations = (state, msg) => {
     state.managingSystem.strongAdaptations += 1
+    state.managingSystem.performedAdaptations += 1
 }
 
 module.exports = {
@@ -186,7 +184,6 @@ module.exports = {
         REGISTER_MANAGING: handleRegisterManaging,
         UPDATE_INDICATORS: handleUpdateIndicators,
         ADD_ADAPTATION_LOG: handleAddAdaptationLog,
-        INCREMENT_ADAPTATIONS_COUNT: handleIncrementAdaptationsCount,
         INCREMENT_WEAK_ADAPTATIONS: handleIncrementWeakAdaptations,
         INCREMENT_STRONG_ADAPTATIONS: handleIncrementStrongAdaptations
     }

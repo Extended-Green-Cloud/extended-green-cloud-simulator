@@ -3,7 +3,7 @@ import { ManagingSystemStore } from '@types'
 
 const INITIAL_STATE: ManagingSystemStore = {
    systemIndicator: 0,
-   jobSuccessRatio: 0,
+   goalQualityIndicators: [],
    performedAdaptations: 0,
    weakAdaptations: 0,
    strongAdaptations: 0,
