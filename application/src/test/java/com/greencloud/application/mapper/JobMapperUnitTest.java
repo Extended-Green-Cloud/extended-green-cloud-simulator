@@ -1,6 +1,5 @@
 package com.greencloud.application.mapper;
 
-
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerJobRealTime;

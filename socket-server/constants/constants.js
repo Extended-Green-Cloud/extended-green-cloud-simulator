@@ -11,7 +11,8 @@ module.exports = {
         CLIENT: 'CLIENT',
         SERVER: 'SERVER',
         GREEN_ENERGY: 'GREEN_ENERGY',
-        MONITORING: 'MONITORING'
+        MONITORING: 'MONITORING',
+        SCHEDULER: 'SCHEDULER'
     },
     JOB_STATUES: {
         CREATED: "CREATED",

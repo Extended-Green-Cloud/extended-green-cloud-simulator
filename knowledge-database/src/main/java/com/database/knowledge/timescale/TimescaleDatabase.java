@@ -190,8 +190,8 @@ public class TimescaleDatabase implements Closeable {
 	private void dropTableIfExists(Connection sqlConnection) throws SQLException {
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(DROP_MONITORING_DATA);
-			statement.execute(DROP_ADAPTATION_GOALS);
 			statement.execute(DROP_ADAPTATION_ACTIONS);
+			statement.execute(DROP_ADAPTATION_GOALS);
 		}
 	}
 

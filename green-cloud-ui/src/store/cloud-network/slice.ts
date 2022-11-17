@@ -3,12 +3,12 @@ import { CloudNetworkStore } from '@types'
 import { resetServerState } from './api'
 
 const INITIAL_STATE: CloudNetworkStore = {
+   scheduler: null,
    currClientsNo: 0,
    currActiveJobsNo: 0,
    currPlannedJobsNo: 0,
    finishedJobsNo: 0,
    failedJobsNo: 0,
-   totalPrice: 0,
    isServerConnected: false,
 }
 

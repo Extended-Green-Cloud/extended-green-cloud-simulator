@@ -110,6 +110,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 					checkIfJobFinishedOnTime();
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FINISHED);
 					myClientAgent.getGuiController().updateClientsCountByValue(-1);
+					myClientAgent.getGuiController().updateFinishedJobsCountByValue(1);
 					myClientAgent.doDelete();
 				}
 				case POSTPONED_JOB_ID -> {
@@ -123,6 +124,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 				case FAILED_JOB_ID -> {
 					logger.info(CLIENT_JOB_FAILED_LOG);
 					myClientAgent.getGuiController().updateClientsCountByValue(-1);
+					myClientAgent.getGuiController().updateFailedJobsCountByValue(1);
 					((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
 					myClientAgent.doDelete();
 				}

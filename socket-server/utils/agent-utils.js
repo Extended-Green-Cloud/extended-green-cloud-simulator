@@ -1,6 +1,16 @@
 const { AGENT_TYPES, JOB_STATUES } = require("../constants/constants")
 const { INITIAL_NETWORK_AGENT_STATE, INITIAL_POWER_SHORTAGE_STATE } = require("../constants/state")
 
+const registerScheduler = (data) => {
+    return {
+        type: AGENT_TYPES.SCHEDULER,
+        scheduledJobs: [],
+        events: [],
+        isActive: true,
+        ...data
+    }
+}
+
 const registerClient = (data) => {
     return {
         type: AGENT_TYPES.CLIENT,
@@ -95,6 +105,8 @@ module.exports = {
                 return registerMonitoring(data)
             case AGENT_TYPES.SERVER:
                 return registerServer(data)
+            case AGENT_TYPES.SCHEDULER:
+                return registerScheduler(data)
         }
     },
     createAgentConnections: function (agent) {

@@ -5,9 +5,9 @@ import {
    useAppSelector,
 } from '@store'
 import React from 'react'
-import ReactModal from 'react-modal'
 import { styles } from './menu-modal-styles'
 import './css/menu-button-styles.css'
+import { Modal } from 'components'
 
 interface Props {
    isMenuOpen: boolean
@@ -22,6 +22,7 @@ interface Props {
  * @returns JSX Element
  */
 const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
+   const { modalStyle } = styles
    const { isServerConnected } = useAppSelector((state) => state.cloudNetwork)
    const dispatch = useAppDispatch()
    const serverConnectionButtonClass = isServerConnected
@@ -51,33 +52,40 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
       )
    }
 
+   const header = (
+      <>
+         <span>SERVER MENU</span>
+         {getServerStateIndicator()}
+      </>
+   )
+
    return (
-      <ReactModal
-         style={styles.modalStyle}
-         isOpen={isMenuOpen}
-         appElement={document.getElementById('root') as HTMLElement}
-         onRequestClose={() => setIsMenuOpen(false)}
-         shouldCloseOnOverlayClick={true}
+      <Modal
+         {...{
+            isOpen: isMenuOpen,
+            setIsOpen: setIsMenuOpen,
+            header,
+            contentStyle: modalStyle,
+         }}
       >
-         <div style={styles.menuTitle}>
-            <span>SERVER MENU</span>
-            {getServerStateIndicator()}
-         </div>
-         <div style={styles.buttonWrapper}>
-            <button className="button-banner" onClick={handleOnReset}>
-               {'Reset simulation'.toUpperCase()}
-            </button>
-            <button
-               className={'button-banner ' + serverConnectionButtonClass}
-               onClick={handleOnStop}
-            >
-               {(isServerConnected
-                  ? 'Disconnect server'
-                  : 'Connect to server'
-               ).toUpperCase()}
-            </button>
-         </div>
-      </ReactModal>
+         <button
+            className="button-banner common-button"
+            onClick={handleOnReset}
+         >
+            {'Reset simulation'.toUpperCase()}
+         </button>
+         <button
+            className={
+               'button-banner common-button ' + serverConnectionButtonClass
+            }
+            onClick={handleOnStop}
+         >
+            {(isServerConnected
+               ? 'Disconnect server'
+               : 'Connect to server'
+            ).toUpperCase()}
+         </button>
+      </Modal>
    )
 }
 
