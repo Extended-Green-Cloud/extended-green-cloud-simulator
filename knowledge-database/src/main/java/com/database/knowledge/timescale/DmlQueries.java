@@ -25,8 +25,8 @@ public final class DmlQueries {
 	static final String GET_ADAPTATION_ACTION = "SELECT * FROM adaptation_actions WHERE action_id = ?";
 	static final String INSERT_ADAPTATION_ACTION = """
 			INSERT INTO adaptation_actions
-			(action_id, action_name, dedicated_goal_id, action_results, is_available, runs)
-			VALUES (?, ?, ?, ?, ? ,?)
+			(action_id, action_name, type, dedicated_goal_id, action_results, is_available, runs)
+			VALUES (?, ?, ?, ?, ?, ? ,?)
 			""";
 	static final String UPDATE_ADAPTATION_ACTION =
 			"UPDATE adaptation_actions SET action_results = ?, is_available = FALSE, runs = ? WHERE action_id = ?";

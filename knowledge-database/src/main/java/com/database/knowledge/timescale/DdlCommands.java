@@ -46,6 +46,7 @@ public final class DdlCommands {
 			CREATE TABLE adaptation_actions (
 			action_id INTEGER PRIMARY KEY,
 			action_name VARCHAR(50) UNIQUE NOT NULL,
+			type VARCHAR(50) NOT NULL,
 			dedicated_goal_id INTEGER NOT NULL,
 			action_results JSON NOT NULL,
 			is_available BOOLEAN NOT NULL,
