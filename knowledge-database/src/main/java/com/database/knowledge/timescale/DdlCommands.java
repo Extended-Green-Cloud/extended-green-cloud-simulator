@@ -12,8 +12,8 @@ public final class DdlCommands {
 	static final String CREATE_MONITORING_DATA = """
 			CREATE TABLE monitoring_data (
 			time TIMESTAMPTZ NOT NULL,
-			aid TEXT NOT NULL,
-			data_type TEXT NOT NULL,
+			aid VARCHAR(50) NOT NULL,
+			data_type VARCHAR(50) NOT NULL,
 			data JSON NOT NULL)
 			""";
 	static final String CREATE_HYPERTABLE = "SELECT create_hypertable('monitoring_data', 'time')";
@@ -25,14 +25,17 @@ public final class DdlCommands {
 	static final String DROP_ADAPTATION_GOALS = "DROP TABLE IF EXISTS adaptation_goals";
 	static final String CREATE_ADAPTATION_GOALS = """
 			CREATE TABLE adaptation_goals (
-			goal_name TEXT NOT NULL,
-			goal_id INTEGER NOT NULL UNIQUE)
+			goal_id INTEGER PRIMARY KEY,
+			goal_name VARCHAR(200) UNIQUE NOT NULL,
+			threshold DOUBLE PRECISION NOT NULL,
+			is_above_threshold BOOLEAN NOT NULL,
+			weight DOUBLE PRECISION NOT NULL)
 			""";
 	static final String INSERT_ADAPTATION_GOALS = """
-			INSERT INTO adaptation_goals (goal_name, goal_id) VALUES
-			('Maximize job success ratio', 1),
-			('Minimize used backup power', 2),
-			('Distribute traffic evenly', 3)
+			INSERT INTO adaptation_goals (goal_id, goal_name, threshold, is_above_threshold, weight) VALUES
+			(1, 'Maximize job success ratio', 0.8, true, 0.6),
+			(2, 'Minimize used backup power', 0.2, false, 0.2),
+			(3, 'Distribute traffic evenly', 0.7, false, 0.2)
 			""";
 
 	/**
@@ -41,12 +44,14 @@ public final class DdlCommands {
 	static final String DROP_ADAPTATION_ACTIONS = "DROP TABLE IF EXISTS adaptation_actions";
 	static final String CREATE_ADAPTATION_ACTIONS = """
 			CREATE TABLE adaptation_actions (
-			action_id INTEGER NOT NULL UNIQUE,
-			action_name TEXT NOT NULL,
+			action_id INTEGER PRIMARY KEY,
+			action_name VARCHAR(50) UNIQUE NOT NULL,
 			dedicated_goal_id INTEGER NOT NULL,
 			action_results JSON NOT NULL,
 			is_available BOOLEAN NOT NULL,
-			runs INTEGER NOT NULL)
+			runs INTEGER NOT NULL,
+			FOREIGN KEY (dedicated_goal_id)
+			      REFERENCES adaptation_goals (goal_id))
 			""";
 
 	private DdlCommands() {
