@@ -5,11 +5,12 @@ import org.immutables.value.Value;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.agent.AgentArgs;
+import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableRegisterAgentMessage.class)
 @JsonDeserialize(as = ImmutableRegisterAgentMessage.class)
 @Value.Immutable
-public interface RegisterAgentMessage {
+public interface RegisterAgentMessage extends Message {
 
 	String getAgentType();
 
