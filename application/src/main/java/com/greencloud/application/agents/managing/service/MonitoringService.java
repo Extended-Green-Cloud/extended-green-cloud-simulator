@@ -8,11 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.managing.AbstractManagingAgent;
+import com.gui.agents.ManagingAgentNode;
 
 /**
  * Service containing methods connected with monitoring the quality of the system
  */
-public class MonitoringService extends AbstractManagingService{
+public class MonitoringService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
 
@@ -27,6 +28,8 @@ public class MonitoringService extends AbstractManagingService{
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			logger.info(READ_ADAPTATION_GOALS_LOG);
 			managingAgent.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
+			((ManagingAgentNode) managingAgent.getAgentNode()).registerManagingAgent(
+					managingAgent.getAdaptationGoalList());
 		}
 	}
 }

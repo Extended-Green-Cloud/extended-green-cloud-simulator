@@ -43,6 +43,11 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 	}
 
 	@Override
+	public void addToGraph(GuiWebSocketClient webSocketClient) {
+		this.webSocketClient = webSocketClient;
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(agentName);
 	}
