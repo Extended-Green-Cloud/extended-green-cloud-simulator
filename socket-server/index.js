@@ -12,9 +12,9 @@ const { handlePowerShortage } = require("./utils/event-utils");
 
 let STATE = {
   network: {
+    scheduler: null,
     finishedJobsNo: 0,
     failedJobsNo: 0,
-    totalPrice: 0,
     currPlannedJobsNo: 0,
     currActiveJobsNo: 0,
     currClientsNo: 0
@@ -23,6 +23,15 @@ let STATE = {
     agents: [],
     clients: [],
     connections: []
+  },
+  managingSystem: {
+    systemIndicator: 0,
+    jobSuccessRatio: 0,
+    performedAdaptations: 0,
+    weakAdaptations: 0,
+    strongAdaptations: 0,
+    adaptationLogs: [],
+    adaptationGoals: []
   }
 }
 
@@ -61,9 +70,9 @@ app.get(ROUTE_TYPES.FRONT, (req, res) => {
 app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
   STATE = {
     network: {
+      scheduler: null,
       finishedJobsNo: 0,
       failedJobsNo: 0,
-      totalPrice: 0,
       currPlannedJobsNo: 0,
       currActiveJobsNo: 0,
       currClientsNo: 0
@@ -72,6 +81,15 @@ app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
       agents: [],
       clients: [],
       connections: []
+    },
+    managingSystem: {
+      systemIndicator: 0,
+      jobSuccessRatio: 0,
+      performedAdaptations: 0,
+      weakAdaptations: 0,
+      strongAdaptations: 0,
+      adaptationLogs: [],
+      adaptationGoals: []
     }
   }
   logStateReset()
@@ -82,7 +100,7 @@ app.post(ROUTE_TYPES.FRONT + '/powerShortage', (req, res) => {
   const msg = req.body
   const dataToPass = handlePowerShortage(STATE, msg)
   expressWs.getWss().clients.forEach(client => {
-    if (client.route == '/powerShortage') {
+    if (client.route === '/powerShortage') {
       client.send(JSON.stringify(dataToPass))
     }
   })

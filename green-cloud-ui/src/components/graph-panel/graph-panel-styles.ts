@@ -16,6 +16,6 @@ export const styles: Styles = {
       marginRight: '20px',
    },
    graphContent: {
-      borderTop: 'var(--border-graph)',
+      borderTop: 'var(--border-gray)',
    },
 }

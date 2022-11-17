@@ -1,0 +1,21 @@
+.more-button {
+    color: var(--white);
+    font-family: var(--font-1);
+    font-size: var(--font-size-2);
+    font-weight: 300;
+    padding: 5px 20px;
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--gray-2);
+}
+
+.more-button:hover {
+    background-color: var(--gray-1);
+}
+
+.more-button:active {
+    background-color: var(--gray-6);
+}

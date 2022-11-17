@@ -8,6 +8,8 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
 import com.greencloud.commons.job.ClientJob;
+import com.gui.agents.SchedulerAgentNode;
 
 /**
  * Set of utilities used to manage the state of scheduler agent
@@ -66,15 +69,29 @@ public class SchedulerStateManagement {
 		if (!schedulerAgent.getJobsToBeExecuted().offer(adjustedJob)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.info(FULL_JOBS_QUEUE_LOG, job.getJobId());
+			updateJobQueue();
 		}
 		return true;
 	}
 
+	/**
+	 * Method updates GUI with new job queue
+	 */
+	public void updateJobQueue() {
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(
+				schedulerAgent.getJobsToBeExecuted());
+	}
+
+	/**
+	 * Method swaps existing job instance with the new one that has adjusted time frames
+	 *
+	 * @param newInstance  new job instance
+	 * @param prevInstance old job instance
+	 */
 	public void swapJobInstances(final ClientJob newInstance, final ClientJob prevInstance) {
 		schedulerAgent.getClientJobs().remove(prevInstance);
 		schedulerAgent.getClientJobs().put(newInstance, CREATED);
 	}
-
 
 	private boolean isJobAfterDeadline(final ClientJob job) {
 		final Instant endAfterPostpone = postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT);
