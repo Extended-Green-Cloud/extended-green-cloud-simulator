@@ -1,13 +1,13 @@
-package com.greencloud.application.agents.managing.service;
+package org.greencloud.managingsystem.service;
 
-import static com.greencloud.application.agents.managing.service.logs.ManagingAgentServiceLog.READ_ADAPTATION_GOALS_LOG;
+import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_ADAPTATION_GOALS_LOG;
 
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.greencloud.application.agents.managing.AbstractManagingAgent;
+import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import com.gui.agents.ManagingAgentNode;
 
 /**

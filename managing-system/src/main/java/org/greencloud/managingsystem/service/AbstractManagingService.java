@@ -1,7 +1,7 @@
-package com.greencloud.application.agents.managing.service;
+package org.greencloud.managingsystem.service;
 
-import com.greencloud.application.agents.managing.AbstractManagingAgent;
-import com.greencloud.application.agents.managing.ManagingAgent;
+import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.managingsystem.agent.ManagingAgent;
 
 /**
  * Abstract service inherited by all services implementing the MAPEK reference model

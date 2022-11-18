@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.managing;
+package org.greencloud.managingsystem.agent;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
 
@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.managing.behaviour.knowledge.ReadAdaptationGoals;
+import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 
 import jade.core.behaviours.Behaviour;

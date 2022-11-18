@@ -82,7 +82,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					});
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
-					"com.greencloud.application.agents.managing.ManagingAgent",
+					"org.greencloud.managingsystem.agent.ManagingAgent",
 					new Object[] { managingAgent.getSystemQualityThreshold() });
 		}
 		return null;

@@ -17,6 +17,7 @@
 		<module>test</module>
 		<module>commons</module>
 		<module>knowledge-database</module>
+		<module>managing-system</module>
 	</modules>
 
 	<properties>

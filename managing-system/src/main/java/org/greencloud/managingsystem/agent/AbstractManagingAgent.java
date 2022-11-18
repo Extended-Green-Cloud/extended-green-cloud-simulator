@@ -1,13 +1,13 @@
-package com.greencloud.application.agents.managing;
+package org.greencloud.managingsystem.agent;
 
 import java.util.List;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.application.agents.managing.service.AnalyzerService;
-import com.greencloud.application.agents.managing.service.ExecutorService;
-import com.greencloud.application.agents.managing.service.MonitoringService;
-import com.greencloud.application.agents.managing.service.PlannerService;
+import org.greencloud.managingsystem.service.AnalyzerService;
+import org.greencloud.managingsystem.service.ExecutorService;
+import org.greencloud.managingsystem.service.MonitoringService;
+import org.greencloud.managingsystem.service.PlannerService;
 
 /**
  * Abstract agent class storing data of the Managing Agent

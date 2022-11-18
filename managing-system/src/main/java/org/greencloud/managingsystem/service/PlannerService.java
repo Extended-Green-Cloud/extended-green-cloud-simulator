@@ -1,6 +1,6 @@
-package com.greencloud.application.agents.managing.service;
+package org.greencloud.managingsystem.service;
 
-import com.greencloud.application.agents.managing.AbstractManagingAgent;
+import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 
 /**
  * Service containing methods used in analyzing adaptation options and selecting adaptation plan

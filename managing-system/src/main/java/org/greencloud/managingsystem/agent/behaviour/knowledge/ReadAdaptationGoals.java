@@ -1,6 +1,6 @@
-package com.greencloud.application.agents.managing.behaviour.knowledge;
+package org.greencloud.managingsystem.agent.behaviour.knowledge;
 
-import com.greencloud.application.agents.managing.ManagingAgent;
+import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import jade.core.behaviours.OneShotBehaviour;
 

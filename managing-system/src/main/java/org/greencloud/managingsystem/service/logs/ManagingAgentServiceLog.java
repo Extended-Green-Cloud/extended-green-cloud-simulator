@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.managing.service.logs;
+package org.greencloud.managingsystem.service.logs;
 
 /**
  * Class contains all constants used in logging information in managing agent services
