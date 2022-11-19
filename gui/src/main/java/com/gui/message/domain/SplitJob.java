@@ -16,7 +16,7 @@ public interface SplitJob {
 
 	double getPower();
 
-	Instant getStartDate();
+	Instant getStart();
 
-	Instant getEndDate();
+	Instant getEnd();
 }
