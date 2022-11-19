@@ -3,7 +3,7 @@ import { agentsActions, useAppDispatch, useAppSelector } from '@store'
 import { AgentStore, ClientAgent } from '@types'
 import SubtitleContainer from 'components/common/subtitle-container/subtitle-container'
 import { useEffect, useState } from 'react'
-import { CLIENT_STATISTICS } from './client-statistics-config'
+import { CLIENT_STATISTICS, convertJobStatus } from './client-statistics-config'
 import DetailsField from 'components/common/details-field/details-field'
 import Badge from 'components/common/badge/badge'
 import ClientStatisticsSelect from './client-statistics-select/client-statistics-select'
@@ -45,7 +45,11 @@ const ClientPanel = () => {
                status: selectedClient.status as any,
             }[key]
             const value =
-               key === 'status' ? <Badge text={clientVal} /> : clientVal
+               key === 'status' ? (
+                  <Badge text={convertJobStatus(clientVal)} />
+               ) : (
+                  clientVal
+               )
             const property = key === 'status' ? 'valueObject' : 'value'
 
             return <DetailsField {...{ label, [property]: value, key }} />

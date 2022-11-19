@@ -25,7 +25,6 @@ import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.domain.job.SplitJob;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
-import com.gui.agents.SchedulerAgentNode;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -102,7 +101,7 @@ public class ListenForClientJob extends CyclicBehaviour {
 
 	private List<ClientJob> splitJob(ClientJob clientJob) {
 		return IntStream.range(0, myScheduler.config().getSplittingFactor())
-				.mapToObj(i -> createJobPart(clientJob, i + 1)).collect(toList());
+				.mapToObj(i -> createJobPart(clientJob, i + 1)).toList();
 	}
 
 	private ClientJob createJobPart(ClientJob clientJob, int partNumber) {

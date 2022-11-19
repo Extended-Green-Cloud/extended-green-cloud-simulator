@@ -159,11 +159,11 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
-			final String jobId = msg.getContent();
-			return myServerAgent.manage().getJobById(jobId);
-		} catch (IncorrectMessageContentException e) {
 			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+		} catch (IncorrectMessageContentException e) {
+			final String jobId = msg.getContent();
+			return myServerAgent.manage().getJobById(jobId);
 		}
 	}
 

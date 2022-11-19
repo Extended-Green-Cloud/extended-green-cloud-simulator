@@ -108,6 +108,14 @@ const handleSetClientJobStatus = (state, msg) => {
     const splitJobId = msg.data.splitJobId
 
     if (agent) {
+        if(jobStatus === JOB_STATUES.FAILED) {
+            agent.status = jobStatus
+            if (agent.isSplit) {
+                agent.splitJobs.forEach(job => job.status = jobStatus)
+            }
+            return
+        }
+        
         if (splitJobId) {
             const splitJob = agent.splitJobs.find(job => job.splitJobId === splitJobId)
             if (splitJob) {
