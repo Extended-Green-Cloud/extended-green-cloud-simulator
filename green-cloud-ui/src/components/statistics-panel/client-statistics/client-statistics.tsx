@@ -2,12 +2,13 @@ import { styles } from './client-statistics-styles'
 import { agentsActions, useAppDispatch, useAppSelector } from '@store'
 import { AgentStore, ClientAgent } from '@types'
 import SubtitleContainer from 'components/common/subtitle-container/subtitle-container'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { CLIENT_STATISTICS } from './client-statistics-config'
 import DetailsField from 'components/common/details-field/details-field'
 import Badge from 'components/common/badge/badge'
-import '@djthoms/pretty-checkbox'
 import ClientStatisticsSelect from './client-statistics-select/client-statistics-select'
+import { ModalButton } from 'components/common'
+import ClientSplitJobModal from './client-split-job-modal/client-split-job-modal'
 
 const description =
    'Select client from the list to diplay current job statistics'
@@ -18,6 +19,7 @@ const description =
  * @returns JSX Element
  */
 const ClientPanel = () => {
+   const [isOpen, setIsOpen] = useState(false)
    const dispatch = useAppDispatch()
    const agentState: AgentStore = useAppSelector((state) => state.agents)
 
@@ -38,13 +40,55 @@ const ClientPanel = () => {
       if (selectedClient) {
          return CLIENT_STATISTICS.map((field) => {
             const { key, label } = field
-            const clientVal = { ...(selectedClient as any) }[key]
+            const clientVal = {
+               ...(selectedClient.job as any),
+               status: selectedClient.status as any,
+            }[key]
             const value =
-               key === 'jobStatusEnum' ? <Badge text={clientVal} /> : clientVal
-            const property = key === 'jobStatusEnum' ? 'valueObject' : 'value'
+               key === 'status' ? <Badge text={clientVal} /> : clientVal
+            const property = key === 'status' ? 'valueObject' : 'value'
 
             return <DetailsField {...{ label, [property]: value, key }} />
          })
+      }
+   }
+
+   const getModalButton = (
+      <ModalButton
+         {...{
+            buttonClassName: 'small-green-button',
+            setIsOpen,
+            title: 'SPLITTED JOBS',
+         }}
+      />
+   )
+
+   const getClientHeader = () => {
+      const { isSplit } = selectedClient as ClientAgent
+      return isSplit ? (
+         <DetailsField
+            {...{
+               label: selectedClient?.name ?? '',
+               isHeader: true,
+               valueObject: getModalButton,
+            }}
+         />
+      ) : (
+         <DetailsField {...{ label: selectedClient?.name, isHeader: true }} />
+      )
+   }
+
+   const getSplitJobModal = () => {
+      if (selectedClient?.isSplit) {
+         return (
+            <ClientSplitJobModal
+               {...{
+                  isOpen,
+                  setIsOpen,
+                  client: selectedClient,
+               }}
+            />
+         )
       }
    }
 
@@ -54,12 +98,13 @@ const ClientPanel = () => {
          {!selectedClient || clients.length === 0 ? (
             <SubtitleContainer text={description} />
          ) : (
-            <div style={clientStatistics}>
-               <DetailsField
-                  {...{ label: selectedClient.name, isHeader: true }}
-               />
-               {generateClientInfo()}
-            </div>
+            <>
+               <div style={clientStatistics}>
+                  {getClientHeader()}
+                  {generateClientInfo()}
+               </div>
+               {getSplitJobModal()}
+            </>
          )}
       </div>
    )

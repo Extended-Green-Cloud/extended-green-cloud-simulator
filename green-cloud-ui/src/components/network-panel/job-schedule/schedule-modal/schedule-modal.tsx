@@ -1,7 +1,10 @@
 import { useAppSelector } from '@store'
-import { ClientAgent } from '@types'
+import { ClientAgent, Job, SplitJob } from '@types'
+import { DetailsCard } from 'components/common'
 import Modal from 'components/common/modal/modal'
 import React from 'react'
+import { parseSplitJobId, retrieveOriginalJobId } from 'utils/string-utils'
+import { convertUnixToTime } from 'utils/time-utils'
 import { JOB_FIELD_CONFIG } from '../job-schedule-config'
 import { styles } from './schedule-modal-styles'
 
@@ -26,44 +29,50 @@ const ScheduleModal = ({ isOpen, setIsOpen }: Props) => {
    const clients = useAppSelector(
       (state) => state.agents.clients
    ) as ClientAgent[]
-   const {
-      modalStyle,
-      jobContainer,
-      jobHeader,
-      jobField,
-      jobFieldLabel,
-      jobFieldVal,
-   } = styles
+   const { modalStyle } = styles
 
    const generateScheduledJobs = () => {
       const arrayCopy = [...(jobs ?? [])].reverse()
-      return arrayCopy?.map((job) => getJobField(job))
+      return arrayCopy?.map((jobId) => {
+         const client = clients.find(
+            (client) => client.job.jobId === retrieveOriginalJobId(jobId)
+         )
+         if (client) {
+            const { isSplit } = client
+            const jobTitle = getJobTitle(client, jobId)
+            const job = getJob(client, jobId)
+            const parsedJob = getJobFields(isSplit, job)
+            return (
+               <DetailsCard
+                  {...{
+                     title: jobTitle,
+                     fieldMap: JOB_FIELD_CONFIG,
+                     objectMap: parsedJob,
+                  }}
+               />
+            )
+         }
+      })
    }
 
-   const parseClient = (label: string, key: string, client: ClientAgent) => {
-      const value = { ...(client as any) }[key]
-      return (
-         <div style={jobField}>
-            <div style={jobFieldLabel}>{label}</div>
-            <div style={jobFieldVal}>{value}</div>
-         </div>
-      )
+   const getJobTitle = (client: ClientAgent, jobId: string) => {
+      const { isSplit } = client
+      return ['JOB', isSplit ? parseSplitJobId(jobId) : jobId].join(' ')
    }
 
-   const getJobField = (jobId: string) => {
-      const client = clients.find((client) => client.jobId === jobId)
-      const jobTitle = ['JOB', jobId].join(' ')
-      return (
-         <div style={jobContainer}>
-            <div style={jobHeader}>{jobTitle}</div>
-            <div>
-               {JOB_FIELD_CONFIG.map(
-                  (field) =>
-                     client && parseClient(field.label, field.key, client)
-               )}
-            </div>
-         </div>
-      )
+   const getJob = (client: ClientAgent, jobId: string) => {
+      return client.isSplit
+         ? client.splitJobs.find((splitJob) => splitJob.splitJobId === jobId)
+         : client.job
+   }
+
+   const getJobFields = (isSplit: boolean, job?: SplitJob | Job) => {
+      return !isSplit
+         ? job
+         : Object.assign({}, job, {
+              start: convertUnixToTime((job as SplitJob).start),
+              end: convertUnixToTime((job as SplitJob).end),
+           })
    }
 
    return (

@@ -2,11 +2,18 @@ import { Agent, JobStatus } from '@types'
 
 export const CLIENT_STATISTICS = [
    { key: 'jobId', label: 'Job identifier' },
-   { key: 'jobStatusEnum', label: 'Job status' },
+   { key: 'status', label: 'Job status' },
    { key: 'power', label: 'Power used for job' },
    { key: 'start', label: 'Start date' },
    { key: 'end', label: 'End date' },
    { key: 'deadline', label: 'Job execution deadline' },
+]
+
+export const SPLIT_JOB_STATISTICS = [
+   { key: 'status', label: 'Job status' },
+   { key: 'power', label: 'Power used for job' },
+   { key: 'start', label: 'Start date' },
+   { key: 'end', label: 'End date' },
 ]
 
 export const CLIENTS_ORDER = [
