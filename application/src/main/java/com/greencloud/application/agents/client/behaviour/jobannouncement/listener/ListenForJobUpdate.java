@@ -129,14 +129,17 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		logger.info(logMessage);
 		if (!myClientAgent.isSplit()) {
 			myNode.updateJobStatus(status);
+			myClientAgent.setCurrentJobStatus(status);
 			return;
 		}
 		processJobPartBasedOnStatus(message, status);
+		updateOriginalStatus(status);
 	}
 
 	private void processStartedJob(ACLMessage message) {
 		if (!myClientAgent.isSplit()) {
 			myNode.updateJobStatus(IN_PROGRESS);
+			myClientAgent.setCurrentJobStatus(IN_PROGRESS);
 			checkIfJobStartedOnTime(myClientAgent.getSimulatedJobStart());
 			return;
 		}
@@ -144,7 +147,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		var jobPartId = message.getContent();
 		processJobPartBasedOnStatus(message, IN_PROGRESS);
 		checkIfJobStartedOnTime(myClientAgent.getJobParts().get(jobPartId).getSimulatedJobStart());
-		if (myClientAgent.getJobParts().values().stream().map(JobPart::getStatus).allMatch(IN_PROGRESS::equals)) {
+		updateOriginalStatus(IN_PROGRESS);
+
+		if (checkIfAllPartsMatchStatus(IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, myClientAgent.getMyJob().getJobId());
 			logger.info(ALL_PARTS_STARTED);
 		}
@@ -154,6 +159,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		if (!myClientAgent.isSplit()) {
 			checkIfJobFinishedOnTime(myClientAgent.getSimulatedJobEnd(), myClientAgent.getSimulatedDeadline());
 			myNode.updateJobStatus(FINISHED);
+			myClientAgent.setCurrentJobStatus(FINISHED);
 			shutdownAfterFinishedJob(CLIENT_JOB_FINISHED_LOG);
 			return;
 		}
@@ -161,7 +167,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		var jobPart = myClientAgent.getJobParts().get(jobPartId);
 		checkIfJobFinishedOnTime(jobPart.getSimulatedJobEnd(), jobPart.getSimulatedDeadline());
 		processJobPartBasedOnStatus(message, FINISHED);
-		if (myClientAgent.getJobParts().values().stream().map(JobPart::getStatus).allMatch(FINISHED::equals)) {
+		updateOriginalStatus(FINISHED);
+
+		if (checkIfAllPartsMatchStatus(FINISHED)) {
 			MDC.put(MDC_JOB_ID, myClientAgent.getMyJob().getJobId());
 			checkIfJobFinishedOnTime(myClientAgent.getSimulatedJobEnd(), myClientAgent.getSimulatedDeadline());
 			shutdownAfterFinishedJob(ALL_PARTS_FINISHED);
@@ -215,6 +223,10 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		myNode.updateJobStatus(status, jobPartId);
 	}
 
+	private boolean checkIfAllPartsMatchStatus(final JobStatusEnum status) {
+		return myClientAgent.getJobParts().values().stream().map(JobPart::getStatus).allMatch(status::equals);
+	}
+
 	private void checkIfJobStartedOnTime(Instant jobStartTime) {
 		final Instant startTime = getCurrentTime();
 		final long timeDifference = ChronoUnit.MILLIS.between(jobStartTime, startTime);
@@ -238,6 +250,25 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			} else {
 				logger.info(CLIENT_JOB_FINISH_DELAY_LOG, deadlineDifference);
 			}
+		}
+	}
+
+	private boolean isOriginalStatusUpdated(final JobStatusEnum status) {
+		return switch (status) {
+			case SCHEDULED, FINISHED -> checkIfAllPartsMatchStatus(status);
+			case DELAYED -> myClientAgent.getCurrentJobStatus().equals(PROCESSED);
+			case ON_BACK_UP -> List.of(IN_PROGRESS, PROCESSED).contains(myClientAgent.getCurrentJobStatus());
+			case IN_PROGRESS -> checkIfAllPartsMatchStatus(IN_PROGRESS) || myClientAgent.getCurrentJobStatus()
+					.equals(PROCESSED);
+			case ON_HOLD -> true;
+			default -> false;
+		};
+	}
+
+	private void updateOriginalStatus(final JobStatusEnum status) {
+		if(isOriginalStatusUpdated(status)) {
+			myNode.updateJobStatus(status);
+			myClientAgent.setCurrentJobStatus(status);
 		}
 	}
 
