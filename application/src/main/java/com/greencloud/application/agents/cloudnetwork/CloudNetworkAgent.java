@@ -47,7 +47,7 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 	private void initializeAgent() {
 		register(this, CNA_SERVICE_TYPE, CNA_SERVICE_NAME);
 		this.stateManagement = new CloudNetworkStateManagement(this);
-		this.monitorManagement = new CloudNetworkConfigManagement(this);
+		this.configManagement = new CloudNetworkConfigManagement(this);
 	}
 
 	private List<Behaviour> prepareBehaviours() {

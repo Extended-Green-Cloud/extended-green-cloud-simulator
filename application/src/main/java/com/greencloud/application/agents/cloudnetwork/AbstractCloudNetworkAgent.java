@@ -20,7 +20,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
 
-	protected transient CloudNetworkConfigManagement monitorManagement;
+	protected transient CloudNetworkConfigManagement configManagement;
 	protected Map<ClientJob, JobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
 	protected Map <AID, Integer> weightsForServersMap;
@@ -78,6 +78,6 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	}
 
 	public CloudNetworkConfigManagement manageConfig() {
-		return monitorManagement;
+		return configManagement;
 	}
 }
