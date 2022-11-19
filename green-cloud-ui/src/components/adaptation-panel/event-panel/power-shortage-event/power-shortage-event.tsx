@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import './css/power-shortage-card-styles.css'
 
 import { agentsActions, useAppDispatch } from '@store'
 import { AgentEvent, EventState } from '@types'
 import { toast } from 'react-toastify'
 import NumericInput from 'components/common/numeric-input/numeric-input'
+import { Button } from 'components/common'
 
 interface Props {
    event: AgentEvent
@@ -37,8 +37,10 @@ const PowerShortageEvent = ({ event, label, agentName }: Props) => {
 
    const getButtonStyle = () => {
       const eventStyle =
-         event.state === EventState.ACTIVE ? 'active-button' : 'inactive-button'
-      return ['button common-button', eventStyle].join(' ')
+         event.state === EventState.ACTIVE
+            ? 'event-active-button'
+            : 'event-inactive-button'
+      return ['event-button', eventStyle].join(' ')
    }
 
    function handlePowerShortageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -80,13 +82,14 @@ const PowerShortageEvent = ({ event, label, agentName }: Props) => {
                }}
             />
          </div>
-         <button
-            className={getButtonStyle()}
-            onClick={handlePowerShortageTrigger}
-            disabled={event.disabled}
-         >
-            {buttonLabel.toUpperCase()}
-         </button>
+         <Button
+            {...{
+               buttonClassName: getButtonStyle(),
+               onClick: handlePowerShortageTrigger,
+               isDisabled: event.disabled,
+               title: buttonLabel.toUpperCase(),
+            }}
+         />
       </>
    )
 }

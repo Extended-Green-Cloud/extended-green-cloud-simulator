@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 
-import './css/job-schedule-modal-button.css'
-
 import { SCHEDULER_CONFIGURATION } from './job-schedule-config'
 
 import { useAppSelector } from '@store'
 import DetailsField from 'components/common/details-field/details-field'
 import ScheduleModal from './schedule-modal/schedule-modal'
+import { ModalButton } from 'components/common'
 
 const modalButtonText = 'Schedule'
 
@@ -34,12 +33,13 @@ const JobSchedule = () => {
    }
 
    const getModalButton = (
-      <button
-         className={'schedule-button common-button'}
-         onClick={() => setIsOpen((curr) => !curr)}
-      >
-         {modalButtonText.toUpperCase()}
-      </button>
+      <ModalButton
+         {...{
+            buttonClassName: 'small-green-button',
+            setIsOpen,
+            title: modalButtonText.toUpperCase(),
+         }}
+      />
    )
 
    return (

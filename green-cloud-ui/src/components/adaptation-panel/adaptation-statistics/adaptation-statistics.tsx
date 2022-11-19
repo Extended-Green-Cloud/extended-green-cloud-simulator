@@ -50,7 +50,6 @@ const AdaptationStatistics = () => {
          const parsedVal = COUNTERS.includes(key)
             ? value
             : [(value as number) * 100, '%'].join('')
-         console.warn(key + ' ' + value)
 
          const parsedLabel =
             key === 'systemIndicator' ? getIndicatorLabel(label) : label

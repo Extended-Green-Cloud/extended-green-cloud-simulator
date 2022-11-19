@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 
 import { styles } from './adaptation-log-styles'
-import './css/more-button.css'
 
 import { useAppSelector } from '@store'
 import LogEntry from './log-entry/log-entry'
 import FullLogModal from './full-log-modal/full-log-modal'
+import { ModalButton } from 'components/common'
 
 /**
  * Component represents tab summarizing the latest logs regarding the system adaptation
@@ -22,13 +22,18 @@ const AdaptationLog = () => {
          {logs.length !== 0 && (
             <div>
                <LogEntry adaptationLog={sortedLogs[0]} />
-               <button
-                  className="more-button common-button"
-                  onClick={() => setIsOpen((curr) => !curr)}
-               >
-                  <span>SHOW MORE</span>
-                  <span style={styles.buttonIcon}>{'\u00BB'}</span>
-               </button>
+               <ModalButton
+                  {...{
+                     buttonClassName: 'more-button',
+                     setIsOpen,
+                     title: (
+                        <>
+                           <span>SHOW MORE</span>
+                           <span style={styles.buttonIcon}>{'\u00BB'}</span>
+                        </>
+                     ),
+                  }}
+               />
                <FullLogModal {...{ isOpen, setIsOpen, sortedLogs }} />
             </div>
          )}

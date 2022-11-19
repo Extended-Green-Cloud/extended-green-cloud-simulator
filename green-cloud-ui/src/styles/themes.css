@@ -82,22 +82,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.common-button {
-  background: none;
-  display: inline-block;
-	color: inherit;
-	border: none;
-	font: inherit;
-	cursor: pointer;
-	outline: none;
-  text-decoration: none;
-  border-radius: 10px;
-}
-
-.common-button:focus { 
-  outline: none; 
-}
-
 ::-webkit-scrollbar {
   width: 20px;
   height: 20px;
@@ -149,6 +133,8 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.Select.is-open .Select-value { display: none; }
 
 .__________cytoscape_container>div {
   height: 100% !important;
