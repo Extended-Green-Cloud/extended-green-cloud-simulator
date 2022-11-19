@@ -14,6 +14,7 @@ import static com.greencloud.commons.job.JobStatusEnum.ON_HOLD;
 import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
 import static com.greencloud.commons.job.JobStatusEnum.SCHEDULED;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,12 +80,14 @@ class ListenForJobUpdateUnitTest {
 
 	@ParameterizedTest
 	@MethodSource("jobStatusProvider")
-	void shouldCorrectlyProcessPartJobStatus(String conversationId, JobStatusEnum status) {
+	void shouldCorrectlyProcessPartJobStatus(String conversationId, JobStatusEnum status,
+			JobStatusEnum currentStatus) {
 		// given
 		var message = messageBuilder(conversationId, JOB_PART_ID);
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);
 		when(clientAgent.getJobParts()).thenReturn(jobParts);
 		when(clientAgent.isSplit()).thenReturn(true);
+		lenient().when(clientAgent.getCurrentJobStatus()).thenReturn(currentStatus);
 
 		// when
 		listenForJobUpdate.action();
@@ -96,12 +99,13 @@ class ListenForJobUpdateUnitTest {
 
 	static private Stream<Arguments> jobStatusProvider() {
 		return Stream.of(
-				arguments(SCHEDULED_JOB_ID, SCHEDULED),
-				arguments(PROCESSING_JOB_ID, PROCESSED),
-				arguments(DELAYED_JOB_ID, DELAYED),
-				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP),
-				arguments(GREEN_POWER_JOB_ID, IN_PROGRESS),
-				arguments(ON_HOLD_JOB_ID, ON_HOLD)
+				arguments(SCHEDULED_JOB_ID, SCHEDULED, SCHEDULED),
+				arguments(PROCESSING_JOB_ID, PROCESSED, SCHEDULED),
+				arguments(DELAYED_JOB_ID, DELAYED, PROCESSED),
+				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, IN_PROGRESS),
+				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, PROCESSED),
+				arguments(GREEN_POWER_JOB_ID, IN_PROGRESS, PROCESSED),
+				arguments(ON_HOLD_JOB_ID, ON_HOLD, IN_PROGRESS)
 		);
 	}
 
