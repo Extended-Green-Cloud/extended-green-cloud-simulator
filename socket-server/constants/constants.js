@@ -16,12 +16,13 @@ module.exports = {
     },
     JOB_STATUES: {
         CREATED: "CREATED",
-        PROCESSING: "PROCESSING",
+        PROCESSED: "PROCESSED",
         IN_PROGRESS: "IN_PROGRESS",
         DELAYED: "DELAYED",
         FINISHED: "FINISHED",
         ON_BACK_UP: "ON_BACK_UP",
         ON_HOLD: "ON_HOLD",
+        FAILED: "FAILED",
         REJECTED: "REJECTED"
     },
     EVENT_STATE: {

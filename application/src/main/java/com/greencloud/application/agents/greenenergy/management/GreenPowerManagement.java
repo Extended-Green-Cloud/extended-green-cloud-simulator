@@ -105,7 +105,7 @@ public class GreenPowerManagement {
 	private double getSolarPower(WeatherData weather, ZonedDateTime dateTime, Location location) {
 		var sunTimes = getSunTimes(dateTime, location);
 		var dayTime = dateTime.toLocalTime();
-		if (!MOCK_SOLAR_ENERGY || (dayTime.isBefore(requireNonNull(sunTimes.getRise()).toLocalTime()) ||
+		if (!MOCK_SOLAR_ENERGY && (dayTime.isBefore(requireNonNull(sunTimes.getRise()).toLocalTime()) ||
 				dayTime.isAfter(requireNonNull(sunTimes.getSet()).toLocalTime()))) {
 			logger.debug(SOLAR_FARM_SHUTDOWN_LOG, dateTime, sunTimes.getRise(),
 					sunTimes.getSet());

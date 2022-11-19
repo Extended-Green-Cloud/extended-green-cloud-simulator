@@ -18,6 +18,7 @@ export const SPLIT_JOB_STATISTICS = [
 
 export const CLIENTS_ORDER = [
    JobStatus.CREATED.toString(),
+   JobStatus.PROCESSED.toString(),
    JobStatus.IN_PROGRESS.toString(),
    JobStatus.ON_BACK_UP.toString(),
    JobStatus.ON_HOLD.toString(),
