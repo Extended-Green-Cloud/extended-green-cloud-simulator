@@ -27,13 +27,15 @@ public class ServerMonitorManagementTest {
         mockServerAgent = mock(ServerAgent.class);
         MOCK_WEIGHTS_FOR_GREEN_SOURCES_MAP = initMap();
         doReturn(MOCK_WEIGHTS_FOR_GREEN_SOURCES_MAP).when(mockServerAgent).getWeightsForGreenSourcesMap();
+
         serverMonitorManagement = new ServerMonitorManagement(mockServerAgent);
+        doReturn(serverMonitorManagement).when(mockServerAgent).manageMonitoring();
     }
 
     //TESTS
     @Test
     public void testGetGreenSourcePercentages() {
-        Map<AID, Double> greenSourcePercentages = serverMonitorManagement.getPercentages();
+        Map<AID, Double> greenSourcePercentages = mockServerAgent.manageMonitoring().getPercentages();
         assertThat(greenSourcePercentages.get(new AID("1", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(greenSourcePercentages.get(new AID("2", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(greenSourcePercentages.get(new AID("3", AID.ISGUID))).isEqualTo(3.0 * 100/7);

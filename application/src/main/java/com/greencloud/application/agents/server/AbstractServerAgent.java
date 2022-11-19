@@ -121,6 +121,10 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return stateManagement;
 	}
 
+	public ServerMonitorManagement manageMonitoring() {
+		return monitorManagement;
+	}
+
 	public void tookJobIntoProcessing() {
 		currentlyProcessing.incrementAndGet();
 	}

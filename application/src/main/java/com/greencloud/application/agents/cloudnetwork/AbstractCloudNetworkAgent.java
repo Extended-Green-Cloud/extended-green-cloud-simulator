@@ -80,4 +80,8 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	public CloudNetworkStateManagement manage() {
 		return stateManagement;
 	}
+
+	public CloudNetworkMonitorManagement manageMonitoring() {
+		return monitorManagement;
+	}
 }

@@ -28,13 +28,15 @@ public class CloudNetworkMonitorManagementUnitTest {
         mockCloudNetworkAgent = mock(CloudNetworkAgent.class);
         MOCK_WEIGHTS_FOR_SERVERS_MAP = initMap();
         doReturn(MOCK_WEIGHTS_FOR_SERVERS_MAP).when(mockCloudNetworkAgent).getWeightsForServersMap();
+
         cloudNetworkMonitorManagement = new CloudNetworkMonitorManagement(mockCloudNetworkAgent);
+        doReturn(cloudNetworkMonitorManagement).when(mockCloudNetworkAgent).manageMonitoring();
     }
     // TESTS
 
     @Test
     void testGetServerPercentages() {
-        Map<AID, Double> serverPercentages = cloudNetworkMonitorManagement.getPercentages();
+        Map<AID, Double> serverPercentages = mockCloudNetworkAgent.manageMonitoring().getPercentages();
         assertThat(serverPercentages.get(new AID("1", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(serverPercentages.get(new AID("2", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(serverPercentages.get(new AID("3", AID.ISGUID))).isEqualTo(3.0 * 100/7);
