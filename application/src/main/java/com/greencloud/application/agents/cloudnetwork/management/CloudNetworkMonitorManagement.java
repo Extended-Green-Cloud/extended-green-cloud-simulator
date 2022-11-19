@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
 import com.database.knowledge.domain.agent.DataType;
-import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.domain.monitoring.CloudNetworkMonitoringData;
 import com.greencloud.application.domain.monitoring.ImmutableCloudNetworkMonitoringData;
@@ -16,11 +15,9 @@ public class CloudNetworkMonitorManagement {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudNetworkStateManagement.class);
     private final CloudNetworkAgent cloudNetworkAgent;
-    private final TimescaleDatabase timescaleDatabase;
 
     public CloudNetworkMonitorManagement(CloudNetworkAgent cloudNetworkAgent) {
         this.cloudNetworkAgent = cloudNetworkAgent;
-        this.timescaleDatabase = new TimescaleDatabase();
     }
 
     /**
@@ -51,6 +48,6 @@ public class CloudNetworkMonitorManagement {
                 .percentagesForServersMap(getPercentages())
                 .networkJobs(cloudNetworkAgent.getNetworkJobs())
                 .build();
-        timescaleDatabase.writeMonitoringData(cloudNetworkAgent.getName(), DataType.DEFAULT, cloudNetworkMonitoringData);
+        cloudNetworkAgent.writeMonitoringData(DataType.DEFAULT, cloudNetworkMonitoringData);
     }
 }

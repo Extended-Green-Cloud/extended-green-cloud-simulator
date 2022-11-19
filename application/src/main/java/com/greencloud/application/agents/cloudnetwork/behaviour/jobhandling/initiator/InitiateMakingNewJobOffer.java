@@ -70,6 +70,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.manageMonitoring().saveMonitoringData();
 
 		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
