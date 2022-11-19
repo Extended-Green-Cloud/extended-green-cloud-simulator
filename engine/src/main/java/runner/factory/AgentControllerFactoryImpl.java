@@ -12,6 +12,7 @@ import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
@@ -19,6 +20,7 @@ import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
 import com.gui.agents.GreenEnergyAgentNode;
+import com.gui.agents.ManagingAgentNode;
 import com.gui.agents.MonitoringAgentNode;
 import com.gui.agents.SchedulerAgentNode;
 import com.gui.agents.ServerAgentNode;
@@ -78,6 +80,10 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 							schedulerAgent.getPowerWeight(),
 							schedulerAgent.getMaximumQueueSize()
 					});
+		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
+			return containerController.createNewAgent(agentArgs.getName(),
+					"org.greencloud.managingsystem.agent.ManagingAgent",
+					new Object[] { managingAgent.getSystemQualityThreshold() });
 		}
 		return null;
 	}
@@ -127,6 +133,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		}
 		if (agentArgs instanceof SchedulerAgentArgs schedulerAgentArgs) {
 			return new SchedulerAgentNode(schedulerAgentArgs);
+		}
+		if (agentArgs instanceof ManagingAgentArgs managingAgentArgs) {
+			return new ManagingAgentNode(managingAgentArgs);
 		}
 		return null;
 	}

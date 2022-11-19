@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
@@ -96,11 +96,13 @@ public class InitiateCNALookup extends ContractNetInitiator {
 	private void handleFailure() {
 		if (myScheduler.manage().postponeJobExecution(job)) {
 			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), POSTPONED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
+					POSTPONED_JOB_ID));
 		} else {
 			logger.info(NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
 			myScheduler.getClientJobs().remove(job);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), FAILED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
+					FAILED_JOB_ID));
 		}
 	}
 

@@ -18,6 +18,7 @@ import java.util.List;
 import org.postgresql.util.PGobject;
 
 import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
@@ -61,10 +62,11 @@ public class JdbcStatementsExecutor {
 		try (var statement = sqlConnection.prepareStatement(INSERT_ADAPTATION_ACTION)) {
 			statement.setInt(1, adaptationAction.getActionId());
 			statement.setString(2, adaptationAction.getActionName());
-			statement.setInt(3, adaptationAction.getGoal().ordinal());
-			statement.setObject(4, jsonObject);
-			statement.setBoolean(5, adaptationAction.getAvailable());
-			statement.setInt(6, adaptationAction.getRuns());
+			statement.setString(3, adaptationAction.getType().toString());
+			statement.setInt(4, adaptationAction.getGoal().getAdaptationGoalId());
+			statement.setObject(5, jsonObject);
+			statement.setBoolean(6, adaptationAction.getAvailable());
+			statement.setInt(7, adaptationAction.getRuns());
 			statement.executeUpdate();
 		}
 	}
@@ -114,8 +116,11 @@ public class JdbcStatementsExecutor {
 				var result = new ArrayList<AdaptationGoal>();
 				while (resultSet.next()) {
 					var adaptationGoal = new AdaptationGoal(
-							resultSet.getString(1), // adaptation goal name
-							resultSet.getInt(2) // adaptation goal id
+							resultSet.getInt(1), // adaptation goal id,
+							resultSet.getString(2), // adaptation goal name
+							resultSet.getDouble(3), // adaptation goal threshold
+							resultSet.getBoolean(4), // adaptation goal is above threshold
+							resultSet.getDouble(5) // adaptation goal weight
 					);
 					result.add(adaptationGoal);
 				}
@@ -154,11 +159,12 @@ public class JdbcStatementsExecutor {
 		return new AdaptationAction(
 				resultSet.getInt(1), // action id
 				resultSet.getString(2), // action name
-				GoalEnum.values()[resultSet.getInt(3)], // action's goal id
-				objectMapper.readValue(resultSet.getObject(4).toString(), new TypeReference<>() {
+				AdaptationActionEnum.valueOf(resultSet.getObject(3).toString()), // action type
+				GoalEnum.getByGoalId(resultSet.getInt(4)), // action's goal id
+				objectMapper.readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
 				}), // action_results
-				resultSet.getBoolean(5), // availability
-				resultSet.getInt(6) // runs
+				resultSet.getBoolean(6), // availability
+				resultSet.getInt(7) // runs
 		);
 	}
 }

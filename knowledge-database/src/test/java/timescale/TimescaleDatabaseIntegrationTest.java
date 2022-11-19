@@ -81,9 +81,9 @@ class TimescaleDatabaseIntegrationTest {
 	void shouldCorrectlyReadAdaptationGoals() {
 		// given
 		var expectedAdaptationGoals = List.of(
-				new AdaptationGoal("Maximize job success ratio", 1),
-				new AdaptationGoal("Minimize used backup power", 2),
-				new AdaptationGoal("Distribute traffic evenly", 3)
+				new AdaptationGoal(1, "Maximize job success ratio", 0.8, true, 0.6),
+				new AdaptationGoal(2,"Minimize used backup power", 0.2, false, 0.2),
+				new AdaptationGoal(3,"Distribute traffic evenly", 0.7, false, 0.2)
 		);
 
 		// when

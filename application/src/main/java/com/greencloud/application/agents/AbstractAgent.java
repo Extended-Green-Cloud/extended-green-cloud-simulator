@@ -24,7 +24,6 @@ public abstract class AbstractAgent extends Agent {
 	@Override
 	protected void setup() {
 		super.setup();
-		addBehaviour(new ReportHealthCheck(this));
 		setEnabledO2ACommunication(true, 2);
 	}
 

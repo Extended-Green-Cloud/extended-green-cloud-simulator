@@ -1,25 +1,37 @@
 package com.greencloud.application.agents.client;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.greencloud.application.agents.AbstractAgent;
-
-import jade.core.AID;
+import com.greencloud.application.agents.client.domain.JobPart;
+import com.greencloud.commons.job.ClientJob;
 
 /**
  * Abstract agent class storing the data regarding Client Agent
  */
 public abstract class AbstractClientAgent extends AbstractAgent {
 
+	protected ClientJob myJob;
 	protected Instant simulatedJobStart;
 	protected Instant simulatedJobEnd;
 	protected Instant simulatedDeadline;
-	protected Integer retries;
 	protected boolean announced;
+	protected boolean split;
+	protected Map<String, JobPart> jobParts;
 
 	protected AbstractClientAgent() {
 		super.setup();
-		retries = 0;
+		jobParts = new HashMap<>();
+	}
+
+	public void setMyJob(ClientJob myJob) {
+		this.myJob = myJob;
+	}
+
+	public ClientJob getMyJob() {
+		return myJob;
 	}
 
 	public Instant getSimulatedJobStart() {
@@ -38,16 +50,12 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 		this.simulatedJobEnd = simulatedJobEnd;
 	}
 
-	public Instant getSimulatedDeadline() { return simulatedDeadline; }
-
-	public void setSimulatedDeadline(Instant simulatedDeadline) { this.simulatedDeadline = simulatedDeadline; }
-
-	public Integer getRetries() {
-		return retries;
+	public Instant getSimulatedDeadline() {
+		return simulatedDeadline;
 	}
 
-	public void retry() {
-		retries++;
+	public void setSimulatedDeadline(Instant simulatedDeadline) {
+		this.simulatedDeadline = simulatedDeadline;
 	}
 
 	public void announce() {
@@ -56,5 +64,17 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 
 	public boolean isAnnounced() {
 		return announced;
+	}
+
+	public boolean isSplit() {
+		return split;
+	}
+
+	public void split() {
+		split = true;
+	}
+
+	public Map<String, JobPart> getJobParts() {
+		return jobParts;
 	}
 }

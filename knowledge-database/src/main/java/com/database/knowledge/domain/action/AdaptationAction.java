@@ -1,11 +1,8 @@
 package com.database.knowledge.domain.action;
 
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 import com.database.knowledge.domain.goal.GoalEnum;
 
@@ -21,24 +18,24 @@ public class AdaptationAction {
 	private final Map<GoalEnum, Double> actionResults;
 	private final Boolean isAvailable;
 	private Integer runs;
+	private AdaptationActionEnum type;
 
-	public AdaptationAction(Integer actionId, String actionName, GoalEnum goal) {
+	public AdaptationAction(Integer actionId, String actionName, AdaptationActionEnum type, GoalEnum goal) {
 		this.actionId = actionId;
 		this.actionName = actionName;
+		this.type = type;
 		this.goal = goal;
-		this.actionResults = Map.of(
-				MAXIMIZE_JOB_SUCCESS_RATIO, 0.0,
-				MINIMIZE_USED_BACKUP_POWER, 0.0,
-				DISTRIBUTE_TRAFFIC_EVENLY, 0.0
-		);
+		this.actionResults = Arrays.stream(GoalEnum.values())
+				.collect(Collectors.toMap(goalEnum -> goalEnum, goalEnum -> 0.0D));
 		this.isAvailable = true;
 		this.runs = 0;
 	}
 
-	public AdaptationAction(Integer actionId, String actionName, GoalEnum goal, Map<GoalEnum, Double> actionResults,
+	public AdaptationAction(Integer actionId, String actionName, AdaptationActionEnum type, GoalEnum goal, Map<GoalEnum, Double> actionResults,
 			Boolean isAvailable, Integer runs) {
 		this.actionId = actionId;
 		this.actionName = actionName;
+		this.type = type;
 		this.goal = goal;
 		this.isAvailable = isAvailable;
 		this.actionResults = actionResults;
@@ -69,14 +66,13 @@ public class AdaptationAction {
 	 * @param newActionResults new action results provided by Managing Agent when saved to database
 	 */
 	public void mergeActionResults(Map<GoalEnum, Double> newActionResults) {
-		IntStream.range(MAXIMIZE_JOB_SUCCESS_RATIO.ordinal(), DISTRIBUTE_TRAFFIC_EVENLY.ordinal() + 1)
-				.forEach(i -> {
-					if (runs == 0) {
-						actionResults.put(GoalEnum.values()[i], newActionResults.get(GoalEnum.values()[i]));
-					} else {
-						actionResults.put(GoalEnum.values()[i], getUpdatedGoalChange(i, newActionResults));
-					}
-				});
+		Arrays.stream(GoalEnum.values()).forEach(goalEnum -> {
+			if (runs == 0) {
+				actionResults.put(goalEnum, newActionResults.get(goalEnum));
+			} else {
+				actionResults.put(goalEnum, getUpdatedGoalChange(goalEnum, newActionResults));
+			}
+		});
 	}
 
 	public Boolean getAvailable() {
@@ -85,6 +81,10 @@ public class AdaptationAction {
 
 	public Integer getRuns() {
 		return runs;
+	}
+
+	public AdaptationActionEnum getType() {
+		return type;
 	}
 
 	/**
@@ -96,8 +96,7 @@ public class AdaptationAction {
 		this.runs += 1;
 	}
 
-	private double getUpdatedGoalChange(int goalId, Map<GoalEnum, Double> newActionResults) {
-		return (actionResults.get(GoalEnum.values()[goalId]) * runs + newActionResults.get(GoalEnum.values()[goalId]))
-			   / (runs + 1);
+	private double getUpdatedGoalChange(GoalEnum goal, Map<GoalEnum, Double> newActionResults) {
+		return (actionResults.get(goal) * runs + newActionResults.get(goal)) / (runs + 1);
 	}
 }

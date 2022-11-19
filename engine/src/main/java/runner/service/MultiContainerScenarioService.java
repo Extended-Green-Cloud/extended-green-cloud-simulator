@@ -70,7 +70,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		ScenarioStructureArgs scenario = parseScenarioStructure(scenarioFile);
 
 		if (mainHost) {
-			runSchedulerContainer(scenario);
+			runCommonAgentContainers(scenario);
 			return;
 		}
 
@@ -93,11 +93,14 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		runClientAgents(CLIENT_NUMBER, clientFactory);
 	}
 
-	private void runSchedulerContainer(ScenarioStructureArgs scenario) {
+	private void runCommonAgentContainers(ScenarioStructureArgs scenario) {
 		final AgentControllerFactory factory = new AgentControllerFactoryImpl(mainContainer);
 		final AgentController schedulerController = runAgentController(scenario.getSchedulerAgentArgs(),
 				scenario, factory);
+		final AgentController managingAgentController = runAgentController(scenario.getManagingAgentArgs(),
+				scenario, factory);
 		runAgent(schedulerController, RUN_AGENT_PAUSE);
+		runAgent(managingAgentController, RUN_AGENT_PAUSE);
 	}
 
 	private List<AgentController> runCloudNetworkContainers(ScenarioStructureArgs scenario, Integer hostId) {

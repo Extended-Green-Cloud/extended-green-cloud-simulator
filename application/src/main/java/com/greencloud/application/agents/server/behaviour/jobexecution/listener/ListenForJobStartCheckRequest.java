@@ -3,7 +3,6 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.JOB_START_STATUS_RECEIVED_REQUEST_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_REQUEST_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -16,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -50,7 +49,7 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 		final ACLMessage request = myAgent.receive(JOB_STATUS_REQUEST_TEMPLATE);
 
 		if (Objects.nonNull(request)) {
-			final String jobId = readMessageContent(request, String.class);
+			final String jobId = request.getContent();
 			myServerAgent.send(
 					ReplyMessageFactory.prepareStringReply(request.createReply(), "REQUEST PROCESSING", AGREE));
 			MDC.put(MDC_JOB_ID, jobId);

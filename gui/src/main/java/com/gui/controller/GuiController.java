@@ -42,6 +42,20 @@ public interface GuiController extends Runnable {
 	void updateActiveJobsCountByValue(final int value);
 
 	/**
+	 * Method updates the failed jobs number by given value
+	 *
+	 * @param value value to be added to the failed jobs number
+	 */
+	void updateFailedJobsCountByValue(final int value);
+
+	/**
+	 * Method updates the finished jobs number by given value
+	 *
+	 * @param value value to be added to the finished jobs number
+	 */
+	void updateFinishedJobsCountByValue(final int value);
+
+	/**
 	 * Method updates the all jobs number by given value
 	 *
 	 * @param value value to be added to the all jobs number

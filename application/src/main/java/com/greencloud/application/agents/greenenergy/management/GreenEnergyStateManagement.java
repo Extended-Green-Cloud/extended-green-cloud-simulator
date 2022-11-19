@@ -22,6 +22,7 @@ import static java.lang.Math.min;
 import static java.util.Objects.nonNull;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,8 @@ import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handl
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.PowerJob;
 import com.gui.agents.GreenEnergyAgentNode;
 
 /**
@@ -170,8 +171,8 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgent.getPowerJobs().remove(powerJob);
 			greenEnergyAgent.getPowerJobs().put(affectedPowerJobInstance, JobStatusEnum.ON_HOLD_TRANSFER);
 			greenEnergyAgent.getPowerJobs().put(notAffectedPowerJobInstance, currentJobStatus);
-			final Date endDate = Date.from(affectedPowerJobInstance.getEndTime().plusMillis(MAX_ERROR_IN_JOB_FINISH));
-			greenEnergyAgent.addBehaviour(new HandleManualPowerSupplyFinish(greenEnergyAgent, endDate,
+			greenEnergyAgent.addBehaviour(new HandleManualPowerSupplyFinish(greenEnergyAgent,
+					calculateExpectedJobEndTime(affectedPowerJobInstance),
 					mapToJobInstanceId(affectedPowerJobInstance)));
 			updateGreenSourceGUI();
 			return affectedPowerJobInstance;
@@ -300,6 +301,17 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
 			greenEnergyAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
 		}
+	}
+
+	/**
+	 * Method calculates expected job end time taking into account possible time error
+	 *
+	 * @param job job of interest
+	 * @return
+	 */
+	public Date calculateExpectedJobEndTime(final PowerJob job) {
+		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
+		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
 	}
 
 	public AtomicInteger getStartedJobsInstances() {

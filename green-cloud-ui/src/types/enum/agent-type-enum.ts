@@ -4,4 +4,5 @@ export enum AgentType {
    SERVER = 'SERVER' as any,
    GREEN_ENERGY = 'GREEN_ENERGY' as any,
    MONITORING = 'MONITORING' as any,
+   SCHEDULER = 'SCHEDULER' as any,
 }

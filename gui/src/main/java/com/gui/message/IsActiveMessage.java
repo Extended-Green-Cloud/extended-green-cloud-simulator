@@ -4,11 +4,12 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableIsActiveMessage.class)
 @JsonDeserialize(as = ImmutableIsActiveMessage.class)
 @Value.Immutable
-public interface IsActiveMessage {
+public interface IsActiveMessage extends Message {
 
 	boolean getData();
 

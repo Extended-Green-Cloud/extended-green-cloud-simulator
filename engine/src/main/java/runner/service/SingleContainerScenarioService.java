@@ -44,6 +44,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 		final File scenarioStructureFile = readFile(scenarioStructureFileName);
 		final ScenarioStructureArgs scenarioStructure = parseScenarioStructure(scenarioStructureFile);
 		if (Objects.nonNull(scenarioStructure.getAgentsArgs())) {
+			createAgents(List.of(scenarioStructure.getManagingAgentArgs()), scenarioStructure);
 			createAgents(List.of(scenarioStructure.getSchedulerAgentArgs()), scenarioStructure);
 			createAgents(scenarioStructure.getMonitoringAgentsArgs(), scenarioStructure);
 			createAgents(scenarioStructure.getGreenEnergyAgentsArgs(), scenarioStructure);

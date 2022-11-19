@@ -3,6 +3,7 @@ package com.greencloud.application.messages.domain.factory;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
@@ -18,8 +19,11 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
+import com.greencloud.application.domain.job.ImmutableJobTimeFrames;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobTimeFrames;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -62,14 +66,33 @@ public class JobStatusMessageFactory {
 	}
 
 	/**
-	 * Method prepares the information message about the job execution status sent to client
+	 * Method prepares the information message about the job execution status sent to client with job id as message
+	 * content
 	 *
 	 * @param client         client to which the message is sent
+	 * @param content        content passed to client
 	 * @param conversationId type of the message passed for the client
 	 * @return inform ACLMessage
 	 */
-	public static ACLMessage prepareJobStatusMessageForClient(final String client, final String conversationId) {
-		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), conversationId, conversationId);
+	public static ACLMessage prepareJobStatusMessageForClient(final String client, final Object content,
+			final String conversationId) {
+		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), content, conversationId);
+	}
+
+	/**
+	 * Method prepares the information message sent to client containing adjusted job time frames
+	 *
+	 * @param client      client to which the message is sent
+	 * @param adjustedJob job with adjusted time frames
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobAdjustmentMessage(final String client, final ClientJob adjustedJob) {
+		final JobTimeFrames jobTimeFrames = ImmutableJobTimeFrames.builder()
+				.newJobStart(adjustedJob.getStartTime())
+				.newJobEnd(adjustedJob.getEndTime())
+				.jobId(adjustedJob.getJobId())
+				.build();
+		return prepareJobStatusMessage(singletonList(new AID(client, AID.ISGUID)), jobTimeFrames, RE_SCHEDULED_JOB_ID);
 	}
 
 	/**
@@ -155,10 +178,14 @@ public class JobStatusMessageFactory {
 			final String conversationId) {
 		final ACLMessage informationMessage = new ACLMessage(INFORM);
 		informationMessage.setProtocol(CHANGE_JOB_STATUS_PROTOCOL);
-		try {
-			informationMessage.setContent(getMapper().writeValueAsString(content));
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+		if (content instanceof String stringContent) {
+			informationMessage.setContent(stringContent);
+		} else {
+			try {
+				informationMessage.setContent(getMapper().writeValueAsString(content));
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		}
 		informationMessage.setConversationId(conversationId);
 		receivers.forEach(informationMessage::addReceiver);

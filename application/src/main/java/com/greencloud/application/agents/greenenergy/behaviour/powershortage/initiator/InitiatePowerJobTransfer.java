@@ -9,7 +9,6 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.logs.PowerShortageSourceInitiatorLog.SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
-import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
@@ -68,7 +67,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleRefuse(ACLMessage refuse) {
-		final String messageContent = readMessageContent(refuse, String.class);
+		final String messageContent = refuse.getContent();
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		logger.info(SOURCE_JOB_TRANSFER_REFUSE_LOG, jobToTransfer.getJobId());
 		if (messageContent.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
@@ -112,7 +111,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final String cause = readMessageContent(failure, String.class);
+		final String cause = failure.getContent();
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
 		if (myGreenAgent.getPowerJobs().containsKey(jobToTransfer) &&
 				!cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {

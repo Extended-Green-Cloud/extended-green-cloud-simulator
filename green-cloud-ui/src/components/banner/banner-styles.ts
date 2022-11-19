@@ -22,7 +22,7 @@ export const styles: Styles = {
       justifyContent: 'space-between',
    },
    bannerMenuIcon: {
-      height: '50px',
+      height: '55px',
       opacity: 0.95,
    },
    logoContainer: {

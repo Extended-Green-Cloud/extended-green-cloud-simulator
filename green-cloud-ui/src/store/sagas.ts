@@ -3,6 +3,7 @@ import axios from 'axios'
 import { agentsActions } from './agent'
 import { cloudNetworkActions } from './cloud-network'
 import { toast } from 'react-toastify'
+import { managinSystemActions } from './managing-system'
 
 /**
  * Saga responsible for wathich the state fetching action
@@ -35,6 +36,7 @@ function* fetchState() {
          yield all([
             put(agentsActions.setAgentsData(data.agents)),
             put(cloudNetworkActions.setNetworkData(data.network)),
+            put(managinSystemActions.setAdaptationData(data.managingSystem)),
          ])
          yield delay(200)
       } catch (err: any) {

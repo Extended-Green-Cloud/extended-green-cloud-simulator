@@ -29,6 +29,7 @@ export const styles: Styles = {
       display: 'flex',
       flexDirection: 'column',
       minWidth: '0',
+      marginRight: '10px',
    },
    rightContentContainer: {
       width: '10%',

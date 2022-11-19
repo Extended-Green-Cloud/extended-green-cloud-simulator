@@ -6,5 +6,6 @@ export interface ClientAgent extends CommonAgentInterface {
    power: string
    start: string
    end: string
+   deadline: string
    jobStatusEnum: JobStatus
 }

@@ -3,7 +3,6 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.init
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.POWER_SUPPLY_PROPOSAL_REJECTED_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.SEND_POWER_SUPPLY_FAILURE_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.logs.PowerSupplyInitiatorLog.SEND_POWER_SUPPLY_RESPONSE_LOG;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
@@ -13,13 +12,9 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,8 +28,8 @@ import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.job.JobWithProtocol;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -101,11 +96,6 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		return job;
 	}
 
-	private Date calculateExpectedJobEndTime(final PowerJob job) {
-		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
-		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
-	}
-
 	private void handleAcceptPowerSupply(final PowerJob job, final ACLMessage acceptProposal,
 			final JobWithProtocol jobWithProtocol) {
 		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.manage()
@@ -125,7 +115,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);
 
 		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
-				calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
+				myGreenEnergyAgent.manage().calculateExpectedJobEndTime(job), JobMapper.mapToJobInstanceId(job));
 		myAgent.addBehaviour(manualFinishBehaviour);
 
 		sendResponseToServer(proposal, jobWithProtocol);
