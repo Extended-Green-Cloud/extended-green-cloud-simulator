@@ -6,7 +6,6 @@ import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import jade.junit.jupiter.JadeExtension;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,7 +19,6 @@ import static org.mockito.quality.Strictness.LENIENT;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JadeExtension.class)
 @MockitoSettings(strictness = LENIENT)
-@Disabled
 public class AgentFactoryTest {
 
     AgentFactory factory = new AgentFactoryImpl();

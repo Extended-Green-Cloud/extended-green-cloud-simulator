@@ -31,7 +31,7 @@ public class CloudNetworkMonitorManagement {
                 .sum();
         Map<AID, Double> percentages = new HashMap<>();
         for (Map.Entry<AID, Integer> entry : cloudNetworkAgent.getWeightsForServersMap().entrySet()) {
-            percentages.put(entry.getKey(), (double) ((entry.getValue() * 100) / sum));
+            percentages.put(entry.getKey(), ((double)entry.getValue() * 100)/ sum);
         }
         return percentages;
     }

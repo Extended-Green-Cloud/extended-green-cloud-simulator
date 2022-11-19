@@ -20,16 +20,16 @@ public class ServerMonitorManagement {
      * Method returns the map where key is the owned green source and value is the (weight / sum of weights) * 100
      * @return map where key is the owned green source and value is the (weight / sum of weights) * 100
      */
-    public Map<AID, Integer> getPercentages() {
+    public Map<AID, Double> getPercentages() {
         int sum = serverAgent
                 .getWeightsForGreenSourcesMap()
                 .values()
                 .stream()
                 .mapToInt(i -> i)
                 .sum();
-        Map<AID, Integer> percentages = new HashMap<>();
+        Map<AID, Double> percentages = new HashMap<>();
         for (Map.Entry<AID, Integer> entry : serverAgent.getWeightsForGreenSourcesMap().entrySet()) {
-            percentages.put(entry.getKey(), (entry.getValue() * 100) / sum);
+            percentages.put(entry.getKey(), ((double)entry.getValue() * 100/ sum));
         }
         return percentages;
     }

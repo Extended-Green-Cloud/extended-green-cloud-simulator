@@ -42,6 +42,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		serverForJobMap = new HashMap<>();
 		networkJobs = new HashMap<>();
 		completedJobs = new AtomicLong(0L);
+		weightsForServersMap = new HashMap<>();
 	}
 
 	public Map<String, AID> getServerForJobMap() {
@@ -74,10 +75,6 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public Map<AID, Integer> getWeightsForServersMap() {
 		return weightsForServersMap;
-	}
-
-	public void setWeightsForServersMap(Map<AID, Integer> weightsForServersMap) {
-		this.weightsForServersMap = weightsForServersMap;
 	}
 
 	public CloudNetworkStateManagement manage() {
