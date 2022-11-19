@@ -12,7 +12,7 @@ interface Props {
 }
 
 /**
- * Component represents a single details fiels
+ * Component represents a single details field
  *
  * @param {string}[label] - label describing the value
  * @param {any}[value] - value of given field

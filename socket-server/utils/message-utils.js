@@ -109,9 +109,9 @@ const handleSetClientJobStatus = (state, msg) => {
 
     if (agent) {
         if (splitJobId) {
-            const splittedJob = agent.splitJobs.find(job => job.splitJobId === splitJobId)
-            if (splittedJob) {
-                splittedJob.status = jobStatus
+            const splitJob = agent.splitJobs.find(job => job.splitJobId === splitJobId)
+            if (splitJob) {
+                splitJob.status = jobStatus
             }
         } else {
             agent.status = jobStatus
@@ -177,9 +177,9 @@ const handleJobSplit = (state, msg) => {
     const clientForSplit = clients.find(client => client.job.jobId === msg.jobId)
 
     if (clientForSplit) {
-        const splitedData = msg.data.map(splittedJob => ({ status: JOB_STATUES.CREATED, ...splittedJob }))
+        const splitData = msg.data.map(splitJob => ({ status: JOB_STATUES.CREATED, ...splitJob }))
         clientForSplit.isSplit = true
-        clientForSplit.splitJobs = splitedData
+        clientForSplit.splitJobs = splitData
     }
 }
 

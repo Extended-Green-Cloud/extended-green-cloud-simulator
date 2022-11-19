@@ -58,7 +58,7 @@ const ClientPanel = () => {
          {...{
             buttonClassName: 'small-green-button',
             setIsOpen,
-            title: 'SPLITTED JOBS',
+            title: 'SPLIT JOBS',
          }}
       />
    )

@@ -18,7 +18,7 @@ interface Props {
  *
  * @param {boolean}[isOpen] - flag indicating if the modal is currently open
  * @param {func}[setIsOpen] - function changing the state of the modal
- * @param {ClientAgent}[client] - client for which the job was splitted
+ * @param {ClientAgent}[client] - client for which the job was split
  * @returns JSX Element
  */
 const ClientSplitJobModal = ({ isOpen, setIsOpen, client }: Props) => {
@@ -26,7 +26,7 @@ const ClientSplitJobModal = ({ isOpen, setIsOpen, client }: Props) => {
 
    const header = [client.name.toUpperCase(), 'JOB PARTS'].join(' ')
 
-   const getSplittedJobs = () => {
+   const getSplitJobs = () => {
       return client.splitJobs.map((job) => {
          const jobTitle = ['JOB', parseSplitJobId(job.splitJobId)].join(' ')
          const parsedJob = Object.assign({}, job, {
@@ -54,7 +54,7 @@ const ClientSplitJobModal = ({ isOpen, setIsOpen, client }: Props) => {
             header: header,
          }}
       >
-         {getSplittedJobs()}
+         {getSplitJobs()}
       </Modal>
    )
 }
