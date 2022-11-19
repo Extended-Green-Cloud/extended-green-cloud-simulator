@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class CloudNetworkMonitorManagementUnitTest {
+public class CloudNetworkConfigManagementUnitTest {
 
     // MOCK OBJECTS
     @Mock
@@ -21,22 +21,22 @@ public class CloudNetworkMonitorManagementUnitTest {
     @Mock
     private CloudNetworkAgent mockCloudNetworkAgent;
 
-    private CloudNetworkMonitorManagement cloudNetworkMonitorManagement;
+    private CloudNetworkConfigManagement cloudNetworkMonitorManagement;
 
     @BeforeEach
     void init() {
         mockCloudNetworkAgent = mock(CloudNetworkAgent.class);
         MOCK_WEIGHTS_FOR_SERVERS_MAP = initMap();
-        doReturn(MOCK_WEIGHTS_FOR_SERVERS_MAP).when(mockCloudNetworkAgent).getWeightsForServersMap();
 
-        cloudNetworkMonitorManagement = new CloudNetworkMonitorManagement(mockCloudNetworkAgent);
-        doReturn(cloudNetworkMonitorManagement).when(mockCloudNetworkAgent).manageMonitoring();
+        cloudNetworkMonitorManagement = new CloudNetworkConfigManagement(mockCloudNetworkAgent);
+        cloudNetworkMonitorManagement.setWeightsForServersMap(MOCK_WEIGHTS_FOR_SERVERS_MAP);
+        doReturn(cloudNetworkMonitorManagement).when(mockCloudNetworkAgent).manageConfig();
     }
     // TESTS
 
     @Test
     void testGetServerPercentages() {
-        Map<AID, Double> serverPercentages = mockCloudNetworkAgent.manageMonitoring().getPercentages();
+        Map<AID, Double> serverPercentages = mockCloudNetworkAgent.manageConfig().getPercentages();
         assertThat(serverPercentages.get(new AID("1", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(serverPercentages.get(new AID("2", AID.ISGUID))).isEqualTo(1.0 * 100/7);
         assertThat(serverPercentages.get(new AID("3", AID.ISGUID))).isEqualTo(3.0 * 100/7);
