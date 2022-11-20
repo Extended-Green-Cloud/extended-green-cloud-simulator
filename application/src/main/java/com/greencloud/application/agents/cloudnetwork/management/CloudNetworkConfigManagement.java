@@ -1,6 +1,9 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
+import com.database.knowledge.domain.agent.DataType;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
+import com.greencloud.application.domain.monitoring.CloudNetworkMonitoringData;
+import com.greencloud.application.domain.monitoring.ImmutableCloudNetworkMonitoringData;
 import jade.core.AID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
 
 public class CloudNetworkConfigManagement {
 
@@ -45,7 +50,21 @@ public class CloudNetworkConfigManagement {
         return weightsForServersMap;
     }
 
+    /**
+     * method sets the map with servers and their weights for choice
+     * @param weightsForServersMap value of the map
+     */
     public void setWeightsForServersMap(Map<AID, Integer> weightsForServersMap) {
         this.weightsForServersMap = weightsForServersMap;
+    }
+
+    public void saveMonitoringData(){
+        CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
+                .ownedServers(cloudNetworkAgent.getOwnedServers())
+                .percentagesForServersMap(getPercentages())
+                .networkJobs(cloudNetworkAgent.getNetworkJobs())
+                .build();
+        cloudNetworkAgent.writeMonitoringData(DataType.DEFAULT, cloudNetworkMonitoringData);
+        logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
     }
 }

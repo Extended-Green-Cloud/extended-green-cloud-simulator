@@ -69,7 +69,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 			logger.info(JOB_HAS_STARTED_LOG, jobId);
 
 			myCloudNetwork.getNetworkJobs().replace(myCloudNetwork.manage().getJobById(jobId), IN_PROGRESS);
-			myCloudNetwork.manageMonitoring().saveMonitoringData();
+			myCloudNetwork.manageConfig().saveMonitoringData();
 			myCloudNetwork.manage().incrementStartedJobs(jobId);
 			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetwork, jobId, STARTED_JOB_ID));
 		}

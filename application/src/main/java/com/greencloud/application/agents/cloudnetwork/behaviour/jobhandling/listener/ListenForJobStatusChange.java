@@ -96,7 +96,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, ACCEPTED);
-		myCloudNetworkAgent.manageMonitoring().saveMonitoringData();
+		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 	}
 
@@ -107,7 +107,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(SEND_JOB_START_STATUS_LOG, jobId);
 			myCloudNetworkAgent.getNetworkJobs().replace(myCloudNetworkAgent.manage().getJobById(jobId), IN_PROGRESS);
-			myCloudNetworkAgent.manageMonitoring().saveMonitoringData();
+			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myCloudNetworkAgent.manage().incrementStartedJobs(jobId);
 			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, STARTED_JOB_ID));
 		}
@@ -136,7 +136,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		logger.info(SEND_JOB_FAILED_STATUS_LOG, jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.manageMonitoring().saveMonitoringData();
+		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, FAILED_JOB_ID));
 	}
 
@@ -144,7 +144,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
-		myCloudNetworkAgent.manageMonitoring().saveMonitoringData();
+		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 	}
 
 	private Date calculateExpectedJobStart(final ClientJob job) {
