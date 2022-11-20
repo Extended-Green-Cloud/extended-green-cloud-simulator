@@ -7,6 +7,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_REFUSE_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.CNA_JOB_TRANSFER_SUCCESSFUL_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.commons.job.JobResultType.FINISH;
 import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -163,7 +164,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 
 	private void updateServerStateUponJobFinish(final ClientJob job) {
 		if (job.getStartTime().isBefore(getCurrentTime())) {
-			myServerAgent.manage().incrementFinishedJobs(mapToJobInstanceId(job));
+			myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(job), FINISH);
 		}
 		if (myServerAgent.manage().isJobUnique(job.getJobId())) {
 			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());

@@ -148,24 +148,28 @@
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
 			<maximumCapacity>200</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>20</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
 			<maximumCapacity>250</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>30</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server3</name>
 			<ownerCloudNetwork>CNA2</ownerCloudNetwork>
 			<maximumCapacity>200</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>40</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server4</name>
 			<ownerCloudNetwork>CNA2</ownerCloudNetwork>
 			<maximumCapacity>250</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>50</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

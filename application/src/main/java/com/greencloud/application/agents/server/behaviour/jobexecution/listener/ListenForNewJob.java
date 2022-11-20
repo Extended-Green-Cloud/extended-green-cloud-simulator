@@ -2,6 +2,8 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.commons.job.JobResultType.PROCESSED;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
@@ -62,6 +64,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 					myServerAgent.canTakeIntoProcessing();
 
 			if (validJobConditions) {
+				myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(job), PROCESSED);
 				initiateNegotiationWithPowerSources(job, message);
 			} else {
 				logger.info(JobHandlingListenerLog.SERVER_NEW_JOB_LACK_OF_POWER_LOG);
