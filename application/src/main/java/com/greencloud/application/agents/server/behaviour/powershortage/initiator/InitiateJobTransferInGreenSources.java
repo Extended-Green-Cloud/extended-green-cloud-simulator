@@ -19,6 +19,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SOURCES_AVAILABLE_CAUSE_MESSAGE;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
@@ -117,7 +118,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 		myServerAgent.addBehaviour(
 				new ListenForSourceJobTransferConfirmation(myServerAgent, jobToTransferInstance, powerShortageStart,
 						greenSourceRequest));
-		myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
+		myAgent.send(prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
 				jobToTransferInstance, POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL));
 	}
 

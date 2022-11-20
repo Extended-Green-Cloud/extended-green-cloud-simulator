@@ -6,12 +6,12 @@
 		<start>2</start>
 		<end>10</end>
 		<deadline>15</deadline>
-		<power>100</power>
+		<power>50</power>
 	</event>
-	<event type="POWER_SHORTAGE_EVENT">
-		<occurrenceTime>9</occurrenceTime>
-		<agentName>WindFarm1</agentName>
-		<newMaximumCapacity>10</newMaximumCapacity>
-		<isFinished>false</isFinished>
-	</event>
+<!--	<event type="POWER_SHORTAGE_EVENT">-->
+<!--		<occurrenceTime>9</occurrenceTime>-->
+<!--		<agentName>WindFarm1</agentName>-->
+<!--		<newMaximumCapacity>10</newMaximumCapacity>-->
+<!--		<isFinished>false</isFinished>-->
+<!--	</event>-->
 </ScenarioEventsArgs>

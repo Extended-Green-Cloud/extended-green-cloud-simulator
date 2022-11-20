@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.server.management;
 
+import static com.greencloud.commons.job.JobResultType.FINISH;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.GREEN_ENERGY_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -184,7 +186,7 @@ class ServerStateManagementTest {
 				.pricePerPowerUnit(5)
 				.powerPredictionError(0.02)
 				.build();
-		final double resultPrice = serverAgent.manage().calculateServicePrice(mockGreenSourceData);
+		final double resultPrice = serverAgent.manageConfig().calculateServicePrice(mockGreenSourceData);
 
 		assertThat(resultPrice).isEqualTo(75);
 	}
@@ -273,8 +275,8 @@ class ServerStateManagementTest {
 				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
 
-		serverAgent.manage().incrementStartedJobs(jobInstanceId);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manage().incrementJobCounter(jobInstanceId, STARTED);
+		assertThat(MOCK_MANAGEMENT.getJobCounters().get(STARTED)).isEqualTo(1);
 	}
 
 	@Test
@@ -285,8 +287,8 @@ class ServerStateManagementTest {
 				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
 
-		serverAgent.manage().incrementFinishedJobs(jobInstanceId);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		serverAgent.manage().incrementJobCounter(jobInstanceId, FINISH);
+		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
 	}
 
 	@Test
@@ -360,7 +362,7 @@ class ServerStateManagementTest {
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
 		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
 	}
 
 	@Test
@@ -379,7 +381,7 @@ class ServerStateManagementTest {
 				.findFirst().orElse(null);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
 		assertNotNull(updatedStatus);
 		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY_PLANNED);
 	}
@@ -460,9 +462,10 @@ class ServerStateManagementTest {
 		serverAgent.setCurrentMaximumCapacity(MOCK_CAPACITY);
 
 		final ServerStateManagement management = new ServerStateManagement(serverAgent);
+		final ServerConfigManagement configManagement = new ServerConfigManagement(serverAgent);
 		MOCK_MANAGEMENT = spy(management);
 
-		doReturn(MOCK_PRICE).when(serverAgent).getPricePerHour();
+		doReturn(MOCK_PRICE).when(configManagement).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
 		doReturn(MOCK_MANAGEMENT).when(serverAgent).manage();
 		doReturn(mock(GuiController.class)).when(serverAgent).getGuiController();
