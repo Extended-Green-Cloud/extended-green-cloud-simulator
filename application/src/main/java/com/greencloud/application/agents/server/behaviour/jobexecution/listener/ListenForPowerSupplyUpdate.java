@@ -9,7 +9,6 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.li
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FINISHED_MANUALLY_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.JobResultType.FAILURE;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_TRANSFER_ID;
@@ -154,18 +153,17 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		}
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
-		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILURE);
 		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
 
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
-			final String jobId = msg.getContent();
-			return myServerAgent.manage().getJobById(jobId);
-		} catch (IncorrectMessageContentException e) {
 			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);
 			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+		} catch (IncorrectMessageContentException e) {
+			final String jobId = msg.getContent();
+			return myServerAgent.manage().getJobById(jobId);
 		}
 	}
 
