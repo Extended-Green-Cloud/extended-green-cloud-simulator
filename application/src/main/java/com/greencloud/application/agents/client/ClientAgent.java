@@ -17,6 +17,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.client.behaviour.df.FindSchedulerAgent;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.initiator.InitiateNewJobAnnouncement;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.listener.ListenForJobUpdate;
+import com.greencloud.application.agents.client.management.ClientStateManagement;
 import com.greencloud.application.exception.IncorrectTaskDateException;
 import com.greencloud.application.utils.TimeUtils;
 import com.greencloud.commons.job.ClientJob;
@@ -84,6 +85,7 @@ public class ClientAgent extends AbstractClientAgent {
 			prepareSimulatedTimes(startTime, endTime, deadline);
 			logger.info("[{}] Job simulation time: from {} to {} (deadline: {})", this.getName(), simulatedJobStart,
 					simulatedJobEnd, simulatedDeadline);
+			this.clientStateManagement = new ClientStateManagement(this);
 			return ImmutableClientJob.builder()
 					.clientIdentifier(getAID().getName())
 					.startTime(getSimulatedJobStart())

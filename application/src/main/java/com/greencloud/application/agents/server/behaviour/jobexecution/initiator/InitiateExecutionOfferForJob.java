@@ -14,6 +14,8 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -63,14 +65,16 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
 		final ClientJob jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
-		final int availableCapacity = myServerAgent.manage()
-				.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
-		myServerAgent.manage().incrementJobCounter(jobInstanceId, ACCEPTED);
+		if(Objects.nonNull(jobInstance)) {
+			final int availableCapacity = myServerAgent.manage()
+					.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
+			myServerAgent.manage().incrementJobCounter(jobInstanceId, ACCEPTED);
 
-		if (jobInstance.getPower() > availableCapacity) {
-			passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept);
-		} else {
-			acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
+			if (jobInstance.getPower() > availableCapacity) {
+				passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept);
+			} else {
+				acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
+			}
 		}
 	}
 

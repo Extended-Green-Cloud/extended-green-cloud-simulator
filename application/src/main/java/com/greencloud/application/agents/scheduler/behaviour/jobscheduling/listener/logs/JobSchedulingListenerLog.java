@@ -14,5 +14,7 @@ public class JobSchedulingListenerLog {
 	// JOB UPDATE LISTENER
 	public static final String JOB_UPDATE_RECEIVED_LOG =
 			"Received update regarding job {} state. Passing the information to client.";
+	public static final String JOB_FAILED_RETRY_LOG =
+			"Execution of the job {} has failed. Retrying to execute the job";
 
 }

@@ -76,13 +76,6 @@ public class GreenPowerManagement {
 	}
 
 	/**
-	 * @param currentMaximumCapacity - new maximum capacity
-	 */
-	public void setCurrentMaximumCapacity(int currentMaximumCapacity) {
-		this.currentMaximumCapacity = currentMaximumCapacity;
-	}
-
-	/**
 	 * @return initial maximum capacity
 	 */
 	public int getInitialMaximumCapacity() {
@@ -94,6 +87,13 @@ public class GreenPowerManagement {
 	 */
 	public int getCurrentMaximumCapacity() {
 		return currentMaximumCapacity;
+	}
+
+	/**
+	 * @param currentMaximumCapacity - new maximum capacity
+	 */
+	public void setCurrentMaximumCapacity(int currentMaximumCapacity) {
+		this.currentMaximumCapacity = currentMaximumCapacity;
 	}
 
 	private double getWindPower(WeatherData weather) {

@@ -17,7 +17,11 @@ import com.gui.websocket.GuiWebSocketClient;
  */
 public class ClientAgentNode extends AbstractAgentNode {
 
-	private final ClientAgentArgs args;
+	private ClientAgentArgs args;
+
+	public ClientAgentNode() {
+		super();
+	}
 
 	/**
 	 * Client node constructor

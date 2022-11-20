@@ -6,7 +6,9 @@ import java.util.Map;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
+import com.greencloud.application.agents.client.management.ClientStateManagement;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.JobStatusEnum;
 
 /**
  * Abstract agent class storing the data regarding Client Agent
@@ -20,18 +22,19 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected boolean announced;
 	protected boolean split;
 	protected Map<String, JobPart> jobParts;
+	protected ClientStateManagement clientStateManagement;
 
 	protected AbstractClientAgent() {
 		super.setup();
 		jobParts = new HashMap<>();
 	}
 
-	public void setMyJob(ClientJob myJob) {
-		this.myJob = myJob;
-	}
-
 	public ClientJob getMyJob() {
 		return myJob;
+	}
+
+	public void setMyJob(ClientJob myJob) {
+		this.myJob = myJob;
 	}
 
 	public Instant getSimulatedJobStart() {
@@ -76,5 +79,9 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 
 	public Map<String, JobPart> getJobParts() {
 		return jobParts;
+	}
+
+	public ClientStateManagement manage() {
+		return clientStateManagement;
 	}
 }

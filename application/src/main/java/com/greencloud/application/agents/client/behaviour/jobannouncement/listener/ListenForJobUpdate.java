@@ -129,22 +129,30 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		logger.info(logMessage);
 		if (!myClientAgent.isSplit()) {
 			myNode.updateJobStatus(status);
+			myClientAgent.manage().updateJobStatusDuration(status);
 			return;
 		}
 		processJobPartBasedOnStatus(message, status);
+		myClientAgent.manage().updateOriginalJobStatus(status);
+		myClientAgent.manage().writeClientData(false);
 	}
 
 	private void processStartedJob(ACLMessage message) {
 		if (!myClientAgent.isSplit()) {
 			myNode.updateJobStatus(IN_PROGRESS);
+			myClientAgent.manage().updateJobStatusDuration(IN_PROGRESS);
 			checkIfJobStartedOnTime(myClientAgent.getSimulatedJobStart());
+			myClientAgent.manage().writeClientData(false);
 			return;
 		}
 
 		var jobPartId = message.getContent();
 		processJobPartBasedOnStatus(message, IN_PROGRESS);
 		checkIfJobStartedOnTime(myClientAgent.getJobParts().get(jobPartId).getSimulatedJobStart());
-		if (myClientAgent.getJobParts().values().stream().map(JobPart::getStatus).allMatch(IN_PROGRESS::equals)) {
+		myClientAgent.manage().updateOriginalJobStatus(IN_PROGRESS);
+		myClientAgent.manage().writeClientData(false);
+
+		if (myClientAgent.manage().checkIfAllPartsMatchStatus(IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, myClientAgent.getMyJob().getJobId());
 			logger.info(ALL_PARTS_STARTED);
 		}
@@ -154,6 +162,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		if (!myClientAgent.isSplit()) {
 			checkIfJobFinishedOnTime(myClientAgent.getSimulatedJobEnd(), myClientAgent.getSimulatedDeadline());
 			myNode.updateJobStatus(FINISHED);
+			myClientAgent.manage().updateJobStatusDuration(FINISHED);
 			shutdownAfterFinishedJob(CLIENT_JOB_FINISHED_LOG);
 			return;
 		}
@@ -161,7 +170,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		var jobPart = myClientAgent.getJobParts().get(jobPartId);
 		checkIfJobFinishedOnTime(jobPart.getSimulatedJobEnd(), jobPart.getSimulatedDeadline());
 		processJobPartBasedOnStatus(message, FINISHED);
-		if (myClientAgent.getJobParts().values().stream().map(JobPart::getStatus).allMatch(FINISHED::equals)) {
+		myClientAgent.manage().updateOriginalJobStatus(FINISHED);
+
+		if (myClientAgent.manage().checkIfAllPartsMatchStatus(FINISHED)) {
 			MDC.put(MDC_JOB_ID, myClientAgent.getMyJob().getJobId());
 			checkIfJobFinishedOnTime(myClientAgent.getSimulatedJobEnd(), myClientAgent.getSimulatedDeadline());
 			shutdownAfterFinishedJob(ALL_PARTS_FINISHED);
@@ -193,6 +204,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		myClientAgent.getGuiController().updateFailedJobsCountByValue(1);
 		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+		myClientAgent.manage().writeClientData(true);
 		myClientAgent.doDelete();
 	}
 
@@ -211,7 +223,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 	private void processJobPartBasedOnStatus(ACLMessage message, JobStatusEnum status) {
 		var jobPartId = message.getContent();
-		myClientAgent.getJobParts().get(jobPartId).setStatus(status);
+		myClientAgent.getJobParts().get(jobPartId).updateJobStatusDuration(status);
 		myNode.updateJobStatus(status, jobPartId);
 	}
 
@@ -246,6 +258,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		logger.info(logMessage);
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		myClientAgent.getGuiController().updateFinishedJobsCountByValue(1);
+		myClientAgent.manage().writeClientData(true);
 		myClientAgent.doDelete();
 	}
 
