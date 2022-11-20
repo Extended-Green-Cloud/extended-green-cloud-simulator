@@ -9,14 +9,16 @@ import com.greencloud.commons.args.agent.server.ServerAgentArgs;
  * Interface with a set methods that create extra agents with specified parameters
  */
 public interface AgentFactory {
+
     /**
      * Method creates new server agent args that can be used to initialize new agent
      * @param ownerCNA - required argument specifying owner CNA
      * @param maximumCapacity - optional argument specifying server's maximum capacity
      * @param price - optional argument specifying server's price
+     * @param jobProcessingLimit - optional argument specifying maximum number of jobs processed at the same time
      * @return newly created server agent args
      */
-    ServerAgentArgs createServerAgent(String ownerCNA, Integer maximumCapacity, Integer price);
+    ServerAgentArgs createServerAgent(String ownerCNA, Integer maximumCapacity, Integer price, Integer jobProcessingLimit);
 
     /**
      * Method creates new green energy agent args that can be used to initialize new agent
