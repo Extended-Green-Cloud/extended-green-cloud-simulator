@@ -5,7 +5,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGE
 import java.util.List;
 import java.util.Objects;
 
-import com.greencloud.application.agents.server.management.ServerMonitorManagement;
+import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -56,10 +56,10 @@ public class ServerAgent extends AbstractServerAgent {
 	private void initializeAgent(final Object[] args) {
 		if (Objects.nonNull(args) && args.length == 3) {
 			this.stateManagement = new ServerStateManagement(this);
-			this.monitorManagement = new ServerMonitorManagement(this);
+			this.configManagement = new ServerConfigManagement(this);
 			this.ownedGreenSources = YellowPagesService.search(this, DFServiceConstants.GS_SERVICE_TYPE, getName());
 			this.ownedGreenSources.forEach(
-					greenSource -> this.weightsForGreenSourcesMap.put(greenSource, 1));
+					greenSource -> this.manageConfig().getWeightsForGreenSourcesMap().put(greenSource, 1));
 			if (ownedGreenSources.isEmpty()) {
 				logger.info("I have no corresponding green sources!");
 				doDelete();

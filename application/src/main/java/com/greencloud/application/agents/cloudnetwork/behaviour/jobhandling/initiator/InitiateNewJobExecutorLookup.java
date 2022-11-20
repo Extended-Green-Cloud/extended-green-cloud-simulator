@@ -114,8 +114,8 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	private int compareServerOffers(final ACLMessage serverOffer1, final ACLMessage serverOffer2) {
 		ServerData server1;
 		ServerData server2;
-		int weight1 = myCloudNetworkAgent.getWeightsForServersMap().get(serverOffer1.getSender());
-		int weight2 = myCloudNetworkAgent.getWeightsForServersMap().get(serverOffer2.getSender());
+		int weight1 = myCloudNetworkAgent.manageConfig().getWeightsForServersMap().get(serverOffer1.getSender());
+		int weight2 = myCloudNetworkAgent.manageConfig().getWeightsForServersMap().get(serverOffer2.getSender());
 		try {
 			server1 = getMapper().readValue(serverOffer1.getContent(), ServerData.class);
 			server2 = getMapper().readValue(serverOffer2.getContent(), ServerData.class);
