@@ -1,7 +1,11 @@
 package com.greencloud.application.agents.client.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.greencloud.application.utils.domain.Timer;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.JobStatusEnum;
 
@@ -13,9 +17,11 @@ public class JobPart {
 
 	private final ClientJob job;
 	private JobStatusEnum status;
+	protected Map<JobStatusEnum, Long> jobStatusDurationMap;
 	private Instant simulatedJobStart;
 	private Instant simulatedJobEnd;
-	private Instant simulatedDeadline;
+	private final Instant simulatedDeadline;
+	protected final Timer timer = new Timer();
 
 	public JobPart(ClientJob job, JobStatusEnum status, Instant simulatedJobStart, Instant simulatedJobEnd,
 			Instant simulatedDeadline) {
@@ -24,6 +30,9 @@ public class JobPart {
 		this.simulatedJobStart = simulatedJobStart;
 		this.simulatedJobEnd = simulatedJobEnd;
 		this.simulatedDeadline = simulatedDeadline;
+		jobStatusDurationMap = Arrays.stream(JobStatusEnum.values())
+				.collect(Collectors.toMap(statusEnum -> statusEnum, statusEnum -> 0L));
+		timer.startTimeMeasure();
 	}
 
 	public ClientJob getJob() {
@@ -58,7 +67,14 @@ public class JobPart {
 		return simulatedDeadline;
 	}
 
-	public void setSimulatedDeadline(Instant simulatedDeadline) {
-		this.simulatedDeadline = simulatedDeadline;
+	public Map<JobStatusEnum, Long> getJobStatusDurationMap() {
+		return jobStatusDurationMap;
+	}
+
+	public synchronized void updateJobStatusDuration(final JobStatusEnum newStatus) {
+		final long elapsedTime = timer.stopTimeMeasure();
+		timer.startTimeMeasure();
+		jobStatusDurationMap.computeIfPresent(status, (key, val) -> val + elapsedTime);
+		status = newStatus;
 	}
 }

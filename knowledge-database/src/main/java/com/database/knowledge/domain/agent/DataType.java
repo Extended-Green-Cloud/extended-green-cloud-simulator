@@ -5,6 +5,7 @@ import com.database.knowledge.domain.agent.monitoring.ProcessedApiRequest;
 public enum DataType {
 
 	DEFAULT(MonitoringData.class),
+	CLIENT_MONITORING(ClientMonitoringData.class),
 	HEALTH_CHECK(HealthCheck.class),
 	PROCESSED_API_REQUEST(ProcessedApiRequest.class);
 

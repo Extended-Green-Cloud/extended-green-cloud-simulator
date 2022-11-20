@@ -1,13 +1,12 @@
 package com.greencloud.application.agents.client;
 
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
+import com.greencloud.application.agents.client.management.ClientStateManagement;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.JobStatusEnum;
 
@@ -17,34 +16,25 @@ import com.greencloud.commons.job.JobStatusEnum;
 public abstract class AbstractClientAgent extends AbstractAgent {
 
 	protected ClientJob myJob;
-	protected JobStatusEnum currentJobStatus;
 	protected Instant simulatedJobStart;
 	protected Instant simulatedJobEnd;
 	protected Instant simulatedDeadline;
 	protected boolean announced;
 	protected boolean split;
 	protected Map<String, JobPart> jobParts;
+	protected ClientStateManagement clientStateManagement;
 
 	protected AbstractClientAgent() {
 		super.setup();
-		currentJobStatus = CREATED;
 		jobParts = new HashMap<>();
-	}
-
-	public void setMyJob(ClientJob myJob) {
-		this.myJob = myJob;
 	}
 
 	public ClientJob getMyJob() {
 		return myJob;
 	}
 
-	public JobStatusEnum getCurrentJobStatus() {
-		return currentJobStatus;
-	}
-
-	public void setCurrentJobStatus(JobStatusEnum currentJobStatus) {
-		this.currentJobStatus = currentJobStatus;
+	public void setMyJob(ClientJob myJob) {
+		this.myJob = myJob;
 	}
 
 	public Instant getSimulatedJobStart() {
@@ -89,5 +79,9 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 
 	public Map<String, JobPart> getJobParts() {
 		return jobParts;
+	}
+
+	public ClientStateManagement manage() {
+		return clientStateManagement;
 	}
 }

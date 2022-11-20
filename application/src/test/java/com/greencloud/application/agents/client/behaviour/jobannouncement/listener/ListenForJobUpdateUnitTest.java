@@ -87,7 +87,7 @@ class ListenForJobUpdateUnitTest {
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);
 		when(clientAgent.getJobParts()).thenReturn(jobParts);
 		when(clientAgent.isSplit()).thenReturn(true);
-		lenient().when(clientAgent.getCurrentJobStatus()).thenReturn(currentStatus);
+		lenient().when(clientAgent.manage().getCurrentJobStatus()).thenReturn(currentStatus);
 
 		// when
 		listenForJobUpdate.action();
