@@ -4,6 +4,8 @@ import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMa
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
 import static com.greencloud.application.utils.AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
+import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
+import static com.greencloud.application.utils.AlgorithmUtils.previousFibonacci;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -279,6 +281,22 @@ class AlgorithmUtilsUnitTest {
 		final int maxPower = 10;
 
 		final List<ClientJob> result = findJobsWithinPower(Collections.emptyList(), maxPower);
+
+		assertTrue(result.isEmpty());
+	}
+
+	@Test
+	@DisplayName("Jobs within power for power equal zero")
+	void testJobsWithinPowerForZeroPower() {
+		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
+				.startTime(Instant.parse("2022-01-01T08:30:00Z"))
+				.endTime(Instant.parse("2022-01-01T08:45:00Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(15).build();
+		final List<ClientJob> mockJobs = List.of(mockJob1);
+		final int maxPower = 0;
+
+		final List<ClientJob> result = findJobsWithinPower(mockJobs, maxPower);
 
 		assertTrue(result.isEmpty());
 	}
@@ -702,6 +720,24 @@ class AlgorithmUtilsUnitTest {
 				POWER_MANAGEMENT, MOCK_MONITORING_DATA);
 
 		assertThat(result).isEqualTo(65);
+	}
+
+	@Test
+	@DisplayName("Test get next Fibonacci number")
+	void testNextFibonacci() {
+		final int previousNo = 8;
+		final int result = nextFibonacci(previousNo);
+
+		assertThat(result).isEqualTo(13);
+	}
+
+	@Test
+	@DisplayName("Test get previous Fibonacci number")
+	void testPreviousFibonacci() {
+		final int previousNo = 89;
+		final int result = previousFibonacci(previousNo);
+
+		assertThat(result).isEqualTo(55);
 	}
 
 	private void capacityForComplicatedScenario() {
