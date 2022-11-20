@@ -23,22 +23,24 @@
 			<longitude>11.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
+			<energyType>SOLAR</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>Water</name>
+			<name>Wind</name>
 			<monitoringAgent>Weather</monitoringAgent>
 			<ownerSever>Server2</ownerSever>
 			<latitude>10.0</latitude>
 			<longitude>11.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
+			<energyType>WIND</energyType>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>10</maximumCapacity>
+			<maximumCapacity>35</maximumCapacity>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>

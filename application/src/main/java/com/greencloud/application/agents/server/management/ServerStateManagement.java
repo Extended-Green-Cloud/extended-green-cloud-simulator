@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
@@ -77,7 +78,7 @@ public class ServerStateManagement {
 	public synchronized int getAvailableCapacity(final Instant startDate, final Instant endDate,
 			final JobInstanceIdentifier jobToExclude, final Set<JobStatusEnum> statusEnums) {
 		final Set<JobStatusEnum> statuses = Objects.isNull(statusEnums) ?
-				ACCEPTED_JOB_STATUSES :
+				ACCEPTED_BY_SERVER_JOB_STATUSES :
 				statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
