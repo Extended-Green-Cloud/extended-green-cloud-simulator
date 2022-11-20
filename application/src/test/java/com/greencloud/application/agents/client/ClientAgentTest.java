@@ -50,7 +50,7 @@ class ClientAgentTest {
 
 		// then
 		assertThat(agent.isAlive())
-				.as("Agent should be removed when no cloud network com.greencloud.application.agents were found")
+				.as("Agent should be removed when no scheduler agent was found")
 				.isFalse();
 	}
 }

@@ -27,6 +27,9 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 		this.agentName = agentName;
 	}
 
+	protected AbstractAgentNode() {
+	}
+
 	@Override
 	public String getAgentName() {
 		return agentName;

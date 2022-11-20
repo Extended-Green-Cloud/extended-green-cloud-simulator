@@ -32,4 +32,8 @@ public class Timer {
 	public long stopTimeMeasure() {
 		return Duration.between(timeStart.get(), getCurrentTime()).toMillis();
 	}
+
+	public AtomicReference<Instant> getTimeStart() {
+		return timeStart;
+	}
 }

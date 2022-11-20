@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.database.knowledge.domain.agent.ClientMonitoringData;
@@ -63,7 +64,9 @@ public class ClientStateManagement {
 	 */
 	public void updateOriginalJobStatus(final JobStatusEnum status) {
 		if (isOriginalStatusUpdated(status)) {
-			((ClientAgentNode) clientAgent.getAgentNode()).updateJobStatus(status);
+			if (Objects.nonNull(clientAgent.getAgentNode())) {
+				((ClientAgentNode) clientAgent.getAgentNode()).updateJobStatus(status);
+			}
 			currentJobStatus = status;
 		}
 	}
@@ -94,6 +97,14 @@ public class ClientStateManagement {
 
 	public JobStatusEnum getCurrentJobStatus() {
 		return currentJobStatus;
+	}
+
+	public void setCurrentJobStatus(JobStatusEnum currentJobStatus) {
+		this.currentJobStatus = currentJobStatus;
+	}
+
+	public Timer getTimer() {
+		return timer;
 	}
 
 	private Map<JobStatusEnum, Long> getJobStatusDurationMap() {

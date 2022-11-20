@@ -20,7 +20,7 @@ public class JobPart {
 	protected Map<JobStatusEnum, Long> jobStatusDurationMap;
 	private Instant simulatedJobStart;
 	private Instant simulatedJobEnd;
-	private final Instant simulatedDeadline;
+	private Instant simulatedDeadline;
 	protected final Timer timer = new Timer();
 
 	public JobPart(ClientJob job, JobStatusEnum status, Instant simulatedJobStart, Instant simulatedJobEnd,

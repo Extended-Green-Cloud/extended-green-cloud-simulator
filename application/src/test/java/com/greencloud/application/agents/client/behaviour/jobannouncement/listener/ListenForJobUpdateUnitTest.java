@@ -33,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
+import com.greencloud.application.agents.client.management.ClientStateManagement;
 import com.greencloud.commons.job.JobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -48,6 +49,8 @@ class ListenForJobUpdateUnitTest {
 	@Mock
 	ClientAgent clientAgent;
 	@Mock
+	ClientStateManagement mockClientManagement;
+	@Mock
 	ClientAgentNode clientAgentNode;
 	@Mock
 	JobPart jobPart;
@@ -62,6 +65,7 @@ class ListenForJobUpdateUnitTest {
 		jobParts = new HashMap<>();
 		jobParts.put(JOB_PART_ID, jobPart);
 		when(clientAgent.getAgentNode()).thenReturn(clientAgentNode);
+		when(clientAgent.manage()).thenReturn(mockClientManagement);
 	}
 
 	@ParameterizedTest
@@ -93,7 +97,7 @@ class ListenForJobUpdateUnitTest {
 		listenForJobUpdate.action();
 
 		// then
-		verify(jobPart).setStatus(status);
+		verify(jobPart).updateJobStatusDuration(status);
 		verify(clientAgentNode).updateJobStatus(status, JOB_PART_ID);
 	}
 
