@@ -18,6 +18,9 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 	protected TimescaleDatabase databaseClient;
 	protected Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 
+	protected AbstractAgentNode() {
+	}
+
 	/**
 	 * Class constructor
 	 *

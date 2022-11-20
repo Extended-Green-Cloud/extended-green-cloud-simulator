@@ -1,18 +1,18 @@
 package com.greencloud.application.agents.server.management;
 
-import static com.greencloud.commons.job.JobResultType.FINISH;
-import static com.greencloud.commons.job.JobResultType.STARTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.GREEN_ENERGY_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.commons.job.JobResultType.FINISH;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -35,28 +35,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.ImmutableGreenSourceData;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
-import com.gui.agents.ServerAgentNode;
-import com.gui.controller.GuiController;
+import com.greencloud.commons.job.JobResultType;
 
 import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
-class ServerStateManagementTest {
+class ServerStateManagementUnitTest {
 
 	// MOCKED OBJECTS
 	private static final Instant MOCK_NOW = parse("2022-01-01T11:00:00.000Z");
@@ -72,28 +70,32 @@ class ServerStateManagementTest {
 
 	private static Stream<Arguments> parametersGetByIdAndStart() {
 		return Stream.of(
-				Arguments.of(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
-				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
+				arguments(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
+				arguments(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
 	}
 
 	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
 		return Stream.of(
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
+				arguments(ImmutableJobInstanceIdentifier.builder()
 						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 						.jobId("3")
 						.build(), true),
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
+				arguments(ImmutableJobInstanceIdentifier.builder()
 						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 						.jobId("1")
 						.build(), false));
 	}
 
 	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("10000", false));
+		return Stream.of(
+				arguments("5", true),
+				arguments("10000", false));
 	}
 
 	private static Stream<Arguments> parametersIsJobUnique() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("1", false));
+		return Stream.of(
+				arguments("5", true),
+				arguments("1", false));
 	}
 
 	// TEST SET-UP
@@ -178,20 +180,6 @@ class ServerStateManagementTest {
 	}
 
 	@Test
-	@DisplayName("Test calculating price for job")
-	void testPriceCalculation() {
-		final GreenSourceData mockGreenSourceData = ImmutableGreenSourceData.builder()
-				.jobId("1")
-				.availablePowerInTime(100)
-				.pricePerPowerUnit(5)
-				.powerPredictionError(0.02)
-				.build();
-		final double resultPrice = serverAgent.manageConfig().calculateServicePrice(mockGreenSourceData);
-
-		assertThat(resultPrice).isEqualTo(75);
-	}
-
-	@Test
 	@DisplayName("Test getting current job instance not found")
 	void testGettingCurrentJobInstanceNotFound() {
 		final Map.Entry<ClientJob, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("1");
@@ -267,28 +255,17 @@ class ServerStateManagementTest {
 		assertThat(serverAgent.manage().isJobUnique(jobId)).isEqualTo(result);
 	}
 
-	@Test
+	@ParameterizedTest
+	@EnumSource(JobResultType.class)
 	@DisplayName("Test increment started unique job")
-	void testIncrementStartedUniqueJob() {
+	void testIncrementCounter(JobResultType type) {
 		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
 				.jobId("1")
 				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
 
-		serverAgent.manage().incrementJobCounter(jobInstanceId, STARTED);
-		assertThat(MOCK_MANAGEMENT.getJobCounters().get(STARTED)).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment finished unique job")
-	void testIncrementFinishedUniqueJob() {
-		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
-				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.build();
-
-		serverAgent.manage().incrementJobCounter(jobInstanceId, FINISH);
-		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
+		serverAgent.manage().incrementJobCounter(jobInstanceId, type);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(type, 1L);
 	}
 
 	@Test
@@ -461,15 +438,16 @@ class ServerStateManagementTest {
 		serverAgent.getServerJobs().putAll(MOCK_JOBS);
 		serverAgent.setCurrentMaximumCapacity(MOCK_CAPACITY);
 
-		final ServerStateManagement management = new ServerStateManagement(serverAgent);
-		final ServerConfigManagement configManagement = new ServerConfigManagement(serverAgent);
-		MOCK_MANAGEMENT = spy(management);
+		final ServerConfigManagement configManagement = spy(new ServerConfigManagement(serverAgent));
+		MOCK_MANAGEMENT = spy(new ServerStateManagement(serverAgent));
+		serverAgent.setAgentNode(null);
 
 		doReturn(MOCK_PRICE).when(configManagement).getPricePerHour();
 		doReturn(MOCK_CAPACITY).when(serverAgent).getInitialMaximumCapacity();
+
 		doReturn(MOCK_MANAGEMENT).when(serverAgent).manage();
-		doReturn(mock(GuiController.class)).when(serverAgent).getGuiController();
-		doReturn(mock(ServerAgentNode.class)).when(serverAgent).getAgentNode();
+		doReturn(configManagement).when(serverAgent).manageConfig();
+
 		doNothing().when(serverAgent).addBehaviour(any());
 		doNothing().when(serverAgent).send(any());
 	}

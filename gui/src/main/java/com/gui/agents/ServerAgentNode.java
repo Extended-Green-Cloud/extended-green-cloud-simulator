@@ -16,10 +16,14 @@ import com.gui.websocket.GuiWebSocketClient;
  */
 public class ServerAgentNode extends AbstractNetworkAgentNode {
 
-	private final String cloudNetworkAgent;
-	private final List<String> greenEnergyAgents;
-	private final AtomicReference<Double> backUpTraffic;
-	private final AtomicInteger totalNumberOfClients;
+	private String cloudNetworkAgent;
+	private List<String> greenEnergyAgents;
+	private AtomicReference<Double> backUpTraffic;
+	private AtomicInteger totalNumberOfClients;
+
+	public ServerAgentNode() {
+		super();
+	}
 
 	/**
 	 * Server node constructor
