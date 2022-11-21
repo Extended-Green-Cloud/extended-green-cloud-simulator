@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs;
 
 /**
  * Class contains all constants used in logging information in listener behaviours during job scheduling process
@@ -16,5 +16,6 @@ public class JobSchedulingListenerLog {
 			"Received update regarding job {} state. Passing the information to client.";
 	public static final String JOB_FAILED_RETRY_LOG =
 			"Execution of the job {} has failed. Retrying to execute the job";
-
+	public static final String JOB_CANCELLATION_LOG =
+			"Announcing job cancellation after failed execution for a job part!";
 }

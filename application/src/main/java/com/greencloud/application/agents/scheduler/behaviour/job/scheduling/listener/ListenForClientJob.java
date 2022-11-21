@@ -1,9 +1,9 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener;
 
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs.JobSchedulingListenerLog.JOB_ALREADY_EXISTING_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs.JobSchedulingListenerLog.JOB_ENQUEUED_SUCCESSFULLY_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs.JobSchedulingListenerLog.QUEUE_THRESHOLD_EXCEEDED_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.templates.JobSchedulingMessageTemplates.NEW_JOB_ANNOUNCEMENT_TEMPLATE;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_ALREADY_EXISTING_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_ENQUEUED_SUCCESSFULLY_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.QUEUE_THRESHOLD_EXCEEDED_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates.JobSchedulingMessageTemplates.NEW_JOB_ANNOUNCEMENT_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
@@ -11,7 +11,6 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SPLIT_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +100,8 @@ public class ListenForClientJob extends CyclicBehaviour {
 
 	private List<ClientJob> splitJob(ClientJob clientJob) {
 		return IntStream.range(0, myScheduler.config().getSplittingFactor())
-				.mapToObj(i -> createJobPart(clientJob, i + 1)).toList();
+				.mapToObj(i -> createJobPart(clientJob, i + 1))
+				.toList();
 	}
 
 	private ClientJob createJobPart(ClientJob clientJob, int partNumber) {

@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.logs;
 
 /**
  * Class contains all constants used in logging information in initiator behaviours during job scheduling process

@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.templates;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates;
 
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;

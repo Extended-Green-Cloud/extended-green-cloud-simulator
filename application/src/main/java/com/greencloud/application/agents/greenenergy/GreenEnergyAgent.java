@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.greencloud.application.agents.greenenergy.behaviour.cancellation.ListenForGreenEnergyJobCancellation;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.ListenForServerPowerInformation;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForPowerSupplyRequest;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForPowerSupplyStatus;
@@ -87,7 +88,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				new ListenForPowerSupplyStatus(this),
 				new SenseGreenSourceEvent(this),
 				new ListenForServerPowerInformation(this),
-				new RequestWeatherPeriodically(this)
+				new RequestWeatherPeriodically(this),
+				new ListenForGreenEnergyJobCancellation()
 		);
 	}
 }

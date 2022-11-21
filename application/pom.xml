@@ -89,7 +89,7 @@
 			<artifactId>commons-suncalc</artifactId>
 			<version>3.5</version>
 		</dependency>
-		<!-- Guava -->
+		<!-- Utilities -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

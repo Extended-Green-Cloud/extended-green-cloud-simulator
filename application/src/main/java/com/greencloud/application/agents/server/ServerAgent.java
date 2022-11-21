@@ -5,7 +5,6 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGE
 import java.util.List;
 import java.util.Objects;
 
-import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -13,10 +12,12 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
+import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForServerJobCancellation;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourcePowerShortageJobs;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
+import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.yellowpages.YellowPagesService;
@@ -89,7 +90,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new SenseServerEvent(this),
 				new ListenForJobStartCheckRequest(),
 				new ListenForSourcePowerShortageFinish(),
-				new HandleSourcePowerShortageJobs(this)
+				new HandleSourcePowerShortageJobs(this),
+				new ListenForServerJobCancellation()
 		);
 	}
 }

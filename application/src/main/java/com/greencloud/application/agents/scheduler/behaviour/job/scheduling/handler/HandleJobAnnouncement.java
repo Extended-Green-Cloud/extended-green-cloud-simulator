@@ -1,9 +1,9 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler;
 
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler.logs.JobSchedulingHandlerLog.ANNOUNCE_JOB_CNA_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler.logs.JobSchedulingHandlerLog.JOB_ADJUST_TIME_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler.logs.JobSchedulingHandlerLog.JOB_EXECUTION_AFTER_DEADLINE_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler.logs.JobSchedulingHandlerLog.NO_AVAILABLE_CNA_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.ANNOUNCE_JOB_CNA_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.JOB_ADJUST_TIME_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.JOB_EXECUTION_AFTER_DEADLINE_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.NO_AVAILABLE_CNA_LOG;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_PROCESSING_DEADLINE_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_PROCESSING_TIME_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.SEND_NEXT_JOB_TIMEOUT;
@@ -29,9 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
-import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.InitiateCNALookup;
+import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.InitiateCNALookup;
 import com.greencloud.commons.job.ClientJob;
 
+import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -81,16 +82,16 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 			return;
 		}
 
-		logger.info(ANNOUNCE_JOB_CNA_LOG, jobToExecute.getJobId());
-		final ACLMessage cfp = createCallForProposal(jobToExecute, myScheduler.getAvailableCloudNetworks(),
+		logger.info(ANNOUNCE_JOB_CNA_LOG, adjustedJob.getJobId());
+		final ACLMessage cfp = createCallForProposal(adjustedJob, myScheduler.getAvailableCloudNetworks(),
 				SCHEDULER_JOB_CFP_PROTOCOL);
-		final ACLMessage clientMessage = prepareJobStatusMessageForClient(jobToExecute.getClientIdentifier(),
-				jobToExecute.getJobId(), PROCESSING_JOB_ID);
+		final ACLMessage clientMessage = prepareJobStatusMessageForClient(adjustedJob.getClientIdentifier(),
+				adjustedJob.getJobId(), PROCESSING_JOB_ID);
 
-		myScheduler.getClientJobs().replace(jobToExecute, CREATED, PROCESSING);
+		myScheduler.getClientJobs().replace(adjustedJob, CREATED, PROCESSING);
 		myScheduler.send(clientMessage);
 		myScheduler.manage().updateJobQueue();
-		myScheduler.addBehaviour(new InitiateCNALookup(myScheduler, cfp, jobToExecute));
+		((ParallelBehaviour) parent).addSubBehaviour(new InitiateCNALookup(myScheduler, cfp, adjustedJob));
 	}
 
 	private ClientJob getAdjustedJob(final ClientJob job) {
@@ -104,7 +105,8 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 		if (newAdjustedEnd.isAfter(job.getDeadline().plusMillis(JOB_PROCESSING_DEADLINE_ADJUSTMENT))) {
 			logger.info(JOB_EXECUTION_AFTER_DEADLINE_LOG, job.getJobId());
 			myScheduler.getClientJobs().remove(job);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(), FAILED_JOB_ID));
+			myScheduler.send(
+					prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(), FAILED_JOB_ID));
 			return null;
 		}
 

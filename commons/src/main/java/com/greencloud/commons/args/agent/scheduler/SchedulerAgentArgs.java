@@ -28,19 +28,35 @@ public interface SchedulerAgentArgs extends AgentArgs {
 	 */
 	Integer getMaximumQueueSize();
 
+	/**
+	 * @return initial power value at which jobs should be preemptively split
+	 */
+	Integer getJobSplitThreshold();
+
+	/**
+	 * @return job splitting factor - into so many parts job will be split
+	 */
+	Integer getSplittingFactor();
+
 	@Value.Check
 	default void check() {
-		if(getDeadlineWeight() < 0 || getDeadlineWeight() > 1) {
+		if (getDeadlineWeight() < 0 || getDeadlineWeight() > 1) {
 			throw new InvalidParameterException("Deadline weight must be a non negative number from range [0,1]");
 		}
-		if(getPowerWeight() < 0 || getPowerWeight() > 1) {
+		if (getPowerWeight() < 0 || getPowerWeight() > 1) {
 			throw new InvalidParameterException("Power weight must be a non negative number from range [0,1]");
 		}
-		if(getPowerWeight() + getDeadlineWeight() != 1) {
+		if (getPowerWeight() + getDeadlineWeight() != 1) {
 			throw new InvalidParameterException("Sum of weight values must be equal to 1");
 		}
-		if(getMaximumQueueSize() < 1) {
+		if (getMaximumQueueSize() < 1) {
 			throw new InvalidParameterException("Maximum queue size must be a positive integer");
+		}
+		if (getJobSplitThreshold() < 0) {
+			throw new InvalidParameterException("Job split factor must be a positive integer");
+		}
+		if (getSplittingFactor() < 0) {
+			throw new InvalidParameterException("Must be a positive integer");
 		}
 	}
 }

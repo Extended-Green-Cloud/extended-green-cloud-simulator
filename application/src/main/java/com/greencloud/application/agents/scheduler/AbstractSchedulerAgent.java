@@ -1,7 +1,9 @@
 package com.greencloud.application.agents.scheduler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -30,6 +32,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected SchedulerStateManagement stateManagement;
 
 	protected Multimap<String, ClientJob> jobParts;
+	protected Set<String> failedJobs;
 
 	/**
 	 * Default constructor.
@@ -40,6 +43,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
 		this.jobParts = ArrayListMultimap.create();
+		this.failedJobs = new HashSet<>();
 	}
 
 	/**
@@ -75,6 +79,13 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	 */
 	public Multimap<String, ClientJob> getJobParts() {
 		return jobParts;
+	}
+
+	/**
+	 * @return a set of all failed jobs
+	 */
+	public Set<String> getFailedJobs() {
+		return failedJobs;
 	}
 
 	/**

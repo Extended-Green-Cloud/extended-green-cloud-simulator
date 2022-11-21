@@ -1,8 +1,8 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener;
 
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs.JobSchedulingListenerLog.JOB_FAILED_RETRY_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.logs.JobSchedulingListenerLog.JOB_UPDATE_RECEIVED_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.templates.JobSchedulingMessageTemplates.JOB_UPDATE_TEMPLATE;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_FAILED_RETRY_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_UPDATE_RECEIVED_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates.JobSchedulingMessageTemplates.JOB_UPDATE_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
@@ -56,6 +56,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(JOB_UPDATE_RECEIVED_LOG, jobId);
 			handleJobStatusChange(jobId, message.getConversationId());
+			MDC.clear();
 		} else {
 			block();
 		}
@@ -71,7 +72,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 		switch (type) {
 			case STARTED_JOB_ID -> mySchedulerAgent.getClientJobs().replace(job, PROCESSING, IN_PROGRESS);
-			case FINISH_JOB_ID -> handleJobCleanUp(job, type);
+			case FINISH_JOB_ID -> mySchedulerAgent.manage().handleJobCleanUp(job, type, parent);
 			case FAILED_JOB_ID -> handleJobFailure(job);
 		}
 		if (!type.equals(FAILED_JOB_ID)) {
@@ -86,27 +87,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			mySchedulerAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					POSTPONED_JOB_ID));
 		} else {
-			handleJobCleanUp(job, FAILED_JOB_ID);
+			mySchedulerAgent.manage().handleJobCleanUp(job, FAILED_JOB_ID, parent);
 			mySchedulerAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					FAILED_JOB_ID));
-		}
-	}
-
-	private void handleJobCleanUp(final ClientJob job, final String type) {
-		mySchedulerAgent.getClientJobs().remove(job);
-		mySchedulerAgent.getCnaForJobMap().remove(job.getJobId());
-		mySchedulerAgent.getJobParts().values()
-				.stream()
-				.filter(j -> j.getJobId().equals(job.getJobId()))
-				.findFirst()
-				.ifPresent(jobPart -> handleJobPartStatusChange(job.getJobId(), jobPart, type));
-	}
-
-	private void handleJobPartStatusChange(String jobId, ClientJob jobPart, String type) {
-		var originalJobId = jobId.split("#")[0];
-		mySchedulerAgent.getJobParts().remove(originalJobId, jobPart);
-		if (type.equals(FAILED_JOB_ID)) {
-			// TODO handle canceling rest of the job parts in CNA, SERVER and GREEN ENERGY agents - next pull request
 		}
 	}
 }

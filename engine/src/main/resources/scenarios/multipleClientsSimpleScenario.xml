@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>2</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -34,7 +36,7 @@
 		<greenenergyAgent>
 			<name>Wind</name>
 			<monitoringAgent>Weather2</monitoringAgent>
-			<ownerSever>Server2</ownerSever>
+			<ownerSever>Server1</ownerSever>
 			<latitude>52</latitude>
 			<longitude>22</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
@@ -44,7 +46,7 @@
 		<greenenergyAgent>
 			<name>Wind2</name>
 			<monitoringAgent>Weather3</monitoringAgent>
-			<ownerSever>Server1</ownerSever>
+			<ownerSever>Server2</ownerSever>
 			<latitude>52</latitude>
 			<longitude>22</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>

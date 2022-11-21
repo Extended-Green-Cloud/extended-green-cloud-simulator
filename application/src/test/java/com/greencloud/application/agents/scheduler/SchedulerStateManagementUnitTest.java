@@ -26,8 +26,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +51,7 @@ class SchedulerStateManagementUnitTest {
 
 		doReturn(MOCK_JOBS).when(mockSchedulerAgent).getClientJobs();
 		doReturn(schedulerStateManagement).when(mockSchedulerAgent).manage();
-		doReturn(new SchedulerConfigurationManagement(0.7, 0.3, 10)).when(mockSchedulerAgent).config();
+		doReturn(new SchedulerConfigurationManagement(0.7, 0.3, 10, 1000, 1)).when(mockSchedulerAgent).config();
 	}
 
 	@ParameterizedTest

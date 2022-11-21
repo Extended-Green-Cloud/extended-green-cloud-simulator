@@ -23,7 +23,6 @@ import com.greencloud.application.domain.job.ImmutableJobTimeFrames;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

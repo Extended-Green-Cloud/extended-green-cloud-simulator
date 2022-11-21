@@ -38,3 +38,6 @@
 /knowledge-database.iml
 /knowledge-database/knowledge-database.iml
 /commons.iml
+/managing-system/target/
+/managing-system/target/*
+
