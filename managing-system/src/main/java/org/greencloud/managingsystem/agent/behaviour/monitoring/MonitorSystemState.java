@@ -1,0 +1,53 @@
+package org.greencloud.managingsystem.agent.behaviour.monitoring;
+
+import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.ManagingMonitoringLog.MONITOR_SYSTEM_STATE_LOG;
+import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.ManagingMonitoringLog.SYSTEM_STABLE_STATE_LOG;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_TIMEOUT;
+
+import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jade.core.Agent;
+import jade.core.behaviours.TickerBehaviour;
+
+/**
+ * Behaviour monitors the current system state and, if necessary, calls the analyzer service
+ */
+public class MonitorSystemState extends TickerBehaviour {
+
+	private static final Logger logger = LoggerFactory.getLogger(MonitorSystemState.class);
+
+	private final ManagingAgent myManagingAgent;
+
+	/**
+	 * Default constructor
+	 *
+	 * @param agent agent executing the behaviour
+	 */
+	public MonitorSystemState(final Agent agent) {
+		super(agent, MONITOR_SYSTEM_TIMEOUT);
+
+		myManagingAgent = (ManagingAgent) agent;
+	}
+
+	/**
+	 * Method retrieves the current system monitoring data from the database and performs the pre-analysis verifying if
+	 * potential adaptation is necessary
+	 */
+	@Override
+	protected void onTick() {
+		logger.info(MONITOR_SYSTEM_STATE_LOG);
+
+		final boolean areGoalsSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized(); //HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
+
+		if (areGoalsSatisfied) {
+			logger.info(SYSTEM_STABLE_STATE_LOG);
+
+			//end feedback iteration
+			return;
+		}
+
+		//TODO next PR - call analyzer
+	}
+}
