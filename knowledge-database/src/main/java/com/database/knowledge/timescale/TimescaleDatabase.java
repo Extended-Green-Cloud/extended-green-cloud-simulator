@@ -5,6 +5,7 @@ import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_ACT
 import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_DATA;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_INDEX;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
@@ -140,6 +141,20 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
+	 * Provides reading capability for Managing Agent. Provides last data records saved to database for given data types.
+	 *
+	 * @param dataTypes types of the data to be retrieved
+	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
+	 */
+	public List<AgentData> readMonitoringDataForDataTypes(List<DataType> dataTypes) {
+		try {
+			return statementsExecutor.executeReadMonitoringDataForDataTypesStatement(dataTypes);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
 	 * Provides reading capability of predefined and hardcoded into the database adaptation goals
 	 *
 	 * @return List of {@link AdaptationGoal}s
@@ -205,6 +220,7 @@ public class TimescaleDatabase implements Closeable {
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
+			statement.execute(CREATE_MONITORING_INDEX);
 			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
 			for (var action : getAdaptationActions()) {
 				statementsExecutor.executeWriteStatement(action);
