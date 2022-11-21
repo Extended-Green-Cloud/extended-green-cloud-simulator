@@ -1,5 +1,6 @@
 package com.greencloud.application.messages;
 
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class MessagingUtils {
 	}
 
 	/**
-	 * Method sends the reject proposal messages to all com.greencloud.application.agents which sent the offers except the one
+	 * Method sends the reject proposal messages to all agents which sent the offers except the one
 	 * which was chosen
 	 *
 	 * @param agent          agent which is sent the reject proposal messages
@@ -45,12 +46,11 @@ public class MessagingUtils {
 			final ACLMessage chosenOffer, final List<ACLMessage> receivedOffers) {
 		receivedOffers.stream()
 				.filter(offer -> !offer.equals(chosenOffer))
-				.forEach(offer -> agent.send(
-						ReplyMessageFactory.prepareReply(offer.createReply(), jobInstanceId, REJECT_PROPOSAL)));
+				.forEach(offer -> agent.send(prepareReply(offer.createReply(), jobInstanceId, REJECT_PROPOSAL)));
 	}
 
 	/**
-	 * Method sends the reject proposal messages to all com.greencloud.application.agents which sent the offers except the one
+	 * Method sends the reject proposal messages to all agents which sent the offers except the one
 	 * which was chosen
 	 *
 	 * @param agent          agent which is sent the reject proposal messages
@@ -64,22 +64,6 @@ public class MessagingUtils {
 				.filter(offer -> !offer.equals(chosenOffer))
 				.forEach(offer -> agent.send(
 						ReplyMessageFactory.prepareStringReply(offer.createReply(), jobId, REJECT_PROPOSAL)));
-	}
-
-	/**
-	 * Method verifies if the content of the message can be parsed to the given class type
-	 *
-	 * @param message      message to be validated
-	 * @param expectedType expected class type
-	 * @return boolean value
-	 */
-	public static boolean isMessageContentValid(final ACLMessage message, final Class<?> expectedType) {
-		try {
-			JsonMapper.getMapper().readValue(message.getContent(), expectedType);
-			return true;
-		} catch (JsonProcessingException e) {
-			return false;
-		}
 	}
 
 	/**
@@ -109,6 +93,15 @@ public class MessagingUtils {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			throw new IncorrectMessageContentException();
+		}
+	}
+
+	private static boolean isMessageContentValid(final ACLMessage message, final Class<?> expectedType) {
+		try {
+			JsonMapper.getMapper().readValue(message.getContent(), expectedType);
+			return true;
+		} catch (JsonProcessingException e) {
+			return false;
 		}
 	}
 }
