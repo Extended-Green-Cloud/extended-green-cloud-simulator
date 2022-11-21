@@ -20,6 +20,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -154,7 +155,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
 		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
-
+		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {

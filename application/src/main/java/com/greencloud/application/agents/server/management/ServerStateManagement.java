@@ -23,8 +23,8 @@ import static com.greencloud.application.messages.domain.factory.PowerShortageMe
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
+import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
-import static com.greencloud.commons.job.JobResultType.PROCESSED;
 import static com.greencloud.commons.job.JobResultType.STARTED;
 
 import java.time.Instant;
@@ -205,13 +205,12 @@ public class ServerStateManagement {
 		jobCounters.computeIfPresent(type, (key, val) -> val += 1);
 
 		switch (type) {
-			case PROCESSED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(PROCESSED));
-			case ACCEPTED -> logger.info(COUNT_JOB_ACCEPTED_LOG, jobCounters.get(ACCEPTED), jobCounters.get(PROCESSED));
+			case FAILED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(FAILED));
+			case ACCEPTED -> logger.info(COUNT_JOB_ACCEPTED_LOG, jobCounters.get(ACCEPTED));
 			case STARTED -> logger.info(COUNT_JOB_START_LOG, jobInstanceId, jobCounters.get(STARTED),
 					jobCounters.get(ACCEPTED));
 			case FINISH ->
-					logger.info(COUNT_JOB_FINISH_LOG, jobInstanceId, jobCounters.get(FINISH), jobCounters.get(STARTED),
-							jobCounters.get(PROCESSED));
+					logger.info(COUNT_JOB_FINISH_LOG, jobInstanceId, jobCounters.get(FINISH), jobCounters.get(STARTED));
 		}
 		updateServerGUI();
 	}
