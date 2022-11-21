@@ -18,6 +18,9 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
+import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -112,7 +115,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -133,7 +136,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 		myServerAgent.getServerJobs()
-				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
+				.replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()), JobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 		myServerAgent.send(prepareJobStatusMessageForCNA(jobInstanceId, conversationId, myServerAgent));
 	}
@@ -148,7 +151,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 
-		if (myServerAgent.manage().isJobUnique(job.getJobId())) {
+		if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
 			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
 		}
 		myServerAgent.getServerJobs().remove(job);
@@ -160,10 +163,10 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
 			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+			return getJobByIdAndStartDate(identifier, myServerAgent.getServerJobs());
 		} catch (IncorrectMessageContentException e) {
 			final String jobId = msg.getContent();
-			return myServerAgent.manage().getJobById(jobId);
+			return getJobById(jobId, myServerAgent.getServerJobs());
 		}
 	}
 

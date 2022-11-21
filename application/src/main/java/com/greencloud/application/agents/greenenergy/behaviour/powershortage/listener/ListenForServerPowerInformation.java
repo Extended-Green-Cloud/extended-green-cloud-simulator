@@ -18,6 +18,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.PROCESSING_RE_SUPPLY_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.REFUSE;
@@ -33,8 +34,8 @@ import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.list
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -87,8 +88,8 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private void handleServerPowerShortageStart(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
-		final PowerJob affectedJob = myGreenEnergyAgent.manage()
-				.getJobByIdAndStartDate(powerShortageJob.getJobInstanceId());
+		final PowerJob affectedJob = getJobByIdAndStartDate(powerShortageJob.getJobInstanceId(),
+				myGreenEnergyAgent.getPowerJobs());
 
 		if (Objects.nonNull(affectedJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_START_LOG, powerShortageJob.getJobInstanceId().getJobId());
@@ -101,7 +102,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleServerPowerShortageFinish(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(inform, JobInstanceIdentifier.class);
-		final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob powerJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getPowerJobs());
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(powerJob)) {
@@ -119,7 +120,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private void handleServerJobTransferFailure(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		final JobInstanceIdentifier jobInstanceId = powerShortageJob.getJobInstanceId();
-		final PowerJob jobToPutOnHold = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob jobToPutOnHold = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getPowerJobs());
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(jobToPutOnHold)) {
@@ -135,10 +136,10 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleJobReSupplyingWithGreenEnergy(final ACLMessage request) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(request, JobInstanceIdentifier.class);
-		final PowerJob jobToCheck = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final PowerJob jobToCheck = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getPowerJobs());
 
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		if(Objects.nonNull(jobToCheck)) {
+		if (Objects.nonNull(jobToCheck)) {
 			logger.info(SERVER_JOB_RE_SUPPLY_REQUEST_LOG, jobInstanceId.getJobId());
 			myGreenEnergyAgent.send(prepareStringReply(request.createReply(), PROCESSING_RE_SUPPLY_MESSAGE, AGREE));
 

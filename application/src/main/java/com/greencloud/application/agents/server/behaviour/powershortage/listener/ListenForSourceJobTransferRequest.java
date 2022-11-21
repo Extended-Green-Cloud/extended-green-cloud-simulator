@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.l
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -19,8 +20,6 @@ import com.greencloud.application.agents.server.behaviour.powershortage.handler.
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInGreenSources;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates;
-import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.mapper.JsonMapper;
@@ -29,6 +28,8 @@ import com.greencloud.application.messages.domain.constants.PowerShortageMessage
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
@@ -66,8 +67,8 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 			final PowerShortageJob affectedJob = readMessageContent(transferRequest);
 
 			if (Objects.nonNull(affectedJob)) {
-				final ClientJob originalJob = myServerAgent.manage()
-						.getJobByIdAndStartDate(affectedJob.getJobInstanceId());
+				final ClientJob originalJob = getJobByIdAndStartDate(affectedJob.getJobInstanceId(),
+						myServerAgent.getServerJobs());
 
 				if (Objects.nonNull(originalJob)) {
 					final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);
@@ -126,7 +127,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 	}
 
 	private void schedulePowerShortageHandling(final PowerShortageJob jobTransfer, final ACLMessage transferRequest) {
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobTransfer.getJobInstanceId());
+		final ClientJob job = getJobByIdAndStartDate(jobTransfer.getJobInstanceId(), myServerAgent.getServerJobs());
 		if (Objects.nonNull(job)) {
 			myServerAgent.manage().divideJobForPowerShortage(job, jobTransfer.getPowerShortageStart());
 			myServerAgent.addBehaviour(HandleServerPowerShortage.createFor(Collections.singletonList(job),

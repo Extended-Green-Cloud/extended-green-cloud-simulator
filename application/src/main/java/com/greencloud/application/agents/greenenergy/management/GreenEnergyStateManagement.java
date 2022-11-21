@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MIN;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.MAX_ERROR_IN_JOB_FINISH;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_FINISH_LOG;
@@ -15,6 +14,7 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
+import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -22,16 +22,11 @@ import static java.lang.Math.min;
 import static java.util.Objects.nonNull;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,47 +60,6 @@ public class GreenEnergyStateManagement {
 		this.greenEnergyAgent = greenEnergyAgent;
 		this.startedJobsInstances = new AtomicInteger(0);
 		this.finishedJobsInstances = new AtomicInteger(0);
-	}
-
-	/**
-	 * Method retrieves the job by the job id from job map
-	 *
-	 * @param jobId job identifier
-	 * @return job or null if job is not found
-	 */
-	public PowerJob getJobById(final String jobId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job by the job id and start time from job map
-	 *
-	 * @param jobId     job identifier
-	 * @param startTime job start time
-	 * @return job
-	 */
-	public PowerJob getJobByIdAndStartDate(final String jobId, final Instant startTime) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId) && job.getStartTime().equals(startTime))
-				.findFirst()
-				.orElse(null);
-	}
-
-	/**
-	 * Method retrieves the job by the job id and start time from job map
-	 *
-	 * @param jobInstanceId unique identifier of the job instance
-	 * @return job
-	 */
-	public PowerJob getJobByIdAndStartDate(final JobInstanceIdentifier jobInstanceId) {
-		return greenEnergyAgent.getPowerJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobInstanceId.getJobId())
-						&& job.getStartTime().equals(jobInstanceId.getStartTime()))
-				.findFirst()
-				.orElse(null);
 	}
 
 	/**
@@ -181,28 +135,6 @@ public class GreenEnergyStateManagement {
 			updateGreenSourceGUI();
 			return powerJob;
 		}
-	}
-
-	/**
-	 * Finds distinct start and end times of taken {@link PowerJob}s including the candidate job
-	 *
-	 * @param candidateJob job defining the search time window
-	 * @return list of all start and end times
-	 */
-	public List<Instant> getJobsTimetable(PowerJob candidateJob) {
-		var validJobs = greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(entry -> ACCEPTED_JOB_STATUSES.contains(entry.getValue()))
-				.map(Entry::getKey)
-				.toList();
-		return Stream.concat(
-						Stream.of(
-								convertToRealTime(candidateJob.getStartTime()),
-								convertToRealTime(candidateJob.getEndTime())),
-						Stream.concat(
-								validJobs.stream().map(job -> convertToRealTime(job.getStartTime())),
-								validJobs.stream().map(job -> convertToRealTime(job.getEndTime()))))
-				.distinct()
-				.toList();
 	}
 
 	/**
@@ -301,17 +233,6 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
 			greenEnergyAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
 		}
-	}
-
-	/**
-	 * Method calculates expected job end time taking into account possible time error
-	 *
-	 * @param job job of interest
-	 * @return
-	 */
-	public Date calculateExpectedJobEndTime(final PowerJob job) {
-		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
-		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
 	}
 
 	public AtomicInteger getStartedJobsInstances() {

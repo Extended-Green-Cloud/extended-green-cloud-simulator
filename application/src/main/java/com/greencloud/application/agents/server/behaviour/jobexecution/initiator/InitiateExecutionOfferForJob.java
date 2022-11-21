@@ -11,6 +11,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.util.Objects;
@@ -20,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobWithProtocol;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -63,8 +64,8 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
-		final ClientJob jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
-		if(Objects.nonNull(jobInstance)) {
+		final ClientJob jobInstance = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
+		if (Objects.nonNull(jobInstance)) {
 			final int availableCapacity = myServerAgent.manage()
 					.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
 
@@ -86,7 +87,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject,
 				JobInstanceIdentifier.class);
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
 

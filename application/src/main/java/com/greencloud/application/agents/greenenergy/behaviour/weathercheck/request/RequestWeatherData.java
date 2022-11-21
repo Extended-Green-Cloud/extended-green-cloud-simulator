@@ -2,6 +2,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.logs.WeatherCheckRequestLog.WEATHER_REQUEST_SENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobsTimetable;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -12,8 +13,8 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableGreenSourceForecastData;
 import com.greencloud.application.domain.ImmutableGreenSourceWeatherData;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.domain.factory.PowerCheckMessageFactory;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -68,7 +69,7 @@ public class RequestWeatherData extends OneShotBehaviour {
 						.build() :
 				ImmutableGreenSourceForecastData.builder()
 						.location(myGreenEnergyAgent.getLocation())
-						.timetable(myGreenEnergyAgent.manage().getJobsTimetable(powerJob))
+						.timetable(getJobsTimetable(powerJob, myGreenEnergyAgent.getPowerJobs()))
 						.build();
 	}
 }

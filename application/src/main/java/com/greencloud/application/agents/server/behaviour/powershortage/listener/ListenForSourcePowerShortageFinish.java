@@ -7,6 +7,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.POWER_SHORTAGE
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
@@ -16,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -70,7 +71,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		try {
 			final JobInstanceIdentifier jobInstanceIdentifier = getMapper().readValue(message.getContent(),
 					JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(jobInstanceIdentifier);
+			return getJobByIdAndStartDate(jobInstanceIdentifier, myServerAgent.getServerJobs());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

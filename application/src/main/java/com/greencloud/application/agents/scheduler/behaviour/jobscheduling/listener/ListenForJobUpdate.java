@@ -11,6 +11,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.POSTPONED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static com.greencloud.application.utils.JobUtils.getJobById;
 import static java.util.Objects.isNull;
 
 import java.util.Objects;
@@ -62,7 +63,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	}
 
 	private void handleJobStatusChange(final String jobId, final String type) {
-		final ClientJob job = mySchedulerAgent.manage().getJobById(jobId);
+		final ClientJob job = getJobById(jobId, mySchedulerAgent.getClientJobs());
 
 		if (isNull(job)) {
 			// do nothing

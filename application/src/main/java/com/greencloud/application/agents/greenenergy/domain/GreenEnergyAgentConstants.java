@@ -3,7 +3,6 @@ package com.greencloud.application.agents.greenenergy.domain;
 /**
  * Class storing Green Energy Agent constants
  *
- * <p> MAX_ERROR_IN_JOB_FINISH 		  			- variation in milliseconds of job finish time </p>
  * <p> INTERVAL_LENGTH_MIN					    - length of the sub-interval used in calculating available power </p>
  * <p> PERIODIC_WEATHER_CHECK_TIMEOUT 			- timeout in between consecutive weather checks </p>
  * <p> GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT  - timeout in between reading consecutive environmental events </p>
@@ -16,7 +15,6 @@ package com.greencloud.application.agents.greenenergy.domain;
  */
 public class GreenEnergyAgentConstants {
 
-	public static final Long MAX_ERROR_IN_JOB_FINISH = 500L;
 	public static final Long INTERVAL_LENGTH_MIN = 10L;
 	public static final Long PERIODIC_WEATHER_CHECK_TIMEOUT = 1000L;
 	public static final Long GREEN_ENERGY_ENVIRONMENT_SENSOR_TIMEOUT = 100L;

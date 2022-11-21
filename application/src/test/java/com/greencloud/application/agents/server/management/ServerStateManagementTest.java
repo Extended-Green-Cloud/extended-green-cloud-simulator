@@ -9,7 +9,6 @@ import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -24,16 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -41,11 +36,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.agents.ServerAgentNode;
 import com.gui.controller.GuiController;
@@ -65,34 +60,6 @@ class ServerStateManagementTest {
 
 	@Mock
 	private static ServerAgent serverAgent;
-
-	// PARAMETERS USED IN PARAMETRIZED TESTS
-
-	private static Stream<Arguments> parametersGetByIdAndStart() {
-		return Stream.of(
-				Arguments.of(Instant.parse("2022-01-01T07:30:00.000Z"), "2", true),
-				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
-	}
-
-	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
-		return Stream.of(
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("3")
-						.build(), true),
-				Arguments.of(ImmutableJobInstanceIdentifier.builder()
-						.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
-						.jobId("1")
-						.build(), false));
-	}
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("10000", false));
-	}
-
-	private static Stream<Arguments> parametersIsJobUnique() {
-		return Stream.of(Arguments.of("5", true), Arguments.of("1", false));
-	}
 
 	// TEST SET-UP
 
@@ -187,82 +154,6 @@ class ServerStateManagementTest {
 		final double resultPrice = serverAgent.manage().calculateServicePrice(mockGreenSourceData);
 
 		assertThat(resultPrice).isEqualTo(75);
-	}
-
-	@Test
-	@DisplayName("Test getting current job instance not found")
-	void testGettingCurrentJobInstanceNotFound() {
-		final Map.Entry<ClientJob, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("1");
-		assertNull(result);
-	}
-
-	@Test
-	@DisplayName("Test getting current job instance one instance")
-	void testGettingCurrentJobInstanceOneInstance() {
-		final Map.Entry<ClientJob, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("2");
-
-		assertNotNull(result);
-		assertThat(result.getKey().getClientIdentifier()).isEqualTo("Client2");
-		assertThat(result.getKey().getEndTime()).isEqualTo(Instant.parse("2022-01-01T11:00:00.000Z"));
-	}
-
-	@Test
-	@DisplayName("Test getting current job instance two instances")
-	void testGettingCurrentJobInstanceTwoInstances() {
-		final ClientJob jobProcessing = ImmutableClientJob.builder()
-				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
-				.power(10)
-				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		final Map.Entry<ClientJob, JobStatusEnum> result = serverAgent.manage().getCurrentJobInstance("1");
-
-		assertNotNull(result);
-		assertThat(result.getKey().getPower()).isEqualTo(10);
-		assertThat(result.getKey().getStartTime()).isEqualTo(Instant.parse("2022-01-01T10:30:00.000Z"));
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStart")
-	@DisplayName("Test getting job by id and start time")
-	void testGettingJobByIdAndStartTime(final Instant startTime, final String jobId, final boolean result) {
-		final ClientJob jobResult = serverAgent.manage().getJobByIdAndStartDate(jobId, startTime);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetByIdAndStartInstant")
-	@DisplayName("Test getting job by id and start time instant")
-	void testGettingJobByIdAndStartTimeInstant(final JobInstanceIdentifier jobInstance, final boolean result) {
-		final ClientJob jobResult = serverAgent.manage().getJobByIdAndStartDate(jobInstance);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetById")
-	@DisplayName("Test getting job by id")
-	void testGettingJobById(final String jobId, final boolean result) {
-		final ClientJob jobResult = serverAgent.manage().getJobById(jobId);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersIsJobUnique")
-	@DisplayName("Test is job unique by id")
-	void testIsJobUnique(final String jobId, final boolean result) {
-		final ClientJob jobProcessing = ImmutableClientJob.builder()
-				.jobId("1")
-				.clientIdentifier("Client1")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
-				.power(10)
-				.build();
-		serverAgent.getServerJobs().put(jobProcessing, JobStatusEnum.IN_PROGRESS);
-		assertThat(serverAgent.manage().isJobUnique(jobId)).isEqualTo(result);
 	}
 
 	@Test

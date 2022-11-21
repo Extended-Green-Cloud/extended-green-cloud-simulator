@@ -3,6 +3,7 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.JOB_START_STATUS_RECEIVED_REQUEST_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_REQUEST_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getCurrentJobInstance;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -54,7 +55,8 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 					ReplyMessageFactory.prepareStringReply(request.createReply(), "REQUEST PROCESSING", AGREE));
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(JOB_START_STATUS_RECEIVED_REQUEST_LOG, jobId);
-			final Map.Entry<ClientJob, JobStatusEnum> jobInstance = myServerAgent.manage().getCurrentJobInstance(jobId);
+			final Map.Entry<ClientJob, JobStatusEnum> jobInstance = getCurrentJobInstance(jobId,
+					myServerAgent.getServerJobs());
 			myServerAgent.send(createReplyWithJobStatus(request, jobInstance));
 		} else {
 			block();

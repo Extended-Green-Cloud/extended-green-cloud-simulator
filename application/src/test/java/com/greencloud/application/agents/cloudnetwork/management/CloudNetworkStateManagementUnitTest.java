@@ -8,27 +8,21 @@ import static org.mockito.quality.Strictness.LENIENT;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.controller.GuiController;
-
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -43,12 +37,6 @@ class CloudNetworkStateManagementUnitTest {
 	@Mock
 	private GuiController guiController;
 	private CloudNetworkStateManagement cloudNetworkStateManagement;
-
-	// PARAMETERS USED IN TESTS
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("1", true), Arguments.of("10000", false));
-	}
 
 	// TEST SET-UP
 
@@ -71,14 +59,6 @@ class CloudNetworkStateManagementUnitTest {
 	@DisplayName("Test get current power in use")
 	void testGetCurrentPowerInUser() {
 		assertThat(cloudNetworkStateManagement.getCurrentPowerInUse()).isEqualTo(30);
-	}
-
-	@ParameterizedTest
-	@MethodSource("parametersGetById")
-	@DisplayName("Test getting job by id")
-	void testGettingJobById(final String jobId, final boolean result) {
-		final ClientJob jobResult = cloudNetworkStateManagement.getJobById(jobId);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.h
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -16,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -74,7 +75,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final ClientJob jobToExecute = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob jobToExecute = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 		if (Objects.nonNull(jobToExecute)) {
 			MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
 			logger.info(GS_TRANSFER_EXECUTION_LOG);

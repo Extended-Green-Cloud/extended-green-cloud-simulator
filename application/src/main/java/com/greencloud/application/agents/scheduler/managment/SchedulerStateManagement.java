@@ -9,8 +9,6 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,19 +34,6 @@ public class SchedulerStateManagement {
 	 */
 	public SchedulerStateManagement(final SchedulerAgent schedulerAgent) {
 		this.schedulerAgent = schedulerAgent;
-	}
-
-	/**
-	 * Method retrieves the job based on the given id
-	 *
-	 * @param jobId unique job identifier
-	 * @return Job
-	 */
-	public ClientJob getJobById(final String jobId) {
-		return schedulerAgent.getClientJobs().keySet().stream()
-				.filter(job -> job.getJobId().equals(jobId))
-				.findFirst()
-				.orElse(null);
 	}
 
 	/**
