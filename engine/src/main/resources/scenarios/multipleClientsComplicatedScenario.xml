@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>200</jobSplitThreshold>
+		<splittingFactor>2</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -40,14 +42,14 @@
 		<serverAgentsArgs>
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>35</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>15</maximumCapacity>
+			<maximumCapacity>200</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>

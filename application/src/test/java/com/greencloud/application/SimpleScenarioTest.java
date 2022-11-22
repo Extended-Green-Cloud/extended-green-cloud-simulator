@@ -27,6 +27,7 @@ import jade.junit.jupiter.JadeExtension;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JadeExtension.class)
 @MockitoSettings(strictness = LENIENT)
+@Disabled
 class SimpleScenarioTest {
 
 	private static final Instant NOW = parse("2022-08-15T16:30:00.000Z");

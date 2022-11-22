@@ -27,7 +27,7 @@ public class SchedulerConfigManagementUnitTest {
 
 	@BeforeEach
 	void setUp() {
-		schedulerConfigManagement = new SchedulerConfigurationManagement(0.7, 0.3, 100);
+		schedulerConfigManagement = new SchedulerConfigurationManagement(0.7, 0.3, 100, 1000, 2);
 	}
 
 	@Test

@@ -1,23 +1,24 @@
 package com.greencloud.application.agentFactory;
 
-import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import jade.junit.jupiter.JadeExtension;
+import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
+import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_SERVER_MAXIMUM_CAPACITY;
+import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.quality.Strictness.LENIENT;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.*;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.quality.Strictness.LENIENT;
+import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
+import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(JadeExtension.class)
 @MockitoSettings(strictness = LENIENT)
 class AgentFactoryTest {
 

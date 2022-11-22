@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.behaviour.df.SubscribeCloudNetworkService;
-import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.handler.HandleJobAnnouncement;
-import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.ListenForClientJob;
-import com.greencloud.application.agents.scheduler.behaviour.jobscheduling.listener.ListenForJobUpdate;
+import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.HandleJobAnnouncement;
+import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.ListenForClientJob;
+import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.ListenForJobUpdate;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
@@ -34,7 +34,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	private static final Logger logger = LoggerFactory.getLogger(SchedulerAgent.class);
 
 	/**
-	 * Method run at the agent's start. In initialize the Scheduler Agent with given parameters (initial priority weights)
+	 * Method run at the agent's start. In initialize the Scheduler Agent with given parameters
+	 * (initial priority weights)
 	 */
 	@Override
 	protected void setup() {
@@ -51,15 +52,17 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 3) {
+		if (Objects.nonNull(args) && args.length == 5) {
 			try {
 				final double deadlineWeight = Double.parseDouble(args[0].toString());
 				final double powerWeight = Double.parseDouble(args[1].toString());
 				final int maxQueueSize = Integer.parseInt(args[2].toString());
+				final int jobSplitThreshold = Integer.parseInt(args[3].toString());
+				final int splittingFactor = Integer.parseInt(args[4].toString());
 
 				if (deadlineWeight < 0 || powerWeight < 0
-						|| deadlineWeight > 1 || powerWeight > 1
-						|| deadlineWeight + powerWeight != 1) {
+					|| deadlineWeight > 1 || powerWeight > 1
+					|| deadlineWeight + powerWeight != 1) {
 					logger.info("Incorrect arguments: Weights must be from range [0,1] and must sum to 1!");
 					doDelete();
 				}
@@ -67,7 +70,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 					logger.info("Incorrect arguments: Queue size must be a positive integer!");
 					doDelete();
 				}
-				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize);
+				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize,
+						jobSplitThreshold, splittingFactor);
 				this.stateManagement = new SchedulerStateManagement(this);
 				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
 						Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));

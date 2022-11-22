@@ -40,7 +40,7 @@ class SchedulerStateManagementUnitTest {
 
 		doReturn(setUpCloudNetworkJobs()).when(mockSchedulerAgent).getClientJobs();
 		doReturn(schedulerStateManagement).when(mockSchedulerAgent).manage();
-		doReturn(new SchedulerConfigurationManagement(0.7, 0.3, 10)).when(mockSchedulerAgent).config();
+		doReturn(new SchedulerConfigurationManagement(0.7, 0.3, 10, 1000, 1)).when(mockSchedulerAgent).config();
 	}
 
 	@Test

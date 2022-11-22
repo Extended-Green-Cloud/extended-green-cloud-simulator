@@ -81,7 +81,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					new Object[] {
 							schedulerAgent.getDeadlineWeight(),
 							schedulerAgent.getPowerWeight(),
-							schedulerAgent.getMaximumQueueSize()
+							schedulerAgent.getMaximumQueueSize(),
+							schedulerAgent.getJobSplitThreshold(),
+							schedulerAgent.getSplittingFactor()
 					});
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),

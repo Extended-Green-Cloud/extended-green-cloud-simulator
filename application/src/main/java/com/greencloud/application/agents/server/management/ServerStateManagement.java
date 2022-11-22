@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.google.common.collect.Collections2.filter;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_ACCEPTED_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_PROCESS_LOG;
@@ -101,10 +102,21 @@ public class ServerStateManagement {
 	 * @param informCNA   flag indicating whether cloud network should be informed about the job finish
 	 */
 	public void finishJobExecution(final ClientJob jobToFinish, final boolean informCNA) {
+		finishJobExecutionWithResult(jobToFinish, informCNA, FINISH);
+	}
+
+	/**
+	 * Method performs job finishing action with a specified state
+	 *
+	 * @param jobToFinish job to be finished
+	 * @param informCNA   flag indicating whether cloud network should be informed about the job finish
+	 */
+	public void finishJobExecutionWithResult(final ClientJob jobToFinish, final boolean informCNA,
+			JobResultType resultType) {
 		final JobStatusEnum jobStatusEnum = serverAgent.getServerJobs().get(jobToFinish);
 
 		sendFinishInformation(jobToFinish, informCNA);
-		updateStateAfterJobFinish(jobToFinish);
+		updateStateAfterJobIsDone(jobToFinish, resultType);
 
 		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || jobStatusEnum.equals(
 				IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
@@ -277,20 +289,21 @@ public class ServerStateManagement {
 		serverAgent.send(finishJobMessage);
 	}
 
-	private void updateStateAfterJobFinish(final ClientJob jobToFinish) {
-		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToFinish);
-		incrementJobCounter(jobInstance, FINISH);
-		if (isJobUnique(jobToFinish.getJobId(), serverAgent.getServerJobs())) {
-			serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
+	private void updateStateAfterJobIsDone(final ClientJob jobToBeDone, JobResultType jobResultType) {
+		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToBeDone);
+		incrementJobCounter(jobInstance, jobResultType);
+		if (isJobUnique(jobToBeDone.getJobId(), serverAgent.getServerJobs())) {
+			serverAgent.getGreenSourceForJobMap().remove(jobToBeDone.getJobId());
 			updateClientNumberGUI();
 		}
-		serverAgent.getServerJobs().remove(jobToFinish);
+		serverAgent.getServerJobs().remove(jobToBeDone);
 	}
 
 	private void supplyJobsWithBackupPower(final Map<ClientJob, JobStatusEnum> jobEntries) {
 		jobEntries.entrySet().stream()
 				.filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE_PLANNED) || job.getValue()
-						.equals(ON_HOLD_SOURCE_SHORTAGE)).forEach(jobEntry -> {
+						.equals(ON_HOLD_SOURCE_SHORTAGE))
+				.forEach(jobEntry -> {
 					final ClientJob job = jobEntry.getKey();
 					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), mapToJobInstanceId(job),
 							BACK_UP_POWER_STATUSES) >= job.getPower()) {

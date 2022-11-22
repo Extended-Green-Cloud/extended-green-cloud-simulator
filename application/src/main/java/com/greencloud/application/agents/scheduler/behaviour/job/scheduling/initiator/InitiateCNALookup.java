@@ -1,10 +1,5 @@
-package com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator;
+package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator;
 
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs.JobSchedulingInitiatorLog.INVALID_CLOUD_PROPOSAL_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs.JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_NO_RETRY_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs.JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_RETRY_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs.JobSchedulingInitiatorLog.NO_CLOUD_RESPONSES_LOG;
-import static com.greencloud.application.agents.scheduler.behaviour.jobscheduling.initiator.logs.JobSchedulingInitiatorLog.SEND_ACCEPT_TO_CLOUD_LOG;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
@@ -27,10 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
+import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.logs.JobSchedulingInitiatorLog;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.commons.job.ClientJob;
 
+import jade.core.behaviours.ParallelBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
 
@@ -70,7 +67,7 @@ public class InitiateCNALookup extends ContractNetInitiator {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 
 		if (responses.isEmpty()) {
-			logger.info(NO_CLOUD_RESPONSES_LOG);
+			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_RESPONSES_LOG);
 			handleFailure();
 		} else if (proposals.isEmpty()) {
 			handleFailure();
@@ -80,7 +77,7 @@ public class InitiateCNALookup extends ContractNetInitiator {
 			if (!validProposals.isEmpty()) {
 				final ACLMessage chosenOffer = chooseCNAToExecuteJob(validProposals);
 				final PricedJob pricedJob = readMessageContent(chosenOffer, PricedJob.class);
-				logger.info(SEND_ACCEPT_TO_CLOUD_LOG, chosenOffer.getSender().getName());
+				logger.info(JobSchedulingInitiatorLog.SEND_ACCEPT_TO_CLOUD_LOG, chosenOffer.getSender().getName());
 
 				myScheduler.getClientJobs().replace(job, PROCESSING, ACCEPTED);
 				myScheduler.getCnaForJobMap().put(job.getJobId(), chosenOffer.getSender());
@@ -91,23 +88,24 @@ public class InitiateCNALookup extends ContractNetInitiator {
 				handleInvalidProposals(proposals);
 			}
 		}
+		((ParallelBehaviour) parent).removeSubBehaviour(this);
 	}
 
 	private void handleFailure() {
 		if (myScheduler.manage().postponeJobExecution(job)) {
-			logger.info(NO_CLOUD_AVAILABLE_RETRY_LOG);
+			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_RETRY_LOG);
 			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					POSTPONED_JOB_ID));
 		} else {
-			logger.info(NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
-			myScheduler.getClientJobs().remove(job);
+			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
+			myScheduler.manage().handleJobCleanUp(job, FAILED_JOB_ID, parent);
 			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					FAILED_JOB_ID));
 		}
 	}
 
 	private void handleInvalidProposals(final List<ACLMessage> proposals) {
-		logger.info(INVALID_CLOUD_PROPOSAL_LOG);
+		logger.info(JobSchedulingInitiatorLog.INVALID_CLOUD_PROPOSAL_LOG);
 		rejectJobOffers(myScheduler, job.getJobId(), null, proposals);
 		handleFailure();
 	}

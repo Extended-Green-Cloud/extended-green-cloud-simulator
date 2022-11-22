@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>3</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
