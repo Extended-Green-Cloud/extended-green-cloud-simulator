@@ -5,6 +5,7 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.cancella
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.templates.JobCancellationMessageTemplates.CANCEL_JOB_PROTOCOL;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageListContent;
+import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.GS_SERVICE_TYPE;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
@@ -76,7 +77,7 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 			List<ClientJob> jobs = readMessageListContent(inform, ClientJob.class);
 			jobs.stream()
 					.filter(job -> mySchedulerAgent.getCnaForJobMap().containsKey(job.getJobId()))
-					.map(job -> mySchedulerAgent.manage().getJobById(job.getJobId()))
+					.map(job -> getJobById(job.getJobId(), mySchedulerAgent.getClientJobs()))
 					.forEach(this::handleReadClientJob);
 		}
 	}
