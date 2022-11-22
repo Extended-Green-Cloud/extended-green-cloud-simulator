@@ -3,6 +3,7 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG;
+import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_FINISHED_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG;
@@ -19,6 +20,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -30,7 +32,6 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
-import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
@@ -121,7 +122,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 					.isAfter(getCurrentTime());
 			myAgent.addBehaviour(HandleJobStart.createFor(myServerAgent, job, informCNAStart, true));
 		} else {
-			logger.info(JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
+			logger.info(SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
 		}
 	}
 
@@ -154,7 +155,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
 		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
-
+		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
