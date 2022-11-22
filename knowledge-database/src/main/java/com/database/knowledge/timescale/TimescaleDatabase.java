@@ -141,7 +141,7 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
-	 * Provides reading capability for Managing Agent. Provides last data records saved to database for given data types.
+	 * Provides reading capability for Managing Agent. Provides data records from last 5 seconds saved to database for given data types.
 	 *
 	 * @param dataTypes types of the data to be retrieved
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.

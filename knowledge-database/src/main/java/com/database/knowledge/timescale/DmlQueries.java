@@ -13,7 +13,7 @@ public final class DmlQueries {
 	static final String GET_LAST_1_SEC_DATA =
 			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
 	static final String GET_LAST_RECORDS_DATA_FOR_DATA_TYPES =
-			"SELECT DISTINCT ON (aid) * FROM monitoring_data where data_type = ANY(?)";
+			"SELECT DISTINCT ON (aid) * FROM monitoring_data where data_type = ANY(?) and time > now() - INTERVAL '5s'";
 
 	/**
 	 * Adaptation goals table query

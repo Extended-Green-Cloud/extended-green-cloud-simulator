@@ -41,6 +41,7 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 import static com.greencloud.commons.job.JobStatusEnum.CREATED;
 import static com.greencloud.commons.job.JobStatusEnum.DELAYED;
+import static com.greencloud.commons.job.JobStatusEnum.FAILED;
 import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
 import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.JobStatusEnum.ON_BACK_UP;
@@ -204,6 +205,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		myClientAgent.getGuiController().updateFailedJobsCountByValue(1);
 		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+		myClientAgent.manage().updateJobStatusDuration(FAILED);
 		myClientAgent.manage().writeClientData(true);
 		myClientAgent.doDelete();
 	}

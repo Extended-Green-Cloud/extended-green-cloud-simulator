@@ -1,7 +1,11 @@
 package org.greencloud.managingsystem.service.monitoring;
 
+import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_ADAPTATION_GOALS_LOG;
 
+import java.util.Map;
 import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
@@ -22,11 +26,14 @@ public class MonitoringService extends AbstractManagingService {
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
 
 	private final JobSuccessRatioService jobSuccessRatioService;
-
+	private final BackUpPowerUsageService backUpPowerUsageService;
+	private final TrafficDistributionService trafficDistributionService;
 
 	public MonitoringService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
 		this.jobSuccessRatioService = new JobSuccessRatioService(managingAgent);
+		this.backUpPowerUsageService = new BackUpPowerUsageService(managingAgent);
+		this.trafficDistributionService = new TrafficDistributionService(managingAgent);
 	}
 
 	/**
@@ -64,5 +71,39 @@ public class MonitoringService extends AbstractManagingService {
 		final boolean networkSuccessRatio = jobSuccessRatioService.isComponentsSuccessRatioCorrect();
 
 		return clientSuccessRatio && networkSuccessRatio;
+	}
+
+	/**
+	 * Method computes current system quality indicator
+	 *
+	 * @return quality indicator
+	 */
+	public double computeSystemIndicator() {
+		final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
+		final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
+		final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+
+		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
+				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
+				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+	}
+
+	/**
+	 * Method updates system statistics in GUI
+	 */
+	public void updateSystemStatistics() {
+		if (Objects.nonNull(managingAgent.getAgentNode())) {
+			final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
+			final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
+			final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+			final Map<Integer, Double> qualityMap = Map.of(
+					MAXIMIZE_JOB_SUCCESS_RATIO.getAdaptationGoalId(), successRatio,
+					MINIMIZE_USED_BACKUP_POWER.getAdaptationGoalId(), backUpUsage,
+					DISTRIBUTE_TRAFFIC_EVENLY.getAdaptationGoalId(), trafficDistribution
+			);
+
+			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
+					qualityMap);
+		}
 	}
 }

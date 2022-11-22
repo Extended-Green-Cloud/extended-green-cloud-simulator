@@ -43,11 +43,10 @@ public class MonitorSystemState extends TickerBehaviour {
 
 		if (areGoalsSatisfied) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);
-
 			//end feedback iteration
 			return;
 		}
-
+		myManagingAgent.monitor().updateSystemStatistics();
 		//TODO next PR - call analyzer
 	}
 }
