@@ -84,7 +84,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 						final String name = component.aid().split("@")[0];
 						logger.info(SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG, name, successRatio);
 					}
-					return successRatio == -1 || isSuccessRatioWithinBound(successRatio);
+					return result;
 				});
 	}
 
