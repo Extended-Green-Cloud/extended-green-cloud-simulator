@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.ha
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_INFORM_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_PRESENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
@@ -110,7 +111,7 @@ public class HandleJobStart extends WakerBehaviour {
 
 				sendJobStartMessage(jobId);
 				substituteJobStatus();
-				myServerAgent.manage().incrementStartedJobs(mapToJobInstanceId(jobToExecute));
+				myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(jobToExecute), STARTED);
 				myAgent.addBehaviour(HandleJobFinish.createFor(myServerAgent, jobToExecute, informCNAFinish));
 			}
 		} else {

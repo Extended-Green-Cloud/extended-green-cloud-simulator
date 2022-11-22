@@ -14,11 +14,15 @@ import com.gui.message.domain.ImmutableCapacity;
  */
 public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 
-	protected final double initialMaximumCapacity;
-	protected final AtomicReference<Double> currentMaximumCapacity;
-	protected final AtomicBoolean isActive;
-	protected final AtomicInteger numberOfExecutedJobs;
-	protected final AtomicInteger numberOfJobsOnHold;
+	protected double initialMaximumCapacity;
+	protected AtomicReference<Double> currentMaximumCapacity;
+	protected AtomicBoolean isActive;
+	protected AtomicInteger numberOfExecutedJobs;
+	protected AtomicInteger numberOfJobsOnHold;
+
+	protected AbstractNetworkAgentNode() {
+
+	}
 
 	/**
 	 * Network agent node constructor

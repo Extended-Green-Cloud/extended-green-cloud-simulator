@@ -3,8 +3,11 @@ package com.greencloud.application.agents.server.behaviour.powershortage.listene
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_ASK_OTHER_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -24,7 +27,6 @@ import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
-import com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
@@ -73,7 +75,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 				if (Objects.nonNull(originalJob)) {
 					final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);
 					final List<AID> remainingGreenSources = getRemainingGreenSources(transferRequest.getSender());
-					myAgent.send(ReplyMessageFactory.prepareReply(transferRequest.createReply(),
+					myAgent.send(prepareReply(transferRequest.createReply(),
 							TRANSFER_SUCCESSFUL_MESSAGE, ACLMessage.AGREE));
 
 					MDC.put(MDC_JOB_ID, powerJob.getJobId());
@@ -87,9 +89,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 					}
 					schedulePowerShortageHandling(affectedJob, transferRequest);
 				} else {
-					myAgent.send(ReplyMessageFactory.prepareReply(transferRequest.createReply(),
-							PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE,
-							ACLMessage.REFUSE));
+					myAgent.send(prepareReply(transferRequest.createReply(), JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE));
 				}
 			}
 		} else {
@@ -133,8 +133,8 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 			myServerAgent.addBehaviour(HandleServerPowerShortage.createFor(Collections.singletonList(job),
 					jobTransfer.getPowerShortageStart(), myServerAgent, null));
 		} else {
-			myAgent.send(ReplyMessageFactory.prepareReply(transferRequest.createReply(), jobTransfer.getJobInstanceId(),
-					ACLMessage.REFUSE));
+			myAgent.send(prepareReply(transferRequest.createReply(), jobTransfer.getJobInstanceId(),
+					REFUSE));
 		}
 	}
 

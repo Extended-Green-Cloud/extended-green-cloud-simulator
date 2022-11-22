@@ -19,7 +19,7 @@ import static org.mockito.quality.Strictness.LENIENT;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JadeExtension.class)
 @MockitoSettings(strictness = LENIENT)
-public class AgentFactoryTest {
+class AgentFactoryTest {
 
     AgentFactory factory = new AgentFactoryImpl();
 
@@ -31,12 +31,13 @@ public class AgentFactoryTest {
 
     @Test
     void testCreateTemplateServerDefaultValues() {
-        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null);
+        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null);
 
         assertThat(result.getName()).isEqualTo("ExtraServer1");
         assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_SERVER_MAXIMUM_CAPACITY);
         assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE);
         assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+        assertThat(result.getJobProcessingLimit()).isEqualTo("20");
     }
 
     @Test
@@ -59,8 +60,8 @@ public class AgentFactoryTest {
 
     @Test
     void testGenerateCorrectNames() {
-        ServerAgentArgs result1 = factory.createServerAgent("1", null, null);
-        ServerAgentArgs result2 = factory.createServerAgent("1", null, null);
+        ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10);
+        ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null);
         MonitoringAgentArgs result3 = factory.createMonitoringAgent();
 
         assertThat(result1.getName()).isEqualTo("ExtraServer1");
@@ -92,11 +93,12 @@ public class AgentFactoryTest {
 
     @Test
     void testCreatingServerCustomValues() {
-        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", 150, 25);
+        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", 150, 25,10);
 
         assertThat(result.getName()).isEqualTo("ExtraServer1");
         assertThat(result.getMaximumCapacity()).isEqualTo("150");
         assertThat(result.getPrice()).isEqualTo("25");
         assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+        assertThat(result.getJobProcessingLimit()).isEqualTo("10");
     }
 }

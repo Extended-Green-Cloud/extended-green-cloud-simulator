@@ -18,6 +18,9 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 	protected TimescaleDatabase databaseClient;
 	protected Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 
+	protected AbstractAgentNode() {
+	}
+
 	/**
 	 * Class constructor
 	 *
@@ -25,9 +28,6 @@ public abstract class AbstractAgentNode implements AbstractAgentNodeInterface {
 	 */
 	protected AbstractAgentNode(String agentName) {
 		this.agentName = agentName;
-	}
-
-	protected AbstractAgentNode() {
 	}
 
 	@Override

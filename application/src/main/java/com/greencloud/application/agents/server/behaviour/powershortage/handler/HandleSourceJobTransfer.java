@@ -81,6 +81,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 			logger.info(GS_TRANSFER_EXECUTION_LOG);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
 			myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.IN_PROGRESS);
+			myServerAgent.manage().incrementStartedJobs(jobInstanceId);
 			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, GREEN_POWER_JOB_ID);
 			myServerAgent.manage().updateServerGUI();
 			startJobExecutionInNewGreenSource(jobToExecute);

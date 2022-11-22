@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
-import com.greencloud.application.behaviours.ReportHealthCheck;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
 

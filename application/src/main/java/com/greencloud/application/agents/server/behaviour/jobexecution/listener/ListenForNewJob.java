@@ -17,9 +17,9 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -57,9 +57,9 @@ public class ListenForNewJob extends CyclicBehaviour {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			final int availableCapacity = myServerAgent.manage()
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
-			final boolean validJobConditions = job.getPower() <= availableCapacity &&
-					!myServerAgent.getServerJobs().containsKey(job) &&
-					myServerAgent.canTakeIntoProcessing();
+			final boolean validJobConditions =
+					job.getPower() <= availableCapacity && !myServerAgent.getServerJobs().containsKey(job)
+							&& myServerAgent.canTakeIntoProcessing();
 
 			if (validJobConditions) {
 				initiateNegotiationWithPowerSources(job, message);
