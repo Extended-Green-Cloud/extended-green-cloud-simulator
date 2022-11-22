@@ -7,7 +7,7 @@ import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENT_DATA_YET_LOG;
+import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG;
@@ -51,7 +51,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		final double currentSuccessRatio = readClientJobSuccessRatio();
 		jobSuccessRatio.set(currentSuccessRatio);
 		if (currentSuccessRatio == -1) {
-			logger.info(READ_SUCCESS_RATIO_CLIENT_DATA_YET_LOG);
+			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
 		if (!isSuccessRatioWithinBound(currentSuccessRatio)) {
