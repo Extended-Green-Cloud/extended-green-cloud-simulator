@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.server.management;
 
+import static com.greencloud.application.utils.JobUtils.getJobById;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +68,7 @@ public class ServerConfigManagement {
 	 * @return full price
 	 */
 	public double calculateServicePrice(final GreenSourceData greenSourceData) {
-		var job = serverAgent.manage().getJobById(greenSourceData.getJobId());
+		var job = getJobById(greenSourceData.getJobId(), serverAgent.getServerJobs());
 		var powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
 		var computingCost =
 				TimeUtils.differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.manageConfig()

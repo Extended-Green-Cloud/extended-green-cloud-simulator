@@ -6,6 +6,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 
 import java.time.Instant;
 import java.util.Date;
@@ -81,7 +82,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 			logger.info(GS_TRANSFER_EXECUTION_LOG);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
 			myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.IN_PROGRESS);
-			myServerAgent.manage().incrementStartedJobs(jobInstanceId);
+			myServerAgent.manage().incrementJobCounter(jobInstanceId, STARTED);
 			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, GREEN_POWER_JOB_ID);
 			myServerAgent.manage().updateServerGUI();
 			startJobExecutionInNewGreenSource(jobToExecute);

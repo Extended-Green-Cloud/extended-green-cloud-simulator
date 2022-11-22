@@ -7,7 +7,6 @@ import static com.greencloud.application.agents.server.management.logs.ServerMan
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
@@ -21,7 +20,6 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
-import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -50,14 +48,11 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
-import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.utils.AlgorithmUtils;
-import com.greencloud.application.utils.TimeUtils;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.JobResultType;
 import com.gui.agents.ServerAgentNode;
@@ -285,7 +280,7 @@ public class ServerStateManagement {
 	private void updateStateAfterJobFinish(final ClientJob jobToFinish) {
 		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToFinish);
 		incrementJobCounter(jobInstance, FINISH);
-		if (isJobUnique(jobToFinish.getJobId())) {
+		if (isJobUnique(jobToFinish.getJobId(), serverAgent.getServerJobs())) {
 			serverAgent.getGreenSourceForJobMap().remove(jobToFinish.getJobId());
 			updateClientNumberGUI();
 		}

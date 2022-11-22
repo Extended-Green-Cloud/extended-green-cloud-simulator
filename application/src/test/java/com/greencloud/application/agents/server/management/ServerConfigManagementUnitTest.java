@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.server.management;
 
+import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -64,7 +65,7 @@ class ServerConfigManagementUnitTest {
 	@Test
 	@DisplayName("Test calculating price for job")
 	void testPriceCalculation() {
-		doReturn(prepareTestJob()).when(serverStateManagement).getJobById("1");
+		doReturn(Map.of(prepareTestJob(), IN_PROGRESS)).when(mockServerAgent).getServerJobs();
 		final GreenSourceData mockGreenSourceData = ImmutableGreenSourceData.builder()
 				.jobId("1")
 				.availablePowerInTime(100)

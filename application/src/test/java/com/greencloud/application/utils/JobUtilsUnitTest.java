@@ -126,44 +126,6 @@ class JobUtilsUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test get jobs timetable with repeatable time instances")
-	void testGetJobsTimetableRepeatableInstances() {
-		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
-				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
-				.build();
-		final List<Instant> result = JobUtils.getJobsTimetable(mockCandidatePowerJob, setUpMockJobs());
-
-		assertThat(result).hasSize(8)
-				.contains(convertToRealTime(Instant.parse("2022-01-01T13:00:00.000Z")))
-				.contains(convertToRealTime(Instant.parse("2022-01-01T12:00:00.000Z")));
-	}
-
-	@Test
-	@DisplayName("Test get jobs timetable with job in processing")
-	void testGetJobsTimetableJobInProcessing() {
-		final PowerJob mockCandidatePowerJob = ImmutablePowerJob.builder().jobId("6").power(30)
-				.startTime(Instant.parse("2022-01-01T13:00:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
-				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
-				.build();
-		final PowerJob jobProcessing = ImmutablePowerJob.builder().jobId("10")
-				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
-				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
-				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
-				.power(10).build();
-		final Map<PowerJob, JobStatusEnum> testJobs = setUpMockJobs();
-		testJobs.put(jobProcessing, JobStatusEnum.PROCESSING);
-		final List<Instant> result = JobUtils.getJobsTimetable(mockCandidatePowerJob, testJobs);
-
-		assertThat(result).hasSize(8)
-				.contains(convertToRealTime(Instant.parse("2022-01-01T13:00:00.000Z")))
-				.contains(convertToRealTime(Instant.parse("2022-01-01T12:00:00.000Z")))
-				.doesNotContain(convertToRealTime(Instant.parse("2022-01-01T13:30:00.000Z")));
-	}
-
-	@Test
 	@DisplayName("Test getting expected job end time for current time before")
 	void testCalculateExpectedJobEndTime() {
 		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("6").power(30)
