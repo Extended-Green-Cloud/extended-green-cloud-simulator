@@ -1,4 +1,4 @@
-package service.monitoring;
+package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
@@ -13,10 +13,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.monitoring.BackUpPowerUsageService;
-import org.greencloud.managingsystem.service.monitoring.JobSuccessRatioService;
-import org.greencloud.managingsystem.service.monitoring.MonitoringService;
-import org.greencloud.managingsystem.service.monitoring.TrafficDistributionService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

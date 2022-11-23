@@ -1,13 +1,17 @@
-package analyzer;
+package org.greencloud.managingsystem.service.analyzer;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_COMPONENT;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.RECONFIGURE;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.greencloud.commons.job.JobStatusEnum.CREATED;
 import static com.greencloud.commons.job.JobStatusEnum.FAILED;
 import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
 import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -15,11 +19,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +33,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.ClientMonitoringData;
 import com.database.knowledge.domain.agent.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.ImmutableServerMonitoringData;
@@ -53,7 +58,7 @@ class AnalyzerServiceDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = spy(new TimescaleDatabase());
+		database = new TimescaleDatabase();
 		database.initDatabase();
 
 		mockManagingAgent = spy(ManagingAgent.class);
@@ -90,6 +95,33 @@ class AnalyzerServiceDatabaseTest {
 		verify(mockManagingAgent).getSystemQualityThreshold();
 		verify(database).readAdaptationActions();
 		verify(mockManagingAgent).plan().trigger(expectedQualityMap);
+	}
+
+	@Test
+	@DisplayName("Test getting adaptation actions for goal")
+	void testGetAdaptationActionsForGoal() {
+		var expectedResult = List.of(
+				new AdaptationAction(1, "Add Server",
+						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(2, "Increase job deadline priority",
+						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(3, "Increase job power priority",
+						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(4, "Increase Green Source selection chance",
+						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(5, "Increase Green Source weather prediction error",
+						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(7, "Add Green Source",
+						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO));
+
+		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);
+
+		assertThat(result)
+				.as("There should be 6 adaptation actions")
+				.hasSize(6)
+				.as("Data of the adaptation actions should equal to the expected result")
+				.usingRecursiveFieldByFieldElementComparator()
+				.containsExactlyInAnyOrderElementsOf(expectedResult);
 	}
 
 	private void prepareSystemData() {

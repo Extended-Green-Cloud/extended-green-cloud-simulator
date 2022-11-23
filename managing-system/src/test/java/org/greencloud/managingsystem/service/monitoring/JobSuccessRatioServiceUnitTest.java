@@ -1,4 +1,4 @@
-package service.monitoring;
+package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.monitoring.JobSuccessRatioService;
-import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Service containing methods analyzing the current state of the system
@@ -53,7 +54,8 @@ public class AnalyzerService extends AbstractManagingService {
 		managingAgent.plan().trigger(actionsQualityMap);
 	}
 
-	private List<AdaptationAction> getAdaptationActionsForGoal(final GoalEnum violatedGoal) {
+	@VisibleForTesting
+	protected List<AdaptationAction> getAdaptationActionsForGoal(final GoalEnum violatedGoal) {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			return managingAgent.getAgentNode().getDatabaseClient().readAdaptationActions()
 					.stream()
@@ -63,7 +65,8 @@ public class AnalyzerService extends AbstractManagingService {
 		throw new DatabaseConnectionNotAvailable("Couldn't retrieve adaptation actions");
 	}
 
-	private double computeQualityOfAdaptationAction(final AdaptationAction action) {
+	@VisibleForTesting
+	protected double computeQualityOfAdaptationAction(final AdaptationAction action) {
 		return action.getActionResults().entrySet()
 				.stream()
 				.mapToDouble(result ->
