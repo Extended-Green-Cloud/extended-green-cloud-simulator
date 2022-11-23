@@ -1,9 +1,10 @@
-package com.database.knowledge.domain.agent;
+package com.database.knowledge.domain.agent.client;
 
 import java.util.Map;
 
 import org.immutables.value.Value;
 
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.job.JobStatusEnum;

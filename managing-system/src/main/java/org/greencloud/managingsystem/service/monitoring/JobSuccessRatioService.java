@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.ClientMonitoringData;
-import com.database.knowledge.domain.agent.ServerMonitoringData;
+import com.database.knowledge.domain.agent.client.ClientMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.greencloud.commons.job.JobStatusEnum;

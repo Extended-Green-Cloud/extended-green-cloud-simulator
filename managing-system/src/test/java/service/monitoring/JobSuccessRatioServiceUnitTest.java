@@ -32,10 +32,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.ClientMonitoringData;
-import com.database.knowledge.domain.agent.ImmutableClientMonitoringData;
-import com.database.knowledge.domain.agent.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.agent.ServerMonitoringData;
+import com.database.knowledge.domain.agent.client.ClientMonitoringData;
+import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
+import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;

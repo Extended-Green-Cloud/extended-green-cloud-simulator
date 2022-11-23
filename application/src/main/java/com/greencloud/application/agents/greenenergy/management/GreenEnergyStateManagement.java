@@ -50,6 +50,7 @@ public class GreenEnergyStateManagement {
 	protected final AtomicInteger startedJobsInstances;
 	protected final AtomicInteger finishedJobsInstances;
 	private final GreenEnergyAgent greenEnergyAgent;
+	private final AtomicInteger weatherShortagesCounter;
 
 	/**
 	 * Default constructor
@@ -60,6 +61,7 @@ public class GreenEnergyStateManagement {
 		this.greenEnergyAgent = greenEnergyAgent;
 		this.startedJobsInstances = new AtomicInteger(0);
 		this.finishedJobsInstances = new AtomicInteger(0);
+		this.weatherShortagesCounter = new AtomicInteger(0);
 	}
 
 	/**
@@ -85,6 +87,10 @@ public class GreenEnergyStateManagement {
 		finishedJobsInstances.getAndAdd(1);
 		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, mapToJobInstanceIdWithRealTime(jobInstanceId),
 				finishedJobsInstances, startedJobsInstances);
+	}
+
+	public AtomicInteger getWeatherShortagesCounter() {
+		return weatherShortagesCounter;
 	}
 
 	/**

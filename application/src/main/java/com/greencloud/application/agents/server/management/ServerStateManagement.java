@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.google.common.collect.Collections2.filter;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_ACCEPTED_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_PROCESS_LOG;
@@ -43,8 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.database.knowledge.domain.agent.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.agent.ServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
@@ -145,10 +144,10 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method increments the counter of jobs
+	 * Method increments the weatherShortagesNumber of jobs
 	 *
 	 * @param jobInstanceId job identifier
-	 * @param type          type of counter to increment
+	 * @param type          type of weatherShortagesNumber to increment
 	 */
 	public void incrementJobCounter(final JobInstanceIdentifier jobInstanceId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());

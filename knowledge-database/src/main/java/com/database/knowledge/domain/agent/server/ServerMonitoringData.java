@@ -1,9 +1,10 @@
-package com.database.knowledge.domain.agent;
+package com.database.knowledge.domain.agent.server;
 
 import java.util.Map;
 
 import org.immutables.value.Value;
 
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.job.JobResultType;
@@ -16,7 +17,7 @@ import jade.core.AID;
 @Value.Immutable
 @JsonSerialize(as = ImmutableServerMonitoringData.class)
 @JsonDeserialize(as = ImmutableServerMonitoringData.class)
-public interface ServerMonitoringData extends MonitoringData{
+public interface ServerMonitoringData extends MonitoringData {
 
 	/**
 	 * @return maximum capacity of the server at the given moment

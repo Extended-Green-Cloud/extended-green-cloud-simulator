@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.database.knowledge.domain.agent.ClientMonitoringData;
-import com.database.knowledge.domain.agent.ImmutableClientMonitoringData;
+import com.database.knowledge.domain.agent.client.ClientMonitoringData;
+import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.utils.domain.Timer;
