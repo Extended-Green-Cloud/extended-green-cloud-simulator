@@ -39,7 +39,8 @@ public class MonitorSystemState extends TickerBehaviour {
 	protected void onTick() {
 		logger.info(MONITOR_SYSTEM_STATE_LOG);
 
-		final boolean areGoalsSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized(); //HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
+		//HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
+		final boolean areGoalsSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized();
 
 		if (areGoalsSatisfied) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);

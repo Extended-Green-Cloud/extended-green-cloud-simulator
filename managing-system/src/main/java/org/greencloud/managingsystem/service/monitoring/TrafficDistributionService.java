@@ -2,8 +2,6 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.AtomicDouble;
 
@@ -12,9 +10,7 @@ import com.google.common.util.concurrent.AtomicDouble;
  */
 public class TrafficDistributionService extends AbstractManagingService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TrafficDistributionService.class);
-
-	private AtomicDouble averageTrafficDistribution;
+	private final AtomicDouble averageTrafficDistribution;
 
 	public TrafficDistributionService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);

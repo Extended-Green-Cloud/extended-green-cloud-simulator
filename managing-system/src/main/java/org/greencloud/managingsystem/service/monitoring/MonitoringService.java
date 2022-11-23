@@ -25,9 +25,9 @@ public class MonitoringService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
 
-	private final JobSuccessRatioService jobSuccessRatioService;
-	private final BackUpPowerUsageService backUpPowerUsageService;
-	private final TrafficDistributionService trafficDistributionService;
+	private JobSuccessRatioService jobSuccessRatioService;
+	private BackUpPowerUsageService backUpPowerUsageService;
+	private TrafficDistributionService trafficDistributionService;
 
 	public MonitoringService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
@@ -56,9 +56,9 @@ public class MonitoringService extends AbstractManagingService {
 	 */
 	public AdaptationGoal getAdaptationGoal(final GoalEnum goalEnum) {
 		return managingAgent.getAdaptationGoalList().stream()
-				.filter(goal -> goal.id().equals(goalEnum.adaptationGoalId))
+				.filter(goal -> goal.id().equals(goalEnum.getAdaptationGoalId()))
 				.findFirst()
-				.orElseThrow(() -> new InvalidGoalIdentifierException(goalEnum.adaptationGoalId));
+				.orElseThrow(() -> new InvalidGoalIdentifierException(goalEnum.getAdaptationGoalId()));
 	}
 
 	/**
@@ -106,4 +106,17 @@ public class MonitoringService extends AbstractManagingService {
 					qualityMap);
 		}
 	}
+
+	public void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {
+		this.jobSuccessRatioService = jobSuccessRatioService;
+	}
+
+	public void setBackUpPowerUsageService(final BackUpPowerUsageService backUpPowerUsageService) {
+		this.backUpPowerUsageService = backUpPowerUsageService;
+	}
+
+	public void setTrafficDistributionService(final TrafficDistributionService trafficDistributionService) {
+		this.trafficDistributionService = trafficDistributionService;
+	}
+
 }

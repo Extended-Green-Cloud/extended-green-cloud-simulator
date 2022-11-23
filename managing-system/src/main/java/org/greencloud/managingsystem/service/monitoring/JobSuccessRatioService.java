@@ -5,6 +5,8 @@ import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_R
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
 import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
@@ -34,7 +36,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobSuccessRatioService.class);
 
-	private AtomicDouble jobSuccessRatio;
+	private final AtomicDouble jobSuccessRatio;
 
 	public JobSuccessRatioService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
@@ -50,7 +52,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
 		final double currentSuccessRatio = readClientJobSuccessRatio();
 		jobSuccessRatio.set(currentSuccessRatio);
-		if (currentSuccessRatio == -1) {
+		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
@@ -69,7 +71,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	public boolean isComponentsSuccessRatioCorrect() {
 		logger.info(READ_SUCCESS_RATIO_COMPONENTS_LOG);
 		final List<AgentData> componentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES);
+				.readMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
 		if (componentsData.isEmpty()) {
 			logger.info(READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG);
@@ -79,7 +81,8 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		return componentsData.stream()
 				.allMatch(component -> {
 					final double successRatio = readSuccessRatioForNetworkComponent(component);
-					boolean result = successRatio == -1 || isSuccessRatioWithinBound(successRatio);
+					boolean result =
+							successRatio == DATA_NOT_AVAILABLE_INDICATOR || isSuccessRatioWithinBound(successRatio);
 					if (!result) {
 						final String name = component.aid().split("@")[0];
 						logger.info(SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG, name, successRatio);
@@ -96,32 +99,33 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	private double readSuccessRatioForNetworkComponent(final AgentData component) {
 		return switch (component.dataType()) {
 			case SERVER_MONITORING -> readServerJobSuccessRatio((ServerMonitoringData) component.monitoringData());
-			default -> -1;
+			default -> DATA_NOT_AVAILABLE_INDICATOR;
 		};
 	}
 
 	private double readServerJobSuccessRatio(final ServerMonitoringData monitoringData) {
 		final double jobsAccepted = monitoringData.getJobResultStatistics().get(ACCEPTED);
 		final double jobsFailed = monitoringData.getJobResultStatistics().get(FAILED);
-		return jobsAccepted == 0 ? -1 : 1 - (jobsFailed / jobsAccepted);
+		return jobsAccepted == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - (jobsFailed / jobsAccepted);
 	}
 
 	private double readClientJobSuccessRatio() {
 		final List<ClientMonitoringData> clientsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING)).stream()
+				.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD)
+				.stream()
 				.map(AgentData::monitoringData)
 				.map(ClientMonitoringData.class::cast)
 				.toList();
 
 		if (clientsData.isEmpty()) {
-			return -1;
+			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
 
 		final long allCount = clientsData.size();
 		final long failCount = clientsData.stream()
 				.filter(data -> data.getIsFinished() && data.getCurrentJobStatus().equals(JobStatusEnum.FAILED))
 				.count();
-		return 1 - ( (double) failCount / allCount);
+		return 1 - ((double) failCount / allCount);
 	}
 
 	private boolean isSuccessRatioWithinBound(final double successRatio) {
