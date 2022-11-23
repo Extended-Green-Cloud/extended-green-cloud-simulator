@@ -2,7 +2,7 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.handler;
 
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_FINISH_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;

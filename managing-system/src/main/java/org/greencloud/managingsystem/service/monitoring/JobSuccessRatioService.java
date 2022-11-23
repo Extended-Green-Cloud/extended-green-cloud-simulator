@@ -17,6 +17,7 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 
 import java.util.List;
 
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.slf4j.Logger;
@@ -27,7 +28,6 @@ import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.greencloud.commons.job.JobStatusEnum;
 
 /**
  * Service containing methods connected with monitoring system success ratio
@@ -124,7 +124,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 
 		final long allCount = clientsData.size();
 		final long failCount = clientsData.stream()
-				.filter(data -> data.getIsFinished() && data.getCurrentJobStatus().equals(JobStatusEnum.FAILED))
+				.filter(data -> data.getIsFinished() && data.getCurrentJobStatus().equals(ClientJobStatusEnum.FAILED))
 				.count();
 		return 1 - ((double) failCount / allCount);
 	}

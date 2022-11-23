@@ -10,8 +10,8 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_CHANGE_TEMPLATE;
 import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
+import com.greencloud.commons.job.JobResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -97,6 +98,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, ACCEPTED);
+		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
 		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 	}
@@ -110,7 +112,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			myCloudNetworkAgent.getNetworkJobs()
 					.replace(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()), IN_PROGRESS);
 			myCloudNetworkAgent.manageConfig().saveMonitoringData();
-			myCloudNetworkAgent.manage().incrementStartedJobs(jobId);
+			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.STARTED);
 			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, STARTED_JOB_ID));
 		}
 	}
@@ -138,6 +140,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		logger.info(SEND_JOB_FAILED_STATUS_LOG, jobId);
 		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
+		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FAILED);
 		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, FAILED_JOB_ID));
 	}
@@ -145,7 +148,7 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	private void updateNetworkInformation(final String jobId) {
 		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
+		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FINISH);
 		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 	}
 

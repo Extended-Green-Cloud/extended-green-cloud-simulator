@@ -5,7 +5,7 @@ import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentC
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;

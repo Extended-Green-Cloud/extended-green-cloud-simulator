@@ -1,9 +1,9 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
 import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.monitoring.CloudNetworkMonitoringData;
-import com.greencloud.application.domain.monitoring.ImmutableCloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import jade.core.AID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +62,7 @@ public class CloudNetworkConfigManagement {
         CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
                 .ownedServers(cloudNetworkAgent.getOwnedServers())
                 .percentagesForServersMap(getPercentages())
+                .jobResultStatistics(cloudNetworkAgent.manage().getJobCounters())
                 .networkJobs(cloudNetworkAgent.getNetworkJobs())
                 .build();
         cloudNetworkAgent.writeMonitoringData(DataType.DEFAULT, cloudNetworkMonitoringData);

@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 import com.gui.controller.GuiController;
@@ -30,7 +30,7 @@ class CloudNetworkStateManagementUnitTest {
 
 	// MOCK OBJECTS
 
-	private Map<ClientJob, JobStatusEnum> MOCK_JOBS;
+	private Map<ClientJob, ExecutionJobStatusEnum> MOCK_JOBS;
 
 	@Mock
 	private CloudNetworkAgent mockCloudNetwork;
@@ -61,21 +61,6 @@ class CloudNetworkStateManagementUnitTest {
 		assertThat(cloudNetworkStateManagement.getCurrentPowerInUse()).isEqualTo(30);
 	}
 
-	@Test
-	@DisplayName("Test incrementing started jobs")
-	void testIncrementingStartedJobs() {
-		assertThat(cloudNetworkStateManagement.getStartedJobs().get()).isZero();
-		cloudNetworkStateManagement.incrementStartedJobs("1");
-		assertThat(cloudNetworkStateManagement.getStartedJobs().get()).isOne();
-	}
-
-	@Test
-	@DisplayName("Test incrementing finished jobs")
-	void testIncrementingFinishedJobs() {
-		assertThat(cloudNetworkStateManagement.getFinishedJobs().get()).isZero();
-		cloudNetworkStateManagement.incrementFinishedJobs("1");
-		assertThat(cloudNetworkStateManagement.getFinishedJobs().get()).isOne();
-	}
 
 	// PREPARING TEST DATA
 
@@ -87,7 +72,7 @@ class CloudNetworkStateManagementUnitTest {
 	 * Job2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
 	 * Job3 -> power: 50,  time: 06:00 - 15:00, status: ACCEPTED
 	 */
-	private Map<ClientJob, JobStatusEnum> setUpCloudNetworkJobs() {
+	private Map<ClientJob, ExecutionJobStatusEnum> setUpCloudNetworkJobs() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
@@ -112,10 +97,10 @@ class CloudNetworkStateManagementUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(50)
 				.build();
-		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
-		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob3, JobStatusEnum.ACCEPTED);
+		final Map<ClientJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
+		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob3, ExecutionJobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}
 }

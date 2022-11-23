@@ -4,13 +4,13 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static java.util.Objects.nonNull;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForNewJobWeatherData;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
@@ -48,7 +48,7 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 		if (nonNull(cfp)) {
 			final PowerJob job = readJob(cfp);
 			if (nonNull(job)) {
-				myGreenEnergyAgent.getPowerJobs().put(job, JobStatusEnum.PROCESSING);
+				myGreenEnergyAgent.getPowerJobs().put(job, ExecutionJobStatusEnum.PROCESSING);
 				requestMonitoringData(cfp, job);
 			}
 		} else {

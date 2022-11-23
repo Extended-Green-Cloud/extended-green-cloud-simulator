@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 
@@ -91,7 +91,7 @@ class SchedulerStateManagementUnitTest {
 	 * Job1 -> power: 10, time: 08:00 - 10:00, status: PROCESSING,
 	 * Job2 -> power: 20, time: 07:00 - 11:00, status: ACCEPTED
 	 */
-	private ConcurrentMap<ClientJob, JobStatusEnum> setUpCloudNetworkJobs() {
+	private ConcurrentMap<ClientJob, ExecutionJobStatusEnum> setUpCloudNetworkJobs() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
@@ -108,9 +108,9 @@ class SchedulerStateManagementUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20)
 				.build();
-		final ConcurrentMap<ClientJob, JobStatusEnum> mockJobMap = new ConcurrentHashMap<>();
-		mockJobMap.put(mockJob1, JobStatusEnum.PROCESSING);
-		mockJobMap.put(mockJob2, JobStatusEnum.ACCEPTED);
+		final ConcurrentMap<ClientJob, ExecutionJobStatusEnum> mockJobMap = new ConcurrentHashMap<>();
+		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.PROCESSING);
+		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}
 }

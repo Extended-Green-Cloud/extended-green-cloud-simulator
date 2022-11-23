@@ -3,7 +3,7 @@ package com.greencloud.commons.job;
 /**
  * Enum storing available job statuses displayed in GUI
  */
-public enum JobStatusEnum {
+public enum ClientJobStatusEnum {
 
 	CREATED("BEFORE SEND"),
 	SCHEDULED("SCHEDULED"),
@@ -18,7 +18,7 @@ public enum JobStatusEnum {
 
 	private final String status;
 
-	JobStatusEnum(String status) {
+	ClientJobStatusEnum(String status) {
 		this.status = status;
 	}
 

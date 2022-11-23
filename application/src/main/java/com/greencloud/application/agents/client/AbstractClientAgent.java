@@ -8,7 +8,6 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.agents.client.management.ClientStateManagement;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
 
 /**
  * Abstract agent class storing the data regarding Client Agent

@@ -11,10 +11,10 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.WEATHER_UNAVAILABLE_RE_SUPPLY_JOB_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.WEATHER_CAUSE;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
@@ -50,7 +50,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortage;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.commons.job.PowerJob;
 
@@ -147,7 +147,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, powerJob.getJobId());
 		} else {
 			logger.info(CHANGE_JOB_STATUS_LOG, powerJob.getJobId());
-			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ? ACCEPTED : IN_PROGRESS;
+			final ExecutionJobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ? ACCEPTED : IN_PROGRESS;
 
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();

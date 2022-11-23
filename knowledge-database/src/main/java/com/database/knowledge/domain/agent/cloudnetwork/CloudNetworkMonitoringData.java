@@ -1,10 +1,11 @@
-package com.greencloud.application.domain.monitoring;
+package com.database.knowledge.domain.agent.cloudnetwork;
 
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
 import jade.core.AID;
 import org.immutables.value.Value;
 
@@ -27,7 +28,12 @@ public interface CloudNetworkMonitoringData extends MonitoringData {
     Map<AID, Double> getPercentagesForServersMap();
 
     /**
+     * @return counted job execution results
+     */
+    Map<JobResultType, Long> getJobResultStatistics();
+
+    /**
      * @return map of jobs and their statuses in a given Cloud Network Agents
      */
-    Map<ClientJob, JobStatusEnum> getNetworkJobs();
+    Map<ClientJob, ExecutionJobStatusEnum> getNetworkJobs();
 }

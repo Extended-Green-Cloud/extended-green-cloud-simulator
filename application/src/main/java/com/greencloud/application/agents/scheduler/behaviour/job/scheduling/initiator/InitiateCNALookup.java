@@ -2,8 +2,8 @@ package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.ini
 
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;

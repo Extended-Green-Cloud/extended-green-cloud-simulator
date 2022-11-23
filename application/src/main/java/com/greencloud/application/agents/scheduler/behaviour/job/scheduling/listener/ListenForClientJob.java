@@ -5,7 +5,7 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.scheduli
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.QUEUE_THRESHOLD_EXCEEDED_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates.JobSchedulingMessageTemplates.NEW_JOB_ANNOUNCEMENT_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SPLIT_JOB_ID;

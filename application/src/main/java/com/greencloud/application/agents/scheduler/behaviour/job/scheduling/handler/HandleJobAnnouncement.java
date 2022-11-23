@@ -8,8 +8,8 @@ import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentC
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.JOB_PROCESSING_TIME_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.SEND_NEXT_JOB_TIMEOUT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.PROCESSING_JOB_ID;

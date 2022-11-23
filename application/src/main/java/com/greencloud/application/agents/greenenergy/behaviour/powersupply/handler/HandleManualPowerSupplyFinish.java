@@ -2,8 +2,8 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.hand
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.logs.PowerSupplyHandlerLog.MANUAL_POWER_SUPPLY_FINISH_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static java.util.Objects.nonNull;

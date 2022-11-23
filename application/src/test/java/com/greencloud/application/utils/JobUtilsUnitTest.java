@@ -1,8 +1,7 @@
 package com.greencloud.application.utils;
 
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +12,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -27,7 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 import com.greencloud.commons.job.ImmutablePowerJob;
@@ -161,7 +159,7 @@ class JobUtilsUnitTest {
 	@DisplayName("Test getting current job instance not found")
 	void testGettingCurrentJobInstanceNotFound() {
 		useMockTime(Instant.parse("2022-01-01T19:00:00.000Z"), ZoneId.of("UTC"));
-		final Map.Entry<PowerJob, JobStatusEnum> result = JobUtils.getCurrentJobInstance("1", setUpMockJobs());
+		final Map.Entry<PowerJob, ExecutionJobStatusEnum> result = JobUtils.getCurrentJobInstance("1", setUpMockJobs());
 
 		assertNull(result);
 	}
@@ -170,7 +168,7 @@ class JobUtilsUnitTest {
 	@DisplayName("Test getting current job instance one instance")
 	void testGettingCurrentJobInstanceOneInstance() {
 		useMockTime(Instant.parse("2022-01-01T14:00:00.000Z"), ZoneId.of("UTC"));
-		final Map.Entry<PowerJob, JobStatusEnum> result = JobUtils.getCurrentJobInstance("2", setUpMockJobs());
+		final Map.Entry<PowerJob, ExecutionJobStatusEnum> result = JobUtils.getCurrentJobInstance("2", setUpMockJobs());
 
 		assertNotNull(result);
 		assertThat(result.getKey().getDeadline()).isEqualTo(Instant.parse("2022-01-01T20:00:00.000Z"));
@@ -188,10 +186,10 @@ class JobUtilsUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20)
 				.build();
-		final Map<PowerJob, JobStatusEnum> testJobs = setUpMockJobs();
+		final Map<PowerJob, ExecutionJobStatusEnum> testJobs = setUpMockJobs();
 		testJobs.put(jobProcessing, IN_PROGRESS);
 
-		final Map.Entry<PowerJob, JobStatusEnum> result = JobUtils.getCurrentJobInstance("1", testJobs);
+		final Map.Entry<PowerJob, ExecutionJobStatusEnum> result = JobUtils.getCurrentJobInstance("1", testJobs);
 
 		assertNotNull(result);
 		assertThat(result.getKey().getPower()).isEqualTo(20);
@@ -209,7 +207,7 @@ class JobUtilsUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10)
 				.build();
-		final Map<PowerJob, JobStatusEnum> testJobs = setUpMockJobs();
+		final Map<PowerJob, ExecutionJobStatusEnum> testJobs = setUpMockJobs();
 		testJobs.put(mockJob, IN_PROGRESS);
 
 		assertThat(JobUtils.isJobUnique(jobId, testJobs)).isEqualTo(result);
@@ -225,7 +223,7 @@ class JobUtilsUnitTest {
 	 * PowerJob2 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
 	 * PowerJob3 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
 	 */
-	private Map<PowerJob, JobStatusEnum> setUpMockJobs() {
+	private Map<PowerJob, ExecutionJobStatusEnum> setUpMockJobs() {
 		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
@@ -241,10 +239,10 @@ class JobUtilsUnitTest {
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(25).build();
-		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
-		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob2, JobStatusEnum.ON_HOLD_PLANNED);
-		mockJobMap.put(mockJob3, JobStatusEnum.ACCEPTED);
+		final Map<PowerJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
+		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.ON_HOLD_PLANNED);
+		mockJobMap.put(mockJob3, ExecutionJobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}
 }

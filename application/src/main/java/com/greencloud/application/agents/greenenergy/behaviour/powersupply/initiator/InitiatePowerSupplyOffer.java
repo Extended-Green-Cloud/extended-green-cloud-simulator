@@ -30,7 +30,7 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.application.domain.job.JobWithProtocol;
 import com.greencloud.commons.job.PowerJob;
 
@@ -115,7 +115,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 			final ACLMessage proposal) {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SEND_POWER_SUPPLY_RESPONSE_LOG, job.getJobId());
-		myGreenEnergyAgent.getPowerJobs().replace(job, JobStatusEnum.ACCEPTED);
+		myGreenEnergyAgent.getPowerJobs().replace(job, ExecutionJobStatusEnum.ACCEPTED);
 
 		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
 				calculateExpectedJobEndTime(job), mapToJobInstanceId(job));

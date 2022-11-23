@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.lang.acl.ACLMessage;
@@ -118,7 +118,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 			final boolean hasJobStarted = !jobToTransfer.getStartTime().isAfter(getCurrentTime());
 			logger.info(SOURCE_JOB_TRANSFER_FAILURE_LOG, jobToTransfer.getJobId());
 			myGreenAgent.getPowerJobs()
-					.replace(jobToTransfer, hasJobStarted ? JobStatusEnum.ON_HOLD : JobStatusEnum.ON_HOLD_PLANNED);
+					.replace(jobToTransfer, hasJobStarted ? ExecutionJobStatusEnum.ON_HOLD : ExecutionJobStatusEnum.ON_HOLD_PLANNED);
 			myGreenAgent.manage().updateGreenSourceGUI();
 		} else if (cause.equals(JOB_NOT_FOUND_CAUSE_MESSAGE)) {
 			finishNonExistingJob(true);
