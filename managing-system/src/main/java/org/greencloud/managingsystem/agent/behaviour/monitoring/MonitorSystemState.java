@@ -4,9 +4,14 @@ import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.Mana
 import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.ManagingMonitoringLog.SYSTEM_STABLE_STATE_LOG;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_TIMEOUT;
 
+import java.util.Comparator;
+import java.util.Map;
+
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.database.knowledge.domain.goal.GoalEnum;
 
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
@@ -53,6 +58,6 @@ public class MonitorSystemState extends TickerBehaviour {
 				.min(Comparator.comparingDouble(Map.Entry::getValue))
 				.orElseThrow().getKey();
 
-		//TODO next PR - call analyzer
+		myManagingAgent.analyze().trigger(goalWithWorstQuality);
 	}
 }
