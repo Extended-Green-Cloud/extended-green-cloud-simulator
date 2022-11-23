@@ -21,7 +21,7 @@ import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
-class MonitoringServiceIntegrationTest {
+class MonitoringServiceDatabaseTest {
 
 	@Mock
 	private ManagingAgent mockManagingAgent;
