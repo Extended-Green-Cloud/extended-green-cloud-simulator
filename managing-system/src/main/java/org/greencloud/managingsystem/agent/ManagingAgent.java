@@ -5,11 +5,11 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGE
 import java.util.List;
 import java.util.Objects;
 
+import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 
 import jade.core.behaviours.Behaviour;
@@ -59,7 +59,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for green source agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}

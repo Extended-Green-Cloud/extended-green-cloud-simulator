@@ -9,7 +9,6 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
 
-import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.ParallelBehaviour;
@@ -55,6 +54,7 @@ public class ReceiveGUIController extends CyclicBehaviour {
 				ParallelBehaviour behaviour = new ParallelBehaviour();
 				initialBehaviours.forEach(behaviour::addSubBehaviour);
 				behaviour.addSubBehaviour(new ReportHealthCheck(abstractAgent));
+				behaviour.addSubBehaviour(new ListenForAdaptationAction(abstractAgent));
 				abstractAgent.addBehaviour(behaviour);
 			}
 			objectCounter++;
