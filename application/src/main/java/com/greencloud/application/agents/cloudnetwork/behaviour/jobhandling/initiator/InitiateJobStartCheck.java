@@ -84,7 +84,7 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 	 */
 	@Override
 	protected void handleFailure(ACLMessage failure) {
-		final ClientJob job = myCloudNetwork.manage().getJobById(jobId);
+		final ClientJob job = getJobById(jobId, myCloudNetwork.getNetworkJobs());
 		MDC.put(MDC_JOB_ID, jobId);
 		if (Objects.nonNull(job) && !myCloudNetwork.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			logger.error(JOB_HAS_NOT_STARTED_LOG, jobId);
