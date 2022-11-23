@@ -12,6 +12,7 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_SATISFIED_CLIENT_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
@@ -61,6 +62,7 @@ public class JobSuccessRatioService extends AbstractManagingService {
 			logger.info(SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG, currentSuccessRatio);
 			return false;
 		}
+		logger.info(SUCCESS_RATIO_SATISFIED_CLIENT_LOG, currentSuccessRatio);
 		return true;
 	}
 
