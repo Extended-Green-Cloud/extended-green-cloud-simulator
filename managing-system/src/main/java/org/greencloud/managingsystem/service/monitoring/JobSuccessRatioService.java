@@ -51,11 +51,12 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	public boolean isClientJobSuccessRatioCorrect() {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
 		final double currentSuccessRatio = readClientJobSuccessRatio();
-		jobSuccessRatio.set(currentSuccessRatio);
+
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
+		jobSuccessRatio.set(currentSuccessRatio);
 		if (!isSuccessRatioWithinBound(currentSuccessRatio)) {
 			logger.info(SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG, currentSuccessRatio);
 			return false;
