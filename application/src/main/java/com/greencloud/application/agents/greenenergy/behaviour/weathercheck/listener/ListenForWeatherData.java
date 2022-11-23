@@ -51,8 +51,8 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortage;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.MessagingUtils;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
@@ -164,6 +164,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			logger.info(POWER_DROP_LOG, time);
 			myAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, time, availablePower,
 					WEATHER_CAUSE));
+			myGreenEnergyAgent.manage().getWeatherShortagesCounter().getAndIncrement();
 		} else {
 			logger.info(NO_POWER_DROP_LOG, time);
 		}

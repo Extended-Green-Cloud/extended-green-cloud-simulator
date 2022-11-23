@@ -19,7 +19,9 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SOURCES_AVAILABLE_CAUSE_MESSAGE;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -34,11 +36,11 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferConfirmation;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -117,7 +119,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 		myServerAgent.addBehaviour(
 				new ListenForSourceJobTransferConfirmation(myServerAgent, jobToTransferInstance, powerShortageStart,
 						greenSourceRequest));
-		myAgent.send(ReplyMessageFactory.prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
+		myAgent.send(prepareAcceptReplyWithProtocol(chosenOffer.createReply(),
 				jobToTransferInstance, POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL));
 	}
 
@@ -128,7 +130,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 
 	private void handleTransferFailure() {
 		MDC.put(MDC_JOB_ID, jobToTransfer.getJobId());
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobToTransferInstance);
+		final ClientJob job = getJobByIdAndStartDate(jobToTransferInstance, myServerAgent.getServerJobs());
 		if (Objects.nonNull(job)) {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),

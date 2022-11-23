@@ -2,18 +2,27 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.logs.WeatherCheckRequestLog.WEATHER_REQUEST_SENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableGreenSourceForecastData;
 import com.greencloud.application.domain.ImmutableGreenSourceWeatherData;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.messages.domain.factory.PowerCheckMessageFactory;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -46,6 +55,24 @@ public class RequestWeatherData extends OneShotBehaviour {
 		this.powerJob = powerJob;
 	}
 
+	@VisibleForTesting
+	protected static List<Instant> getJobsTimetable(final PowerJob candidateJob,
+			final Map<PowerJob, JobStatusEnum> jobMap) {
+		var validJobs = jobMap.entrySet().stream()
+				.filter(entry -> ACCEPTED_JOB_STATUSES.contains(entry.getValue()))
+				.map(Map.Entry::getKey)
+				.toList();
+		return Stream.concat(
+						Stream.of(
+								convertToRealTime(candidateJob.getStartTime()),
+								convertToRealTime(candidateJob.getEndTime())),
+						Stream.concat(
+								validJobs.stream().map(job -> convertToRealTime(job.getStartTime())),
+								validJobs.stream().map(job -> convertToRealTime(job.getEndTime()))))
+				.distinct()
+				.toList();
+	}
+
 	/**
 	 * Method which sends the request to the Monitoring Agent asking for the weather at the given location.
 	 */
@@ -68,7 +95,7 @@ public class RequestWeatherData extends OneShotBehaviour {
 						.build() :
 				ImmutableGreenSourceForecastData.builder()
 						.location(myGreenEnergyAgent.getLocation())
-						.timetable(myGreenEnergyAgent.manage().getJobsTimetable(powerJob))
+						.timetable(getJobsTimetable(powerJob, myGreenEnergyAgent.getPowerJobs()))
 						.build();
 	}
 }

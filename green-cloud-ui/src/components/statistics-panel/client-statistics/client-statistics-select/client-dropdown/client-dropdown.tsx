@@ -1,7 +1,7 @@
 import { styles } from './client-dropdown-styles'
 import Select, { SingleValue } from 'react-select'
 import { ClientAgent } from '@types'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
    AgentOption,
    CLIENTS_ORDER,
@@ -39,19 +39,19 @@ const ClientDropdown = ({
    clients,
    jobStatusMap,
 }: Props) => {
+   const [isFocus, setIsFocus] = useState(false)
    const { select, selectTheme } = styles
    const filteredClientsForJobs = () =>
       clients.filter(
          (client) =>
             jobStatusMap.find(
                (job) =>
-                  job.jobStatus ===
-                  convertJobStatus(client.jobStatusEnum.toString())
+                  job.jobStatus === convertJobStatus(client.status.toString())
             )?.isSelected
       )
 
    const aggregateOptions = (prev: GroupedAgentOption[], curr: ClientAgent) => {
-      const currJob = curr.jobStatusEnum.toString()
+      const currJob = curr.status.toString()
       const clientName = curr.name.toUpperCase()
       const prevGroup = prev.find((opt) => opt.label === currJob)
       const clientToPush = { label: clientName, value: curr }
@@ -85,10 +85,12 @@ const ClientDropdown = ({
    const customFilter = (
       option: FilterOptionOption<AgentOption>,
       inputValue: string
-   ) => option.label.includes(inputValue)
+   ) => option.label.includes(inputValue.toUpperCase())
 
-   const handleOnChange = (value: SingleValue<AgentOption>) =>
+   const handleOnChange = (value: SingleValue<AgentOption>) => {
+      setIsFocus(false)
       setSelectedClient(value)
+   }
 
    const handleNoOption = () =>
       clients.length !== 0 ? selectNoOption : selectNoClients
@@ -97,8 +99,10 @@ const ClientDropdown = ({
       <Select
          value={{
             value: selectedClient,
-            label: selectedClient?.name ?? '',
+            label: !isFocus ? selectedClient?.name ?? '' : '',
          }}
+         onFocus={() => setIsFocus(true)}
+         onBlur={() => setIsFocus(false)}
          onChange={handleOnChange}
          placeholder={selectPlaceholder}
          noOptionsMessage={handleNoOption}

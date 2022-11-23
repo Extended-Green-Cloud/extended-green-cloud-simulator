@@ -12,12 +12,16 @@ const registerScheduler = (data) => {
 }
 
 const registerClient = (data) => {
+    const {name, ...jobData} = data
     return {
         type: AGENT_TYPES.CLIENT,
-        jobStatusEnum: JOB_STATUES.CREATED,
+        status: JOB_STATUES.CREATED,
         events: [],
+        name,
         isActive: false,
-        ...data
+        isSplit: false,
+        splitJobs: [],
+        job: jobData
     }
 }
 

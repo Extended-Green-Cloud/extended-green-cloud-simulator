@@ -1,0 +1,162 @@
+/* COMMON BUTTON STYLES */
+
+.common-button {
+   background: none;
+   display: inline-block;
+   color: inherit;
+   border: none;
+   font: inherit;
+   cursor: pointer;
+   outline: none;
+   text-decoration: none;
+   border-radius: 10px;
+}
+
+.common-button:focus {
+   outline: none;
+}
+
+/* SMALL GREEN BUTTON STYLE */
+
+.small-green-button {
+   color: var(--white);
+   font-family: var(--font-1);
+   font-size: var(--font-size-2);
+   font-weight: 300;
+   padding: 5px 20px;
+   background-color: var(--green-1);
+}
+
+.small-green-button:hover {
+   background-color: var(--green-3);
+}
+
+.small-green-button:active {
+   background-color: var(--green-4);
+}
+
+/* BANNER BUTTON STYLE */
+
+.button-banner {
+    font-weight: 400;
+    text-align: left;
+    padding-left: 15px !important;
+    padding: 7px 10px;
+    margin-top: 10px;
+    width: 100%;
+    color: var(--gray-3);
+    background-color: var(--gray-7);
+    font-family: var(--font-1);
+    font-size: var(--font-size-5);
+    border-left: var(--border-banner-button);
+}
+
+.button-banner:hover {
+    background-color: var(--gray-5);
+}
+
+.button-banner:active {
+    border-left-color: var(--green-5);
+    background-color: var(--gray-7);
+}
+
+.button-disconnected {
+    border-left-color: var(--red-2);
+}
+
+.button-disconnected:hover {
+    border-left-color: var(--red-1);
+}
+
+.button-disconnected:active {
+    border-left-color: var(--red-2);
+}
+
+/* MENU BUTTON */
+
+.menu-button {
+	padding: 5px;
+    padding-bottom: 2px !important;
+    margin-right: 15px;
+    margin-top: 10px;
+}
+
+.menu-button:hover {
+    background-color: var(--green-3);
+}
+
+.menu-button:active {
+    background-color: var(--green-4);
+}
+
+/* EVENT BUTTON */
+
+.event-button {
+    color: var(--white);
+    font-family: var(--font-1);
+    font-size: var(--font-size-2);
+    font-weight: 300;
+    padding: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.event-button:disabled {
+    background-color: var(--gray-1);
+}
+
+.event-button:disabled:hover {
+    background-color: var(--gray-1);
+}
+
+.event-button:disabled:active {
+    background-color: var(--gray-1);
+}
+
+.event-active-button {
+    background-color: var(--green-1);
+}
+
+.event-active-button:hover {
+    background-color: var(--green-3);
+}
+
+.event-active-button:active {
+    background-color: var(--green-4);
+}
+
+.event-inactive-button {
+    background-color: var(--red-1);
+}
+
+.event-inactive-button:hover {
+    background-color: var(--red-2);
+}
+
+.event-inactive-button:active {
+    background-color: var(--red-3);
+}
+
+/* ADAPTATION LOG MORE BUTTON */
+
+.more-button {
+    color: var(--white);
+    font-family: var(--font-1);
+    font-size: var(--font-size-2);
+    font-weight: 300;
+    padding: 5px 20px;
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--gray-2);
+}
+
+.more-button:hover {
+    background-color: var(--gray-1);
+}
+
+.more-button:active {
+    background-color: var(--gray-6);
+}

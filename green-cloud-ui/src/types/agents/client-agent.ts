@@ -1,11 +1,10 @@
 import { JobStatus } from 'types/enum/job-status-enum'
+import { Job, SplitJob } from 'types/job'
 import { CommonAgentInterface } from './common/common-agent'
 
 export interface ClientAgent extends CommonAgentInterface {
-   jobId: string
-   power: string
-   start: string
-   end: string
-   deadline: string
-   jobStatusEnum: JobStatus
+   job: Job
+   status: JobStatus
+   isSplit: boolean
+   splitJobs: SplitJob[]
 }

@@ -53,8 +53,11 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof ServerAgentArgs serverAgent) {
 			return containerController.createNewAgent(serverAgent.getName(),
 					"com.greencloud.application.agents.server.ServerAgent",
-					new Object[] { serverAgent.getOwnerCloudNetwork(), serverAgent.getPrice(),
-							serverAgent.getMaximumCapacity() });
+					new Object[] {
+							serverAgent.getOwnerCloudNetwork(),
+							serverAgent.getPrice(),
+							serverAgent.getMaximumCapacity(),
+							serverAgent.getJobProcessingLimit() });
 		} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
 			return containerController.createNewAgent(cloudNetworkAgent.getName(),
 					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent", new Object[] {});
@@ -78,7 +81,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					new Object[] {
 							schedulerAgent.getDeadlineWeight(),
 							schedulerAgent.getPowerWeight(),
-							schedulerAgent.getMaximumQueueSize()
+							schedulerAgent.getMaximumQueueSize(),
+							schedulerAgent.getJobSplitThreshold(),
+							schedulerAgent.getSplittingFactor()
 					});
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),

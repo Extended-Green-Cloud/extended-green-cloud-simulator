@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>2</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -28,27 +30,27 @@
 			<latitude>52</latitude>
 			<longitude>22</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>SOLAR</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind</name>
 			<monitoringAgent>Weather2</monitoringAgent>
-			<ownerSever>Server2</ownerSever>
+			<ownerSever>Server1</ownerSever>
 			<latitude>52</latitude>
 			<longitude>22</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind2</name>
 			<monitoringAgent>Weather3</monitoringAgent>
-			<ownerSever>Server1</ownerSever>
+			<ownerSever>Server2</ownerSever>
 			<latitude>52</latitude>
 			<longitude>22</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
@@ -56,13 +58,15 @@
 		<serverAgentsArgs>
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>400</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

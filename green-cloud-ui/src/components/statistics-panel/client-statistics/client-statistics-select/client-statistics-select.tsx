@@ -8,7 +8,6 @@ import {
    JobStatusSelect,
    JOB_STATUS_MAP,
 } from '../client-statistics-config'
-import '@djthoms/pretty-checkbox'
 import StatusFilterBox from './status-filter-box/status-filter-box'
 import ClientDropdown from './client-dropdown/client-dropdown'
 import { AnyAction, Dispatch } from 'redux'

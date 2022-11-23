@@ -24,12 +24,12 @@ public class SchedulerConfigurationManagement {
 	 *                               //@param jobSplitThreshold	 job size at which splitting will be triggered, can be adjusted by the ManagingAgent
 	 */
 	public SchedulerConfigurationManagement(double deadlineWeightPriority, double powerWeightPriority,
-			int maximumQueueSize) {
+			int maximumQueueSize, int jobSplitThreshold, int splittingFactor) {
 		this.deadlineWeightPriority = deadlineWeightPriority;
 		this.powerWeightPriority = powerWeightPriority;
 		this.maximumQueueSize = maximumQueueSize;
-		this.jobSplitThreshold = 40;
-		this.splittingFactor = 4;
+		this.jobSplitThreshold = jobSplitThreshold;
+		this.splittingFactor = splittingFactor;
 	}
 
 	/**

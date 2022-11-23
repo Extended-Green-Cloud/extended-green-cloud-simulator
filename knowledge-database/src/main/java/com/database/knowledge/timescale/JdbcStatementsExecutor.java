@@ -4,11 +4,13 @@ import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
+import static com.database.knowledge.timescale.DmlQueries.GET_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -93,20 +95,20 @@ public class JdbcStatementsExecutor {
 
 	List<AgentData> executeReadMonitoringDataStatement() throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.prepareStatement(GET_LAST_1_SEC_DATA)) {
-			try (var resultSet = statement.executeQuery()) {
-				var result = new ArrayList<AgentData>();
-				while (resultSet.next()) {
-					var type = DataType.valueOf(resultSet.getString(3));
-					var agentData = new AgentData(
-							resultSet.getTimestamp(1).toInstant(), // record time
-							resultSet.getString(2), // agent's aid
-							type, // data type
-							objectMapper.readValue(resultSet.getObject(4).toString(), type.getDataTypeClass()) // data
-					);
-					result.add(agentData);
-				}
-				return result;
-			}
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
+		}
+	}
+
+	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, int seconds)
+			throws SQLException, JsonProcessingException {
+		try (var statement = sqlConnection.prepareStatement(GET_LAST_RECORDS_DATA_FOR_DATA_TYPES)) {
+			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
+			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
+			statement.setArray(1, array);
+			statement.setInt(2, seconds);
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
 		}
 	}
 
@@ -166,5 +168,21 @@ public class JdbcStatementsExecutor {
 				resultSet.getBoolean(6), // availability
 				resultSet.getInt(7) // runs
 		);
+	}
+
+	private List<AgentData> readAgentDataFromResultSet(ResultSet resultSet) throws SQLException,
+			JsonProcessingException {
+		var result = new ArrayList<AgentData>();
+		while (resultSet.next()) {
+			var type = DataType.valueOf(resultSet.getString(3));
+			var agentData = new AgentData(
+					resultSet.getTimestamp(1).toInstant(), // record time
+					resultSet.getString(2), // agent's aid
+					type, // data type
+					objectMapper.readValue(resultSet.getObject(4).toString(), type.getDataTypeClass()) // data
+			);
+			result.add(agentData);
+		}
+		return result;
 	}
 }

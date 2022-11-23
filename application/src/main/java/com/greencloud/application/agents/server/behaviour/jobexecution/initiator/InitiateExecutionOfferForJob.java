@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_BY_SERVER;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
@@ -11,16 +12,21 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.commons.job.JobResultType.ACCEPTED;
+import static com.greencloud.commons.job.JobResultType.FAILED;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
+
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobWithProtocol;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -61,14 +67,18 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(accept, JobWithProtocol.class);
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
-		final ClientJob jobInstance = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
-		final int availableCapacity = myServerAgent.manage()
-				.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
+		final ClientJob jobInstance = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
+		if (Objects.nonNull(jobInstance)) {
+			final int availableCapacity = myServerAgent.manage()
+					.getAvailableCapacity(jobInstance.getStartTime(), jobInstance.getEndTime(), null, null);
+			myServerAgent.manage().incrementJobCounter(jobInstanceId, ACCEPTED);
+			myServerAgent.getServerJobs().replace(jobInstance, ACCEPTED_BY_SERVER);
 
-		if (jobInstance.getPower() > availableCapacity) {
-			passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept);
-		} else {
-			acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
+			if (jobInstance.getPower() > availableCapacity) {
+				passJobExecutionFailure(jobInstance, jobInstanceId, jobWithProtocol.getReplyProtocol(), accept);
+			} else {
+				acceptGreenSourceForJobExecution(jobInstanceId, jobWithProtocol);
+			}
 		}
 	}
 
@@ -82,7 +92,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 	protected void handleRejectProposal(final ACLMessage reject) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(reject,
 				JobInstanceIdentifier.class);
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
 		myServerAgent.getServerJobs().remove(job);
 
@@ -101,6 +111,7 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		logger.info(SERVER_OFFER_ACCEPT_PROPOSAL_FAILURE_LOG, jobInstance.getJobId());
 		myServerAgent.getServerJobs().remove(jobInstance);
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstance.getJobId());
+		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
 
 		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
 		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId, responseProtocol));

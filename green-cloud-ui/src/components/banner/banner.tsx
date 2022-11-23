@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { styles } from './banner-styles'
 import { iconCloud, iconMenu } from '@assets'
-import './css/banner-button-styles.css'
 import MenuModal from 'components/menu-modal/menu-modal'
+import { ModalButton } from 'components/common'
 
 const header = 'Green cloud network'
 
@@ -26,16 +26,19 @@ const TopBanner = () => {
                <span style={styles.bannerText}>{header.toUpperCase()}</span>
             </div>
             <div>
-               <button
-                  className="menu-button common-button"
-                  onClick={() => setIsMenuOpen(true)}
-               >
-                  <img
-                     style={styles.bannerMenuIcon}
-                     src={iconMenu}
-                     alt="Menu icon"
-                  />
-               </button>
+               <ModalButton
+                  {...{
+                     buttonClassName: 'menu-button',
+                     setIsOpen: setIsMenuOpen,
+                     title: (
+                        <img
+                           style={styles.bannerMenuIcon}
+                           src={iconMenu}
+                           alt="Menu icon"
+                        />
+                     ),
+                  }}
+               />
             </div>
          </div>
          <MenuModal {...{ isMenuOpen, setIsMenuOpen }} />

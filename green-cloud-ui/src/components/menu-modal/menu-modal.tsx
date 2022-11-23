@@ -6,8 +6,7 @@ import {
 } from '@store'
 import React from 'react'
 import { styles } from './menu-modal-styles'
-import './css/menu-button-styles.css'
-import { Modal } from 'components'
+import { Modal, Button } from 'components'
 
 interface Props {
    isMenuOpen: boolean
@@ -68,23 +67,22 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
             contentStyle: modalStyle,
          }}
       >
-         <button
-            className="button-banner common-button"
-            onClick={handleOnReset}
-         >
-            {'Reset simulation'.toUpperCase()}
-         </button>
-         <button
-            className={
-               'button-banner common-button ' + serverConnectionButtonClass
-            }
-            onClick={handleOnStop}
-         >
-            {(isServerConnected
-               ? 'Disconnect server'
-               : 'Connect to server'
-            ).toUpperCase()}
-         </button>
+         <Button
+            {...{
+               buttonClassName: 'button-banner',
+               onClick: handleOnReset,
+               title: 'RESET SIMULATION',
+            }}
+         />
+         <Button
+            {...{
+               buttonClassName: 'button-banner ' + serverConnectionButtonClass,
+               onClick: handleOnStop,
+               title: isServerConnected
+                  ? 'DISCONNECT SERVER'
+                  : 'CONNECT TO SERVER',
+            }}
+         />
       </Modal>
    )
 }

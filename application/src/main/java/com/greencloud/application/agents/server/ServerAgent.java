@@ -13,10 +13,12 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
+import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForServerJobCancellation;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourcePowerShortageJobs;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
+import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.yellowpages.YellowPagesService;
@@ -54,7 +56,7 @@ public class ServerAgent extends AbstractServerAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 3) {
+		if (Objects.nonNull(args) && args.length == 4) {
 			this.stateManagement = new ServerStateManagement(this);
 			this.configManagement = new ServerConfigManagement(this);
 			this.ownedGreenSources = YellowPagesService.search(this, DFServiceConstants.GS_SERVICE_TYPE, getName());
@@ -66,11 +68,12 @@ public class ServerAgent extends AbstractServerAgent {
 			}
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			try {
-				this.pricePerHour = Double.parseDouble(args[1].toString());
+				this.manageConfig().setPricePerHour(Double.parseDouble(args[1].toString()));
 				this.currentMaximumCapacity = Integer.parseInt(args[2].toString());
 				this.initialMaximumCapacity = Integer.parseInt(args[2].toString());
+				this.manageConfig().setJobProcessingLimit(Integer.parseInt(args[3].toString()));
 			} catch (final NumberFormatException e) {
-				logger.info("The given price is not a number!");
+				logger.info("Some of the arguments is not a number!");
 				doDelete();
 			}
 		} else {
@@ -88,7 +91,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new SenseServerEvent(this),
 				new ListenForJobStartCheckRequest(),
 				new ListenForSourcePowerShortageFinish(),
-				new HandleSourcePowerShortageJobs(this)
+				new HandleSourcePowerShortageJobs(this),
+				new ListenForServerJobCancellation()
 		);
 	}
 }

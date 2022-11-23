@@ -89,7 +89,7 @@
 			<artifactId>commons-suncalc</artifactId>
 			<version>3.5</version>
 		</dependency>
-		<!-- Guava -->
+		<!-- Utilities -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -123,7 +123,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
-			<version>4.7.0</version>
+			<version>4.8.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

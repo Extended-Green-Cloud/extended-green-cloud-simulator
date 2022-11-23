@@ -12,9 +12,11 @@ import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkCon
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.behaviour.df.FindSchedulerAndServerAgents;
-import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForScheduledJob;
+import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForCloudNetworkJobCancellation;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForJobStatusChange;
+import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.ListenForScheduledJob;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.ListenForServerJobTransferRequest;
+import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkConfigManagement;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 
@@ -28,8 +30,8 @@ import jade.core.behaviours.SequentialBehaviour;
 public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 
 	/**
-	 * Method run at the agent's start. In initialize the Cloud Network Agent based on the given by the user arguments and
-	 * runs the starting behaviours - looking up the corresponding servers and listening for the job requests.
+	 * Method run at the agent's start. In initialize the Cloud Network Agent based on the given by the user arguments
+	 * and runs the starting behaviours - looking up the corresponding servers and listening for the job requests.
 	 */
 	@Override
 	protected void setup() {
@@ -55,6 +57,7 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 		parallelBehaviour.addSubBehaviour(prepareStartingBehaviour());
 		parallelBehaviour.addSubBehaviour(new ListenForJobStatusChange());
 		parallelBehaviour.addSubBehaviour(new ListenForServerJobTransferRequest());
+		parallelBehaviour.addSubBehaviour(new ListenForCloudNetworkJobCancellation());
 		return Collections.singletonList(parallelBehaviour);
 	}
 

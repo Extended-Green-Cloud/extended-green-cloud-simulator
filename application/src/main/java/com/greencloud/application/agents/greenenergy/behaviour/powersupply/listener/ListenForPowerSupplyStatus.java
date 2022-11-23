@@ -7,6 +7,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -49,7 +50,7 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		final ACLMessage message = myGreenEnergyAgent.receive(POWER_SUPPLY_STATUS_TEMPLATE);
 		if (nonNull(message)) {
 			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
-			final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+			final PowerJob powerJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getPowerJobs());
 
 			if (nonNull(powerJob)) {
 				switch (message.getConversationId()) {

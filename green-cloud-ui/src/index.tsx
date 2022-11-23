@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './styles/themes.css'
+import './styles/button-styles.css'
 import reportWebVitals from './reportWebVitals'
 import { Provider } from 'react-redux'
 

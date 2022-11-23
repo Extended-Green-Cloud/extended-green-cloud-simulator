@@ -1,7 +1,11 @@
 package com.greencloud.application.messages;
 
+import static com.google.common.collect.Collections2.filter;
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static jade.lang.acl.ACLMessage.PROPOSE;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -10,7 +14,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.exception.IncorrectMessageContentException;
-import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 
 import jade.lang.acl.ACLMessage;
@@ -21,15 +24,24 @@ import jade.lang.acl.ACLMessage;
 public class MessagingUtils {
 
 	/**
-	 * Method retrieved from all responses, the ones which are the proposals
+	 * Method retrieves messages from all responses, the ones which are the proposals
 	 *
 	 * @param responses all responses
 	 * @return responses which are the proposals
 	 */
 	public static List<ACLMessage> retrieveProposals(final Vector<ACLMessage> responses) {
-		return responses.stream()
-				.filter(response -> response.getPerformative() == ACLMessage.PROPOSE)
-				.toList();
+		return retrieveForPerformative(responses, PROPOSE).stream().toList();
+	}
+
+	/**
+	 * Method retrieves messages from all responses, the ones which match the given performative
+	 *
+	 * @param responses    all responses
+	 * @param performative performative to filter by
+	 * @return responses matching the performative
+	 */
+	public static Collection<ACLMessage> retrieveForPerformative(Vector<ACLMessage> responses, Integer performative) {
+		return filter(responses, response -> response.getPerformative() == performative);
 	}
 
 	/**
@@ -73,9 +85,9 @@ public class MessagingUtils {
 	 * @param expectedType expected class type
 	 * @return boolean value
 	 */
-	public static boolean isMessageContentValid(final ACLMessage message, final Class<?> expectedType) {
+	public static <T> boolean isMessageContentValid(final ACLMessage message, final Class<T> expectedType) {
 		try {
-			JsonMapper.getMapper().readValue(message.getContent(), expectedType);
+			getMapper().readValue(message.getContent(), expectedType);
 			return true;
 		} catch (JsonProcessingException e) {
 			return false;
@@ -89,9 +101,11 @@ public class MessagingUtils {
 	 * @param expectedClassType class type of the message body
 	 * @return list of valid messages
 	 */
-	public static List<ACLMessage> retrieveValidMessages(final List<ACLMessage> messages,
-			final Class<?> expectedClassType) {
-		return messages.stream().filter(message -> isMessageContentValid(message, expectedClassType)).toList();
+	public static <T> List<ACLMessage> retrieveValidMessages(final List<ACLMessage> messages,
+			final Class<T> expectedClassType) {
+		return messages.stream()
+				.filter(message -> isMessageContentValid(message, expectedClassType))
+				.toList();
 	}
 
 	/**
@@ -101,9 +115,28 @@ public class MessagingUtils {
 	 * @param expectedClassType class type of the message body
 	 * @return mapped to Object message content
 	 */
-	public static <T> T readMessageContent(final ACLMessage message, final Class<?> expectedClassType) {
+	public static <T> T readMessageContent(final ACLMessage message, final Class<T> expectedClassType) {
 		try {
-			return (T) JsonMapper.getMapper().readValue(message.getContent(), expectedClassType);
+			return getMapper().readValue(message.getContent(), expectedClassType);
+		} catch (MismatchedInputException e) {
+			throw new IncorrectMessageContentException();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			throw new IncorrectMessageContentException();
+		}
+	}
+
+	/**
+	 * Method reads the message object content
+	 *
+	 * @param message           messages to read
+	 * @param expectedClassType class type of the message body
+	 * @return mapped to List of objects message content
+	 */
+	public static <T> List<T> readMessageListContent(final ACLMessage message, final Class<T> expectedClassType) {
+		try {
+			return getMapper().readValue(message.getContent(),
+					getMapper().getTypeFactory().constructCollectionType(List.class, expectedClassType));
 		} catch (MismatchedInputException e) {
 			throw new IncorrectMessageContentException();
 		} catch (JsonProcessingException e) {

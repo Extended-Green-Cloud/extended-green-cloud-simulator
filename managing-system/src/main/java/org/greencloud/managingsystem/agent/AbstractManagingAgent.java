@@ -6,7 +6,7 @@ import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
 import org.greencloud.managingsystem.service.AnalyzerService;
 import org.greencloud.managingsystem.service.ExecutorService;
-import org.greencloud.managingsystem.service.MonitoringService;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.PlannerService;
 
 /**

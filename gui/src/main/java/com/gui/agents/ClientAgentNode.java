@@ -17,7 +17,11 @@ import com.gui.websocket.GuiWebSocketClient;
  */
 public class ClientAgentNode extends AbstractAgentNode {
 
-	private final ClientAgentArgs args;
+	private ClientAgentArgs args;
+
+	public ClientAgentNode() {
+		super();
+	}
 
 	/**
 	 * Client node constructor
@@ -62,8 +66,8 @@ public class ClientAgentNode extends AbstractAgentNode {
 		webSocketClient.send(ImmutableSplitJobMessage.builder()
 				.addAllData(jobParts.stream().map(jobPart -> ImmutableSplitJob.builder()
 						.power(jobPart.getPower())
-						.startDate(jobPart.getStartTime())
-						.endDate(jobPart.getEndTime())
+						.start(jobPart.getStartTime())
+						.end(jobPart.getEndTime())
 						.splitJobId(jobPart.getJobId())
 						.build()).toList())
 				.jobId(args.getJobId())
