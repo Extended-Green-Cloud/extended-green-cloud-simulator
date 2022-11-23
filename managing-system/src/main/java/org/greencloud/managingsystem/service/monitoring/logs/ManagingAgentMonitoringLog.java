@@ -1,5 +1,8 @@
 package org.greencloud.managingsystem.service.monitoring.logs;
 
+/**
+ * Class storing log messages used in monitoring services of managing system
+ */
 public class ManagingAgentMonitoringLog {
 
 	// MONITORING SERVICES LOG MESSAGES

@@ -48,6 +48,11 @@ public class MonitorSystemState extends TickerBehaviour {
 			return;
 		}
 		myManagingAgent.monitor().updateSystemStatistics();
+		final GoalEnum goalWithWorstQuality = myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
+				.stream()
+				.min(Comparator.comparingDouble(Map.Entry::getValue))
+				.orElseThrow().getKey();
+
 		//TODO next PR - call analyzer
 	}
 }
