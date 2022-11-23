@@ -100,12 +100,13 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
-	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes)
+	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, int seconds)
 			throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.prepareStatement(GET_LAST_RECORDS_DATA_FOR_DATA_TYPES)) {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
+			statement.setInt(2, seconds);
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
