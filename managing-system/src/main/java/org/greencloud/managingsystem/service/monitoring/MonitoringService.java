@@ -3,10 +3,11 @@ package org.greencloud.managingsystem.service.monitoring;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_ADAPTATION_GOALS_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
@@ -89,19 +90,28 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Method return current state of adaptation goal qualities
+	 *
+	 * @return map containing adaptation goal qualities
+	 */
+	public Map<GoalEnum, Double> getCurrentGoalQualities() {
+		final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
+		final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
+		final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+		return Map.of(
+				MAXIMIZE_JOB_SUCCESS_RATIO, successRatio,
+				MINIMIZE_USED_BACKUP_POWER, backUpUsage,
+				DISTRIBUTE_TRAFFIC_EVENLY, trafficDistribution
+		);
+	}
+
+	/**
 	 * Method updates system statistics in GUI
 	 */
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
-			final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
-			final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
-			final Map<Integer, Double> qualityMap = Map.of(
-					MAXIMIZE_JOB_SUCCESS_RATIO.getAdaptationGoalId(), successRatio,
-					MINIMIZE_USED_BACKUP_POWER.getAdaptationGoalId(), backUpUsage,
-					DISTRIBUTE_TRAFFIC_EVENLY.getAdaptationGoalId(), trafficDistribution
-			);
-
+			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
+					.collect(Collectors.toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}

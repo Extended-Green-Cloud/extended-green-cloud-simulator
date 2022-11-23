@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -117,5 +118,25 @@ class MonitoringServiceUnitTest {
 		doReturn(0.5).when(mockBackUpPowerUsageService).getBackUpPowerUsage();
 
 		assertThat(monitoringService.computeSystemIndicator()).isEqualTo(0.75);
+	}
+
+	@Test
+	@DisplayName("Test getting current goal qualities")
+	void testGetCurrentGoalQualities() {
+		var expectedResult = Map.of(
+				MAXIMIZE_JOB_SUCCESS_RATIO, 0.8,
+				MINIMIZE_USED_BACKUP_POWER, 0.5,
+				DISTRIBUTE_TRAFFIC_EVENLY, 0.7
+		);
+
+		doReturn(0.8).when(mockJobSuccessRatioService).getJobSuccessRatio();
+		doReturn(0.7).when(mockTrafficDistributionService).getAverageTrafficDistribution();
+		doReturn(0.5).when(mockBackUpPowerUsageService).getBackUpPowerUsage();
+
+		assertThat(monitoringService.getCurrentGoalQualities())
+				.as("Map should contain 3 goals")
+				.hasSize(3)
+				.as("Data of the goals should equal to the expected result")
+				.containsExactlyInAnyOrderEntriesOf(expectedResult);
 	}
 }

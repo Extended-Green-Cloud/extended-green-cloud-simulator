@@ -58,9 +58,10 @@ class JobSuccessRatioServiceUnitTest {
 	private JobSuccessRatioService jobSuccessRatioService;
 
 	private static Stream<Arguments> parametersForSuccessRatioTest() {
-		final AdaptationGoal successRatioCorrect = new AdaptationGoal(1, "Maximize job success ratio", 0.5, true, 0.7);
-		final AdaptationGoal successRatioIncorrect = new AdaptationGoal(1, "Maximize job success ratio", 0.9, true,
-				0.7);
+		final AdaptationGoal successRatioCorrect =
+				new AdaptationGoal(1, "Maximize job success ratio", 0.5, true, 0.7);
+		final AdaptationGoal successRatioIncorrect =
+				new AdaptationGoal(1, "Maximize job success ratio", 0.9, true, 0.7);
 
 		return Stream.of(
 				Arguments.of(successRatioCorrect, true),

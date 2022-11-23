@@ -1,12 +1,8 @@
-package org.greencloud.managingsystem.service.logs;
+package org.greencloud.managingsystem.service.monitoring.logs;
 
-/**
- * Class contains all constants used in logging information in managing agent services
- */
-public class ManagingAgentServiceLog {
+public class ManagingAgentMonitoringLog {
 
-	// MONITORING SERVICE LOG MESSAGES
-	public static final String READ_ADAPTATION_GOALS_LOG = "Reading adaptation goals from the database...";
+	// MONITORING SERVICES LOG MESSAGES
 	public static final String READ_SUCCESS_RATIO_CLIENTS_LOG =
 			"Reading success ratio for clients from the database...";
 	public static final String READ_SUCCESS_RATIO_COMPONENTS_LOG =
@@ -19,5 +15,5 @@ public class ManagingAgentServiceLog {
 			"Component {} does not satisfy job success ratio threshold! Job success ratio for component: {}";
 	public static final String SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG =
 			"Overall job success ratio does not satisfy the threshold! Job success ratio: {}";
-
+	public static final String READ_ADAPTATION_GOALS_LOG = "Reading adaptation goals from the database...";
 }

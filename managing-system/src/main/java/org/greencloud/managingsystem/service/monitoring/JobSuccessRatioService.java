@@ -8,12 +8,12 @@ import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG;
-import static org.greencloud.managingsystem.service.logs.ManagingAgentServiceLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
 import java.util.List;
 
