@@ -1,13 +1,13 @@
 package com.greencloud.application.behaviours;
 
-import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActionById;
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareInformReply;
-import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_REQUEST;
-import static java.lang.Integer.parseInt;
 import static java.util.Objects.nonNull;
 
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 
@@ -32,14 +32,14 @@ public class ListenForAdaptationAction extends CyclicBehaviour {
 	}
 
 	private void processAdaptationActionRequest(ACLMessage message) {
-		var adaptationActionId = parseInt(message.getConversationId());
-		var adaptationAction = getAdaptationActionById(adaptationActionId);
+		var adaptationActionEnum = AdaptationActionEnum.valueOf(message.getConversationId());
+		var adaptationAction = getAdaptationAction(adaptationActionEnum);
 		var adaptationActionParameters = readMessageContent(message, AdaptationActionParameters.class);
 
 		if (myAbstractAgent.executeAction(adaptationAction, adaptationActionParameters)) {
 			myAbstractAgent.send(prepareInformReply(message.createReply()));
 		} else {
-			myAbstractAgent.send(prepareRefuseReply(message.createReply()));
+			myAbstractAgent.send(prepareFailureReply(message.createReply()));
 		}
 	}
 }

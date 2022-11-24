@@ -12,7 +12,7 @@ public final class DmlQueries {
 			"INSERT INTO monitoring_data (time, aid, data_type, data) VALUES (now(), ?, ?, ?)";
 	static final String GET_LAST_1_SEC_DATA =
 			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
-	static final String GET_LAST_RECORDS_DATA_FOR_DATA_TYPES =
+	static final String GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
 			"SELECT DISTINCT ON (aid) * FROM monitoring_data "
 					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 

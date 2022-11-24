@@ -1,11 +1,12 @@
 package com.database.knowledge.timescale;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.getAdaptationActionByName;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
-import static com.database.knowledge.timescale.DmlQueries.GET_LAST_RECORDS_DATA_FOR_DATA_TYPES;
+import static com.database.knowledge.timescale.DmlQueries.GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_DATA;
@@ -22,7 +23,7 @@ import java.util.List;
 import org.postgresql.util.PGobject;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
@@ -66,7 +67,7 @@ public class JdbcStatementsExecutor {
 		jsonObject.setValue(objectMapper.writeValueAsString(adaptationAction.getActionResults()));
 		try (var statement = sqlConnection.prepareStatement(INSERT_ADAPTATION_ACTION)) {
 			statement.setInt(1, adaptationAction.getActionId());
-			statement.setString(2, adaptationAction.getActionName());
+			statement.setString(2, adaptationAction.getAction().getName());
 			statement.setString(3, adaptationAction.getType().toString());
 			statement.setInt(4, adaptationAction.getGoal().getAdaptationGoalId());
 			statement.setObject(5, jsonObject);
@@ -113,7 +114,7 @@ public class JdbcStatementsExecutor {
 
 	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, int seconds)
 			throws SQLException, JsonProcessingException {
-		try (var statement = sqlConnection.prepareStatement(GET_LAST_RECORDS_DATA_FOR_DATA_TYPES)) {
+		try (var statement = sqlConnection.prepareStatement(GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME)) {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
@@ -181,8 +182,8 @@ public class JdbcStatementsExecutor {
 			throws SQLException, JsonProcessingException {
 		return new AdaptationAction(
 				resultSet.getInt(1), // action id
-				resultSet.getString(2), // action name
-				AdaptationActionEnum.valueOf(resultSet.getObject(3).toString()), // action type
+				getAdaptationActionByName(resultSet.getString(2)), // action name
+				AdaptationActionTypeEnum.valueOf(resultSet.getObject(3).toString()), // action type
 				GoalEnum.getByGoalId(resultSet.getInt(4)), // action's goal id
 				objectMapper.readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
 				}), // action_results

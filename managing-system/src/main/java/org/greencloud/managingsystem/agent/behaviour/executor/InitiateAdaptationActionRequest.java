@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.executor;
+package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.COMPLETED_ACTION_LOG;
@@ -34,7 +34,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	}
 
 	@Override
-	protected void handleRefuse(ACLMessage refuse) {
+	protected void handleFailure(ACLMessage failure) {
 		logger.info(ACTION_FAILED_LOG, adaptationActionId, targetAgent);
 		myAgent.removeBehaviour(this);
 	}

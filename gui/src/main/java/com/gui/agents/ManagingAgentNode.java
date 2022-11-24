@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.gui.message.ImmutableLogAdaptationActionMessage;
@@ -73,7 +73,7 @@ public class ManagingAgentNode extends AbstractAgentNode {
 						.time(adaptationTime)
 						.type(action.getType())
 						.agentName(agentName.orElse(null))
-						.description(action.getActionName())
+						.description(action.getAction().getName())
 						.build())
 				.build());
 		webSocketClient.send(ImmutableMessage.builder()
@@ -81,7 +81,7 @@ public class ManagingAgentNode extends AbstractAgentNode {
 				.build());
 	}
 
-	private String getCounterToIncrement(final AdaptationActionEnum actionType) {
+	private String getCounterToIncrement(final AdaptationActionTypeEnum actionType) {
 		switch (actionType) {
 			case RECONFIGURE -> {
 				return "INCREMENT_WEAK_ADAPTATIONS";

@@ -63,6 +63,18 @@ public class ReplyMessageFactory {
 	}
 
 	/**
+	 * Method prepares the reply refusal message
+	 *
+	 * @param replyMessage reply ACLMessage that is to be sent
+	 * @return reply ACLMessage
+	 */
+	public static ACLMessage prepareFailureReply(final ACLMessage replyMessage) {
+		replyMessage.setPerformative(FAILURE);
+		replyMessage.setContent("FAILURE");
+		return replyMessage;
+	}
+
+	/**
 	 * Method prepares the reply inform message
 	 *
 	 * @param replyMessage reply ACLMessage that is to be sent

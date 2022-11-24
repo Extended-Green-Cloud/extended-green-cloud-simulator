@@ -12,17 +12,17 @@ import com.database.knowledge.domain.goal.GoalEnum;
 public class AdaptationAction {
 
 	private final Integer actionId;
-	private final String actionName;
+	private final AdaptationActionEnum action;
 	private final GoalEnum goal;
 	// describes delta for each adaptation goal value that given action caused
 	private final Map<GoalEnum, Double> actionResults;
 	private final Boolean isAvailable;
 	private Integer runs;
-	private AdaptationActionEnum type;
+	private final AdaptationActionTypeEnum type;
 
-	public AdaptationAction(Integer actionId, String actionName, AdaptationActionEnum type, GoalEnum goal) {
+	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type, GoalEnum goal) {
 		this.actionId = actionId;
-		this.actionName = actionName;
+		this.action = action;
 		this.type = type;
 		this.goal = goal;
 		this.actionResults = Arrays.stream(GoalEnum.values())
@@ -31,10 +31,10 @@ public class AdaptationAction {
 		this.runs = 0;
 	}
 
-	public AdaptationAction(Integer actionId, String actionName, AdaptationActionEnum type, GoalEnum goal, Map<GoalEnum, Double> actionResults,
+	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type, GoalEnum goal, Map<GoalEnum, Double> actionResults,
 			Boolean isAvailable, Integer runs) {
 		this.actionId = actionId;
-		this.actionName = actionName;
+		this.action = action;
 		this.type = type;
 		this.goal = goal;
 		this.isAvailable = isAvailable;
@@ -46,8 +46,8 @@ public class AdaptationAction {
 		return actionId;
 	}
 
-	public String getActionName() {
-		return actionName;
+	public AdaptationActionEnum getAction() {
+		return action;
 	}
 
 	public GoalEnum getGoal() {
@@ -83,7 +83,7 @@ public class AdaptationAction {
 		return runs;
 	}
 
-	public AdaptationActionEnum getType() {
+	public AdaptationActionTypeEnum getType() {
 		return type;
 	}
 
