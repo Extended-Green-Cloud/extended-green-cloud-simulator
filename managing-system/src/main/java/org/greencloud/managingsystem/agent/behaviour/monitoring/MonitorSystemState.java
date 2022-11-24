@@ -5,11 +5,13 @@ import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.Mana
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_TIMEOUT;
 
 import java.util.Comparator;
+import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 
 import jade.core.Agent;
@@ -58,10 +60,14 @@ public class MonitorSystemState extends TickerBehaviour {
 	private GoalEnum getGoalWithWorstQuality() {
 		return myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
 				.stream()
-				.min(Comparator.comparingDouble(
-						goal -> myManagingAgent.monitor().getAdaptationGoal(goal.getKey()).isAboveThreshold() ?
-								goal.getValue() :
-								1 - goal.getValue()))
+				.min(Comparator.comparingDouble(this::getGoalQuality))
 				.orElseThrow().getKey();
+	}
+
+	private double getGoalQuality(final Map.Entry<GoalEnum, Double> goalEntry) {
+		final AdaptationGoal goal = myManagingAgent.monitor().getAdaptationGoal(goalEntry.getKey());
+		final double quality = goalEntry.getValue();
+
+		return goal.isAboveThreshold() ? quality : 1 - quality;
 	}
 }

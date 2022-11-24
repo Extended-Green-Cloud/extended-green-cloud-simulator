@@ -125,7 +125,8 @@ public class AnalyzerService extends AbstractManagingService {
 	 * - -1 - rejection H0 and trend existence (trend for decreasing value),
 	 * - 0 - trend is unknown
 	 */
-	private int testAdaptationQualitiesForTrend(final List<SystemQuality> systemQualities) {
+	@VisibleForTesting
+	protected int testAdaptationQualitiesForTrend(final List<SystemQuality> systemQualities) {
 		final List<Instant> qualityInstants = systemQualities.stream().map(SystemQuality::timestamp).toList();
 		final List<Double> qualityValues = systemQualities.stream().map(SystemQuality::quality).toList();
 
@@ -136,9 +137,10 @@ public class AnalyzerService extends AbstractManagingService {
 		final double tau = AlgorithmUtils.computeKendallTau(qualityInstants, qualityValues);
 		final int N = qualityInstants.size();
 		final double zScore = (3 * tau * sqrt(N * (double) (N - 1))) / (sqrt(2 * (double) (2 * N + 5)));
+		final double probability = new NormalDistribution().cumulativeProbability(zScore);
 		logger.info(GOAL_STATISTIC_ANALYSIS_RESULT_LOG, tau);
 
-		final boolean isUnknown = new NormalDistribution().cumulativeProbability(zScore) < 0.05;
-		return isUnknown ? 0 : (tau > 0) ? 1 : -1;
+		final boolean isRejected = (zScore > 0 ? 1 - probability : probability) < 0.05;
+		return !isRejected ? 0 : (tau > 0) ? 1 : -1;
 	}
 }

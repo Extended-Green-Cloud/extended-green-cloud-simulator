@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -24,6 +26,7 @@ import org.mockito.Mock;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.AdaptationGoal;
+import com.database.knowledge.domain.systemquality.SystemQuality;
 
 class AnalyzerServiceUnitTest {
 
@@ -48,6 +51,37 @@ class AnalyzerServiceUnitTest {
 		);
 	}
 
+	private static Stream<Arguments> parametersForCorrelationTest() {
+		final List<SystemQuality> qualities1 = List.of(
+				new SystemQuality(Instant.parse("2022-11-01T10:30:00Z"), 1, 0.1),
+				new SystemQuality(Instant.parse("2022-10-01T10:30:00Z"), 1, 0.3),
+				new SystemQuality(Instant.parse("2022-09-01T10:30:00Z"), 1, 0.4),
+				new SystemQuality(Instant.parse("2022-08-01T10:30:00Z"), 1, 0.45),
+				new SystemQuality(Instant.parse("2022-07-01T10:30:00Z"), 1, 0.8)
+		);
+		final List<SystemQuality> qualities2 = List.of(
+				new SystemQuality(Instant.parse("2022-11-01T10:30:00Z"), 1, 0.9),
+				new SystemQuality(Instant.parse("2022-10-01T10:30:00Z"), 1, 0.7),
+				new SystemQuality(Instant.parse("2022-09-01T10:30:00Z"), 1, 0.8),
+				new SystemQuality(Instant.parse("2022-08-01T10:30:00Z"), 1, 0.4),
+				new SystemQuality(Instant.parse("2022-07-01T10:30:00Z"), 1, 0.3)
+		);
+		final List<SystemQuality> qualities3 = List.of(
+				new SystemQuality(Instant.parse("2022-11-01T10:30:00Z"), 1, 0.1),
+				new SystemQuality(Instant.parse("2022-10-01T10:30:00Z"), 1, 0.3),
+				new SystemQuality(Instant.parse("2022-09-01T10:30:00Z"), 1, 0.15),
+				new SystemQuality(Instant.parse("2022-08-01T10:30:00Z"), 1, 0.2),
+				new SystemQuality(Instant.parse("2022-07-01T10:30:00Z"), 1, 0.1)
+		);
+
+		return Stream.of(
+				Arguments.of(Collections.emptyList(), 0),
+				Arguments.of(qualities1, -1),
+				Arguments.of(qualities2, 1),
+				Arguments.of(qualities3, 0)
+		);
+	}
+
 	@BeforeEach
 	void init() {
 		var successRatio = new AdaptationGoal(1, "Maximize job success ratio", 0.5, true, 0.7);
@@ -66,5 +100,12 @@ class AnalyzerServiceUnitTest {
 	@DisplayName("Test computing quality of adaptation action")
 	void testComputeQualityOfAdaptationAction(AdaptationAction action, double result) {
 		assertThat(analyzerService.computeQualityOfAdaptationAction(action)).isCloseTo(result, Offset.offset(0.015));
+	}
+
+	@ParameterizedTest
+	@MethodSource("parametersForCorrelationTest")
+	@DisplayName("Test verifying adaptation quality trends")
+	void testForTestAdaptationQualitiesForTrend(List<SystemQuality> qualities, int result) {
+		assertThat(analyzerService.testAdaptationQualitiesForTrend(qualities)).isEqualTo(result);
 	}
 }

@@ -238,7 +238,7 @@ class AlgorithmUtilsUnitTest {
 		assertThat(result).isEqualTo(15);
 	}
 
-	// GETTING JOBS WITHING POWER TESTS
+	// GETTING JOBS WITHIN POWER TESTS
 
 	private Set<ClientJob> jobsForFirstComplicatedScenario() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder().jobId("1").clientIdentifier("Test Client 1")
