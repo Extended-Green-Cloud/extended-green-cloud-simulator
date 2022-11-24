@@ -2,8 +2,8 @@ package org.greencloud.managingsystem.agent;
 
 import java.util.List;
 
-import org.greencloud.managingsystem.service.ExecutorService;
 import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
+import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 
