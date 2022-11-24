@@ -20,11 +20,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
+
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.utils.domain.JobWithTime;
 import com.greencloud.application.utils.domain.SubJobList;
+import com.greencloud.commons.job.PowerJob;
 
 /**
  * Service used to perform operations using already existing, implemented algorithms
@@ -174,7 +176,7 @@ public class AlgorithmUtils {
 	 */
 	public static int nextFibonacci(int n) {
 		double a = n * (1 + Math.sqrt(5)) / 2.0;
-		return (int)Math.round(a);
+		return (int) Math.round(a);
 	}
 
 	/**
@@ -184,7 +186,22 @@ public class AlgorithmUtils {
 	 */
 	public static int previousFibonacci(int n) {
 		double a = n / ((1 + Math.sqrt(5)) / 2.0);
-		return (int)Math.round(a);
+		return (int) Math.round(a);
+	}
+
+	/**
+	 * Method uses apache.math3.stat to compute Kendall's Tau coefficient used in check the correlation between
+	 * time and variable
+	 *
+	 * @param timeInstances time instances when the values were computed
+	 * @param values        computed values
+	 * @return correlation coefficient
+	 */
+	public static double computeKendallTau(final List<Instant> timeInstances, final List<Double> values) {
+		final double[] timeValues = timeInstances.stream().mapToDouble(Instant::toEpochMilli).toArray();
+		final double[] valueArray = values.stream().mapToDouble(value -> value).toArray();
+
+		return new KendallsCorrelation().correlation(timeValues, valueArray);
 	}
 
 	private static <T extends PowerJob> Deque<Map.Entry<Instant, Integer>> getPowerForJobIntervals(
@@ -234,7 +251,5 @@ public class AlgorithmUtils {
 		}
 		return comparingTimeResult;
 	}
-
-
 
 }
