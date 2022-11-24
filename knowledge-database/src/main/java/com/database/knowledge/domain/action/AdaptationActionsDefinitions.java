@@ -6,6 +6,8 @@ import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_R
 
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Definitions provider for each of the adaptation actions. Used internally by the Timescale Database when initializing
  * the tables.
@@ -32,5 +34,13 @@ public final class AdaptationActionsDefinitions {
 
 	public static List<AdaptationAction> getAdaptationActions() {
 		return ADAPTATION_ACTIONS;
+	}
+
+	@Nullable
+	public static AdaptationAction getAdaptationActionById(Integer id) {
+		return ADAPTATION_ACTIONS.stream()
+				.filter(action -> action.getActionId().equals(id))
+				.findFirst()
+				.orElse(null);
 	}
 }

@@ -1,17 +1,15 @@
 package com.greencloud.application.messages.domain.factory;
 
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.domain.job.ImmutableJobWithProtocol;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobWithProtocol;
-import com.greencloud.application.mapper.JsonMapper;
 
 import jade.lang.acl.ACLMessage;
 
@@ -65,6 +63,18 @@ public class ReplyMessageFactory {
 	}
 
 	/**
+	 * Method prepares the reply inform message
+	 *
+	 * @param replyMessage reply ACLMessage that is to be sent
+	 * @return reply ACLMessage
+	 */
+	public static ACLMessage prepareInformReply(final ACLMessage replyMessage) {
+		replyMessage.setPerformative(INFORM);
+		replyMessage.setContent("INFORM");
+		return replyMessage;
+	}
+
+	/**
 	 * Method prepares the reply accept message containing the conversation topic as content protocol
 	 *
 	 * @param replyMessage  reply ACLMessage that is to be sent
@@ -90,16 +100,16 @@ public class ReplyMessageFactory {
 	/**
 	 * Method prepares the reply accept message containing the conversation topic as content protocol
 	 *
-	 * @param replyMessage  reply ACLMessage that is to be sent
-	 * @param content unique job instance identifier
-	 * @param protocol message protocol
+	 * @param replyMessage reply ACLMessage that is to be sent
+	 * @param content      unique job instance identifier
+	 * @param protocol     message protocol
 	 * @return reply ACLMessage
 	 */
 	public static ACLMessage prepareFailureReply(final ACLMessage replyMessage,
 			final Object content, final String protocol) {
 		replyMessage.setProtocol(protocol);
 		replyMessage.setPerformative(FAILURE);
-		try{
+		try {
 			replyMessage.setContent(getMapper().writeValueAsString(content));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

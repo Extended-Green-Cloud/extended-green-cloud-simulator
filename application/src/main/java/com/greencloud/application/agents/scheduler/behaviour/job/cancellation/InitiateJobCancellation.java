@@ -23,6 +23,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.message.MessageBuilder;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -60,11 +61,12 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 		ArrayList<AID> receivers = new ArrayList<>(agent.getAvailableCloudNetworks());
 		receivers.addAll(search(agent, SA_SERVICE_TYPE));
 		receivers.addAll(search(agent, GS_SERVICE_TYPE));
-
-		ACLMessage request = new ACLMessage(CANCEL);
-		request.setProtocol(CANCEL_JOB_PROTOCOL);
-		receivers.forEach(request::addReceiver);
-		request.setContent(originalJobId);
+		ACLMessage request = MessageBuilder.builder()
+				.withPerformative(CANCEL)
+				.withMessageProtocol(CANCEL_JOB_PROTOCOL)
+				.withStringContent(originalJobId)
+				.withReceivers(receivers)
+				.build();
 		return new InitiateJobCancellation(agent, request, originalJobId);
 	}
 
