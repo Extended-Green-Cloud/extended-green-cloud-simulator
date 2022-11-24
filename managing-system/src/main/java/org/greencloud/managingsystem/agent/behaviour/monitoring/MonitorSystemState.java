@@ -5,7 +5,6 @@ import static org.greencloud.managingsystem.agent.behaviour.monitoring.logs.Mana
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_TIMEOUT;
 
 import java.util.Comparator;
-import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
@@ -53,11 +52,16 @@ public class MonitorSystemState extends TickerBehaviour {
 			return;
 		}
 		myManagingAgent.monitor().updateSystemStatistics();
-		final GoalEnum goalWithWorstQuality = myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
-				.stream()
-				.min(Comparator.comparingDouble(Map.Entry::getValue))
-				.orElseThrow().getKey();
+		myManagingAgent.analyze().trigger(getGoalWithWorstQuality());
+	}
 
-		myManagingAgent.analyze().trigger(goalWithWorstQuality);
+	private GoalEnum getGoalWithWorstQuality() {
+		return myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
+				.stream()
+				.min(Comparator.comparingDouble(
+						goal -> myManagingAgent.monitor().getAdaptationGoal(goal.getKey()).isAboveThreshold() ?
+								goal.getValue() :
+								1 - goal.getValue()))
+				.orElseThrow().getKey();
 	}
 }

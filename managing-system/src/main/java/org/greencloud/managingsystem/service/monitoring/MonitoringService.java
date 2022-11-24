@@ -106,6 +106,18 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Method verifies if given quality is withing bounds of selected adaptation goal
+	 * @param quality system quality
+	 * @return boolean indicating verification result
+	 */
+	public boolean isQualityInBounds(final double quality, final GoalEnum goalEnum) {
+		final AdaptationGoal goal = managingAgent.monitor().getAdaptationGoal(goalEnum);
+		return goal.isAboveThreshold() ?
+				quality >= goal.threshold() :
+				quality <= goal.threshold();
+	}
+
+	/**
 	 * Method updates system statistics in GUI
 	 */
 	public void updateSystemStatistics() {
