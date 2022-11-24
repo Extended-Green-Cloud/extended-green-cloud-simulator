@@ -100,8 +100,8 @@ class MonitoringServiceUnitTest {
 	@DisplayName("Test is success ratio maximized")
 	void testIsSuccessRatioMaximized(final boolean clientRatioBoolean, final boolean componentRatioBoolean,
 			final boolean expectedResult) {
-		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).isClientJobSuccessRatioCorrect();
-		doReturn(componentRatioBoolean).when(mockJobSuccessRatioService).isComponentsSuccessRatioCorrect();
+		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).evaluateClientJobSuccessRatio();
+		doReturn(componentRatioBoolean).when(mockJobSuccessRatioService).evaluateComponentSuccessRatio();
 
 		assertThat(monitoringService.isSuccessRatioMaximized()).isEqualTo(expectedResult);
 	}
@@ -113,7 +113,7 @@ class MonitoringServiceUnitTest {
 		doReturn(0.7).when(mockTrafficDistributionService).getAverageTrafficDistribution();
 		doReturn(0.5).when(mockBackUpPowerUsageService).getBackUpPowerUsage();
 
-		assertThat(monitoringService.computeSystemIndicator()).isEqualTo(0.75);
+		assertThat(monitoringService.computeSystemIndicator()).isEqualTo(0.67);
 	}
 
 	@Test

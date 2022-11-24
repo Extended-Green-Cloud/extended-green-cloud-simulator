@@ -68,8 +68,8 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.isClientJobSuccessRatioCorrect();
-		final boolean networkSuccessRatio = jobSuccessRatioService.isComponentsSuccessRatioCorrect();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateClientJobSuccessRatio();
+		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;
 	}
@@ -81,8 +81,8 @@ public class MonitoringService extends AbstractManagingService {
 	 */
 	public double computeSystemIndicator() {
 		final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
-		final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
-		final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+		final double backUpUsage = 1 - backUpPowerUsageService.getBackUpPowerUsage();
+		final double trafficDistribution = 1 - trafficDistributionService.getAverageTrafficDistribution();
 
 		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
 				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +

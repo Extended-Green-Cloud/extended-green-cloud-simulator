@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.ClientMonitoringData;
+import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;

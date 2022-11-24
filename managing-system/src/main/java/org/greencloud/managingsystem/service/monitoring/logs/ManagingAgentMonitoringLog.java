@@ -16,9 +16,7 @@ public class ManagingAgentMonitoringLog {
 			"There is no cloud network success ratio data available yet";
 	public static final String SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG =
 			"Component {} does not satisfy job success ratio threshold! Job success ratio for component: {}";
-	public static final String SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG =
-			"Overall job success ratio does not satisfy the threshold! Job success ratio: {}";
-	public static final String SUCCESS_RATIO_SATISFIED_CLIENT_LOG =
-			"Current overall job success ratio is equal to: {}.";
+	public static final String SUCCESS_RATIO_CLIENT_LOG =
+			"Current job success ratio: {}, Aggregated job success ratio: {}";
 	public static final String READ_ADAPTATION_GOALS_LOG = "Reading adaptation goals from the database...";
 }
