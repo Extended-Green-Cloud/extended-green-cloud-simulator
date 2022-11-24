@@ -4,9 +4,11 @@ import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
+import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
+import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_DATA;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
 
@@ -26,6 +28,7 @@ import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,6 +72,14 @@ public class JdbcStatementsExecutor {
 			statement.setObject(5, jsonObject);
 			statement.setBoolean(6, adaptationAction.getAvailable());
 			statement.setInt(7, adaptationAction.getRuns());
+			statement.executeUpdate();
+		}
+	}
+
+	void executeWriteStatement(Integer adaptationGoalId, Double quality) throws SQLException {
+		try (var statement = sqlConnection.prepareStatement(INSERT_SYSTEM_QUALITY_DATA)) {
+			statement.setInt(1, adaptationGoalId);
+			statement.setDouble(2, quality);
 			statement.executeUpdate();
 		}
 	}
@@ -156,6 +167,16 @@ public class JdbcStatementsExecutor {
 		return null;
 	}
 
+	List<SystemQuality> executeReadSystemQualityDataStatement(Integer goalId, Integer limit)
+			throws SQLException {
+		try (var statement = sqlConnection.prepareStatement(GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL)) {
+			statement.setInt(1, goalId);
+			statement.setInt(2, limit);
+			var resultSet = statement.executeQuery();
+			return readSystemQualityDataFromResultSet(resultSet);
+		}
+	}
+
 	private AdaptationAction readAdaptationActionFromResultSet(ResultSet resultSet)
 			throws SQLException, JsonProcessingException {
 		return new AdaptationAction(
@@ -180,6 +201,19 @@ public class JdbcStatementsExecutor {
 					resultSet.getString(2), // agent's aid
 					type, // data type
 					objectMapper.readValue(resultSet.getObject(4).toString(), type.getDataTypeClass()) // data
+			);
+			result.add(agentData);
+		}
+		return result;
+	}
+
+	private List<SystemQuality> readSystemQualityDataFromResultSet(ResultSet resultSet) throws SQLException {
+		var result = new ArrayList<SystemQuality>();
+		while (resultSet.next()) {
+			var agentData = new SystemQuality(
+					resultSet.getTimestamp(1).toInstant(), // record time
+					resultSet.getInt(2), // goal id
+					resultSet.getDouble(3) // quality
 			);
 			result.add(agentData);
 		}

@@ -6,16 +6,18 @@ import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG;
+import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_CLIENT_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
@@ -44,35 +46,41 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	}
 
 	/**
-	 * Method verifies if the job success ratio for overall job execution is withing specified boundary
+	 * Method evaluates the job success ratio for overall job execution (aggregated and at the current moment)
 	 *
-	 * @return boolean indicating current overall state of job success ratio
+	 * @return boolean indicating if the analyzer should be triggered
 	 */
-	public boolean isClientJobSuccessRatioCorrect() {
+	public boolean evaluateClientJobSuccessRatio() {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
-		final double currentSuccessRatio = readClientJobSuccessRatio();
+		final double currentSuccessRatio = readClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
+		final double aggregatedSuccessRatio = readClientJobSuccessRatio(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
-		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
+		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR
+				|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
-		jobSuccessRatio.set(currentSuccessRatio);
-		if (!isSuccessRatioWithinBound(currentSuccessRatio)) {
-			logger.info(SUCCESS_RATIO_UNSATISFIED_CLIENT_LOG, currentSuccessRatio);
-			return false;
+
+		logger.info(SUCCESS_RATIO_CLIENT_LOG, currentSuccessRatio, aggregatedSuccessRatio);
+
+		if (Objects.nonNull(managingAgent.getAgentNode())) {
+			managingAgent.getAgentNode().getDatabaseClient()
+					.writeSystemQualityData(MAXIMIZE_JOB_SUCCESS_RATIO.getAdaptationGoalId(), currentSuccessRatio);
 		}
-		return true;
+		jobSuccessRatio.set(aggregatedSuccessRatio);
+
+		return false;
 	}
 
 	/**
-	 * Method verifies if the success ratio of individual network components is withing specified boundary
+	 * Method computes the aggregated success ratio of individual network components
 	 *
 	 * @return boolean indicating current state of job success ratio for components
 	 */
-	public boolean isComponentsSuccessRatioCorrect() {
+	public boolean evaluateComponentSuccessRatio() {
 		logger.info(READ_SUCCESS_RATIO_COMPONENTS_LOG);
 		final List<AgentData> componentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (componentsData.isEmpty()) {
 			logger.info(READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG);
@@ -110,9 +118,9 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		return jobsAccepted == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - (jobsFailed / jobsAccepted);
 	}
 
-	private double readClientJobSuccessRatio() {
+	private double readClientJobSuccessRatio(final int time) {
 		final List<ClientMonitoringData> clientsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD)
+				.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), time)
 				.stream()
 				.map(AgentData::monitoringData)
 				.map(ClientMonitoringData.class::cast)

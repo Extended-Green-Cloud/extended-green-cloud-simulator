@@ -17,6 +17,14 @@ public final class DmlQueries {
 					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 
 	/**
+	 * System quality table queries
+	 */
+	static final String INSERT_SYSTEM_QUALITY_DATA =
+			"INSERT INTO system_quality (time, goal_id, quality) VALUES (now(), ?, ?)";
+	static final String GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL =
+			"SELECT * FROM system_quality WHERE goal_id=? ORDER BY time DESC LIMIT ?";
+
+	/**
 	 * Adaptation goals table query
 	 */
 	static final String GET_ADAPTATION_GOALS = "SELECT * FROM adaptation_goals";

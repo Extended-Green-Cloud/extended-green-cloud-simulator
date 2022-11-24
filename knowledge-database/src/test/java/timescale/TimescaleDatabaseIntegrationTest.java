@@ -44,6 +44,7 @@ import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.job.JobResultType;
 
@@ -94,6 +95,31 @@ class TimescaleDatabaseIntegrationTest {
 				.matches(agentData -> agentData.dataType().equals(PROCESSED_API_REQUEST))
 				.matches(agentData -> agentData.monitoringData() instanceof ImmutableProcessedApiRequest)
 				.matches(agentData -> agentData.monitoringData().equals(monitoringData));
+	}
+
+	@Test
+	void shouldSuccessfullySaveSystemQualityDataToDatabase() {
+
+		database.writeSystemQualityData(1, 0.8);
+		database.writeSystemQualityData(1, 0.5);
+		database.writeSystemQualityData(1, 0.6);
+		database.writeSystemQualityData(1, 0.7);
+
+		List<SystemQuality> result = database.readSystemQualityData(1, 30);
+		List<SystemQuality> resultLimit = database.readSystemQualityData(1, 2);
+
+		// then
+		assertThat(result)
+				.as("After that data has size 4.")
+				.hasSize(4)
+				.as("Has correct structure")
+				.allMatch((value) -> List.of(0.8, 0.5, 0.6, 0.7).contains(value.quality()) && value.goalId() == 1);
+		assertThat(resultLimit)
+				.as("After that result limited data has size 2.")
+				.hasSize(2)
+				.as("Has correct structure")
+				.allMatch((value) -> List.of(0.6, 0.7).contains(value.quality()) && value.goalId() == 1);
+
 	}
 
 	@Test

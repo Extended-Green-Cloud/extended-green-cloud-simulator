@@ -11,6 +11,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -89,18 +92,18 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(singletonList(
 				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
-		assertThat(jobSuccessRatioService.isClientJobSuccessRatioCorrect()).isTrue();
+		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio()).isTrue();
 	}
 
 	@ParameterizedTest
 	@MethodSource("parametersForSuccessRatioTest")
 	@DisplayName("Test is job success ratio correct for clients")
-	void testIsClientJobSuccessRatioCorrect(AdaptationGoal goal, boolean result) {
+	void testIsClientJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
-		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(singletonList(
-				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
+		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(eq(singletonList(
+				CLIENT_MONITORING)), anyInt());
 
-		assertThat(jobSuccessRatioService.isClientJobSuccessRatioCorrect()).isEqualTo(result);
+		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio()).isFalse();
 	}
 
 	@Test
@@ -109,7 +112,7 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(
 				NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
-		assertThat(jobSuccessRatioService.isComponentsSuccessRatioCorrect()).isTrue();
+		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isTrue();
 	}
 
 	@ParameterizedTest
@@ -118,9 +121,9 @@ class JobSuccessRatioServiceUnitTest {
 	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal, boolean result) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareComponentData()).when(mockDatabase).readMonitoringDataForDataTypes(
-				NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				eq(NETWORK_AGENT_DATA_TYPES), anyInt());
 
-		assertThat(jobSuccessRatioService.isComponentsSuccessRatioCorrect()).isEqualTo(result);
+		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isEqualTo(result);
 	}
 
 	private List<AgentData> prepareClientData() {
