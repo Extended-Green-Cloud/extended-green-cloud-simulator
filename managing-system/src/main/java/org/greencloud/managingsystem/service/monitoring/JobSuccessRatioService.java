@@ -17,6 +17,7 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;

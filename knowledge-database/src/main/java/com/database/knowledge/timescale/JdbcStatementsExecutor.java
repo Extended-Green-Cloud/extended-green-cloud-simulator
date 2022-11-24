@@ -33,6 +33,7 @@ import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
@@ -40,7 +41,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 public class JdbcStatementsExecutor {
 
-	private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+	private static final ObjectMapper objectMapper = new ObjectMapper()
+			.registerModule(new JavaTimeModule())
+			.registerModule(new GuavaModule());
 
 	private final Connection sqlConnection;
 
