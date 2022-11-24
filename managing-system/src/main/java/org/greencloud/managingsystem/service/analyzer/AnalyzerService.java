@@ -4,6 +4,7 @@ import static java.lang.Math.sqrt;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.COMPUTE_ADAPTATION_ACTION_QUALITY_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_ABOVE_THRESHOLD_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_BELOW_THRESHOLD_LOG;
+import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_STATISTIC_ANALYSIS_RESULT_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_TREND_FOUND_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_TREND_NOT_FOUND_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.NO_ACTIONS_AVAILABLE_LOG;
@@ -128,12 +129,16 @@ public class AnalyzerService extends AbstractManagingService {
 		final List<Instant> qualityInstants = systemQualities.stream().map(SystemQuality::timestamp).toList();
 		final List<Double> qualityValues = systemQualities.stream().map(SystemQuality::quality).toList();
 
+		if (qualityInstants.isEmpty()) {
+			return 0;
+		}
+
 		final double tau = AlgorithmUtils.computeKendallTau(qualityInstants, qualityValues);
 		final int N = qualityInstants.size();
-		final double zScore = (3 * tau * sqrt(N * (N - 1))) / (sqrt(2 * (2 * N + 5)));
+		final double zScore = (3 * tau * sqrt(N * (double) (N - 1))) / (sqrt(2 * (double) (2 * N + 5)));
+		logger.info(GOAL_STATISTIC_ANALYSIS_RESULT_LOG, tau);
 
 		final boolean isUnknown = new NormalDistribution().cumulativeProbability(zScore) < 0.05;
-
 		return isUnknown ? 0 : (tau > 0) ? 1 : -1;
 	}
 }

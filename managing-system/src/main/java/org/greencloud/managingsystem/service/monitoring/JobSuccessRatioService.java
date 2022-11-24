@@ -67,7 +67,6 @@ public class JobSuccessRatioService extends AbstractManagingService {
 					.writeSystemQualityData(MAXIMIZE_JOB_SUCCESS_RATIO.getAdaptationGoalId(), currentSuccessRatio);
 		}
 		jobSuccessRatio.set(aggregatedSuccessRatio);
-
 		return false;
 	}
 

@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.agent.ClientMonitoringData;
-import com.database.knowledge.domain.agent.ImmutableClientMonitoringData;
-import com.database.knowledge.domain.agent.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.agent.ServerMonitoringData;
+import com.database.knowledge.domain.agent.client.ClientMonitoringData;
+import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
+import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.job.JobResultType;

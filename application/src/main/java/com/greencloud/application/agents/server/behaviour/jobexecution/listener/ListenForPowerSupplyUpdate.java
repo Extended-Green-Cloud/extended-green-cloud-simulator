@@ -103,13 +103,15 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final String jobId = jobInstanceId.getJobId();
 
 		if (msg.getPerformative() == ACLMessage.INFORM) {
-			if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
-				MDC.put(MDC_JOB_ID, jobId);
-				logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
-				announceBookedJob(myServerAgent);
+			if (Objects.nonNull(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()))) {
+				if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
+					MDC.put(MDC_JOB_ID, jobId);
+					logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
+					announceBookedJob(myServerAgent);
+				}
+				confirmJobAcceptance(jobInstanceId, messageType.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL));
+				scheduleJobExecution(jobInstanceId, messageType);
 			}
-			confirmJobAcceptance(jobInstanceId, messageType.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL));
-			scheduleJobExecution(jobInstanceId, messageType);
 		} else {
 			failJobAcceptance(messageType, jobInstanceId, msg);
 		}

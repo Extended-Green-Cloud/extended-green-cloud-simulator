@@ -16,6 +16,8 @@ public class ManagingAgentAnalyzerLog {
 			"Goal quality has violated given threshold! Analyzing adaptation actions.";
 	public static final String GOAL_QUALITY_ABOVE_THRESHOLD_LOG =
 			"Goal quality comply with the given threshold. Performing the trend analysis.";
+	public static final String GOAL_STATISTIC_ANALYSIS_RESULT_LOG =
+			"The analysis has finished. Correlation rank: {}";
 	public static final String GOAL_TREND_FOUND_LOG =
 			"The negative trend was found in goal quality. Adapting the system in advance.";
 	public static final String GOAL_TREND_NOT_FOUND_LOG =

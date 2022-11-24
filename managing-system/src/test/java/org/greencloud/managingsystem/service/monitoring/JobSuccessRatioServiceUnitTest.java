@@ -116,12 +116,12 @@ class JobSuccessRatioServiceUnitTest {
 	@ParameterizedTest
 	@MethodSource("parametersForSuccessRatioTest")
 	@DisplayName("Test is job success ratio correct for components")
-	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal, boolean result) {
+	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareComponentData()).when(mockDatabase).readMonitoringDataForDataTypes(
 				eq(NETWORK_AGENT_DATA_TYPES), anyInt());
 
-		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isEqualTo(result);
+		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isFalse();
 	}
 
 	private List<AgentData> prepareClientData() {
