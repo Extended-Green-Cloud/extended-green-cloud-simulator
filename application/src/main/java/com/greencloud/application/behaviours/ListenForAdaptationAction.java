@@ -1,5 +1,6 @@
 package com.greencloud.application.behaviours;
 
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getActionParametersClass;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
@@ -34,7 +35,8 @@ public class ListenForAdaptationAction extends CyclicBehaviour {
 	private void processAdaptationActionRequest(ACLMessage message) {
 		var adaptationActionEnum = AdaptationActionEnum.valueOf(message.getConversationId());
 		var adaptationAction = getAdaptationAction(adaptationActionEnum);
-		var adaptationActionParameters = readMessageContent(message, AdaptationActionParameters.class);
+		AdaptationActionParameters adaptationActionParameters =
+				readMessageContent(message, getActionParametersClass(adaptationActionEnum));
 
 		if (myAbstractAgent.executeAction(adaptationAction, adaptationActionParameters)) {
 			myAbstractAgent.send(prepareInformReply(message.createReply()));

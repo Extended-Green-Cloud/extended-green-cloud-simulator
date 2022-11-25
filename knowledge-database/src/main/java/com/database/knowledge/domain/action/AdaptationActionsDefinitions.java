@@ -11,8 +11,11 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECO
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 
 import java.util.List;
+import java.util.Map;
 
 import com.database.knowledge.exception.InvalidAdaptationActionException;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 /**
  * Definitions provider for each of the adaptation actions. Used internally by the Timescale Database when initializing
@@ -35,6 +38,11 @@ public final class AdaptationActionsDefinitions {
 					ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO)
 	);
 
+	private static final Map<AdaptationActionEnum, Class<? extends AdaptationActionParameters>> ACTION_TO_PARAMS_MAP =
+			Map.of(
+					ADD_SERVER, IncrementGreenSourceErrorParameters.class
+			);
+
 	private AdaptationActionsDefinitions() {
 	}
 
@@ -46,5 +54,10 @@ public final class AdaptationActionsDefinitions {
 		return ADAPTATION_ACTIONS.stream()
 				.filter(val -> val.getAction().equals(action))
 				.findFirst().orElseThrow(() -> new InvalidAdaptationActionException(action.getName()));
+	}
+
+	public static Class<? extends AdaptationActionParameters> getActionParametersClass(
+			AdaptationActionEnum adaptationActionEnum) {
+		return ACTION_TO_PARAMS_MAP.get(adaptationActionEnum);
 	}
 }

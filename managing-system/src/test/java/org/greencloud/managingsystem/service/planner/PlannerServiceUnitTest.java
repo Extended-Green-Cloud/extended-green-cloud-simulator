@@ -12,7 +12,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.quality.Strictness.LENIENT;
@@ -31,7 +30,6 @@ import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPo
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourcePercentagePlan;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,12 +71,8 @@ class PlannerServiceUnitTest {
 
 	@BeforeEach
 	void init() {
-		managingAgent = mock(ManagingAgent.class);
 		plannerService = new PlannerService(managingAgent);
-		executorService = spy(new ExecutorService(managingAgent));
-
 		doReturn(executorService).when(managingAgent).execute();
-
 	}
 
 	@Test
@@ -101,8 +95,6 @@ class PlannerServiceUnitTest {
 	}
 
 	@Test
-	@Disabled
-	//TODO repair - probably mock the executor service
 	@DisplayName("Test planner trigger for executor")
 	void testPlannerTriggerForExecutor() {
 		final AID mockAgent = mock(AID.class);
