@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
@@ -11,6 +11,6 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 public class IncreaseDeadlinePriorityPlan extends AbstractPlan {
 
 	public IncreaseDeadlinePriorityPlan(ManagingAgent managingAgent) {
-		super(INCREASE_DEADLINE_PRIO, managingAgent);
+		super(INCREASE_DEADLINE_PRIORITY, managingAgent);
 	}
 }

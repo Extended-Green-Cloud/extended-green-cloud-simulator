@@ -11,7 +11,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -90,7 +89,8 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(singletonList(
 				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
-		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD)).isTrue();
+		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
+				MONITOR_SYSTEM_DATA_TIME_PERIOD)).isTrue();
 	}
 
 	@ParameterizedTest
@@ -101,7 +101,8 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(eq(singletonList(
 				CLIENT_MONITORING)), anyInt());
 
-		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD)).isFalse();
+		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
+				MONITOR_SYSTEM_DATA_TIME_PERIOD)).isFalse();
 	}
 
 	@Test

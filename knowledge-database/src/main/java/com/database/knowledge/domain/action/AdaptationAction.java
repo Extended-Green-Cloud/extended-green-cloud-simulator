@@ -99,4 +99,9 @@ public class AdaptationAction {
 	private double getUpdatedGoalChange(GoalEnum goal, Map<GoalEnum, Double> newActionResults) {
 		return (actionResults.get(goal) * runs + newActionResults.get(goal)) / (runs + 1);
 	}
+
+	@Override
+	public String toString() {
+		return action.name();
+	}
 }

@@ -2,10 +2,10 @@ package org.greencloud.managingsystem.service.analyzer;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.ADD_COMPONENT;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
@@ -106,9 +106,9 @@ class AnalyzerServiceDatabaseTest {
 		var expectedResult = List.of(
 				new AdaptationAction(1, ADD_SERVER,
 						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(2, INCREASE_DEADLINE_PRIO,
+				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY,
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(3, INCREASE_POWER_PRIO,
+				new AdaptationAction(3, INCREASE_POWER_PRIORITY,
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE,
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),

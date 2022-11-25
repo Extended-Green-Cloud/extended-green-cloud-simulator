@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
@@ -11,6 +11,6 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 
 	public IncreaseJobDivisionPowerPriorityPlan(ManagingAgent managingAgent) {
-		super(INCREASE_POWER_PRIO, managingAgent);
+		super(INCREASE_POWER_PRIORITY, managingAgent);
 	}
 }

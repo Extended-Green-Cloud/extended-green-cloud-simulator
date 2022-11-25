@@ -45,7 +45,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
-import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.job.JobResultType;
 
 import jade.core.AID;
@@ -206,10 +205,11 @@ class TimescaleDatabaseIntegrationTest {
 				MINIMIZE_USED_BACKUP_POWER, 0.25,
 				DISTRIBUTE_TRAFFIC_EVENLY, -0.25
 		);
-		var updatedAction = database.updateAdaptationAction(actionId, actionResults);
+		database.updateAdaptationAction(actionId, actionResults);
 
 		// when
-		var releasedAction = database.releaseAdaptationAction(actionId);
+		var blockedAction = database.setAdaptationActionAvailability(actionId, false);
+		var releasedAction = database.setAdaptationActionAvailability(actionId, true);
 
 		// then
 		assertThat(releasedAction.getRuns())
@@ -219,7 +219,7 @@ class TimescaleDatabaseIntegrationTest {
 				.as("final action results should have the expected values")
 				.usingRecursiveComparison()
 				.isEqualTo(actionResults);
-		assertThat(updatedAction.getAvailable())
+		assertThat(blockedAction.getAvailable())
 				.as("After update action should be unavailable")
 				.isFalse();
 		assertThat(releasedAction.getAvailable())

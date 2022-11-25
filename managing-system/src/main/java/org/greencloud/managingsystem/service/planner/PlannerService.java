@@ -2,10 +2,10 @@ package org.greencloud.managingsystem.service.planner;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIO;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.CONSTRUCTING_PLAN_FOR_ACTION_LOG;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.COULD_NOT_CONSTRUCT_PLAN_LOG;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.NO_ACTIONS_LOG;
@@ -105,8 +105,8 @@ public class PlannerService extends AbstractManagingService {
 		return Map.of(
 				ADD_SERVER, new AddServerPlan(managingAgent),
 				ADD_GREEN_SOURCE, new AddGreenSourcePlan(managingAgent),
-				INCREASE_DEADLINE_PRIO, new IncreaseDeadlinePriorityPlan(managingAgent),
-				INCREASE_POWER_PRIO, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
+				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
+				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_ERROR, new IncrementGreenSourceErrorPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_PERCENTAGE, new IncrementGreenSourcePercentagePlan(managingAgent)
 		);

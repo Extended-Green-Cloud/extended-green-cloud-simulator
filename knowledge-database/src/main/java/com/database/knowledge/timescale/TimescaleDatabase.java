@@ -138,9 +138,9 @@ public class TimescaleDatabase implements Closeable {
 	 * @param actionId id of the adaption action to update
 	 * @return updated {@link AdaptationAction}
 	 */
-	public AdaptationAction releaseAdaptationAction(Integer actionId) {
+	public AdaptationAction setAdaptationActionAvailability(Integer actionId, boolean isAvailable) {
 		try {
-			statementsExecutor.executeReleaseActionStatement(actionId);
+			statementsExecutor.executeSetAvailabilityActionStatement(actionId, isAvailable);
 			return readAdaptationAction(actionId);
 		} catch (SQLException exception) {
 			throw new WriteDataException(exception);

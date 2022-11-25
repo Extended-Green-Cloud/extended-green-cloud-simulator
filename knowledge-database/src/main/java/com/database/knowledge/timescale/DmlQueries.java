@@ -40,7 +40,9 @@ public final class DmlQueries {
 			VALUES (?, ?, ?, ?, ?, ? ,?)
 			""";
 	static final String UPDATE_ADAPTATION_ACTION =
-			"UPDATE adaptation_actions SET action_results = ?, is_available = FALSE, runs = ? WHERE action_id = ?";
+			"UPDATE adaptation_actions SET action_results = ?, runs = ? WHERE action_id = ?";
+	static final String DISABLE_ADAPTATION_ACTION =
+			"UPDATE adaptation_actions SET is_available = FALSE WHERE action_id = ?";
 	static final String RELEASE_ADAPTATION_ACTION =
 			"UPDATE adaptation_actions SET is_available = TRUE WHERE action_id = ?";
 

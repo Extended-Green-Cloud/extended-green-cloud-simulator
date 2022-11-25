@@ -1,6 +1,7 @@
 package com.database.knowledge.timescale;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.getAdaptationActionByName;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.getAdaptationActionEnumByName;
+import static com.database.knowledge.timescale.DmlQueries.DISABLE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
@@ -101,8 +102,10 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
-	void executeReleaseActionStatement(Integer actionId) throws SQLException {
-		try (var statement = sqlConnection.prepareStatement(RELEASE_ADAPTATION_ACTION)) {
+	void executeSetAvailabilityActionStatement(Integer actionId, boolean isAvailable) throws SQLException {
+		try (var statement = sqlConnection.prepareStatement(isAvailable
+				? RELEASE_ADAPTATION_ACTION
+				: DISABLE_ADAPTATION_ACTION)) {
 			statement.setInt(1, actionId);
 			statement.executeUpdate();
 		}
@@ -185,7 +188,7 @@ public class JdbcStatementsExecutor {
 			throws SQLException, JsonProcessingException {
 		return new AdaptationAction(
 				resultSet.getInt(1), // action id
-				getAdaptationActionByName(resultSet.getString(2)), // action name
+				getAdaptationActionEnumByName(resultSet.getString(2)), // action name
 				AdaptationActionTypeEnum.valueOf(resultSet.getObject(3).toString()), // action type
 				GoalEnum.getByGoalId(resultSet.getInt(4)), // action's goal id
 				objectMapper.readValue(resultSet.getObject(5).toString(), new TypeReference<>() {

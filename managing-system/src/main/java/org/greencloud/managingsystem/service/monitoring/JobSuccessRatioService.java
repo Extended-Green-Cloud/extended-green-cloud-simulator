@@ -7,6 +7,7 @@ import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
@@ -16,31 +17,28 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.google.common.util.concurrent.AtomicDouble;
+import com.database.knowledge.domain.goal.GoalEnum;
 import com.greencloud.commons.job.JobStatusEnum;
 
 /**
  * Service containing methods connected with monitoring system success ratio
  */
-public class JobSuccessRatioService extends AbstractManagingService {
+public class JobSuccessRatioService extends AbstractGoalService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobSuccessRatioService.class);
 
-	private final AtomicDouble jobSuccessRatio;
+	private static final GoalEnum GOAL = MAXIMIZE_JOB_SUCCESS_RATIO;
 
 	public JobSuccessRatioService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
-		this.jobSuccessRatio = new AtomicDouble(0);
 	}
 
 	/**
@@ -49,25 +47,30 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	 * @param time time used to retrieve current system data
 	 * @return boolean indicating if the analyzer should be triggered
 	 */
-	public boolean evaluateClientJobSuccessRatio(final int time) {
+	public boolean evaluateAndUpdateClientJobSuccessRatio(final int time) {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
-		final double currentSuccessRatio = readClientJobSuccessRatio(time);
-		final double aggregatedSuccessRatio = readClientJobSuccessRatio(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+		final double currentSuccessRatio = readCurrentGoalQuality(time);
+		final double aggregatedSuccessRatio = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR
-				|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
+			|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
 
 		logger.info(SUCCESS_RATIO_CLIENT_LOG, currentSuccessRatio, aggregatedSuccessRatio);
-
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			managingAgent.getAgentNode().getDatabaseClient()
-					.writeSystemQualityData(MAXIMIZE_JOB_SUCCESS_RATIO.getAdaptationGoalId(), currentSuccessRatio);
-		}
-		jobSuccessRatio.set(aggregatedSuccessRatio);
+		updateGoalQuality(GOAL, currentSuccessRatio);
+		goalQuality.set(aggregatedSuccessRatio);
 		return false;
+	}
+
+	/**
+	 * Evaluates the job goal ratio
+	 *
+	 * @return boolean indicating if the analyzer should be triggered
+	 */
+	public boolean evaluateAndUpdateClientJobSuccessRatio() {
+		return evaluateAndUpdateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
 	}
 
 	/**
@@ -87,8 +90,8 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		return componentsData.stream().allMatch(this::verifySuccessRatioForComponent);
 	}
 
-	public double getJobSuccessRatio() {
-		return jobSuccessRatio.get();
+	public double getLastMeasuredGoalQuality() {
+		return goalQuality.get();
 	}
 
 	private boolean verifySuccessRatioForComponent(final AgentData component) {
@@ -118,7 +121,8 @@ public class JobSuccessRatioService extends AbstractManagingService {
 		return jobsAccepted == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - (jobsFailed / jobsAccepted);
 	}
 
-	private double readClientJobSuccessRatio(final int time) {
+	@Override
+	public double readCurrentGoalQuality(final int time) {
 		final List<ClientMonitoringData> clientsData = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), time)
 				.stream()
