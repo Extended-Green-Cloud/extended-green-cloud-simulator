@@ -98,7 +98,6 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
 		myCloudNetworkAgent.getNetworkJobs().replace(job, ACCEPTED);
-		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
 		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
 	}

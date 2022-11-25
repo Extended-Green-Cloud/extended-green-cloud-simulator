@@ -56,7 +56,7 @@ public class CloudNetworkStateManagement {
 	 */
 	public void incrementJobCounter(final String jobId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobId);
-		jobCounters.computeIfPresent(type, (key, val) -> val += 1);
+		jobCounters.computeIfPresent(type, (key, val) ->  val += 1);
 
 		switch (type) {
 			case FAILED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(FAILED));

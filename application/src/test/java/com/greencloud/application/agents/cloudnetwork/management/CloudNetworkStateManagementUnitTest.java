@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.greencloud.commons.job.JobResultType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -61,6 +62,17 @@ class CloudNetworkStateManagementUnitTest {
 		assertThat(cloudNetworkStateManagement.getCurrentPowerInUse()).isEqualTo(30);
 	}
 
+	@Test
+	@DisplayName("Test increment job counter")
+	void testIncrementJobCounter() {
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.ACCEPTED);
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FAILED)).isEqualTo(2);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.ACCEPTED)).isEqualTo(1);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FINISH)).isEqualTo(0);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.STARTED)).isEqualTo(0);
+	}
 
 	// PREPARING TEST DATA
 

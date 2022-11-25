@@ -58,6 +58,9 @@ public class CloudNetworkConfigManagement {
         this.weightsForServersMap = weightsForServersMap;
     }
 
+    /**
+     * Method assembles the object that stores monitoring data and saves it in the database
+     */
     public void saveMonitoringData(){
         CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
                 .ownedServers(cloudNetworkAgent.getOwnedServers())
@@ -65,7 +68,7 @@ public class CloudNetworkConfigManagement {
                 .jobResultStatistics(cloudNetworkAgent.manage().getJobCounters())
                 .networkJobs(cloudNetworkAgent.getNetworkJobs())
                 .build();
-        cloudNetworkAgent.writeMonitoringData(DataType.DEFAULT, cloudNetworkMonitoringData);
+        cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
         logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
     }
 }
