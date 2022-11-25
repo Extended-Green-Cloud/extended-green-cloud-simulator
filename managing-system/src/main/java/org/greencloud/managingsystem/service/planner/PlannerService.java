@@ -53,7 +53,7 @@ public class PlannerService extends AbstractManagingService {
 	public void trigger(final Map<AdaptationAction, Double> adaptationActions) {
 		final Map<AdaptationAction, Double> executableActions = getPlansWhichCanBeExecuted(adaptationActions);
 
-		if (adaptationActions.isEmpty()) {
+		if (executableActions.isEmpty()) {
 			logger.info(NO_ACTIONS_LOG);
 			return;
 		}

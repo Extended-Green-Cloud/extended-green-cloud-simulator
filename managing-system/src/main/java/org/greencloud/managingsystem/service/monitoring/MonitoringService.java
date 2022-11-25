@@ -3,6 +3,7 @@ package org.greencloud.managingsystem.service.monitoring;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
 import java.util.Map;
@@ -68,7 +69,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateClientJobSuccessRatio();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
 		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;

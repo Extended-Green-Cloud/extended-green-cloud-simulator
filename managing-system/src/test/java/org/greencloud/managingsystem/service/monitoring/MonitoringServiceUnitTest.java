@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_R
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -100,7 +101,7 @@ class MonitoringServiceUnitTest {
 	@DisplayName("Test is success ratio maximized")
 	void testIsSuccessRatioMaximized(final boolean clientRatioBoolean, final boolean componentRatioBoolean,
 			final boolean expectedResult) {
-		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).evaluateClientJobSuccessRatio();
+		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
 		doReturn(componentRatioBoolean).when(mockJobSuccessRatioService).evaluateComponentSuccessRatio();
 
 		assertThat(monitoringService.isSuccessRatioMaximized()).isEqualTo(expectedResult);

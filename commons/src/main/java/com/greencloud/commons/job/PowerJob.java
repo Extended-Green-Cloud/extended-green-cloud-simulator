@@ -39,8 +39,4 @@ public interface PowerJob {
 	 * @return power that is to be delivered
 	 */
 	int getPower();
-
-	default boolean isExecutedAtTime(Instant timestamp) {
-		return !timestamp.isBefore(getStartTime()) && timestamp.isBefore(getEndTime());
-	}
 }

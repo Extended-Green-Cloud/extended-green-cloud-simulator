@@ -9,6 +9,8 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,10 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		final String jobId = accept.getContent();
 		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
 
-		myAgent.send(prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
+		if (Objects.nonNull(job)) {
+			myAgent.send(
+					prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
+		}
 	}
 
 	/**
@@ -69,9 +74,11 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		final String jobId = reject.getContent();
 		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
 
-		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
+		if (Objects.nonNull(job)) {
+			myCloudNetworkAgent.getServerForJobMap().remove(jobId);
+			myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
 
-		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
+			myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
+		}
 	}
 }

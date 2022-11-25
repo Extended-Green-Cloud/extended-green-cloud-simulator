@@ -7,7 +7,6 @@ import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
@@ -47,11 +46,12 @@ public class JobSuccessRatioService extends AbstractManagingService {
 	/**
 	 * Method evaluates the job success ratio for overall job execution (aggregated and at the current moment)
 	 *
+	 * @param time time used to retrieve current system data
 	 * @return boolean indicating if the analyzer should be triggered
 	 */
-	public boolean evaluateClientJobSuccessRatio() {
+	public boolean evaluateClientJobSuccessRatio(final int time) {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
-		final double currentSuccessRatio = readClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
+		final double currentSuccessRatio = readClientJobSuccessRatio(time);
 		final double aggregatedSuccessRatio = readClientJobSuccessRatio(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR

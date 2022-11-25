@@ -1,7 +1,6 @@
 package com.greencloud.application.mapper;
 
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
-import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerJobRealTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,16 +49,6 @@ class JobMapperUnitTest {
 		final JobInstanceIdentifier result = mapToJobInstanceId(MOCK_POWER_JOB);
 
 		assertThat(result.getStartTime()).isEqualTo(Instant.parse("2022-01-01T09:00:00.000Z"));
-		assertThat(result.getJobId()).isEqualTo("1");
-	}
-
-	@Test
-	@DisplayName("Test map to job instance id with real time")
-	void testMapToJobInstanceIdWithRealTime() {
-		setSystemStartTimeMock(Instant.parse("2022-01-01T08:00:00.000Z"));
-		final JobInstanceIdentifier result = mapToJobInstanceIdWithRealTime(MOCK_JOB_INSTANCE);
-
-		assertThat(result.getStartTime()).isEqualTo(Instant.parse("2022-01-31T08:00:00.000Z"));
 		assertThat(result.getJobId()).isEqualTo("1");
 	}
 

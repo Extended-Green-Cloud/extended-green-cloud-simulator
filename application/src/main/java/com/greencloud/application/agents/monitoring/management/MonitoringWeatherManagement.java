@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.monitoring.management;
 
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static java.time.Instant.now;
 import static java.util.Comparator.comparingLong;
 import static java.util.Objects.nonNull;
@@ -62,7 +63,7 @@ public class MonitoringWeatherManagement {
 	public MonitoringData getWeather(GreenSourceWeatherData requestData) {
 		logger.info(MonitoringManagementLog.RETRIEVE_WEATHER_LOG, requestData.getLocation());
 		return ImmutableMonitoringData.builder()
-				.addWeatherData(getWeatherData(requestData.getLocation(), now()))
+				.addWeatherData(getWeatherData(requestData.getLocation(), convertToRealTime(now())))
 				.build();
 	}
 

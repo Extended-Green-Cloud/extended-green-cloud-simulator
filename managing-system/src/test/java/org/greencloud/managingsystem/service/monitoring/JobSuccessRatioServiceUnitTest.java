@@ -90,7 +90,7 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(singletonList(
 				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
-		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio()).isTrue();
+		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD)).isTrue();
 	}
 
 	@ParameterizedTest
@@ -101,7 +101,7 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(eq(singletonList(
 				CLIENT_MONITORING)), anyInt());
 
-		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio()).isFalse();
+		assertThat(jobSuccessRatioService.evaluateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD)).isFalse();
 	}
 
 	@Test
