@@ -3,6 +3,7 @@ package org.greencloud.managingsystem.service.executor;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static jade.lang.acl.ACLMessage.REQUEST;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
@@ -56,6 +57,12 @@ public class ExecutorService extends AbstractManagingService {
 	}
 
 	private double getInitialGoalQuality(GoalEnum targetGoal) {
-		return managingAgent.monitor().getGoalService(targetGoal).readCurrentGoalQuality();
+		var goalQuality = managingAgent.monitor().getGoalService(targetGoal).readCurrentGoalQuality();
+
+		if (goalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
+			throw new IllegalStateException("Goal quality must be present to initiate action, this should not happen.");
+		}
+
+		return goalQuality;
 	}
 }

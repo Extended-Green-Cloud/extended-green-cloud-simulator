@@ -8,6 +8,7 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
@@ -106,21 +107,8 @@ class PlannerServiceUnitTest {
 				getAdaptationAction(ADD_GREEN_SOURCE), 5.0
 		);
 		plannerService.setPlanForActionMap(Map.of(
-				ADD_SERVER, new AbstractPlan(ADD_SERVER, managingAgent) {
-					@Override
-					public boolean isPlanExecutable() {
-						return true;
-					}
-
-					@Override
-					public AbstractPlan constructAdaptationPlan() {
-						actionParameters = ImmutableIncrementGreenSourceErrorParameters.builder()
-								.percentageChange(10.0)
-								.build();
-						targetAgent = mockAgent;
-						return this;
-					}
-				}
+				ADD_SERVER, getTestAdaptationPlan(managingAgent, mockAgent,
+						ImmutableIncrementGreenSourceErrorParameters.builder().percentageChange(10.0).build())
 		));
 
 		plannerService.trigger(testActions);

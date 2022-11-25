@@ -1,11 +1,8 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static java.time.Instant.now;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.COMPLETED_ACTION_LOG;
-
-import java.time.Instant;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
@@ -17,12 +14,14 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
 
 /**
- * Initiates the adaptation action request for the given agent
+ * Initiates the adaptation action request for the given agent and handles its execution result, either
+ * successful or failed execution.
  */
 public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 
 	private static final Logger logger = LoggerFactory.getLogger(InitiateAdaptationActionRequest.class);
 
+	private final ManagingAgent myManagingAgent;
 	private final String adaptationActionId;
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
@@ -32,17 +31,27 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 		this.adaptationActionId = message.getConversationId();
 		this.targetAgent = (AID) message.getAllReceiver().next();
 		this.initialGoalQuality = initialGoalQuality;
+		this.myManagingAgent = (ManagingAgent) agent;
 	}
 
+	/**
+	 * If the action is correctly executes Agent responds with an INFORM message. In that case
+	 * a verification of the executed action must be scheduled. The {@link VerifyAdaptationActionResult}
+	 * is scheduled after the period defined in VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS constant.
+	 *
+	 * @param inform message received from the target agent
+	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
 		logger.info(COMPLETED_ACTION_LOG, adaptationActionId, targetAgent);
-		Instant actionTimestamp = now();
-		Instant verifyTime = actionTimestamp.plusSeconds(VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
-		var verifyingBehaviour = new VerifyAdaptationActionResult(myAgent, actionTimestamp, verifyTime,
-				adaptationActionId, targetAgent, initialGoalQuality);
-		myAgent.addBehaviour(verifyingBehaviour);
-		myAgent.removeBehaviour(this);
+		scheduleVerifyBehaviour();
+		myManagingAgent.removeBehaviour(this);
+	}
+
+	private void scheduleVerifyBehaviour() {
+		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, now(), adaptationActionId,
+				targetAgent, initialGoalQuality);
+		myManagingAgent.addBehaviour(verifyingBehaviour);
 	}
 
 	/**
@@ -53,8 +62,8 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	@Override
 	protected void handleFailure(ACLMessage failure) {
 		logger.info(ACTION_FAILED_LOG, adaptationActionId, targetAgent);
-		((ManagingAgent) myAgent).getAgentNode().getDatabaseClient()
+		myManagingAgent.getAgentNode().getDatabaseClient()
 				.setAdaptationActionAvailability(Integer.parseInt(adaptationActionId), true);
-		myAgent.removeBehaviour(this);
+		myManagingAgent.removeBehaviour(this);
 	}
 }

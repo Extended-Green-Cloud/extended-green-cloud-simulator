@@ -40,7 +40,7 @@ public final class AdaptationActionsDefinitions {
 
 	private static final Map<AdaptationActionEnum, Class<? extends AdaptationActionParameters>> ACTION_TO_PARAMS_MAP =
 			Map.of(
-					ADD_SERVER, IncrementGreenSourceErrorParameters.class
+					INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorParameters.class
 			);
 
 	private AdaptationActionsDefinitions() {

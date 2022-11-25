@@ -65,7 +65,8 @@ public class JobSuccessRatioService extends AbstractGoalService {
 	}
 
 	/**
-	 * Evaluates the job goal ratio
+	 * Method evaluates the job success ratio for overall job execution (aggregated and at the current moment)
+	 * for the default time period.
 	 *
 	 * @return boolean indicating if the analyzer should be triggered
 	 */
