@@ -197,7 +197,7 @@ public class GreenEnergyStateManagement {
 	/**
 	 * Computes available power available in the given moment
 	 *
-	 * @param time    time of the check
+	 * @param time    time of the check (in real time)
 	 * @param weather monitoring data with com.greencloud.application.weather for requested timetable
 	 * @return average available power as decimal or empty optional if power not available
 	 */

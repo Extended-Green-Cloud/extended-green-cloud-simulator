@@ -6,6 +6,7 @@ import static com.greencloud.application.constants.CacheTestConstants.MOCK_FUTUR
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_LOCATION;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_TIME;
 import static com.greencloud.application.exception.domain.ExceptionMessages.WEATHER_API_INTERNAL_ERROR;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -76,6 +77,7 @@ class MonitoringWeatherManagementUnitTest {
 						now()));
 		mockCache.updateCache(MOCK_LOCATION, currentForecast);
 
+		setSystemStartTime();
 		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
 
 		assertThat(result.getWeatherData()).hasSize(1);
@@ -92,6 +94,7 @@ class MonitoringWeatherManagementUnitTest {
 		doReturn(currentWeather).when(mockAPI).getWeather(MOCK_LOCATION);
 		assertThat(mockCache.getForecast(MOCK_LOCATION, now())).isEmpty();
 
+		setSystemStartTime();
 		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
 
 		// Validate return
