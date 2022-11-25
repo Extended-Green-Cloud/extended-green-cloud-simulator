@@ -2,6 +2,9 @@ package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
+import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.application.utils.TimeUtils.convertToInstantTime;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
@@ -156,7 +159,7 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get available capacity at given moment for positive power")
 	void testGetAvailableCapacityAtGivenMoment() {
 		doReturn(100.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
-		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
+		final Instant mockMoment = convertToRealTime(Instant.parse("2022-01-01T09:00:00.000Z"));
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);
 
@@ -167,7 +170,7 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test get available capacity at given moment for negative power")
 	void testGetAvailableCapacityAtGivenMomentNoPower() {
 		doReturn(50.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
-		final Instant mockMoment = Instant.parse("2022-01-01T09:00:00.000Z");
+		final Instant mockMoment = convertToRealTime(Instant.parse("2022-01-01T09:00:00.000Z"));
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);
 

@@ -3,15 +3,14 @@ package com.greencloud.application.agents.greenenergy.management;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MIN;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
-import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_FINISH_LOG;
-import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.DUPLICATED_POWER_JOB_START_LOG;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_FINISH_LOG;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
-import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceIdWithRealTime;
 import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
@@ -72,8 +71,7 @@ public class GreenEnergyStateManagement {
 	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		startedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_START_LOG, mapToJobInstanceIdWithRealTime(jobInstanceId),
-				startedJobsInstances);
+		logger.info(POWER_JOB_START_LOG, jobInstanceId, startedJobsInstances);
 		updateGreenSourceGUI();
 	}
 
@@ -85,8 +83,7 @@ public class GreenEnergyStateManagement {
 	public void incrementFinishedJobs(final JobInstanceIdentifier jobInstanceId) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		finishedJobsInstances.getAndAdd(1);
-		logger.info(DUPLICATED_POWER_JOB_FINISH_LOG, mapToJobInstanceIdWithRealTime(jobInstanceId),
-				finishedJobsInstances, startedJobsInstances);
+		logger.info(POWER_JOB_FINISH_LOG, jobInstanceId, finishedJobsInstances, startedJobsInstances);
 	}
 
 	public AtomicInteger getWeatherShortagesCounter() {
@@ -200,7 +197,7 @@ public class GreenEnergyStateManagement {
 	/**
 	 * Computes available power available in the given moment
 	 *
-	 * @param time    time of the check
+	 * @param time    time of the check (in real time)
 	 * @param weather monitoring data with com.greencloud.application.weather for requested timetable
 	 * @return average available power as decimal or empty optional if power not available
 	 */
@@ -252,7 +249,7 @@ public class GreenEnergyStateManagement {
 	private synchronized Double getPower(Instant start, MonitoringData weather) {
 		final double inUseCapacity = greenEnergyAgent.getPowerJobs().keySet().stream()
 				.filter(job -> ACCEPTED_JOB_STATUSES.contains(greenEnergyAgent.getPowerJobs().get(job)) &&
-						job.isExecutedAtTime(start))
+						isWithinTimeStamp(job, start))
 				.mapToInt(PowerJob::getPower)
 				.sum();
 		return greenEnergyAgent.manageGreenPower().getAvailablePower(weather, start) - inUseCapacity;

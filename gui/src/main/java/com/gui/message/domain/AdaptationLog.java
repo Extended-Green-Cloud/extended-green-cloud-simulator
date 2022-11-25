@@ -5,7 +5,7 @@ import java.time.Instant;
 import org.immutables.value.Value;
 import org.jetbrains.annotations.Nullable;
 
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -19,7 +19,7 @@ public interface AdaptationLog {
 	/**
 	 * @return type of the adaptation action
 	 */
-	AdaptationActionEnum getType();
+	AdaptationActionTypeEnum getType();
 
 	/**
 	 * @return description of performed adaptation

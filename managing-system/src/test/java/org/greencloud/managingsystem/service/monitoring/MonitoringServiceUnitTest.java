@@ -1,4 +1,4 @@
-package service.monitoring;
+package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
@@ -13,10 +13,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.monitoring.BackUpPowerUsageService;
-import org.greencloud.managingsystem.service.monitoring.JobSuccessRatioService;
-import org.greencloud.managingsystem.service.monitoring.MonitoringService;
-import org.greencloud.managingsystem.service.monitoring.TrafficDistributionService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -104,8 +100,8 @@ class MonitoringServiceUnitTest {
 	@DisplayName("Test is success ratio maximized")
 	void testIsSuccessRatioMaximized(final boolean clientRatioBoolean, final boolean componentRatioBoolean,
 			final boolean expectedResult) {
-		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).isClientJobSuccessRatioCorrect();
-		doReturn(componentRatioBoolean).when(mockJobSuccessRatioService).isComponentsSuccessRatioCorrect();
+		doReturn(clientRatioBoolean).when(mockJobSuccessRatioService).evaluateAndUpdateClientJobSuccessRatio();
+		doReturn(componentRatioBoolean).when(mockJobSuccessRatioService).evaluateComponentSuccessRatio();
 
 		assertThat(monitoringService.isSuccessRatioMaximized()).isEqualTo(expectedResult);
 	}
@@ -113,11 +109,11 @@ class MonitoringServiceUnitTest {
 	@Test
 	@DisplayName("Test compute system indicator")
 	void testComputeSystemIndicator() {
-		doReturn(0.8).when(mockJobSuccessRatioService).getJobSuccessRatio();
-		doReturn(0.7).when(mockTrafficDistributionService).getAverageTrafficDistribution();
-		doReturn(0.5).when(mockBackUpPowerUsageService).getBackUpPowerUsage();
+		doReturn(0.8).when(mockJobSuccessRatioService).getLastMeasuredGoalQuality();
+		doReturn(0.7).when(mockTrafficDistributionService).getLastMeasuredGoalQuality();
+		doReturn(0.5).when(mockBackUpPowerUsageService).getLastMeasuredGoalQuality();
 
-		assertThat(monitoringService.computeSystemIndicator()).isEqualTo(0.75);
+		assertThat(monitoringService.computeSystemIndicator()).isEqualTo(0.67);
 	}
 
 	@Test
@@ -129,9 +125,9 @@ class MonitoringServiceUnitTest {
 				DISTRIBUTE_TRAFFIC_EVENLY, 0.7
 		);
 
-		doReturn(0.8).when(mockJobSuccessRatioService).getJobSuccessRatio();
-		doReturn(0.7).when(mockTrafficDistributionService).getAverageTrafficDistribution();
-		doReturn(0.5).when(mockBackUpPowerUsageService).getBackUpPowerUsage();
+		doReturn(0.8).when(mockJobSuccessRatioService).getLastMeasuredGoalQuality();
+		doReturn(0.7).when(mockTrafficDistributionService).getLastMeasuredGoalQuality();
+		doReturn(0.5).when(mockBackUpPowerUsageService).getLastMeasuredGoalQuality();
 
 		assertThat(monitoringService.getCurrentGoalQualities())
 				.as("Map should contain 3 goals")

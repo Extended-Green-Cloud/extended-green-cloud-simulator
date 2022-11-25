@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.START_POWER_SUPPLY_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_STATUS_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
@@ -17,6 +18,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.utils.TimeUtils;
 import com.greencloud.commons.job.PowerJob;
 
@@ -72,7 +74,7 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 	}
 
 	private void handlePowerSupplyFinish(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
-		if (powerJob.getStartTime().isBefore(TimeUtils.getCurrentTime())) {
+		if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(powerJob))) {
 			myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstance);
 		}
 		MDC.put(MDC_JOB_ID, powerJob.getJobId());

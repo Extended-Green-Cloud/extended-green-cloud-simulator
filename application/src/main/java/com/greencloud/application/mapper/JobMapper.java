@@ -152,17 +152,6 @@ public class JobMapper {
 	}
 
 	/**
-	 * @param jobInstanceId JobInstanceIdentifier object
-	 * @return JobInstanceIdentifier
-	 */
-	public static JobInstanceIdentifier mapToJobInstanceIdWithRealTime(final JobInstanceIdentifier jobInstanceId) {
-		return ImmutableJobInstanceIdentifier.builder()
-				.jobId(jobInstanceId.getJobId())
-				.startTime(convertToRealTime(jobInstanceId.getStartTime()))
-				.build();
-	}
-
-	/**
 	 * @param job       job to map
 	 * @param startTime power shortage start time
 	 * @return PowerShortageJob

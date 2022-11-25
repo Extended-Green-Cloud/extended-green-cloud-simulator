@@ -2,8 +2,10 @@ package com.greencloud.application.agents;
 
 import java.util.Objects;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
 
@@ -52,5 +54,10 @@ public abstract class AbstractAgent extends Agent {
 
 	public void writeMonitoringData(DataType dataType, MonitoringData monitoringData) {
 		agentNode.getDatabaseClient().writeMonitoringData(this.getAID().getName(), dataType, monitoringData);
+	}
+
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		// this method must be overwritten in agent types that will be a target to
+		throw new UnsupportedOperationException();
 	}
 }

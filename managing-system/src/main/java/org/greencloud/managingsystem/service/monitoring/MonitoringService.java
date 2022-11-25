@@ -38,6 +38,20 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Get service for the provided goal
+	 *
+	 * @param goal goal for the service
+	 * @return Service for the given goal
+	 */
+	public AbstractGoalService getGoalService(GoalEnum goal) {
+		return switch (goal) {
+			case MAXIMIZE_JOB_SUCCESS_RATIO -> jobSuccessRatioService;
+			case MINIMIZE_USED_BACKUP_POWER -> backUpPowerUsageService;
+			case DISTRIBUTE_TRAFFIC_EVENLY -> trafficDistributionService;
+		};
+	}
+
+	/**
 	 * Method is used to read from the database, the system's adaptation goals
 	 */
 	public void readSystemAdaptationGoals() {
@@ -68,8 +82,8 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.isClientJobSuccessRatioCorrect();
-		final boolean networkSuccessRatio = jobSuccessRatioService.isComponentsSuccessRatioCorrect();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio();
+		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;
 	}
@@ -80,13 +94,13 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return quality indicator
 	 */
 	public double computeSystemIndicator() {
-		final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
-		final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
-		final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+		final double successRatio = jobSuccessRatioService.getLastMeasuredGoalQuality();
+		final double backUpUsage = 1 - backUpPowerUsageService.getLastMeasuredGoalQuality();
+		final double trafficDistribution = 1 - trafficDistributionService.getLastMeasuredGoalQuality();
 
 		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
-				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
-				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+			   backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
+			   trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
 	}
 
 	/**
@@ -95,14 +109,27 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return map containing adaptation goal qualities
 	 */
 	public Map<GoalEnum, Double> getCurrentGoalQualities() {
-		final double successRatio = jobSuccessRatioService.getJobSuccessRatio();
-		final double backUpUsage = backUpPowerUsageService.getBackUpPowerUsage();
-		final double trafficDistribution = trafficDistributionService.getAverageTrafficDistribution();
+		final double successRatio = jobSuccessRatioService.getLastMeasuredGoalQuality();
+		final double backUpUsage = backUpPowerUsageService.getLastMeasuredGoalQuality();
+		final double trafficDistribution = trafficDistributionService.getLastMeasuredGoalQuality();
 		return Map.of(
 				MAXIMIZE_JOB_SUCCESS_RATIO, successRatio,
 				MINIMIZE_USED_BACKUP_POWER, backUpUsage,
 				DISTRIBUTE_TRAFFIC_EVENLY, trafficDistribution
 		);
+	}
+
+	/**
+	 * Method verifies if given quality is withing bounds of selected adaptation goal
+	 *
+	 * @param quality system quality
+	 * @return boolean indicating verification result
+	 */
+	public boolean isQualityInBounds(final double quality, final GoalEnum goalEnum) {
+		final AdaptationGoal goal = managingAgent.monitor().getAdaptationGoal(goalEnum);
+		return goal.isAboveThreshold() ?
+				quality >= goal.threshold() :
+				quality <= goal.threshold();
 	}
 
 	/**

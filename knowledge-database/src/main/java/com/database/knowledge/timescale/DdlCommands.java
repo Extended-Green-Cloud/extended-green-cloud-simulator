@@ -56,6 +56,19 @@ public final class DdlCommands {
 			      REFERENCES adaptation_goals (goal_id))
 			""";
 
+	/**
+	 * System quality table
+	 */
+	static final String DROP_SYSTEM_QUALITY = "DROP TABLE IF EXISTS system_quality";
+	static final String CREATE_SYSTEM_QUALITY = """
+			CREATE TABLE system_quality (
+			time TIMESTAMPTZ NOT NULL,
+			goal_id INTEGER NOT NULL,
+			quality DOUBLE PRECISION NOT NULL)
+			""";
+	static final String CREATE_SYSTEM_QUALITY_HYPERTABLE = "SELECT create_hypertable('system_quality', 'time')";
+	static final String SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC = "SELECT set_chunk_time_interval('system_quality', 5000000)";
+
 	private DdlCommands() {
 	}
 }

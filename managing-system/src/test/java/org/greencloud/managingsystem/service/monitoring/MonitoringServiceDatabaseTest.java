@@ -1,4 +1,4 @@
-package service.monitoring;
+package org.greencloud.managingsystem.service.monitoring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -10,7 +10,6 @@ import static org.mockito.Mockito.spy;
 import java.util.List;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

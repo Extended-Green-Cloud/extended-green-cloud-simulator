@@ -5,9 +5,12 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.cancella
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.CANCELLING_JOB_PARTS_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.templates.JobCancellationMessageTemplates.CANCEL_JOB_ANNOUNCEMENT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.commons.job.JobResultType.FAILED;
+import static com.greencloud.commons.job.JobResultType.FINISH;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.nonNull;
 
@@ -54,6 +57,9 @@ public class ListenForServerJobCancellation extends CyclicBehaviour {
 			MDC.put(MDC_JOB_ID, originalJobId);
 			logger.info(CANCELLING_JOB_PARTS_LOG, jobParts.size());
 			jobParts.forEach(jobPart -> {
+				if(RUNNING_JOB_STATUSES.contains(myServerAgent.getServerJobs().get(jobPart))) {
+					myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), FINISH);
+				}
 				myServerAgent.manage().finishJobExecutionWithResult(jobPart, false, FAILED);
 				MDC.put(MDC_JOB_ID, jobPart.getJobId());
 				logger.info(CANCELLED_JOB_PART_LOG);

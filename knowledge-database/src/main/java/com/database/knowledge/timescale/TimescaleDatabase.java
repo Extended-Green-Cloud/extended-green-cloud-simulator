@@ -6,11 +6,15 @@ import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_GOA
 import static com.database.knowledge.timescale.DdlCommands.CREATE_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_DATA;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_INDEX;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
+import static com.database.knowledge.timescale.DdlCommands.DROP_SYSTEM_QUALITY;
 import static com.database.knowledge.timescale.DdlCommands.INSERT_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_5_SEC;
+import static com.database.knowledge.timescale.DdlCommands.SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC;
 import static java.lang.String.format;
 
 import java.io.Closeable;
@@ -27,6 +31,7 @@ import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.database.knowledge.timescale.exception.ClosingDatabaseException;
 import com.database.knowledge.timescale.exception.ConnectDatabaseException;
 import com.database.knowledge.timescale.exception.InitDatabaseException;
@@ -94,6 +99,21 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
+	 * Provides writing capability to the TimeScaleDB for Managing Agent to insert new information
+	 * regarding current system quality
+	 *
+	 * @param goalId      identifier of adaptation goal
+	 * @param goalQuality current quality of the goal
+	 */
+	public void writeSystemQualityData(Integer goalId, Double goalQuality) {
+		try {
+			statementsExecutor.executeWriteStatement(goalId, goalQuality);
+		} catch (SQLException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
 	 * Updates given adaptation action with additional goals changes data
 	 *
 	 * @param actionId    id of the adaptation action to update
@@ -118,9 +138,9 @@ public class TimescaleDatabase implements Closeable {
 	 * @param actionId id of the adaption action to update
 	 * @return updated {@link AdaptationAction}
 	 */
-	public AdaptationAction releaseAdaptationAction(Integer actionId) {
+	public AdaptationAction setAdaptationActionAvailability(Integer actionId, boolean isAvailable) {
 		try {
-			statementsExecutor.executeReleaseActionStatement(actionId);
+			statementsExecutor.executeSetAvailabilityActionStatement(actionId, isAvailable);
 			return readAdaptationAction(actionId);
 		} catch (SQLException exception) {
 			throw new WriteDataException(exception);
@@ -145,7 +165,7 @@ public class TimescaleDatabase implements Closeable {
 	 * that were saved to database for given data types.
 	 *
 	 * @param dataTypes types of the data to be retrieved
-	 * @param seconds number of secods for which the data is retrieved
+	 * @param seconds   number of secods for which the data is retrieved
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */
 	public List<AgentData> readMonitoringDataForDataTypes(List<DataType> dataTypes, int seconds) {
@@ -196,6 +216,21 @@ public class TimescaleDatabase implements Closeable {
 		}
 	}
 
+	/**
+	 * Provides reading capability of last N rows of system quality data for given goal id
+	 *
+	 * @param goalId      id of the adaptation goal
+	 * @param recordLimit limit of records number
+	 * @return List of {@link SystemQuality}
+	 */
+	public List<SystemQuality> readSystemQualityData(Integer goalId, Integer recordLimit) {
+		try {
+			return statementsExecutor.executeReadSystemQualityDataStatement(goalId, recordLimit);
+		} catch (SQLException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
 	private Connection connect(String hostName) throws SQLException {
 		String url = format("jdbc:postgresql://%s:5432/%s?user=%s&password=%s", hostName, DATABASE_NAME, USER,
 				PASSWORD);
@@ -209,6 +244,7 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(DROP_MONITORING_DATA);
 			statement.execute(DROP_ADAPTATION_ACTIONS);
 			statement.execute(DROP_ADAPTATION_GOALS);
+			statement.execute(DROP_SYSTEM_QUALITY);
 		}
 	}
 
@@ -217,12 +253,15 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(CREATE_MONITORING_DATA);
 			statement.execute(CREATE_ADAPTATION_GOALS);
 			statement.execute(CREATE_ADAPTATION_ACTIONS);
+			statement.execute(CREATE_SYSTEM_QUALITY);
 		}
 
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.execute(CREATE_MONITORING_INDEX);
+			statement.execute(CREATE_SYSTEM_QUALITY_HYPERTABLE);
+			statement.execute(SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
 			for (var action : getAdaptationActions()) {
 				statementsExecutor.executeWriteStatement(action);
