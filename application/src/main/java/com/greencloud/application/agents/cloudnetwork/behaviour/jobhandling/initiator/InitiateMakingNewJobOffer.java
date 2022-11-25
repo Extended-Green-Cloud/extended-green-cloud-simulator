@@ -83,7 +83,6 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		}
 
-			myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
-		}
+		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 }

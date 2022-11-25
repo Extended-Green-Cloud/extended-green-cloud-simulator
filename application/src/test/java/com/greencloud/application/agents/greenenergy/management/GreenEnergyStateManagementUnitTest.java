@@ -2,8 +2,6 @@ package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_TRANSFER;
-import static com.greencloud.application.utils.TimeUtils.convertToInstantTime;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;

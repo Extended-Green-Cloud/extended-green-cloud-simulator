@@ -27,9 +27,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.job.JobStatusEnum;
-import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.google.common.util.concurrent.AtomicDouble;
 
 /**
  * Service containing methods connected with monitoring system success ratio
