@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Service containing methods used in analyzing adaptation options and selecting adaptation plan
@@ -38,7 +39,7 @@ public class PlannerService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlannerService.class);
 
-	private final Map<AdaptationActionEnum, AbstractPlan> planForActionMap;
+	private Map<AdaptationActionEnum, AbstractPlan> planForActionMap;
 
 	public PlannerService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
@@ -73,7 +74,12 @@ public class PlannerService extends AbstractManagingService {
 		managingAgent.execute().executeAdaptationAction(constructedPlan);
 	}
 
-	private AdaptationAction selectBestAction(final Map<AdaptationAction, Double> adaptationActions) {
+	protected void setPlanForActionMap(Map<AdaptationActionEnum, AbstractPlan> planForActionMap) {
+		this.planForActionMap = planForActionMap;
+	}
+
+	@VisibleForTesting
+	protected AdaptationAction selectBestAction(final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
 				.filter(action -> action.getKey().getAvailable())
 				.max(Comparator.comparingDouble(Map.Entry::getValue))
@@ -81,7 +87,8 @@ public class PlannerService extends AbstractManagingService {
 				.getKey();
 	}
 
-	private Map<AdaptationAction, Double> getPlansWhichCanBeExecuted(
+	@VisibleForTesting
+	protected Map<AdaptationAction, Double> getPlansWhichCanBeExecuted(
 			final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
 				.filter(entry -> planForActionMap.containsKey(entry.getKey().getAction()))
@@ -89,7 +96,8 @@ public class PlannerService extends AbstractManagingService {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private AbstractPlan getPlanForAdaptationAction(final AdaptationAction action) {
+	@VisibleForTesting
+	protected AbstractPlan getPlanForAdaptationAction(final AdaptationAction action) {
 		return planForActionMap.getOrDefault(action.getAction(), null);
 	}
 

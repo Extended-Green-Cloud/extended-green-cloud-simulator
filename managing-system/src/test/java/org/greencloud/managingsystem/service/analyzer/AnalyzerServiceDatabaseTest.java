@@ -8,7 +8,6 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIO;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.ADD_COMPONENT;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
-import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
@@ -19,6 +18,7 @@ import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -27,14 +27,12 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -61,17 +59,18 @@ class AnalyzerServiceDatabaseTest {
 	private TimescaleDatabase database;
 
 	private AnalyzerService analyzerService;
+	private PlannerService plannerService;
 
 	@BeforeEach
 	void init() {
-		database = new TimescaleDatabase();
+		database = spy(new TimescaleDatabase());
 		database.initDatabase();
 
 		mockManagingAgent = spy(ManagingAgent.class);
 		mockAgentNode = mock(ManagingAgentNode.class);
 		analyzerService = new AnalyzerService(mockManagingAgent);
 		var monitoringService = new MonitoringService(mockManagingAgent);
-		var plannerService = new PlannerService(mockManagingAgent);
+		plannerService = spy(new PlannerService(mockManagingAgent));
 
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(database).when(mockAgentNode).getDatabaseClient();
@@ -90,17 +89,15 @@ class AnalyzerServiceDatabaseTest {
 	}
 
 	@Test
-	@Disabled
 	@DisplayName("Test analyzer triggering")
 	void testTrigger() {
-		var expectedQualityMap = getAdaptationActions().stream()
-				.collect(Collectors.toMap(action -> action, (action) -> 0.0D));
-
 		analyzerService.trigger(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 
 		verify(mockManagingAgent).getSystemQualityThreshold();
 		verify(database).readAdaptationActions();
-		verify(mockManagingAgent).plan().trigger(expectedQualityMap);
+		verify(mockManagingAgent).plan();
+		verify(plannerService).trigger(argThat(
+				adaptationActionDoubleMap -> adaptationActionDoubleMap.values().stream().allMatch(val -> val == 0)));
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-package timescale;
+package com.database.knowledge.timescale;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
