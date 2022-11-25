@@ -18,6 +18,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -68,12 +69,12 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		logger.info(START_POWER_SUPPLY_LOG, jobInstance.getJobId());
 		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
 		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ON_HOLD_PLANNED, JobStatusEnum.ON_HOLD);
-		myGreenEnergyAgent.manage().incrementStartedJobs(jobInstance);
+		myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.STARTED);
 	}
 
 	private void handlePowerSupplyFinish(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
 		if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(powerJob))) {
-			myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstance);
+			myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.FINISH);
 		}
 		MDC.put(MDC_JOB_ID, powerJob.getJobId());
 		logger.info(FINISH_POWER_SUPPLY_LOG, jobInstance.getJobId());

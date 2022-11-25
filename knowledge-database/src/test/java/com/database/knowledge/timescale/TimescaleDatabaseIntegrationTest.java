@@ -45,7 +45,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
-import com.greencloud.commons.job.JobResultType;
 
 import jade.core.AID;
 
@@ -264,7 +263,7 @@ class TimescaleDatabaseIntegrationTest {
 					assertThat(data.getCurrentlyExecutedJobs()).isEqualTo(10L);
 					assertThat(data.getCurrentlyProcessedJobs()).isEqualTo(3L);
 					assertThat(data.getWeightsForGreenSources()).hasSize(2);
-					assertThat(data.getJobResultStatistics()).containsEntry(JobResultType.STARTED, 5L);
+					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
 				});
 	}
 
@@ -327,7 +326,7 @@ class TimescaleDatabaseIntegrationTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FINISH, 2L, JobResultType.STARTED, 5L))
+				.successRatio(0.8)
 				.serverPricePerHour(20)
 				.build();
 		return List.of(

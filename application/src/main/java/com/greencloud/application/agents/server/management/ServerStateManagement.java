@@ -20,6 +20,7 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
+import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -144,10 +145,10 @@ public class ServerStateManagement {
 	}
 
 	/**
-	 * Method increments the weatherShortagesNumber of jobs
+	 * Method increments the counter of jobs
 	 *
 	 * @param jobInstanceId job identifier
-	 * @param type          type of weatherShortagesNumber to increment
+	 * @param type          type of counter to increment
 	 */
 	public void incrementJobCounter(final JobInstanceIdentifier jobInstanceId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
@@ -271,9 +272,11 @@ public class ServerStateManagement {
 				.jobProcessingLimit(serverAgent.manageConfig().getJobProcessingLimit())
 				.serverPricePerHour(serverAgent.manageConfig().getPricePerHour()).currentlyExecutedJobs(getJobCount())
 				.currentMaximumCapacity(serverAgent.getCurrentMaximumCapacity())
-				.currentlyProcessedJobs(getProcessedJobCount()).currentTraffic(trafficOverall)
+				.currentlyProcessedJobs(getProcessedJobCount())
+				.currentTraffic(trafficOverall)
 				.weightsForGreenSources(serverAgent.manageConfig().weightsForGreenSourcesMap)
-				.jobResultStatistics(jobCounters).build();
+				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
+				.build();
 		serverAgent.writeMonitoringData(SERVER_MONITORING, serverMonitoringData);
 	}
 

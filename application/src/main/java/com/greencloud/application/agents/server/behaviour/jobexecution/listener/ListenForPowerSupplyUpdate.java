@@ -154,10 +154,12 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 
-		if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
-			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
+		if(Objects.nonNull(job)) {
+			if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
+				myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
+			}
+			myServerAgent.getServerJobs().remove(job);
 		}
-		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
 		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
 		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);

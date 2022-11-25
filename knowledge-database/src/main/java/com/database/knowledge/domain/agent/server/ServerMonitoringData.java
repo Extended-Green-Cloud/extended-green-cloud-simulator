@@ -4,10 +4,9 @@ import java.util.Map;
 
 import org.immutables.value.Value;
 
-import com.database.knowledge.domain.agent.MonitoringData;
+import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.job.JobResultType;
 
 import jade.core.AID;
 
@@ -17,7 +16,7 @@ import jade.core.AID;
 @Value.Immutable
 @JsonSerialize(as = ImmutableServerMonitoringData.class)
 @JsonDeserialize(as = ImmutableServerMonitoringData.class)
-public interface ServerMonitoringData extends MonitoringData {
+public interface ServerMonitoringData extends NetworkComponentMonitoringData {
 
 	/**
 	 * @return maximum capacity of the server at the given moment
@@ -28,11 +27,6 @@ public interface ServerMonitoringData extends MonitoringData {
 	 * @return maximum number of jobs that can be processed at the given moment
 	 */
 	int getJobProcessingLimit();
-
-	/**
-	 * @return counted job execution results
-	 */
-	Map<JobResultType, Long> getJobResultStatistics();
 
 	/**
 	 * @return number of jobs being currently executed

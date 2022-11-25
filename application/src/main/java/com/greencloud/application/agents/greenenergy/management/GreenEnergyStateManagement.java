@@ -1,8 +1,11 @@
 package com.greencloud.application.agents.greenenergy.management;
 
+import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INTERVAL_LENGTH_MIN;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_ACCEPTED_LOG;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_FAILED_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
@@ -14,16 +17,23 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
+import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.commons.job.JobResultType.ACCEPTED;
+import static com.greencloud.commons.job.JobResultType.FAILED;
+import static com.greencloud.commons.job.JobResultType.FINISH;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 import static java.lang.Math.min;
 import static java.util.Objects.nonNull;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -31,12 +41,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
+import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 import com.gui.agents.GreenEnergyAgentNode;
 
@@ -46,8 +59,8 @@ import com.gui.agents.GreenEnergyAgentNode;
 public class GreenEnergyStateManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyStateManagement.class);
-	protected final AtomicInteger startedJobsInstances;
-	protected final AtomicInteger finishedJobsInstances;
+
+	private final ConcurrentMap<JobResultType, Long> jobCounters;
 	private final GreenEnergyAgent greenEnergyAgent;
 	private final AtomicInteger weatherShortagesCounter;
 
@@ -58,32 +71,30 @@ public class GreenEnergyStateManagement {
 	 */
 	public GreenEnergyStateManagement(GreenEnergyAgent greenEnergyAgent) {
 		this.greenEnergyAgent = greenEnergyAgent;
-		this.startedJobsInstances = new AtomicInteger(0);
-		this.finishedJobsInstances = new AtomicInteger(0);
 		this.weatherShortagesCounter = new AtomicInteger(0);
+		this.jobCounters = Arrays.stream(JobResultType.values())
+				.collect(Collectors.toConcurrentMap(status -> status, status -> 0L));
 	}
 
 	/**
-	 * Method increments the count of started jobs
+	 * Method increments the counter of green source jobs
 	 *
 	 * @param jobInstanceId job identifier
+	 * @param type          type of counter to increment
 	 */
-	public void incrementStartedJobs(final JobInstanceIdentifier jobInstanceId) {
+	public void incrementJobCounter(final JobInstanceIdentifier jobInstanceId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		startedJobsInstances.getAndAdd(1);
-		logger.info(POWER_JOB_START_LOG, jobInstanceId, startedJobsInstances);
-		updateGreenSourceGUI();
-	}
+		jobCounters.computeIfPresent(type, (key, val) -> val += 1);
 
-	/**
-	 * Method increments the count of finished jobs
-	 *
-	 * @param jobInstanceId identifier of the job
-	 */
-	public void incrementFinishedJobs(final JobInstanceIdentifier jobInstanceId) {
-		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		finishedJobsInstances.getAndAdd(1);
-		logger.info(POWER_JOB_FINISH_LOG, jobInstanceId, finishedJobsInstances, startedJobsInstances);
+		switch (type) {
+			case FAILED -> logger.info(POWER_JOB_FAILED_LOG, jobCounters.get(FAILED));
+			case ACCEPTED -> logger.info(POWER_JOB_ACCEPTED_LOG, jobCounters.get(ACCEPTED));
+			case STARTED -> logger.info(POWER_JOB_START_LOG, jobInstanceId, jobCounters.get(STARTED),
+					jobCounters.get(ACCEPTED));
+			case FINISH ->
+					logger.info(POWER_JOB_FINISH_LOG, jobInstanceId, jobCounters.get(FINISH), jobCounters.get(STARTED));
+		}
+		updateGreenSourceGUI();
 	}
 
 	public AtomicInteger getWeatherShortagesCounter() {
@@ -235,15 +246,27 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
 			greenEnergyAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
+
+			writeStateToDatabase();
 		}
 	}
 
-	public AtomicInteger getStartedJobsInstances() {
-		return startedJobsInstances;
+	public long getStartedJobsInstances() {
+		return jobCounters.get(STARTED);
 	}
 
-	public AtomicInteger getFinishedJobsInstances() {
-		return finishedJobsInstances;
+	private void writeStateToDatabase() {
+		final int currentMaxCapacity = greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity();
+		final double trafficOverall =
+				currentMaxCapacity == 0 ? 0 : ((double) getCurrentPowerInUseForGreenSource()) / currentMaxCapacity;
+
+		final GreenSourceMonitoringData greenSourceMonitoring = ImmutableGreenSourceMonitoringData.builder()
+				.currentMaximumCapacity(currentMaxCapacity)
+				.currentTraffic(trafficOverall)
+				.weatherPredictionError(greenEnergyAgent.getWeatherPredictionError())
+				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
+				.build();
+		greenEnergyAgent.writeMonitoringData(GREEN_SOURCE_MONITORING, greenSourceMonitoring);
 	}
 
 	private synchronized Double getPower(Instant start, MonitoringData weather) {

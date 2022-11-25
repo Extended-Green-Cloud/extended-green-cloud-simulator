@@ -9,6 +9,7 @@ import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
 import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -22,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -74,11 +75,9 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 		var jobPartStatus = myGreenEnergyAgent.getPowerJobs().get(jobPart);
 		myGreenEnergyAgent.getPowerJobs().remove(jobPart);
 		if (!JOB_NOT_STARTED_STATUSES.contains(jobPartStatus)) {
-			myGreenEnergyAgent.manage().incrementFinishedJobs(ImmutableJobInstanceIdentifier.builder()
-					.jobId(jobPart.getJobId())
-					.startTime(jobPart.getStartTime())
-					.build());
+			myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), JobResultType.FINISH);
 		}
+		myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), JobResultType.FAILED);
 		MDC.put(MDC_JOB_ID, jobPart.getJobId());
 		logger.info(CANCELLED_JOB_PART_LOG);
 		myGreenEnergyAgent.manage().updateGreenSourceGUI();
