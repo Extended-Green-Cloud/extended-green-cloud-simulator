@@ -251,8 +251,8 @@ public class GreenEnergyStateManagement {
 		}
 	}
 
-	public long getStartedJobsInstances() {
-		return jobCounters.get(STARTED);
+	public ConcurrentMap<JobResultType, Long> getJobCounters() {
+		return jobCounters;
 	}
 
 	private void writeStateToDatabase() {

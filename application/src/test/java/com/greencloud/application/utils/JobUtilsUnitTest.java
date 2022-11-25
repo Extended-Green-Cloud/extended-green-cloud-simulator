@@ -58,6 +58,12 @@ class JobUtilsUnitTest {
 		return Stream.of(Arguments.of("5", false), Arguments.of("3", true), Arguments.of("1", false));
 	}
 
+	private static Stream<Arguments> parametersGetSuccessRatio() {
+		return Stream.of(
+				Arguments.of(0, 0, -1D),
+				Arguments.of(10, 5, 0.5));
+	}
+
 	// SETUP
 
 	@BeforeEach
@@ -213,6 +219,13 @@ class JobUtilsUnitTest {
 		testJobs.put(mockJob, IN_PROGRESS);
 
 		assertThat(JobUtils.isJobUnique(jobId, testJobs)).isEqualTo(result);
+	}
+
+	@ParameterizedTest
+	@MethodSource("parametersGetSuccessRatio")
+	@DisplayName("Test getting job success ratio for component")
+	void testGetJobSuccessRatio(long accepted, long failed, double result) {
+		assertThat(JobUtils.getJobSuccessRatio(accepted, failed)).isEqualTo(result);
 	}
 
 	// MOCK DATA

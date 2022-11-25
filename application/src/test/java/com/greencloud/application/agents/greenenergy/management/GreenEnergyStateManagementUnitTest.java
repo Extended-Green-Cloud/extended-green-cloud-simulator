@@ -89,7 +89,7 @@ class GreenEnergyStateManagementUnitTest {
 				.build();
 
 		mockGreenEnergyAgent.manage().incrementJobCounter(jobInstanceId, type);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances()).isEqualTo(1L);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(type, 1L);
 	}
 
 	@Test
