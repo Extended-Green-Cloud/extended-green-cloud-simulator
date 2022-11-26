@@ -33,6 +33,8 @@ import jade.core.AID;
  */
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
+	private static final int POWER_SHORTAGE_THRESHOLD = 1;
+	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
 	private Map<String, Integer> greenSourcesPowerShortages;
 
 	public IncrementGreenSourceErrorPlan(ManagingAgent managingAgent) {
@@ -44,7 +46,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 	 * Method verifies if the plan is executable. The plan is executable if:
 	 * 1. there are some GS alive in the system
 	 * 2. there are some alive GS for which weather prediction error is less than 100%
-	 * 3. there are some alive GS which had at least 2 power shortages per 5s
+	 * 3. there are some alive GS which had at least 1 power shortages per 5s
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
@@ -94,7 +96,8 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 		return greenSourceData.stream()
 				.filter(agentData -> aliveAgents.contains(agentData.aid())
 						&& agentData.dataType().equals(GREEN_SOURCE_MONITORING)
-						&& ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError() < 100)
+						&& ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()
+						< MAXIMUM_PREDICTION_ERROR)
 				.collect(toMap(AgentData::aid,
 						agentData -> ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()));
 	}
@@ -111,7 +114,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				.collect(toMap(Map.Entry::getKey,
 						entry -> entry.getValue().stream().reduce(0, Integer::sum)))
 				.entrySet().stream()
-				.filter(entry -> entry.getValue() > 2)
+				.filter(entry -> entry.getValue() > POWER_SHORTAGE_THRESHOLD)
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
