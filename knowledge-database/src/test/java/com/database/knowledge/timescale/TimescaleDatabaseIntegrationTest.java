@@ -384,7 +384,7 @@ class TimescaleDatabaseIntegrationTest {
 	}
 
 	@Test
-	void shouldCorrectlyReadMonitoringDataForDataTypeAndAIDAfterTimeout() throws InterruptedException {
+	void shouldCorrectlyReadMonitoringDataForDataTypeAndAIDAfterTimeout() {
 		final List<String> aidOfInterest = List.of("test_aid1", "test_aid2");
 		var expectedContent = prepareMonitoredDataForAIDTest();
 
