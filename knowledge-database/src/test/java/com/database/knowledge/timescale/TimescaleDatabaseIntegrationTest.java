@@ -4,6 +4,7 @@ import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.PROCESSED_API_REQUEST;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
@@ -39,6 +40,7 @@ import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
+import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.monitoring.ImmutableProcessedApiRequest;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
@@ -52,6 +54,85 @@ import jade.core.AID;
 class TimescaleDatabaseIntegrationTest {
 
 	private TimescaleDatabase database;
+
+	private static Stream<Arguments> actionResultsProvider() {
+		return Stream.of(
+				arguments(
+						List.of(
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
+										MINIMIZE_USED_BACKUP_POWER, 0.25,
+										DISTRIBUTE_TRAFFIC_EVENLY, -0.25
+								)
+						),
+						Map.of(
+								MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
+								MINIMIZE_USED_BACKUP_POWER, 0.25,
+								DISTRIBUTE_TRAFFIC_EVENLY, -0.25
+						)
+				),
+				arguments(
+						List.of(
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
+										MINIMIZE_USED_BACKUP_POWER, 0.25,
+										DISTRIBUTE_TRAFFIC_EVENLY, 0.25
+								),
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 0.75,
+										MINIMIZE_USED_BACKUP_POWER, 0.75,
+										DISTRIBUTE_TRAFFIC_EVENLY, 0.75
+								)
+						),
+						Map.of(
+								MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
+								MINIMIZE_USED_BACKUP_POWER, 0.5,
+								DISTRIBUTE_TRAFFIC_EVENLY, 0.5
+						)
+				),
+				arguments(
+						List.of(
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, -0.25,
+										MINIMIZE_USED_BACKUP_POWER, -0.25,
+										DISTRIBUTE_TRAFFIC_EVENLY, -0.25
+								),
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
+										MINIMIZE_USED_BACKUP_POWER, 0.25,
+										DISTRIBUTE_TRAFFIC_EVENLY, 0.25
+								)
+						),
+						Map.of(
+								MAXIMIZE_JOB_SUCCESS_RATIO, 0.0,
+								MINIMIZE_USED_BACKUP_POWER, 0.0,
+								DISTRIBUTE_TRAFFIC_EVENLY, 0.0
+						)
+				),
+				arguments(
+						List.of(
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
+										MINIMIZE_USED_BACKUP_POWER, 0.25,
+										DISTRIBUTE_TRAFFIC_EVENLY, 0.25)
+								,
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, -0.75,
+										MINIMIZE_USED_BACKUP_POWER, -0.75,
+										DISTRIBUTE_TRAFFIC_EVENLY, -0.75),
+								Map.of(
+										MAXIMIZE_JOB_SUCCESS_RATIO, 1.0,
+										MINIMIZE_USED_BACKUP_POWER, 2.0,
+										DISTRIBUTE_TRAFFIC_EVENLY, 3.0
+								)
+						),
+						Map.of(
+								MAXIMIZE_JOB_SUCCESS_RATIO, 0.16666666666666666,
+								MINIMIZE_USED_BACKUP_POWER, 0.5,
+								DISTRIBUTE_TRAFFIC_EVENLY, 0.8333333333333334)
+				)
+		);
+	}
 
 	@BeforeEach
 	void init() {
@@ -190,9 +271,6 @@ class TimescaleDatabaseIntegrationTest {
 				.as("final action results should have the expected values")
 				.usingRecursiveComparison()
 				.isEqualTo(expectedActionResults);
-		assertThat(updatedAction.getAvailable())
-				.as("After update action should be unavailable")
-				.isFalse();
 	}
 
 	@Test
@@ -305,6 +383,50 @@ class TimescaleDatabaseIntegrationTest {
 
 	}
 
+	@Test
+	void shouldCorrectlyReadMonitoringDataForDataTypeAndAIDAfterTimeout() throws InterruptedException {
+		final List<String> aidOfInterest = List.of("test_aid1", "test_aid2");
+		var expectedContent = prepareMonitoredDataForAIDTest();
+
+		var result = database.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, aidOfInterest, 1000);
+
+		assertThat(result)
+				.as("Result should have size 3")
+				.hasSize(3)
+				.as("Result should contain correct data type and aid")
+				.allMatch((data) -> data.dataType().equals(WEATHER_SHORTAGES) && aidOfInterest.contains(data.aid()))
+				.as("Result should contain correct data")
+				.allMatch((data) -> expectedContent.contains(data.monitoringData()));
+	}
+
+	private List<WeatherShortages> prepareMonitoredDataForAIDTest() {
+		final WeatherShortages data1 = new WeatherShortages(1, 1000);
+		final WeatherShortages data2 = new WeatherShortages(10, 1000);
+		final WeatherShortages data3 = new WeatherShortages(3, 1000);
+		final WeatherShortages data4 = new WeatherShortages(5, 1000);
+		final WeatherShortages data5 = new WeatherShortages(6, 1000);
+		final ClientMonitoringData data6 = ImmutableClientMonitoringData.builder()
+				.currentJobStatus(IN_PROGRESS)
+				.isFinished(false)
+				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 15L))
+				.build();
+		final ClientMonitoringData data7 = ImmutableClientMonitoringData.builder()
+				.currentJobStatus(FINISHED)
+				.isFinished(true)
+				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
+				.build();
+
+		database.writeMonitoringData("test_aid1", WEATHER_SHORTAGES, data1);
+		database.writeMonitoringData("test_aid1", WEATHER_SHORTAGES, data2);
+		database.writeMonitoringData("test_aid2", WEATHER_SHORTAGES, data3);
+		database.writeMonitoringData("test_aid3", WEATHER_SHORTAGES, data4);
+		database.writeMonitoringData("test_aid3", WEATHER_SHORTAGES, data5);
+		database.writeMonitoringData("test_aid2", CLIENT_MONITORING, data6);
+		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data7);
+
+		return List.of(data1, data2, data3);
+	}
+
 	private List<Map.Entry<DataType, MonitoringData>> prepareMonitoredDataForTest() {
 		final AID mockAID1 = mock(AID.class);
 		final AID mockAID2 = mock(AID.class);
@@ -333,85 +455,6 @@ class TimescaleDatabaseIntegrationTest {
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data2),
 				new AbstractMap.SimpleEntry<>(SERVER_MONITORING, data3)
-		);
-	}
-
-	private static Stream<Arguments> actionResultsProvider() {
-		return Stream.of(
-				arguments(
-						List.of(
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
-										MINIMIZE_USED_BACKUP_POWER, 0.25,
-										DISTRIBUTE_TRAFFIC_EVENLY, -0.25
-								)
-						),
-						Map.of(
-								MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
-								MINIMIZE_USED_BACKUP_POWER, 0.25,
-								DISTRIBUTE_TRAFFIC_EVENLY, -0.25
-						)
-				),
-				arguments(
-						List.of(
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
-										MINIMIZE_USED_BACKUP_POWER, 0.25,
-										DISTRIBUTE_TRAFFIC_EVENLY, 0.25
-								),
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 0.75,
-										MINIMIZE_USED_BACKUP_POWER, 0.75,
-										DISTRIBUTE_TRAFFIC_EVENLY, 0.75
-								)
-						),
-						Map.of(
-								MAXIMIZE_JOB_SUCCESS_RATIO, 0.5,
-								MINIMIZE_USED_BACKUP_POWER, 0.5,
-								DISTRIBUTE_TRAFFIC_EVENLY, 0.5
-						)
-				),
-				arguments(
-						List.of(
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, -0.25,
-										MINIMIZE_USED_BACKUP_POWER, -0.25,
-										DISTRIBUTE_TRAFFIC_EVENLY, -0.25
-								),
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
-										MINIMIZE_USED_BACKUP_POWER, 0.25,
-										DISTRIBUTE_TRAFFIC_EVENLY, 0.25
-								)
-						),
-						Map.of(
-								MAXIMIZE_JOB_SUCCESS_RATIO, 0.0,
-								MINIMIZE_USED_BACKUP_POWER, 0.0,
-								DISTRIBUTE_TRAFFIC_EVENLY, 0.0
-						)
-				),
-				arguments(
-						List.of(
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 0.25,
-										MINIMIZE_USED_BACKUP_POWER, 0.25,
-										DISTRIBUTE_TRAFFIC_EVENLY, 0.25)
-								,
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, -0.75,
-										MINIMIZE_USED_BACKUP_POWER, -0.75,
-										DISTRIBUTE_TRAFFIC_EVENLY, -0.75),
-								Map.of(
-										MAXIMIZE_JOB_SUCCESS_RATIO, 1.0,
-										MINIMIZE_USED_BACKUP_POWER, 2.0,
-										DISTRIBUTE_TRAFFIC_EVENLY, 3.0
-								)
-						),
-						Map.of(
-								MAXIMIZE_JOB_SUCCESS_RATIO, 0.16666666666666666,
-								MINIMIZE_USED_BACKUP_POWER, 0.5,
-								DISTRIBUTE_TRAFFIC_EVENLY, 0.8333333333333334)
-				)
 		);
 	}
 }
