@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkConfigManagement;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobStatusEnum;
 
@@ -30,6 +31,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	AbstractCloudNetworkAgent() {
 		super.setup();
+		agentType = AgentType.CNA;
 	}
 
 	/**

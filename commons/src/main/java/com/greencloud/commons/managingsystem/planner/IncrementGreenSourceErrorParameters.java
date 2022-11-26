@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface IncrementGreenSourceErrorParameters extends AdaptationActionParameters {
 
 	/**
-	 * @return change which is to be applied on a given green source weather error indicator
+	 * @return units by which the error percentage is to be increased
 	 */
-	double getPercentageChange();
+	int getPercentageChangeUnit();
 
 }

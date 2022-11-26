@@ -5,7 +5,6 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.greencloud.application.agents.AbstractAgent;
 
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 
 /**
@@ -19,13 +18,15 @@ public class ReportHealthCheck extends TickerBehaviour {
 	 */
 	// TODO to be adjusted
 	private static final long HEALTH_CHECK_PERIOD = 250;
+	private final AbstractAgent myAbstractAgent;
 
-	public ReportHealthCheck(Agent a) {
+	public ReportHealthCheck(AbstractAgent a) {
 		super(a, HEALTH_CHECK_PERIOD);
+		myAbstractAgent = a;
 	}
 
 	@Override
 	protected void onTick() {
-		((AbstractAgent) getAgent()).writeMonitoringData(HEALTH_CHECK, new HealthCheck(true));
+		myAbstractAgent.writeMonitoringData(HEALTH_CHECK, new HealthCheck(true, myAbstractAgent.getAgentType()));
 	}
 }

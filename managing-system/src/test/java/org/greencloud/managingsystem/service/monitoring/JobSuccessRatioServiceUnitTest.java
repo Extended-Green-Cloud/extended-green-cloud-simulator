@@ -159,7 +159,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 1L, JobResultType.ACCEPTED, 5L))
+				.successRatio(0.9)
 				.serverPricePerHour(20)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
@@ -169,7 +169,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 2L, JobResultType.ACCEPTED, 5L))
+				.successRatio(0.75)
 				.serverPricePerHour(20)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
@@ -179,7 +179,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 0L, JobResultType.ACCEPTED, 0L))
+				.successRatio(0D)
 				.serverPricePerHour(20)
 				.build();
 		return List.of(

@@ -18,7 +18,8 @@ public final class DdlCommands {
 			""";
 	static final String CREATE_HYPERTABLE = "SELECT create_hypertable('monitoring_data', 'time')";
 	static final String SET_HYPERTABLE_CHUNK_TO_5_SEC = "SELECT set_chunk_time_interval('monitoring_data', 5000000)";
-	static final String CREATE_MONITORING_INDEX = "CREATE INDEX monitoring_data_aid ON monitoring_data (aid, time DESC)";
+	static final String CREATE_MONITORING_INDEX =
+			"CREATE INDEX monitoring_data_aid ON monitoring_data (aid, data_type, time DESC)";
 
 	/**
 	 * Adaptation goals table

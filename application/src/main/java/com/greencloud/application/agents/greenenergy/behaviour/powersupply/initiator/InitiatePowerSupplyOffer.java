@@ -73,7 +73,10 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage acceptProposal) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(acceptProposal, JobWithProtocol.class);
 		final PowerJob job = findCorrespondingJob(jobWithProtocol.getJobInstanceIdentifier());
-		handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
+
+		if (Objects.nonNull(job)) {
+			handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
+		}
 	}
 
 	/**

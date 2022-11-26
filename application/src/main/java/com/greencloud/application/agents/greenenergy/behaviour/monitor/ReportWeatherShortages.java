@@ -16,7 +16,7 @@ public class ReportWeatherShortages extends TickerBehaviour {
 	/**
 	 * Defines how often weather shortage happens on the given agent in given window of time [ms].
 	 */
-	private static final long REPORT_SHORTAGE_PERIOD = 500;
+	private static final long REPORT_SHORTAGE_PERIOD = 1000;
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
 
