@@ -35,6 +35,7 @@ import jade.core.AID;
  */
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
+	protected static final double PERCENTAGE_CHANGE = 0.02;
 	private static final int POWER_SHORTAGE_THRESHOLD = 1;
 	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
 	private Map<String, Integer> greenSourcesPowerShortages;
@@ -84,7 +85,8 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				.orElseThrow()
 				.getKey();
 		targetAgent = new AID(selectedAgent, AID.ISGUID);
-		actionParameters = ImmutableIncrementGreenSourceErrorParameters.builder().percentageChangeUnit(1).build();
+		actionParameters = ImmutableIncrementGreenSourceErrorParameters.builder()
+				.percentageChange(PERCENTAGE_CHANGE).build();
 		return this;
 	}
 
@@ -107,7 +109,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				.filter(agentData -> aliveAgents.contains(agentData.aid())
 						&& agentData.dataType().equals(GREEN_SOURCE_MONITORING)
 						&& ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()
-						< MAXIMUM_PREDICTION_ERROR)
+						< MAXIMUM_PREDICTION_ERROR - PERCENTAGE_CHANGE)
 				.collect(toMap(AgentData::aid,
 						agentData -> ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()));
 	}

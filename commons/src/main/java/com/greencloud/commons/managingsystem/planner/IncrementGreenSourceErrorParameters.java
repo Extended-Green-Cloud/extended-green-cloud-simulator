@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface IncrementGreenSourceErrorParameters extends AdaptationActionParameters {
 
 	/**
-	 * @return units by which the error percentage is to be increased
+	 * @return number by which the error percentage is to be increased
 	 */
-	int getPercentageChangeUnit();
+	double getPercentageChange();
 
 }

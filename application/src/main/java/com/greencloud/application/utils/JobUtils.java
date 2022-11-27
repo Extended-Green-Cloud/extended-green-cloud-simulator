@@ -19,7 +19,7 @@ import com.greencloud.commons.job.PowerJob;
  */
 public class JobUtils {
 
-	public static final Long MAX_ERROR_IN_JOB_FINISH = 500L;
+	public static final Long MAX_ERROR_IN_JOB_FINISH = 1000L;
 
 	/**
 	 * Method retrieves the job by the job id from job map

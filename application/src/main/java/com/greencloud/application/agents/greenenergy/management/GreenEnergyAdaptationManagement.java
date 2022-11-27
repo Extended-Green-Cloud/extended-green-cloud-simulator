@@ -1,18 +1,19 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.ADAPTATION_INCREASE_ERROR_LOG;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.utils.AlgorithmUtils;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 /**
  * Set of methods used to adapt the current configuration of Green Energy agent
  */
 public class GreenEnergyAdaptationManagement {
+
+	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyStateManagement.class);
 
 	private final GreenEnergyAgent greenEnergyAgent;
 
@@ -31,13 +32,13 @@ public class GreenEnergyAdaptationManagement {
 	 * @param params adaptation parameters
 	 */
 	public boolean adaptAgentWeatherPredictionError(IncrementGreenSourceErrorParameters params) {
-		final AtomicInteger newError = new AtomicInteger(
-				(int) (greenEnergyAgent.getWeatherPredictionError() / INITIAL_WEATHER_PREDICTION_ERROR));
+		final double currentError = greenEnergyAgent.getWeatherPredictionError();
+		final double newError = currentError + params.getPercentageChange();
 
-		IntStream.range(0, params.getPercentageChangeUnit())
-				.forEach(i -> newError.getAndUpdate(AlgorithmUtils::nextFibonacci));
+		logger.info(ADAPTATION_INCREASE_ERROR_LOG, currentError, newError);
 
-		greenEnergyAgent.setWeatherPredictionError((double) newError.get() * INITIAL_WEATHER_PREDICTION_ERROR);
+		greenEnergyAgent.setWeatherPredictionError(newError);
+		greenEnergyAgent.manage().updateGreenSourceGUI();
 		return true;
 	}
 }

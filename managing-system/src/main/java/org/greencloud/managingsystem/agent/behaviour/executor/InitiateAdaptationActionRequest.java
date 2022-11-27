@@ -5,11 +5,14 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.COMPLETED_ACTION_LOG;
 
+import java.util.Optional;
+
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.gui.agents.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -25,6 +28,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	private static final Logger logger = LoggerFactory.getLogger(InitiateAdaptationActionRequest.class);
 
 	private final ManagingAgent myManagingAgent;
+	private final ManagingAgentNode managingAgentNode;
 	private final AdaptationActionEnum adaptationActionType;
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
@@ -35,6 +39,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 		this.targetAgent = (AID) message.getAllReceiver().next();
 		this.initialGoalQuality = initialGoalQuality;
 		this.myManagingAgent = (ManagingAgent) agent;
+		this.managingAgentNode = (ManagingAgentNode) myManagingAgent.getAgentNode();
 	}
 
 	/**
@@ -48,6 +53,8 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	protected void handleInform(ACLMessage inform) {
 		logger.info(COMPLETED_ACTION_LOG, adaptationActionType, targetAgent);
 		scheduleVerifyBehaviour();
+		managingAgentNode.logNewAdaptation(getAdaptationAction(adaptationActionType), getCurrentTime(),
+				Optional.of(targetAgent.getLocalName()));
 		myManagingAgent.removeBehaviour(this);
 	}
 

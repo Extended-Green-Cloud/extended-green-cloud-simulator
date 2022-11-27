@@ -3,6 +3,8 @@ package com.greencloud.application.agents.greenenergy.management;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import java.util.stream.Stream;
@@ -29,6 +31,10 @@ class GreenEnergyAdaptationManagementUnitTest {
 	void init() {
 		mockGreenEnergyAgent = spy(GreenEnergyAgent.class);
 		greenEnergyAdaptationManagement = new GreenEnergyAdaptationManagement(mockGreenEnergyAgent);
+		var manager = spy(new GreenEnergyStateManagement(mockGreenEnergyAgent));
+
+		doReturn(manager).when(mockGreenEnergyAgent).manage();
+		doNothing().when(manager).updateGreenSourceGUI();
 	}
 
 	@ParameterizedTest
@@ -45,13 +51,13 @@ class GreenEnergyAdaptationManagementUnitTest {
 		return Stream.of(
 				arguments(
 						ImmutableIncrementGreenSourceErrorParameters.builder()
-								.percentageChangeUnit(1)
+								.percentageChange(0.02)
 								.build(),
 						0.04
 				),
 				arguments(
 						ImmutableIncrementGreenSourceErrorParameters.builder()
-								.percentageChangeUnit(3)
+								.percentageChange(0.08)
 								.build(),
 						0.1
 				)

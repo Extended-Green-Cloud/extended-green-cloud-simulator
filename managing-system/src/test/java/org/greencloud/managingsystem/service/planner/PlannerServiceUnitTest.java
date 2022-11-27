@@ -133,7 +133,7 @@ class PlannerServiceUnitTest {
 		);
 		plannerService.setPlanForActionMap(Map.of(
 				ADD_SERVER, getTestAdaptationPlan(managingAgent, mockAgent,
-						ImmutableIncrementGreenSourceErrorParameters.builder().percentageChangeUnit(10).build())
+						ImmutableIncrementGreenSourceErrorParameters.builder().percentageChange(0.07).build())
 		));
 		doNothing().when(plannerService).initializePlansForActions();
 
@@ -142,7 +142,7 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((plan) -> plan.getTargetAgent().equals(mockAgent)
 				&& plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-				&& ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChangeUnit() == 10));
+				&& ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange() == 0.07));
 
 	}
 
