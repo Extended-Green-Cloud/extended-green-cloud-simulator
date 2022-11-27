@@ -83,7 +83,7 @@ public class PlannerService extends AbstractManagingService {
 		return adaptationActions.entrySet().stream()
 				.filter(action -> action.getKey().getAvailable())
 				.max(Comparator.comparingDouble(Map.Entry::getValue))
-				.orElseThrow()
+				.orElse(adaptationActions.entrySet().stream().findFirst().orElseThrow())
 				.getKey();
 	}
 

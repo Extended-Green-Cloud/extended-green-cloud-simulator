@@ -277,4 +277,16 @@ class PlannerServiceUnitTest {
 
 		assertThat(result).isEqualTo(getAdaptationAction(ADD_SERVER));
 	}
+
+	@Test
+	@DisplayName("Test selection of the best action for map size 1")
+	void testSelectBestActionMapSize1() {
+		final Map<AdaptationAction, Double> testActions = Map.of(
+				getAdaptationAction(ADD_SERVER), 30.0
+		);
+
+		var result = plannerService.selectBestAction(testActions);
+
+		assertThat(result).isEqualTo(getAdaptationAction(ADD_SERVER));
+	}
 }

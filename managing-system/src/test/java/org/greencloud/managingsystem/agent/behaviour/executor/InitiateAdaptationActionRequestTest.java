@@ -1,5 +1,6 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.time.Instant.now;
@@ -16,6 +17,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
@@ -26,7 +28,7 @@ import jade.lang.acl.ACLMessage;
 class InitiateAdaptationActionRequestTest {
 
 	private static final Double GOAL_QUALITY = 0.5;
-	private static final String ADAPTATION_ACTION_ID = "1";
+	private static final AdaptationActionEnum ADAPTATION_ACTION_TYPE = AdaptationActionEnum.ADD_SERVER;
 	private static final AID TEST_AID = new AID("test", ISGUID);
 
 	@Mock
@@ -46,7 +48,7 @@ class InitiateAdaptationActionRequestTest {
 	void init() {
 		message = new ACLMessage(REQUEST);
 		message.addReceiver(TEST_AID);
-		message.setConversationId(ADAPTATION_ACTION_ID);
+		message.setConversationId(ADAPTATION_ACTION_TYPE.toString());
 		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY);
 
 		when(managingAgent.getAgentNode()).thenReturn(managingAgentNode);
@@ -56,7 +58,7 @@ class InitiateAdaptationActionRequestTest {
 	@Test
 	void shouldCorrectlyHandleInform() {
 		// given
-		var expectedVerifyBehaviour = new VerifyAdaptationActionResult(managingAgent, now(), ADAPTATION_ACTION_ID,
+		var expectedVerifyBehaviour = new VerifyAdaptationActionResult(managingAgent, now(), ADAPTATION_ACTION_TYPE,
 				TEST_AID, GOAL_QUALITY);
 
 		// when
@@ -78,7 +80,8 @@ class InitiateAdaptationActionRequestTest {
 		behaviour.handleFailure(message);
 
 		// then
-		verify(timescaleDatabase).setAdaptationActionAvailability(Integer.parseInt(ADAPTATION_ACTION_ID), true);
+		verify(timescaleDatabase).setAdaptationActionAvailability(
+				getAdaptationAction(ADAPTATION_ACTION_TYPE).getActionId(), true);
 		verify(managingAgent).removeBehaviour(behaviour);
 	}
 }
