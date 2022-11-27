@@ -88,6 +88,11 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.greenPowerManagement = greenPowerManagement;
 	}
 
+	public void setAdaptationManagement(
+			GreenEnergyAdaptationManagement adaptationManagement) {
+		this.adaptationManagement = adaptationManagement;
+	}
+
 	public GreenEnergySourceTypeEnum getEnergyType() {
 		return energyType;
 	}
