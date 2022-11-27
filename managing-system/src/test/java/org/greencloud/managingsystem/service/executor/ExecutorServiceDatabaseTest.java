@@ -2,7 +2,7 @@ package org.greencloud.managingsystem.service.executor;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
 import static jade.core.AID.ISGUID;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.junit.jupiter.api.Assertions.assertThrows;

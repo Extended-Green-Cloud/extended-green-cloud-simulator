@@ -16,7 +16,6 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;

@@ -9,10 +9,6 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
@@ -30,8 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 

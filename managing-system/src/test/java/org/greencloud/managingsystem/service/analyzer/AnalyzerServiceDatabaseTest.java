@@ -11,11 +11,7 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECO
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-import static com.greencloud.commons.job.JobStatusEnum.FAILED;
-import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
-import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -44,7 +40,6 @@ import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.job.JobResultType;
 import com.gui.agents.ManagingAgentNode;
 
 import jade.core.AID;

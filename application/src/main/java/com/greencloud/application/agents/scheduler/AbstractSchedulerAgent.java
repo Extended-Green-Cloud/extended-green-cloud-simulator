@@ -14,7 +14,6 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
 

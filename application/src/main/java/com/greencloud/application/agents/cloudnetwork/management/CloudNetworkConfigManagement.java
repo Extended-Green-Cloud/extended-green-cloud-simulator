@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
+import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
+import static com.greencloud.commons.job.JobResultType.ACCEPTED;
+import static com.greencloud.commons.job.JobResultType.FAILED;
 
 public class CloudNetworkConfigManagement {
 
@@ -65,8 +68,8 @@ public class CloudNetworkConfigManagement {
         CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
                 .ownedServers(cloudNetworkAgent.getOwnedServers())
                 .percentagesForServersMap(getPercentages())
-                .jobResultStatistics(cloudNetworkAgent.manage().getJobCounters())
                 .networkJobs(cloudNetworkAgent.getNetworkJobs())
+                .successRatio(getJobSuccessRatio(cloudNetworkAgent.manage().getJobCounters().get(ACCEPTED), cloudNetworkAgent.manage().getJobCounters().get(FAILED)))
                 .build();
         cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
         logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());

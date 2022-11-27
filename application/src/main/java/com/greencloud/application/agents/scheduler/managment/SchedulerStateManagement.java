@@ -6,25 +6,23 @@ import static com.greencloud.application.agents.scheduler.managment.logs.Schedul
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
-import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
-import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.InitiateCNALookup;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.gui.agents.SchedulerAgentNode;
 
@@ -122,7 +120,7 @@ public class SchedulerStateManagement {
 	}
 
 	private List<String> getJobsToRemove(final ClientJob job) {
-		final Predicate<Map.Entry<ClientJob, JobStatusEnum>> shouldRemoveJob =
+		final Predicate<Map.Entry<ClientJob, ExecutionJobStatusEnum>> shouldRemoveJob =
 				jobEntry -> jobEntry.getKey().equals(job) || (isJobIdEqual(job).test(jobEntry.getKey())
 						&& List.of(CREATED, PROCESSING).contains(jobEntry.getValue()));
 

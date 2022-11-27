@@ -12,13 +12,12 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
+import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
