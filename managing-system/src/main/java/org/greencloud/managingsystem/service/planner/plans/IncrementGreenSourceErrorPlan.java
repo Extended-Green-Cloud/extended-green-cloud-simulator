@@ -36,7 +36,7 @@ import jade.core.AID;
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 	protected static final double PERCENTAGE_CHANGE = 0.02;
-	private static final int POWER_SHORTAGE_THRESHOLD = 1;
+	private static final int POWER_SHORTAGE_THRESHOLD = 3;
 	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
 	private Map<String, Integer> greenSourcesPowerShortages;
 
