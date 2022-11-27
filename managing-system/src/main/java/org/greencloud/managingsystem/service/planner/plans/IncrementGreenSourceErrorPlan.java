@@ -16,12 +16,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.google.common.annotations.VisibleForTesting;
@@ -35,7 +38,7 @@ import jade.core.AID;
  */
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
-	protected static final double PERCENTAGE_CHANGE = 0.02;
+	protected static final double PERCENTAGE_DIFFERENCE = 0.02;
 	private static final int POWER_SHORTAGE_THRESHOLD = 3;
 	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
 	private Map<String, Integer> greenSourcesPowerShortages;
@@ -86,7 +89,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				.getKey();
 		targetAgent = new AID(selectedAgent, AID.ISGUID);
 		actionParameters = ImmutableIncrementGreenSourceErrorParameters.builder()
-				.percentageChange(PERCENTAGE_CHANGE).build();
+				.percentageChange(PERCENTAGE_DIFFERENCE).build();
 		return this;
 	}
 
@@ -96,22 +99,32 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 	@VisibleForTesting
 	protected List<String> getAliveGreenSources(List<AgentData> greenSourceData) {
+		final Predicate<MonitoringData> isGSAlive = data -> {
+			var healthData = ((HealthCheck) data);
+			return healthData.alive() && healthData.agentType().equals(GREEN_SOURCE);
+		};
+
 		return greenSourceData.stream()
-				.filter(agentData -> agentData.dataType().equals(HEALTH_CHECK)
-						&& ((HealthCheck) agentData.monitoringData()).alive()
-						&& ((HealthCheck) agentData.monitoringData()).agentType().equals(GREEN_SOURCE))
+				.filter(data -> data.dataType().equals(HEALTH_CHECK) && isGSAlive.test(data.monitoringData()))
 				.map(AgentData::aid).toList();
 	}
 
 	@VisibleForTesting
 	protected Map<String, Double> getGreenSourcesWithErrors(List<AgentData> greenSourceData, List<String> aliveAgents) {
+		final Predicate<String> isAgentAlive = aliveAgents::contains;
+		final Predicate<AgentData> isGreenSourceMonitoring = data -> data.dataType().equals(GREEN_SOURCE_MONITORING);
+		final Predicate<MonitoringData> isErrorWithinBounds = data -> {
+			var error = ((GreenSourceMonitoringData) data).getWeatherPredictionError();
+			return error < MAXIMUM_PREDICTION_ERROR - PERCENTAGE_DIFFERENCE;
+		};
+		final ToDoubleFunction<MonitoringData> mapToError = data ->
+				((GreenSourceMonitoringData) data).getWeatherPredictionError();
+
 		return greenSourceData.stream()
-				.filter(agentData -> aliveAgents.contains(agentData.aid())
-						&& agentData.dataType().equals(GREEN_SOURCE_MONITORING)
-						&& ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()
-						< MAXIMUM_PREDICTION_ERROR - PERCENTAGE_CHANGE)
-				.collect(toMap(AgentData::aid,
-						agentData -> ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()));
+				.filter(agentData -> isAgentAlive.test(agentData.aid())
+						&& isGreenSourceMonitoring.test(agentData)
+						&& isErrorWithinBounds.test(agentData.monitoringData()))
+				.collect(toMap(AgentData::aid, agentData -> mapToError.applyAsDouble(agentData.monitoringData())));
 	}
 
 	@VisibleForTesting

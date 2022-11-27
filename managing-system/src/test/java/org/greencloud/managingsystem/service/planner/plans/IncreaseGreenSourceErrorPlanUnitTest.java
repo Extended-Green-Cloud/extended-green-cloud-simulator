@@ -5,7 +5,7 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan.PERCENTAGE_CHANGE;
+import static org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan.PERCENTAGE_DIFFERENCE;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -104,7 +104,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				.matches((data) -> data.getTargetAgent().getName().equals("test_gs2")
 						&& data.getActionParameters() instanceof IncrementGreenSourceErrorParameters
 						&& ((IncrementGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
-						== PERCENTAGE_CHANGE
+						== PERCENTAGE_DIFFERENCE
 				);
 	}
 
