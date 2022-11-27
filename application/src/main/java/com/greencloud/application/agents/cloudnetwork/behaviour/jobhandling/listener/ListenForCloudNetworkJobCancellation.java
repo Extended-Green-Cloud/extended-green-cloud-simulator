@@ -10,6 +10,8 @@ import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.nonNull;
 
@@ -53,6 +55,7 @@ public class ListenForCloudNetworkJobCancellation extends CyclicBehaviour {
 		var jobParts = List.copyOf(filter(myCloudNetworkAgent.getNetworkJobs().keySet(),
 				job -> job.getJobId().split("#")[0].equals(originalJobId)));
 		if (!jobParts.isEmpty()) {
+			myCloudNetworkAgent.send(prepareStringReply(message.createReply(), originalJobId, AGREE));
 			MDC.put(MDC_JOB_ID, originalJobId);
 			logger.info(CANCELLING_JOB_PARTS_LOG, jobParts.size());
 			jobParts.forEach(jobPart -> {

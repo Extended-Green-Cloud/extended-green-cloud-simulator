@@ -1,17 +1,22 @@
 package com.greencloud.application.agents.scheduler.behaviour.job.cancellation;
 
+import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.AGREE_FOR_CANCELLATION_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.JOB_CANCELLING_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.NOT_ALL_JOB_PARTS_CANCELLED_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.SUCCESSFUL_JOB_CANCELLATION_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.templates.JobCancellationMessageTemplates.CANCEL_JOB_PROTOCOL;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageListContent;
+import static com.greencloud.application.messages.MessagingUtils.retrieveForPerformative;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.GS_SERVICE_TYPE;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
 import static jade.lang.acl.ACLMessage.CANCEL;
+import static jade.lang.acl.ACLMessage.INFORM;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,8 +75,44 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 		return new InitiateJobCancellation(agent, request, originalJobId);
 	}
 
+	/**
+	 * Method prints the information that a given agent has agreed to process job cancellation
+	 * (it means that the job has been added to the agents list)
+	 *
+	 * @param agree received AGREE response
+	 */
 	@Override
-	protected void handleInform(ACLMessage inform) {
+	protected void handleAgree(ACLMessage agree) {
+		final String agentName = agree.getSender().getLocalName();
+		logger.info(AGREE_FOR_CANCELLATION_LOG, agentName);
+	}
+
+	/**
+	 * Method handles all received results of job cancellation
+	 *
+	 * @param responses received results
+	 */
+	@Override
+	protected void handleAllResultNotifications(Vector responses) {
+		final Collection<ACLMessage> informs = retrieveForPerformative(responses, INFORM);
+		informs.forEach(this::processSuccessfulCancel);
+
+		MDC.put(MDC_JOB_ID, originalJobId);
+		logger.info(SUCCESSFUL_JOB_CANCELLATION_LOG, processedJobs);
+
+		if (!mySchedulerAgent.getJobParts().get(originalJobId).isEmpty()) {
+			processCancelRetry();
+		}
+	}
+
+	private void processCancelRetry() {
+		var size = mySchedulerAgent.getJobParts().get(originalJobId).size();
+		var retryBehaviour = new RetryJobCancellation(mySchedulerAgent, originalJobId, parent);
+		logger.warn(NOT_ALL_JOB_PARTS_CANCELLED_LOG, size);
+		((ParallelBehaviour) parent).addSubBehaviour(retryBehaviour);
+	}
+
+	private void processSuccessfulCancel(final ACLMessage inform) {
 		if (search(mySchedulerAgent, GS_SERVICE_TYPE).contains(inform.getSender())) {
 			List<PowerJob> jobs = readMessageListContent(inform, PowerJob.class);
 			processedJobs.getAndAdd(jobs.size());
@@ -92,19 +133,7 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 				.filter(jobPart -> jobPart.getJobId().equals(job.getJobId()))
 				.findFirst()
 				.ifPresent(jobPart -> mySchedulerAgent.getJobParts().remove(originalJobId, jobPart));
+		logger.info(JOB_CANCELLING_LOG, job.getJobId());
 		processedJobs.getAndIncrement();
-	}
-
-	@Override
-	protected void handleAllResponses(Vector responses) {
-		MDC.put(MDC_JOB_ID, originalJobId);
-		logger.info(SUCCESSFUL_JOB_CANCELLATION_LOG, processedJobs);
-
-		if (!mySchedulerAgent.getJobParts().get(originalJobId).isEmpty()) {
-			var size = mySchedulerAgent.getJobParts().get(originalJobId).size();
-			logger.warn(NOT_ALL_JOB_PARTS_CANCELLED_LOG, size);
-		}
-
-		((ParallelBehaviour) parent).removeSubBehaviour(this);
 	}
 }

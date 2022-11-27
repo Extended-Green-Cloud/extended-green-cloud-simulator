@@ -67,6 +67,10 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 	protected void handleAllResponses(final Vector responses, final Vector acceptances) {
 		final List<ACLMessage> proposals = retrieveProposals(responses);
 
+		if(!myCloudNetworkAgent.getNetworkJobs().containsKey(job)) {
+			return;
+		}
+
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		if (responses.isEmpty()) {
 			logger.info(NO_SERVER_RESPONSES_LOG);
