@@ -139,7 +139,7 @@ class JobUtilsUnitTest {
 				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.build();
-		final Date expectedResult = Date.from(Instant.parse("2022-01-01T14:00:00.500Z"));
+		final Date expectedResult = Date.from(Instant.parse("2022-01-01T14:00:01.000Z"));
 
 		final Date result = JobUtils.calculateExpectedJobEndTime(mockJob);
 
@@ -156,7 +156,7 @@ class JobUtilsUnitTest {
 				.endTime(Instant.parse("2022-01-01T14:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.build();
-		final Date expectedResult = Date.from(Instant.parse("2022-01-01T19:00:00.500Z"));
+		final Date expectedResult = Date.from(Instant.parse("2022-01-01T19:00:01.000Z"));
 
 		final Date result = JobUtils.calculateExpectedJobEndTime(mockJob);
 
