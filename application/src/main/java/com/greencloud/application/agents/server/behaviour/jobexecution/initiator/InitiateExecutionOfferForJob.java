@@ -12,9 +12,9 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
 import java.util.Objects;
@@ -94,11 +94,13 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 				JobInstanceIdentifier.class);
 		final ClientJob job = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstanceId.getJobId());
-		myServerAgent.getServerJobs().remove(job);
 
-		MDC.put(MDC_JOB_ID, job.getJobId());
-		logger.info(SERVER_OFFER_REJECT_LOG, reject.getSender().getLocalName());
-		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
+		if (Objects.nonNull(job)) {
+			myServerAgent.getServerJobs().remove(job);
+			MDC.put(MDC_JOB_ID, job.getJobId());
+			logger.info(SERVER_OFFER_REJECT_LOG, reject.getSender().getLocalName());
+			myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
+		}
 	}
 
 	private void passJobExecutionFailure(final ClientJob jobInstance, final JobInstanceIdentifier jobInstanceId,

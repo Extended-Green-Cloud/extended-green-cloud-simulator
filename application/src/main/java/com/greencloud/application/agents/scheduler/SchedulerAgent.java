@@ -5,7 +5,6 @@ import static com.greencloud.application.yellowpages.YellowPagesService.register
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_NAME;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +23,6 @@ import com.greencloud.application.agents.scheduler.managment.SchedulerStateManag
 import com.greencloud.application.behaviours.ReceiveGUIController;
 
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.ParallelBehaviour;
 
 /**
  * Agent representing the Scheduler Agent that orchestrate the job announcement in Cloud Network
@@ -61,8 +59,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 				final int splittingFactor = Integer.parseInt(args[4].toString());
 
 				if (deadlineWeight < 0 || powerWeight < 0
-					|| deadlineWeight > 1 || powerWeight > 1
-					|| deadlineWeight + powerWeight != 1) {
+						|| deadlineWeight > 1 || powerWeight > 1
+						|| deadlineWeight + powerWeight != 1) {
 					logger.info("Incorrect arguments: Weights must be from range [0,1] and must sum to 1!");
 					doDelete();
 				}
@@ -89,11 +87,11 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	}
 
 	private List<Behaviour> prepareBehaviours() {
-		final ParallelBehaviour parallelBehaviour = new ParallelBehaviour();
-		parallelBehaviour.addSubBehaviour(SubscribeCloudNetworkService.create(this));
-		parallelBehaviour.addSubBehaviour(new HandleJobAnnouncement(this));
-		parallelBehaviour.addSubBehaviour(new ListenForClientJob());
-		parallelBehaviour.addSubBehaviour(new ListenForJobUpdate());
-		return Collections.singletonList(parallelBehaviour);
+		return List.of(
+				SubscribeCloudNetworkService.create(this),
+				new HandleJobAnnouncement(this),
+				new ListenForClientJob(),
+				new ListenForJobUpdate()
+		);
 	}
 }

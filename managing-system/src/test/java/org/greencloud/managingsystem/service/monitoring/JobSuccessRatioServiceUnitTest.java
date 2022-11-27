@@ -11,7 +11,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.job.JobResultType;
 import com.gui.agents.ManagingAgentNode;
 
 import jade.core.AID;
@@ -99,7 +98,7 @@ class JobSuccessRatioServiceUnitTest {
 	void testIsClientJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(eq(singletonList(
-				CLIENT_MONITORING)), anyInt());
+				CLIENT_MONITORING)), anyDouble());
 
 		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
 				MONITOR_SYSTEM_DATA_TIME_PERIOD)).isFalse();
@@ -120,7 +119,7 @@ class JobSuccessRatioServiceUnitTest {
 	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareComponentData()).when(mockDatabase).readMonitoringDataForDataTypes(
-				eq(NETWORK_AGENT_DATA_TYPES), anyInt());
+				eq(NETWORK_AGENT_DATA_TYPES), anyDouble());
 
 		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isFalse();
 	}
@@ -159,7 +158,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 1L, JobResultType.ACCEPTED, 5L))
+				.successRatio(0.9)
 				.serverPricePerHour(20)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
@@ -169,7 +168,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 2L, JobResultType.ACCEPTED, 5L))
+				.successRatio(0.75)
 				.serverPricePerHour(20)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
@@ -179,7 +178,7 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 0L, JobResultType.ACCEPTED, 0L))
+				.successRatio(0D)
 				.serverPricePerHour(20)
 				.build();
 		return List.of(

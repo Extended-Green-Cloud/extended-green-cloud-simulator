@@ -161,16 +161,33 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
-	 * Provides reading capability for Managing Agent. Provides data records from last, specified by parameter, seconds
+	 * Provides reading capability for Managing Agent. Provides unique data records from last, specified by parameter, seconds
 	 * that were saved to database for given data types.
 	 *
 	 * @param dataTypes types of the data to be retrieved
-	 * @param seconds   number of secods for which the data is retrieved
+	 * @param seconds   number of seconds for which the data is retrieved
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */
-	public List<AgentData> readMonitoringDataForDataTypes(List<DataType> dataTypes, int seconds) {
+	public List<AgentData> readMonitoringDataForDataTypes(List<DataType> dataTypes, double seconds) {
 		try {
 			return statementsExecutor.executeReadMonitoringDataForDataTypesStatement(dataTypes, seconds);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides reading capability for Managing Agent. Provides data records from last, specified by parameter, seconds
+	 * that were saved to database for given data type and agents.
+	 *
+	 * @param type    type of the data to be retrieved
+	 * @param aidList     aid list of the agents of interest
+	 * @param seconds number of seconds for which the data is retrieved
+	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
+	 */
+	public List<AgentData> readMonitoringDataForDataTypeAndAID(DataType type, List<String> aidList, double seconds) {
+		try {
+			return statementsExecutor.executeReadMonitoringDataForDataTypeAndAIDStatement(type, aidList, seconds);
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new ReadDataException(exception);
 		}

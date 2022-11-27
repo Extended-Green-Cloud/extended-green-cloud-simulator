@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
@@ -18,6 +19,7 @@ public abstract class AbstractAgent extends Agent {
 
 	private GuiController guiController;
 	private AbstractAgentNode agentNode;
+	protected AgentType agentType;
 
 	protected AbstractAgent() {
 	}
@@ -34,6 +36,10 @@ public abstract class AbstractAgent extends Agent {
 			getGuiController().removeAgentNodeFromGraph(getAgentNode());
 		}
 		super.takeDown();
+	}
+
+	public AgentType getAgentType() {
+		return agentType;
 	}
 
 	public AbstractAgentNode getAgentNode() {

@@ -1,6 +1,7 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
-import static java.time.LocalTime.now;
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_END_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_START_LOG;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
@@ -38,13 +40,13 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
 
-	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, String adaptationActionId,
+	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, AdaptationActionEnum adaptationActionType,
 			AID targetAgent, Double initialGoalQuality) {
 		super(agent, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS * 1000L);
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.databaseClient = myManagingAgent.getAgentNode().getDatabaseClient();
 		this.actionTimestamp = actionTimestamp;
-		this.adaptationActionId = Integer.parseInt(adaptationActionId);
+		this.adaptationActionId = getAdaptationAction(adaptationActionType).getActionId();
 		this.targetAgent = targetAgent;
 		this.initialGoalQuality = initialGoalQuality;
 	}
@@ -71,7 +73,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	}
 
 	private double getGoalQualityDelta(GoalEnum goalEnum) {
-		int elapsedTime = (int) Duration.between(actionTimestamp, now()).toSeconds();
+		int elapsedTime = (int) Duration.between(actionTimestamp, getCurrentTime()).toSeconds();
 		double currentGoalQuality = myManagingAgent.monitor().getGoalService(goalEnum)
 				.readCurrentGoalQuality(elapsedTime);
 

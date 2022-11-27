@@ -18,6 +18,8 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.lang.acl.ACLMessage;
@@ -93,7 +95,7 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG, jobId);
 
 			if (jobToTransfer.getStartTime().isBefore(getCurrentTime())) {
-				myGreenAgent.manage().incrementFinishedJobs(mapToJobInstanceId(jobToTransfer));
+				myGreenAgent.manage().incrementJobCounter(mapToJobInstanceId(jobToTransfer), JobResultType.FINISH);
 			}
 			myGreenAgent.getPowerJobs().remove(jobToTransfer);
 			myGreenAgent.manage().updateGreenSourceGUI();
@@ -132,7 +134,8 @@ public class InitiatePowerJobTransfer extends AchieveREInitiator {
 				.removeIf(entry -> {
 					if (entry.getKey().getStartTime().isBefore(jobToTransfer.getStartTime())) {
 						if (incrementFinishCounter && entry.getKey().getStartTime().isBefore(getCurrentTime())) {
-							myGreenAgent.manage().incrementFinishedJobs(mapToJobInstanceId(entry.getKey()));
+							myGreenAgent.manage()
+									.incrementJobCounter(mapToJobInstanceId(entry.getKey()), JobResultType.FINISH);
 						}
 						return true;
 					}

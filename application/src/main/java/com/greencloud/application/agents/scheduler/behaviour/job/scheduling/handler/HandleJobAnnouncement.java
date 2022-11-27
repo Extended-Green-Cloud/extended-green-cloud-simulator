@@ -69,7 +69,10 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 		}
 
 		final ClientJob jobToExecute = myScheduler.getJobsToBeExecuted().poll();
-		if (Objects.nonNull(jobToExecute) && myScheduler.getClientJobs().get(jobToExecute).equals(CREATED)) {
+		if (Objects.nonNull(jobToExecute)
+				&& !myScheduler.getFailedJobs().contains(jobToExecute.getJobId().split("#")[0])
+				&& myScheduler.getClientJobs().containsKey(jobToExecute)
+				&& myScheduler.getClientJobs().get(jobToExecute).equals(CREATED)) {
 			announceJobToCloudNetworkAgents(jobToExecute);
 		}
 	}

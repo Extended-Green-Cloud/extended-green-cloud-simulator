@@ -30,6 +30,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -40,6 +42,7 @@ import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.job.ImmutablePowerJob;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,28 +78,17 @@ class GreenEnergyStateManagementUnitTest {
 
 	// TESTS
 
-	@Test
-	@DisplayName("Test increment started unique power job")
-	void testIncrementStartedUniqueJob() {
+	@ParameterizedTest
+	@EnumSource(JobResultType.class)
+	@DisplayName("Test increment started unique job")
+	void testIncrementCounter(JobResultType type) {
 		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
 				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.build();
 
-		mockGreenEnergyAgent.manage().incrementStartedJobs(jobInstanceId);
-		assertThat(MOCK_MANAGEMENT.getStartedJobsInstances().get()).isEqualTo(1);
-	}
-
-	@Test
-	@DisplayName("Test increment finished unique power job")
-	void testIncrementFinishedUniquePowerJob() {
-		final JobInstanceIdentifier jobInstanceId = ImmutableJobInstanceIdentifier.builder()
-				.jobId("1")
-				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
-				.build();
-
-		mockGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
-		assertThat(MOCK_MANAGEMENT.getFinishedJobsInstances().get()).isEqualTo(1);
+		mockGreenEnergyAgent.manage().incrementJobCounter(jobInstanceId, type);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(type, 1L);
 	}
 
 	@Test

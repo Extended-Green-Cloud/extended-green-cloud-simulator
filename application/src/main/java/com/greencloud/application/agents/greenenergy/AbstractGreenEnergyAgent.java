@@ -6,13 +6,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.PowerJob;
 import com.greencloud.commons.location.Location;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 import jade.core.AID;
 
@@ -23,6 +28,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	protected transient GreenPowerManagement greenPowerManagement;
 	protected transient GreenEnergyStateManagement stateManagement;
+	protected transient GreenEnergyAdaptationManagement adaptationManagement;
 	protected transient Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
@@ -35,6 +41,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		super.setup();
 		this.powerJobs = new ConcurrentHashMap<>();
 		this.weatherPredictionError = INITIAL_WEATHER_PREDICTION_ERROR;
+		agentType = AgentType.GREEN_SOURCE;
 	}
 
 	public AID getOwnerServer() {
@@ -81,6 +88,11 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.greenPowerManagement = greenPowerManagement;
 	}
 
+	public void setAdaptationManagement(
+			GreenEnergyAdaptationManagement adaptationManagement) {
+		this.adaptationManagement = adaptationManagement;
+	}
+
 	public GreenEnergySourceTypeEnum getEnergyType() {
 		return energyType;
 	}
@@ -91,5 +103,14 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public GreenPowerManagement manageGreenPower() {
 		return greenPowerManagement;
+	}
+
+	@Override
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		return switch (adaptationAction.getAction()) {
+			case INCREASE_GREEN_SOURCE_ERROR -> adaptationManagement.adaptAgentWeatherPredictionError(
+					(IncrementGreenSourceErrorParameters) actionParameters);
+			default -> false;
+		};
 	}
 }

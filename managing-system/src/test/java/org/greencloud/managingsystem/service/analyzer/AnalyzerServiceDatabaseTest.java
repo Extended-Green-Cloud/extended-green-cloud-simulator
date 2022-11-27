@@ -148,7 +148,7 @@ class AnalyzerServiceDatabaseTest {
 				.currentTraffic(0.7)
 				.jobProcessingLimit(5)
 				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
-				.jobResultStatistics(Map.of(JobResultType.FAILED, 2L, JobResultType.ACCEPTED, 10L))
+				.successRatio(0.9)
 				.serverPricePerHour(20)
 				.build();
 

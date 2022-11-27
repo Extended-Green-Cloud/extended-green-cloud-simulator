@@ -43,7 +43,6 @@ public class PlannerService extends AbstractManagingService {
 
 	public PlannerService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
-		this.planForActionMap = initializePlansForActions();
 	}
 
 	/**
@@ -52,6 +51,7 @@ public class PlannerService extends AbstractManagingService {
 	 * @param adaptationActions set of available adaptation actions with computed qualities
 	 */
 	public void trigger(final Map<AdaptationAction, Double> adaptationActions) {
+		initializePlansForActions();
 		final Map<AdaptationAction, Double> executableActions = getPlansWhichCanBeExecuted(adaptationActions);
 
 		if (executableActions.isEmpty()) {
@@ -83,7 +83,7 @@ public class PlannerService extends AbstractManagingService {
 		return adaptationActions.entrySet().stream()
 				.filter(action -> action.getKey().getAvailable())
 				.max(Comparator.comparingDouble(Map.Entry::getValue))
-				.orElseThrow()
+				.orElse(adaptationActions.entrySet().stream().findFirst().orElseThrow())
 				.getKey();
 	}
 
@@ -101,8 +101,8 @@ public class PlannerService extends AbstractManagingService {
 		return planForActionMap.getOrDefault(action.getAction(), null);
 	}
 
-	private Map<AdaptationActionEnum, AbstractPlan> initializePlansForActions() {
-		return Map.of(
+	protected void initializePlansForActions() {
+		planForActionMap = Map.of(
 				ADD_SERVER, new AddServerPlan(managingAgent),
 				ADD_GREEN_SOURCE, new AddGreenSourcePlan(managingAgent),
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),

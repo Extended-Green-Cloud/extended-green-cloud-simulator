@@ -9,6 +9,7 @@ import org.greencloud.managingsystem.service.planner.PlannerService;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
+import com.greencloud.commons.agent.AgentType;
 
 /**
  * Abstract agent class storing data of the Managing Agent
@@ -33,6 +34,7 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 		this.analyzerService = new AnalyzerService(this);
 		this.plannerService = new PlannerService(this);
 		this.executorService = new ExecutorService(this);
+		agentType = AgentType.MANAGING;
 	}
 
 	public MonitoringService monitor() {

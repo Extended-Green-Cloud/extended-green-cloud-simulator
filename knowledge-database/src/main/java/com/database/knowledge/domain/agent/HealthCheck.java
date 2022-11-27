@@ -1,4 +1,6 @@
 package com.database.knowledge.domain.agent;
 
-public record HealthCheck(boolean alive) implements MonitoringData {
+import com.greencloud.commons.agent.AgentType;
+
+public record HealthCheck(boolean alive, AgentType agentType) implements MonitoringData {
 }

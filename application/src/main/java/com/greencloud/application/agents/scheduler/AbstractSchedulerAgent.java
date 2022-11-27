@@ -14,6 +14,8 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
@@ -44,6 +46,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.availableCloudNetworks = new ArrayList<>();
 		this.jobParts = ArrayListMultimap.create();
 		this.failedJobs = new HashSet<>();
+		agentType = AgentType.SCHEDULER;
 	}
 
 	/**

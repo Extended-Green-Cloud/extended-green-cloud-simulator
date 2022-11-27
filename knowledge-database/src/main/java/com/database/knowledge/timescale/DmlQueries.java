@@ -12,9 +12,12 @@ public final class DmlQueries {
 			"INSERT INTO monitoring_data (time, aid, data_type, data) VALUES (now(), ?, ?, ?)";
 	static final String GET_LAST_1_SEC_DATA =
 			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
-	static final String GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
-			"SELECT DISTINCT ON (aid) * FROM monitoring_data "
-					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
+	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
+			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
+					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND "
+					+ "order by aid, data_type, time desc";
+	static final String GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME =
+			"SELECT * FROM monitoring_data where data_type = ? and aid = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 
 	/**
 	 * System quality table queries

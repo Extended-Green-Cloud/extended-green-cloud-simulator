@@ -6,6 +6,8 @@ package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.lis
 public class JobSchedulingListenerLog {
 
 	// CLIENTS JOB LISTENER LOG MESSAGES
+	public static final String JOB_RECEIVED_LOG =
+			"Received job {} from client.";
 	public static final String JOB_ALREADY_EXISTING_LOG =
 			"Job with id {} was already announced in network. Its current state is {}";
 	public static final String JOB_ENQUEUED_SUCCESSFULLY_LOG = "Job {} has been successfully added to job scheduling queue";

@@ -16,6 +16,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.Agent;
@@ -60,7 +61,7 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 			logger.error(MANUAL_POWER_SUPPLY_FINISH_LOG);
 
 			if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
-				myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
+				myGreenEnergyAgent.manage().incrementJobCounter(jobInstanceId, JobResultType.FINISH);
 			}
 			myGreenEnergyAgent.getPowerJobs().remove(job);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();

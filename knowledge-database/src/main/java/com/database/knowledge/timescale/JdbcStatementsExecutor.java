@@ -5,9 +5,10 @@ import static com.database.knowledge.timescale.DmlQueries.DISABLE_ADAPTATION_ACT
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DmlQueries.GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
-import static com.database.knowledge.timescale.DmlQueries.GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
+import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_DATA;
@@ -118,13 +119,25 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
-	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, int seconds)
+	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, double seconds)
 			throws SQLException, JsonProcessingException {
-		try (var statement = sqlConnection.prepareStatement(GET_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME)) {
+		try (var statement = sqlConnection.prepareStatement(GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME)) {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
-			statement.setInt(2, seconds);
+			statement.setDouble(2, seconds);
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
+		}
+	}
+
+	List<AgentData> executeReadMonitoringDataForDataTypeAndAIDStatement(DataType type, List<String> aid, double seconds)
+			throws SQLException, JsonProcessingException {
+		try (var statement = sqlConnection.prepareStatement(GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME)) {
+			final Array array = statement.getConnection().createArrayOf("text", aid.toArray());
+			statement.setString(1, type.toString());
+			statement.setArray(2, array);
+			statement.setDouble(3, seconds);
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}

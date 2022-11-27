@@ -1,5 +1,6 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.application.common.constant.DataConstant.DATA_NOT_AVAILABLE_INDICATOR;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -18,7 +19,7 @@ import com.greencloud.commons.job.PowerJob;
  */
 public class JobUtils {
 
-	public static final Long MAX_ERROR_IN_JOB_FINISH = 500L;
+	public static final Long MAX_ERROR_IN_JOB_FINISH = 1000L;
 
 	/**
 	 * Method retrieves the job by the job id from job map
@@ -108,5 +109,16 @@ public class JobUtils {
 	public static Date calculateExpectedJobEndTime(final PowerJob job) {
 		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
 		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+	}
+
+	/**
+	 * Function computes ratio of succeeded jobs based on number of accepted and failed jobs
+	 *
+	 * @param acceptedJobs number of accepted jobs
+	 * @param failedJobs   number of failed jobs
+	 * @return double job success ratio or -1 if data is not available
+	 */
+	public static double getJobSuccessRatio(final long acceptedJobs, final long failedJobs) {
+		return acceptedJobs == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - ((double) failedJobs / acceptedJobs);
 	}
 }

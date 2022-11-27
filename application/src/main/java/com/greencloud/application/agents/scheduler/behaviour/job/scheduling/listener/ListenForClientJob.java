@@ -2,6 +2,7 @@ package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.lis
 
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_ALREADY_EXISTING_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_ENQUEUED_SUCCESSFULLY_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_RECEIVED_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.QUEUE_THRESHOLD_EXCEEDED_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates.JobSchedulingMessageTemplates.NEW_JOB_ANNOUNCEMENT_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
@@ -58,6 +59,7 @@ public class ListenForClientJob extends CyclicBehaviour {
 			final ClientJob job = readMessageContent(message, ClientJob.class);
 			final String jobId = job.getJobId();
 			MDC.put(MDC_JOB_ID, jobId);
+			logger.info(JOB_RECEIVED_LOG, jobId);
 			addJobToPriorityQueue(job, message.getSender().getName());
 		} else {
 			block();

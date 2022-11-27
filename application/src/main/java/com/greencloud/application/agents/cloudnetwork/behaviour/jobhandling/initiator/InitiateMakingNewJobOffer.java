@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.ini
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.ACCEPT_SERVER_PROPOSAL_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.REJECT_SERVER_PROPOSAL_LOG;
+import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
@@ -14,6 +15,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.commons.job.ClientJob;
@@ -53,9 +55,10 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleAcceptProposal(final ACLMessage accept) {
-		logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 		final String jobId = accept.getContent();
 		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 
 		if (Objects.nonNull(job)) {
 			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
@@ -73,9 +76,10 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	 */
 	@Override
 	protected void handleRejectProposal(final ACLMessage reject) {
-		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject.getSender().getName());
 		final String jobId = reject.getContent();
 		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
+		MDC.put(MDC_JOB_ID, jobId);
+		logger.info(REJECT_SERVER_PROPOSAL_LOG, reject.getSender().getName());
 
 		if (Objects.nonNull(job)) {
 			myCloudNetworkAgent.getServerForJobMap().remove(jobId);

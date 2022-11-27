@@ -9,8 +9,10 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
+import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.nonNull;
 
@@ -54,10 +56,11 @@ public class ListenForServerJobCancellation extends CyclicBehaviour {
 		var jobParts = List.copyOf(filter(myServerAgent.getServerJobs().keySet(),
 				job -> job.getJobId().split("#")[0].equals(originalJobId)));
 		if (!jobParts.isEmpty()) {
+			myServerAgent.send(prepareStringReply(message.createReply(), originalJobId, AGREE));
 			MDC.put(MDC_JOB_ID, originalJobId);
 			logger.info(CANCELLING_JOB_PARTS_LOG, jobParts.size());
 			jobParts.forEach(jobPart -> {
-				if(RUNNING_JOB_STATUSES.contains(myServerAgent.getServerJobs().get(jobPart))) {
+				if (RUNNING_JOB_STATUSES.contains(myServerAgent.getServerJobs().get(jobPart))) {
 					myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), FINISH);
 				}
 				myServerAgent.manage().finishJobExecutionWithResult(jobPart, false, FAILED);

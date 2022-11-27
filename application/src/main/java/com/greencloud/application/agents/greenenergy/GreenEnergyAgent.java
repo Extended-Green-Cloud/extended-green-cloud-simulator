@@ -20,6 +20,7 @@ import com.greencloud.application.agents.greenenergy.behaviour.powersupply.liste
 import com.greencloud.application.agents.greenenergy.behaviour.sensor.SenseGreenSourceEvent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherPeriodically;
 import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
@@ -60,6 +61,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 			this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 			this.stateManagement = new GreenEnergyStateManagement(this);
+			this.adaptationManagement = new GreenEnergyAdaptationManagement(this);
 			try {
 				this.greenPowerManagement = new GreenPowerManagement(Integer.parseInt(args[2].toString()), this);
 				this.pricePerPowerUnit = Double.parseDouble(args[3].toString());

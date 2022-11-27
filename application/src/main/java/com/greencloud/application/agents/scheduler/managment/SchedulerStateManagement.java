@@ -6,11 +6,16 @@ import static com.greencloud.application.agents.scheduler.managment.logs.Schedul
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
+import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
 import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.InitiateCNALookup;
+import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.gui.agents.SchedulerAgentNode;
 
@@ -30,7 +36,7 @@ import jade.core.behaviours.ParallelBehaviour;
  */
 public class SchedulerStateManagement {
 
-	private static final Logger logger = LoggerFactory.getLogger(InitiateCNALookup.class);
+	private static final Logger logger = LoggerFactory.getLogger(SchedulerStateManagement.class);
 	private final SchedulerAgent schedulerAgent;
 
 	/**
@@ -97,21 +103,33 @@ public class SchedulerStateManagement {
 	 *                      behaviour
 	 */
 	public void handleJobCleanUp(final ClientJob job, final String type, final Behaviour mainBehaviour) {
-		schedulerAgent.getClientJobs().remove(job);
-		schedulerAgent.getCnaForJobMap().remove(job.getJobId());
-		schedulerAgent.getJobParts().values()
-				.stream()
-				.filter(j -> j.getJobId().equals(job.getJobId()))
-				.findFirst()
-				.ifPresent(jobPart -> handleJobPartStatusChange(job.getJobId(), jobPart, type, mainBehaviour));
-	}
+		final List<String> jobsToRemove = getJobsToRemove(job);
+		var originalJobId = job.getJobId().split("#")[0];
 
-	private void handleJobPartStatusChange(String jobId, ClientJob jobPart, String type, Behaviour mainBehaviour) {
-		var originalJobId = jobId.split("#")[0];
-		schedulerAgent.getJobParts().remove(originalJobId, jobPart);
-		if (type.equals(FAILED_JOB_ID)) {
+		schedulerAgent.getClientJobs().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey().getJobId()));
+		schedulerAgent.getCnaForJobMap().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey()));
+		schedulerAgent.getJobParts().entries().removeIf(entry -> entry.getKey().equals(originalJobId)
+				&& jobsToRemove.contains(entry.getValue().getJobId()));
+
+		if (type.equals(FAILED_JOB_ID)
+				&& schedulerAgent.getClientJobs().keySet().stream().anyMatch(isJobIdEqual(job))) {
 			initiateJobCancellation(originalJobId, mainBehaviour);
 		}
+	}
+
+	private Predicate<ClientJob> isJobIdEqual(final ClientJob job) {
+		return jobPart -> job.getJobId().split("#")[0].equals(jobPart.getJobId().split("#")[0]);
+	}
+
+	private List<String> getJobsToRemove(final ClientJob job) {
+		final Predicate<Map.Entry<ClientJob, JobStatusEnum>> shouldRemoveJob =
+				jobEntry -> jobEntry.getKey().equals(job) || (isJobIdEqual(job).test(jobEntry.getKey())
+						&& List.of(CREATED, PROCESSING).contains(jobEntry.getValue()));
+
+		return schedulerAgent.getClientJobs().entrySet().stream()
+				.filter(shouldRemoveJob)
+				.map(entry -> entry.getKey().getJobId())
+				.toList();
 	}
 
 	private void initiateJobCancellation(String originalJobId, Behaviour mainBehaviour) {

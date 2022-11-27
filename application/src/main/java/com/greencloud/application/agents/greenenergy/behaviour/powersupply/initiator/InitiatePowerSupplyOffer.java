@@ -32,6 +32,7 @@ import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.application.domain.job.JobWithProtocol;
+import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.Agent;
@@ -72,7 +73,10 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage acceptProposal) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(acceptProposal, JobWithProtocol.class);
 		final PowerJob job = findCorrespondingJob(jobWithProtocol.getJobInstanceIdentifier());
-		handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
+
+		if (Objects.nonNull(job)) {
+			handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
+		}
 	}
 
 	/**
@@ -103,6 +107,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 			final JobWithProtocol jobWithProtocol) {
 		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.manage()
 				.getAvailablePowerForJob(job, weather, true);
+		myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(job), JobResultType.ACCEPTED);
 
 		if (averageAvailablePower.isEmpty() || job.getPower() > averageAvailablePower.get()) {
 			sendPowerFailureInformation(job, jobWithProtocol, acceptProposal);
@@ -135,6 +140,8 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 						jobWithProtocol.getReplyProtocol().equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL) ?
 								FAILED_TRANSFER_PROTOCOL :
 								FAILED_JOB_PROTOCOL;
+		myGreenEnergyAgent.manage()
+				.incrementJobCounter(jobWithProtocol.getJobInstanceIdentifier(), JobResultType.FAILED);
 		final ACLMessage failureMessage = prepareFailureReply(proposal.createReply(),
 				jobWithProtocol.getJobInstanceIdentifier(), responseProtocol);
 

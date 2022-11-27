@@ -2,8 +2,6 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.commons.job.JobResultType.ACCEPTED;
-import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Collections.singletonList;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
@@ -24,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
-import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 
 /**
@@ -53,7 +51,7 @@ public class JobSuccessRatioService extends AbstractGoalService {
 		final double aggregatedSuccessRatio = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR
-			|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
+				|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
@@ -91,12 +89,13 @@ public class JobSuccessRatioService extends AbstractGoalService {
 		return componentsData.stream().allMatch(this::verifySuccessRatioForComponent);
 	}
 
+	@Override
 	public double getLastMeasuredGoalQuality() {
 		return goalQuality.get();
 	}
 
 	private boolean verifySuccessRatioForComponent(final AgentData component) {
-		final double successRatio = readSuccessRatioForNetworkComponent(component);
+		final double successRatio = ((NetworkComponentMonitoringData) component.monitoringData()).getSuccessRatio();
 		boolean result = successRatio == DATA_NOT_AVAILABLE_INDICATOR || managingAgent.monitor()
 				.isQualityInBounds(successRatio, MAXIMIZE_JOB_SUCCESS_RATIO);
 
@@ -106,20 +105,6 @@ public class JobSuccessRatioService extends AbstractGoalService {
 		}
 
 		return result;
-	}
-
-	//TODO add more components after their data retrieving will be implemented
-	private double readSuccessRatioForNetworkComponent(final AgentData component) {
-		return switch (component.dataType()) {
-			case SERVER_MONITORING -> readServerJobSuccessRatio((ServerMonitoringData) component.monitoringData());
-			default -> DATA_NOT_AVAILABLE_INDICATOR;
-		};
-	}
-
-	private double readServerJobSuccessRatio(final ServerMonitoringData monitoringData) {
-		final double jobsAccepted = monitoringData.getJobResultStatistics().get(ACCEPTED);
-		final double jobsFailed = monitoringData.getJobResultStatistics().get(FAILED);
-		return jobsAccepted == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - (jobsFailed / jobsAccepted);
 	}
 
 	@Override
