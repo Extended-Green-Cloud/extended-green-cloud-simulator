@@ -34,18 +34,14 @@ public abstract class AbstractPlan {
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
-	public boolean isPlanExecutable() {
-		return false;
-	}
+	public abstract boolean isPlanExecutable();
 
 	/**
 	 * Abstract method used for creation of the adaptation plan
 	 *
 	 * @return prepared adaptation plan
 	 */
-	public AbstractPlan constructAdaptationPlan() {
-		return this;
-	}
+	public abstract AbstractPlan constructAdaptationPlan();
 
 	public AID getTargetAgent() {
 		return targetAgent;

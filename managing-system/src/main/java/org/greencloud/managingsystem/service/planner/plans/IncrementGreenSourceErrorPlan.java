@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_AGENTS_ALIVE_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
@@ -23,6 +24,7 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
+import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSourceErrorParameters;
 
 import jade.core.AID;
@@ -86,13 +88,21 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 		return this;
 	}
 
-	private List<String> getAliveGreenSources(List<AgentData> greenSourceData) {
-		return greenSourceData.stream().filter(agentData -> agentData.dataType().equals(HEALTH_CHECK))
-				.filter(agentData -> ((HealthCheck) agentData.monitoringData()).agentType().equals(GREEN_SOURCE))
+	public void setGreenSourcesPowerShortages(Map<String, Integer> greenSourcesPowerShortages) {
+		this.greenSourcesPowerShortages = greenSourcesPowerShortages;
+	}
+
+	@VisibleForTesting
+	protected List<String> getAliveGreenSources(List<AgentData> greenSourceData) {
+		return greenSourceData.stream()
+				.filter(agentData -> agentData.dataType().equals(HEALTH_CHECK)
+						&& ((HealthCheck) agentData.monitoringData()).alive()
+						&& ((HealthCheck) agentData.monitoringData()).agentType().equals(GREEN_SOURCE))
 				.map(AgentData::aid).toList();
 	}
 
-	private Map<String, Double> getGreenSourcesWithErrors(List<AgentData> greenSourceData, List<String> aliveAgents) {
+	@VisibleForTesting
+	protected Map<String, Double> getGreenSourcesWithErrors(List<AgentData> greenSourceData, List<String> aliveAgents) {
 		return greenSourceData.stream()
 				.filter(agentData -> aliveAgents.contains(agentData.aid())
 						&& agentData.dataType().equals(GREEN_SOURCE_MONITORING)
@@ -102,7 +112,8 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 						agentData -> ((GreenSourceMonitoringData) agentData.monitoringData()).getWeatherPredictionError()));
 	}
 
-	private Map<String, Integer> getGreenSourcesWithPowerShortages(Set<String> agentsOfInterest) {
+	@VisibleForTesting
+	protected Map<String, Integer> getGreenSourcesWithPowerShortages(Set<String> agentsOfInterest) {
 		final Map<String, List<Integer>> powerShortageMap = new HashMap<>();
 
 		managingAgent.getAgentNode().getDatabaseClient()
@@ -125,7 +136,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 			return list;
 		};
 		powerShortageMap.computeIfPresent(agentData.aid(), (agent, list) -> putCountIntoMap.apply(list));
-		powerShortageMap.computeIfAbsent(agentData.aid(), aid -> new ArrayList<>());
+		powerShortageMap.computeIfAbsent(agentData.aid(), aid -> new ArrayList<>(singletonList(shortageCount)));
 	}
 
 }

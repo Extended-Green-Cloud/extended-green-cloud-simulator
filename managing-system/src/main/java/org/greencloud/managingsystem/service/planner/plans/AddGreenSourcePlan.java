@@ -12,4 +12,14 @@ public class AddGreenSourcePlan extends AbstractPlan {
 	public AddGreenSourcePlan(ManagingAgent managingAgent) {
 		super(ADD_GREEN_SOURCE, managingAgent);
 	}
+
+	@Override
+	public boolean isPlanExecutable() {
+		return false;
+	}
+
+	@Override
+	public AbstractPlan constructAdaptationPlan() {
+		return this;
+	}
 }

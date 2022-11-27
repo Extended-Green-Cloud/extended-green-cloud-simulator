@@ -13,4 +13,14 @@ public class IncrementGreenSourcePercentagePlan extends AbstractPlan {
 	public IncrementGreenSourcePercentagePlan(ManagingAgent managingAgent) {
 		super(INCREASE_GREEN_SOURCE_PERCENTAGE, managingAgent);
 	}
+
+	@Override
+	public boolean isPlanExecutable() {
+		return false;
+	}
+
+	@Override
+	public AbstractPlan constructAdaptationPlan() {
+		return this;
+	}
 }

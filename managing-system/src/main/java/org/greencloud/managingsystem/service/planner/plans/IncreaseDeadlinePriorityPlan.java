@@ -13,4 +13,14 @@ public class IncreaseDeadlinePriorityPlan extends AbstractPlan {
 	public IncreaseDeadlinePriorityPlan(ManagingAgent managingAgent) {
 		super(INCREASE_DEADLINE_PRIORITY, managingAgent);
 	}
+
+	@Override
+	public boolean isPlanExecutable() {
+		return false;
+	}
+
+	@Override
+	public AbstractPlan constructAdaptationPlan() {
+		return this;
+	}
 }
