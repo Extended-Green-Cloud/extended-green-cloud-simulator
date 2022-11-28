@@ -8,7 +8,7 @@ import DetailsField from 'components/common/details-field/details-field'
 import Badge from 'components/common/badge/badge'
 import ClientStatisticsSelect from './client-statistics-select/client-statistics-select'
 import { ModalButton } from 'components/common'
-import ClientSplitJobModal from './client-split-job-modal/client-split-job-modal'
+import ClientSplitJobModal from '../../agent-system-panel/client-statistics/client-split-job-modal/client-split-job-modal'
 
 const description =
    'Select client from the list to diplay current job statistics'

@@ -1,7 +1,6 @@
 export { default as Banner } from './banner/banner'
-export { default as NetworkPanel } from './network-panel/network-panel'
+export { default as AgentSystemPanel } from './agent-system-panel/agent-system-panel'
 export { default as GraphPanel } from './graph-panel/graph-panel'
-export { default as StatisticsPanel } from './statistics-panel/statistics-panel'
 export { default as EventPanel } from './adaptation-panel/event-panel/event-panel'
 export { default as DefaultToast } from './toast/default-toast'
 export { default as DefaultGraph } from './graph-panel/graph/graph'

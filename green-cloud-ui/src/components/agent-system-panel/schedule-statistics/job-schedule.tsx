@@ -4,7 +4,7 @@ import { SCHEDULER_CONFIGURATION } from './job-schedule-config'
 
 import { useAppSelector } from '@store'
 import DetailsField from 'components/common/details-field/details-field'
-import ScheduleModal from './schedule-modal/schedule-modal'
+import ScheduleModal from '../../agent-system-panel/schedule-statistics/schedule-modal/schedule-modal'
 import { ModalButton } from 'components/common'
 
 const modalButtonText = 'Schedule'

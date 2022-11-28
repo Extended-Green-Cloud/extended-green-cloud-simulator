@@ -8,8 +8,8 @@ import {
    JobStatusSelect,
    JOB_STATUS_MAP,
 } from '../client-statistics-config'
-import StatusFilterBox from './status-filter-box/status-filter-box'
-import ClientDropdown from './client-dropdown/client-dropdown'
+import StatusFilterBox from '../../../agent-system-panel/client-statistics/client-statistics-select/status-filter-box/status-filter-box'
+import ClientDropdown from '../../../agent-system-panel/client-statistics/client-statistics-select/client-dropdown/client-dropdown'
 import { AnyAction, Dispatch } from 'redux'
 import Collapse from 'components/common/collapse/collapse'
 

@@ -4,29 +4,33 @@ interface Styles {
    header: React.CSSProperties
    selectedTab: React.CSSProperties
    deselectedTab: React.CSSProperties
-   secondTabStyle: React.CSSProperties
+   commonTab: React.CSSProperties
 }
 
 export const styles: Styles = {
    header: {
       display: 'flex',
+      flexWrap: 'wrap',
       justifyContent: 'space-between',
-      marginRight: '25px',
       color: 'var(--gray-2)',
+      fontSize: 'var(--font-size-8)',
       fontWeight: '300',
       minWidth: 'fit-content',
       cursor: 'pointer',
    },
-   selectedTab: {
-      borderBottom: '1px solid var(--gray-1)',
-      paddingBottom: '10px',
+   commonTab: {
+      textAlign: 'center',
+      wordBreak: 'break-all',
+      padding: '10px 0',
       width: '50%',
+   },
+   selectedTab: {
+      fontWeight: '400',
+      backgroundColor: 'var(--gray-4)',
+      borderRadius: 10,
    },
    deselectedTab: {
       color: 'var(--gray-8)',
-      width: '50%',
-   },
-   secondTabStyle: {
-      textAlign: 'right',
+      fontSize: 'var(--font-size-3)',
    },
 }

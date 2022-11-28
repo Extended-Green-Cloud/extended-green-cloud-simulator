@@ -1,12 +1,6 @@
 import React, { useEffect } from 'react'
 import { styles } from './main-view-style'
-import {
-   StatisticsPanel,
-   Banner,
-   NetworkPanel,
-   GraphPanel,
-   AdaptationPanel,
-} from '@components'
+import { Banner, NetworkPanel, GraphPanel, AdaptationPanel } from '@components'
 import { cloudNetworkActions, useAppDispatch } from '@store'
 
 /**
@@ -27,7 +21,6 @@ const MainView = () => {
          <div style={styles.contentContainer}>
             <div style={styles.leftContentContainer}>
                <NetworkPanel />
-               <StatisticsPanel />
             </div>
             <GraphPanel />
             <div style={styles.rightContentContainer}>
