@@ -98,7 +98,7 @@ public class InitiateCNALookup extends ContractNetInitiator {
 					POSTPONED_JOB_ID));
 		} else {
 			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
-			myScheduler.manage().handleJobCleanUp(job, FAILED_JOB_ID, parent);
+			myScheduler.manage().handleFailedJobCleanUp(job, parent);
 			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					FAILED_JOB_ID));
 		}

@@ -8,7 +8,6 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
 import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
-import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 
 import java.time.Instant;
@@ -22,7 +21,6 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
-import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.InitiateCNALookup;
 import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 import com.gui.agents.SchedulerAgentNode;
@@ -97,11 +95,10 @@ public class SchedulerStateManagement {
 	 * Cleans up a job after finished processing
 	 *
 	 * @param job           job to be cleaned up
-	 * @param type          type of the job protocol - the main reason for job cleanup
 	 * @param mainBehaviour if job cancellation have to be initiated it is added as sub-behaviour to the agents main
 	 *                      behaviour
 	 */
-	public void handleJobCleanUp(final ClientJob job, final String type, final Behaviour mainBehaviour) {
+	public void handleFailedJobCleanUp(final ClientJob job, final Behaviour mainBehaviour) {
 		final List<String> jobsToRemove = getJobsToRemove(job);
 		var originalJobId = job.getJobId().split("#")[0];
 
@@ -110,10 +107,21 @@ public class SchedulerStateManagement {
 		schedulerAgent.getJobParts().entries().removeIf(entry -> entry.getKey().equals(originalJobId)
 				&& jobsToRemove.contains(entry.getValue().getJobId()));
 
-		if (type.equals(FAILED_JOB_ID)
-				&& schedulerAgent.getClientJobs().keySet().stream().anyMatch(isJobIdEqual(job))) {
+		if (schedulerAgent.getClientJobs().keySet().stream().anyMatch(isJobIdEqual(job))) {
 			initiateJobCancellation(originalJobId, mainBehaviour);
 		}
+	}
+
+	public void handleJobCleanUp(final ClientJob job) {
+		var originalJobId = job.getJobId().split("#")[0];
+
+		schedulerAgent.getClientJobs().remove(job);
+		schedulerAgent.getCnaForJobMap().remove(job.getJobId());
+		var jobParts = schedulerAgent.getJobParts().get(originalJobId);
+		jobParts.stream()
+				.filter(jobPart -> jobPart.getJobId().equals(job.getJobId()))
+				.findFirst()
+				.ifPresent(jobPart -> schedulerAgent.getJobParts().remove(originalJobId, jobPart));
 	}
 
 	private Predicate<ClientJob> isJobIdEqual(final ClientJob job) {

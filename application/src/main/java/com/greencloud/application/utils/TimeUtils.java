@@ -198,7 +198,7 @@ public class TimeUtils {
 	 */
 	public static void setSystemStartTime() {
 		if (Objects.isNull(SYSTEM_START_TIME)) {
-			SYSTEM_START_TIME = Instant.now();
+			SYSTEM_START_TIME = getCurrentTime();
 		}
 	}
 

@@ -73,7 +73,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 		switch (type) {
 			case STARTED_JOB_ID -> mySchedulerAgent.getClientJobs().replace(job, PROCESSING, IN_PROGRESS);
-			case FINISH_JOB_ID -> mySchedulerAgent.manage().handleJobCleanUp(job, type, parent);
+			case FINISH_JOB_ID -> mySchedulerAgent.manage().handleJobCleanUp(job);
 			case FAILED_JOB_ID -> handleJobFailure(job);
 		}
 		if (!type.equals(FAILED_JOB_ID)) {
@@ -88,7 +88,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			mySchedulerAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					POSTPONED_JOB_ID));
 		} else {
-			mySchedulerAgent.manage().handleJobCleanUp(job, FAILED_JOB_ID, parent);
+			mySchedulerAgent.manage().handleFailedJobCleanUp(job, parent);
 			mySchedulerAgent.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
 					FAILED_JOB_ID));
 		}

@@ -126,13 +126,7 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 	}
 
 	private void handleReadClientJob(ClientJob job) {
-		mySchedulerAgent.getClientJobs().remove(job);
-		mySchedulerAgent.getCnaForJobMap().remove(job.getJobId());
-		var jobParts = mySchedulerAgent.getJobParts().get(originalJobId);
-		jobParts.stream()
-				.filter(jobPart -> jobPart.getJobId().equals(job.getJobId()))
-				.findFirst()
-				.ifPresent(jobPart -> mySchedulerAgent.getJobParts().remove(originalJobId, jobPart));
+		mySchedulerAgent.manage().handleJobCleanUp(job);
 		logger.info(JOB_CANCELLING_LOG, job.getJobId());
 		processedJobs.getAndIncrement();
 	}

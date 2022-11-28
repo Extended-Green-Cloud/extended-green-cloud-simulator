@@ -10,7 +10,6 @@ import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
-import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,9 +25,9 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.HandleSourcePowerShortage;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.InitiatePowerJobTransfer;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.domain.powershortage.PowerShortageCause;
 import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -135,6 +134,6 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	private void logPowerShortageStart() {
 		final String logMessage = cause.equals(PHYSICAL_CAUSE) ? POWER_SHORTAGE_SOURCE_START_LOG :
 				POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
-		logger.info(logMessage, shortageStartTime, convertToRealTime(shortageStartTime));
+		logger.info(logMessage, shortageStartTime, shortageStartTime);
 	}
 }

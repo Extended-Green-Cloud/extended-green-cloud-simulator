@@ -17,9 +17,9 @@ import jade.core.Agent;
  */
 public abstract class AbstractAgent extends Agent {
 
+	protected AgentType agentType;
 	private GuiController guiController;
 	private AbstractAgentNode agentNode;
-	protected AgentType agentType;
 
 	protected AbstractAgent() {
 	}
