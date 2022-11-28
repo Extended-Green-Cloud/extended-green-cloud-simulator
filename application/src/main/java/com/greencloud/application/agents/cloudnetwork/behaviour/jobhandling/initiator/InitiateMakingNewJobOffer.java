@@ -10,6 +10,7 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
+import com.greencloud.commons.job.JobResultType;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -60,6 +61,8 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 
 		if (Objects.nonNull(job)) {
+			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
+			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myAgent.send(
 					prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
 		}
@@ -81,8 +84,9 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		if (Objects.nonNull(job)) {
 			myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 			myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
-
-			myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
+			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		}
+
+		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 }

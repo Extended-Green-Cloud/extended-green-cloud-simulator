@@ -6,16 +6,16 @@ import static com.greencloud.application.agents.server.management.logs.ServerMan
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_PROCESS_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.BACK_UP_POWER_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
-import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
-import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -50,7 +51,6 @@ import com.greencloud.application.agents.server.behaviour.jobexecution.handler.H
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.utils.AlgorithmUtils;
@@ -86,8 +86,8 @@ public class ServerStateManagement {
 	 * @return available power
 	 */
 	public synchronized int getAvailableCapacity(final Instant startDate, final Instant endDate,
-			final JobInstanceIdentifier jobToExclude, final Set<JobStatusEnum> statusEnums) {
-		final Set<JobStatusEnum> statuses = Objects.isNull(statusEnums) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusEnums;
+			final JobInstanceIdentifier jobToExclude, final Set<ExecutionJobStatusEnum> statusEnums) {
+		final Set<ExecutionJobStatusEnum> statuses = Objects.isNull(statusEnums) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job))).collect(Collectors.toSet());
@@ -113,14 +113,14 @@ public class ServerStateManagement {
 	 */
 	public void finishJobExecutionWithResult(final ClientJob jobToFinish, final boolean informCNA,
 			JobResultType resultType) {
-		final JobStatusEnum jobStatusEnum = serverAgent.getServerJobs().get(jobToFinish);
+		final ExecutionJobStatusEnum executionJobStatusEnum = serverAgent.getServerJobs().get(jobToFinish);
 
 		sendFinishInformation(jobToFinish, informCNA);
 		updateStateAfterJobIsDone(jobToFinish, resultType);
 
-		if (jobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || jobStatusEnum.equals(
+		if (executionJobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || executionJobStatusEnum.equals(
 				IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
-			final Map<ClientJob, JobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
+			final Map<ClientJob, ExecutionJobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
 					.filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
 							getCurrentTime())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			supplyJobsWithBackupPower(jobsWithinTimeStamp);
@@ -198,10 +198,10 @@ public class ServerStateManagement {
 		if (powerShortageStart.isAfter(job.getStartTime()) && !powerShortageStart.equals(job.getStartTime())) {
 			final ClientJob affectedJobInstance = JobMapper.mapToJobNewStartTime(job, powerShortageStart);
 			final ClientJob notAffectedJobInstance = JobMapper.mapToJobNewEndTime(job, powerShortageStart);
-			final JobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
+			final ExecutionJobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
 
 			serverAgent.getServerJobs().remove(job);
-			serverAgent.getServerJobs().put(affectedJobInstance, JobStatusEnum.ON_HOLD_TRANSFER);
+			serverAgent.getServerJobs().put(affectedJobInstance, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
 			serverAgent.getServerJobs().put(notAffectedJobInstance, currentJobStatus);
 
 			serverAgent.addBehaviour(HandleJobStart.createFor(serverAgent, affectedJobInstance, false, true));
@@ -213,7 +213,7 @@ public class ServerStateManagement {
 
 			return affectedJobInstance;
 		} else {
-			serverAgent.getServerJobs().replace(job, JobStatusEnum.ON_HOLD_TRANSFER);
+			serverAgent.getServerJobs().replace(job, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
 			updateServerGUI();
 			return job;
 		}
@@ -301,7 +301,7 @@ public class ServerStateManagement {
 		serverAgent.getServerJobs().remove(jobToBeDone);
 	}
 
-	private void supplyJobsWithBackupPower(final Map<ClientJob, JobStatusEnum> jobEntries) {
+	private void supplyJobsWithBackupPower(final Map<ClientJob, ExecutionJobStatusEnum> jobEntries) {
 		jobEntries.entrySet().stream()
 				.filter(job -> job.getValue().equals(ON_HOLD_SOURCE_SHORTAGE_PLANNED) || job.getValue()
 						.equals(ON_HOLD_SOURCE_SHORTAGE))
@@ -309,7 +309,7 @@ public class ServerStateManagement {
 					final ClientJob job = jobEntry.getKey();
 					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), mapToJobInstanceId(job),
 							BACK_UP_POWER_STATUSES) >= job.getPower()) {
-						final JobStatusEnum status = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE) ?
+						final ExecutionJobStatusEnum status = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE) ?
 								IN_PROGRESS_BACKUP_ENERGY :
 								IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 						MDC.put(MDC_JOB_ID, job.getJobId());

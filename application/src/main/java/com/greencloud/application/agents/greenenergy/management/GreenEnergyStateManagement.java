@@ -9,10 +9,10 @@ import static com.greencloud.application.agents.greenenergy.management.logs.Gree
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.POWER_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACTIVE_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.JOB_ON_HOLD_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACTIVE_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
@@ -47,7 +47,7 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
@@ -134,10 +134,10 @@ public class GreenEnergyStateManagement {
 		if (powerShortageStart.isAfter(powerJob.getStartTime())) {
 			final PowerJob affectedPowerJobInstance = JobMapper.mapToJobNewStartTime(powerJob, powerShortageStart);
 			final PowerJob notAffectedPowerJobInstance = JobMapper.mapToJobNewEndTime(powerJob, powerShortageStart);
-			final JobStatusEnum currentJobStatus = greenEnergyAgent.getPowerJobs().get(powerJob);
+			final ExecutionJobStatusEnum currentJobStatus = greenEnergyAgent.getPowerJobs().get(powerJob);
 
 			greenEnergyAgent.getPowerJobs().remove(powerJob);
-			greenEnergyAgent.getPowerJobs().put(affectedPowerJobInstance, JobStatusEnum.ON_HOLD_TRANSFER);
+			greenEnergyAgent.getPowerJobs().put(affectedPowerJobInstance, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
 			greenEnergyAgent.getPowerJobs().put(notAffectedPowerJobInstance, currentJobStatus);
 			greenEnergyAgent.addBehaviour(new HandleManualPowerSupplyFinish(greenEnergyAgent,
 					calculateExpectedJobEndTime(affectedPowerJobInstance),
@@ -145,7 +145,7 @@ public class GreenEnergyStateManagement {
 			updateGreenSourceGUI();
 			return affectedPowerJobInstance;
 		} else {
-			greenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ON_HOLD_TRANSFER);
+			greenEnergyAgent.getPowerJobs().replace(powerJob, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
 			updateGreenSourceGUI();
 			return powerJob;
 		}
@@ -161,7 +161,7 @@ public class GreenEnergyStateManagement {
 	 */
 	public synchronized Optional<Double> getAvailablePowerForJob(final PowerJob powerJob,
 			final MonitoringData weather, final boolean isNewJob) {
-		final Set<JobStatusEnum> jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
+		final Set<ExecutionJobStatusEnum> jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
 		final Set<PowerJob> powerJobsOfInterest = greenEnergyAgent.getPowerJobs().entrySet().stream()
 				.filter(job -> jobStatuses.contains(job.getValue()))
 				.map(Map.Entry::getKey)
@@ -227,7 +227,7 @@ public class GreenEnergyStateManagement {
 	 */
 	public int getCurrentPowerInUseForGreenSource() {
 		return greenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(JobStatusEnum.IN_PROGRESS)
+				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS)
 						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.mapToInt(job -> job.getKey().getPower())
 				.sum();

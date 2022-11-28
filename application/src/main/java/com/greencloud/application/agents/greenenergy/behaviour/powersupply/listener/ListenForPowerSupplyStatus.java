@@ -4,20 +4,20 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powersuppl
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.START_POWER_SUPPLY_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_STATUS_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static java.util.Objects.nonNull;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
@@ -67,8 +67,8 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 	private void handlePowerSupplyStart(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
 		MDC.put(MDC_JOB_ID, powerJob.getJobId());
 		logger.info(START_POWER_SUPPLY_LOG, jobInstance.getJobId());
-		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
-		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ON_HOLD_PLANNED, JobStatusEnum.ON_HOLD);
+		myGreenEnergyAgent.getPowerJobs().replace(powerJob, ExecutionJobStatusEnum.ACCEPTED, ExecutionJobStatusEnum.IN_PROGRESS);
+		myGreenEnergyAgent.getPowerJobs().replace(powerJob, ExecutionJobStatusEnum.ON_HOLD_PLANNED, ExecutionJobStatusEnum.ON_HOLD);
 		myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.STARTED);
 	}
 

@@ -18,7 +18,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForWeatherData;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.behaviours.Behaviour;
@@ -85,8 +85,8 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 
 	private List<PowerJob> getJobsOnHold() {
 		return myGreenAgent.getPowerJobs().entrySet().stream()
-				.filter(job -> (job.getValue().equals(JobStatusEnum.ON_HOLD_PLANNED)
-						|| job.getValue().equals(JobStatusEnum.ON_HOLD)) &&
+				.filter(job -> (job.getValue().equals(ExecutionJobStatusEnum.ON_HOLD_PLANNED)
+						|| job.getValue().equals(ExecutionJobStatusEnum.ON_HOLD)) &&
 						job.getKey().getEndTime().isAfter(getCurrentTime()))
 				.map(Map.Entry::getKey)
 				.toList();

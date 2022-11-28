@@ -9,6 +9,7 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 
 import java.util.Objects;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -17,7 +18,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.initiator.InitiatePowerDeliveryForJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.ClientJob;
 
@@ -76,7 +76,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG);
 
-		myServerAgent.getServerJobs().putIfAbsent(job, JobStatusEnum.PROCESSING);
+		myServerAgent.getServerJobs().putIfAbsent(job, ExecutionJobStatusEnum.PROCESSING);
 		myServerAgent.tookJobIntoProcessing();
 
 		final ACLMessage cfp = createCallForProposal(JobMapper.mapJobToPowerJob(job),

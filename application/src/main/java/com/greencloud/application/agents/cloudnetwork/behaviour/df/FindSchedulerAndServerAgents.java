@@ -54,6 +54,7 @@ public class FindSchedulerAndServerAgents extends OneShotBehaviour {
 		myCloudNetworkAgent.setOwnedServers(serverAgents);
 		myCloudNetworkAgent.setScheduler(schedulerAgents.get(0));
 		initializeWeights();
+		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 	}
 
 	private void initializeWeights() {

@@ -75,9 +75,11 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 		if (responses.isEmpty()) {
 			logger.info(NO_SERVER_RESPONSES_LOG);
 			myCloudNetworkAgent.getNetworkJobs().remove(job);
+			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myAgent.send(prepareRefuseReply(replyMessage));
 		} else if (proposals.isEmpty()) {
 			myCloudNetworkAgent.getNetworkJobs().remove(job);
+			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myAgent.send(prepareRefuseReply(replyMessage));
 		} else {
 			final List<ACLMessage> validProposals = MessagingUtils.retrieveValidMessages(proposals, ServerData.class);
@@ -93,6 +95,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 						myCloudNetworkAgent.manage().getCurrentPowerInUse(), replyMessage);
 
 				myCloudNetworkAgent.getServerForJobMap().put(job.getJobId(), chosenServerOffer.getSender());
+				myCloudNetworkAgent.manageConfig().saveMonitoringData();
 				myCloudNetworkAgent.addBehaviour(new InitiateMakingNewJobOffer(myCloudNetworkAgent, offer, reply));
 				rejectJobOffers(myCloudNetworkAgent, mapToJobInstanceId(job), chosenServerOffer, proposals);
 			} else {

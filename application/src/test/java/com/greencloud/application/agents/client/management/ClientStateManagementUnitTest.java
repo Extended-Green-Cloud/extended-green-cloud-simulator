@@ -1,14 +1,14 @@
 package com.greencloud.application.agents.client.management;
 
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-import static com.greencloud.commons.job.JobStatusEnum.DELAYED;
-import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
-import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.JobStatusEnum.ON_BACK_UP;
-import static com.greencloud.commons.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
-import static com.greencloud.commons.job.JobStatusEnum.SCHEDULED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.DELAYED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import org.assertj.core.api.Condition;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
-import com.greencloud.commons.job.JobStatusEnum;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -105,8 +105,8 @@ class ClientStateManagementUnitTest {
 	@ParameterizedTest
 	@MethodSource("jobStatusesIncorrect")
 	@DisplayName("Test update original job status when update should not happen")
-	void testUpdateOriginalJobStatusFail(JobStatusEnum newStatus, JobStatusEnum jobPart1Status,
-			JobStatusEnum jobPart2Status, JobStatusEnum currentStatus) {
+	void testUpdateOriginalJobStatusFail(ClientJobStatusEnum newStatus, ClientJobStatusEnum jobPart1Status,
+                                         ClientJobStatusEnum jobPart2Status, ClientJobStatusEnum currentStatus) {
 		mockClientManagement.setCurrentJobStatus(currentStatus);
 		doReturn(Map.of(
 				"1#1", new JobPart(null, jobPart1Status, null, null, null),
@@ -121,8 +121,8 @@ class ClientStateManagementUnitTest {
 	@ParameterizedTest
 	@MethodSource("jobStatusesCorrect")
 	@DisplayName("Test update original job status when update should succeed")
-	void testUpdateOriginalJobStatusSucceed(JobStatusEnum newStatus, JobStatusEnum jobPart1Status,
-			JobStatusEnum jobPart2Status, JobStatusEnum currentStatus) {
+	void testUpdateOriginalJobStatusSucceed(ClientJobStatusEnum newStatus, ClientJobStatusEnum jobPart1Status,
+                                            ClientJobStatusEnum jobPart2Status, ClientJobStatusEnum currentStatus) {
 		mockClientManagement.setCurrentJobStatus(currentStatus);
 		doReturn(Map.of(
 				"1#1", new JobPart(null, jobPart1Status, null, null, null),
@@ -136,8 +136,8 @@ class ClientStateManagementUnitTest {
 	@ParameterizedTest
 	@MethodSource("partsCorrectness")
 	@DisplayName("Test check if all parts match given status")
-	void testCheckIfAllPartsMatchStatus(JobStatusEnum statusToCheck, JobStatusEnum jobPart1Status,
-			JobStatusEnum jobPart2Status, boolean result) {
+	void testCheckIfAllPartsMatchStatus(ClientJobStatusEnum statusToCheck, ClientJobStatusEnum jobPart1Status,
+                                        ClientJobStatusEnum jobPart2Status, boolean result) {
 		doReturn(Map.of(
 				"1#1", new JobPart(null, jobPart1Status, null, null, null),
 				"1#2", new JobPart(null, jobPart2Status, null, null, null)

@@ -4,10 +4,11 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_HAS_STARTED_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.logs.JobHandlingInitiatorLog.JOB_STATUS_IS_CHECKED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForScheduler;
 import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 
 import java.util.Objects;
 
@@ -70,7 +71,8 @@ public class InitiateJobStartCheck extends AchieveREInitiator {
 			logger.info(JOB_HAS_STARTED_LOG, jobId);
 
 			myCloudNetwork.getNetworkJobs().replace(getJobById(jobId, myCloudNetwork.getNetworkJobs()), IN_PROGRESS);
-			myCloudNetwork.manage().incrementStartedJobs(jobId);
+			myCloudNetwork.manageConfig().saveMonitoringData();
+			myCloudNetwork.manage().incrementJobCounter(jobId, STARTED);
 			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetwork, jobId, STARTED_JOB_ID));
 		}
 	}

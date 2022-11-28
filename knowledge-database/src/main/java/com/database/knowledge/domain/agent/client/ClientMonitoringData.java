@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 
 /**
  * Interface storing monitoring data sent by the Client Agent
@@ -25,10 +25,10 @@ public interface ClientMonitoringData extends MonitoringData {
 	/**
 	 * @return current status of job execution
 	 */
-	JobStatusEnum getCurrentJobStatus();
+	ClientJobStatusEnum getCurrentJobStatus();
 
 	/**
 	 * @return time im ms during which the job execution had a certain status
 	 */
-	Map<JobStatusEnum, Long> getJobStatusDurationMap();
+	Map<ClientJobStatusEnum, Long> getJobStatusDurationMap();
 }

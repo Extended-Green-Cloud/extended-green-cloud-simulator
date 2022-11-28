@@ -19,7 +19,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
@@ -81,7 +81,7 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 			MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
 			logger.info(GS_TRANSFER_EXECUTION_LOG);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
-			myServerAgent.getServerJobs().replace(jobToExecute, JobStatusEnum.IN_PROGRESS);
+			myServerAgent.getServerJobs().replace(jobToExecute, ExecutionJobStatusEnum.IN_PROGRESS);
 			myServerAgent.manage().incrementJobCounter(jobInstanceId, STARTED);
 			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, GREEN_POWER_JOB_ID);
 			myServerAgent.manage().updateServerGUI();

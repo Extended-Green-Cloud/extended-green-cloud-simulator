@@ -7,12 +7,12 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.ha
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_PRESENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.job.JobResultType.STARTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.application.domain.job.JobStatusEnum.PLANNED_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -32,7 +33,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -120,7 +120,7 @@ public class HandleJobStart extends WakerBehaviour {
 	}
 
 	private void substituteJobStatus() {
-		final JobStatusEnum currentStatus = myServerAgent.getServerJobs().get(jobToExecute);
+		final ExecutionJobStatusEnum currentStatus = myServerAgent.getServerJobs().get(jobToExecute);
 		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToExecute);
 
 		switch (currentStatus) {

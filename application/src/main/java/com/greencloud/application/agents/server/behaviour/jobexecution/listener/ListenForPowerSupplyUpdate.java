@@ -29,6 +29,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.Objects;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -37,7 +38,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.commons.job.ClientJob;
 
@@ -88,9 +88,9 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
 		final ClientJob job = retrieveJobFromMessage(inform);
-		final JobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
+		final ExecutionJobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
 
-		if (nonNull(statusEnum) && statusEnum.equals(JobStatusEnum.IN_PROGRESS)) {
+		if (nonNull(statusEnum) && statusEnum.equals(ExecutionJobStatusEnum.IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.debug(SUPPLY_FINISHED_MANUALLY_LOG, job.getClientIdentifier(), job.getClientIdentifier());
 			myServerAgent.manage().finishJobExecution(job, true);
@@ -139,7 +139,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 		myServerAgent.getServerJobs()
-				.replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()), JobStatusEnum.ACCEPTED);
+				.replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()), ExecutionJobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 		myServerAgent.send(prepareJobStatusMessageForCNA(jobInstanceId, conversationId, myServerAgent));
 	}

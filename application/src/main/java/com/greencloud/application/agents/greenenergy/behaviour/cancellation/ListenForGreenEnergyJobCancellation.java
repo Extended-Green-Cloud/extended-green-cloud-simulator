@@ -5,10 +5,10 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.cancella
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.CANCELLING_JOB_PARTS_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.templates.JobCancellationMessageTemplates.CANCEL_JOB_ANNOUNCEMENT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.CREATED;
-import static com.greencloud.application.domain.job.JobStatusEnum.ON_HOLD_PLANNED;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
@@ -20,12 +20,13 @@ import static java.util.Objects.nonNull;
 
 import java.util.List;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.domain.job.JobStatusEnum;
+
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
@@ -40,7 +41,7 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListenForGreenEnergyJobCancellation.class);
 
-	private static final List<JobStatusEnum> JOB_NOT_STARTED_STATUSES =
+	private static final List<ExecutionJobStatusEnum> JOB_NOT_STARTED_STATUSES =
 			of(CREATED, PROCESSING, ACCEPTED, ON_HOLD_PLANNED);
 
 	private GreenEnergyAgent myGreenEnergyAgent;

@@ -1,21 +1,24 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.FINISHED_JOB_COUNT_LOG;
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.STARTED_JOB_COUNT_LOG;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.*;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.application.domain.job.JobStatusEnum.PROCESSING;
-import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
+import static com.greencloud.commons.job.JobResultType.*;
 import static java.util.Objects.nonNull;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
+import com.greencloud.commons.job.JobResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.gui.agents.CloudNetworkAgentNode;
 
 /**
@@ -24,15 +27,13 @@ import com.gui.agents.CloudNetworkAgentNode;
 public class CloudNetworkStateManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(CloudNetworkStateManagement.class);
-
 	private final CloudNetworkAgent cloudNetworkAgent;
-	protected AtomicInteger startedJobs;
-	protected AtomicInteger finishedJobs;
+	private final ConcurrentMap<JobResultType, Long> jobCounters;
 
 	public CloudNetworkStateManagement(CloudNetworkAgent cloudNetworkAgent) {
 		this.cloudNetworkAgent = cloudNetworkAgent;
-		this.startedJobs = new AtomicInteger(0);
-		this.finishedJobs = new AtomicInteger(0);
+		this.jobCounters = Arrays.stream(JobResultType.values())
+				.collect(Collectors.toConcurrentMap(result -> result, status -> 0L));
 	}
 
 	/**
@@ -42,46 +43,33 @@ public class CloudNetworkStateManagement {
 	 */
 	public int getCurrentPowerInUse() {
 		return cloudNetworkAgent.getNetworkJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(JobStatusEnum.IN_PROGRESS))
+				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS))
 				.mapToInt(job -> job.getKey().getPower())
 				.sum();
 	}
 
 	/**
-	 * Method increments the count of started jobs
+	 * Method increments the counter of jobs
 	 *
-	 * @param jobId unique job identifier
+	 * @param jobId job identifier
+	 * @param type  type of counter to increment
 	 */
-	public void incrementStartedJobs(final String jobId) {
-		startedJobs.getAndAdd(1);
+	public void incrementJobCounter(final String jobId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(STARTED_JOB_COUNT_LOG, jobId, startedJobs);
+		jobCounters.computeIfPresent(type, (key, val) ->  val += 1);
 
-		if (nonNull(cloudNetworkAgent.getGuiController())) {
-			cloudNetworkAgent.getGuiController().updateActiveJobsCountByValue(1);
+		switch (type) {
+			case FAILED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(FAILED));
+			case ACCEPTED -> logger.info(COUNT_JOB_ACCEPTED_LOG, jobCounters.get(ACCEPTED));
+			case STARTED -> logger.info(COUNT_JOB_START_LOG, jobId, jobCounters.get(STARTED),
+					jobCounters.get(ACCEPTED));
+			case FINISH ->
+					logger.info(COUNT_JOB_FINISH_LOG, jobId, jobCounters.get(FINISH), jobCounters.get(STARTED));
 		}
-		updateCloudNetworkGUI();
 	}
 
-	/**
-	 * Method increments the count of finished jobs
-	 *
-	 * @param jobId unique identifier of the job
-	 */
-	public void incrementFinishedJobs(final String jobId) {
-		finishedJobs.getAndAdd(1);
-		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(FINISHED_JOB_COUNT_LOG, jobId, finishedJobs, startedJobs);
-		updateCloudNetworkGUI();
-		announceFinishedJob(cloudNetworkAgent);
-	}
-
-	public AtomicInteger getStartedJobs() {
-		return startedJobs;
-	}
-
-	public AtomicInteger getFinishedJobs() {
-		return finishedJobs;
+	public Map<JobResultType, Long> getJobCounters() {
+		return jobCounters;
 	}
 
 	private void updateCloudNetworkGUI() {

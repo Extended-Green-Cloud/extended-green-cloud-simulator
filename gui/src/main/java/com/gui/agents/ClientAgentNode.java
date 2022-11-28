@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
 import com.gui.message.ImmutableSplitJobMessage;
@@ -45,12 +45,12 @@ public class ClientAgentNode extends AbstractAgentNode {
 	/**
 	 * Function overrides the job status
 	 *
-	 * @param jobStatusEnum new job status
+	 * @param clientJobStatusEnum new job status
 	 */
-	public void updateJobStatus(final JobStatusEnum jobStatusEnum) {
+	public void updateJobStatus(final ClientJobStatusEnum clientJobStatusEnum) {
 		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
 				.data(ImmutableJobStatus.builder()
-						.status(jobStatusEnum.getStatus())
+						.status(clientJobStatusEnum.getStatus())
 						.splitJobId(null)
 						.build())
 				.agentName(agentName)
@@ -77,12 +77,12 @@ public class ClientAgentNode extends AbstractAgentNode {
 	/**
 	 * Function informs about the job status for a part of job
 	 *
-	 * @param jobStatusEnum new job status
+	 * @param clientJobStatusEnum new job status
 	 */
-	public void updateJobStatus(final JobStatusEnum jobStatusEnum, String jobPartId) {
+	public void updateJobStatus(final ClientJobStatusEnum clientJobStatusEnum, String jobPartId) {
 		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
 				.data(ImmutableJobStatus.builder()
-						.status(jobStatusEnum.getStatus())
+						.status(clientJobStatusEnum.getStatus())
 						.splitJobId(jobPartId)
 						.build())
 				.agentName(agentName)

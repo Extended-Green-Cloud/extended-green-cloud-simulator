@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.PowerJob;
 
@@ -46,8 +46,8 @@ class RequestWeatherDataUnitTest {
 				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
-		final Map<PowerJob, JobStatusEnum> testJobs = setUpMockJobs();
-		testJobs.put(jobProcessing, JobStatusEnum.PROCESSING);
+		final Map<PowerJob, ExecutionJobStatusEnum> testJobs = setUpMockJobs();
+		testJobs.put(jobProcessing, ExecutionJobStatusEnum.PROCESSING);
 		final List<Instant> result = getJobsTimetable(mockCandidatePowerJob, testJobs);
 
 		assertThat(result).hasSize(8)
@@ -66,7 +66,7 @@ class RequestWeatherDataUnitTest {
 	 * PowerJob2 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
 	 * PowerJob3 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
 	 */
-	private Map<PowerJob, JobStatusEnum> setUpMockJobs() {
+	private Map<PowerJob, ExecutionJobStatusEnum> setUpMockJobs() {
 		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
@@ -82,10 +82,10 @@ class RequestWeatherDataUnitTest {
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(25).build();
-		final Map<PowerJob, JobStatusEnum> mockJobMap = new HashMap<>();
-		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob2, JobStatusEnum.ON_HOLD_PLANNED);
-		mockJobMap.put(mockJob3, JobStatusEnum.ACCEPTED);
+		final Map<PowerJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
+		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.ON_HOLD_PLANNED);
+		mockJobMap.put(mockJob3, ExecutionJobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}
 }

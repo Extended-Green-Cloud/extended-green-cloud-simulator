@@ -33,7 +33,7 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForWeatherData;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.commons.job.PowerJob;
 
@@ -107,9 +107,9 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 		if (Objects.nonNull(powerJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG, jobInstanceId.getJobId());
-			final JobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ?
-					JobStatusEnum.ACCEPTED :
-					JobStatusEnum.IN_PROGRESS;
+			final ExecutionJobStatusEnum newStatus = powerJob.getStartTime().isAfter(getCurrentTime()) ?
+					ExecutionJobStatusEnum.ACCEPTED :
+					ExecutionJobStatusEnum.IN_PROGRESS;
 			myGreenEnergyAgent.getPowerJobs().replace(powerJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
@@ -127,7 +127,7 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 			final boolean hasStarted = !jobToPutOnHold.getStartTime().isAfter(getCurrentTime());
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, jobInstanceId.getJobId());
 			myGreenEnergyAgent.getPowerJobs()
-					.replace(jobToPutOnHold, hasStarted ? JobStatusEnum.ON_HOLD : JobStatusEnum.ON_HOLD_PLANNED);
+					.replace(jobToPutOnHold, hasStarted ? ExecutionJobStatusEnum.ON_HOLD : ExecutionJobStatusEnum.ON_HOLD_PLANNED);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG, jobInstanceId.getJobId());

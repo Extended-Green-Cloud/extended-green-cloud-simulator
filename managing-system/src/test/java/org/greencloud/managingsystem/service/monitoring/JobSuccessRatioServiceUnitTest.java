@@ -2,11 +2,11 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-import static com.greencloud.commons.job.JobStatusEnum.FAILED;
-import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
-import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
