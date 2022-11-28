@@ -10,6 +10,7 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTimeMinusError;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.application.utils.TimeUtils.resetMockClock;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
@@ -226,6 +227,7 @@ class TimeUtilsUnitTest {
 	@Test
 	@DisplayName("Test set system start time for system null")
 	void testSetSystemStartTimeForNull() {
+		resetMockClock();
 		setSystemStartTime();
 		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now(), new TemporalUnitWithinOffset(100, MILLIS));
 	}
@@ -233,6 +235,7 @@ class TimeUtilsUnitTest {
 	@Test
 	@DisplayName("Test set system start time for system not null")
 	void testSetSystemStartTimeForNotNull() throws InterruptedException {
+		resetMockClock();
 		setSystemStartTime();
 		TimeUnit.SECONDS.sleep(2);
 		setSystemStartTime();

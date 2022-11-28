@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.*;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.commons.job.JobResultType.*;
@@ -61,11 +62,17 @@ public class CloudNetworkStateManagement {
 		switch (type) {
 			case FAILED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(FAILED));
 			case ACCEPTED -> logger.info(COUNT_JOB_ACCEPTED_LOG, jobCounters.get(ACCEPTED));
-			case STARTED -> logger.info(COUNT_JOB_START_LOG, jobId, jobCounters.get(STARTED),
-					jobCounters.get(ACCEPTED));
-			case FINISH ->
-					logger.info(COUNT_JOB_FINISH_LOG, jobId, jobCounters.get(FINISH), jobCounters.get(STARTED));
+			case STARTED -> {
+				logger.info(COUNT_JOB_START_LOG, jobId, jobCounters.get(STARTED),
+						jobCounters.get(ACCEPTED));
+				cloudNetworkAgent.getGuiController().updateActiveJobsCountByValue(1);
+			}
+			case FINISH -> {
+				logger.info(COUNT_JOB_FINISH_LOG, jobId, jobCounters.get(FINISH), jobCounters.get(STARTED));
+				announceFinishedJob(cloudNetworkAgent);
+			}
 		}
+		updateCloudNetworkGUI();
 	}
 
 	public Map<JobResultType, Long> getJobCounters() {
