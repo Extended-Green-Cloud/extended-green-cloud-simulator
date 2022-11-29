@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.greencloud.application.agents.scheduler.managment.SchedulerAdaptationManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -52,8 +53,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	private void initializeAgent(final Object[] args) {
 		if (Objects.nonNull(args) && args.length == 5) {
 			try {
-				final double deadlineWeight = Double.parseDouble(args[0].toString());
-				final double powerWeight = Double.parseDouble(args[1].toString());
+				final int deadlineWeight = Integer.parseInt(args[0].toString());
+				final int powerWeight = Integer.parseInt(args[1].toString());
 				final int maxQueueSize = Integer.parseInt(args[2].toString());
 				final int jobSplitThreshold = Integer.parseInt(args[3].toString());
 				final int splittingFactor = Integer.parseInt(args[4].toString());
@@ -71,6 +72,7 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize,
 						jobSplitThreshold, splittingFactor);
 				this.stateManagement = new SchedulerStateManagement(this);
+				this.adaptationManagement = new SchedulerAdaptationManagement(this);
 				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
 						Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
 

@@ -4,13 +4,15 @@ import java.time.Duration;
 
 import com.greencloud.commons.job.ClientJob;
 
+import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
+
 /**
  * Set of utilities used to manage the configuration of scheduler agent
  */
 public class SchedulerConfigurationManagement {
 
-	private double deadlineWeightPriority;
-	private double powerWeightPriority;
+	private int deadlineWeightPriority;
+	private int powerWeightPriority;
 	private int maximumQueueSize;
 	private int jobSplitThreshold;
 	private int splittingFactor;
@@ -23,7 +25,7 @@ public class SchedulerConfigurationManagement {
 	 * @param maximumQueueSize       maximum queue size
 	 *                               //@param jobSplitThreshold	 job size at which splitting will be triggered, can be adjusted by the ManagingAgent
 	 */
-	public SchedulerConfigurationManagement(double deadlineWeightPriority, double powerWeightPriority,
+	public SchedulerConfigurationManagement(int deadlineWeightPriority, int powerWeightPriority,
 			int maximumQueueSize, int jobSplitThreshold, int splittingFactor) {
 		this.deadlineWeightPriority = deadlineWeightPriority;
 		this.powerWeightPriority = powerWeightPriority;
@@ -56,5 +58,17 @@ public class SchedulerConfigurationManagement {
 
 	public int getSplittingFactor() {
 		return splittingFactor;
+	}
+
+	public int getDeadlineWeightPriority() { return deadlineWeightPriority; }
+
+	public int getPowerWeightPriority() { return powerWeightPriority; }
+
+	public void increaseDeadlineWeightPriority() {
+		this.deadlineWeightPriority = nextFibonacci(this.deadlineWeightPriority);
+	}
+
+	public void increasePowerWeightPriority() {
+		this.powerWeightPriority = nextFibonacci(this.powerWeightPriority);
 	}
 }
