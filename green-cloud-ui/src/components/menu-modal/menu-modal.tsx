@@ -4,9 +4,10 @@ import {
    useAppDispatch,
    useAppSelector,
 } from '@store'
-import React from 'react'
+import React, { useState } from 'react'
 import { styles } from './menu-modal-styles'
 import { Modal, Button } from 'components'
+import ThirdPartyLibraries from './third-party-libraries/third-party-libraries'
 
 interface Props {
    isMenuOpen: boolean
@@ -21,6 +22,7 @@ interface Props {
  * @returns JSX Element
  */
 const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
+   const [isThirdPartyOpen, setIsThirdPartyOpen] = useState(false)
    const { modalStyle } = styles
    const { isServerConnected } = useAppSelector((state) => state.cloudNetwork)
    const dispatch = useAppDispatch()
@@ -82,6 +84,16 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
                   ? 'DISCONNECT SERVER'
                   : 'CONNECT TO SERVER',
             }}
+         />
+         <Button
+            {...{
+               buttonClassName: 'button-banner button-banner-gray',
+               onClick: () => setIsThirdPartyOpen(true),
+               title: 'THIRD-PARTY LIBRARIES',
+            }}
+         />
+         <ThirdPartyLibraries
+            {...{ isOpen: isThirdPartyOpen, setIsOpen: setIsThirdPartyOpen }}
          />
       </Modal>
    )

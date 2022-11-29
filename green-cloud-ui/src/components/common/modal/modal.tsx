@@ -8,6 +8,7 @@ interface Props {
    children?: React.ReactNode | React.ReactNode[]
    header: React.ReactNode | string
    contentStyle?: React.CSSProperties
+   isNested?: boolean
 }
 
 /**
@@ -18,6 +19,7 @@ interface Props {
  * @param {React.ReactNode | React.ReactNode[] | undefined}[children] - content of the modal
  * @param {React.ReactNode | string}[header] - title of the modal
  * @param {React.CSSProperties}[contentStyle] - optional modal style
+ * @param {boolean}[isNested] - optional flag indicating if the modal is nested
  * @returns JSX Element
  */
 const Modal = ({
@@ -26,11 +28,14 @@ const Modal = ({
    header,
    children,
    contentStyle,
+   isNested,
 }: Props) => {
-   const { modalStyle, modalTitle, mainContainer, contentWrapper } = styles
-   const { content, ...otherStyles } = modalStyle
+   const { modalStyle, modalTitle, mainContainer, contentWrapper, nested } =
+      styles
+   const { content, overlay, ...otherStyles } = modalStyle
    const styleModal = {
       content: { ...contentStyle, ...content },
+      overlay: { ...overlay, ...(isNested ? nested : undefined) },
       ...otherStyles,
    }
 

@@ -5,6 +5,7 @@ interface Styles {
    modalTitle: React.CSSProperties
    mainContainer: React.CSSProperties
    contentWrapper: React.CSSProperties
+   nested: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -42,5 +43,8 @@ export const styles: Styles = {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
+   },
+   nested: {
+      backgroundColor: 'var(--black-transparent-2)',
    },
 }
