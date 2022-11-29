@@ -5,5 +5,11 @@ export const convertUnixToTime = (unix: number) => {
    const day = date.getDate()
    const hour = date.getHours()
    const min = date.getMinutes()
-   return day + '/' + month + '/' + year + ' ' + hour + ':' + min
+
+   const hourFormatted = hour < 10 ? '0' + hour : hour
+   const minFormatted = min < 10 ? '0' + min : min
+
+   return (
+      day + '/' + month + '/' + year + ' ' + hourFormatted + ':' + minFormatted
+   )
 }
