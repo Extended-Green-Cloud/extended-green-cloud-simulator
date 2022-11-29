@@ -9,7 +9,7 @@ export const styles: Styles = {
       flexShrink: 0,
       backgroundColor: 'var(--white)',
       height: '95%',
-      marginLeft: '20px',
+      marginRight: '10px',
       minWidth: 'fit-content',
    },
 }

@@ -5,4 +5,5 @@ export interface ServerAgent extends CommonNetworkAgentInterface {
    greenEnergyAgents: string[]
    backUpTraffic: number
    totalNumberOfClients: number
+   successRatio: number
 }

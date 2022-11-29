@@ -7,4 +7,6 @@ export interface GreenEnergyAgent extends CommonNetworkAgentInterface {
    serverAgent: string
    agentLocation: Location
    energyType: EnergyType
+   successRatio: number
+   weatherPredictionError: number
 }

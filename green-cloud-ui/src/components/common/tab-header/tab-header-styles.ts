@@ -13,7 +13,7 @@ export const styles: Styles = {
       flexWrap: 'wrap',
       justifyContent: 'space-between',
       color: 'var(--gray-2)',
-      fontSize: 'var(--font-size-8)',
+      fontSize: 'var(--font-size-5)',
       fontWeight: '300',
       minWidth: 'fit-content',
       cursor: 'pointer',
@@ -31,6 +31,6 @@ export const styles: Styles = {
    },
    deselectedTab: {
       color: 'var(--gray-8)',
-      fontSize: 'var(--font-size-3)',
+      fontSize: 'var(--font-size-4)',
    },
 }

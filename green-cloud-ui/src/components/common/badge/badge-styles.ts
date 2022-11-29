@@ -14,6 +14,8 @@ export const styles: Styles = {
       fontSize: 'var(--font-size-4)',
       fontWeight: '500',
       borderRadius: '10px',
+      width: 'fit-content',
+      padding: '0 20px',
    },
    inActiveBadge: {
       backgroundColor: 'var(--gray-6)',

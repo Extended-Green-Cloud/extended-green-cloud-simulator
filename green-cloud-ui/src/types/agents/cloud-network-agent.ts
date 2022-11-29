@@ -6,4 +6,5 @@ export interface CloudNetworkAgent extends CommonAgentInterface {
    traffic: number
    totalNumberOfClients: number
    totalNumberOfExecutedJobs: number
+   successRatio: number
 }
