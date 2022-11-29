@@ -1,6 +1,5 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doNothing;
@@ -22,6 +21,7 @@ import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorPa
 
 class GreenEnergyAdaptationManagementUnitTest {
 
+	private static final double INITIAL_WEATHER_PREDICTION_ERROR = 0.02;
 	@Mock
 	private GreenEnergyAgent mockGreenEnergyAgent;
 

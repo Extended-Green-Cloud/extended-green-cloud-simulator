@@ -1,7 +1,5 @@
 package com.greencloud.application.agents.greenenergy;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,6 +16,7 @@ import com.greencloud.commons.job.PowerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
 
@@ -40,7 +39,6 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	AbstractGreenEnergyAgent() {
 		super.setup();
 		this.powerJobs = new ConcurrentHashMap<>();
-		this.weatherPredictionError = INITIAL_WEATHER_PREDICTION_ERROR;
 		agentType = AgentType.GREEN_SOURCE;
 	}
 
@@ -82,6 +80,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public void setWeatherPredictionError(double weatherPredictionError) {
 		this.weatherPredictionError = weatherPredictionError;
+		((GreenEnergyAgentNode) getAgentNode()).updatePredictionError(weatherPredictionError);
 	}
 
 	public void setGreenPowerManagement(GreenPowerManagement greenPowerManagement) {

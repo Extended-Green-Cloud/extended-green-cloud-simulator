@@ -142,6 +142,8 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 								FAILED_JOB_PROTOCOL;
 		myGreenEnergyAgent.manage()
 				.incrementJobCounter(jobWithProtocol.getJobInstanceIdentifier(), JobResultType.FAILED);
+		myGreenEnergyAgent.getPowerJobs().remove(job);
+
 		final ACLMessage failureMessage = prepareFailureReply(proposal.createReply(),
 				jobWithProtocol.getJobInstanceIdentifier(), responseProtocol);
 

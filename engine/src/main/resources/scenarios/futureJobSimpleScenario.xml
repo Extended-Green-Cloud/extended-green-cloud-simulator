@@ -25,6 +25,7 @@
 			<longitude>11.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>

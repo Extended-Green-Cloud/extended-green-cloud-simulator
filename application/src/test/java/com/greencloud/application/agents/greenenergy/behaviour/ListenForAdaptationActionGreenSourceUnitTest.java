@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.greenenergy.behaviour;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_REQUEST;
 import static jade.lang.acl.ACLMessage.REQUEST;
@@ -39,6 +38,7 @@ import jade.lang.acl.ACLMessage;
 @MockitoSettings(strictness = LENIENT)
 class ListenForAdaptationActionGreenSourceUnitTest {
 
+	private static final double INITIAL_WEATHER_PREDICTION_ERROR = 0.02;
 	@Mock
 	private GreenEnergyAgent greenEnergyAgent;
 

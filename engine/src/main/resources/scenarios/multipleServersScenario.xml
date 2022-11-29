@@ -32,6 +32,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm2</name>
@@ -42,6 +43,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm3</name>
@@ -52,6 +54,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>

@@ -20,8 +20,8 @@ import jade.core.AID;
 public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
-
 	protected transient CloudNetworkConfigManagement configManagement;
+
 	protected Map<ClientJob, ExecutionJobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
 	protected AtomicLong completedJobs;

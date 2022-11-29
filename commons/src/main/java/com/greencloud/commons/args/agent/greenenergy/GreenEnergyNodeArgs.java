@@ -36,4 +36,9 @@ public interface GreenEnergyNodeArgs extends AgentArgs {
 	 * @return type of energy source
 	 */
 	String getEnergyType();
+
+	/**
+	 * @return weather prediction error
+	 */
+	double getWeatherPredictionError();
 }

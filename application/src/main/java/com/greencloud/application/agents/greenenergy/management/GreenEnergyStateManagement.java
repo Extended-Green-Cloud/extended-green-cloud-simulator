@@ -240,13 +240,15 @@ public class GreenEnergyStateManagement {
 		final GreenEnergyAgentNode greenEnergyAgentNode = (GreenEnergyAgentNode) greenEnergyAgent.getAgentNode();
 
 		if (nonNull(greenEnergyAgentNode)) {
+			final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED));
+
 			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity(),
 					getCurrentPowerInUseForGreenSource());
 			greenEnergyAgentNode.updateJobsCount(getJobCount());
 			greenEnergyAgentNode.updateJobsOnHoldCount(getOnHoldJobCount());
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
 			greenEnergyAgentNode.updateTraffic(getCurrentPowerInUseForGreenSource());
-
+			greenEnergyAgentNode.updateCurrentJobSuccessRatio(successRatio);
 			writeStateToDatabase();
 		}
 	}

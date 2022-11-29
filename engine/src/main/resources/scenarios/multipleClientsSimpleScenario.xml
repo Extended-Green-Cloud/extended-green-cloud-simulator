@@ -32,6 +32,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>300</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind</name>
@@ -42,6 +43,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind2</name>
@@ -52,6 +54,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>

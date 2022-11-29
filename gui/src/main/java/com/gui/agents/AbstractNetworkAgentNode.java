@@ -105,4 +105,17 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 				.type("SET_ON_HOLD_JOBS_COUNT")
 				.build());
 	}
+
+	/**
+	 * Function updates the current job success ratio of a network agent
+	 *
+	 * @param value new success ratio
+	 */
+	public void updateCurrentJobSuccessRatio(final double value) {
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.type("SET_JOB_SUCCESS_RATIO")
+				.agentName(agentName)
+				.data(value * 100)
+				.build());
+	}
 }

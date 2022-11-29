@@ -53,6 +53,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm1</name>
@@ -63,6 +64,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar2</name>
@@ -73,6 +75,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind2</name>
@@ -83,6 +86,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar3</name>
@@ -93,6 +97,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind3</name>
@@ -103,6 +108,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar4</name>
@@ -113,6 +119,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind4</name>
@@ -123,6 +130,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar5</name>
@@ -133,6 +141,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind5</name>
@@ -143,6 +152,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>

@@ -70,7 +70,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 							greenEnergyAgent.getPricePerPowerUnit(),
 							greenEnergyAgent.getLatitude(),
 							greenEnergyAgent.getLongitude(),
-							greenEnergyAgent.getEnergyType() });
+							greenEnergyAgent.getEnergyType(),
+							greenEnergyAgent.getWeatherPredictionError() });
 		} else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
 			return containerController.createNewAgent(monitoringAgent.getName(),
 					"com.greencloud.application.agents.monitoring.MonitoringAgent",

@@ -1,11 +1,18 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.*;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_ACCEPTED_LOG;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_FINISH_LOG;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_PROCESS_LOG;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
+import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
-import static com.greencloud.commons.job.JobResultType.*;
+import static com.greencloud.commons.job.JobResultType.ACCEPTED;
+import static com.greencloud.commons.job.JobResultType.FAILED;
+import static com.greencloud.commons.job.JobResultType.FINISH;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
@@ -13,13 +20,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import com.greencloud.commons.job.JobResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
 import com.gui.agents.CloudNetworkAgentNode;
 
 /**
@@ -57,7 +64,7 @@ public class CloudNetworkStateManagement {
 	 */
 	public void incrementJobCounter(final String jobId, final JobResultType type) {
 		MDC.put(MDC_JOB_ID, jobId);
-		jobCounters.computeIfPresent(type, (key, val) ->  val += 1);
+		jobCounters.computeIfPresent(type, (key, val) -> val += 1);
 
 		switch (type) {
 			case FAILED -> logger.info(COUNT_JOB_PROCESS_LOG, jobCounters.get(FAILED));
@@ -83,9 +90,12 @@ public class CloudNetworkStateManagement {
 		final CloudNetworkAgentNode cloudNetworkAgentNode = (CloudNetworkAgentNode) cloudNetworkAgent.getAgentNode();
 
 		if (nonNull(cloudNetworkAgentNode)) {
+			final double successRatio = getJobSuccessRatio(cloudNetworkAgent.manage().getJobCounters().get(ACCEPTED),
+					cloudNetworkAgent.manage().getJobCounters().get(FAILED));
 			cloudNetworkAgentNode.updateClientNumber(getScheduledJobs());
 			cloudNetworkAgentNode.updateJobsCount(getJobInProgressCount());
 			cloudNetworkAgentNode.updateTraffic(getCurrentPowerInUse());
+			cloudNetworkAgentNode.updateCurrentJobSuccessRatio(successRatio);
 		}
 	}
 

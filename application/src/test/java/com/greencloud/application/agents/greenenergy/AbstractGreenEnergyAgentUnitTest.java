@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.greenenergy;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -18,6 +17,7 @@ import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSour
 
 class AbstractGreenEnergyAgentUnitTest {
 
+	private static final double INITIAL_WEATHER_PREDICTION_ERROR = 0.02;
 	private GreenEnergyAgent agent;
 
 	@BeforeEach

@@ -26,6 +26,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>50</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>

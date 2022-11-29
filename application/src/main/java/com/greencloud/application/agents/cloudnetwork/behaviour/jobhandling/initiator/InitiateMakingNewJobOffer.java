@@ -57,10 +57,11 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 	protected void handleAcceptProposal(final ACLMessage accept) {
 		final String jobId = accept.getContent();
 		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
-		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 
 		if (Objects.nonNull(job)) {
+			MDC.put(MDC_JOB_ID, jobId);
+			logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
+
 			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
 			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myAgent.send(

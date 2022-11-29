@@ -91,4 +91,17 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 				.data(value)
 				.build());
 	}
+
+	/**
+	 * Function updates the current job success ratio of a cloud network
+	 *
+	 * @param value new success ratio
+	 */
+	public void updateCurrentJobSuccessRatio(final double value) {
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.type("SET_JOB_SUCCESS_RATIO")
+				.agentName(agentName)
+				.data(value * 100)
+				.build());
+	}
 }

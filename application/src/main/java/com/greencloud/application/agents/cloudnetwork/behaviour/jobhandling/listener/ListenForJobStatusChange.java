@@ -76,15 +76,15 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			if (Objects.nonNull(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()))) {
 				MDC.put(MDC_JOB_ID, jobId);
 
-				if (message.getProtocol().equals(CHANGE_JOB_STATUS_PROTOCOL)) {
+				if(message.getProtocol().equals(FAILED_JOB_PROTOCOL) || message.getConversationId().equals(FAILED_JOB_ID)) {
+					handleFailedJobMessage(jobId);
+				} else if (message.getProtocol().equals(CHANGE_JOB_STATUS_PROTOCOL)) {
 					switch (message.getConversationId()) {
 						case CONFIRMED_JOB_ID -> handleConfirmedJobMessage(jobId);
 						case STARTED_JOB_ID -> handleStartedJobMessage(jobId);
 						case FINISH_JOB_ID -> handleFinishJobMessage(jobId);
 						default -> handleJobStatusUpdateMessage(jobId, message.getConversationId());
 					}
-				} else if (message.getProtocol().equals(FAILED_JOB_PROTOCOL)) {
-					handleFailedJobMessage(jobId);
 				}
 			}
 		} else {

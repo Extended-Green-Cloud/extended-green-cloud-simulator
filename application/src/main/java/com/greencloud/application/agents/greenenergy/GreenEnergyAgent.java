@@ -57,7 +57,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 7) {
+		if (Objects.nonNull(args) && args.length == 8) {
 			this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 			this.stateManagement = new GreenEnergyStateManagement(this);
@@ -74,6 +74,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				} else {
 					this.energyType = (GreenEnergySourceTypeEnum) args[6];
 				}
+				this.weatherPredictionError = Double.parseDouble(args[7].toString());
 			} catch (NumberFormatException e) {
 				logger.info("Incorrect argument: please check arguments in the documentation");
 				doDelete();

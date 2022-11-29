@@ -226,6 +226,8 @@ public class ServerStateManagement {
 		final ServerAgentNode serverAgentNode = (ServerAgentNode) serverAgent.getAgentNode();
 
 		if (Objects.nonNull(serverAgentNode)) {
+			final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED));
+
 			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(),
 					getCurrentPowerInUseForServer());
 			serverAgentNode.updateJobsCount(getJobCount());
@@ -234,6 +236,7 @@ public class ServerStateManagement {
 			serverAgentNode.updateTraffic(getCurrentPowerInUseForServer());
 			serverAgentNode.updateBackUpTraffic(getCurrentBackUpPowerInUseForServer());
 			serverAgentNode.updateJobsOnHoldCount(getOnHoldJobsCount());
+			serverAgentNode.updateCurrentJobSuccessRatio(successRatio);
 			writeStateToDatabase();
 		}
 	}

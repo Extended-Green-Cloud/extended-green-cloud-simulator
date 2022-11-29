@@ -40,6 +40,11 @@ public interface GreenEnergyAgentArgs extends AgentArgs {
 	String getPricePerPowerUnit();
 
 	/**
+	 * @return initial weather prediction error
+	 */
+	String getWeatherPredictionError();
+
+	/**
 	 * @return maximum capacity of the server
 	 */
 	String getMaximumCapacity();
