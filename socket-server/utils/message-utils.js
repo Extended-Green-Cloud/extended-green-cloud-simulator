@@ -115,6 +115,15 @@ const handleSetClientNumber = (state, msg) => {
     }
 }
 
+const handleWeatherPredictionError = (state, msg) => {
+    const agent = getAgentByName(state.agents.agents, msg.agentName)
+    const error = msg.data
+
+    if (agent && agent.type === AGENT_TYPES.GREEN_ENERGY) {
+        agent.weatherPredictionError = error
+    }
+}
+
 const handleSetClientJobStatus = (state, msg) => {
     const agent = getAgentByName(state.agents.clients, msg.agentName)
     const jobStatus = msg.data.status
@@ -221,6 +230,7 @@ module.exports = {
         SET_CLIENT_JOB_STATUS: handleSetClientJobStatus,
         SET_SERVER_BACK_UP_TRAFFIC: handleSetBackUpTraffic,
         SET_JOB_SUCCESS_RATIO: handleSetSuccessRatio,
+        SET_WEATHER_PREDICTION_ERROR: handleWeatherPredictionError,
         SPLIT_JOB: handleJobSplit,
         REGISTER_AGENT: handleRegisterAgent,
         REGISTER_MANAGING: handleRegisterManaging,
