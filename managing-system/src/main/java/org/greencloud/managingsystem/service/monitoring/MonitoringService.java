@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidGoalIdentifierException;
+import com.google.common.annotations.VisibleForTesting;
 import com.gui.agents.ManagingAgentNode;
 
 /**
@@ -144,15 +145,18 @@ public class MonitoringService extends AbstractManagingService {
 		}
 	}
 
-	public void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {
+	@VisibleForTesting
+	protected void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {
 		this.jobSuccessRatioService = jobSuccessRatioService;
 	}
 
-	public void setBackUpPowerUsageService(final BackUpPowerUsageService backUpPowerUsageService) {
+	@VisibleForTesting
+	protected void setBackUpPowerUsageService(final BackUpPowerUsageService backUpPowerUsageService) {
 		this.backUpPowerUsageService = backUpPowerUsageService;
 	}
 
-	public void setTrafficDistributionService(final TrafficDistributionService trafficDistributionService) {
+	@VisibleForTesting
+	protected void setTrafficDistributionService(final TrafficDistributionService trafficDistributionService) {
 		this.trafficDistributionService = trafficDistributionService;
 	}
 

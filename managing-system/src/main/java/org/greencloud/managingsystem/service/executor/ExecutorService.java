@@ -9,6 +9,7 @@ import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
+import org.greencloud.managingsystem.service.planner.plans.SystemPlan;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
@@ -31,6 +32,22 @@ public class ExecutorService extends AbstractManagingService {
 	 * @param adaptationPlan plan containing all necessary data to correctly execute adaptation action
 	 */
 	public void executeAdaptationAction(AbstractPlan adaptationPlan) {
+		if (adaptationPlan instanceof SystemPlan) {
+			this.executeAdaptationActionOnSystem(adaptationPlan);
+		} else {
+			this.executeAdaptationActionOnAgent(adaptationPlan);
+		}
+	}
+
+	private void executeAdaptationActionOnSystem(AbstractPlan abstractPlan) {
+		// TODO implement handling system adaptations
+		// 1. create Agent
+		// 2. inform Network about Agent creation
+		// 3. in case of multi container service send message to created agent with additional data to move itself
+		//    to correct container
+	}
+
+	private void executeAdaptationActionOnAgent(AbstractPlan adaptationPlan) {
 		ACLMessage adaptationActionRequest = MessageBuilder.builder()
 				.withPerformative(REQUEST)
 				.withConversationId(adaptationPlan.getAdaptationActionEnum().toString())

@@ -34,6 +34,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
+import com.greencloud.commons.scenario.ScenarioEventsArgs;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.controller.GuiController;
 import com.gui.controller.GuiControllerImpl;
 
@@ -43,8 +45,6 @@ import jade.core.Runtime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioEventsArgs;
-import runner.domain.ScenarioStructureArgs;
 import runner.factory.AgentControllerFactory;
 import runner.service.domain.exception.InvalidScenarioException;
 import runner.service.domain.exception.JadeContainerException;
@@ -59,6 +59,7 @@ public abstract class AbstractScenarioService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScenarioService.class);
 
+	private static final String CONTAINER_NAME_PREFIX = "CNA";
 	private static final Long GRAPH_INITIALIZATION_PAUSE = 7L;
 	private static final Integer RUN_CLIENT_AGENT_PAUSE = 150;
 	protected static final Integer RUN_AGENT_PAUSE = 100;
@@ -73,6 +74,8 @@ public abstract class AbstractScenarioService {
 	protected final Runtime jadeRuntime;
 	protected final ContainerController mainContainer;
 	protected final TimescaleDatabase timescaleDatabase;
+
+	protected ScenarioStructureArgs scenario;
 
 	/**
 	 * Constructor called by {@link MultiContainerScenarioService} and {@link SingleContainerScenarioService}
@@ -114,7 +117,7 @@ public abstract class AbstractScenarioService {
 
 		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
-		mainContainer = runAgentsContainer(hostId.toString(), mainHostIp);
+		mainContainer = runAgentsContainer(CONTAINER_NAME_PREFIX + hostId.toString(), mainHostIp);
 	}
 
 	protected File readFile(final String fileName) {
@@ -148,7 +151,7 @@ public abstract class AbstractScenarioService {
 			AgentControllerFactory factory) {
 		final AgentController agentController;
 		try {
-			agentController = factory.createAgentController(args);
+			agentController = factory.createAgentController(args, scenario);
 			var agentNode = factory.createAgentNode(args, scenario);
 			agentNode.setDatabaseClient(timescaleDatabase);
 			guiController.addAgentNodeToGraph(agentNode);

@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.greenenergy.domain;
+package com.greencloud.commons.agent.greenenergy;
 
 /**
  * Types of the available sources of the green energy
