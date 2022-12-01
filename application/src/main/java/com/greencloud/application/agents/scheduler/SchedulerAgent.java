@@ -4,13 +4,13 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGE
 import static com.greencloud.application.yellowpages.YellowPagesService.register;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_NAME;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
+import static com.greencloud.commons.utils.CommonUtils.isFibonacci;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import com.greencloud.application.agents.scheduler.managment.SchedulerAdaptationManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -59,10 +59,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 				final int jobSplitThreshold = Integer.parseInt(args[3].toString());
 				final int splittingFactor = Integer.parseInt(args[4].toString());
 
-				if (deadlineWeight < 0 || powerWeight < 0
-						|| deadlineWeight > 1 || powerWeight > 1
-						|| deadlineWeight + powerWeight != 1) {
-					logger.info("Incorrect arguments: Weights must be from range [0,1] and must sum to 1!");
+				if (!isFibonacci(powerWeight) || !isFibonacci(deadlineWeight)) {
+					logger.info("Incorrect arguments: Weights must be in a Fibonacci sequence");
 					doDelete();
 				}
 				if (maxQueueSize < 1) {
@@ -72,7 +70,6 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize,
 						jobSplitThreshold, splittingFactor);
 				this.stateManagement = new SchedulerStateManagement(this);
-				this.adaptationManagement = new SchedulerAdaptationManagement(this);
 				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
 						Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
 

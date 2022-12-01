@@ -251,5 +251,4 @@ public class AlgorithmUtils {
 		}
 		return comparingTimeResult;
 	}
-
 }

@@ -11,8 +11,10 @@ import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
  */
 public class SchedulerConfigurationManagement {
 
-	private int deadlineWeightPriority;
-	private int powerWeightPriority;
+	private int underlyingDeadlineWeight;
+	private int underlyingPowerWeight;
+	private double deadlineWeightPriority;
+	private double powerWeightPriority;
 	private int maximumQueueSize;
 	private int jobSplitThreshold;
 	private int splittingFactor;
@@ -27,11 +29,12 @@ public class SchedulerConfigurationManagement {
 	 */
 	public SchedulerConfigurationManagement(int deadlineWeightPriority, int powerWeightPriority,
 			int maximumQueueSize, int jobSplitThreshold, int splittingFactor) {
-		this.deadlineWeightPriority = deadlineWeightPriority;
-		this.powerWeightPriority = powerWeightPriority;
+		this.underlyingDeadlineWeight = deadlineWeightPriority;
+		this.underlyingPowerWeight = powerWeightPriority;
 		this.maximumQueueSize = maximumQueueSize;
 		this.jobSplitThreshold = jobSplitThreshold;
 		this.splittingFactor = splittingFactor;
+		computeWeights();
 	}
 
 	/**
@@ -60,15 +63,26 @@ public class SchedulerConfigurationManagement {
 		return splittingFactor;
 	}
 
-	public int getDeadlineWeightPriority() { return deadlineWeightPriority; }
-
-	public int getPowerWeightPriority() { return powerWeightPriority; }
-
-	public void increaseDeadlineWeightPriority() {
-		this.deadlineWeightPriority = nextFibonacci(this.deadlineWeightPriority);
+	/**
+	 * Method increases the deadline weight to the next number in a Fibonacci sequence
+	 */
+	public boolean increaseDeadlineWeight() {
+		underlyingDeadlineWeight = nextFibonacci(underlyingDeadlineWeight);
+		computeWeights();
+		return true;
 	}
 
-	public void increasePowerWeightPriority() {
-		this.powerWeightPriority = nextFibonacci(this.powerWeightPriority);
+	/**
+	 * Method increases the power weight to the next number in a Fibonacci sequence
+	 */
+	public boolean increasePowerWeight() {
+		underlyingPowerWeight = nextFibonacci(underlyingPowerWeight);
+		computeWeights();
+		return true;
+	}
+
+	private void computeWeights() {
+		this.deadlineWeightPriority = (double)underlyingDeadlineWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
+		this.powerWeightPriority = (double)underlyingPowerWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
 	}
 }
