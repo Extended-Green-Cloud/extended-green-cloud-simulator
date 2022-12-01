@@ -16,6 +16,7 @@ import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
@@ -28,7 +29,6 @@ import com.gui.agents.ServerAgentNode;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioStructureArgs;
 
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
@@ -39,7 +39,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	}
 
 	@Override
-	public AgentController createAgentController(AgentArgs agentArgs)
+	public AgentController createAgentController(AgentArgs agentArgs, ScenarioStructureArgs scenario)
 			throws StaleProxyException {
 
 		if (agentArgs instanceof ClientAgentArgs clientAgent) {
@@ -89,7 +89,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"org.greencloud.managingsystem.agent.ManagingAgent",
-					new Object[] { managingAgent.getSystemQualityThreshold() });
+					new Object[] { managingAgent.getSystemQualityThreshold(), scenario, containerController });
 		}
 		return null;
 	}

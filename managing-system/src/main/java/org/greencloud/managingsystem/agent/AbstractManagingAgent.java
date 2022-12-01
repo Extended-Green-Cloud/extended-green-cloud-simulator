@@ -10,11 +10,19 @@ import org.greencloud.managingsystem.service.planner.PlannerService;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.commons.agent.AgentType;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
+
+import jade.core.Location;
+import jade.wrapper.ContainerController;
 
 /**
  * Abstract agent class storing data of the Managing Agent
  */
 public abstract class AbstractManagingAgent extends AbstractAgent {
+
+	protected ScenarioStructureArgs greenCloudStructure;
+	protected ContainerController greenCloudController;
+	protected List<Location> containersLocations;
 
 	protected List<AdaptationGoal> adaptationGoalList;
 	protected double systemQualityThreshold;
@@ -63,5 +71,29 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 
 	public void setAdaptationGoalList(List<AdaptationGoal> adaptationGoalList) {
 		this.adaptationGoalList = adaptationGoalList;
+	}
+
+	/**
+	 * @return current green cloud structure
+	 */
+	public ScenarioStructureArgs getGreenCloudStructure() {
+		return greenCloudStructure;
+	}
+
+	/**
+	 * @return green cloud controller, used to modify green cloud structure, add/remove agents
+	 */
+	public ContainerController getGreenCloudController() {
+		return greenCloudController;
+	}
+
+	/**
+	 * @return returns a container with a given name
+	 */
+	public Location getContainerLocations(String containerName) {
+		return containersLocations.stream()
+				.filter(location -> location.getName().equals(containerName))
+				.findFirst()
+				.orElse(null);
 	}
 }

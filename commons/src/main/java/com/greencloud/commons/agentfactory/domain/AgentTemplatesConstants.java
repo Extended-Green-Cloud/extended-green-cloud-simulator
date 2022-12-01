@@ -1,4 +1,4 @@
-package com.greencloud.application.agentFactory.domain;
+package com.greencloud.commons.agentfactory.domain;
 
 public class AgentTemplatesConstants {
 

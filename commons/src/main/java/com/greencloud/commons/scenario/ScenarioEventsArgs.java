@@ -1,4 +1,4 @@
-package runner.domain;
+package com.greencloud.commons.scenario;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,8 +1,9 @@
-package runner.domain;
+package com.greencloud.commons.scenario;
 
 import static java.util.stream.Stream.concat;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -54,10 +55,10 @@ public class ScenarioStructureArgs implements Serializable {
 			List<GreenEnergyAgentArgs> greenEnergyAgentsArgs) {
 		this.managingAgentArgs = managingAgentArgs;
 		this.schedulerAgentArgs = schedulerAgentArgs;
-		this.cloudNetworkAgentsArgs = cloudNetworkAgentsArgs;
-		this.serverAgentsArgs = serverAgentsArgs;
-		this.monitoringAgentsArgs = monitoringAgentsArgs;
-		this.greenEnergyAgentsArgs = greenEnergyAgentsArgs;
+		this.cloudNetworkAgentsArgs = new ArrayList<>(cloudNetworkAgentsArgs);
+		this.serverAgentsArgs = new ArrayList<>(serverAgentsArgs);
+		this.monitoringAgentsArgs = new ArrayList<>(monitoringAgentsArgs);
+		this.greenEnergyAgentsArgs = new ArrayList<>(greenEnergyAgentsArgs);
 	}
 
 	public List<CloudNetworkArgs> getCloudNetworkAgentsArgs() {

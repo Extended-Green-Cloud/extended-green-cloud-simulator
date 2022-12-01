@@ -19,11 +19,11 @@ import com.greencloud.application.agents.greenenergy.behaviour.powersupply.liste
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForPowerSupplyStatus;
 import com.greencloud.application.agents.greenenergy.behaviour.sensor.SenseGreenSourceEvent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherPeriodically;
-import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.behaviours.ReceiveGUIController;
+import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
 import com.greencloud.commons.location.ImmutableLocation;
 
 import jade.core.AID;
