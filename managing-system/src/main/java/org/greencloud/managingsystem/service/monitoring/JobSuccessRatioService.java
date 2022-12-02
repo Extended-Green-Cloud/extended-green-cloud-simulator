@@ -58,7 +58,7 @@ public class JobSuccessRatioService extends AbstractGoalService {
 
 		logger.info(SUCCESS_RATIO_CLIENT_LOG, currentSuccessRatio, aggregatedSuccessRatio);
 		updateGoalQuality(GOAL, currentSuccessRatio);
-		goalQuality.set(aggregatedSuccessRatio);
+		aggregatedGoalQuality.set(aggregatedSuccessRatio);
 		return false;
 	}
 
@@ -91,7 +91,7 @@ public class JobSuccessRatioService extends AbstractGoalService {
 
 	@Override
 	public double getLastMeasuredGoalQuality() {
-		return goalQuality.get();
+		return currentGoalQuality.get();
 	}
 
 	private boolean verifySuccessRatioForComponent(final AgentData component) {

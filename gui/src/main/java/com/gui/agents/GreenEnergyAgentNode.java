@@ -53,7 +53,7 @@ public class GreenEnergyAgentNode extends AbstractNetworkAgentNode {
 						.monitoringAgent(monitoringAgent)
 						.serverAgent(serverAgent)
 						.energyType(energyType)
-						.weatherPredictionError(weatherPredictionError)
+						.weatherPredictionError(weatherPredictionError * 100)
 						.build())
 				.build());
 	}

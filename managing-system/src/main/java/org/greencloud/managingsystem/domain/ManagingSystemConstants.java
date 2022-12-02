@@ -22,7 +22,6 @@ public final class ManagingSystemConstants {
 
 	public static final int MONITOR_SYSTEM_TIMEOUT = 500;
 	public static final int MONITOR_SYSTEM_DATA_TIME_PERIOD = 5;
-	public static final double MONITOR_AGENTS_ALIVE_TIME_PERIOD = 0.250;
 	public static final int MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD = 24 * 60 * 60;
 	public static final int DATA_NOT_AVAILABLE_INDICATOR = -1;
 	public static final List<DataType> NETWORK_AGENT_DATA_TYPES = List.of(SERVER_MONITORING);

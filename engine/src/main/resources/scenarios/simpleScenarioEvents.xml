@@ -22,5 +22,6 @@
 		<agentName>WindFarm1</agentName>
 		<newMaximumCapacity>10</newMaximumCapacity>
 		<isFinished>false</isFinished>
+		<cause>PHYSICAL_CAUSE</cause>
 	</event>
 </ScenarioEventsArgs>

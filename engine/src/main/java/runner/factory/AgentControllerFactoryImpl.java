@@ -75,7 +75,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
 			return containerController.createNewAgent(monitoringAgent.getName(),
 					"com.greencloud.application.agents.monitoring.MonitoringAgent",
-					new Object[] {});
+					new Object[] { monitoringAgent.getBadStubProbability() });
 		} else if (agentArgs instanceof SchedulerAgentArgs schedulerAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"com.greencloud.application.agents.scheduler.SchedulerAgent",
@@ -89,7 +89,10 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"org.greencloud.managingsystem.agent.ManagingAgent",
-					new Object[] { managingAgent.getSystemQualityThreshold() });
+					new Object[] {
+							managingAgent.getSystemQualityThreshold(),
+							managingAgent.getPowerShortageThreshold()
+			});
 		}
 		return null;
 	}

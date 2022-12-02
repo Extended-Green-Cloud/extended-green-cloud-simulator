@@ -17,9 +17,14 @@ import runner.service.SingleContainerScenarioService;
  */
 public class EngineRunner {
 
+	// optional directory in which the scenario files are placed
+	private static final String SCENARIO_DIRECTORY = "\\adaptation\\increaseerror\\";
+
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenarioStructure = "multipleClientsSimpleScenario";
-		Optional<String> scenarioEvents = Optional.empty();
+		String scenarioStructure = SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationScenario";
+		Optional<String> scenarioEvents =
+				//Optional.empty();
+				Optional.of(SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationEvents");
 
 		if (MULTI_CONTAINER) {
 			runMultiContainerService(scenarioStructure, scenarioEvents);

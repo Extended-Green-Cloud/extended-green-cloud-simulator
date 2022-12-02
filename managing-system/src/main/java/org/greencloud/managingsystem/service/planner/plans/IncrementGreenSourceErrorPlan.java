@@ -7,8 +7,8 @@ import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_AGENTS_ALIVE_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
@@ -39,7 +40,6 @@ import jade.core.AID;
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 	protected static final double PERCENTAGE_DIFFERENCE = 0.02;
-	private static final int POWER_SHORTAGE_THRESHOLD = 3;
 	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
 	private Map<String, Integer> greenSourcesPowerShortages;
 
@@ -52,7 +52,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 	 * Method verifies if the plan is executable. The plan is executable if:
 	 * 1. there are some GS alive in the system
 	 * 2. there are some alive GS for which weather prediction error is less than 100%
-	 * 3. there are some alive GS which had at least 1 power shortages per 5s
+	 * 3. there are some alive GS which had at least 2 power shortages per 5s
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
@@ -61,7 +61,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 		final List<AgentData> greenSourceData =
 				managingAgent.getAgentNode().getDatabaseClient()
 						.readMonitoringDataForDataTypes(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING),
-								MONITOR_AGENTS_ALIVE_TIME_PERIOD);
+								MONITOR_SYSTEM_DATA_TIME_PERIOD);
 		final Map<String, Double> greenSourceErrorMap =
 				getGreenSourcesWithErrors(greenSourceData, getAliveGreenSources(greenSourceData));
 
@@ -106,7 +106,8 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 		return greenSourceData.stream()
 				.filter(data -> data.dataType().equals(HEALTH_CHECK) && isGSAlive.test(data.monitoringData()))
-				.map(AgentData::aid).toList();
+				.map(AgentData::aid)
+				.collect(Collectors.toSet()).stream().toList();
 	}
 
 	@VisibleForTesting

@@ -1,4 +1,4 @@
-package com.greencloud.commons.args.event.newclient;
+package com.greencloud.commons.args.event.powershortage;
 
 import static com.greencloud.commons.args.event.EventTypeEnum.POWER_SHORTAGE_EVENT;
 
@@ -35,6 +35,11 @@ public interface PowerShortageEventArgs extends EventArgs {
 	boolean isFinished();
 
 	/**
+	 * @return cause of the power shortage (WEATHER_CAUSE, PHYSICAL_CAUSE)
+	 */
+	PowerShortageCause getCause();
+
+	/**
 	 * Method verifies the correctness of power shortage event structure
 	 */
 	@Override
@@ -46,10 +51,10 @@ public interface PowerShortageEventArgs extends EventArgs {
 			throw new InvalidScenarioEventStructure(
 					"Invalid event type. Acceptable event type is: POWER_SHORTAGE_EVENT");
 		}
-		if (getNewMaximumCapacity() <= 0) {
+		if (getNewMaximumCapacity() < 0) {
 			throw new InvalidScenarioEventStructure(
 					String.format(
-							"Given maximum capacity: %d is invalid. The maximum capacity must be a positive number",
+							"Given maximum capacity: %d is invalid. The maximum capacity must be at least 0",
 							getNewMaximumCapacity()));
 		}
 	}

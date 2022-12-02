@@ -9,6 +9,7 @@ import com.greencloud.commons.agent.AgentType;
  */
 public abstract class AbstractMonitoringAgent extends AbstractAgent {
 	private final MonitoringWeatherManagement weatherManagement;
+	protected double badStubProbability;
 
 	/**
 	 * Default agent constructor
@@ -23,5 +24,9 @@ public abstract class AbstractMonitoringAgent extends AbstractAgent {
 
 	public MonitoringWeatherManagement manageWeather() {
 		return weatherManagement;
+	}
+
+	public double getBadStubProbability() {
+		return badStubProbability;
 	}
 }

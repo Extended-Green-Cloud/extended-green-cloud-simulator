@@ -1,0 +1,41 @@
+<ScenarioEventsArgs>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>2</occurrenceTime>
+		<name>Client1</name>
+		<jobId>1</jobId>
+		<start>2</start>
+		<end>10</end>
+		<deadline>15</deadline>
+		<power>40</power>
+	</event>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>3</occurrenceTime>
+		<name>Client2</name>
+		<jobId>2</jobId>
+		<start>1</start>
+		<end>10</end>
+		<deadline>15</deadline>
+		<power>30</power>
+	</event>
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>4</occurrenceTime>
+		<agentName>WindFarm1</agentName>
+		<newMaximumCapacity>0</newMaximumCapacity>
+		<isFinished>false</isFinished>
+		<cause>WEATHER_CAUSE</cause>
+	</event>
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>5</occurrenceTime>
+		<agentName>WindFarm1</agentName>
+		<newMaximumCapacity>0</newMaximumCapacity>
+		<isFinished>false</isFinished>
+		<cause>WEATHER_CAUSE</cause>
+	</event>
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>6</occurrenceTime>
+		<agentName>WindFarm1</agentName>
+		<newMaximumCapacity>0</newMaximumCapacity>
+		<isFinished>false</isFinished>
+		<cause>WEATHER_CAUSE</cause>
+	</event>
+</ScenarioEventsArgs>
