@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan.PERCENTAGE_DIFFERENCE;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -58,8 +59,9 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@Test
 	@DisplayName("Test is plan executable")
 	void testIsPlanExecutable() {
+		mockHealthCheckData();
 		doReturn(prepareAgentData()).when(mockDatabase)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+				.readLastMonitoringDataForDataTypes(List.of(GREEN_SOURCE_MONITORING));
 		doReturn(prepareWeatherShortageData()).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), anyList(), anyDouble());
 
@@ -111,7 +113,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@Test
 	@DisplayName("Test get alive green sources")
 	void testGetAliveGreenSources() {
-		var mockData = prepareAgentData();
+		mockHealthCheckData();
 		var result = incrementGreenSourceErrorPlan.getAliveGreenSources();
 
 		assertThat(result)
@@ -178,9 +180,6 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	}
 
 	private List<AgentData> prepareAgentData() {
-		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_SOURCE);
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
 				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
@@ -201,12 +200,24 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
-				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
-				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3),
 				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
 				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
 				new AgentData(now(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
 		);
+	}
+
+	private void mockHealthCheckData() {
+		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+
+		var mockData = List.of(
+				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
+		);
+
+		doReturn(mockData).when(mockDatabase).readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
+				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 }
