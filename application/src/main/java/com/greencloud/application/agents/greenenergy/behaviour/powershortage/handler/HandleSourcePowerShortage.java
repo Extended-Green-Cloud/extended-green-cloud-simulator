@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
@@ -26,7 +26,7 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandleSourcePowerShortage.class);
 	private final GreenEnergyAgent myGreenEnergyAgent;
-	private final List<PowerJob> jobsToHalt;
+	private final List<ServerJob> jobsToHalt;
 	private final Integer newMaximumCapacity;
 
 	/**
@@ -36,7 +36,7 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 	 * @param powerShortageStart time when the power shortage starts
 	 * @param jobsToHalt         list of the jobs to be halted
 	 */
-	private HandleSourcePowerShortage(Agent myAgent, Date powerShortageStart, List<PowerJob> jobsToHalt,
+	private HandleSourcePowerShortage(Agent myAgent, Date powerShortageStart, List<ServerJob> jobsToHalt,
 			Integer newMaximumCapacity) {
 		super(myAgent, powerShortageStart);
 		this.myGreenEnergyAgent = (GreenEnergyAgent) myAgent;
@@ -53,7 +53,7 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 	 * @param greenEnergyAgent   agent executing the behaviour
 	 * @return behaviour scheduling the power shortage handling
 	 */
-	public static HandleSourcePowerShortage createFor(final List<PowerJob> jobsToHalt,
+	public static HandleSourcePowerShortage createFor(final List<ServerJob> jobsToHalt,
 			final Instant shortageStartTime, final Integer newMaximumCapacity,
 			final GreenEnergyAgent greenEnergyAgent) {
 		final Instant startTime = getCurrentTime().isAfter(shortageStartTime) ?
@@ -70,7 +70,7 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 	@Override
 	protected void onWake() {
 		jobsToHalt.forEach(jobToHalt -> {
-			if (myGreenEnergyAgent.getPowerJobs().containsKey(jobToHalt)) {
+			if (myGreenEnergyAgent.getServerJobs().containsKey(jobToHalt)) {
 				MDC.put(MDC_JOB_ID, jobToHalt.getJobId());
 				logger.info(POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG, jobToHalt.getJobId());
 			}

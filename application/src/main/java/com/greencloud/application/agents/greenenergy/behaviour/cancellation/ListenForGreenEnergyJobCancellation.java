@@ -62,7 +62,7 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 	}
 
 	private void processJobCancellation(String originalJobId, ACLMessage message) {
-		var jobParts = List.copyOf(filter(myGreenEnergyAgent.getPowerJobs().keySet(),
+		var jobParts = List.copyOf(filter(myGreenEnergyAgent.getServerJobs().keySet(),
 				job -> job.getJobId().split("#")[0].equals(originalJobId)));
 		if (!jobParts.isEmpty()) {
 			myGreenEnergyAgent.send(prepareStringReply(message.createReply(), originalJobId, AGREE));
@@ -76,8 +76,8 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 	}
 
 	private void processJobPart(PowerJob jobPart) {
-		var jobPartStatus = myGreenEnergyAgent.getPowerJobs().get(jobPart);
-		myGreenEnergyAgent.getPowerJobs().remove(jobPart);
+		var jobPartStatus = myGreenEnergyAgent.getServerJobs().get(jobPart);
+		myGreenEnergyAgent.getServerJobs().remove(jobPart);
 		if (!JOB_NOT_STARTED_STATUSES.contains(jobPartStatus)) {
 			myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), JobResultType.FINISH);
 		}

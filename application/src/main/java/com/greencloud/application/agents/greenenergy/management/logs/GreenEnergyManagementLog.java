@@ -11,9 +11,9 @@ public class GreenEnergyManagementLog {
 	public static final String POWER_JOB_FINISH_LOG =
 			"Finished job instance {}. Number of finished job instances is {} out of {} started";
 	public static final String POWER_JOB_ACCEPTED_LOG =
-			"New power job was accepted for execution. Number of accepted job instances is {}.";
+			"New server job was accepted for execution. Number of accepted job instances is {}.";
 	public static final String POWER_JOB_FAILED_LOG =
-			"Power job execution failed. Number of total failed job instances is {}.";
+			"Server job execution failed. Number of total failed job instances is {}.";
 	public static final String AVERAGE_POWER_LOG = "Calculated available {} average power {} between {} and {}";
 	public static final String CURRENT_AVAILABLE_POWER_LOG = "Calculated available {} power {} at {}";
 
