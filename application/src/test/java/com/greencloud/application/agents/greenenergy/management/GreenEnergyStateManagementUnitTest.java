@@ -1,10 +1,10 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
+import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;

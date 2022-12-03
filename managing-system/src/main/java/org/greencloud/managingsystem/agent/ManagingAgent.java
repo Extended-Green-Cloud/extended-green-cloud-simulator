@@ -67,7 +67,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 3) {
+		if (Objects.nonNull(args) && args.length >= 3) {
 			try {
 				final double systemQuality = Double.parseDouble(args[0].toString());
 
