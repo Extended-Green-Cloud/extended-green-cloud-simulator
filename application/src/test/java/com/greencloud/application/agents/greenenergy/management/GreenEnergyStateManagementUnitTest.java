@@ -3,9 +3,9 @@ package com.greencloud.application.agents.greenenergy.management;
 import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +40,7 @@ import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
@@ -127,7 +127,8 @@ class GreenEnergyStateManagementUnitTest {
 
 		mockGreenEnergyAgent.manage().dividePowerJobForPowerShortage(Objects.requireNonNull(powerJob), startTime);
 
-		final Map<PowerJob, ExecutionJobStatusEnum> updatedJobInstances = mockGreenEnergyAgent.getPowerJobs().entrySet().stream()
+		final Map<PowerJob, ExecutionJobStatusEnum> updatedJobInstances = mockGreenEnergyAgent.getPowerJobs().entrySet()
+				.stream()
 				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(powerJob.getJobId()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -213,6 +214,7 @@ class GreenEnergyStateManagementUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20)
 				.build();
+		mockGreenEnergyAgent.setWeatherPredictionError(0.02);
 		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.03);
 	}
 

@@ -5,6 +5,7 @@ import static com.greencloud.application.agentFactory.domain.AgentTemplatesConst
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_PRICE;
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_TYPE;
+import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_WEATHER_PREDICTION_ERROR;
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_SERVER_MAXIMUM_CAPACITY;
 import static com.greencloud.application.agentFactory.domain.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
 
@@ -71,6 +72,7 @@ public class AgentFactoryImpl implements AgentFactory {
 			Integer longitude,
 			Integer maximumCapacity,
 			Integer pricePerPowerUnit,
+			Double weatherPredictionError,
 			GreenEnergySourceTypeEnum energyType) {
 
 		if (Objects.isNull(monitoringAgentName) || Objects.isNull(ownerServerName)) {
@@ -89,6 +91,11 @@ public class AgentFactoryImpl implements AgentFactory {
 			throw new IllegalArgumentException("longitude cannot be null");
 		}
 
+		if (Objects.nonNull(longitude) && weatherPredictionError >= 0 && weatherPredictionError <= 1) {
+			throw new IllegalArgumentException(
+					"weather prediction error should be from range [0,1] and cannot be null");
+		}
+
 		greenEnergyAgentsCreated += 1;
 		String greenEnergyAgentName = "ExtraGreenEnergy" + greenEnergyAgentsCreated;
 		return ImmutableGreenEnergyAgentArgs.builder()
@@ -102,6 +109,9 @@ public class AgentFactoryImpl implements AgentFactory {
 						maximumCapacity.toString())
 				.pricePerPowerUnit(
 						Objects.isNull(pricePerPowerUnit) ? TEMPLATE_GREEN_ENERGY_PRICE : pricePerPowerUnit.toString())
+				.weatherPredictionError(Objects.isNull(weatherPredictionError) ?
+						TEMPLATE_GREEN_ENERGY_WEATHER_PREDICTION_ERROR :
+						weatherPredictionError.toString())
 				.energyType(Objects.isNull(energyType) ? TEMPLATE_GREEN_ENERGY_TYPE : energyType.name())
 				.build();
 	}

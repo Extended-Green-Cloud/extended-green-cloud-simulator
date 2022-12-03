@@ -22,84 +22,86 @@ import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 @MockitoSettings(strictness = LENIENT)
 class AgentFactoryTest {
 
-    AgentFactory factory = new AgentFactoryImpl();
+	AgentFactory factory = new AgentFactoryImpl();
 
-    @BeforeEach
-    void init() {
-        factory = new AgentFactoryImpl();
-        AgentFactoryImpl.reset();
-    }
+	@BeforeEach
+	void init() {
+		factory = new AgentFactoryImpl();
+		AgentFactoryImpl.reset();
+	}
 
-    @Test
-    void testCreateTemplateServerDefaultValues() {
-        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null);
+	@Test
+	void testCreateTemplateServerDefaultValues() {
+		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null);
 
-        assertThat(result.getName()).isEqualTo("ExtraServer1");
-        assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_SERVER_MAXIMUM_CAPACITY);
-        assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE);
-        assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
-        assertThat(result.getJobProcessingLimit()).isEqualTo("20");
-    }
+		assertThat(result.getName()).isEqualTo("ExtraServer1");
+		assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_SERVER_MAXIMUM_CAPACITY);
+		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE);
+		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getJobProcessingLimit()).isEqualTo("20");
+	}
 
-    @Test
-    void testCreateTemplateGreenSourceDefaultValues() {
-        GreenEnergyAgentArgs result = factory.createGreenEnergyAgent("monitoring1",
-                "server1",
-                null,
-                null,
-                null,
-                null,
-                null);
+	@Test
+	void testCreateTemplateGreenSourceDefaultValues() {
+		GreenEnergyAgentArgs result = factory.createGreenEnergyAgent("monitoring1",
+				"server1",
+				null,
+				null,
+				null,
+				null,
+				null,
+				null);
 
-        assertThat(result.getName()).isEqualTo("ExtraGreenEnergy1");
-        assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY);
-        assertThat(result.getLatitude()).isEqualTo("50");
-        assertThat(result.getLongitude()).isEqualTo("20");
-        assertThat(result.getPricePerPowerUnit()).isEqualTo("10");
-        assertThat(result.getEnergyType()).isEqualTo("SOLAR");
-    }
+		assertThat(result.getName()).isEqualTo("ExtraGreenEnergy1");
+		assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY);
+		assertThat(result.getLatitude()).isEqualTo("50");
+		assertThat(result.getLongitude()).isEqualTo("20");
+		assertThat(result.getPricePerPowerUnit()).isEqualTo("10");
+		assertThat(result.getWeatherPredictionError()).isEqualTo("0.02");
+		assertThat(result.getEnergyType()).isEqualTo("SOLAR");
+	}
 
-    @Test
-    void testGenerateCorrectNames() {
-        ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10);
-        ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null);
-        MonitoringAgentArgs result3 = factory.createMonitoringAgent();
+	@Test
+	void testGenerateCorrectNames() {
+		ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10);
+		ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null);
+		MonitoringAgentArgs result3 = factory.createMonitoringAgent();
 
-        assertThat(result1.getName()).isEqualTo("ExtraServer1");
-        assertThat(result2.getName()).isEqualTo("ExtraServer2");
-        assertThat(result3.getName()).isEqualTo("ExtraMonitoring1");
-    }
+		assertThat(result1.getName()).isEqualTo("ExtraServer1");
+		assertThat(result2.getName()).isEqualTo("ExtraServer2");
+		assertThat(result3.getName()).isEqualTo("ExtraMonitoring1");
+	}
 
-    @Test
-    void testCreatingGreenSourceNullParameters() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            factory.createGreenEnergyAgent(null
-                    , "testServer"
-                    , 52
-                    , 52
-                    , 200
-                    , 1
-                    , GreenEnergySourceTypeEnum.SOLAR);
-        });
+	@Test
+	void testCreatingGreenSourceNullParameters() {
+		Exception exception = assertThrows(IllegalArgumentException.class, () ->
+				factory.createGreenEnergyAgent(null
+						, "testServer"
+						, 52
+						, 52
+						, 200
+						, 1
+						, 0.02
+						, GreenEnergySourceTypeEnum.SOLAR));
 
-        assertThat(exception.getMessage()).isEqualTo("monitoringAgentName and ownerServerName should not be null");
-    }
+		assertThat(exception.getMessage()).isEqualTo("monitoringAgentName and ownerServerName should not be null");
+	}
 
-    @Test
-    void testCreatingMonitoringAgent(){
-        MonitoringAgentArgs result = factory.createMonitoringAgent();
+	@Test
+	void testCreatingMonitoringAgent() {
+		MonitoringAgentArgs result = factory.createMonitoringAgent();
 
-        assertThat(result.getName()).isEqualTo("ExtraMonitoring1");
-    }
+		assertThat(result.getName()).isEqualTo("ExtraMonitoring1");
+	}
 
-    @Test
-    void testCreatingServerCustomValues() {
-        ServerAgentArgs result = factory.createServerAgent("OwnerCna1", 150, 25,10);
+	@Test
+	void testCreatingServerCustomValues() {
+		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", 150, 25, 10);
 
-        assertThat(result.getName()).isEqualTo("ExtraServer1");
-        assertThat(result.getMaximumCapacity()).isEqualTo("150");
-        assertThat(result.getPrice()).isEqualTo("25");
-        assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
-        assertThat(result.getJobProcessingLimit()).isEqualTo("10");
-    }
+		assertThat(result.getName()).isEqualTo("ExtraServer1");
+		assertThat(result.getMaximumCapacity()).isEqualTo("150");
+		assertThat(result.getPrice()).isEqualTo("25");
+		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getJobProcessingLimit()).isEqualTo("10");
+	}
 }

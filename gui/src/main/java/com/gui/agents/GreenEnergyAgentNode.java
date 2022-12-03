@@ -18,11 +18,15 @@ import com.gui.websocket.GuiWebSocketClient;
  */
 public class GreenEnergyAgentNode extends AbstractNetworkAgentNode {
 
-	private final Location location;
-	private final String monitoringAgent;
-	private final String serverAgent;
-	private final String energyType;
-	private final double weatherPredictionError;
+	private Location location;
+	private String monitoringAgent;
+	private String serverAgent;
+	private String energyType;
+	private double weatherPredictionError;
+
+	public GreenEnergyAgentNode() {
+		super();
+	}
 
 	/**
 	 * Green energy source node constructor

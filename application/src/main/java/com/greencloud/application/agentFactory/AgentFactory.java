@@ -28,6 +28,7 @@ public interface AgentFactory {
      * @param longitude optional argument specifying longitude
      * @param maximumCapacity optional argument specifying maximumCapacity
      * @param pricePerPowerUnit optional argument specifying price per power unit
+     * @param weatherPredictionError optional initial weather prediction error
      * @param energyType optional argument specifying energy type
      * @return newly green energy agent args
      */
@@ -37,6 +38,7 @@ public interface AgentFactory {
                                                 Integer longitude,
                                                 Integer maximumCapacity,
                                                 Integer pricePerPowerUnit,
+                                                Double weatherPredictionError,
                                                 GreenEnergySourceTypeEnum energyType);
 
     /**
