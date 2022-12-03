@@ -31,7 +31,7 @@
 	</event>
 	<!-- EXPECTED OUTCOME: JOB FAILED, POWER SUCCESS RATIO DROP	-->
 	<event type="POWER_SHORTAGE_EVENT">
-		<occurrenceTime>6</occurrenceTime>
+		<occurrenceTime>8</occurrenceTime>
 		<agentName>WindFarm1</agentName>
 		<newMaximumCapacity>0</newMaximumCapacity>
 		<isFinished>false</isFinished>
@@ -40,12 +40,12 @@
 	<!-- EXPECTED OUTCOME: WINDFARM1 SELECTED FOR ADAPTATION -->
 	<!-- SYSTEM STATE: FINISHED EXECUTING ALL JOBS -->
 	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>7</occurrenceTime>
+		<occurrenceTime>10</occurrenceTime>
 		<name>Client4</name>
 		<jobId>4</jobId>
 		<start>1</start>
-		<end>4</end>
-		<deadline>15</deadline>
+		<end>8</end>
+		<deadline>30</deadline>
 		<power>10</power>
 	</event>
 	<!-- EXPECTED OUTCOME: JOB ACCEPTED BY WINDFARM2 DUE TO INCREASED ERROR IN WINDFARM1 -->

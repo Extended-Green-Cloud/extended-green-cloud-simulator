@@ -17,8 +17,8 @@ import com.greencloud.application.agents.server.management.ServerConfigManagemen
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -72,12 +72,14 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		}
 		double powerDifference =
 				greenSource1.getAvailablePowerInTime() * weight1 - greenSource2.getAvailablePowerInTime() * weight2;
-		int errorDifference = (int) (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
+		double errorDifference = (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
+		int priceDifference = (int) (greenSource1.getPricePerPowerUnit() - greenSource2.getPricePerPowerUnit());
+
 		return (int) (errorDifference != 0 ?
+				Math.signum(errorDifference) :
 				MAX_AVAILABLE_POWER_DIFFERENCE.isValidValue((long) powerDifference) ?
-						errorDifference :
-						powerDifference
-				: powerDifference);
+						priceDifference :
+						Math.signum(powerDifference));
 	}
 
 	public int getInitialMaximumCapacity() {

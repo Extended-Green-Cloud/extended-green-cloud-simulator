@@ -112,7 +112,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@DisplayName("Test get alive green sources")
 	void testGetAliveGreenSources() {
 		var mockData = prepareAgentData();
-		var result = incrementGreenSourceErrorPlan.getAliveGreenSources(mockData);
+		var result = incrementGreenSourceErrorPlan.getAliveGreenSources();
 
 		assertThat(result)
 				.hasSize(3)

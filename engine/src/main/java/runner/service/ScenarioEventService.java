@@ -1,5 +1,6 @@
 package runner.service;
 
+import static com.greencloud.commons.args.agent.client.ClientTimeType.SIMULATION;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.File;
@@ -105,6 +106,7 @@ public class ScenarioEventService {
 				.start(String.valueOf(newClientEvent.getStart()))
 				.end(String.valueOf(newClientEvent.getEnd()))
 				.deadline(String.valueOf(newClientEvent.getDeadline()))
+				.timeType(SIMULATION)
 				.build();
 		final AgentController agentController = scenarioService.runAgentController(clientAgentArgs, null, factory);
 		scenarioService.runAgent(agentController, 0);

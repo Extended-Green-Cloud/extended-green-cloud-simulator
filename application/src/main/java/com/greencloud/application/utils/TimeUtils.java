@@ -1,5 +1,6 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -33,10 +34,8 @@ public class TimeUtils {
 	private static final Logger logger = LoggerFactory.getLogger(TimeUtils.class);
 	private static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
-
 	private static final int MILLISECOND_MULTIPLIER = 1000;
 	private static final int SECONDS_IN_HOUR = 3600;
-	private static final int SECONDS_PER_HOUR = 5;
 	private static final Long TIME_ERROR = 5L;
 
 	//TODO store this information in the database so that all agents has access to it

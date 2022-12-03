@@ -1,5 +1,6 @@
 package runner.service;
 
+import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
 import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -175,6 +176,7 @@ public abstract class AbstractScenarioService {
 					.start(String.valueOf(randomStart))
 					.end(String.valueOf(randomEnd))
 					.deadline(String.valueOf(randomDeadline))
+					.timeType(REAL_TIME)
 					.build();
 			final AgentController agentController = runAgentController(clientAgentArgs, null, factory);
 			runAgent(agentController, RUN_CLIENT_AGENT_PAUSE);

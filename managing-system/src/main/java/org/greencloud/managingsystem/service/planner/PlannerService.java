@@ -92,6 +92,7 @@ public class PlannerService extends AbstractManagingService {
 			final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
 				.filter(entry -> planForActionMap.containsKey(entry.getKey().getAction()))
+				.filter(entry -> entry.getKey().getAvailable())
 				.filter(entry -> planForActionMap.get(entry.getKey().getAction()).isPlanExecutable())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}

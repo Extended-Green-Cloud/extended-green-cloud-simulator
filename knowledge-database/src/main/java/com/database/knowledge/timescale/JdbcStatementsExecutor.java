@@ -8,6 +8,7 @@ import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DmlQueries.GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
+import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
@@ -126,6 +127,17 @@ public class JdbcStatementsExecutor {
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
 			statement.setDouble(2, seconds);
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
+		}
+	}
+
+	List<AgentData> executeLastReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes)
+			throws SQLException, JsonProcessingException {
+		try (var statement = sqlConnection.prepareStatement(GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES)) {
+			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
+			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
+			statement.setArray(1, array);
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
