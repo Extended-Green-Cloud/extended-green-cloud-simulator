@@ -5,11 +5,11 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGE
 import java.util.List;
 import java.util.Objects;
 
-import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
@@ -59,13 +59,6 @@ public class ServerAgent extends AbstractServerAgent {
 		if (Objects.nonNull(args) && args.length == 4) {
 			this.stateManagement = new ServerStateManagement(this);
 			this.configManagement = new ServerConfigManagement(this);
-			this.ownedGreenSources = YellowPagesService.search(this, DFServiceConstants.GS_SERVICE_TYPE, getName());
-			this.ownedGreenSources.forEach(
-					greenSource -> this.manageConfig().getWeightsForGreenSourcesMap().put(greenSource, 1));
-			if (ownedGreenSources.isEmpty()) {
-				logger.info("I have no corresponding green sources!");
-				doDelete();
-			}
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			try {
 				this.manageConfig().setPricePerHour(Double.parseDouble(args[1].toString()));
@@ -85,6 +78,7 @@ public class ServerAgent extends AbstractServerAgent {
 
 	private List<Behaviour> behavioursRunAtStart() {
 		return List.of(
+				SubscribeGreenSourceService.create(this),
 				new ListenForNewJob(),
 				new ListenForPowerSupplyUpdate(),
 				new ListenForSourceJobTransferRequest(),

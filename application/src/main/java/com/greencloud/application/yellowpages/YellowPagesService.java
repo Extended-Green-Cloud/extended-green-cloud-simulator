@@ -109,6 +109,20 @@ public class YellowPagesService {
 	}
 
 	/**
+	 * Method subscribes a given agent service for the subscriber agent.
+	 *
+	 * @param subscriber  agent subscribing given service
+	 * @param serviceType type of the service to be subscribed
+	 * @param ownership   name of the owner to be searched
+	 * @return subscription ACLMessage
+	 */
+	public static ACLMessage prepareSubscription(final Agent subscriber, final String serviceType,
+			final String ownership) {
+		return DFService.createSubscriptionMessage(subscriber, subscriber.getDefaultDF(),
+				prepareAgentDescriptionTemplate(serviceType, ownership), null);
+	}
+
+	/**
 	 * Method decodes the received notification and retrieves newly introduced agents
 	 *
 	 * @param inform notification received from DF
