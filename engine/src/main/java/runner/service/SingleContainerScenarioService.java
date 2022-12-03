@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioStructureArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
@@ -42,14 +42,14 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 	@Override
 	public void run() {
 		final File scenarioStructureFile = readFile(scenarioStructureFileName);
-		final ScenarioStructureArgs scenarioStructure = parseScenarioStructure(scenarioStructureFile);
-		if (Objects.nonNull(scenarioStructure.getAgentsArgs())) {
-			createAgents(List.of(scenarioStructure.getManagingAgentArgs()), scenarioStructure);
-			createAgents(List.of(scenarioStructure.getSchedulerAgentArgs()), scenarioStructure);
-			createAgents(scenarioStructure.getMonitoringAgentsArgs(), scenarioStructure);
-			createAgents(scenarioStructure.getGreenEnergyAgentsArgs(), scenarioStructure);
-			createAgents(scenarioStructure.getServerAgentsArgs(), scenarioStructure);
-			createAgents(scenarioStructure.getCloudNetworkAgentsArgs(), scenarioStructure);
+		scenario = parseScenarioStructure(scenarioStructureFile);
+		if (Objects.nonNull(scenario.getAgentsArgs())) {
+			createAgents(List.of(scenario.getManagingAgentArgs()), scenario);
+			createAgents(List.of(scenario.getSchedulerAgentArgs()), scenario);
+			createAgents(scenario.getMonitoringAgentsArgs(), scenario);
+			createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);
+			createAgents(scenario.getServerAgentsArgs(), scenario);
+			createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
 		}
 		runAgents(AGENTS_TO_RUN);
 		setSystemStartTime();

@@ -78,5 +78,9 @@
 			<AppenderRef ref="RoutingByAgent" />
 			<AppenderRef ref="RoutingByJobId" />
 		</Logger>
+		<Logger name="org.greencloud.managingsystem" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleWithJobId" />
+			<AppenderRef ref="RoutingByAgent" />
+		</Logger>
 	</Loggers>
 </Configuration>

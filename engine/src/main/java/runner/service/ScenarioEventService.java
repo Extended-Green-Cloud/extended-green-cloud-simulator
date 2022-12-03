@@ -21,10 +21,10 @@ import com.greencloud.commons.args.event.EventTypeEnum;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
 import com.greencloud.commons.args.event.powershortage.PowerShortageEventArgs;
 import com.greencloud.commons.exception.InvalidScenarioEventStructure;
+import com.greencloud.commons.scenario.ScenarioEventsArgs;
 import com.gui.event.domain.PowerShortageEvent;
 
 import jade.wrapper.AgentController;
-import runner.domain.ScenarioEventsArgs;
 import runner.factory.AgentControllerFactory;
 
 /**

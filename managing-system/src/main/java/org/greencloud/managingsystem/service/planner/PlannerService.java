@@ -6,6 +6,7 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
+import static java.util.Objects.nonNull;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.CONSTRUCTING_PLAN_FOR_ACTION_LOG;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.COULD_NOT_CONSTRUCT_PLAN_LOG;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.NO_ACTIONS_LOG;
@@ -13,7 +14,6 @@ import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPl
 
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
@@ -61,9 +61,9 @@ public class PlannerService extends AbstractManagingService {
 
 		logger.info(SELECTING_BEST_ACTION_LOG);
 		final AdaptationAction bestAction = selectBestAction(executableActions);
-		final AbstractPlan constructedPlan = getPlanForAdaptationAction(bestAction).constructAdaptationPlan();
-		final boolean isPlanConstructed = Objects.nonNull(constructedPlan.constructAdaptationPlan()) && Objects.nonNull(
-				constructedPlan.getTargetAgent());
+		final AbstractPlan constructedPlan = getPlanForAdaptationAction(bestAction);
+		final boolean isPlanConstructed = nonNull(constructedPlan)
+										  && nonNull(constructedPlan.constructAdaptationPlan());
 
 		if (!isPlanConstructed) {
 			logger.info(COULD_NOT_CONSTRUCT_PLAN_LOG);

@@ -16,7 +16,6 @@ import static org.mockito.Mockito.mock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -93,8 +92,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	void testConstructAdaptationPlanEmpty() {
 		incrementGreenSourceErrorPlan.setGreenSourcesPowerShortages(Collections.emptyMap());
 
-		assertThat(incrementGreenSourceErrorPlan.constructAdaptationPlan())
-				.matches((data) -> Objects.isNull(data.getTargetAgent()) && Objects.isNull(data.actionParameters));
+		assertThat(incrementGreenSourceErrorPlan.constructAdaptationPlan()).isNull();
 	}
 
 	@Test

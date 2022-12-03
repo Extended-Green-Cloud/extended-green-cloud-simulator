@@ -15,10 +15,10 @@ import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioStructureArgs;
 import runner.factory.AgentControllerFactory;
 import runner.factory.AgentControllerFactoryImpl;
 
@@ -67,7 +67,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	@Override
 	public void run() {
 		File scenarioFile = readFile(scenarioStructureFileName);
-		ScenarioStructureArgs scenario = parseScenarioStructure(scenarioFile);
+		scenario = parseScenarioStructure(scenarioFile);
 
 		if (mainHost) {
 			runCommonAgentContainers(scenario);

@@ -35,7 +35,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	}
 
 	@Override
-	public AgentController createAgentController(AgentArgs agentArgs)
+	public AgentController createAgentController(AgentArgs agentArgs, ScenarioStructureArgs scenario)
 			throws StaleProxyException {
 
 		if (agentArgs instanceof ClientAgentArgs clientAgent) {
@@ -87,7 +87,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					"org.greencloud.managingsystem.agent.ManagingAgent",
 					new Object[] {
 							managingAgent.getSystemQualityThreshold(),
-							managingAgent.getPowerShortageThreshold()
+							managingAgent.getPowerShortageThreshold(),
+							scenario,
+							containerController
 					});
 		}
 		return null;

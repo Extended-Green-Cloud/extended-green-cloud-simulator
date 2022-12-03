@@ -11,6 +11,7 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static java.time.Instant.now;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
@@ -61,6 +62,7 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSourceErrorParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.agents.ManagingAgentNode;
 
 import jade.core.AID;
@@ -97,6 +99,8 @@ class PlannerServiceUnitTest {
 		database = mock(TimescaleDatabase.class);
 		agentNode = mock(ManagingAgentNode.class);
 
+		var testStructure = new ScenarioStructureArgs(null, null, emptyList(), emptyList(), emptyList(), emptyList());
+		doReturn(testStructure).when(managingAgent).getGreenCloudStructure();
 		doReturn(executorService).when(managingAgent).execute();
 		doReturn(database).when(agentNode).getDatabaseClient();
 		doReturn(agentNode).when(managingAgent).getAgentNode();
@@ -142,8 +146,10 @@ class PlannerServiceUnitTest {
 
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((plan) -> plan.getTargetAgent().equals(mockAgent)
-				&& plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-				&& ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange() == 0.07));
+																		  && plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
+																		  &&
+																		  ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
+																		  == 0.07));
 
 	}
 
@@ -166,7 +172,7 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((val) ->
 				val.getTargetAgent().getName().equals("test_gs2") &&
-						val.getActionParameters() instanceof IncrementGreenSourceErrorParameters));
+				val.getActionParameters() instanceof IncrementGreenSourceErrorParameters));
 	}
 
 	private List<AgentData> prepareGSData() {

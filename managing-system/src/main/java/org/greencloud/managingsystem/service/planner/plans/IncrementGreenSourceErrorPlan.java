@@ -81,7 +81,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
 		if (greenSourcesPowerShortages.isEmpty()) {
-			return this;
+			return null;
 		}
 		final String selectedAgent = greenSourcesPowerShortages.entrySet().stream()
 				.max(Comparator.comparingInt(Map.Entry::getValue))

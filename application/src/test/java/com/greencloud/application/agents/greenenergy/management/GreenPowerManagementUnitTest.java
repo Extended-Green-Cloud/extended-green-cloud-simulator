@@ -1,9 +1,9 @@
 package com.greencloud.application.agents.greenenergy.management;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.SOLAR;
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_LOCATION;
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_TIME;
+import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.SOLAR;
+import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.WIND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.quality.Strictness.LENIENT;
