@@ -12,7 +12,8 @@ import com.google.common.util.concurrent.AtomicDouble;
 
 public abstract class AbstractGoalService extends AbstractManagingService {
 
-	protected final AtomicDouble goalQuality;
+	protected final AtomicDouble aggregatedGoalQuality;
+	protected final AtomicDouble currentGoalQuality;
 
 	/**
 	 * Default constructor
@@ -21,11 +22,12 @@ public abstract class AbstractGoalService extends AbstractManagingService {
 	 */
 	protected AbstractGoalService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
-		this.goalQuality = new AtomicDouble(0);
+		this.aggregatedGoalQuality = new AtomicDouble(0);
+		this.currentGoalQuality = new AtomicDouble(0);
 	}
 
 	public double getLastMeasuredGoalQuality() {
-		return goalQuality.get();
+		return aggregatedGoalQuality.get();
 	}
 
 	/**
@@ -51,6 +53,6 @@ public abstract class AbstractGoalService extends AbstractManagingService {
 			managingAgent.getAgentNode().getDatabaseClient()
 					.writeSystemQualityData(goalEnum.getAdaptationGoalId(), currentGoalQuality);
 		}
-		goalQuality.set(currentGoalQuality);
+		this.currentGoalQuality.set(currentGoalQuality);
 	}
 }

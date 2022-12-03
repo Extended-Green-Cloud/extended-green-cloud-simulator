@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.greenenergy;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -80,7 +81,10 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public void setWeatherPredictionError(double weatherPredictionError) {
 		this.weatherPredictionError = weatherPredictionError;
-		((GreenEnergyAgentNode) getAgentNode()).updatePredictionError(weatherPredictionError);
+
+		if (Objects.nonNull(getAgentNode())) {
+			((GreenEnergyAgentNode) getAgentNode()).updatePredictionError(weatherPredictionError);
+		}
 	}
 
 	public void setGreenPowerManagement(GreenPowerManagement greenPowerManagement) {

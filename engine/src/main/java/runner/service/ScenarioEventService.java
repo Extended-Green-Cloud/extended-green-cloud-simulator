@@ -1,5 +1,6 @@
 package runner.service;
 
+import static com.greencloud.commons.args.agent.client.ClientTimeType.SIMULATION;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.File;
@@ -18,7 +19,7 @@ import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
 import com.greencloud.commons.args.event.EventArgs;
 import com.greencloud.commons.args.event.EventTypeEnum;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
-import com.greencloud.commons.args.event.newclient.PowerShortageEventArgs;
+import com.greencloud.commons.args.event.powershortage.PowerShortageEventArgs;
 import com.greencloud.commons.exception.InvalidScenarioEventStructure;
 import com.greencloud.commons.scenario.ScenarioEventsArgs;
 import com.gui.event.domain.PowerShortageEvent;
@@ -105,6 +106,7 @@ public class ScenarioEventService {
 				.start(String.valueOf(newClientEvent.getStart()))
 				.end(String.valueOf(newClientEvent.getEnd()))
 				.deadline(String.valueOf(newClientEvent.getDeadline()))
+				.timeType(SIMULATION)
 				.build();
 		final AgentController agentController = scenarioService.runAgentController(clientAgentArgs, null, factory);
 		scenarioService.runAgent(agentController, 0);
@@ -114,7 +116,8 @@ public class ScenarioEventService {
 		final PowerShortageEventArgs powerShortageArgs = (PowerShortageEventArgs) event;
 		final Instant eventOccurrence = Instant.now().plusSeconds(POWER_SHORTAGE_START_DELAY);
 		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence,
-				powerShortageArgs.getNewMaximumCapacity(), powerShortageArgs.isFinished());
+				powerShortageArgs.getNewMaximumCapacity(), powerShortageArgs.isFinished(),
+				powerShortageArgs.getCause());
 		scenarioService.guiController.triggerPowerShortageEvent(eventData, powerShortageArgs.getAgentName());
 	}
 }

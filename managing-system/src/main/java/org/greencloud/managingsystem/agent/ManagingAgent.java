@@ -1,6 +1,7 @@
 package org.greencloud.managingsystem.agent;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
+import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -66,7 +67,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 	}
 
 	private void initializeAgent(final Object[] args) {
-		if (Objects.nonNull(args) && args.length == 3) {
+		if (Objects.nonNull(args) && args.length >= 3) {
 			try {
 				final double systemQuality = Double.parseDouble(args[0].toString());
 
@@ -77,13 +78,21 @@ public class ManagingAgent extends AbstractManagingAgent {
 				this.systemQualityThreshold = systemQuality;
 				this.greenCloudStructure = (ScenarioStructureArgs) args[1];
 				this.greenCloudController = (ContainerController) args[2];
+
+				if (args.length > 3) {
+					// in separate if as more params will be added
+					if (Objects.nonNull(args[3])) {
+						POWER_SHORTAGE_THRESHOLD = Integer.parseInt(String.valueOf(args[3]));
+					}
+				}
+
 			} catch (NumberFormatException e) {
 				logger.info("Incorrect argument: please check arguments in the documentation");
 				doDelete();
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for green source agent are missing - "
-						+ "check the parameters in the documentation");
+					+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}

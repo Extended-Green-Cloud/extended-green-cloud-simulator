@@ -30,17 +30,17 @@ public interface NewClientEventArgs extends EventArgs {
 	Integer getJobId();
 
 	/**
-	 * @return number of hours after which the job execution should start
+	 * @return number of seconds after which the job execution should start (from Client creation)
 	 */
 	Integer getStart();
 
 	/**
-	 * @return number of hours after which the job execution should finish
+	 * @return number of seconds after which the job execution should finish (from Client creation)
 	 */
 	Integer getEnd();
 
 	/**
-	 * @return number of hours after which the job will reach execution deadline
+	 * @return number of seconds after which the job will reach execution deadline (from Client creation)
 	 */
 	Integer getDeadline();
 

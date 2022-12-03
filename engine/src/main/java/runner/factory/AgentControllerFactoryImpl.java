@@ -1,9 +1,5 @@
 package runner.factory;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,9 +39,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 
 		if (agentArgs instanceof ClientAgentArgs clientAgent) {
-			final String startDate = formatToDate(clientAgent.getStart());
-			final String endDate = formatToDate(clientAgent.getEnd());
-			final String deadline = formatToDate(clientAgent.getDeadline());
+			final String startDate = clientAgent.formatClientTime(clientAgent.getStart());
+			final String endDate = clientAgent.formatClientTime(clientAgent.getEnd());
+			final String deadline = clientAgent.formatClientTime(clientAgent.getDeadline());
 
 			return containerController.createNewAgent(clientAgent.getName(),
 					"com.greencloud.application.agents.client.ClientAgent",
@@ -75,7 +71,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
 			return containerController.createNewAgent(monitoringAgent.getName(),
 					"com.greencloud.application.agents.monitoring.MonitoringAgent",
-					new Object[] {});
+					new Object[] { monitoringAgent.getBadStubProbability() });
 		} else if (agentArgs instanceof SchedulerAgentArgs schedulerAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"com.greencloud.application.agents.scheduler.SchedulerAgent",
@@ -89,7 +85,12 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"org.greencloud.managingsystem.agent.ManagingAgent",
-					new Object[] { managingAgent.getSystemQualityThreshold(), scenario, containerController });
+					new Object[] {
+							managingAgent.getSystemQualityThreshold(),
+							scenario,
+							containerController,
+							managingAgent.getPowerShortageThreshold()
+					});
 		}
 		return null;
 	}
@@ -98,9 +99,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	public AbstractAgentNode createAgentNode(AgentArgs agentArgs, ScenarioStructureArgs scenarioArgs) {
 		if (agentArgs instanceof ClientAgentArgs clientArgs) {
 			return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
-					.withStart(formatToDate(clientArgs.getStart()))
-					.withEnd(formatToDate(clientArgs.getEnd()))
-					.withDeadline(formatToDate(clientArgs.getDeadline())));
+					.withStart(clientArgs.formatClientTime(clientArgs.getStart()))
+					.withEnd(clientArgs.formatClientTime(clientArgs.getEnd()))
+					.withDeadline(clientArgs.formatClientTime(clientArgs.getDeadline())));
 		}
 		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
 			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
@@ -144,11 +145,5 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return new ManagingAgentNode(managingAgentArgs);
 		}
 		return null;
-	}
-
-	private String formatToDate(final String value) {
-		final Instant date = Instant.now().plus(Long.parseLong(value), ChronoUnit.HOURS);
-		final String dateFormat = "dd/MM/yyyy HH:mm";
-		return DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId.of("UTC")).format(date);
 	}
 }

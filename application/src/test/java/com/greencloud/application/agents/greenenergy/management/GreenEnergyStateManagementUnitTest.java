@@ -214,6 +214,7 @@ class GreenEnergyStateManagementUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20)
 				.build();
+		mockGreenEnergyAgent.setWeatherPredictionError(0.02);
 		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.03);
 	}
 

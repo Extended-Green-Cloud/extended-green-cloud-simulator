@@ -16,7 +16,7 @@ public class ReportWeatherShortages extends TickerBehaviour {
 	/**
 	 * Defines how often weather shortage happens on the given agent in given window of time [ms].
 	 */
-	private static final long REPORT_SHORTAGE_PERIOD = 1000;
+	private static final long REPORT_SHORTAGE_PERIOD = 250;
 
 	private final GreenEnergyAgent myGreenEnergyAgent;
 
@@ -27,8 +27,10 @@ public class ReportWeatherShortages extends TickerBehaviour {
 
 	@Override
 	protected void onTick() {
-		Integer shortages = myGreenEnergyAgent.manage().getWeatherShortagesCounter().getAndSet(0);
-		WeatherShortages weatherShortages = new WeatherShortages(shortages, REPORT_SHORTAGE_PERIOD);
-		myGreenEnergyAgent.writeMonitoringData(WEATHER_SHORTAGES, weatherShortages);
+		if(myGreenEnergyAgent.manage().getWeatherShortagesCounter().get() > 0) {
+			int shortages = myGreenEnergyAgent.manage().getWeatherShortagesCounter().getAndSet(0);
+			WeatherShortages weatherShortages = new WeatherShortages(shortages, REPORT_SHORTAGE_PERIOD);
+			myGreenEnergyAgent.writeMonitoringData(WEATHER_SHORTAGES, weatherShortages);
+		}
 	}
 }

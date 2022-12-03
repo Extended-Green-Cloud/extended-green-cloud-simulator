@@ -16,6 +16,11 @@ public final class DmlQueries {
 			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
 					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND "
 					+ "order by aid, data_type, time desc";
+
+	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES =
+			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
+					+ "where data_type = ANY(?) "
+					+ "order by aid, data_type, time desc";
 	static final String GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME =
 			"SELECT * FROM monitoring_data where data_type = ? and aid = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 

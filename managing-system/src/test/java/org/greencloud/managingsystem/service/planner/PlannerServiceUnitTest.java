@@ -13,6 +13,7 @@ import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -161,8 +162,8 @@ class PlannerServiceUnitTest {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(INCREASE_GREEN_SOURCE_ERROR), 20.0
 		);
-		doReturn(prepareGSData()).when(database)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+		mockHealthCheckData();
+		doReturn(prepareGSData()).when(database).readLastMonitoringDataForDataTypes(List.of(GREEN_SOURCE_MONITORING));
 		doReturn(preparePowerShortageData()).when(database)
 				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), eq(List.of("test_gs1", "test_gs2")),
 						anyDouble());
@@ -175,9 +176,6 @@ class PlannerServiceUnitTest {
 	}
 
 	private List<AgentData> prepareGSData() {
-		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_SOURCE);
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
 				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
@@ -198,9 +196,6 @@ class PlannerServiceUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
-				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
-				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3),
 				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
 				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
 				new AgentData(now(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
@@ -214,6 +209,21 @@ class PlannerServiceUnitTest {
 				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
 				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(1, 1000))
 		);
+	}
+
+	private void mockHealthCheckData() {
+		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+
+		var mockData = List.of(
+				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
+		);
+
+		doReturn(mockData).when(database).readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
+				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 
 	@ParameterizedTest

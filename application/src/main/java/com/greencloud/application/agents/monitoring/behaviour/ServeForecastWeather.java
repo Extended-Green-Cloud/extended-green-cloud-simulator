@@ -3,7 +3,6 @@ package com.greencloud.application.agents.monitoring.behaviour;
 import static com.greencloud.application.agents.monitoring.behaviour.logs.WeatherServingLog.SERVE_FORECAST_LOG;
 import static com.greencloud.application.agents.monitoring.behaviour.templates.WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE;
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_DATA;
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_PROBABILITY;
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.OFFLINE_MODE;
 import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
@@ -77,8 +76,9 @@ public class ServeForecastWeather extends CyclicBehaviour {
 
 	private MonitoringData getWeatherDataForPeriodicCheck(final ACLMessage message) {
 		final GreenSourceWeatherData requestData = readMessageContent(message, GreenSourceWeatherData.class);
-		final double incorrectPredictionProbability = max(BAD_STUB_PROBABILITY - requestData.getPredictionError(), 0);
-		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < incorrectPredictionProbability) {
+		final double badWeatherPredictionProbability = max(
+				monitoringAgent.getBadStubProbability() - requestData.getPredictionError(), 0);
+		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < badWeatherPredictionProbability) {
 			return BAD_STUB_DATA;
 		} else {
 			return OFFLINE_MODE ?
