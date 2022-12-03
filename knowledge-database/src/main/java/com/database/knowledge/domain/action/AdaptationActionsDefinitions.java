@@ -15,6 +15,8 @@ import java.util.Map;
 
 import com.database.knowledge.exception.InvalidAdaptationActionException;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
+import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 /**
@@ -40,7 +42,9 @@ public final class AdaptationActionsDefinitions {
 
 	private static final Map<AdaptationActionEnum, Class<? extends AdaptationActionParameters>> ACTION_TO_PARAMS_MAP =
 			Map.of(
-					INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorParameters.class
+					INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorParameters.class,
+					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
+					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class
 			);
 
 	private AdaptationActionsDefinitions() {
