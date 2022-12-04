@@ -1,5 +1,9 @@
 package com.greencloud.commons.args.agent.greenenergy;
 
+import static java.util.Collections.singleton;
+
+import java.util.ArrayList;
+
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -23,6 +27,14 @@ public interface GreenEnergyAgentArgs extends AgentArgs {
 	 * @return owner server name
 	 */
 	String getOwnerSever();
+
+	/**
+	 * @return list of connected servers
+	 */
+	@Value.Default
+	default ArrayList<String> getConnectedSevers() {
+		return new ArrayList<>(singleton(getOwnerSever()));
+	}
 
 	/**
 	 * @return location's latitude
