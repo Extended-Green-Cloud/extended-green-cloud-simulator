@@ -38,7 +38,7 @@ import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
+import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlanTest;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourcePercentagePlan;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +87,7 @@ class PlannerServiceUnitTest {
 				arguments(ADD_SERVER, AddServerPlan.class),
 				arguments(ADD_GREEN_SOURCE, AddGreenSourcePlan.class),
 				arguments(INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityPlan.class),
-				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlan.class),
+				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlanTest.class),
 				arguments(INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorPlan.class),
 				arguments(INCREASE_GREEN_SOURCE_PERCENTAGE, IncrementGreenSourcePercentagePlan.class)
 		);

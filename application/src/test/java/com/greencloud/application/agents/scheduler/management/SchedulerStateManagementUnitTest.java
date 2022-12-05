@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.scheduler;
+package com.greencloud.application.agents.scheduler.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +41,7 @@ class SchedulerStateManagementUnitTest {
 
 		doReturn(setUpCloudNetworkJobs()).when(mockSchedulerAgent).getClientJobs();
 		doReturn(schedulerStateManagement).when(mockSchedulerAgent).manage();
-		doReturn(new SchedulerConfigurationManagement(0.7, 0.3, 10, 1000, 1)).when(mockSchedulerAgent).config();
+		doReturn(new SchedulerConfigurationManagement(8, 3, 10, 1000, 1)).when(mockSchedulerAgent).config();
 	}
 
 	@Test

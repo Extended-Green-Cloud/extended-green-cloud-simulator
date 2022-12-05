@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.scheduler;
+package com.greencloud.application.agents.scheduler.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,13 +27,31 @@ public class SchedulerConfigManagementUnitTest {
 
 	@BeforeEach
 	void setUp() {
-		schedulerConfigManagement = new SchedulerConfigurationManagement(0.7, 0.3, 100, 1000, 2);
+		schedulerConfigManagement = new SchedulerConfigurationManagement(1, 1, 100, 1000, 2);
 	}
 
 	@Test
 	@DisplayName("Test computation of job priority")
 	void testGetJobPriority() {
-		final double expectedResult = 5040030;
+		final double expectedResult = 3600050;
 		assertThat(schedulerConfigManagement.getJobPriority(mockJob)).isEqualTo(expectedResult);
+	}
+
+	@Test
+	@DisplayName("Test increase job deadline priority")
+	void testIncrementDeadline() {
+		for(int i = 0; i < 5 ; i++) {
+			schedulerConfigManagement.increaseDeadlineWeight();
+		}
+		assertThat(schedulerConfigManagement.getDeadlineWeightPriority()).isEqualTo(13.0/14);
+	}
+
+	@Test
+	@DisplayName("Test increase job power division priority")
+	void testIncrementPowerDivision() {
+		for(int i = 0; i < 5 ; i++) {
+			schedulerConfigManagement.increasePowerWeight();
+		}
+		assertThat(schedulerConfigManagement.getPowerWeightPriority()).isEqualTo(13.0/14);
 	}
 }

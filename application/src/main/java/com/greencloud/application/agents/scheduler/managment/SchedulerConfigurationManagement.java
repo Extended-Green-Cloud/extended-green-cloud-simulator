@@ -63,6 +63,14 @@ public class SchedulerConfigurationManagement {
 		return splittingFactor;
 	}
 
+	public double getDeadlineWeightPriority() {
+		return deadlineWeightPriority;
+	}
+
+	public double getPowerWeightPriority() {
+		return powerWeightPriority;
+	}
+
 	/**
 	 * Method increases the deadline weight to the next number in a Fibonacci sequence
 	 */

@@ -3,7 +3,7 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.greencloud.commons.agent.AgentType.SCHEDULER;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_AGENTS_ALIVE_TIME_PERIOD;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
@@ -27,7 +27,7 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 		final List<AgentData> queryResult =
 				managingAgent.getAgentNode().getDatabaseClient()
 						.readMonitoringDataForDataTypes(List.of(HEALTH_CHECK),
-								MONITOR_AGENTS_ALIVE_TIME_PERIOD);
+								MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 		boolean schedulerAgentAlive = isSchedulerAlive(queryResult);
 		if(schedulerAgentAlive) {
 			targetAgent = new AID(getTargetScheduler(queryResult), AID.ISGUID);
@@ -40,7 +40,7 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 		return this;
 	}
 
-	private boolean isSchedulerAlive(List<AgentData> agentDataList) {
+	boolean isSchedulerAlive(List<AgentData> agentDataList) {
 		return agentDataList.stream()
 				.anyMatch(agentData -> {
 					var healthData = ((HealthCheck) agentData.monitoringData());
@@ -48,7 +48,7 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 				});
 	}
 
-	private String getTargetScheduler(List<AgentData> agentDataList) {
+	String getTargetScheduler(List<AgentData> agentDataList) {
 		return agentDataList.stream()
 				.filter(agentData -> {
 					var healthData = ((HealthCheck) agentData.monitoringData());
