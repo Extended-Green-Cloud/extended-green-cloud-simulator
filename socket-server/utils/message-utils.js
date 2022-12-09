@@ -1,5 +1,5 @@
 const { AGENT_TYPES, JOB_STATUES } = require("../constants/constants")
-const { getAgentByName, getNewTraffic, createAgentConnections, registerAgent } = require("./agent-utils")
+const { getAgentByName, getNewTraffic, createAgentConnections, registerAgent, createEdge } = require("./agent-utils")
 
 const handleIncrementFinishJobs = (state, msg) => {
     state.network.finishedJobsNo += msg.data
@@ -98,7 +98,7 @@ const handleSetSuccessRatio = (state, msg) => {
     const successRatio = msg.data
 
     if (agent) {
-        if (agent?.type === AGENT_TYPES.SERVER || 
+        if (agent?.type === AGENT_TYPES.SERVER ||
             agent?.type === AGENT_TYPES.GREEN_ENERGY ||
             agent?.type === AGENT_TYPES.CLOUD_NETWORK) {
             agent.successRatio = successRatio
@@ -130,14 +130,14 @@ const handleSetClientJobStatus = (state, msg) => {
     const splitJobId = msg.data.splitJobId
 
     if (agent) {
-        if(jobStatus === JOB_STATUES.FAILED) {
+        if (jobStatus === JOB_STATUES.FAILED) {
             agent.status = jobStatus
             if (agent.isSplit) {
                 agent.splitJobs.forEach(job => job.status = jobStatus)
             }
             return
         }
-        
+
         if (splitJobId) {
             const splitJob = agent.splitJobs.find(job => job.splitJobId === splitJobId)
             if (splitJob) {
@@ -173,6 +173,22 @@ const handleRegisterAgent = (state, msg) => {
 
             Object.assign(state.agents.connections,
                 state.agents.connections.concat((createAgentConnections(newAgent))))
+        }
+    }
+}
+
+const handleUpdateServerConnection = (state, msg) => {
+    const agent = getAgentByName(state.agents.agents, msg.agentName)
+
+    if (agent) {
+        const { isConnected, serverName } = msg.data
+
+        if (isConnected) {
+            agent.connectedServers.push(serverName)
+            Object.assign(state.agents.connections, state.agents.connections.concat(createEdge(agent.name, serverName)))
+        } else {
+            agent.connectedServers = agent.connectedServers.filter(server => server !== serverName)
+            Object.assign(state.agents.connections, state.agents.connections.filter(edge => edge.data.id !== [agent.name, serverName, 'BI'].join('-')))
         }
     }
 }
@@ -234,6 +250,7 @@ module.exports = {
         SPLIT_JOB: handleJobSplit,
         REGISTER_AGENT: handleRegisterAgent,
         REGISTER_MANAGING: handleRegisterManaging,
+        UPDATE_SERVER_CONNECTION: handleUpdateServerConnection,
         UPDATE_INDICATORS: handleUpdateIndicators,
         ADD_ADAPTATION_LOG: handleAddAdaptationLog,
         INCREMENT_WEAK_ADAPTATIONS: handleIncrementWeakAdaptations,

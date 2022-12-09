@@ -12,7 +12,7 @@ const registerScheduler = (data) => {
 }
 
 const registerClient = (data) => {
-    const {name, ...jobData} = data
+    const { name, ...jobData } = data
     return {
         type: AGENT_TYPES.CLIENT,
         status: JOB_STATUES.CREATED,
@@ -44,6 +44,7 @@ const registerGreenEnergy = (data) => {
         type: AGENT_TYPES.GREEN_ENERGY,
         events,
         isActive: false,
+        connectedServers: [data.serverAgent],
         ...INITIAL_NETWORK_AGENT_STATE(data),
         ...data
     }
@@ -74,15 +75,15 @@ const registerMonitoring = (data) => {
 
 const createServerEdges = (agent) => {
     const cloudNetworkEdge = createEdge(agent.name, agent.cloudNetworkAgent)
-    
+
     return [cloudNetworkEdge]
 }
 
 const createGreenEnergyEdges = (agent) => {
     const edgeMonitoring = createEdge(agent.name, agent.monitoringAgent)
-    const edgeServer = createEdge(agent.name, agent.serverAgent)
+    const edgesServers = agent.connectedServers.map(server => createEdge(agent.name, server))
 
-    return [edgeMonitoring, edgeServer]
+    return edgesServers.concat(edgeMonitoring)
 }
 
 const createEdge = (source, target) => {
@@ -113,6 +114,7 @@ module.exports = {
                 return registerScheduler(data)
         }
     },
+    createEdge,
     createAgentConnections: function (agent) {
         switch (agent.type) {
             case AGENT_TYPES.SERVER: return createServerEdges(agent)
