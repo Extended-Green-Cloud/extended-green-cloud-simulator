@@ -62,6 +62,13 @@ public class ScenarioStructureArgs implements Serializable {
 		this.greenEnergyAgentsArgs = new ArrayList<>(greenEnergyAgentsArgs);
 	}
 
+	public ScenarioStructureArgs(List<CloudNetworkArgs> cloudNetworkAgentsArgs, List<ServerAgentArgs> serverAgentsArgs,
+			List<GreenEnergyAgentArgs> greenEnergyAgentsArgs) {
+		this.cloudNetworkAgentsArgs = cloudNetworkAgentsArgs;
+		this.serverAgentsArgs = serverAgentsArgs;
+		this.greenEnergyAgentsArgs = greenEnergyAgentsArgs;
+	}
+
 	public List<CloudNetworkArgs> getCloudNetworkAgentsArgs() {
 		return cloudNetworkAgentsArgs;
 	}
