@@ -5,25 +5,38 @@ import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemp
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 
+import java.util.List;
+
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.service.AbstractManagingService;
+import org.greencloud.managingsystem.service.executor.jade.AgentControllerFactory;
+import org.greencloud.managingsystem.service.executor.jade.AgentRunner;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.SystemPlan;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.message.MessageBuilder;
 
+import jade.core.Location;
 import jade.lang.acl.ACLMessage;
+import jade.wrapper.AgentController;
+import jade.wrapper.StaleProxyException;
 
 /**
  * Service containing methods used in execution of the adaptation plan
  */
 public class ExecutorService extends AbstractManagingService {
 
+	private final AgentRunner agentRunner;
+
 	public ExecutorService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
+		AgentControllerFactory agentControllerFactory =
+				new AgentControllerFactory(managingAgent.getContainerController());
+		agentRunner = new AgentRunner(this.managingAgent, agentControllerFactory);
 	}
 
 	/**
@@ -32,19 +45,11 @@ public class ExecutorService extends AbstractManagingService {
 	 * @param adaptationPlan plan containing all necessary data to correctly execute adaptation action
 	 */
 	public void executeAdaptationAction(AbstractPlan adaptationPlan) {
-		if (adaptationPlan instanceof SystemPlan) {
-			this.executeAdaptationActionOnSystem(adaptationPlan);
+		if (adaptationPlan instanceof SystemPlan systemAdaptationPlan) {
+			this.executeAdaptationActionOnSystem(systemAdaptationPlan);
 		} else {
 			this.executeAdaptationActionOnAgent(adaptationPlan);
 		}
-	}
-
-	private void executeAdaptationActionOnSystem(AbstractPlan abstractPlan) {
-		// TODO implement handling system adaptations
-		// 1. create Agent
-		// 2. inform Network about Agent creation
-		// 3. in case of multi container service send message to created agent with additional data to move itself
-		//    to correct container
 	}
 
 	private void executeAdaptationActionOnAgent(AbstractPlan adaptationPlan) {
@@ -81,5 +86,28 @@ public class ExecutorService extends AbstractManagingService {
 		}
 
 		return goalQuality;
+	}
+
+	private void executeAdaptationActionOnSystem(SystemPlan systemAdaptationPlan) {
+		// 1. create Agent
+		List<AgentArgs> args = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsArguments();
+		List<AgentController> createdAgents = args.stream()
+				.map(agentRunner::runAgentController)
+				.toList();
+		// TODO 2. inform Network about Agent creation
+		// 3. in case of multi container service send message to created agent with additional data to move itself
+		//    to correct container
+		Location targetContainer = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsTargetLocation();
+		if (!targetContainer.getName().equals("Main-Container")) {
+			createdAgents.forEach(agentController -> moveAgentController(agentController, targetContainer));
+		}
+	}
+
+	private void moveAgentController(AgentController agentController, Location targetContainer) {
+		try {
+			agentController.move(targetContainer);
+		} catch (StaleProxyException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

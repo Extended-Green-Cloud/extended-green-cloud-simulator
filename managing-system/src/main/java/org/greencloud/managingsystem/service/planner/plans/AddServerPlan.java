@@ -28,6 +28,7 @@ import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.managingsystem.planner.AddServerActionParameters;
+import com.greencloud.commons.managingsystem.planner.SystemAdaptationActionParameters;
 
 import jade.core.Location;
 
@@ -73,6 +74,11 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 	private List<AgentData> getServerData() {
 		return managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypes(List.of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
+	}
+
+	@Override
+	public SystemAdaptationActionParameters getSystemAdaptationActionParameters() {
+		return (SystemAdaptationActionParameters) this.actionParameters;
 	}
 
 	/**

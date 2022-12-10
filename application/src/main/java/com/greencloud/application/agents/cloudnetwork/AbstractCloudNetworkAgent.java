@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.cloudnetwork;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		serverForJobMap = new HashMap<>();
 		networkJobs = new HashMap<>();
 		completedJobs = new AtomicLong(0L);
+		ownedServers = new ArrayList<>();
 	}
 
 	public Map<String, AID> getServerForJobMap() {
@@ -61,8 +64,9 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		return ownedServers;
 	}
 
-	public void setOwnedServers(List<AID> ownedServers) {
-		this.ownedServers = ownedServers;
+	public void setOwnedServers(Collection<AID> ownedServers) {
+		this.ownedServers.clear();
+		this.ownedServers.addAll(ownedServers);
 	}
 
 	public AID getScheduler() {

@@ -145,12 +145,10 @@ class PlannerServiceUnitTest {
 		plannerService.trigger(testActions);
 
 		verify(managingAgent).execute();
-		verify(executorService).executeAdaptationAction(argThat((plan) -> plan.getTargetAgent().equals(mockAgent)
-																		  && plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-																		  &&
-																		  ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
-																		  == 0.07));
-
+		verify(executorService).executeAdaptationAction(argThat((plan) ->
+				plan.getTargetAgent().equals(mockAgent)
+				&& plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
+				&& ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange() == 0.07));
 	}
 
 	@Test

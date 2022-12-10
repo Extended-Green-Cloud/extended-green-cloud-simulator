@@ -71,7 +71,7 @@ public class ServerAgent extends AbstractServerAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for server agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}

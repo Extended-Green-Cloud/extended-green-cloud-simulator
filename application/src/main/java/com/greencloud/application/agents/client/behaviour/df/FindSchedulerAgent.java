@@ -5,6 +5,7 @@ import static com.greencloud.application.utils.GUIUtils.announceNewClient;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class FindSchedulerAgent extends OneShotBehaviour {
 	 */
 	@Override
 	public void action() {
-		final List<AID> schedulerAgents = search(myAgent, SCHEDULER_SERVICE_TYPE);
+		final List<AID> schedulerAgents = new ArrayList<>(search(myAgent, SCHEDULER_SERVICE_TYPE));
 		if (schedulerAgents.isEmpty()) {
 			logger.info(ClientDFLog.NO_SCHEDULER_FOUND_LOG);
 			myClientAgent.doDelete();
