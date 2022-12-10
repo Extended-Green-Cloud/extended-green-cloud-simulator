@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
-import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
+import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
@@ -63,7 +63,7 @@ public class PlannerService extends AbstractManagingService {
 		final AdaptationAction bestAction = selectBestAction(executableActions);
 		final AbstractPlan constructedPlan = getPlanForAdaptationAction(bestAction);
 		final boolean isPlanConstructed = nonNull(constructedPlan)
-										  && nonNull(constructedPlan.constructAdaptationPlan());
+				&& nonNull(constructedPlan.constructAdaptationPlan());
 
 		if (!isPlanConstructed) {
 			logger.info(COULD_NOT_CONSTRUCT_PLAN_LOG);
@@ -105,7 +105,7 @@ public class PlannerService extends AbstractManagingService {
 	protected void initializePlansForActions() {
 		planForActionMap = Map.of(
 				ADD_SERVER, new AddServerPlan(managingAgent),
-				ADD_GREEN_SOURCE, new AddGreenSourcePlan(managingAgent),
+				ADD_GREEN_SOURCE, new ConnectGreenSourcePlan(managingAgent),
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
 				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_ERROR, new IncrementGreenSourceErrorPlan(managingAgent),

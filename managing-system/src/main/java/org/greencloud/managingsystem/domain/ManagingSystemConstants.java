@@ -11,6 +11,8 @@ import com.database.knowledge.domain.agent.DataType;
  * <p/>
  * <p> MONITOR_SYSTEM_TIMEOUT - time in ms between consecutive monitoring calls </p>
  * <p> MONITOR_SYSTEM_DATA_TIME_PERIOD - time period (in seconds) of last saved data that is taken into account </p>
+ * <p> MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD - time period (in seconds) of data saved in long system run
+ * that is taken into account </p>
  * <p> MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD - time period (in seconds) of last saved data taken into account in
  * aggregation</p>
  *  <p> MONITOR_SYSTEM_DATA_HEALTH_PERIOD - time period (in seconds) of last saved health-check data </p>
@@ -23,6 +25,7 @@ public final class ManagingSystemConstants {
 
 	public static final int MONITOR_SYSTEM_TIMEOUT = 500;
 	public static final int MONITOR_SYSTEM_DATA_TIME_PERIOD = 5;
+	public static final int MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD = 15;
 	public static final int MONITOR_SYSTEM_DATA_HEALTH_PERIOD = 500;
 	public static final int MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD = 24 * 60 * 60;
 	public static final int DATA_NOT_AVAILABLE_INDICATOR = -1;

@@ -34,9 +34,10 @@ import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
-import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
+import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
@@ -85,7 +86,7 @@ class PlannerServiceUnitTest {
 	private static Stream<Arguments> parametersGetPlanTest() {
 		return Stream.of(
 				arguments(ADD_SERVER, AddServerPlan.class),
-				arguments(ADD_GREEN_SOURCE, AddGreenSourcePlan.class),
+				arguments(ADD_GREEN_SOURCE, ConnectGreenSourcePlan.class),
 				arguments(INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityPlan.class),
 				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlan.class),
 				arguments(INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorPlan.class),
@@ -104,6 +105,7 @@ class PlannerServiceUnitTest {
 		doReturn(executorService).when(managingAgent).execute();
 		doReturn(database).when(agentNode).getDatabaseClient();
 		doReturn(agentNode).when(managingAgent).getAgentNode();
+		doReturn(new MonitoringService(managingAgent)).when(managingAgent).monitor();
 	}
 
 	@Test
@@ -145,11 +147,12 @@ class PlannerServiceUnitTest {
 		plannerService.trigger(testActions);
 
 		verify(managingAgent).execute();
-		verify(executorService).executeAdaptationAction(argThat((plan) -> plan.getTargetAgent().equals(mockAgent)
-																		  && plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-																		  &&
-																		  ((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
-																		  == 0.07));
+		verify(executorService).executeAdaptationAction(argThat((plan) ->
+				plan.getTargetAgent().equals(mockAgent)
+						&& plan.getActionParameters() instanceof IncrementGreenSourceErrorParameters
+						&&
+						((IncrementGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
+								== 0.07));
 
 	}
 
@@ -172,24 +175,21 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((val) ->
 				val.getTargetAgent().getName().equals("test_gs2") &&
-				val.getActionParameters() instanceof IncrementGreenSourceErrorParameters));
+						val.getActionParameters() instanceof IncrementGreenSourceErrorParameters));
 	}
 
 	private List<AgentData> prepareGSData() {
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)
