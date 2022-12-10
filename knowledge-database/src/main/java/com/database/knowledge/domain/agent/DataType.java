@@ -1,6 +1,7 @@
 package com.database.knowledge.domain.agent;
 
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
+import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
@@ -15,6 +16,7 @@ public enum DataType {
 	CLOUD_NETWORK_MONITORING(CloudNetworkMonitoringData.class),
 	SERVER_MONITORING(ServerMonitoringData.class),
 	GREEN_SOURCE_MONITORING(GreenSourceMonitoringData.class),
+	AVAILABLE_GREEN_ENERGY(AvailableGreenEnergy.class),
 	WEATHER_SHORTAGES(WeatherShortages.class),
 	HEALTH_CHECK(HealthCheck.class),
 	PROCESSED_API_REQUEST(ProcessedApiRequest.class);

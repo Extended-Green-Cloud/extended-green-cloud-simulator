@@ -20,12 +20,7 @@ public interface GreenSourceMonitoringData extends NetworkComponentMonitoringDat
 	double getWeatherPredictionError();
 
 	/**
-	 * @return current maximum capacity od green source
-	 */
-	int getCurrentMaximumCapacity();
-
-	/**
 	 * @return current traffic of green source
 	 */
-	double currentTraffic();
+	double getCurrentTraffic();
 }
