@@ -89,7 +89,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 							managingAgent.getSystemQualityThreshold(),
 							scenario,
 							containerController,
-							managingAgent.getPowerShortageThreshold()
+							managingAgent.getPowerShortageThreshold(),
+							managingAgent.getDisabledActions()
 					});
 		}
 		return null;

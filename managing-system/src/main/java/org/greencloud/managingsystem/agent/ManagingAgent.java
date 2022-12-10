@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.agent;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
-import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -9,11 +8,13 @@ import static jade.lang.acl.MessageTemplate.and;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
+import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.greencloud.managingsystem.agent.behaviour.knowledge.DisableAdaptationActions;
 import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import jade.wrapper.ContainerController;
 public class ManagingAgent extends AbstractManagingAgent {
 
 	private static final Logger logger = LoggerFactory.getLogger(ManagingAgent.class);
+	private List<String> disabledByDefaultActions;
 
 	/**
 	 * Method initializes the agents and start the behaviour which upon connecting with the agent node, reads
@@ -49,6 +51,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 	protected void setup() {
 		super.setup();
 		MDC.put(MDC_AGENT_NAME, super.getLocalName());
+		disabledByDefaultActions = new ArrayList<>();
 		initializeAgent(getArguments());
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 		getContentManager().registerLanguage(new SLCodec());
@@ -84,6 +87,10 @@ public class ManagingAgent extends AbstractManagingAgent {
 					if (Objects.nonNull(args[3])) {
 						POWER_SHORTAGE_THRESHOLD = Integer.parseInt(String.valueOf(args[3]));
 					}
+
+					if (Objects.nonNull(args[4])) {
+						disabledByDefaultActions = (ArrayList<String>) args[4];
+					}
 				}
 
 			} catch (NumberFormatException e) {
@@ -98,7 +105,10 @@ public class ManagingAgent extends AbstractManagingAgent {
 	}
 
 	private List<Behaviour> behavioursRunAtStart() {
-		return List.of(new ReadAdaptationGoals());
+		return List.of(
+				new ReadAdaptationGoals(),
+				new DisableAdaptationActions(this, disabledByDefaultActions)
+		);
 	}
 
 	private List<Location> findContainersLocations() {
