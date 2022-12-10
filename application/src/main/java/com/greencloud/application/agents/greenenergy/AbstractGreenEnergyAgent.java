@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.greenenergy;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +18,12 @@ import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract agent class storing data of the Green Source Energy Agent
@@ -110,5 +114,14 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 					(IncrementGreenSourceErrorParameters) actionParameters);
 			default -> false;
 		};
+	}
+
+	@Override
+	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
+			ACLMessage adaptationMessage) {
+		if (adaptationAction.getAction().equals(ADD_GREEN_SOURCE)) {
+			adaptationManagement.connectNewServerToGreenSource((ConnectGreenSourceParameters) actionParameters,
+					adaptationMessage);
+		}
 	}
 }
