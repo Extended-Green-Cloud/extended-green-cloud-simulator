@@ -41,8 +41,8 @@ class ExecutorServiceDatabaseTest {
 	ManagingAgentNode abstractAgentNode;
 	AbstractPlan adaptationPlan;
 	TimescaleDatabase database;
-	MonitoringService monitoringService = new MonitoringService(managingAgent);
-	ExecutorService executorService = spy(new ExecutorService(managingAgent));
+	MonitoringService monitoringService;
+	ExecutorService executorService;
 
 	@BeforeEach
 	void init() {
