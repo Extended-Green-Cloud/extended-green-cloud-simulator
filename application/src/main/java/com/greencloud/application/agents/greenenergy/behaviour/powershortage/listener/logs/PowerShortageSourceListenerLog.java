@@ -13,7 +13,7 @@ public class PowerShortageSourceListenerLog {
 
 	// POWER SHORTAGE IN SERVER RECEIVED FINISH INFORMATION LOG MESSAGES
 	public static final String SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG =
-			"Power shortage in server finished. Changing the status of the power job {}";
+			"Power shortage in server finished. Changing the status of the server job {}";
 	public static final String SERVER_POWER_SHORTAGE_FINISH_NOT_FOUND_LOG =
 			"Job {} to supply with green power was not found";
 

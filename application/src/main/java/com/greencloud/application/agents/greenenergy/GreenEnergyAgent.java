@@ -46,20 +46,15 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 		super.setup();
 		MDC.put(MDC_AGENT_NAME, super.getLocalName());
 		final Object[] args = getArguments();
+		final AID ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 		initializeAgent(args);
 		register(this, GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerServer.getName());
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 	}
 
-	@Override
-	protected void takeDown() {
-		super.takeDown();
-	}
-
 	private void initializeAgent(final Object[] args) {
 		if (Objects.nonNull(args) && args.length == 8) {
 			this.monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
-			this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 			this.stateManagement = new GreenEnergyStateManagement(this);
 			this.adaptationManagement = new GreenEnergyAdaptationManagement(this);
 			try {

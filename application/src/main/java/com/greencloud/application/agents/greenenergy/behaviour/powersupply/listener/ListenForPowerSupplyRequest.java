@@ -1,18 +1,20 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener;
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_REQUEST_TEMPLATE;
+import static com.greencloud.application.mapper.JobMapper.mapToServerJob;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static java.util.Objects.nonNull;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForNewJobWeatherData;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -48,8 +50,10 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 		if (nonNull(cfp)) {
 			final PowerJob job = readJob(cfp);
 			if (nonNull(job)) {
-				myGreenEnergyAgent.getPowerJobs().put(job, ExecutionJobStatusEnum.PROCESSING);
-				requestMonitoringData(cfp, job);
+				final ServerJob serverJob = mapToServerJob(job, cfp.getSender());
+				myGreenEnergyAgent.getServerJobs()
+						.put(serverJob, ExecutionJobStatusEnum.PROCESSING);
+				requestMonitoringData(cfp, serverJob);
 			}
 		} else {
 			block();
@@ -66,7 +70,7 @@ public class ListenForPowerSupplyRequest extends CyclicBehaviour {
 		return null;
 	}
 
-	private void requestMonitoringData(final ACLMessage cfp, final PowerJob job) {
+	private void requestMonitoringData(final ACLMessage cfp, final ServerJob job) {
 		var sequentialBehaviour = new SequentialBehaviour();
 		sequentialBehaviour.addSubBehaviour(
 				new RequestWeatherData(myGreenEnergyAgent, cfp.getProtocol(), cfp.getConversationId(), job));

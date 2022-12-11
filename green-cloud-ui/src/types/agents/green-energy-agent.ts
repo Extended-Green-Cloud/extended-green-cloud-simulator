@@ -5,6 +5,7 @@ import { EnergyType } from 'types/enum'
 export interface GreenEnergyAgent extends CommonNetworkAgentInterface {
    monitoringAgent: string
    serverAgent: string
+   connectedServers: string[]
    agentLocation: Location
    energyType: EnergyType
    successRatio: number

@@ -4,6 +4,7 @@ import static java.util.stream.Stream.concat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -61,6 +62,13 @@ public class ScenarioStructureArgs implements Serializable {
 		this.greenEnergyAgentsArgs = new ArrayList<>(greenEnergyAgentsArgs);
 	}
 
+	public ScenarioStructureArgs(List<CloudNetworkArgs> cloudNetworkAgentsArgs, List<ServerAgentArgs> serverAgentsArgs,
+			List<GreenEnergyAgentArgs> greenEnergyAgentsArgs) {
+		this.cloudNetworkAgentsArgs = cloudNetworkAgentsArgs;
+		this.serverAgentsArgs = serverAgentsArgs;
+		this.greenEnergyAgentsArgs = greenEnergyAgentsArgs;
+	}
+
 	public List<CloudNetworkArgs> getCloudNetworkAgentsArgs() {
 		return cloudNetworkAgentsArgs;
 	}
@@ -83,6 +91,47 @@ public class ScenarioStructureArgs implements Serializable {
 
 	public ManagingAgentArgs getManagingAgentArgs() {
 		return managingAgentArgs;
+	}
+
+	/**
+	 * Method retrieves servers connected to given cloud network agent
+	 *
+	 * @param cloudNetworkAgentName name of the CNA of interest
+	 * @return list of connected server
+	 */
+	public List<String> getServersForCloudNetworkAgent(final String cloudNetworkAgentName) {
+		return getServerAgentsArgs()
+				.stream()
+				.filter(agent -> agent.getOwnerCloudNetwork().equals(cloudNetworkAgentName))
+				.map(AgentArgs::getName)
+				.toList();
+	}
+
+	/**
+	 * Method retrieves green sources connected to given server agent
+	 *
+	 * @param serverAgentName name of the Server of interest
+	 * @return list of connected green sources
+	 */
+	public List<String> getGreenSourcesForServerAgent(final String serverAgentName) {
+		return getGreenEnergyAgentsArgs()
+				.stream()
+				.filter(agent -> agent.getConnectedSevers().contains(serverAgentName))
+				.map(AgentArgs::getName)
+				.toList();
+	}
+
+	/**
+	 * Method retrieves green sources connected to given cloud network agent
+	 *
+	 * @param cloudNetworkAgentName name of the Cloud Network of interest
+	 * @return list of connected green sources
+	 */
+	public List<String> getGreenSourcesForCloudNetwork(final String cloudNetworkAgentName) {
+		return getServersForCloudNetworkAgent(cloudNetworkAgentName).stream()
+				.map(this::getGreenSourcesForServerAgent)
+				.flatMap(Collection::stream)
+				.toList();
 	}
 
 	/**

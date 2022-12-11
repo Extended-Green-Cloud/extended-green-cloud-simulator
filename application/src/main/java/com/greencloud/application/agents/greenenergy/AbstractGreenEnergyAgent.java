@@ -13,7 +13,7 @@ import com.greencloud.application.agents.greenenergy.management.GreenPowerManage
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
@@ -32,19 +32,14 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	protected transient Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
-	protected volatile ConcurrentMap<PowerJob, ExecutionJobStatusEnum> powerJobs;
+	protected volatile ConcurrentMap<ServerJob, ExecutionJobStatusEnum> serverJobs;
 	protected AID monitoringAgent;
-	protected AID ownerServer;
 	protected double weatherPredictionError;
 
 	AbstractGreenEnergyAgent() {
 		super.setup();
-		this.powerJobs = new ConcurrentHashMap<>();
+		this.serverJobs = new ConcurrentHashMap<>();
 		agentType = AgentType.GREEN_SOURCE;
-	}
-
-	public AID getOwnerServer() {
-		return ownerServer;
 	}
 
 	public double getPricePerPowerUnit() {
@@ -55,8 +50,8 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.pricePerPowerUnit = pricePerPowerUnit;
 	}
 
-	public Map<PowerJob, ExecutionJobStatusEnum> getPowerJobs() {
-		return powerJobs;
+	public Map<ServerJob, ExecutionJobStatusEnum> getServerJobs() {
+		return serverJobs;
 	}
 
 	public Location getLocation() {

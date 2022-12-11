@@ -19,7 +19,7 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.ListenForWeatherData;
 import com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
@@ -51,14 +51,14 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 	@Override
 	public void action() {
 		logger.info(POWER_SHORTAGE_SOURCE_FINISH_LOG);
-		final List<PowerJob> jobsOnHold = getJobsOnHold();
+		final List<ServerJob> jobsOnHold = getJobsOnHold();
 
 		if (jobsOnHold.isEmpty()) {
 			logger.info(POWER_SHORTAGE_SOURCE_FINISH_NO_JOBS_LOG);
 		} else {
 			jobsOnHold.forEach(powerJob -> {
 				MDC.put(MDC_JOB_ID, powerJob.getJobId());
-				if (myGreenAgent.getPowerJobs().containsKey(powerJob)) {
+				if (myGreenAgent.getServerJobs().containsKey(powerJob)) {
 					logger.info(POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG, powerJob.getJobId());
 					myAgent.addBehaviour(prepareVerificationBehaviour(powerJob));
 				} else {
@@ -70,7 +70,7 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 				.setCurrentMaximumCapacity(myGreenAgent.manageGreenPower().getInitialMaximumCapacity());
 	}
 
-	private Behaviour prepareVerificationBehaviour(final PowerJob affectedJob) {
+	private Behaviour prepareVerificationBehaviour(final ServerJob affectedJob) {
 		final String conversationId = String.join("_", affectedJob.getJobId(),
 				affectedJob.getStartTime().toString());
 
@@ -83,8 +83,8 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 		return sequentialBehaviour;
 	}
 
-	private List<PowerJob> getJobsOnHold() {
-		return myGreenAgent.getPowerJobs().entrySet().stream()
+	private List<ServerJob> getJobsOnHold() {
+		return myGreenAgent.getServerJobs().entrySet().stream()
 				.filter(job -> (job.getValue().equals(ExecutionJobStatusEnum.ON_HOLD_PLANNED)
 						|| job.getValue().equals(ExecutionJobStatusEnum.ON_HOLD)) &&
 						job.getKey().getEndTime().isAfter(getCurrentTime()))

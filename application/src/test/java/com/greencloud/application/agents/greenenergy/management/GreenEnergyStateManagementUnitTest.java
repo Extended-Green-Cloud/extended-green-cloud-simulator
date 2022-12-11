@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.quality.Strictness.LENIENT;
 
@@ -41,9 +42,12 @@ import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.commons.job.ImmutablePowerJob;
+import com.greencloud.commons.job.ImmutableServerJob;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
+
+import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -53,7 +57,7 @@ class GreenEnergyStateManagementUnitTest {
 
 	private static final double MOCK_PRICE = 10;
 	private static final int MOCK_CAPACITY = 100;
-	private static Map<PowerJob, ExecutionJobStatusEnum> MOCK_POWER_JOBS;
+	private static Map<ServerJob, ExecutionJobStatusEnum> MOCK_POWER_JOBS;
 
 	@Mock
 	private static GreenEnergyAgent mockGreenEnergyAgent;
@@ -105,16 +109,16 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test power job division - power job after shortage start")
 	void testJobDivisionAfterShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5"))
+		final ServerJob serverJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("5"))
 				.findFirst().orElse(null);
 
-		mockGreenEnergyAgent.manage().dividePowerJobForPowerShortage(Objects.requireNonNull(powerJob), startTime);
-		final ExecutionJobStatusEnum statusAfterUpdate = mockGreenEnergyAgent.getPowerJobs().entrySet().stream()
-				.filter(jobEntry -> jobEntry.getKey().equals(powerJob)).map(Map.Entry::getValue).findFirst()
+		mockGreenEnergyAgent.manage().divideServerJobForPowerShortage(Objects.requireNonNull(serverJob), startTime);
+		final ExecutionJobStatusEnum statusAfterUpdate = mockGreenEnergyAgent.getServerJobs().entrySet().stream()
+				.filter(jobEntry -> jobEntry.getKey().equals(serverJob)).map(Map.Entry::getValue).findFirst()
 				.orElse(null);
 
-		assertThat(mockGreenEnergyAgent.getPowerJobs()).hasSameSizeAs(MOCK_POWER_JOBS);
-		assertTrue(mockGreenEnergyAgent.getPowerJobs().containsKey(powerJob));
+		assertThat(mockGreenEnergyAgent.getServerJobs()).hasSameSizeAs(MOCK_POWER_JOBS);
+		assertTrue(mockGreenEnergyAgent.getServerJobs().containsKey(serverJob));
 		assertThat(statusAfterUpdate).isEqualTo(ON_HOLD_TRANSFER);
 	}
 
@@ -122,14 +126,15 @@ class GreenEnergyStateManagementUnitTest {
 	@DisplayName("Test power job division - power job during shortage start")
 	void testPowerJobDivisionDuringShortageStart() {
 		final Instant startTime = Instant.parse("2022-01-01T09:00:00.000Z");
-		final PowerJob powerJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2"))
+		final ServerJob serverJob = MOCK_POWER_JOBS.keySet().stream().filter(jobKey -> jobKey.getJobId().equals("2"))
 				.findFirst().orElse(null);
 
-		mockGreenEnergyAgent.manage().dividePowerJobForPowerShortage(Objects.requireNonNull(powerJob), startTime);
+		mockGreenEnergyAgent.manage().divideServerJobForPowerShortage(Objects.requireNonNull(serverJob), startTime);
 
-		final Map<PowerJob, ExecutionJobStatusEnum> updatedJobInstances = mockGreenEnergyAgent.getPowerJobs().entrySet()
+		final Map<PowerJob, ExecutionJobStatusEnum> updatedJobInstances = mockGreenEnergyAgent.getServerJobs()
+				.entrySet()
 				.stream()
-				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(powerJob.getJobId()))
+				.filter(jobEntry -> jobEntry.getKey().getJobId().equals(serverJob.getJobId()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		final Map.Entry<PowerJob, ExecutionJobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
@@ -137,8 +142,8 @@ class GreenEnergyStateManagementUnitTest {
 		final Map.Entry<PowerJob, ExecutionJobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
 				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER)).findFirst().orElse(null);
 
-		assertThat(mockGreenEnergyAgent.getPowerJobs()).hasSize(6);
-		assertFalse(mockGreenEnergyAgent.getPowerJobs().containsKey(powerJob));
+		assertThat(mockGreenEnergyAgent.getServerJobs()).hasSize(6);
+		assertFalse(mockGreenEnergyAgent.getServerJobs().containsKey(serverJob));
 		assertThat(updatedJobInstances).hasSize(2);
 		assertNotNull(jobOnHold);
 		assertNotNull(jobInProgress);
@@ -177,7 +182,8 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for job when job is new")
 	void testGetAvailablePowerForNewJob() {
-		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
+		final ServerJob mockJob = ImmutableServerJob.builder().jobId("100")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
@@ -192,7 +198,8 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get available power for job when job is not new")
 	void testGetAvailablePowerForNotNewJob() {
-		final PowerJob mockJob = ImmutablePowerJob.builder().jobId("100")
+		final ServerJob mockJob = ImmutableServerJob.builder().jobId("100")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
@@ -207,7 +214,8 @@ class GreenEnergyStateManagementUnitTest {
 	@Test
 	@DisplayName("Test computing overall error for job")
 	void testComputeCombinedPowerError() {
-		final PowerJob mockJob = ImmutablePowerJob.builder()
+		final ServerJob mockJob = ImmutableServerJob.builder()
+				.server(mock(AID.class))
 				.jobId("100")
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T08:00:10.000Z"))
@@ -221,42 +229,47 @@ class GreenEnergyStateManagementUnitTest {
 	// PREPARING TEST DATA
 
 	/**
-	 * Class creates mock green energy power jobs used in test scenarios.
+	 * Class creates mock green energy server jobs used in test scenarios.
 	 * The following structure was used:
 	 *
-	 * PowerJob1 -> power: 10, time: 08:00 - 10:00, status: IN_PROGRESS,
-	 * PowerJob2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
-	 * PowerJob3 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
-	 * PowerJob4 -> power: 10,  time: 09:00 - 12:00, status: ON_HOLD
-	 * PowerJob5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
+	 * ServerJob1 -> power: 10, time: 08:00 - 10:00, status: IN_PROGRESS,
+	 * ServerJob2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
+	 * ServerJob3 -> power: 50,  time: 06:00 - 15:00, status: ON_HOLD
+	 * ServerJob4 -> power: 10,  time: 09:00 - 12:00, status: ON_HOLD
+	 * ServerJob5 -> power: 25, time: 11:00 - 12:00, status: ACCEPTED
 	 */
-	private Map<PowerJob, ExecutionJobStatusEnum> setUpGreenEnergyJobs() {
-		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
+	private Map<ServerJob, ExecutionJobStatusEnum> setUpGreenEnergyJobs() {
+		final ServerJob mockJob1 = ImmutableServerJob.builder().jobId("1")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
-		final PowerJob mockJob2 = ImmutablePowerJob.builder().jobId("2")
+		final ServerJob mockJob2 = ImmutableServerJob.builder().jobId("2")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
-		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
+		final ServerJob mockJob3 = ImmutableServerJob.builder().jobId("3")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(50).build();
-		final PowerJob mockJob4 = ImmutablePowerJob.builder().jobId("4")
+		final ServerJob mockJob4 = ImmutableServerJob.builder().jobId("4")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
-		final PowerJob mockJob5 = ImmutablePowerJob.builder().jobId("5")
+		final ServerJob mockJob5 = ImmutableServerJob.builder().jobId("5")
+				.server(mock(AID.class))
 				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(25).build();
-		final Map<PowerJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
+		final Map<ServerJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
 		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.IN_PROGRESS);
 		mockJobMap.put(mockJob3, ExecutionJobStatusEnum.ON_HOLD_PLANNED);
@@ -267,7 +280,7 @@ class GreenEnergyStateManagementUnitTest {
 
 	private void setUpGreenEnergyMock() {
 		mockGreenEnergyAgent = spy(GreenEnergyAgent.class);
-		mockGreenEnergyAgent.getPowerJobs().putAll(MOCK_POWER_JOBS);
+		mockGreenEnergyAgent.getServerJobs().putAll(MOCK_POWER_JOBS);
 		MOCK_POWER_MANAGEMENT = spy(new GreenPowerManagement(MOCK_CAPACITY, mockGreenEnergyAgent));
 		final GreenEnergyStateManagement management = new GreenEnergyStateManagement(mockGreenEnergyAgent);
 		MOCK_MANAGEMENT = spy(management);

@@ -37,7 +37,7 @@ public class RequestWeatherPeriodically extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		if (!myGreenEnergyAgent.getPowerJobs().isEmpty()) {
+		if (!myGreenEnergyAgent.getServerJobs().isEmpty()) {
 			logger.info(PERIODIC_CHECK_SENT_LOG);
 			final SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
 			sequentialBehaviour.addSubBehaviour(

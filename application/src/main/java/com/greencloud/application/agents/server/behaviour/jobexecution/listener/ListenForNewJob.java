@@ -80,7 +80,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 		myServerAgent.tookJobIntoProcessing();
 
 		final ACLMessage cfp = createCallForProposal(JobMapper.mapJobToPowerJob(job),
-				myServerAgent.getOwnedGreenSources(), SERVER_JOB_CFP_PROTOCOL);
+				myServerAgent.getOwnedGreenSources().stream().toList(), SERVER_JOB_CFP_PROTOCOL);
 
 		myAgent.addBehaviour(new InitiatePowerDeliveryForJob(myAgent, cfp, cnaMessage.createReply(), job));
 	}
