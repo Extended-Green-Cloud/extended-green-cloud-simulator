@@ -1,16 +1,22 @@
 package com.greencloud.application.agents.scheduler.managment;
 
+import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.INCREASE_DEADLINE_WEIGHT_LOG;
+import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.INCREASE_POWER_WEIGHT_LOG;
+import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
+
 import java.time.Duration;
 
-import com.greencloud.commons.job.ClientJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
+import com.greencloud.commons.job.ClientJob;
 
 /**
  * Set of utilities used to manage the configuration of scheduler agent
  */
 public class SchedulerConfigurationManagement {
 
+	private static final Logger logger = LoggerFactory.getLogger(SchedulerConfigurationManagement.class);
 	private int underlyingDeadlineWeight;
 	private int underlyingPowerWeight;
 	private double deadlineWeightPriority;
@@ -27,8 +33,8 @@ public class SchedulerConfigurationManagement {
 	 * @param maximumQueueSize       maximum queue size
 	 *                               //@param jobSplitThreshold	 job size at which splitting will be triggered, can be adjusted by the ManagingAgent
 	 */
-	public SchedulerConfigurationManagement(int deadlineWeightPriority, int powerWeightPriority,
-			int maximumQueueSize, int jobSplitThreshold, int splittingFactor) {
+	public SchedulerConfigurationManagement(int deadlineWeightPriority, int powerWeightPriority, int maximumQueueSize,
+			int jobSplitThreshold, int splittingFactor) {
 		this.underlyingDeadlineWeight = deadlineWeightPriority;
 		this.underlyingPowerWeight = powerWeightPriority;
 		this.maximumQueueSize = maximumQueueSize;
@@ -75,7 +81,9 @@ public class SchedulerConfigurationManagement {
 	 * Method increases the deadline weight to the next number in a Fibonacci sequence
 	 */
 	public boolean increaseDeadlineWeight() {
+		int oldWeight = underlyingDeadlineWeight;
 		underlyingDeadlineWeight = nextFibonacci(underlyingDeadlineWeight);
+		logger.info(INCREASE_DEADLINE_WEIGHT_LOG, oldWeight, underlyingDeadlineWeight);
 		computeWeights();
 		return true;
 	}
@@ -84,13 +92,16 @@ public class SchedulerConfigurationManagement {
 	 * Method increases the power weight to the next number in a Fibonacci sequence
 	 */
 	public boolean increasePowerWeight() {
+		int oldWeight = underlyingPowerWeight;
 		underlyingPowerWeight = nextFibonacci(underlyingPowerWeight);
+		logger.info(INCREASE_POWER_WEIGHT_LOG, oldWeight, underlyingPowerWeight);
 		computeWeights();
 		return true;
 	}
 
 	private void computeWeights() {
-		this.deadlineWeightPriority = (double)underlyingDeadlineWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
-		this.powerWeightPriority = (double)underlyingPowerWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
+		this.deadlineWeightPriority =
+				(double) underlyingDeadlineWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
+		this.powerWeightPriority = (double) underlyingPowerWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
 	}
 }

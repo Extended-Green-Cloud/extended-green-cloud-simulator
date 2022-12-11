@@ -5,13 +5,15 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.greencloud.commons.agent.AgentType.SCHEDULER;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 
+import java.util.List;
+
+import org.greencloud.managingsystem.agent.ManagingAgent;
+
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.google.common.annotations.VisibleForTesting;
-import jade.core.AID;
-import org.greencloud.managingsystem.agent.ManagingAgent;
 
-import java.util.List;
+import jade.core.AID;
 
 /**
  * Class containing adaptation plan which realizes the action of increasing the job scheduling priority with respect
@@ -36,7 +38,7 @@ public class IncreaseDeadlinePriorityPlan extends AbstractPlan {
 						.readMonitoringDataForDataTypes(List.of(HEALTH_CHECK),
 								MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 		boolean schedulerAgentAlive = isSchedulerAlive(queryResult);
-		if(schedulerAgentAlive) {
+		if (schedulerAgentAlive) {
 			targetAgent = new AID(getTargetScheduler(queryResult), AID.ISGUID);
 		}
 		return schedulerAgentAlive;

@@ -14,14 +14,9 @@ import com.greencloud.commons.job.ImmutableClientJob;
 
 public class SchedulerConfigManagementUnitTest {
 
-	private ClientJob mockJob = ImmutableClientJob.builder()
-			.jobId("1")
-			.clientIdentifier("Client1")
-			.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
-			.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
-			.deadline(Instant.parse("2022-01-01T12:00:00.000Z"))
-			.power(100)
-			.build();
+	private ClientJob mockJob = ImmutableClientJob.builder().jobId("1").clientIdentifier("Client1")
+			.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+			.deadline(Instant.parse("2022-01-01T12:00:00.000Z")).power(100).build();
 
 	private SchedulerConfigurationManagement schedulerConfigManagement;
 
@@ -40,18 +35,18 @@ public class SchedulerConfigManagementUnitTest {
 	@Test
 	@DisplayName("Test increase job deadline priority")
 	void testIncrementDeadline() {
-		for(int i = 0; i < 5 ; i++) {
+		for (int i = 0; i < 5; i++) {
 			schedulerConfigManagement.increaseDeadlineWeight();
 		}
-		assertThat(schedulerConfigManagement.getDeadlineWeightPriority()).isEqualTo(13.0/14);
+		assertThat(schedulerConfigManagement.getDeadlineWeightPriority()).isEqualTo(13.0 / 14);
 	}
 
 	@Test
 	@DisplayName("Test increase job power division priority")
 	void testIncrementPowerDivision() {
-		for(int i = 0; i < 5 ; i++) {
+		for (int i = 0; i < 5; i++) {
 			schedulerConfigManagement.increasePowerWeight();
 		}
-		assertThat(schedulerConfigManagement.getPowerWeightPriority()).isEqualTo(13.0/14);
+		assertThat(schedulerConfigManagement.getPowerWeightPriority()).isEqualTo(13.0 / 14);
 	}
 }
