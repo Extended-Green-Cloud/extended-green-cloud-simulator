@@ -24,6 +24,12 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 		super(INCREASE_POWER_PRIORITY, managingAgent);
 	}
 
+	/**
+	 * Method verifies if the plan is executable. The plan is executable if:
+	 * 1. The Scheduler Agent is alive
+	 *
+	 * @return boolean information if the plan is executable in current conditions
+	 */
 	@Override
 	public boolean isPlanExecutable() {
 		final List<AgentData> queryResult = managingAgent.getAgentNode().getDatabaseClient()
@@ -48,9 +54,9 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 	}
 
 	String getTargetScheduler(List<AgentData> agentDataList) {
-		return agentDataList.stream().filter(agentData -> {
-			var healthData = ((HealthCheck) agentData.monitoringData());
-			return healthData.alive() && healthData.agentType().equals(SCHEDULER);
-		}).map(AgentData::aid).findFirst().orElse(null);
+		return agentDataList.stream().filter(getAliveSchedulerPredicate)
+				.map(AgentData::aid)
+				.findFirst()
+				.orElse(null);
 	}
 }

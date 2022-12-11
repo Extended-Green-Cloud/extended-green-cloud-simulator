@@ -61,10 +61,7 @@ public class IncreaseDeadlinePriorityPlan extends AbstractPlan {
 	@VisibleForTesting
 	String getTargetScheduler(List<AgentData> agentDataList) {
 		return agentDataList.stream()
-				.filter(agentData -> {
-					var healthData = ((HealthCheck) agentData.monitoringData());
-					return healthData.alive() && healthData.agentType().equals(SCHEDULER);
-				})
+				.filter(getAliveSchedulerPredicate)
 				.map(AgentData::aid)
 				.findFirst()
 				.orElse(null);

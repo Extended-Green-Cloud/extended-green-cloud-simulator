@@ -1,8 +1,14 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
+import static com.greencloud.commons.agent.AgentType.SCHEDULER;
+
+import java.util.function.Predicate;
+
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.HealthCheck;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 
 import jade.core.AID;
@@ -14,6 +20,10 @@ public abstract class AbstractPlan {
 
 	protected final ManagingAgent managingAgent;
 	protected final AdaptationActionEnum adaptationActionEnum;
+	protected final Predicate<AgentData> getAliveSchedulerPredicate = agentData -> {
+		var healthData = ((HealthCheck) agentData.monitoringData());
+		return healthData.alive() && healthData.agentType().equals(SCHEDULER);
+	};
 	protected AdaptationActionParameters actionParameters;
 	protected AID targetAgent;
 
