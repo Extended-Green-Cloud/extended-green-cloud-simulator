@@ -12,6 +12,7 @@ import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.SystemPlan;
 
 import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.greencloud.commons.message.MessageBuilder;
 
@@ -69,6 +70,15 @@ public class ExecutorService extends AbstractManagingService {
 	 * @param adaptationAction adaptation action to be disabled
 	 */
 	private void disableAdaptationAction(AdaptationAction adaptationAction) {
+		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY) {
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(
+							getAdaptationAction(AdaptationActionEnum.INCREASE_POWER_PRIORITY).getActionId(), false);
+		} else if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_POWER_PRIORITY) {
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(
+							getAdaptationAction(AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY).getActionId(), false);
+		}
 		managingAgent.getAgentNode().getDatabaseClient()
 				.setAdaptationActionAvailability(adaptationAction.getActionId(), false);
 	}
