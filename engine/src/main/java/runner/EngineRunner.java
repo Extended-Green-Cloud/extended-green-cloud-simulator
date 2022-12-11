@@ -23,7 +23,7 @@ public class EngineRunner {
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
 		String scenarioStructure = SCENARIO_DIRECTORY + "multipleCNAsScenario";
 		Optional<String> scenarioEvents = Optional.empty();
-				//Optional.of(SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationEvents");
+		//Optional.of(SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationEvents");
 
 		if (MULTI_CONTAINER) {
 			runMultiContainerService(scenarioStructure, scenarioEvents);

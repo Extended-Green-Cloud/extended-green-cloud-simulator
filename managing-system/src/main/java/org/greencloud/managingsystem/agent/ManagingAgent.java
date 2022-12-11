@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.agent;
 
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
-import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchSender;
@@ -9,12 +8,17 @@ import static jade.lang.acl.MessageTemplate.and;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
+import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
+import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
+import org.greencloud.managingsystem.service.executor.ExecutorService;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,9 +96,14 @@ public class ManagingAgent extends AbstractManagingAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for green source agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
+
+		this.monitoringService = new MonitoringService(this);
+		this.analyzerService = new AnalyzerService(this);
+		this.plannerService = new PlannerService(this);
+		this.executorService = new ExecutorService(this);
 	}
 
 	private List<Behaviour> behavioursRunAtStart() {

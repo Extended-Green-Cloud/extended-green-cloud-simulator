@@ -14,5 +14,5 @@ public class AgentTemplatesConstants {
     public static final String TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY = "200";
     public static final String TEMPLATE_GREEN_ENERGY_WEATHER_PREDICTION_ERROR = "0.02";
 
-    public static final String TEMPLATE_GREEN_ENERGY_TYPE = "SOLAR";
+    public static final String TEMPLATE_GREEN_ENERGY_TYPE = "WIND";
 }

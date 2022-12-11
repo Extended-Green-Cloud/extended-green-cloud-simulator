@@ -107,7 +107,7 @@ public class GreenPowerManagement {
 		var dayTime = dateTime.toLocalTime();
 		if (!MOCK_SOLAR_ENERGY || (dayTime.isBefore(requireNonNull(sunTimes.getRise()).toLocalTime()) ||
 				dayTime.isAfter(requireNonNull(sunTimes.getSet()).toLocalTime()))) {
-			logger.debug(SOLAR_FARM_SHUTDOWN_LOG, dateTime, sunTimes.getRise(),
+			logger.trace(SOLAR_FARM_SHUTDOWN_LOG, dateTime, sunTimes.getRise(),
 					sunTimes.getSet());
 			return 0;
 		}

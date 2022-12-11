@@ -286,9 +286,6 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(CREATE_ADAPTATION_GOALS);
 			statement.execute(CREATE_ADAPTATION_ACTIONS);
 			statement.execute(CREATE_SYSTEM_QUALITY);
-		}
-
-		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.execute(CREATE_MONITORING_INDEX);

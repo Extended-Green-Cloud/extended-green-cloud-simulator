@@ -59,8 +59,8 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	}
 
 	private void scheduleVerifyBehaviour() {
-		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, getCurrentTime()
-				, adaptationActionType, targetAgent, initialGoalQuality);
+		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, getCurrentTime(),
+				adaptationActionType, targetAgent, initialGoalQuality);
 		myManagingAgent.addBehaviour(verifyingBehaviour);
 	}
 

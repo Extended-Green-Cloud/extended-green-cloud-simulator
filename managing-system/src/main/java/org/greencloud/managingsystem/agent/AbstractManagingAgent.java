@@ -10,6 +10,10 @@ import org.greencloud.managingsystem.service.planner.PlannerService;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.commons.agent.AgentType;
+import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
+import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 import jade.core.Location;
@@ -37,11 +41,6 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	 */
 	protected AbstractManagingAgent() {
 		super.setup();
-
-		this.monitoringService = new MonitoringService(this);
-		this.analyzerService = new AnalyzerService(this);
-		this.plannerService = new PlannerService(this);
-		this.executorService = new ExecutorService(this);
 		agentType = AgentType.MANAGING;
 	}
 
@@ -78,6 +77,20 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	 */
 	public ScenarioStructureArgs getGreenCloudStructure() {
 		return greenCloudStructure;
+	}
+
+	public void addAgentsToStructure(List<AgentArgs> agentArgs) {
+		for (AgentArgs args : agentArgs) {
+			if (args instanceof ServerAgentArgs serverAgentArgs) {
+				greenCloudStructure.getServerAgentsArgs().add(serverAgentArgs);
+			}
+			if (args instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
+				greenCloudStructure.getGreenEnergyAgentsArgs().add(greenEnergyAgentArgs);
+			}
+			if (args instanceof MonitoringAgentArgs monitoringAgentArgs) {
+				greenCloudStructure.getMonitoringAgentsArgs().add(monitoringAgentArgs);
+			}
+		}
 	}
 
 	/**
