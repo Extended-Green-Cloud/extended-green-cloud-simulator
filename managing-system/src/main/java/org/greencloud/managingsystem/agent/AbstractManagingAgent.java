@@ -105,8 +105,16 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	 */
 	public Location getContainerLocations(String containerName) {
 		return containersLocations.stream()
-				.filter(location -> location.getName().equals(containerName))
+				.filter(location -> location.getName().contains(containerName))
 				.findFirst()
 				.orElse(null);
+	}
+
+	public List<Location> getContainersLocations() {
+		return containersLocations;
+	}
+
+	public void setContainersLocations(List<Location> containersLocations) {
+		this.containersLocations = containersLocations;
 	}
 }

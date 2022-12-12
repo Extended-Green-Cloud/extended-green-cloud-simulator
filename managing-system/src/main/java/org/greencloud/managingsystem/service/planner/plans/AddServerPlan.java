@@ -135,6 +135,9 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 	}
 
 	private Location findTargetLocation(String candidateCloudNetwork) {
+		if (managingAgent.getContainersLocations() == null) {
+			managingAgent.setContainersLocations(managingAgent.findContainersLocations());
+		}
 		var cloudNetworkContainer = managingAgent.getContainerLocations(candidateCloudNetwork);
 		return isNull(cloudNetworkContainer)
 				? managingAgent.getContainerLocations("Main-Container")

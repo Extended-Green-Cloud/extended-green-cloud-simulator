@@ -46,20 +46,22 @@ public class TimescaleDatabase implements Closeable {
 	private static final String PASSWORD = "password";
 	private static final String LOCAL_DATABASE_HOST_NAME = "127.0.0.1";
 
-	private final Connection sqlConnection;
-	private final JdbcStatementsExecutor statementsExecutor;
+	private static Connection sqlConnection;
+	private static JdbcStatementsExecutor statementsExecutor;
 
 	public TimescaleDatabase() {
 		this(LOCAL_DATABASE_HOST_NAME);
 	}
 
 	public TimescaleDatabase(String hostName) {
-		try {
-			sqlConnection = connect(hostName);
-		} catch (SQLException exception) {
-			throw new ConnectDatabaseException(exception);
+		if (sqlConnection == null) {
+			try {
+				sqlConnection = connect(hostName);
+			} catch (SQLException exception) {
+				throw new ConnectDatabaseException(exception);
+			}
+			statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 		}
-		statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 	}
 
 	@Override
@@ -196,7 +198,7 @@ public class TimescaleDatabase implements Closeable {
 	 * that were saved to database for given data type and agents.
 	 *
 	 * @param type    type of the data to be retrieved
-	 * @param aidList     aid list of the agents of interest
+	 * @param aidList aid list of the agents of interest
 	 * @param seconds number of seconds for which the data is retrieved
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */

@@ -11,10 +11,12 @@ import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.websocket.GuiWebSocketClient;
 
+import jade.util.leap.Serializable;
+
 /**
  * Agent node class representing the server
  */
-public class ServerAgentNode extends AbstractNetworkAgentNode {
+public class ServerAgentNode extends AbstractNetworkAgentNode implements Serializable {
 
 	private String cloudNetworkAgent;
 	private List<String> greenEnergyAgents;

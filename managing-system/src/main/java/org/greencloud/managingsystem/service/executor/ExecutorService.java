@@ -14,7 +14,6 @@ import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
@@ -112,16 +111,11 @@ public class ExecutorService extends AbstractManagingService {
 			Double initialGoalQuality) {
 		List<AgentController> createdAgents = createAgents(systemAdaptationPlan);
 		agentRunner.runAgents(createdAgents);
-		announceNetworkChange();
 		moveContainers(systemAdaptationPlan, createdAgents);
+		announceNetworkChange();
 		disableAdaptationAction(actionToBeExecuted);
-		String newlyAddedAgentsNames = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsArguments()
-				.stream()
-				.map(AgentArgs::getName)
-				.collect(Collectors.joining(", "));
 		((ManagingAgentNode) managingAgent.getAgentNode()).logNewAdaptation(
-				getAdaptationAction(actionToBeExecuted.getAction()), getCurrentTime(),
-				Optional.of(newlyAddedAgentsNames));
+				getAdaptationAction(actionToBeExecuted.getAction()), getCurrentTime(), Optional.empty());
 		managingAgent.addBehaviour(new VerifyAdaptationActionResult(managingAgent, getCurrentTime(), ADD_SERVER, null,
 				initialGoalQuality, SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY));
 	}

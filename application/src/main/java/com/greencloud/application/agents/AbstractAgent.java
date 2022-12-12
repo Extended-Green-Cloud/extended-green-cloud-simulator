@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
+import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.gui.agents.AbstractAgentNode;
@@ -65,5 +66,12 @@ public abstract class AbstractAgent extends Agent {
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
 		// this method must be overwritten in agent types that will be a target to
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		guiController.addAgentNodeToGraph(agentNode);
+		agentNode.setDatabaseClient(new TimescaleDatabase());
 	}
 }

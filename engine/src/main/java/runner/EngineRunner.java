@@ -21,7 +21,7 @@ public class EngineRunner {
 	private static final String SCENARIO_DIRECTORY = "";
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenarioStructure = SCENARIO_DIRECTORY + "multipleCNAsScenario";
+		String scenarioStructure = SCENARIO_DIRECTORY + "multipleClientsComplicatedScenario";
 		Optional<String> scenarioEvents = Optional.empty();
 		//Optional.of(SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationEvents");
 

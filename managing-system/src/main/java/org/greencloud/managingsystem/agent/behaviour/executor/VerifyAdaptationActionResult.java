@@ -67,7 +67,6 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 		enableAdaptationAction(performedAction);
 
 		logger.info(VERIFY_ACTION_END_LOG, performedAction, actionResults);
-		myManagingAgent.removeBehaviour(this);
 	}
 
 	private Map<GoalEnum, Double> getActionResults(AdaptationAction performedAction) {
@@ -85,11 +84,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 				.readCurrentGoalQuality(elapsedTime);
 
 		// absolute delta
-		if (initialGoalQuality > currentGoalQuality) {
-			return initialGoalQuality - currentGoalQuality;
-		} else {
-			return currentGoalQuality - initialGoalQuality;
-		}
+		return Math.abs(initialGoalQuality - currentGoalQuality);
 	}
 
 	private void enableAdaptationAction(AdaptationAction adaptationAction) {

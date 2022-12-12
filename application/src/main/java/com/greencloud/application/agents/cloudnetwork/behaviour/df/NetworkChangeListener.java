@@ -21,6 +21,9 @@ import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
+/**
+ * Listens for changes in the CNA network
+ */
 public class NetworkChangeListener extends CyclicBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(NetworkChangeListener.class);
@@ -33,6 +36,9 @@ public class NetworkChangeListener extends CyclicBehaviour {
 		this.myCloudNetworkAgent = (CloudNetworkAgent) myAgent;
 	}
 
+	/**
+	 * When triggered adds new servers and removes deleted ones
+	 */
 	@Override
 	public void action() {
 		final ACLMessage message = myAgent.receive(ANNOUNCE_NETWORK_CHANGE);

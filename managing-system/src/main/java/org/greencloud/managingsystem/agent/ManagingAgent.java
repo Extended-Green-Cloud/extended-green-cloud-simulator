@@ -57,7 +57,6 @@ public class ManagingAgent extends AbstractManagingAgent {
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 		getContentManager().registerLanguage(new SLCodec());
 		getContentManager().registerOntology(MobilityOntology.getInstance());
-		containersLocations = findContainersLocations();
 	}
 
 	/**
@@ -110,7 +109,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 		return List.of(new ReadAdaptationGoals());
 	}
 
-	private List<Location> findContainersLocations() {
+	public List<Location> findContainersLocations() {
 		prepareAndSendPlatformLocationsQuery();
 		Result result = receiveLocationsResponseFromAms();
 		List<Location> list = getLocationsFromQueryResult(result);

@@ -89,4 +89,14 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForServerJobCancellation()
 		);
 	}
+
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		this.stateManagement = new ServerStateManagement(this);
+		this.configManagement = new ServerConfigManagement(this);
+		// restoring default values
+		configManagement.setJobProcessingLimit(20);
+		configManagement.setPricePerHour(20);
+	}
 }
