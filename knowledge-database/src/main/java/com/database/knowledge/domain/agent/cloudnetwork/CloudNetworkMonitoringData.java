@@ -10,8 +10,8 @@ import org.immutables.value.Value;
 
 import java.util.Map;
 
-@JsonSerialize(as = CloudNetworkMonitoringData.class)
-@JsonDeserialize(as = CloudNetworkMonitoringData.class)
+@JsonSerialize(as = ImmutableCloudNetworkMonitoringData.class)
+@JsonDeserialize(as = ImmutableCloudNetworkMonitoringData.class)
 @Value.Immutable
 public interface CloudNetworkMonitoringData extends NetworkComponentMonitoringData {
 	/**
@@ -20,7 +20,7 @@ public interface CloudNetworkMonitoringData extends NetworkComponentMonitoringDa
 	Map<AID, Double> getPercentagesForServersMap();
 
 	/**
-	 * @return current traffic of the network
+	 * @return available power of the cna
 	 */
-	double getCurrentTraffic();
+	double getAvailablePower();
 }

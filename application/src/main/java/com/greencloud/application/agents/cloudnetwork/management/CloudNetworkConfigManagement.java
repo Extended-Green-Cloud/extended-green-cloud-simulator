@@ -73,21 +73,21 @@ public class CloudNetworkConfigManagement {
 	public void saveMonitoringData() {
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
 				.percentagesForServersMap(getPercentages())
+				.availablePower(getAvailablePower())
 				.successRatio(getJobSuccessRatio(cloudNetworkAgent.manage().getJobCounters().get(ACCEPTED),
 						cloudNetworkAgent.manage().getJobCounters().get(FAILED)))
-				.currentTraffic(getCurrentTraffic())
 				.build();
 		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
 		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
 	}
 
-	private double getCurrentTraffic() {
+	private double getAvailablePower() {
 		int currentTraffic = cloudNetworkAgent.getNetworkJobs()
 				.entrySet().stream()
 				.filter(entry -> RUNNING_JOB_STATUSES.contains(entry.getValue()))
 				.map(Map.Entry::getKey)
 				.mapToInt(PowerJob::getPower)
 				.sum();
-		return (double) currentTraffic / cloudNetworkAgent.getMaximumCapacity();
+		return cloudNetworkAgent.getMaximumCapacity() - currentTraffic;
 	}
 }

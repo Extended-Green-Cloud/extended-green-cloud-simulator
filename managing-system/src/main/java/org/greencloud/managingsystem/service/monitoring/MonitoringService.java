@@ -90,6 +90,16 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Mehod calls Traffic Distribution Service and retrieves the information if traffic distribution goal is satisfied
+	 *
+	 * @return boolean indication if traffic distribution goal is satisfied
+	 */
+	public boolean isTrafficDistributedEvenly() {
+		final boolean serverTrafficDistribution = trafficDistributionService.evaluateServerTrafficDistribution();
+		return serverTrafficDistribution;
+	}
+
+	/**
 	 * Method computes current system quality indicator
 	 *
 	 * @return quality indicator
@@ -100,8 +110,8 @@ public class MonitoringService extends AbstractManagingService {
 		final double trafficDistribution = 1 - trafficDistributionService.getLastMeasuredGoalQuality();
 
 		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
-			   backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
-			   trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
+				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
 	}
 
 	/**

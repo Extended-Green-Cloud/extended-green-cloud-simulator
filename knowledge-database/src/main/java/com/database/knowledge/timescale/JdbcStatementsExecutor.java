@@ -8,6 +8,7 @@ import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DmlQueries.GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
+import static com.database.knowledge.timescale.DmlQueries.GET_MULTIPLE_ROWS_DATA_FOR_DATA_TYPE_AND_AIDS;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
@@ -155,6 +156,18 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
+	List<AgentData> executeMultipleRowsReadMonitoringDataForDataTypeAndAID(DataType type, List<String> aid, int rows)
+			throws SQLException, JsonProcessingException {
+		try (var statement = sqlConnection.prepareStatement(GET_MULTIPLE_ROWS_DATA_FOR_DATA_TYPE_AND_AIDS)) {
+			final Array array = statement.getConnection().createArrayOf("text", aid.toArray());
+			statement.setString(1, type.toString());
+			statement.setArray(2, array);
+			statement.setInt(3, rows);
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
+		}
+	}
+
 	List<AdaptationGoal> executeReadAdaptationGoalsStatement() throws SQLException {
 		try (var statement = sqlConnection.prepareStatement(GET_ADAPTATION_GOALS)) {
 			try (var resultSet = statement.executeQuery()) {
@@ -227,12 +240,12 @@ public class JdbcStatementsExecutor {
 			JsonProcessingException {
 		var result = new ArrayList<AgentData>();
 		while (resultSet.next()) {
-			var type = DataType.valueOf(resultSet.getString(3));
+			var type = DataType.valueOf(resultSet.getString("data_type"));
 			var agentData = new AgentData(
-					resultSet.getTimestamp(1).toInstant(), // record time
-					resultSet.getString(2), // agent's aid
+					resultSet.getTimestamp("time").toInstant(), // record time
+					resultSet.getString("aid"), // agent's aid
 					type, // data type
-					objectMapper.readValue(resultSet.getObject(4).toString(), type.getDataTypeClass()) // data
+					objectMapper.readValue(resultSet.getObject("data").toString(), type.getDataTypeClass()) // data
 			);
 			result.add(agentData);
 		}
