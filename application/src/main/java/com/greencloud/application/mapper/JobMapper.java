@@ -37,6 +37,20 @@ public class JobMapper {
 	}
 
 	/**
+	 * @param job server job to be mapped to power job
+	 * @return PowerJob
+	 */
+	public static PowerJob mapServerJobToPowerJob(final ServerJob job) {
+		return ImmutablePowerJob.builder()
+				.jobId(job.getJobId())
+				.power(job.getPower())
+				.startTime(job.getStartTime())
+				.endTime(job.getEndTime())
+				.deadline(job.getDeadline())
+				.build();
+	}
+
+	/**
 	 * @param powerJob power job to be mapped to job
 	 * @return PowerJob
 	 */

@@ -86,7 +86,10 @@ public class CloudNetworkStateManagement {
 		return jobCounters;
 	}
 
-	private void updateCloudNetworkGUI() {
+	/**
+	 * Method updates Cloud Network statistics in GUI
+	 */
+	public void updateCloudNetworkGUI() {
 		final CloudNetworkAgentNode cloudNetworkAgentNode = (CloudNetworkAgentNode) cloudNetworkAgent.getAgentNode();
 
 		if (nonNull(cloudNetworkAgentNode)) {
