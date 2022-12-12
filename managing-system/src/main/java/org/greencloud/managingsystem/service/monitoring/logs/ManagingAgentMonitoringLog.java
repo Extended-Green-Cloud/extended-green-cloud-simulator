@@ -8,6 +8,10 @@ public class ManagingAgentMonitoringLog {
 	// MONITORING SERVICES LOG MESSAGES
 	public static final String READ_SUCCESS_RATIO_CLIENTS_LOG =
 			"Reading success ratio for clients from the database...";
+	public static final String READ_JOB_DSTRIBUTION_LOG =
+			"Reading job distribution coefficients from database...";
+	public static final String READ_JOB_DSTRIBUTION_LOG_NO_DATA_YET =
+			"Job distribution data is not available yet";
 	public static final String READ_SUCCESS_RATIO_COMPONENTS_LOG =
 			"Reading success ratio for individual components from the database...";
 	public static final String READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG =
@@ -18,5 +22,9 @@ public class ManagingAgentMonitoringLog {
 			"Component {} does not satisfy job success ratio threshold! Job success ratio for component: {}";
 	public static final String SUCCESS_RATIO_CLIENT_LOG =
 			"Current job success ratio: {}, Aggregated job success ratio: {}";
+	public static final String JOB_DISTRIBUTION_LOG =
+			"Current job distribution: {}";
+	public static final String JOB_DISTRIBUTION_UNSATISFIED_LOG =
+			"Job distribution is not satisfied! Current job distribution: {}";
 	public static final String READ_ADAPTATION_GOALS_LOG = "Reading adaptation goals from the database...";
 }
