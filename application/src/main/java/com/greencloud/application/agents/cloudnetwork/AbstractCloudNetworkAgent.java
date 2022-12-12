@@ -22,6 +22,7 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	protected transient CloudNetworkStateManagement stateManagement;
 	protected transient CloudNetworkConfigManagement configManagement;
 
+	protected double maximumCapacity;
 	protected Map<ClientJob, ExecutionJobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
 	protected AtomicLong completedJobs;
@@ -79,5 +80,9 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public CloudNetworkConfigManagement manageConfig() {
 		return configManagement;
+	}
+
+	public double getMaximumCapacity() {
+		return maximumCapacity;
 	}
 }

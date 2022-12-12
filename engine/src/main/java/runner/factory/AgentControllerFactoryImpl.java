@@ -55,8 +55,14 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 							serverAgent.getMaximumCapacity(),
 							serverAgent.getJobProcessingLimit() });
 		} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
+			final List<ServerAgentArgs> ownedServers = scenario.getServerAgentsArgs().stream()
+					.filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(agentArgs.getName()))
+					.toList();
+			final double maximumCapacity = ownedServers.stream()
+					.mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
 			return containerController.createNewAgent(cloudNetworkAgent.getName(),
-					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent", new Object[] {});
+					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent",
+					new Object[] { maximumCapacity });
 		} else if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgent) {
 			return containerController.createNewAgent(greenEnergyAgent.getName(),
 					"com.greencloud.application.agents.greenenergy.GreenEnergyAgent",
