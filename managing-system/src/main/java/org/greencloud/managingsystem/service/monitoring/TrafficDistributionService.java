@@ -83,11 +83,12 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return sd / avg.getAsDouble();
 	}
 
-	private double computeGoalQualityForComponent(List<AgentData> data) {
+	@VisibleForTesting
+	protected double computeGoalQualityForComponent(List<AgentData> data) {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
-		for (int i = 0; i < AGGREGATION_SIZE; i++) {
+		for (int i = 0; i < grouppedData.get(data.get(0).aid()).size(); i++) {
 			List<Double> traffic = new ArrayList<>();
 			for (var entry : grouppedData.entrySet()) {
 				traffic.add(
@@ -98,7 +99,8 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
-	private List<String> findCNAs() {
+	@VisibleForTesting
+	protected List<String> findCNAs() {
 		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
 				.stream()
 				.map(CloudNetworkArgs::getName)
