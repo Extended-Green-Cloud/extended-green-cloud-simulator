@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVE
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
@@ -92,10 +93,14 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdate();
 		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;
+	}
+
+	public boolean isBackUpPowerMinimized() {
+		return backUpPowerUsageService.evaluateAndUpdate();
 	}
 
 	/**
@@ -109,8 +114,8 @@ public class MonitoringService extends AbstractManagingService {
 		final double trafficDistribution = 1 - trafficDistributionService.getLastMeasuredGoalQuality();
 
 		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
-			   backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
-			   trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
+				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
 	}
 
 	/**
@@ -148,7 +153,7 @@ public class MonitoringService extends AbstractManagingService {
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
-					.collect(Collectors.toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
+					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}
