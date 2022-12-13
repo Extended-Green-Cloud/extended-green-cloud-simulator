@@ -71,7 +71,7 @@ public class ServerAgent extends AbstractServerAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for server agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}
@@ -88,5 +88,15 @@ public class ServerAgent extends AbstractServerAgent {
 				new HandleSourcePowerShortageJobs(this),
 				new ListenForServerJobCancellation()
 		);
+	}
+
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		this.stateManagement = new ServerStateManagement(this);
+		this.configManagement = new ServerConfigManagement(this);
+		// restoring default values
+		configManagement.setJobProcessingLimit(20);
+		configManagement.setPricePerHour(20);
 	}
 }

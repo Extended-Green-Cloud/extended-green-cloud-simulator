@@ -12,6 +12,11 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	@Override
+	public boolean evaluateAndUpdate() {
+		throw new UnsupportedOperationException("Not yet implemented.");
+	}
+
+	@Override
 	public double readCurrentGoalQuality(int time) {
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}

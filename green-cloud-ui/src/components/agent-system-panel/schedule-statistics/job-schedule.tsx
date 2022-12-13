@@ -2,21 +2,24 @@ import React, { useState } from 'react'
 
 import { SCHEDULER_CONFIGURATION } from './job-schedule-config'
 
-import { useAppSelector } from '@store'
 import DetailsField from 'components/common/details-field/details-field'
-import ScheduleModal from '../../agent-system-panel/schedule-statistics/schedule-modal/schedule-modal'
 import { ModalButton } from 'components/common'
+import ScheduleModal from './schedule-modal/schedule-modal-connected'
+import { SchedulerAgent } from '@types'
 
 const modalButtonText = 'Schedule'
+
+interface Props {
+   scheduler: SchedulerAgent | null
+}
 
 /**
  * Component represents a panel gathering all statistics regarding job scheduling
  *
  * @returns JSX Element
  */
-const JobSchedule = () => {
+export const JobSchedule = ({ scheduler }: Props) => {
    const [isOpen, setIsOpen] = useState(false)
-   const scheduler = useAppSelector((state) => state.cloudNetwork.scheduler)
 
    const parseValue = (val: any, key: string) =>
       key !== 'maxQueueSize' ? [(val as number) * 100, '%'].join('') : val
@@ -58,5 +61,3 @@ const JobSchedule = () => {
       </div>
    )
 }
-
-export default JobSchedule

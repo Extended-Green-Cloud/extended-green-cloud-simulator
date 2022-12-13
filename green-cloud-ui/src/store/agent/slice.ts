@@ -3,9 +3,9 @@ import { AgentStore, FetchStateMessage, PowerShortageEventData } from '@types'
 import { getAgentByName, triggerPowerShortage } from './api'
 
 const INITIAL_STATE: AgentStore = {
+   scheduler: null,
    agents: [],
    clients: [],
-   connections: [],
    selectedAgent: null,
    selectedClient: null,
 }

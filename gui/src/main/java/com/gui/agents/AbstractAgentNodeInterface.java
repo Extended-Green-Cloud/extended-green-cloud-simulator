@@ -1,8 +1,10 @@
 package com.gui.agents;
 
+import java.io.Serializable;
+
 import com.gui.websocket.GuiWebSocketClient;
 
-public interface AbstractAgentNodeInterface {
+public interface AbstractAgentNodeInterface extends Serializable {
 
 	/**
 	 * Method retrieves the agent name

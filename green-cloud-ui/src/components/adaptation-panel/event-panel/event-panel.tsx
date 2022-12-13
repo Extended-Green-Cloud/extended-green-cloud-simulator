@@ -1,23 +1,24 @@
 import { styles } from './event-panel-styles'
 import SubtitleContainer from '../../common/subtitle-container/subtitle-container'
 
-import { useAppSelector } from '@store'
 import DetailsField from 'components/common/details-field/details-field'
 import EventContainer from './event-container/event-container'
+import { Agent, PowerShortageEventData } from '@types'
 
 const description = 'Click on an agent to display available event actions'
 const noEventsText = 'Agent does not have any available event actions'
+
+interface Props {
+   selectedAgent?: Agent
+   triggerPowerShortage: (data: PowerShortageEventData) => void
+}
 
 /**
  * Component represents panel that can be used by the administrators to handle events condcuted on cloud network agents
  *
  * @returns JSX Element
  */
-const EventPanel = () => {
-   const agentState = useAppSelector((state) => state.agents)
-   const selectedAgent = agentState.agents.find(
-      (agent) => agent.name === agentState.selectedAgent
-   )
+export const EventPanel = ({ selectedAgent, triggerPowerShortage }: Props) => {
    const eventContainerStyle = {
       ...styles.singleEventParentContainer,
       justifyContent:
@@ -29,7 +30,11 @@ const EventPanel = () => {
    const mapToEventFields = () => {
       return selectedAgent?.events.map((event) => {
          const key = [selectedAgent.name, event.type].join('_')
-         return <EventContainer {...{ selectedAgent, event, key }} />
+         return (
+            <EventContainer
+               {...{ selectedAgent, event, key, triggerPowerShortage }}
+            />
+         )
       })
    }
 
@@ -52,5 +57,3 @@ const EventPanel = () => {
       </div>
    )
 }
-
-export default EventPanel

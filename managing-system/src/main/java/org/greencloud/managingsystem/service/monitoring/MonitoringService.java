@@ -3,11 +3,11 @@ package org.greencloud.managingsystem.service.monitoring;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
@@ -83,10 +83,14 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdate();
 		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;
+	}
+
+	public boolean isBackUpPowerMinimized() {
+		return backUpPowerUsageService.evaluateAndUpdate();
 	}
 
 	/**
@@ -139,7 +143,7 @@ public class MonitoringService extends AbstractManagingService {
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
-					.collect(Collectors.toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
+					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}

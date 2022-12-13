@@ -2,6 +2,7 @@ package com.gui.agents;
 
 import static java.lang.Double.parseDouble;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
@@ -18,7 +19,7 @@ import com.gui.websocket.GuiWebSocketClient;
 /**
  * Agent node class representing the green energy source
  */
-public class GreenEnergyAgentNode extends AbstractNetworkAgentNode {
+public class GreenEnergyAgentNode extends AbstractNetworkAgentNode implements Serializable {
 
 	private Location location;
 	private String monitoringAgent;

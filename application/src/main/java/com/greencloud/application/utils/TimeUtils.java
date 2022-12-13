@@ -1,6 +1,7 @@
 package com.greencloud.application.utils;
 
 import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -39,7 +40,7 @@ public class TimeUtils {
 	private static final Long TIME_ERROR = 5L;
 
 	//TODO store this information in the database so that all agents has access to it
-	public static Instant SYSTEM_START_TIME = null;
+	public static Instant SYSTEM_START_TIME = now();
 	private static Clock CLOCK = Clock.systemDefaultZone();
 
 	/**

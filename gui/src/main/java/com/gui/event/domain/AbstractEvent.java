@@ -1,11 +1,12 @@
 package com.gui.event.domain;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 /**
  * Class represents the abstract event which may occur in the environment
  */
-public abstract class AbstractEvent {
+public abstract class AbstractEvent implements Serializable {
 
 	protected EventTypeEnum eventTypeEnum;
 	protected Instant occurrenceTime;

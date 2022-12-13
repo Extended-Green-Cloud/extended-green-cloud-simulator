@@ -1,11 +1,12 @@
 import React from 'react'
 
 import { styles } from './adaptation-panel-styles'
-import { Card, EventPanel, Collapse } from '@components'
+import { Card, Collapse } from '@components'
 import { INITIAL_TABS, TabProps } from './adaptation-panel-config'
-import AdaptationStatistics from './adaptation-statistics/adaptation-statistics'
-import AdaptationLog from './adaptation-log/adaptation-log'
-import AdaptationGoals from './adaptation-goals/adaptation-goals'
+import AdaptationStatistics from './adaptation-statistics/adaptation-statistics-connected'
+import AdaptationLog from './adaptation-log/adaptation-log-connected'
+import AdaptationGoals from './adaptation-goals/adaptation-goals-connected'
+import EventPanel from './event-panel/event-panel-connected'
 
 const header = 'Adaptation Panel'
 

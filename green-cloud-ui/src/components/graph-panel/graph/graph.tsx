@@ -1,34 +1,41 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
 import Cytoscape from 'cytoscape'
 import fcose from 'cytoscape-fcose'
 import { GRAPH_LAYOUT, GRAPH_STYLE, GRAPH_STYLESHEET } from './graph-config'
 
-import { agentsActions, useAppDispatch, useAppSelector } from '@store'
-import { createNodeForAgent, selectExistingEdges, setCore } from '@utils'
+import { constructEdges, setCore } from '@utils'
 
-import { AgentStore, AgentType } from '@types'
+import { AgentNode, GraphEdge, SchedulerAgent } from '@types'
 
 Cytoscape.use(fcose)
+
+interface Props {
+   nodes: AgentNode[]
+   connections: GraphEdge[]
+   scheduler: SchedulerAgent | null
+   setSelectedAgent: (id: string) => void
+}
 
 /**
  * Component representing the graph canvas implemented using cytoscape library
  *
  * @returns Cytoscape graph
  */
-const DisplayGraph = () => {
-   const agentsState: AgentStore = useAppSelector((state) => state.agents)
-   const dispatch = useAppDispatch()
-   const graphNodes = agentsState.agents.filter(
-      (agent) => agent.type !== AgentType.CLIENT
+export const DisplayGraph = ({
+   nodes,
+   connections,
+   scheduler,
+   setSelectedAgent,
+}: Props) => {
+   const elements = useMemo(
+      () =>
+         CytoscapeComponent.normalizeElements({
+            nodes: nodes.map((node) => ({ data: { ...node } })),
+            edges: constructEdges(connections),
+         }),
+      [nodes, connections]
    )
-
-   const elements = CytoscapeComponent.normalizeElements({
-      nodes: graphNodes.map((agent) => {
-         return { data: createNodeForAgent(agent) }
-      }),
-      edges: selectExistingEdges(agentsState.agents, agentsState.connections),
-   })
 
    const cy = (core: Cytoscape.Core): void => {
       setCore(core)
@@ -39,7 +46,10 @@ const DisplayGraph = () => {
       })
 
       core.on('tap', 'node', (event) => {
-         dispatch(agentsActions.setSelectedAgent(event.target.id()))
+         if (event.target.id() !== scheduler?.name) {
+            console.warn(event.target.id())
+            setSelectedAgent(event.target.id())
+         }
       })
    }
 
@@ -55,5 +65,3 @@ const DisplayGraph = () => {
       />
    )
 }
-
-export default DisplayGraph

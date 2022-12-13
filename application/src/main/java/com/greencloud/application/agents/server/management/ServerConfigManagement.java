@@ -2,6 +2,7 @@ package com.greencloud.application.agents.server.management;
 
 import static com.greencloud.application.utils.JobUtils.getJobById;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import jade.core.AID;
 /**
  * Class containing current server configuration
  */
-public class ServerConfigManagement {
+public class ServerConfigManagement implements Serializable {
 
 	private final ServerAgent serverAgent;
 

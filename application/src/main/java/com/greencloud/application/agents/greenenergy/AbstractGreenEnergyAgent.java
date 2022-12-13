@@ -29,7 +29,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	protected transient GreenPowerManagement greenPowerManagement;
 	protected transient GreenEnergyStateManagement stateManagement;
 	protected transient GreenEnergyAdaptationManagement adaptationManagement;
-	protected transient Location location;
+	protected Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
 	protected volatile ConcurrentMap<ServerJob, ExecutionJobStatusEnum> serverJobs;

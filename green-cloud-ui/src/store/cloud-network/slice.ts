@@ -3,7 +3,6 @@ import { CloudNetworkStore } from '@types'
 import { resetServerState } from './api'
 
 const INITIAL_STATE: CloudNetworkStore = {
-   scheduler: null,
    currClientsNo: 0,
    currActiveJobsNo: 0,
    currPlannedJobsNo: 0,
@@ -22,10 +21,10 @@ export const cloudNetworkSlice = createSlice({
       setNetworkData(state, action: PayloadAction<CloudNetworkStore>) {
          Object.assign(state, action.payload)
       },
-      startNetworkStateFetching(state) {
+      openServerConnection(state) {
          state.isServerConnected = true
       },
-      finishNetworkStateFetching(state) {
+      closeServerConnection(state) {
          state.isServerConnected = false
       },
       resetCloudNetwork(state) {

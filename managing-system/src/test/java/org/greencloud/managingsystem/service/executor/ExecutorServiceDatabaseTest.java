@@ -32,6 +32,8 @@ import jade.core.AID;
 @ExtendWith(MockitoExtension.class)
 class ExecutorServiceDatabaseTest {
 
+	//TODO add unit test for SystemPlan branch
+
 	private static final Integer TEST_VALUE = 1;
 	private static final AID TEST_AID = new AID("test", ISGUID);
 
@@ -41,8 +43,8 @@ class ExecutorServiceDatabaseTest {
 	ManagingAgentNode abstractAgentNode;
 	AbstractPlan adaptationPlan;
 	TimescaleDatabase database;
-	MonitoringService monitoringService = new MonitoringService(managingAgent);
-	ExecutorService executorService = spy(new ExecutorService(managingAgent));
+	MonitoringService monitoringService;
+	ExecutorService executorService;
 
 	@BeforeEach
 	void init() {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { agentsActions, useAppDispatch } from '@store'
-import { AgentEvent, EventState } from '@types'
+import { AgentEvent, EventState, PowerShortageEventData } from '@types'
 import { toast } from 'react-toastify'
 import NumericInput from 'components/common/numeric-input/numeric-input'
 import { Button } from 'components/common'
@@ -10,6 +9,7 @@ interface Props {
    event: AgentEvent
    label: string
    agentName: string
+   triggerPowerShortage: (data: PowerShortageEventData) => void
 }
 
 const placeholder = 'Provide maximum capacity'
@@ -21,12 +21,17 @@ const topButtonLabel = 'Maximum Capacity'
  * @param {AgentEvent}[event] - power shortage event
  * @param {string}[label] - label describing event card
  * @param {string}[agentName] - name of the agent affected by power shortage
+ * @param {func}[triggerPowerShortage] - action responsible for power shortage event
  *
  * @returns JSX Element
  */
-const PowerShortageEvent = ({ event, label, agentName }: Props) => {
+const PowerShortageEvent = ({
+   event,
+   label,
+   agentName,
+   triggerPowerShortage,
+}: Props) => {
    const [inputVal, setInputVal] = useState<number>()
-   const dispatch = useAppDispatch()
 
    const disabled = event.state === EventState.INACTIVE || event.disabled
    const buttonLabel = event.disabled ? buttonWaitLabel : label
@@ -59,12 +64,10 @@ const PowerShortageEvent = ({ event, label, agentName }: Props) => {
             event?.state === EventState.ACTIVE ? 'triggered' : 'finished'
          toast.dismiss()
          toast.warn(`Power shortage ${message} in ${agentName}`)
-         dispatch(
-            agentsActions.triggerPowerShortage({
-               agentName,
-               newMaximumCapacity: inputVal as number,
-            })
-         )
+         triggerPowerShortage({
+            agentName,
+            newMaximumCapacity: inputVal as number,
+         })
          setInputVal(undefined)
       }
    }
