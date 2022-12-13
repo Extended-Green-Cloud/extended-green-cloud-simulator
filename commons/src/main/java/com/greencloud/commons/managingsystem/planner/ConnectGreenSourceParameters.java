@@ -22,7 +22,7 @@ public interface ConnectGreenSourceParameters extends AdaptationActionParameters
 	String getServerName();
 
 	@Override
-	default boolean waitForAdditionalMessage() {
+	default boolean dependsOnOtherAgents() {
 		return true;
 	}
 }

@@ -144,14 +144,9 @@ class AnalyzerServiceDatabaseTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentlyExecutedJobs(10)
-				.currentlyProcessedJobs(3)
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
-				.jobProcessingLimit(5)
-				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
 				.successRatio(0.9)
-				.serverPricePerHour(20)
 				.build();
 
 		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data1);

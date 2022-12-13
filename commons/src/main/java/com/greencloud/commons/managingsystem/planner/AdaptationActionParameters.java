@@ -10,7 +10,7 @@ public interface AdaptationActionParameters {
 	 * @return flag indicating if the agent's adaptation listener should respond with adaptation result after performing
 	 * adaptation plan locally, or should it wait for additional responses of other agents
 	 */
-	default boolean waitForAdditionalMessage() {
+	default boolean dependsOnOtherAgents() {
 		return false;
 	}
 }

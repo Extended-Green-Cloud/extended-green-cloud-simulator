@@ -38,7 +38,7 @@ public class ListenForAdaptationAction extends CyclicBehaviour {
 		AdaptationActionParameters adaptationActionParameters =
 				readMessageContent(message, getActionParametersClass(adaptationActionEnum));
 
-		if(!adaptationActionParameters.waitForAdditionalMessage()) {
+		if(!adaptationActionParameters.dependsOnOtherAgents()) {
 			if (myAbstractAgent.executeAction(adaptationAction, adaptationActionParameters)) {
 				myAbstractAgent.send(prepareInformReply(message.createReply()));
 			} else {

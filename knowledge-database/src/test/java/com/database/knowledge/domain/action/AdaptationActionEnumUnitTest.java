@@ -30,7 +30,7 @@ class AdaptationActionEnumUnitTest {
 				arguments("Increase job power priority", INCREASE_POWER_PRIORITY),
 				arguments("Increase Green Source selection chance", INCREASE_GREEN_SOURCE_PERCENTAGE),
 				arguments("Increase Green Source weather prediction error", INCREASE_GREEN_SOURCE_ERROR),
-				arguments("Add Green Source", CONNECT_GREEN_SOURCE)
+				arguments("Connecting Green Source", CONNECT_GREEN_SOURCE)
 		);
 	}
 

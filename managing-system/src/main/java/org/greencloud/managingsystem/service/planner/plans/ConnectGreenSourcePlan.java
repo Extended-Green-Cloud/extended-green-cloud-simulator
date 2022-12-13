@@ -6,8 +6,13 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static com.greencloud.commons.agent.AgentType.SERVER;
+import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.averagingDouble;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
 
 import java.util.AbstractMap;
@@ -23,6 +28,8 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.planner.domain.AgentsGreenPower;
+import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.DataType;
@@ -44,7 +51,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	private static final double GREEN_SOURCE_TRAFFIC_THRESHOLD = 0.5;
 	private static final double GREEN_SOURCE_POWER_THRESHOLD = 0.7;
 
-	private Map<Map.Entry<String, Double>, Map<String, Double>> connectableServersForGreenSource;
+	private Map<AgentsGreenPower, List<AgentsTraffic>> connectableServersForGreenSource;
 
 	public ConnectGreenSourcePlan(ManagingAgent managingAgent) {
 		super(CONNECT_GREEN_SOURCE, managingAgent);
@@ -68,13 +75,13 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	@Override
 	public boolean isPlanExecutable() {
 		// verifying which server complies with a thresholds
-		final Map<String, Map<String, Double>> serversForCloudNetworks = getAvailableServersMap();
+		final Map<String, List<AgentsTraffic>> serversForCloudNetworks = getAvailableServersMap();
 		if (serversForCloudNetworks.isEmpty()) {
 			return false;
 		}
 
 		// verifying which green sources comply with the thresholds
-		final Map<String, Map<String, Double>> greenSourcesForCloudNetworks = getAvailableGreenSourcesMap();
+		final Map<String, Set<AgentsGreenPower>> greenSourcesForCloudNetworks = getAvailableGreenSourcesMap();
 		if (greenSourcesForCloudNetworks.isEmpty()) {
 			return false;
 		}
@@ -97,17 +104,17 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 			return null;
 		}
 
-		final Map.Entry<String, Double> selectedGreenSource =
+		final AgentsGreenPower selectedGreenSource =
 				connectableServersForGreenSource.keySet().stream()
-						.min(Comparator.comparingDouble(Map.Entry::getValue))
+						.min(comparingDouble(AgentsGreenPower::value))
 						.orElseThrow();
 		final String selectedServer =
-				connectableServersForGreenSource.get(selectedGreenSource).entrySet().stream()
-						.min(Comparator.comparingDouble(Map.Entry::getValue))
+				connectableServersForGreenSource.get(selectedGreenSource).stream()
+						.min(comparingDouble(AgentsTraffic::value))
 						.orElseThrow()
-						.getKey();
+						.name();
 
-		targetAgent = new AID(selectedGreenSource.getKey(), AID.ISGUID);
+		targetAgent = new AID(selectedGreenSource.name(), AID.ISGUID);
 		actionParameters = ImmutableConnectGreenSourceParameters.builder()
 				.serverName(selectedServer)
 				.build();
@@ -115,7 +122,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected Map<String, Map<String, Double>> getAvailableServersMap() {
+	protected Map<String, List<AgentsTraffic>> getAvailableServersMap() {
 		final List<String> aliveServers = managingAgent.monitor().getAliveAgents(SERVER);
 
 		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs().stream()
@@ -126,7 +133,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected Map<String, Map<String, Double>> getAvailableGreenSourcesMap() {
+	protected Map<String, Set<AgentsGreenPower>> getAvailableGreenSourcesMap() {
 		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_SOURCE);
 
 		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs().stream()
@@ -137,15 +144,14 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected Map<Map.Entry<String, Double>, Map<String, Double>> getConnectableServersForGreenSources(
-			final Map<String, Map<String, Double>> serversForCloudNetworks,
-			final Map<String, Map<String, Double>> greenSourcesForCloudNetworks) {
+	protected Map<AgentsGreenPower, List<AgentsTraffic>> getConnectableServersForGreenSources(
+			final Map<String, List<AgentsTraffic>> serversForCloudNetworks,
+			final Map<String, Set<AgentsGreenPower>> greenSourcesForCloudNetworks) {
 
 		return greenSourcesForCloudNetworks.keySet().stream()
 				.map(cloudNetwork -> {
-					final Map<String, Double> serversToConsider = serversForCloudNetworks.get(cloudNetwork);
-					final Set<Map.Entry<String, Double>> greenSourcesToConsider =
-							greenSourcesForCloudNetworks.get(cloudNetwork).entrySet();
+					final List<AgentsTraffic> serversToConsider = serversForCloudNetworks.get(cloudNetwork);
+					final Set<AgentsGreenPower> greenSourcesToConsider = greenSourcesForCloudNetworks.get(cloudNetwork);
 
 					return greenSourcesToConsider.stream()
 							.map(greenSource -> getConnectableServersForGreenSourcePerCNA(greenSource,
@@ -157,10 +163,9 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private Map.Entry<Map.Entry<String, Double>, Map<String, Double>> getConnectableServersForGreenSourcePerCNA(
-			final Map.Entry<String, Double> greenSource,
-			final Map<String, Double> serversToConsider) {
-		final String greenSourceLocalName = greenSource.getKey().split("@")[0];
+	private Map.Entry<AgentsGreenPower, List<AgentsTraffic>> getConnectableServersForGreenSourcePerCNA(
+			final AgentsGreenPower greenSource, final List<AgentsTraffic> serversToConsider) {
+		final String greenSourceLocalName = greenSource.name().split("@")[0];
 
 		final List<String> alreadyConnectedServers =
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
@@ -168,26 +173,26 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 						.findFirst().orElseThrow()
 						.getConnectedSevers();
 
-		final Map<String, Double> availableForConnectionServers =
-				serversToConsider.entrySet().stream()
-						.filter(server -> !alreadyConnectedServers.contains(server.getKey().split("@")[0]))
-						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+		final List<AgentsTraffic> availableForConnectionServers =
+				serversToConsider.stream().collect(filtering(server ->
+						!alreadyConnectedServers.contains(server.name().split("@")[0]), toList()));
 
 		return new AbstractMap.SimpleEntry<>(greenSource, availableForConnectionServers);
 	}
 
 	@VisibleForTesting
-	protected Map<String, Double> getServersForCNA(final String cna, final List<String> aliveServers) {
+	protected List<AgentsTraffic> getServersForCNA(final String cna, final List<String> aliveServers) {
 		final List<String> serversForCNA = managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(cna);
 		final List<String> aliveServersForCNA = getAliveAgentsIntersection(aliveServers, serversForCNA);
 
 		return getAverageTrafficForServers(aliveServersForCNA).entrySet().stream()
 				.filter(server -> server.getValue() <= SERVER_TRAFFIC_THRESHOLD)
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+				.map(entry -> new AgentsTraffic(entry.getKey(), entry.getValue()))
+				.toList();
 	}
 
 	@VisibleForTesting
-	protected Map<String, Double> getGreenSourcesForCNA(final String cloudNetworkName,
+	protected Set<AgentsGreenPower> getGreenSourcesForCNA(final String cloudNetworkName,
 			final List<String> aliveGreenSources) {
 		final List<String> greenSourcesForCNA = managingAgent.getGreenCloudStructure()
 				.getGreenSourcesForCloudNetwork(cloudNetworkName);
@@ -197,7 +202,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 
 		return getAverageTrafficForSources(sourcesWithEnoughPower).entrySet().stream()
 				.filter(greenSource -> greenSource.getValue() <= GREEN_SOURCE_TRAFFIC_THRESHOLD)
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+				.map(entry -> new AgentsGreenPower(entry.getKey(), entry.getValue()))
+				.collect(toSet());
 	}
 
 	private List<String> getSourcesWithEnoughPower(final List<String> aliveGreenSources) {
@@ -229,7 +235,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	public void setConnectableServersForGreenSource(
-			Map<Map.Entry<String, Double>, Map<String, Double>> connectableServersForGreenSource) {
+			Map<AgentsGreenPower, List<AgentsTraffic>> connectableServersForGreenSource) {
 		this.connectableServersForGreenSource = connectableServersForGreenSource;
 	}
 

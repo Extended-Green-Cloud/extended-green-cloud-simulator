@@ -65,23 +65,13 @@ class ConnectGreenSourcePlanDatabaseTest {
 	void testGetAverageTrafficForServersForDistinctDataSet() {
 		var mockData1 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
-				.jobProcessingLimit(5)
-				.currentlyExecutedJobs(3)
-				.currentlyProcessedJobs(2)
 				.currentTraffic(0.6)
-				.serverPricePerHour(10)
 				.successRatio(0.9)
-				.weightsForGreenSources(Collections.emptyMap())
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
-				.jobProcessingLimit(5)
-				.currentlyExecutedJobs(3)
-				.currentlyProcessedJobs(2)
 				.currentTraffic(0.8)
-				.serverPricePerHour(10)
 				.successRatio(0.9)
-				.weightsForGreenSources(Collections.emptyMap())
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);
@@ -99,33 +89,18 @@ class ConnectGreenSourcePlanDatabaseTest {
 	void testGetAverageTrafficForServersForManyRowsDataSet() {
 		var mockData1 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
-				.jobProcessingLimit(5)
-				.currentlyExecutedJobs(3)
-				.currentlyProcessedJobs(2)
 				.currentTraffic(0.6)
-				.serverPricePerHour(10)
 				.successRatio(0.9)
-				.weightsForGreenSources(Collections.emptyMap())
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
-				.jobProcessingLimit(5)
-				.currentlyExecutedJobs(3)
-				.currentlyProcessedJobs(2)
 				.currentTraffic(0.8)
-				.serverPricePerHour(10)
 				.successRatio(0.9)
-				.weightsForGreenSources(Collections.emptyMap())
 				.build();
 		var mockData3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
-				.jobProcessingLimit(5)
-				.currentlyExecutedJobs(3)
-				.currentlyProcessedJobs(2)
 				.currentTraffic(0.5)
-				.serverPricePerHour(10)
 				.successRatio(0.9)
-				.weightsForGreenSources(Collections.emptyMap())
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);

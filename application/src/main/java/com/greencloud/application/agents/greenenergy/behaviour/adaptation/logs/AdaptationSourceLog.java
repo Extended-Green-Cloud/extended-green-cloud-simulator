@@ -6,6 +6,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.adaptation.logs;
 public class AdaptationSourceLog {
 
 	// INITIATE SERVER CONNECTION LOG MESSAGES
-	public static final String CONNECTION_FAILED_LOG = "Connection failed - Server {} is already connected to the Green Source.";
+	public static final String CONNECTION_FAILED_LOG =
+			"Connection failed - Server {} is already connected to the Green Source.";
 	public static final String CONNECTION_SUCCEEDED_LOG = "Green Source successfully connected with a Server {}.";
 }

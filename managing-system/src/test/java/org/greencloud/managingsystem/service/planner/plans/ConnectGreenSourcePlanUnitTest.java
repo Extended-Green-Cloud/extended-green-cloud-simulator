@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.greencloud.managingsystem.service.planner.domain.AgentsGreenPower;
+import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,10 +68,12 @@ class ConnectGreenSourcePlanUnitTest {
 	@DisplayName("Test constructing adaptation plan for valid data")
 	void testConstructAdaptationPlan() {
 		var greenSourceMap = Map.of(
-				Map.entry("test_gs1@192.168.56.1:6996/JADE", 0.4),
-				Map.of("test_server2@192.168.56.1:6996/JADE", 0.6, "test_server3@192.168.56.1:6996/JADE", 0.9),
-				Map.entry("test_gs2@192.168.56.1:6996/JADE", 0.5),
-				Map.of("test_server2@192.168.56.1:6996/JADE", 0.6, "test_server5@192.168.56.1:6996/JADE", 0.4)
+				new AgentsGreenPower("test_gs1@192.168.56.1:6996/JADE", 0.4),
+				List.of(new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6),
+						new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.9)),
+				new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.5),
+				List.of(new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6),
+						new AgentsTraffic("test_server5@192.168.56.1:6996/JADE", 0.4))
 		);
 
 		connectGreenSourcePlan.setConnectableServersForGreenSource(greenSourceMap);
@@ -182,7 +187,7 @@ class ConnectGreenSourcePlanUnitTest {
 
 		assertThat(connectGreenSourcePlan.getServersForCNA("test_cna", aliveAgents))
 				.hasSize(1)
-				.containsEntry("test_server1@192.168.56.1:6996/JADE", 0.7);
+				.allMatch(data -> data.name().equals("test_server1@192.168.56.1:6996/JADE") && data.value() == 0.7);
 	}
 
 	@Test
@@ -256,9 +261,9 @@ class ConnectGreenSourcePlanUnitTest {
 
 		assertThat(connectGreenSourcePlan.getGreenSourcesForCNA("test_cna", aliveAgents))
 				.hasSize(1)
-				.matches(data -> data.entrySet().stream()
-						.allMatch(greenSource -> greenSource.getKey().equals("test_gs1@192.168.56.1:6996/JADE")
-								&& greenSource.getValue().equals(0.4)));
+				.matches(data -> data.stream()
+						.allMatch(greenSource -> greenSource.name().equals("test_gs1@192.168.56.1:6996/JADE")
+								&& greenSource.value().equals(0.4)));
 	}
 
 	@Test
@@ -292,8 +297,8 @@ class ConnectGreenSourcePlanUnitTest {
 		)).when(connectGreenSourcePlan).getAverageTrafficForServers(List.of("test_server3@192.168.56.1:6996/JADE"));
 
 		var expectedMap = Map.of(
-				"test_cna1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
-				"test_cna2", Map.of("test_server3@192.168.56.1:6996/JADE", 0.6)
+				"test_cna1", List.of(new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.7)),
+				"test_cna2", List.of(new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.6))
 		);
 
 		assertThat(connectGreenSourcePlan.getAvailableServersMap())
@@ -342,8 +347,8 @@ class ConnectGreenSourcePlanUnitTest {
 		)).when(connectGreenSourcePlan).getAverageTrafficForSources(List.of("test_gs4@192.168.56.1:6996/JADE"));
 
 		var expectedMap = Map.of(
-				"test_cna1", Map.of("test_gs2@192.168.56.1:6996/JADE", 0.4),
-				"test_cna2", Map.of("test_gs4@192.168.56.1:6996/JADE", 0.3)
+				"test_cna1", Set.of(new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.4)),
+				"test_cna2", Set.of(new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.3))
 		);
 
 		assertThat(connectGreenSourcePlan.getAvailableGreenSourcesMap())
@@ -358,41 +363,42 @@ class ConnectGreenSourcePlanUnitTest {
 		prepareNetworkStructure();
 
 		var serversForCloudNetworks = Map.of(
-				"test_cna1", Map.of(
-						"test_server1@192.168.56.1:6996/JADE", 0.4,
-						"test_server2@192.168.56.1:6996/JADE", 0.6),
-				"test_cna2", Map.of(
-						"test_server3@192.168.56.1:6996/JADE", 0.5,
-						"test_server4@192.168.56.1:6996/JADE", 0.65)
+				"test_cna1", List.of(
+						new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.4),
+						new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6)),
+				"test_cna2", List.of(
+						new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.5),
+						new AgentsTraffic("test_server4@192.168.56.1:6996/JADE", 0.65))
 		);
 		var greenSourcesForCloudNetworks = Map.of(
-				"test_cna1", Map.of(
-						"test_gs1@192.168.56.1:6996/JADE", 0.4,
-						"test_gs2@192.168.56.1:6996/JADE", 0.5,
-						"test_gs3@192.168.56.1:6996/JADE", 0.65),
-				"test_cna2", Map.of(
-						"test_gs4@192.168.56.1:6996/JADE", 0.45,
-						"test_gs5@192.168.56.1:6996/JADE", 0.51,
-						"test_gs6@192.168.56.1:6996/JADE", 0.62)
+				"test_cna1", Set.of(
+						new AgentsGreenPower("test_gs1@192.168.56.1:6996/JADE", 0.4),
+						new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.5),
+						new AgentsGreenPower("test_gs3@192.168.56.1:6996/JADE", 0.65)),
+				"test_cna2", Set.of(
+						new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.45),
+						new AgentsGreenPower("test_gs5@192.168.56.1:6996/JADE", 0.51),
+						new AgentsGreenPower("test_gs6@192.168.56.1:6996/JADE", 0.62))
 		);
 
 		var expectedResult = Map.of(
-				new AbstractMap.SimpleEntry<>("test_gs1@192.168.56.1:6996/JADE", 0.4),
-				Map.of("test_server2@192.168.56.1:6996/JADE", 0.6),
-				new AbstractMap.SimpleEntry<>("test_gs2@192.168.56.1:6996/JADE", 0.5),
-				Map.of("test_server2@192.168.56.1:6996/JADE", 0.6),
-				new AbstractMap.SimpleEntry<>("test_gs3@192.168.56.1:6996/JADE", 0.65),
-				Map.of("test_server1@192.168.56.1:6996/JADE", 0.4),
-				new AbstractMap.SimpleEntry<>("test_gs4@192.168.56.1:6996/JADE", 0.45),
-				Map.of("test_server4@192.168.56.1:6996/JADE", 0.65),
-				new AbstractMap.SimpleEntry<>("test_gs5@192.168.56.1:6996/JADE", 0.51),
-				Map.of("test_server4@192.168.56.1:6996/JADE", 0.65),
-				new AbstractMap.SimpleEntry<>("test_gs6@192.168.56.1:6996/JADE", 0.62),
-				Map.of("test_server3@192.168.56.1:6996/JADE", 0.5)
+				new AgentsGreenPower("test_gs1@192.168.56.1:6996/JADE", 0.4),
+				List.of(new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6)),
+				new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.5),
+				List.of(new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6)),
+				new AgentsGreenPower("test_gs3@192.168.56.1:6996/JADE", 0.65),
+				List.of(new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.4)),
+				new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.45),
+				List.of(new AgentsTraffic("test_server4@192.168.56.1:6996/JADE", 0.65)),
+				new AgentsGreenPower("test_gs5@192.168.56.1:6996/JADE", 0.51),
+				List.of(new AgentsTraffic("test_server4@192.168.56.1:6996/JADE", 0.65)),
+				new AgentsGreenPower("test_gs6@192.168.56.1:6996/JADE", 0.62),
+				List.of(new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.5))
 		);
 
-		var result = connectGreenSourcePlan.getConnectableServersForGreenSources(serversForCloudNetworks,
-				greenSourcesForCloudNetworks);
+		var result =
+				connectGreenSourcePlan.getConnectableServersForGreenSources(serversForCloudNetworks,
+						greenSourcesForCloudNetworks);
 
 		assertThat(result)
 				.hasSize(6)
