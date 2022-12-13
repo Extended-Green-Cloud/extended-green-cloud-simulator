@@ -16,8 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 
 class GreenEnergyAdaptationManagementUnitTest {
 
@@ -40,7 +40,7 @@ class GreenEnergyAdaptationManagementUnitTest {
 	@ParameterizedTest
 	@MethodSource("parametersGetByIdAndStart")
 	@DisplayName("Test adapt green energy agent weather prediction error")
-	void testAdaptAgentWeatherPredictionError(IncrementGreenSourceErrorParameters params, double expectedResult) {
+	void testAdaptAgentWeatherPredictionError(AdjustGreenSourceErrorParameters params, double expectedResult) {
 		mockGreenEnergyAgent.setWeatherPredictionError(INITIAL_WEATHER_PREDICTION_ERROR);
 		greenEnergyAdaptationManagement.adaptAgentWeatherPredictionError(params);
 
@@ -50,16 +50,22 @@ class GreenEnergyAdaptationManagementUnitTest {
 	private static Stream<Arguments> parametersGetByIdAndStart() {
 		return Stream.of(
 				arguments(
-						ImmutableIncrementGreenSourceErrorParameters.builder()
+						ImmutableAdjustGreenSourceErrorParameters.builder()
 								.percentageChange(0.02)
 								.build(),
 						0.04
 				),
 				arguments(
-						ImmutableIncrementGreenSourceErrorParameters.builder()
+						ImmutableAdjustGreenSourceErrorParameters.builder()
 								.percentageChange(0.08)
 								.build(),
 						0.1
+				),
+				arguments(
+						ImmutableAdjustGreenSourceErrorParameters.builder()
+								.percentageChange(-0.01)
+								.build(),
+						0.01
 				)
 		);
 	}

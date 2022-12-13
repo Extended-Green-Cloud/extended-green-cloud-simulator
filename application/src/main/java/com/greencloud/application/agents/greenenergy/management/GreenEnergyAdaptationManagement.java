@@ -6,14 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 
 /**
  * Set of methods used to adapt the current configuration of Green Energy agent
  */
 public class GreenEnergyAdaptationManagement {
 
-	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyStateManagement.class);
+	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyAdaptationManagement.class);
 
 	private final GreenEnergyAgent greenEnergyAgent;
 
@@ -31,11 +31,12 @@ public class GreenEnergyAdaptationManagement {
 	 *
 	 * @param params adaptation parameters
 	 */
-	public boolean adaptAgentWeatherPredictionError(IncrementGreenSourceErrorParameters params) {
+	public boolean adaptAgentWeatherPredictionError(AdjustGreenSourceErrorParameters params) {
 		final double currentError = greenEnergyAgent.getWeatherPredictionError();
 		final double newError = currentError + params.getPercentageChange();
+		final String log = params.getPercentageChange() > 0 ? "Increasing" : "Decreasing";
 
-		logger.info(ADAPTATION_INCREASE_ERROR_LOG, currentError, newError);
+		logger.info(ADAPTATION_INCREASE_ERROR_LOG, log, currentError, newError);
 
 		greenEnergyAgent.setWeatherPredictionError(newError);
 		greenEnergyAgent.manage().updateGreenSourceGUI();

@@ -16,7 +16,7 @@ import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
@@ -106,8 +106,9 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	@Override
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
 		return switch (adaptationAction.getAction()) {
-			case INCREASE_GREEN_SOURCE_ERROR -> adaptationManagement.adaptAgentWeatherPredictionError(
-					(IncrementGreenSourceErrorParameters) actionParameters);
+			case INCREASE_GREEN_SOURCE_ERROR, DECREASE_GREEN_SOURCE_ERROR ->
+					adaptationManagement.adaptAgentWeatherPredictionError(
+							(AdjustGreenSourceErrorParameters) actionParameters);
 			default -> false;
 		};
 	}

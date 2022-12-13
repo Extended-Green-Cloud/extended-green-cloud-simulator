@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.greenenergy.behaviour;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_REQUEST;
@@ -27,8 +28,8 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.behaviours.ListenForAdaptationAction;
-import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
 import com.greencloud.commons.message.MessageBuilder;
 
 import jade.core.AID;
@@ -59,31 +60,53 @@ class ListenForAdaptationActionGreenSourceUnitTest {
 
 	@Test
 	@DisplayName("Test receiving adaptation message for incrementing prediction error")
-	void testAction() {
-		var testMessage = prepareTestMessage();
+	void testIncrementErrorAction() {
+		var testMessage = MessageBuilder.builder()
+				.withPerformative(REQUEST)
+				.withConversationId(INCREASE_GREEN_SOURCE_ERROR.toString())
+				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
+				.withObjectContent(ImmutableAdjustGreenSourceErrorParameters.builder()
+						.percentageChange(0.05)
+						.build())
+				.withReceivers(mock(AID.class))
+				.build();
 		when(greenEnergyAgent.receive(EXECUTE_ACTION_REQUEST)).thenReturn(testMessage);
 
 		listenForAdaptationAction.action();
 
 		verify(greenEnergyAgent).executeAction(
 				argThat((data -> data.getAction().equals(INCREASE_GREEN_SOURCE_ERROR))),
-				argThat((data) -> data instanceof IncrementGreenSourceErrorParameters &&
-						((IncrementGreenSourceErrorParameters) data).getPercentageChange() == 0.05));
+				argThat((data) -> data instanceof AdjustGreenSourceErrorParameters &&
+						((AdjustGreenSourceErrorParameters) data).getPercentageChange() == 0.05));
 
 		verify(greenEnergyAgent).send(any());
 
 		assertThat(greenEnergyAgent.getWeatherPredictionError()).isEqualTo(0.07);
 	}
 
-	private ACLMessage prepareTestMessage() {
-		return MessageBuilder.builder()
+	@Test
+	@DisplayName("Test receiving adaptation message for decrementing prediction error")
+	void testDecrementErrorAction() {
+		var testMessage = MessageBuilder.builder()
 				.withPerformative(REQUEST)
-				.withConversationId(INCREASE_GREEN_SOURCE_ERROR.toString())
+				.withConversationId(DECREASE_GREEN_SOURCE_ERROR.toString())
 				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
-				.withObjectContent(ImmutableIncrementGreenSourceErrorParameters.builder()
-						.percentageChange(0.05)
+				.withObjectContent(ImmutableAdjustGreenSourceErrorParameters.builder()
+						.percentageChange(-0.01)
 						.build())
 				.withReceivers(mock(AID.class))
 				.build();
+		when(greenEnergyAgent.receive(EXECUTE_ACTION_REQUEST)).thenReturn(testMessage);
+
+		listenForAdaptationAction.action();
+
+		verify(greenEnergyAgent).executeAction(
+				argThat((data -> data.getAction().equals(DECREASE_GREEN_SOURCE_ERROR))),
+				argThat((data) -> data instanceof AdjustGreenSourceErrorParameters &&
+						((AdjustGreenSourceErrorParameters) data).getPercentageChange() == -0.01));
+
+		verify(greenEnergyAgent).send(any());
+
+		assertThat(greenEnergyAgent.getWeatherPredictionError()).isEqualTo(0.01);
 	}
 }
