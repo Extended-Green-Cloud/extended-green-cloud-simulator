@@ -68,6 +68,7 @@ public class TimescaleDatabase implements Closeable {
 	public void close() {
 		try {
 			sqlConnection.close();
+			sqlConnection = null;
 		} catch (SQLException exception) {
 			throw new ClosingDatabaseException(exception);
 		}
