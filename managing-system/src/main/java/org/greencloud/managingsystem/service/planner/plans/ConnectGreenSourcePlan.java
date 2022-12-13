@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
@@ -47,7 +47,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	private Map<Map.Entry<String, Double>, Map<String, Double>> connectableServersForGreenSource;
 
 	public ConnectGreenSourcePlan(ManagingAgent managingAgent) {
-		super(ADD_GREEN_SOURCE, managingAgent);
+		super(CONNECT_GREEN_SOURCE, managingAgent);
 		connectableServersForGreenSource = new HashMap<>();
 	}
 

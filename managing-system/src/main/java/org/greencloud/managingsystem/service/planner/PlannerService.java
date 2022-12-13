@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -105,7 +105,7 @@ public class PlannerService extends AbstractManagingService {
 	protected void initializePlansForActions() {
 		planForActionMap = Map.of(
 				ADD_SERVER, new AddServerPlan(managingAgent),
-				ADD_GREEN_SOURCE, new ConnectGreenSourcePlan(managingAgent),
+				CONNECT_GREEN_SOURCE, new ConnectGreenSourcePlan(managingAgent),
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
 				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_ERROR, new IncrementGreenSourceErrorPlan(managingAgent),

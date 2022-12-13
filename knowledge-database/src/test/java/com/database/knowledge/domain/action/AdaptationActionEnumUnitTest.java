@@ -1,6 +1,6 @@
 package com.database.knowledge.domain.action;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -30,7 +30,7 @@ class AdaptationActionEnumUnitTest {
 				arguments("Increase job power priority", INCREASE_POWER_PRIORITY),
 				arguments("Increase Green Source selection chance", INCREASE_GREEN_SOURCE_PERCENTAGE),
 				arguments("Increase Green Source weather prediction error", INCREASE_GREEN_SOURCE_ERROR),
-				arguments("Add Green Source", ADD_GREEN_SOURCE)
+				arguments("Add Green Source", CONNECT_GREEN_SOURCE)
 		);
 	}
 

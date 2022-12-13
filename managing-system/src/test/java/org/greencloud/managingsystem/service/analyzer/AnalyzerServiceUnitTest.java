@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
@@ -27,7 +27,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 
@@ -40,7 +39,7 @@ class AnalyzerServiceUnitTest {
 
 	private static Stream<Arguments> parametersForQualityCalculationTest() {
 		final AdaptationAction action1 =
-				new AdaptationAction(1, ADD_GREEN_SOURCE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO,
+				new AdaptationAction(1, CONNECT_GREEN_SOURCE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO,
 						Map.of(MAXIMIZE_JOB_SUCCESS_RATIO, 0.3, MINIMIZE_USED_BACKUP_POWER, 0.5,
 								DISTRIBUTE_TRAFFIC_EVENLY, 0.4), true, 1);
 		final AdaptationAction action2 =

@@ -57,7 +57,7 @@ class AbstractGreenEnergyAgentUnitTest {
 	@Test
 	@DisplayName("Test executing adaptation action for connecting green source to server")
 	void testExecuteActionForConnectingGreenSource() {
-		var adaptationAction = getAdaptationAction(AdaptationActionEnum.ADD_GREEN_SOURCE);
+		var adaptationAction = getAdaptationAction(AdaptationActionEnum.CONNECT_GREEN_SOURCE);
 		var adaptationParams = ImmutableConnectGreenSourceParameters.builder()
 				.serverName("test_server")
 				.build();

@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -116,7 +116,7 @@ class AnalyzerServiceDatabaseTest {
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR,
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(7, ADD_GREEN_SOURCE,
+				new AdaptationAction(7, CONNECT_GREEN_SOURCE,
 						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO));
 
 		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);

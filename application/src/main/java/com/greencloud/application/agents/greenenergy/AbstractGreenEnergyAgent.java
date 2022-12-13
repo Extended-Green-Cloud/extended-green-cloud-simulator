@@ -1,6 +1,6 @@
 package com.greencloud.application.agents.greenenergy;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 
 import java.util.Map;
 import java.util.Objects;
@@ -119,7 +119,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	@Override
 	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
 			ACLMessage adaptationMessage) {
-		if (adaptationAction.getAction().equals(ADD_GREEN_SOURCE)) {
+		if (adaptationAction.getAction().equals(CONNECT_GREEN_SOURCE)) {
 			adaptationManagement.connectNewServerToGreenSource((ConnectGreenSourceParameters) actionParameters,
 					adaptationMessage);
 		}
