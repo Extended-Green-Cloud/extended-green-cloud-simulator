@@ -3,9 +3,12 @@ package com.greencloud.application.agents.client.management;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
 import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.quality.Strictness.LENIENT;
@@ -58,6 +61,7 @@ class ClientStateManagementDatabaseTest {
 		doReturn(mockAID).when(mockClient).getAID();
 		doReturn("ClientMock").when(mockAID).getName();
 		doReturn(database).when(mockNode).getDatabaseClient();
+		doNothing().when(mockNode).updateJobDurationMap(anyMap());
 	}
 
 	@AfterEach
@@ -70,7 +74,7 @@ class ClientStateManagementDatabaseTest {
 	void testWriteClientDataNoSplit() {
 		mockClientManagement.setCurrentJobStatus(IN_PROGRESS);
 		mockClientManagement.jobStatusDurationMap = Map.of(
-				CREATED, 100L,
+				ON_BACK_UP, 100L,
 				PROCESSED, 50L,
 				SCHEDULED, 200L
 		);
@@ -87,7 +91,7 @@ class ClientStateManagementDatabaseTest {
 					final ClientMonitoringData clientData = (ClientMonitoringData) data.monitoringData();
 					return !clientData.getIsFinished() &&
 							clientData.getCurrentJobStatus().equals(IN_PROGRESS) &&
-							clientData.getJobStatusDurationMap().get(CREATED).equals(100L);
+							clientData.getJobStatusDurationMap().get(ON_BACK_UP).equals(100L);
 				});
 	}
 
@@ -109,8 +113,8 @@ class ClientStateManagementDatabaseTest {
 					final ClientMonitoringData clientData = (ClientMonitoringData) data.monitoringData();
 					return clientData.getIsFinished() &&
 							clientData.getCurrentJobStatus().equals(FINISHED) &&
-							clientData.getJobStatusDurationMap().get(CREATED).equals(300L) &&
-							clientData.getJobStatusDurationMap().get(PROCESSED).equals(200L);
+							clientData.getJobStatusDurationMap().get(IN_PROGRESS).equals(300L) &&
+							clientData.getJobStatusDurationMap().get(ON_BACK_UP).equals(200L);
 				});
 	}
 
@@ -118,8 +122,8 @@ class ClientStateManagementDatabaseTest {
 		final JobPart jobPart1 = spy(new JobPart(null,null,null,null,null));
 		final JobPart jobPart2 = spy(new JobPart(null,null,null,null,null));
 
-		doReturn(Map.of(CREATED, 100L, PROCESSED, 50L)).when(jobPart1).getJobStatusDurationMap();
-		doReturn(Map.of(CREATED, 200L, PROCESSED, 150L)).when(jobPart2).getJobStatusDurationMap();
+		doReturn(Map.of(IN_PROGRESS, 100L, ON_BACK_UP, 50L)).when(jobPart1).getJobStatusDurationMap();
+		doReturn(Map.of(IN_PROGRESS, 200L, ON_BACK_UP, 150L)).when(jobPart2).getJobStatusDurationMap();
 
 		doReturn(Map.of("1#1", jobPart1, "1#2", jobPart2)).when(mockClient).getJobParts();
 	}

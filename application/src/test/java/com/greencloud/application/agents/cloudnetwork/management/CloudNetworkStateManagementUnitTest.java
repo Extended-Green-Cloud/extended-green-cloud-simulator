@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
@@ -9,7 +10,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.greencloud.commons.job.JobResultType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,18 +20,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ImmutableClientJob;
+import com.greencloud.commons.job.JobResultType;
 import com.gui.controller.GuiController;
+
+import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
 class CloudNetworkStateManagementUnitTest {
 
 	// MOCK OBJECTS
-
-	private Map<ClientJob, ExecutionJobStatusEnum> MOCK_JOBS;
 
 	@Mock
 	private CloudNetworkAgent mockCloudNetwork;
@@ -47,7 +48,11 @@ class CloudNetworkStateManagementUnitTest {
 
 	@BeforeEach
 	void init() {
-		MOCK_JOBS = setUpCloudNetworkJobs();
+		Map<ClientJob, ExecutionJobStatusEnum> MOCK_JOBS = setUpCloudNetworkJobs();
+		var mockAID = mock(AID.class);
+
+		when(mockAID.getName()).thenReturn("test_name");
+		when(mockCloudNetwork.getAID()).thenReturn(mockAID);
 		when(mockCloudNetwork.getGuiController()).thenReturn(guiController);
 		cloudNetworkStateManagement = new CloudNetworkStateManagement(mockCloudNetwork);
 
@@ -68,10 +73,10 @@ class CloudNetworkStateManagementUnitTest {
 		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.ACCEPTED);
 		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
 		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
-		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FAILED)).isEqualTo(2);
-		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.ACCEPTED)).isEqualTo(1);
-		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FINISH)).isEqualTo(0);
-		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.STARTED)).isEqualTo(0);
+		assertThat(cloudNetworkStateManagement.getJobCounters()).containsEntry(JobResultType.FAILED, 2L);
+		assertThat(cloudNetworkStateManagement.getJobCounters()).containsEntry(JobResultType.ACCEPTED, 1L);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FINISH)).isZero();
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.STARTED)).isZero();
 	}
 
 	// PREPARING TEST DATA
