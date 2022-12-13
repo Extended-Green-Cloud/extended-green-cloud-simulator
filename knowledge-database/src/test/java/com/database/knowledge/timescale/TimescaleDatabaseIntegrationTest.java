@@ -313,13 +313,11 @@ class TimescaleDatabaseIntegrationTest {
 				.weatherPredictionError(0.02)
 				.currentTraffic(10)
 				.successRatio(0.9)
-				.currentMaximumCapacity(100)
 				.build();
 		final GreenSourceMonitoringData data2 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.04)
 				.currentTraffic(15)
 				.successRatio(0.5)
-				.currentMaximumCapacity(60)
 				.build();
 
 		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
@@ -380,6 +378,7 @@ class TimescaleDatabaseIntegrationTest {
 				.as("Resulted data for server should have correct field values")
 				.isInstanceOfSatisfying(ServerMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
+					assertThat(data.getCurrentBackUpPowerUsage()).isEqualTo(0.7);
 				});
 	}
 
@@ -483,6 +482,7 @@ class TimescaleDatabaseIntegrationTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.8)
+				.currentBackUpPowerUsage(0.7)
 				.build();
 		return List.of(
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),

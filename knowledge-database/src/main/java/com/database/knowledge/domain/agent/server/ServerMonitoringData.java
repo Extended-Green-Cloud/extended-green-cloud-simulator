@@ -23,4 +23,9 @@ public interface ServerMonitoringData extends NetworkComponentMonitoringData {
 	 * @return current server traffic
 	 */
 	double getCurrentTraffic();
+
+	/**
+	 * @return current back up power usage
+	 */
+	double getCurrentBackUpPowerUsage();
 }

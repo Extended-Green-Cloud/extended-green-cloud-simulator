@@ -100,12 +100,8 @@ class AddServerPlanUnitTest {
 
 	private List<AgentData> generateTestDataForTrafficValue(Double trafficValue) {
 		return of(new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
-				.currentlyExecutedJobs(2)
-				.currentlyProcessedJobs(2)
 				.successRatio(1.0)
 				.currentMaximumCapacity(200)
-				.jobProcessingLimit(200)
-				.serverPricePerHour(5.0)
 				.currentTraffic(trafficValue)
 				.build()));
 	}
