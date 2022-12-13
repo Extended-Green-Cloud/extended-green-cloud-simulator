@@ -1,6 +1,6 @@
 package com.gui.message;
 
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.LinkedList;
 
 import org.immutables.value.Value;
 
@@ -13,7 +13,7 @@ import com.gui.message.domain.Message;
 @JsonDeserialize(as = ImmutableUpdateJobQueueMessage.class)
 @Value.Immutable
 public interface UpdateJobQueueMessage extends Message {
-	PriorityBlockingQueue<ClientJob> getData();
+	LinkedList<ClientJob> getData();
 
 	default String getType() {
 		return "UPDATE_JOB_QUEUE";

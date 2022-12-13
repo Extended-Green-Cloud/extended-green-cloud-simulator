@@ -93,7 +93,6 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 						myCloudNetworkAgent.manage().getCurrentPowerInUse(), replyMessage);
 
 				myCloudNetworkAgent.getServerForJobMap().put(job.getJobId(), chosenServerOffer.getSender());
-				myCloudNetworkAgent.manageConfig().saveMonitoringData();
 				myCloudNetworkAgent.addBehaviour(new InitiateMakingNewJobOffer(myCloudNetworkAgent, offer, reply));
 				rejectJobOffers(myCloudNetworkAgent, mapToJobInstanceId(job), chosenServerOffer, proposals);
 			} else {
@@ -104,7 +103,6 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 
 	private void handleRejectedJob() {
 		myCloudNetworkAgent.getNetworkJobs().remove(job);
-		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myCloudNetworkAgent.manage().updateCloudNetworkGUI();
 		myAgent.send(prepareRefuseReply(replyMessage));
 	}

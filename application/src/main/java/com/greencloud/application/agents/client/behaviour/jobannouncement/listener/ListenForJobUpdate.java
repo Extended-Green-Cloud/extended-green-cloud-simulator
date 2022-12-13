@@ -55,7 +55,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
-import com.greencloud.commons.job.ClientJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -64,7 +63,9 @@ import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.application.domain.job.SplitJob;
+import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -187,6 +188,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		if (!myClientAgent.isSplit()) {
 			myClientAgent.setSimulatedJobStart(postponedStart);
 			myClientAgent.setSimulatedJobEnd(postponedEnd);
+			myNode.updateJobTimeFrame(convertToRealTime(myClientAgent.getSimulatedJobStart()),
+					convertToRealTime(myClientAgent.getSimulatedJobEnd()));
 			return;
 		}
 
@@ -194,6 +197,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		var jobPart = myClientAgent.getJobParts().get(jobPartId);
 		jobPart.setSimulatedJobStart(postponedStart);
 		jobPart.setSimulatedJobEnd(postponedEnd);
+		myNode.updateJobTimeFrame(convertToRealTime(jobPart.getSimulatedJobStart()),
+				convertToRealTime(jobPart.getSimulatedJobEnd()), jobPartId);
 	}
 
 	private void processFailedJob() {
@@ -216,11 +221,15 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			logger.info(CLIENT_JOB_RESCHEDULED_LOG);
 			myClientAgent.setSimulatedJobStart(newTimeFrames.getNewJobStart());
 			myClientAgent.setSimulatedJobEnd(newTimeFrames.getNewJobEnd());
+			myNode.updateJobTimeFrame(convertToRealTime(myClientAgent.getSimulatedJobStart()),
+					convertToRealTime(myClientAgent.getSimulatedJobEnd()));
 			return;
 		}
 		var jobPart = myClientAgent.getJobParts().get(newTimeFrames.getJobId());
 		jobPart.setSimulatedJobStart(newTimeFrames.getNewJobStart());
 		jobPart.setSimulatedJobEnd(newTimeFrames.getNewJobEnd());
+		myNode.updateJobTimeFrame(convertToRealTime(jobPart.getSimulatedJobStart()),
+				convertToRealTime(jobPart.getSimulatedJobEnd()), newTimeFrames.getJobId());
 	}
 
 	private void processJobPartBasedOnStatus(ACLMessage message, ClientJobStatusEnum status) {
@@ -270,7 +279,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 		logger.info(CLIENT_JOB_SPLIT_LOG);
 		myClientAgent.split();
-		myNode.informAboutSplitJob(jobParts);
+		myNode.informAboutSplitJob(jobParts.stream().map(JobMapper::mapToClientJobRealTime).toList());
 		jobParts.forEach(jobPart ->
 				myClientAgent.getJobParts().put(jobPart.getJobId(), new JobPart(jobPart, CREATED,
 						myClientAgent.getSimulatedJobStart(), myClientAgent.getSimulatedJobEnd(),

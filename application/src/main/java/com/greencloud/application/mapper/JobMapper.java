@@ -80,6 +80,21 @@ public class JobMapper {
 	}
 
 	/**
+	 * @param job client job to be mapped to job
+	 * @return ClientJob
+	 */
+	public static ClientJob mapToClientJobRealTime(final ClientJob job) {
+		return ImmutableClientJob.builder()
+				.clientIdentifier(job.getClientIdentifier())
+				.jobId(job.getJobId())
+				.power(job.getPower())
+				.startTime(convertToRealTime(job.getStartTime()))
+				.endTime(convertToRealTime(job.getEndTime()))
+				.deadline(convertToRealTime(job.getDeadline()))
+				.build();
+	}
+
+	/**
 	 * @param job       job to be mapped to job
 	 * @param startTime new job start time
 	 * @return Job
@@ -161,7 +176,7 @@ public class JobMapper {
 
 	/**
 	 * @param powerJob power job
-	 * @param server server that sent given job
+	 * @param server   server that sent given job
 	 * @return ServerJob
 	 */
 	public static ServerJob mapToServerJob(final PowerJob powerJob, final AID server) {

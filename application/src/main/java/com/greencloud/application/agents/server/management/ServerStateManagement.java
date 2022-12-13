@@ -6,16 +6,6 @@ import static com.greencloud.application.agents.server.management.logs.ServerMan
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_PROCESS_LOG;
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.COUNT_JOB_START_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobFinishMessage;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
@@ -24,6 +14,15 @@ import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
@@ -39,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -55,6 +53,7 @@ import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.application.utils.AlgorithmUtils;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.gui.agents.ServerAgentNode;
 
@@ -87,7 +86,9 @@ public class ServerStateManagement {
 	 */
 	public synchronized int getAvailableCapacity(final Instant startDate, final Instant endDate,
 			final JobInstanceIdentifier jobToExclude, final Set<ExecutionJobStatusEnum> statusEnums) {
-		final Set<ExecutionJobStatusEnum> statuses = Objects.isNull(statusEnums) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusEnums;
+		final Set<ExecutionJobStatusEnum> statuses = Objects.isNull(statusEnums) ?
+				ACCEPTED_BY_SERVER_JOB_STATUSES :
+				statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job))).collect(Collectors.toSet());
@@ -120,7 +121,8 @@ public class ServerStateManagement {
 
 		if (executionJobStatusEnum.equals(IN_PROGRESS_BACKUP_ENERGY) || executionJobStatusEnum.equals(
 				IN_PROGRESS_BACKUP_ENERGY_PLANNED)) {
-			final Map<ClientJob, ExecutionJobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet().stream()
+			final Map<ClientJob, ExecutionJobStatusEnum> jobsWithinTimeStamp = serverAgent.getServerJobs().entrySet()
+					.stream()
 					.filter(job -> isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
 							getCurrentTime())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			supplyJobsWithBackupPower(jobsWithinTimeStamp);
@@ -272,12 +274,8 @@ public class ServerStateManagement {
 				0 :
 				((double) getCurrentPowerInUseForServer()) / serverAgent.getCurrentMaximumCapacity();
 		final ServerMonitoringData serverMonitoringData = ImmutableServerMonitoringData.builder()
-				.jobProcessingLimit(serverAgent.manageConfig().getJobProcessingLimit())
-				.serverPricePerHour(serverAgent.manageConfig().getPricePerHour()).currentlyExecutedJobs(getJobCount())
 				.currentMaximumCapacity(serverAgent.getCurrentMaximumCapacity())
-				.currentlyProcessedJobs(getProcessedJobCount())
 				.currentTraffic(trafficOverall)
-				.weightsForGreenSources(serverAgent.manageConfig().weightsForGreenSourcesMap)
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
 				.build();
 		serverAgent.writeMonitoringData(SERVER_MONITORING, serverMonitoringData);
@@ -328,13 +326,6 @@ public class ServerStateManagement {
 				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(Collectors.toSet()).size();
-	}
-
-	private int getProcessedJobCount() {
-		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> PROCESSING.equals(job.getValue()) && isWithinTimeStamp(job.getKey().getStartTime(),
-						job.getKey().getEndTime(), getCurrentTime())).map(Map.Entry::getKey).map(ClientJob::getJobId)
-				.collect(Collectors.toSet()).size();
 	}
 
 	private int getClientNumber() {

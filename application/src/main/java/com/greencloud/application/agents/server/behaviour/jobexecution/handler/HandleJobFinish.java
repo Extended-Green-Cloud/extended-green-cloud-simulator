@@ -5,9 +5,7 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Objects;
 
@@ -57,13 +55,9 @@ public class HandleJobFinish extends WakerBehaviour {
 	 */
 	public static HandleJobFinish createFor(final ServerAgent serverAgent, final ClientJob jobToFinish,
 			final boolean informCNA) {
-		final long jobDuration = Duration.between(jobToFinish.getStartTime(), jobToFinish.getEndTime()).toMillis();
-		final Instant expectedEndTime = getCurrentTime().plus(jobDuration, ChronoUnit.MILLIS);
-
-		final Instant endTime = getCurrentTime().isAfter(jobToFinish.getDeadline()) ?
+		final Instant endTime = getCurrentTime().isAfter(jobToFinish.getEndTime()) ?
 				getCurrentTime() :
-				(expectedEndTime.isAfter(jobToFinish.getDeadline()) ? jobToFinish.getDeadline() : expectedEndTime);
-
+				jobToFinish.getEndTime();
 		return new HandleJobFinish(serverAgent, Date.from(endTime), jobToFinish, informCNA);
 	}
 
