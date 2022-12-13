@@ -1,5 +1,6 @@
 package com.gui.agents;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -12,7 +13,7 @@ import com.gui.message.domain.ImmutableCapacity;
 /**
  * Class represents abstract generic agent node which is a part of cloud network
  */
-public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
+public abstract class AbstractNetworkAgentNode extends AbstractAgentNode implements Serializable {
 
 	protected double initialMaximumCapacity;
 	protected AtomicReference<Double> currentMaximumCapacity;

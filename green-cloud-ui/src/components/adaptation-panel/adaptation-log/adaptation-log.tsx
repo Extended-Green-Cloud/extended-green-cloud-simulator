@@ -2,24 +2,25 @@ import React, { useState } from 'react'
 
 import { styles } from './adaptation-log-styles'
 
-import { useAppSelector } from '@store'
 import LogEntry from './log-entry/log-entry'
 import FullLogModal from './full-log-modal/full-log-modal'
 import { ModalButton } from 'components/common'
+import { AdaptationLog } from '@types'
+
+interface Props {
+   sortedLogs: AdaptationLog[]
+}
 
 /**
  * Component represents tab summarizing the latest logs regarding the system adaptation
  *
  * @returns JSX Element
  */
-const AdaptationLog = () => {
+export const AdaptationLogPanel = ({ sortedLogs }: Props) => {
    const [isOpen, setIsOpen] = useState(false)
-   const logs = useAppSelector((state) => state.managingSystem.adaptationLogs)
-   const sortedLogs = [...logs].sort((log1, log2) => log2.time - log1.time)
-
    return (
       <>
-         {logs.length !== 0 && (
+         {sortedLogs.length !== 0 && (
             <div>
                <LogEntry adaptationLog={sortedLogs[0]} />
                <ModalButton
@@ -40,5 +41,3 @@ const AdaptationLog = () => {
       </>
    )
 }
-
-export default AdaptationLog

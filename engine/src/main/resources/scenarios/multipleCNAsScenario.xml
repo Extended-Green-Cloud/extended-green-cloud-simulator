@@ -18,6 +18,12 @@
 		<monitoringAgent>
 			<name>Weather2</name>
 		</monitoringAgent>
+		<monitoringAgent>
+			<name>Weather3</name>
+		</monitoringAgent>
+		<monitoringAgent>
+			<name>Weather4</name>
+		</monitoringAgent>
 	</monitoringAgentsArgs>
 	<greenEnergyAgentsArgs>
 		<greenenergyAgent>
@@ -44,7 +50,7 @@
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm</name>
-			<monitoringAgent>Weather1</monitoringAgent>
+			<monitoringAgent>Weather3</monitoringAgent>
 			<ownerSever>Server2</ownerSever>
 			<latitude>50.0</latitude>
 			<longitude>30.1</longitude>
@@ -55,7 +61,7 @@
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>SolarFarm</name>
-			<monitoringAgent>Weather2</monitoringAgent>
+			<monitoringAgent>Weather4</monitoringAgent>
 			<ownerSever>Server3</ownerSever>
 			<latitude>10.0</latitude>
 			<longitude>88.1</longitude>

@@ -3,23 +3,26 @@ import React, { useState } from 'react'
 import './css/system-indicator.css'
 
 import { DetailsField } from '@components'
-import { useAppSelector } from '@store'
 import {
    ADAPTATION_STATISTICS_FIELDS,
    COUNTERS,
 } from '../adaptation-panel-config'
 import { styles } from './adaptation-statistics-style'
 import SystemIndicatorModal from './system-indicator-modal/system-indicator-modal'
+import { ManagingSystemStore } from '@types'
+
+interface Props {
+   managingSystem: ManagingSystemStore
+}
 
 /**
  * Component represents fields containing adaptation statistics
  *
  * @returns JSX Element
  */
-const AdaptationStatistics = () => {
+export const AdaptationStatistics = ({ managingSystem }: Props) => {
    const [isOpen, setIsOpen] = useState(false)
    const { fieldContainerStyle, fieldValueStyle, fieldLabelStyle } = styles
-   const managingSystem = useAppSelector((state) => state.managingSystem)
 
    const getIndicatorLabel = (label: string) => (
       <div
@@ -75,5 +78,3 @@ const AdaptationStatistics = () => {
       </div>
    )
 }
-
-export default AdaptationStatistics

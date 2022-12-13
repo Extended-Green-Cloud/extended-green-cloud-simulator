@@ -58,6 +58,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return containerController.createNewAgent(cloudNetworkAgent.getName(),
 					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent", new Object[] {});
 		} else if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgent) {
+			// TODO add connectedServers() when done
 			return containerController.createNewAgent(greenEnergyAgent.getName(),
 					"com.greencloud.application.agents.greenenergy.GreenEnergyAgent",
 					new Object[] { greenEnergyAgent.getMonitoringAgent(),

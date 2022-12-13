@@ -1,5 +1,5 @@
 import { JobStatus } from 'types/enum/job-status-enum'
-import { Job, SplitJob } from 'types/job'
+import { Job, JobDurationMap, SplitJob } from 'types/job'
 import { CommonAgentInterface } from './common/common-agent'
 
 export interface ClientAgent extends CommonAgentInterface {
@@ -7,4 +7,5 @@ export interface ClientAgent extends CommonAgentInterface {
    status: JobStatus
    isSplit: boolean
    splitJobs: SplitJob[]
+   durationMap: JobDurationMap
 }

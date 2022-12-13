@@ -16,6 +16,10 @@ import java.util.Objects;
 
 import org.greencloud.managingsystem.agent.behaviour.knowledge.DisableAdaptationActions;
 import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
+import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
+import org.greencloud.managingsystem.service.executor.ExecutorService;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +60,6 @@ public class ManagingAgent extends AbstractManagingAgent {
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 		getContentManager().registerLanguage(new SLCodec());
 		getContentManager().registerOntology(MobilityOntology.getInstance());
-		containersLocations = findContainersLocations();
 	}
 
 	/**
@@ -99,9 +102,14 @@ public class ManagingAgent extends AbstractManagingAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for green source agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
+
+		this.monitoringService = new MonitoringService(this);
+		this.analyzerService = new AnalyzerService(this);
+		this.plannerService = new PlannerService(this);
+		this.executorService = new ExecutorService(this);
 	}
 
 	private List<Behaviour> behavioursRunAtStart() {
@@ -111,7 +119,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 		);
 	}
 
-	private List<Location> findContainersLocations() {
+	public List<Location> findContainersLocations() {
 		prepareAndSendPlatformLocationsQuery();
 		Result result = receiveLocationsResponseFromAms();
 		List<Location> list = getLocationsFromQueryResult(result);

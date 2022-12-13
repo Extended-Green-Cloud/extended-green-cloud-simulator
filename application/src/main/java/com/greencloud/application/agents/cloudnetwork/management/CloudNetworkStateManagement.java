@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.cloudnetwork.management.logs.Clo
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_FINISH_LOG;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_PROCESS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_START_LOG;
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
@@ -24,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
@@ -86,7 +90,10 @@ public class CloudNetworkStateManagement {
 		return jobCounters;
 	}
 
-	private void updateCloudNetworkGUI() {
+	/**
+	 * Method updates Cloud Network statistics in GUI
+	 */
+	public void updateCloudNetworkGUI() {
 		final CloudNetworkAgentNode cloudNetworkAgentNode = (CloudNetworkAgentNode) cloudNetworkAgent.getAgentNode();
 
 		if (nonNull(cloudNetworkAgentNode)) {
@@ -97,6 +104,16 @@ public class CloudNetworkStateManagement {
 			cloudNetworkAgentNode.updateTraffic(getCurrentPowerInUse());
 			cloudNetworkAgentNode.updateCurrentJobSuccessRatio(successRatio);
 		}
+		saveMonitoringData();
+	}
+
+	private void saveMonitoringData() {
+		var successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED));
+		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
+				.successRatio(successRatio)
+				.build();
+		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
+		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
 	}
 
 	private int getJobInProgressCount() {

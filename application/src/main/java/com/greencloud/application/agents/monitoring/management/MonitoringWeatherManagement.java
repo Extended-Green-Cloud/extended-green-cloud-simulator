@@ -5,6 +5,7 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.Comparator.comparingLong;
 import static java.util.Objects.nonNull;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,11 +30,12 @@ import com.greencloud.commons.location.Location;
 /**
  * Set of methods used in weather management
  */
-public class MonitoringWeatherManagement {
+public class MonitoringWeatherManagement implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringWeatherManagement.class);
-	private final OpenWeatherMapApi api;
-	private final WeatherCache cache;
+
+	private final transient OpenWeatherMapApi api;
+	private final transient WeatherCache cache;
 
 	/**
 	 * Default constructor

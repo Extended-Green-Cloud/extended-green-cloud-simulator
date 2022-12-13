@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { styles } from './banner-styles'
 import { iconCloud, iconMenu } from '@assets'
-import MenuModal from 'components/menu-modal/menu-modal'
+import MenuModal from 'components/banner/menu-modal/menu-modal-connected'
 import { ModalButton } from 'components/common'
 
 const header = 'Green cloud network'

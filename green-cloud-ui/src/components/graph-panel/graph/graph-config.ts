@@ -1,5 +1,7 @@
-import { iconPause, iconBattery, iconWeather } from '@assets'
+// @ts-nocheck
+import { iconPause, iconBattery, iconWeather, iconGearDark } from '@assets'
 import React from 'react'
+import Cytoscape from 'cytoscape'
 
 const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
    {
@@ -35,6 +37,120 @@ const COMMON_STYLESHEET: Array<cytoscape.Stylesheet> = [
    },
 ]
 
+const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
+   {
+      selector: "node[adaptation = 'active']",
+      style: {
+         'background-image': iconGearDark,
+         'background-clip': 'none',
+         'background-image-containment': 'over',
+         'bounds-expansion': '100',
+      },
+   },
+   {
+      selector: "node[type = 'GREEN_ENERGY'][adaptation = 'active']",
+      style: {
+         'background-width': '20',
+         'background-height': '20',
+         'background-offset-y': '-50',
+      },
+   },
+   {
+      selector: "node[type = 'GREEN_ENERGY'][state = 'on_hold']",
+      style: {
+         'border-color': '#DB432C',
+         'background-color': '#DB432C',
+         'background-image': iconPause,
+         'background-fit': 'cover',
+      },
+   },
+   {
+      selector:
+         "node[type = 'GREEN_ENERGY'][state = 'on_hold'][adaptation = 'active']",
+      style: {
+         'border-color': '#DB432C',
+         'background-color': '#DB432C',
+         'background-image': [iconGearDark, iconPause],
+         'background-fit': ['none', 'contain'],
+      },
+   },
+   {
+      selector: "node[type = 'SERVER'][adaptation = 'active']",
+      style: {
+         'background-width': '19',
+         'background-height': '19',
+         'background-offset-y': '-60',
+      },
+   },
+   {
+      selector: "node[type = 'SERVER'][state = 'on_hold']",
+      style: {
+         'border-color': '#DB432C',
+         'background-image': iconPause,
+         'background-fit': 'contain',
+      },
+   },
+   {
+      selector: "node[type = 'SERVER'][state = 'back_up']",
+      style: {
+         'border-color': '#8AE423',
+         'background-image': iconBattery,
+         'background-fit': 'contain',
+      },
+   },
+   {
+      selector:
+         "node[type = 'SERVER'][state = 'on_hold'][adaptation: 'active']",
+      style: {
+         'border-color': '#DB432C',
+         'background-image': [iconGearDark, iconPause],
+         'background-fit': ['none', 'contain'],
+      },
+   },
+   {
+      selector:
+         "node[type = 'SERVER'][state = 'back_up'][adaptation: 'active']",
+      style: {
+         'border-color': '#8AE423',
+         'background-image': [iconGearDark, iconBattery],
+         'background-fit': ['none', 'contain'],
+      },
+   },
+   {
+      selector: "node[type = 'CLOUD_NETWORK'][adaptation = 'active']",
+      style: {
+         'background-width': '23',
+         'background-height': '23',
+         'background-offset-y': '-75',
+      },
+   },
+   {
+      selector: "node[type = 'SCHEDULER']",
+      style: {
+         'background-width': '23',
+         'background-height': '23',
+         'background-offset-y': '-80',
+      },
+   },
+]
+
+const SCHEDULER_STYLESHEET: Array<cytoscape.Stylesheet> = [
+   {
+      selector: "node[type = 'SCHEDULER']",
+      style: {
+         width: '60',
+         height: '60',
+         shape: 'ellipse',
+         'background-color': '#ffffff',
+         'border-color': '#8AE423',
+         'border-style': 'double',
+         'text-margin-y': -12,
+         'border-opacity': 1,
+         'border-width': 8,
+      },
+   },
+]
+
 const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
    {
       selector: "node[type = 'CLOUD_NETWORK']",
@@ -45,25 +161,25 @@ const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
       },
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][traffic = 'inactive']",
+      selector: "node[type = 'CLOUD_NETWORK'][state = 'inactive']",
       style: {
          'background-color': '#8C8C8C',
       },
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][traffic = 'low']",
+      selector: "node[type = 'CLOUD_NETWORK'][state = 'low']",
       style: {
          'background-color': '#8AE423',
       },
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][traffic = 'medium']",
+      selector: "node[type = 'CLOUD_NETWORK'][state = 'medium']",
       style: {
          'background-color': '#FDBB2A',
       },
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][traffic = 'high']",
+      selector: "node[type = 'CLOUD_NETWORK'][state = 'high']",
       style: {
          'background-color': '#DB432C',
       },
@@ -94,24 +210,6 @@ const SERVER_STYLESHEET: Array<cytoscape.Stylesheet> = [
          'border-color': '#8AE423',
       },
    },
-   {
-      selector: "node[type = 'SERVER'][state = 'on_hold']",
-      style: {
-         'border-color': '#DB432C',
-         'background-image': iconPause,
-         'background-image-opacity': 1,
-         'background-fit': 'contain',
-      },
-   },
-   {
-      selector: "node[type = 'SERVER'][state = 'back_up']",
-      style: {
-         'border-color': '#8AE423',
-         'background-image': iconBattery,
-         'background-image-opacity': 1,
-         'background-fit': 'contain',
-      },
-   },
 ]
 
 const GREEN_ENERGY_STYLESHEET: Array<cytoscape.Stylesheet> = [
@@ -137,16 +235,6 @@ const GREEN_ENERGY_STYLESHEET: Array<cytoscape.Stylesheet> = [
       style: {
          'border-color': '#58B905',
          'background-color': '#8AE423',
-      },
-   },
-   {
-      selector: "node[type = 'GREEN_ENERGY'][state = 'on_hold']",
-      style: {
-         'border-color': '#DB432C',
-         'background-color': '#DB432C',
-         'background-image': iconPause,
-         'background-image-opacity': 1,
-         'background-fit': 'cover',
       },
    },
 ]
@@ -184,21 +272,24 @@ export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
       .concat(SERVER_STYLESHEET)
       .concat(GREEN_ENERGY_STYLESHEET)
       .concat(MONITORING_STYLESHEET)
+      .concat(SCHEDULER_STYLESHEET)
+      .concat(IMAGE_STYLESHEET)
 
-export const GRAPH_LAYOUT = {
+export const GRAPH_LAYOUT: Cytoscape.LayoutOptions = {
    name: 'fcose',
-   quality: 'draft',
+   quality: 'default',
    fit: true,
-   animation: true,
+   animate: false,
    animationDuration: 1000,
    padding: 20,
    packComponents: false,
    nodeRepulsion: 3000,
    edgeElasticity: 0.05,
    gravity: 0.2,
-   idealEdgeLength: 40,
-   nodeSeparation: 60,
-   sampleSize: 50,
+   idealEdgeLength: 50,
+   nodeSeparation: 80,
+   sampleSize: 100,
+   samplingType: true,
 }
 
 export const GRAPH_STYLE: React.CSSProperties = {

@@ -5,14 +5,14 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.cancella
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.logs.JobCancellationLogs.CANCELLING_JOB_PARTS_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.cancellation.templates.JobCancellationMessageTemplates.CANCEL_JOB_ANNOUNCEMENT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.List.of;
@@ -20,13 +20,13 @@ import static java.util.Objects.nonNull;
 
 import java.util.List;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-
+import com.greencloud.application.mapper.JobMapper;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.PowerJob;
 
@@ -62,14 +62,15 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 	}
 
 	private void processJobCancellation(String originalJobId, ACLMessage message) {
-		var jobParts = List.copyOf(filter(myGreenEnergyAgent.getServerJobs().keySet(),
-				job -> job.getJobId().split("#")[0].equals(originalJobId)));
+		var jobParts = List.copyOf((filter(myGreenEnergyAgent.getServerJobs().keySet(),
+				job -> job.getJobId().split("#")[0].equals(originalJobId))));
 		if (!jobParts.isEmpty()) {
 			myGreenEnergyAgent.send(prepareStringReply(message.createReply(), originalJobId, AGREE));
 			MDC.put(MDC_JOB_ID, originalJobId);
 			logger.info(CANCELLING_JOB_PARTS_LOG, jobParts.size());
 			jobParts.forEach(this::processJobPart);
-			myGreenEnergyAgent.send(prepareReply(message.createReply(), jobParts, INFORM));
+			var powerJobParts = jobParts.stream().map(JobMapper::mapServerJobToPowerJob).toList();
+			myGreenEnergyAgent.send(prepareReply(message.createReply(), powerJobParts, INFORM));
 		} else {
 			myGreenEnergyAgent.send(prepareRefuseReply(message.createReply()));
 		}

@@ -23,7 +23,8 @@ const DetailsCard = ({ fieldMap, title, objectMap }: Props) => {
    const parseField = (label: string, key: string) => {
       const value = { ...objectMap }[key]
       return (
-         value && (
+         value !== undefined &&
+         value !== null && (
             <div style={fieldWrapper}>
                <div style={fieldLabel}>{label}</div>
                <div style={fieldValue}>{value}</div>

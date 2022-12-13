@@ -5,12 +5,14 @@ import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentC
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToClientJobRealTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -73,8 +75,11 @@ public class SchedulerStateManagement {
 	 * Method updates GUI with new job queue
 	 */
 	public void updateJobQueue() {
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(
-				schedulerAgent.getJobsToBeExecuted());
+		var queueCopy = new LinkedList<>(schedulerAgent.getJobsToBeExecuted());
+		var mappedQueue = new LinkedList<ClientJob>();
+
+		queueCopy.iterator().forEachRemaining(el -> mappedQueue.add(mapToClientJobRealTime(el)));
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(mappedQueue);
 	}
 
 	/**
