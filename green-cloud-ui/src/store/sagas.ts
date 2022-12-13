@@ -4,16 +4,17 @@ import { agentsActions } from './agent'
 import { cloudNetworkActions } from './cloud-network'
 import { toast } from 'react-toastify'
 import { managinSystemActions } from './managing-system'
+import { graphActions } from './graph'
 
 /**
  * Saga responsible for wathich the state fetching action
  */
 export function* watchFetchState() {
    while (true) {
-      yield take(cloudNetworkActions.startNetworkStateFetching)
+      yield take(cloudNetworkActions.openServerConnection)
       yield race({
          fetch: call(fetchState),
-         finish: take(cloudNetworkActions.finishNetworkStateFetching),
+         finish: take(cloudNetworkActions.closeServerConnection),
       })
    }
 }
@@ -37,14 +38,15 @@ function* fetchState() {
             put(agentsActions.setAgentsData(data.agents)),
             put(cloudNetworkActions.setNetworkData(data.network)),
             put(managinSystemActions.setAdaptationData(data.managingSystem)),
+            put(graphActions.setGraphData(data.graph)),
          ])
-         yield delay(200)
+         yield delay(300)
       } catch (err: any) {
          if (err.code === 'ERR_NETWORK') {
             console.error('Server is disconnected')
             toast.dismiss()
             toast.error('Server is disconnected')
-            yield put(cloudNetworkActions.finishNetworkStateFetching())
+            yield put(cloudNetworkActions.closeServerConnection())
          }
          console.error('An error occured while fetching the agent data: ' + err)
       }
