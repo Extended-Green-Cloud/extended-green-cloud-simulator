@@ -7,6 +7,7 @@ import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static com.greencloud.commons.agent.AgentType.SERVER;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingDouble;
@@ -31,6 +32,8 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.planner.domain.AgentsBackUpPower;
+import org.greencloud.managingsystem.service.planner.domain.AgentsPowerShortages;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
@@ -49,7 +52,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 
 	protected static final double PERCENTAGE_DIFFERENCE = 0.02;
 	private static final double MINIMUM_PREDICTION_ERROR = 0.02;
-	private Map<Map.Entry<String, Double>, Map<String, Integer>> greenSourcesPerServers;
+	private Map<AgentsBackUpPower, List<AgentsPowerShortages>> greenSourcesPerServers;
 
 	public DecrementGreenSourceErrorPlan(ManagingAgent managingAgent) {
 		super(DECREASE_GREEN_SOURCE_ERROR, managingAgent);
@@ -69,7 +72,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 	@Override
 	public boolean isPlanExecutable() {
 		final double threshold = managingAgent.monitor().getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).threshold();
-		final Map<String, Double> consideredServers = getConsideredServers(threshold);
+		final List<AgentsBackUpPower> consideredServers = getConsideredServers(threshold);
 
 		// verifying if servers of interest are present
 		if (consideredServers.isEmpty()) {
@@ -94,13 +97,13 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 			return null;
 		}
 
-		final Map.Entry<String, Double> selectedServer = greenSourcesPerServers.keySet().stream()
-				.max(comparingDouble(Map.Entry::getValue))
+		final AgentsBackUpPower selectedServer = greenSourcesPerServers.keySet().stream()
+				.max(comparingDouble(AgentsBackUpPower::value))
 				.orElseThrow();
-		final String selectedGreenSource = greenSourcesPerServers.get(selectedServer).entrySet().stream()
-				.min(comparingInt(Map.Entry::getValue))
+		final String selectedGreenSource = greenSourcesPerServers.get(selectedServer).stream()
+				.min(comparingInt(AgentsPowerShortages::value))
 				.orElseThrow()
-				.getKey();
+				.name();
 
 		targetAgent = new AID(selectedGreenSource, AID.ISGUID);
 		actionParameters = ImmutableAdjustGreenSourceErrorParameters.builder()
@@ -109,11 +112,11 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected Map<String, Double> getConsideredServers(final double threshold) {
+	protected List<AgentsBackUpPower> getConsideredServers(final double threshold) {
 		final List<String> aliveServers = managingAgent.monitor().getAliveAgents(SERVER);
 
 		if (aliveServers.isEmpty()) {
-			return emptyMap();
+			return emptyList();
 		}
 
 		final ToDoubleFunction<AgentData> getBackUpUsage =
@@ -124,45 +127,55 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, aliveServers, MONITOR_SYSTEM_DATA_TIME_PERIOD)
 				.stream().collect(groupingBy(AgentData::aid, TreeMap::new, averagingDouble(getBackUpUsage)))
 				.entrySet().stream()
-				.collect(filtering(isWithinThreshold, toMap(Map.Entry::getKey, Map.Entry::getValue)));
+				.filter(isWithinThreshold)
+				.map(entry -> new AgentsBackUpPower(entry.getKey(), entry.getValue()))
+				.toList();
 	}
 
 	@VisibleForTesting
-	protected Map<Map.Entry<String, Double>, Map<String, Integer>> getGreenSourcesPerServers(
-			final Map<String, Double> servers) {
+	protected Map<AgentsBackUpPower, List<AgentsPowerShortages>> getGreenSourcesPerServers(
+			final List<AgentsBackUpPower> servers) {
 		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_SOURCE);
 
 		if (aliveGreenSources.isEmpty()) {
 			return emptyMap();
 		}
 
-		return servers.entrySet().stream()
+		return servers.stream()
 				.map(server -> getValidGreenSourcesForServer(server, aliveGreenSources))
 				.filter(entry -> !entry.getValue().isEmpty())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private Map.Entry<Map.Entry<String, Double>, Map<String, Integer>> getValidGreenSourcesForServer(
-			final Map.Entry<String, Double> server, final List<String> aliveGreenSources) {
+	@VisibleForTesting
+	protected Map.Entry<AgentsBackUpPower, List<AgentsPowerShortages>> getValidGreenSourcesForServer(
+			final AgentsBackUpPower server, final List<String> aliveGreenSources) {
 
 		final List<String> greenSourcesForServer = managingAgent.getGreenCloudStructure()
-				.getGreenSourcesForServerAgent(server.getKey().split("@")[0]);
+				.getGreenSourcesForServerAgent(server.name().split("@")[0]);
 		final List<String> consideredGreenSources = getGreenSourcesWithCorrectError(
 				getAliveAgentsIntersection(aliveGreenSources, greenSourcesForServer));
 
+		return new AbstractMap.SimpleEntry<>(server,
+				getGreenSourcesWithCorrectPowerShortageCount(consideredGreenSources));
+	}
+
+	@VisibleForTesting
+	protected List<AgentsPowerShortages> getGreenSourcesWithCorrectPowerShortageCount(
+			final List<String> consideredGreenSources) {
 		final ToIntFunction<AgentData> getShortageCount = data ->
 				((WeatherShortages) data.monitoringData()).weatherShortagesNumber();
 		final Predicate<Map.Entry<String, Integer>> isPowerShortageCountCorrect = entry ->
 				entry.getValue() < POWER_SHORTAGE_THRESHOLD;
 
-		final Map<String, Integer> validGreenSources = managingAgent.getAgentNode().getDatabaseClient()
+		return managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, consideredGreenSources,
 						MONITOR_SYSTEM_DATA_TIME_PERIOD).stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, summingInt(getShortageCount)))
 				.entrySet().stream()
-				.collect(filtering(isPowerShortageCountCorrect, toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-		return new AbstractMap.SimpleEntry<>(server, validGreenSources);
+				.filter(isPowerShortageCountCorrect)
+				.map(entry -> new AgentsPowerShortages(entry.getKey(), entry.getValue()))
+				.toList();
 	}
 
 	@VisibleForTesting
