@@ -2,12 +2,10 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
@@ -20,12 +18,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
@@ -63,7 +59,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				managingAgent.getAgentNode().getDatabaseClient()
 						.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
 		final Map<String, Double> greenSourceErrorMap =
-				getGreenSourcesWithErrors(greenSourceData, getAliveGreenSources());
+				getGreenSourcesWithErrors(greenSourceData, managingAgent.monitor().getAliveAgents(GREEN_SOURCE));
 
 		if (greenSourceErrorMap.isEmpty()) {
 			return false;
@@ -95,23 +91,6 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 	public void setGreenSourcesPowerShortages(Map<String, Integer> greenSourcesPowerShortages) {
 		this.greenSourcesPowerShortages = greenSourcesPowerShortages;
-	}
-
-	@VisibleForTesting
-	protected List<String> getAliveGreenSources() {
-		final List<AgentData> greenSourceData =
-				managingAgent.getAgentNode().getDatabaseClient()
-						.readMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
-
-		final Predicate<MonitoringData> isGSAlive = data -> {
-			var healthData = ((HealthCheck) data);
-			return healthData.alive() && healthData.agentType().equals(GREEN_SOURCE);
-		};
-
-		return greenSourceData.stream()
-				.filter(data -> data.dataType().equals(HEALTH_CHECK) && isGSAlive.test(data.monitoringData()))
-				.map(AgentData::aid)
-				.collect(Collectors.toSet()).stream().toList();
 	}
 
 	@VisibleForTesting

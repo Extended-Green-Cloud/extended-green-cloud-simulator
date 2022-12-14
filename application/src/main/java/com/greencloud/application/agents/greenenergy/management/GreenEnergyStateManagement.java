@@ -263,7 +263,6 @@ public class GreenEnergyStateManagement {
 				currentMaxCapacity == 0 ? 0 : ((double) getCurrentPowerInUseForGreenSource()) / currentMaxCapacity;
 
 		final GreenSourceMonitoringData greenSourceMonitoring = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(currentMaxCapacity)
 				.currentTraffic(trafficOverall)
 				.weatherPredictionError(greenEnergyAgent.getWeatherPredictionError())
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))

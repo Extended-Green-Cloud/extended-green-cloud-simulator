@@ -75,7 +75,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_SOURCES_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
 		} else if (myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null)
-				   <= job.getPower()) {
+				< job.getPower()) {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_POWER_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
 		} else {

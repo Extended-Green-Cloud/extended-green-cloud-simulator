@@ -68,7 +68,7 @@ class SubscribeGreenSourceServiceUnitTest {
 		subscribeGreenSourceService.handleInform(prepareDFMessage());
 
 		verify(mockServerAgent).getOwnedGreenSources();
-		verify(mockServerAgent, times(2)).manageConfig();
+		verify(mockServerAgent).manageConfig();
 
 		assertThat(mockServerAgent.getOwnedGreenSources())
 				.as("Set size should be equal to 1")
@@ -87,13 +87,12 @@ class SubscribeGreenSourceServiceUnitTest {
 		doReturn("test_old_gs2@" + mockJadeAddress).when(mockGS2).getName();
 
 		doReturn(new HashSet<>(Set.of(mockGS1, mockGS2))).when(mockServerAgent).getOwnedGreenSources();
-		doReturn(new HashMap<>(Map.of(mockGS1, 5, mockGS2, 8))).when(mockConfigManagement)
-				.getWeightsForGreenSourcesMap();
+		mockConfigManagement.setWeightsForGreenSourcesMap(new HashMap<>(Map.of(mockGS1, 5, mockGS2, 8)));
 
 		subscribeGreenSourceService.handleInform(prepareDFMessage());
 
 		verify(mockServerAgent).getOwnedGreenSources();
-		verify(mockServerAgent, times(3)).manageConfig();
+		verify(mockServerAgent).manageConfig();
 
 		assertThat(mockServerAgent.getOwnedGreenSources())
 				.as("Set size should be equal to 3")
@@ -126,7 +125,7 @@ class SubscribeGreenSourceServiceUnitTest {
 		subscribeGreenSourceService.handleInform(prepareDFMessage());
 
 		verify(mockServerAgent).getOwnedGreenSources();
-		verify(mockServerAgent, times(3)).manageConfig();
+		verify(mockServerAgent).manageConfig();
 
 		assertThat(mockServerAgent.getOwnedGreenSources())
 				.as("Set size should be equal to 2")

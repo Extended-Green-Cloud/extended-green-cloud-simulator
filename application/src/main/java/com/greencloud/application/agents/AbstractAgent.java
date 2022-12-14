@@ -12,6 +12,7 @@ import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
 
 import jade.core.Agent;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract class representing agent which has the connection with GUI controller
@@ -64,7 +65,13 @@ public abstract class AbstractAgent extends Agent {
 	}
 
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
-		// this method must be overwritten in agent types that will be a target to
+		// this method must be overwritten in agent types that will be a target to adaptation
+		throw new UnsupportedOperationException();
+	}
+
+	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
+			ACLMessage adaptationMessage) {
+		// this method can be overwritten in agent types that will be a target to adaptation
 		throw new UnsupportedOperationException();
 	}
 

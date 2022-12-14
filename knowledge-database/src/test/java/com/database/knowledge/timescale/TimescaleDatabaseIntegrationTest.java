@@ -335,8 +335,7 @@ class TimescaleDatabaseIntegrationTest {
 				.isInstanceOfSatisfying(GreenSourceMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.5);
 					assertThat(data.getWeatherPredictionError()).isEqualTo(0.04);
-					assertThat(data.currentTraffic()).isEqualTo(15);
-					assertThat(data.getCurrentMaximumCapacity()).isEqualTo(60);
+					assertThat(data.getCurrentTraffic()).isEqualTo(15);
 				});
 		assertThat(result.get(0).aid())
 				.as("Resulted data has correct aid")

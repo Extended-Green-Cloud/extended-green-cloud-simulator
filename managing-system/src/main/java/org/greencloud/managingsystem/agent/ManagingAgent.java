@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.greencloud.managingsystem.agent.behaviour.knowledge.DisableAdaptationActions;
 import org.greencloud.managingsystem.agent.behaviour.knowledge.ReadAdaptationGoals;
 import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
@@ -44,6 +45,7 @@ import jade.wrapper.ContainerController;
 public class ManagingAgent extends AbstractManagingAgent {
 
 	private static final Logger logger = LoggerFactory.getLogger(ManagingAgent.class);
+	private List<String> disabledByDefaultActions;
 
 	/**
 	 * Method initializes the agents and start the behaviour which upon connecting with the agent node, reads
@@ -53,6 +55,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 	protected void setup() {
 		super.setup();
 		MDC.put(MDC_AGENT_NAME, super.getLocalName());
+		disabledByDefaultActions = new ArrayList<>();
 		initializeAgent(getArguments());
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 		getContentManager().registerLanguage(new SLCodec());
@@ -87,6 +90,10 @@ public class ManagingAgent extends AbstractManagingAgent {
 					if (Objects.nonNull(args[3])) {
 						POWER_SHORTAGE_THRESHOLD = Integer.parseInt(String.valueOf(args[3]));
 					}
+
+					if (Objects.nonNull(args[4])) {
+						disabledByDefaultActions = (ArrayList<String>) args[4];
+					}
 				}
 
 			} catch (NumberFormatException e) {
@@ -106,7 +113,10 @@ public class ManagingAgent extends AbstractManagingAgent {
 	}
 
 	private List<Behaviour> behavioursRunAtStart() {
-		return List.of(new ReadAdaptationGoals());
+		return List.of(
+				new ReadAdaptationGoals(),
+				new DisableAdaptationActions(this, disabledByDefaultActions)
+		);
 	}
 
 	public List<Location> findContainersLocations() {

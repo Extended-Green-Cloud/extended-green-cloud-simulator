@@ -19,14 +19,14 @@ public class EngineRunner {
 
 	// optional directory in which the scenario files are placed
 	private static final String SCENARIO_DIRECTORY =
-			//"\\adaptation\\increaseerror\\";
-			"";
+			"\\adaptation\\connectgreensource\\";
+			//"";
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenarioStructure = SCENARIO_DIRECTORY + "multipleCNAsScenario";
+		String scenarioStructure = SCENARIO_DIRECTORY + "simpleTestConnectGreenSourceScenario";
 		Optional<String> scenarioEvents =
-				Optional.empty();
-				//Optional.of(SCENARIO_DIRECTORY + "complicatedTestErrorIncreaseAdaptationEvents");
+				//Optional.empty();
+				Optional.of(SCENARIO_DIRECTORY + "simpleTestConnectGreenSourceEvents");
 
 		if (MULTI_CONTAINER) {
 			runMultiContainerService(scenarioStructure, scenarioEvents);

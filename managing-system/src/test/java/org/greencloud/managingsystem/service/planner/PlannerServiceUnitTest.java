@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
@@ -40,8 +40,8 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
-import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
+import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
@@ -95,7 +95,7 @@ class PlannerServiceUnitTest {
 	private static Stream<Arguments> parametersGetPlanTest() {
 		return Stream.of(
 				arguments(ADD_SERVER, AddServerPlan.class),
-				arguments(ADD_GREEN_SOURCE, AddGreenSourcePlan.class),
+				arguments(CONNECT_GREEN_SOURCE, ConnectGreenSourcePlan.class),
 				arguments(INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityPlan.class),
 				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlan.class),
 				arguments(INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorPlan.class),
@@ -116,6 +116,7 @@ class PlannerServiceUnitTest {
 		doReturn(monitoringService).when(managingAgent).monitor();
 		doReturn(database).when(agentNode).getDatabaseClient();
 		doReturn(agentNode).when(managingAgent).getAgentNode();
+		doReturn(new MonitoringService(managingAgent)).when(managingAgent).monitor();
 	}
 
 	@Test
@@ -124,7 +125,7 @@ class PlannerServiceUnitTest {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER), 30.0,
 				getAdaptationAction(INCREASE_DEADLINE_PRIORITY), 12.0,
-				getAdaptationAction(ADD_GREEN_SOURCE), 5.0
+				getAdaptationAction(CONNECT_GREEN_SOURCE), 5.0
 		);
 
 		plannerService.trigger(Collections.emptyMap());
@@ -146,7 +147,7 @@ class PlannerServiceUnitTest {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER), 30.0,
 				getAdaptationAction(INCREASE_DEADLINE_PRIORITY), 12.0,
-				getAdaptationAction(ADD_GREEN_SOURCE), 5.0
+				getAdaptationAction(CONNECT_GREEN_SOURCE), 5.0
 		);
 		plannerService.setPlanForActionMap(Map.of(
 				ADD_SERVER, getTestAdaptationPlan(managingAgent, mockAgent,
@@ -239,19 +240,16 @@ class PlannerServiceUnitTest {
 
 	private List<AgentData> prepareGSData() {
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)
@@ -330,7 +328,7 @@ class PlannerServiceUnitTest {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER), 10.0,
 				getAdaptationAction(INCREASE_DEADLINE_PRIORITY), 12.0,
-				getAdaptationAction(ADD_GREEN_SOURCE), 5.0
+				getAdaptationAction(CONNECT_GREEN_SOURCE), 5.0
 		);
 
 		var result = plannerService.getPlansWhichCanBeExecuted(testActions);
@@ -351,7 +349,7 @@ class PlannerServiceUnitTest {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER), 30.0,
 				getAdaptationAction(INCREASE_DEADLINE_PRIORITY), 12.0,
-				getAdaptationAction(ADD_GREEN_SOURCE), 5.0
+				getAdaptationAction(CONNECT_GREEN_SOURCE), 5.0
 		);
 
 		var result = plannerService.selectBestAction(testActions);

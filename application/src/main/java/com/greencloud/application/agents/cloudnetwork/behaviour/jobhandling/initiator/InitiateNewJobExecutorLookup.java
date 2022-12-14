@@ -129,7 +129,7 @@ public class InitiateNewJobExecutorLookup extends ContractNetInitiator {
 		} catch (JsonProcessingException e) {
 			return Integer.MAX_VALUE;
 		}
-		int powerDifference = (server1.getAvailablePower() * weight1) - (server2.getAvailablePower() * weight2);
+		int powerDifference = (server2.getAvailablePower() * weight2) - (server1.getAvailablePower() * weight1);
 		int priceDifference = (int) ((server1.getServicePrice() * 1 / weight1) - (server2.getServicePrice() * 1
 				/ weight2));
 		return CloudNetworkAgentConstants.MAX_POWER_DIFFERENCE.isValidIntValue(powerDifference) ?

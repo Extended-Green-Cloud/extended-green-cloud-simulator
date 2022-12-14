@@ -37,16 +37,14 @@ public class RequestWeatherPeriodically extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		if (!myGreenEnergyAgent.getServerJobs().isEmpty()) {
-			logger.info(PERIODIC_CHECK_SENT_LOG);
-			final SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
-			sequentialBehaviour.addSubBehaviour(
-					new RequestWeatherData(myGreenEnergyAgent, PERIODIC_WEATHER_CHECK_PROTOCOL,
-							PERIODIC_WEATHER_CHECK_PROTOCOL, null));
-			sequentialBehaviour.addSubBehaviour(
-					new ListenForWeatherData(myGreenEnergyAgent, null, PERIODIC_WEATHER_CHECK_PROTOCOL,
-							PERIODIC_WEATHER_CHECK_PROTOCOL, sequentialBehaviour, null));
-			myAgent.addBehaviour(sequentialBehaviour);
-		}
+		logger.info(PERIODIC_CHECK_SENT_LOG);
+		final SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
+		sequentialBehaviour.addSubBehaviour(
+				new RequestWeatherData(myGreenEnergyAgent, PERIODIC_WEATHER_CHECK_PROTOCOL,
+						PERIODIC_WEATHER_CHECK_PROTOCOL, null));
+		sequentialBehaviour.addSubBehaviour(
+				new ListenForWeatherData(myGreenEnergyAgent, null, PERIODIC_WEATHER_CHECK_PROTOCOL,
+						PERIODIC_WEATHER_CHECK_PROTOCOL, sequentialBehaviour, null));
+		myAgent.addBehaviour(sequentialBehaviour);
 	}
 }

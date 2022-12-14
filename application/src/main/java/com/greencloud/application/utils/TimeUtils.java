@@ -37,6 +37,7 @@ public class TimeUtils {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 	private static final int MILLISECOND_MULTIPLIER = 1000;
 	private static final int SECONDS_IN_HOUR = 3600;
+	private static final int MINUTES_IN_HOUR = 60;
 	private static final Long TIME_ERROR = 5L;
 
 	//TODO store this information in the database so that all agents has access to it
@@ -105,9 +106,9 @@ public class TimeUtils {
 	 * @return time in minutes of real time
 	 */
 	public static long convertToRealTime(final long millis) {
-		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
+		final double realTimeMultiplier = (double) MINUTES_IN_HOUR / (SECONDS_PER_HOUR * MILLISECOND_MULTIPLIER);
 		final double realTimeDifference = millis * realTimeMultiplier;
-		return (long) realTimeDifference / (MILLISECOND_MULTIPLIER * 60);
+		return (long) realTimeDifference;
 	}
 
 	/**

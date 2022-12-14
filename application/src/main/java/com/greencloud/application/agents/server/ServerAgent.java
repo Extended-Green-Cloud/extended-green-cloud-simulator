@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.greencloud.application.agents.server.behaviour.df.ListenForAdditionalGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
@@ -86,7 +87,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForJobStartCheckRequest(),
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
-				new ListenForServerJobCancellation()
+				new ListenForServerJobCancellation(),
+				new ListenForAdditionalGreenSourceService(this)
 		);
 	}
 

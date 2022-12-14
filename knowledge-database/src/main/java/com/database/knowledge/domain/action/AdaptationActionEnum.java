@@ -12,7 +12,8 @@ public enum AdaptationActionEnum {
 	INCREASE_GREEN_SOURCE_PERCENTAGE("Increase Green Source selection chance"),
 	INCREASE_GREEN_SOURCE_ERROR("Increase Green Source weather prediction error"),
 	DECREASE_GREEN_SOURCE_ERROR("Decrement Green Source weather prediction error"),
-	ADD_GREEN_SOURCE("Add Green Source");
+	ADD_GREEN_SOURCE("Add Green Source"),
+	CONNECT_GREEN_SOURCE("Connecting Green Source");
 
 	private final String name;
 

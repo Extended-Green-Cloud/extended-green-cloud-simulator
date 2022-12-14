@@ -4,6 +4,7 @@ import static com.greencloud.application.utils.JobUtils.getJobById;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -78,6 +79,16 @@ public class ServerConfigManagement implements Serializable {
 	}
 
 	/**
+	 * Method connects new green sources to the server agent
+	 *
+	 * @param newGreenSources list of green sources to connect to the server
+	 */
+	public void connectNewGreenSourcesToServer(final List<AID> newGreenSources) {
+		serverAgent.getOwnedGreenSources().addAll(newGreenSources);
+		assignWeightsToNewGreenSources(newGreenSources);
+	}
+
+	/**
 	 * Method retrieves the current price per hour for the job execution service
 	 *
 	 * @return double price
@@ -111,6 +122,17 @@ public class ServerConfigManagement implements Serializable {
 	 */
 	public void setJobProcessingLimit(int jobProcessingLimit) {
 		this.jobProcessingLimit = jobProcessingLimit;
+	}
+
+	private void assignWeightsToNewGreenSources(final List<AID> newGreenSources) {
+		final int weight = weightsForGreenSourcesMap.isEmpty() ? 1 : getMaximumValueForConfiguration();
+		newGreenSources.forEach(greenSource -> weightsForGreenSourcesMap.putIfAbsent(greenSource, weight));
+	}
+
+	private int getMaximumValueForConfiguration() {
+		return weightsForGreenSourcesMap.values().stream()
+				.max(Integer::compare)
+				.orElseThrow();
 	}
 
 }
