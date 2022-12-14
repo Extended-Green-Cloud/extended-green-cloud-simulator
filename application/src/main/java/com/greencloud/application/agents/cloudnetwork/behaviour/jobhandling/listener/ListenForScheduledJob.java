@@ -15,7 +15,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.initiator.InitiateNewJobExecutorLookup;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -61,7 +61,7 @@ public class ListenForScheduledJob extends CyclicBehaviour {
 		final ACLMessage cfp = createCallForProposal(job, myCloudNetworkAgent.getOwnedServers(),
 				CNA_JOB_CFP_PROTOCOL);
 
-		myCloudNetworkAgent.getNetworkJobs().put(job, JobStatusEnum.PROCESSING);
+		myCloudNetworkAgent.getNetworkJobs().put(job, ExecutionJobStatusEnum.PROCESSING);
 		myAgent.addBehaviour(new InitiateNewJobExecutorLookup(myAgent, cfp, message, job));
 	}
 }

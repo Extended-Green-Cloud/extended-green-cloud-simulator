@@ -1,7 +1,7 @@
 package com.greencloud.application.messages.domain.factory;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import com.greencloud.application.mapper.JsonMapper;
 
@@ -21,7 +21,7 @@ public class CallForProposalMessageFactory {
 	 * @param protocol     protocol of the call for proposal message
 	 * @return call for proposal ACLMessage
 	 */
-	public static ACLMessage createCallForProposal(final Object content, final List<AID> receiverList,
+	public static ACLMessage createCallForProposal(final Object content, final Collection<AID> receiverList,
 			final String protocol) {
 		final ACLMessage proposal = new ACLMessage(ACLMessage.CFP);
 		proposal.setProtocol(protocol);

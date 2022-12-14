@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.greenenergy.behaviour.sensor;
 
-import static com.greencloud.application.domain.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
+import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
+import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.WEATHER_CAUSE;
 import static java.util.Objects.isNull;
 
 import java.util.Optional;
@@ -44,11 +45,15 @@ public class SenseGreenSourceEvent extends TickerBehaviour {
 
 		Optional<PowerShortageEvent> latestEvent = greenEnergyAgentNode.getEvent();
 		latestEvent.ifPresent(event -> {
-			if (event.isFinished()) {
+			if (event.isFinished() && event.getCause().equals(PHYSICAL_CAUSE)) {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortageFinish(myGreenEnergyAgent));
-			} else {
+			} else if (event.getCause().equals(PHYSICAL_CAUSE)) {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent,
 						null, event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), PHYSICAL_CAUSE));
+			} else {
+				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null,
+						event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), WEATHER_CAUSE));
+				myGreenEnergyAgent.manage().getWeatherShortagesCounter().getAndIncrement();
 			}
 		});
 	}

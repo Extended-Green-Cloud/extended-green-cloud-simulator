@@ -7,6 +7,8 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
+import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 
 import java.util.List;
 import java.util.Vector;
@@ -17,10 +19,9 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.application.messages.domain.factory.OfferMessageFactory;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -63,7 +64,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 	 */
 	@Override
 	protected void handleAllResponses(Vector responses, Vector acceptances) {
-		final List<ACLMessage> proposals = MessagingUtils.retrieveProposals(responses);
+		final List<ACLMessage> proposals = retrieveProposals(responses);
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		myServerAgent.stoppedJobProcessing();
@@ -74,7 +75,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_SOURCES_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
 		} else if (myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null)
-				<= job.getPower()) {
+				< job.getPower()) {
 			logger.info(NEW_JOB_LOOK_FOR_GS_NO_POWER_AVAILABLE_LOG);
 			refuseToExecuteJob(proposals);
 		} else {
@@ -100,7 +101,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(NEW_JOB_LOOK_FOR_GS_SELECTED_GS_LOG, jobId, chosenGreenSource.getLocalName());
 
-		final double servicePrice = myServerAgent.manage().calculateServicePrice(offerData);
+		final double servicePrice = myServerAgent.manageConfig().calculateServicePrice(offerData);
 		final ACLMessage proposalMessage = OfferMessageFactory.makeServerJobOffer(myServerAgent, servicePrice, jobId,
 				replyMessage);
 		myServerAgent.getGreenSourceForJobMap().put(jobId, chosenGreenSource);
@@ -115,7 +116,7 @@ public class InitiatePowerDeliveryForJob extends ContractNetInitiator {
 
 	private void refuseToExecuteJob(final List<ACLMessage> proposals) {
 		myServerAgent.getServerJobs().remove(job);
-		myAgent.send(ReplyMessageFactory.prepareRefuseReply(replyMessage));
+		myAgent.send(prepareRefuseReply(replyMessage));
 		rejectJobOffers(myServerAgent, mapToJobInstanceId(job), null, proposals);
 	}
 }

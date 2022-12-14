@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>3</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -22,8 +24,9 @@
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>50</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>
@@ -31,6 +34,7 @@
 			<name>Server</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
 			<maximumCapacity>300</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

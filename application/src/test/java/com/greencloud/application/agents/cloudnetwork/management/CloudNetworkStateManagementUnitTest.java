@@ -2,33 +2,31 @@ package com.greencloud.application.agents.cloudnetwork.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ImmutableClientJob;
+import com.greencloud.commons.job.JobResultType;
 import com.gui.controller.GuiController;
 
+import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -36,19 +34,11 @@ class CloudNetworkStateManagementUnitTest {
 
 	// MOCK OBJECTS
 
-	private Map<ClientJob, JobStatusEnum> MOCK_JOBS;
-
 	@Mock
 	private CloudNetworkAgent mockCloudNetwork;
 	@Mock
 	private GuiController guiController;
 	private CloudNetworkStateManagement cloudNetworkStateManagement;
-
-	// PARAMETERS USED IN TESTS
-
-	private static Stream<Arguments> parametersGetById() {
-		return Stream.of(Arguments.of("1", true), Arguments.of("10000", false));
-	}
 
 	// TEST SET-UP
 
@@ -58,7 +48,11 @@ class CloudNetworkStateManagementUnitTest {
 
 	@BeforeEach
 	void init() {
-		MOCK_JOBS = setUpCloudNetworkJobs();
+		Map<ClientJob, ExecutionJobStatusEnum> MOCK_JOBS = setUpCloudNetworkJobs();
+		var mockAID = mock(AID.class);
+
+		when(mockAID.getName()).thenReturn("test_name");
+		when(mockCloudNetwork.getAID()).thenReturn(mockAID);
 		when(mockCloudNetwork.getGuiController()).thenReturn(guiController);
 		cloudNetworkStateManagement = new CloudNetworkStateManagement(mockCloudNetwork);
 
@@ -73,28 +67,16 @@ class CloudNetworkStateManagementUnitTest {
 		assertThat(cloudNetworkStateManagement.getCurrentPowerInUse()).isEqualTo(30);
 	}
 
-	@ParameterizedTest
-	@MethodSource("parametersGetById")
-	@DisplayName("Test getting job by id")
-	void testGettingJobById(final String jobId, final boolean result) {
-		final ClientJob jobResult = cloudNetworkStateManagement.getJobById(jobId);
-		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
-	}
-
 	@Test
-	@DisplayName("Test incrementing started jobs")
-	void testIncrementingStartedJobs() {
-		assertThat(cloudNetworkStateManagement.getStartedJobs().get()).isZero();
-		cloudNetworkStateManagement.incrementStartedJobs("1");
-		assertThat(cloudNetworkStateManagement.getStartedJobs().get()).isOne();
-	}
-
-	@Test
-	@DisplayName("Test incrementing finished jobs")
-	void testIncrementingFinishedJobs() {
-		assertThat(cloudNetworkStateManagement.getFinishedJobs().get()).isZero();
-		cloudNetworkStateManagement.incrementFinishedJobs("1");
-		assertThat(cloudNetworkStateManagement.getFinishedJobs().get()).isOne();
+	@DisplayName("Test increment job counter")
+	void testIncrementJobCounter() {
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.ACCEPTED);
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
+		cloudNetworkStateManagement.incrementJobCounter("1", JobResultType.FAILED);
+		assertThat(cloudNetworkStateManagement.getJobCounters()).containsEntry(JobResultType.FAILED, 2L);
+		assertThat(cloudNetworkStateManagement.getJobCounters()).containsEntry(JobResultType.ACCEPTED, 1L);
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.FINISH)).isZero();
+		assertThat(cloudNetworkStateManagement.getJobCounters().get(JobResultType.STARTED)).isZero();
 	}
 
 	// PREPARING TEST DATA
@@ -107,7 +89,7 @@ class CloudNetworkStateManagementUnitTest {
 	 * Job2 -> power: 20, time: 07:00 - 11:00, status: IN_PROGRESS
 	 * Job3 -> power: 50,  time: 06:00 - 15:00, status: ACCEPTED
 	 */
-	private Map<ClientJob, JobStatusEnum> setUpCloudNetworkJobs() {
+	private Map<ClientJob, ExecutionJobStatusEnum> setUpCloudNetworkJobs() {
 		final ClientJob mockJob1 = ImmutableClientJob.builder()
 				.jobId("1")
 				.clientIdentifier("Client1")
@@ -132,10 +114,10 @@ class CloudNetworkStateManagementUnitTest {
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(50)
 				.build();
-		final Map<ClientJob, JobStatusEnum> mockJobMap = new HashMap<>();
-		mockJobMap.put(mockJob1, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob2, JobStatusEnum.IN_PROGRESS);
-		mockJobMap.put(mockJob3, JobStatusEnum.ACCEPTED);
+		final Map<ClientJob, ExecutionJobStatusEnum> mockJobMap = new HashMap<>();
+		mockJobMap.put(mockJob1, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob2, ExecutionJobStatusEnum.IN_PROGRESS);
+		mockJobMap.put(mockJob3, ExecutionJobStatusEnum.ACCEPTED);
 		return mockJobMap;
 	}
 }

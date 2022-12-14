@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>3</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -27,6 +29,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm2</name>
@@ -37,6 +40,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>
@@ -44,6 +48,7 @@
 			<name>Server</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
 			<maximumCapacity>400</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

@@ -1,20 +1,29 @@
 package com.greencloud.application.agents.greenenergy;
 
-import static com.greencloud.application.agents.greenenergy.domain.GreenEnergyAgentConstants.INITIAL_WEATHER_PREDICTION_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.application.agents.greenenergy.domain.GreenEnergySourceTypeEnum;
+import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.agent.AgentType;
+import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract agent class storing data of the Green Source Energy Agent
@@ -23,22 +32,18 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	protected transient GreenPowerManagement greenPowerManagement;
 	protected transient GreenEnergyStateManagement stateManagement;
-	protected transient Location location;
+	protected transient GreenEnergyAdaptationManagement adaptationManagement;
+	protected Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
-	protected volatile ConcurrentMap<PowerJob, JobStatusEnum> powerJobs;
+	protected volatile ConcurrentMap<ServerJob, ExecutionJobStatusEnum> serverJobs;
 	protected AID monitoringAgent;
-	protected AID ownerServer;
 	protected double weatherPredictionError;
 
 	AbstractGreenEnergyAgent() {
 		super.setup();
-		this.powerJobs = new ConcurrentHashMap<>();
-		this.weatherPredictionError = INITIAL_WEATHER_PREDICTION_ERROR;
-	}
-
-	public AID getOwnerServer() {
-		return ownerServer;
+		this.serverJobs = new ConcurrentHashMap<>();
+		agentType = AgentType.GREEN_SOURCE;
 	}
 
 	public double getPricePerPowerUnit() {
@@ -49,8 +54,8 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		this.pricePerPowerUnit = pricePerPowerUnit;
 	}
 
-	public Map<PowerJob, JobStatusEnum> getPowerJobs() {
-		return powerJobs;
+	public Map<ServerJob, ExecutionJobStatusEnum> getServerJobs() {
+		return serverJobs;
 	}
 
 	public Location getLocation() {
@@ -75,10 +80,19 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public void setWeatherPredictionError(double weatherPredictionError) {
 		this.weatherPredictionError = weatherPredictionError;
+
+		if (Objects.nonNull(getAgentNode())) {
+			((GreenEnergyAgentNode) getAgentNode()).updatePredictionError(weatherPredictionError);
+		}
 	}
 
 	public void setGreenPowerManagement(GreenPowerManagement greenPowerManagement) {
 		this.greenPowerManagement = greenPowerManagement;
+	}
+
+	public void setAdaptationManagement(
+			GreenEnergyAdaptationManagement adaptationManagement) {
+		this.adaptationManagement = adaptationManagement;
 	}
 
 	public GreenEnergySourceTypeEnum getEnergyType() {
@@ -91,5 +105,23 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	public GreenPowerManagement manageGreenPower() {
 		return greenPowerManagement;
+	}
+
+	@Override
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		return switch (adaptationAction.getAction()) {
+			case INCREASE_GREEN_SOURCE_ERROR -> adaptationManagement.adaptAgentWeatherPredictionError(
+					(IncrementGreenSourceErrorParameters) actionParameters);
+			default -> false;
+		};
+	}
+
+	@Override
+	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
+			ACLMessage adaptationMessage) {
+		if (adaptationAction.getAction().equals(CONNECT_GREEN_SOURCE)) {
+			adaptationManagement.connectNewServerToGreenSource((ConnectGreenSourceParameters) actionParameters,
+					adaptationMessage);
+		}
 	}
 }

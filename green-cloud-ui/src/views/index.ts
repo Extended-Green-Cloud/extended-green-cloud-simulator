@@ -1,1 +1,1 @@
-export { default as MainView } from './main-view/main-view'
+export { default as MainView } from './main-view/main-view-connected'

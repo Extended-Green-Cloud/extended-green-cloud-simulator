@@ -7,12 +7,12 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.PROCESSING_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
-import static com.greencloud.commons.job.JobStatusEnum.DELAYED;
-import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.JobStatusEnum.ON_BACK_UP;
-import static com.greencloud.commons.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
-import static com.greencloud.commons.job.JobStatusEnum.SCHEDULED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.DELAYED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -34,7 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.agents.client.management.ClientStateManagement;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
 import jade.lang.acl.ACLMessage;
@@ -70,7 +70,7 @@ class ListenForJobUpdateUnitTest {
 
 	@ParameterizedTest
 	@MethodSource("jobStatusProvider")
-	void shouldCorrectlyProcessesJobStatus(String conversationId, JobStatusEnum status) {
+	void shouldCorrectlyProcessesJobStatus(String conversationId, ClientJobStatusEnum status) {
 		// given
 		var message = messageBuilder(conversationId, JOB_ID);
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);
@@ -84,8 +84,8 @@ class ListenForJobUpdateUnitTest {
 
 	@ParameterizedTest
 	@MethodSource("jobStatusProvider")
-	void shouldCorrectlyProcessPartJobStatus(String conversationId, JobStatusEnum status,
-			JobStatusEnum currentStatus) {
+	void shouldCorrectlyProcessPartJobStatus(String conversationId, ClientJobStatusEnum status,
+			ClientJobStatusEnum currentStatus) {
 		// given
 		var message = messageBuilder(conversationId, JOB_PART_ID);
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);

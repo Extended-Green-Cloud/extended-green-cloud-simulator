@@ -16,6 +16,25 @@
    outline: none;
 }
 
+/* SMALL DARK GRAY BUTTON STYLE */
+
+.small-gray-button {
+    color: var(--white);
+    font-family: var(--font-1);
+    font-size: var(--font-size-7);
+    font-weight: 300;
+    padding: 5px 15px;
+    background-color: var(--gray-2);
+ }
+ 
+ .small-gray-button:hover {
+    background-color: var(--gray-1);
+ }
+ 
+ .small-gray-button:active {
+    background-color: var(--gray-6);
+ }
+
 /* SMALL GREEN BUTTON STYLE */
 
 .small-green-button {

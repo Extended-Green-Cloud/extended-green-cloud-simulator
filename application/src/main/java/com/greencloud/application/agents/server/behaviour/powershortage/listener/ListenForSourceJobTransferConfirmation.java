@@ -9,6 +9,7 @@ import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
@@ -82,7 +83,7 @@ public class ListenForSourceJobTransferConfirmation extends MsgReceiver {
 			final String jobId = jobToTransfer.getJobId();
 			if (msg.getPerformative() == INFORM) {
 				MDC.put(MDC_JOB_ID, jobId);
-				if (Objects.nonNull(myServerAgent.manage().getJobById(jobId))) {
+				if (Objects.nonNull(getJobById(jobId, myServerAgent.getServerJobs()))) {
 					logger.info(GS_TRANSFER_CONFIRMED_LOG, jobId);
 					handleJobTransfer(msg);
 				} else {

@@ -27,9 +27,10 @@ export const styles: Styles = {
       width: '10%',
       flexGrow: 1,
       display: 'flex',
+      height: '100%',
       flexDirection: 'column',
       minWidth: '0',
-      marginRight: '10px',
+      marginLeft: '20px',
    },
    rightContentContainer: {
       width: '10%',

@@ -12,8 +12,8 @@ export const styles: Styles = {
       backgroundColor: 'var(--white)',
       minWidth: 'min-content',
       marginTop: '-2.5%',
-      marginLeft: '20px',
-      marginRight: '20px',
+      marginLeft: '10px',
+      marginRight: '10px',
    },
    graphContent: {
       borderTop: 'var(--border-gray)',

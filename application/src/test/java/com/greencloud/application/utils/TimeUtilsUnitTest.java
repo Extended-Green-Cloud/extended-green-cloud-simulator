@@ -10,6 +10,7 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTimeMinusError;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.application.utils.TimeUtils.resetMockClock;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
@@ -38,6 +39,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.greencloud.application.exception.IncorrectTaskDateException;
+import com.greencloud.commons.job.ImmutablePowerJob;
+import com.greencloud.commons.job.PowerJob;
 
 class TimeUtilsUnitTest {
 
@@ -47,6 +50,41 @@ class TimeUtilsUnitTest {
 				Arguments.of(Instant.parse("2022-01-01T13:30:00.000Z"), false),
 				Arguments.of(Instant.parse("2022-01-01T10:00:00.000Z"), true),
 				Arguments.of(Instant.parse("2022-01-01T12:00:00.000Z"), false)
+		);
+	}
+
+	private static Stream<Arguments> parametersTimeStampJobTest() {
+		return Stream.of(
+				Arguments.of(
+						Instant.parse("2022-01-01T11:30:00.000Z"),
+						ImmutablePowerJob.builder()
+								.jobId("1")
+								.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+								.endTime(Instant.parse("2022-01-01T12:30:00.000Z"))
+								.deadline(Instant.parse("2022-01-01T14:30:00.000Z"))
+								.power(10)
+								.build(),
+						true),
+				Arguments.of(
+						Instant.parse("2022-01-01T11:30:00.000Z"),
+						ImmutablePowerJob.builder()
+								.jobId("1")
+								.startTime(Instant.parse("2022-01-01T11:30:00.000Z"))
+								.endTime(Instant.parse("2022-01-01T12:30:00.000Z"))
+								.deadline(Instant.parse("2022-01-01T13:30:00.000Z"))
+								.power(10)
+								.build(),
+						true),
+				Arguments.of(
+						Instant.parse("2022-01-01T11:30:00.000Z"),
+						ImmutablePowerJob.builder()
+								.jobId("1")
+								.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+								.endTime(Instant.parse("2022-01-01T14:30:00.000Z"))
+								.deadline(Instant.parse("2022-01-01T15:30:00.000Z"))
+								.power(10)
+								.build(),
+						false)
 		);
 	}
 
@@ -147,6 +185,13 @@ class TimeUtilsUnitTest {
 		assertThat(isWithinTimeStamp(startTime, endTime, timeToCheck)).isEqualTo(expectedResult);
 	}
 
+	@ParameterizedTest
+	@MethodSource("parametersTimeStampJobTest")
+	void testIsWithinTimeStampForJob(final Instant timeToCheck, final PowerJob job, final boolean expectedResult) {
+		setSystemStartTime();
+		assertThat(isWithinTimeStamp(job, convertToRealTime(timeToCheck))).isEqualTo(expectedResult);
+	}
+
 	@Test
 	@DisplayName("Test dividing into sub-intervals for length equal to 0 ms")
 	void testDividingIntoSubIntervalsLength0ms() {
@@ -182,6 +227,7 @@ class TimeUtilsUnitTest {
 	@Test
 	@DisplayName("Test set system start time for system null")
 	void testSetSystemStartTimeForNull() {
+		resetMockClock();
 		setSystemStartTime();
 		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now(), new TemporalUnitWithinOffset(100, MILLIS));
 	}
@@ -189,6 +235,7 @@ class TimeUtilsUnitTest {
 	@Test
 	@DisplayName("Test set system start time for system not null")
 	void testSetSystemStartTimeForNotNull() throws InterruptedException {
+		resetMockClock();
 		setSystemStartTime();
 		TimeUnit.SECONDS.sleep(2);
 		setSystemStartTime();

@@ -1,5 +1,7 @@
 package com.greencloud.application.utils;
 
+import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -23,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.exception.IncorrectTaskDateException;
+import com.greencloud.commons.job.PowerJob;
 
 /**
  * Service used to perform operations on date and time structures.
@@ -32,14 +35,13 @@ public class TimeUtils {
 	private static final Logger logger = LoggerFactory.getLogger(TimeUtils.class);
 	private static final String DATE_FORMAT = "dd/MM/yyyy HH:mm";
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
-
 	private static final int MILLISECOND_MULTIPLIER = 1000;
 	private static final int SECONDS_IN_HOUR = 3600;
-	private static final int SECONDS_PER_HOUR = 5;
+	private static final int MINUTES_IN_HOUR = 60;
 	private static final Long TIME_ERROR = 5L;
 
 	//TODO store this information in the database so that all agents has access to it
-	public static Instant SYSTEM_START_TIME = null;
+	public static Instant SYSTEM_START_TIME = now();
 	private static Clock CLOCK = Clock.systemDefaultZone();
 
 	/**
@@ -104,9 +106,9 @@ public class TimeUtils {
 	 * @return time in minutes of real time
 	 */
 	public static long convertToRealTime(final long millis) {
-		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
+		final double realTimeMultiplier = (double) MINUTES_IN_HOUR / (SECONDS_PER_HOUR * MILLISECOND_MULTIPLIER);
 		final double realTimeDifference = millis * realTimeMultiplier;
-		return (long) realTimeDifference / (MILLISECOND_MULTIPLIER * 60);
+		return (long) realTimeDifference;
 	}
 
 	/**
@@ -121,6 +123,18 @@ public class TimeUtils {
 			final Instant timeStampEnd,
 			final Instant timeToCheck) {
 		return !timeToCheck.isBefore(timeStampStart) && timeToCheck.isBefore(timeStampEnd);
+	}
+
+	/**
+	 * Method checks if the given time (in real time) is within given timestamp
+	 *
+	 * @param job         job for which time will be checked
+	 * @param timeToCheck time which has to be checked
+	 * @return true or false value
+	 */
+	public static boolean isWithinTimeStamp(final PowerJob job, final Instant timeToCheck) {
+		return !timeToCheck.isBefore(convertToRealTime(job.getStartTime()))
+				&& timeToCheck.isBefore(convertToRealTime(job.getEndTime()));
 	}
 
 	/**
@@ -181,11 +195,18 @@ public class TimeUtils {
 	}
 
 	/**
+	 * Method resets mocked CLOCK
+	 */
+	public static void resetMockClock() {
+		CLOCK = Clock.systemDefaultZone();
+	}
+
+	/**
 	 * Method sets the system start time to the current time
 	 */
 	public static void setSystemStartTime() {
 		if (Objects.isNull(SYSTEM_START_TIME)) {
-			SYSTEM_START_TIME = Instant.now();
+			SYSTEM_START_TIME = getCurrentTime();
 		}
 	}
 

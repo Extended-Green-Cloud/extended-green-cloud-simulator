@@ -36,6 +36,8 @@ export const styles: Styles = {
       fontSize: 'var(--font-size-2)',
    },
    value: {
+      display: 'flex',
+      justifyContent: 'flex-end',
       marginRight: '5px',
       width: '50%',
       textAlign: 'right',

@@ -3,6 +3,7 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.JOB_START_STATUS_RECEIVED_REQUEST_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_REQUEST_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getCurrentJobInstance;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -10,12 +11,12 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import java.util.Map;
 import java.util.Objects;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 import com.greencloud.commons.job.ClientJob;
 
@@ -54,7 +55,8 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 					ReplyMessageFactory.prepareStringReply(request.createReply(), "REQUEST PROCESSING", AGREE));
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(JOB_START_STATUS_RECEIVED_REQUEST_LOG, jobId);
-			final Map.Entry<ClientJob, JobStatusEnum> jobInstance = myServerAgent.manage().getCurrentJobInstance(jobId);
+			final Map.Entry<ClientJob, ExecutionJobStatusEnum> jobInstance = getCurrentJobInstance(jobId,
+					myServerAgent.getServerJobs());
 			myServerAgent.send(createReplyWithJobStatus(request, jobInstance));
 		} else {
 			block();
@@ -62,8 +64,8 @@ public class ListenForJobStartCheckRequest extends CyclicBehaviour {
 	}
 
 	private ACLMessage createReplyWithJobStatus(final ACLMessage message,
-			final Map.Entry<ClientJob, JobStatusEnum> jobInstance) {
-		return Objects.nonNull(jobInstance) && JobStatusEnum.RUNNING_JOB_STATUSES.contains(jobInstance.getValue()) ?
+			final Map.Entry<ClientJob, ExecutionJobStatusEnum> jobInstance) {
+		return Objects.nonNull(jobInstance) && ExecutionJobStatusEnum.RUNNING_JOB_STATUSES.contains(jobInstance.getValue()) ?
 				ReplyMessageFactory.prepareStringReply(message.createReply(), "JOB STARTED", INFORM) :
 				ReplyMessageFactory.prepareStringReply(message.createReply(), "JOB HAS NOT STARTED", FAILURE);
 	}

@@ -1,14 +1,19 @@
 package com.gui.agents;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.message.ImmutableRegisterAgentMessage;
+import com.gui.message.ImmutableSetClientJobDurationMapMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
+import com.gui.message.ImmutableSetClientJobTimeFrameMessage;
 import com.gui.message.ImmutableSplitJobMessage;
 import com.gui.message.domain.ImmutableJobStatus;
+import com.gui.message.domain.ImmutableJobTimeFrame;
 import com.gui.message.domain.ImmutableSplitJob;
 import com.gui.websocket.GuiWebSocketClient;
 
@@ -45,12 +50,12 @@ public class ClientAgentNode extends AbstractAgentNode {
 	/**
 	 * Function overrides the job status
 	 *
-	 * @param jobStatusEnum new job status
+	 * @param clientJobStatusEnum new job status
 	 */
-	public void updateJobStatus(final JobStatusEnum jobStatusEnum) {
+	public void updateJobStatus(final ClientJobStatusEnum clientJobStatusEnum) {
 		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
 				.data(ImmutableJobStatus.builder()
-						.status(jobStatusEnum.getStatus())
+						.status(clientJobStatusEnum.getStatus())
 						.splitJobId(null)
 						.build())
 				.agentName(agentName)
@@ -77,14 +82,59 @@ public class ClientAgentNode extends AbstractAgentNode {
 	/**
 	 * Function informs about the job status for a part of job
 	 *
-	 * @param jobStatusEnum new job status
+	 * @param clientJobStatusEnum new job status
 	 */
-	public void updateJobStatus(final JobStatusEnum jobStatusEnum, String jobPartId) {
+	public void updateJobStatus(final ClientJobStatusEnum clientJobStatusEnum, String jobPartId) {
 		webSocketClient.send(ImmutableSetClientJobStatusMessage.builder()
 				.data(ImmutableJobStatus.builder()
-						.status(jobStatusEnum.getStatus())
+						.status(clientJobStatusEnum.getStatus())
 						.splitJobId(jobPartId)
 						.build())
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function informs about the job time frame change for a job
+	 *
+	 * @param jobStart new job start time
+	 * @param jobEnd   new job end time
+	 */
+	public void updateJobTimeFrame(final Instant jobStart, final Instant jobEnd) {
+		webSocketClient.send(ImmutableSetClientJobTimeFrameMessage.builder()
+				.data(ImmutableJobTimeFrame.builder()
+						.start(jobStart)
+						.end(jobEnd)
+						.build())
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function informs about the job time frame change for a part of job
+	 *
+	 * @param jobStart new job start time
+	 * @param jobEnd   new job end time
+	 */
+	public void updateJobTimeFrame(final Instant jobStart, final Instant jobEnd, String jobPartId) {
+		webSocketClient.send(ImmutableSetClientJobTimeFrameMessage.builder()
+				.data(ImmutableJobTimeFrame.builder()
+						.start(jobStart)
+						.end(jobEnd)
+						.splitJobId(jobPartId)
+						.build())
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function informs about the duration of job execution at given statuses
+	 *
+	 * @param durationMap map of job duration
+	 */
+	public void updateJobDurationMap(final Map<ClientJobStatusEnum, Long> durationMap) {
+		webSocketClient.send(ImmutableSetClientJobDurationMapMessage.builder()
+				.data(durationMap)
 				.agentName(agentName)
 				.build());
 	}

@@ -3,6 +3,7 @@ package com.greencloud.application.agents.server.behaviour.jobexecution.listener
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG;
+import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_FINISHED_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog.SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG;
@@ -18,22 +19,25 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
+import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Objects;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.jobexecution.handler.HandleJobStart;
-import com.greencloud.application.agents.server.behaviour.jobexecution.listener.logs.JobHandlingListenerLog;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.commons.job.ClientJob;
 
@@ -84,9 +88,9 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
 		final ClientJob job = retrieveJobFromMessage(inform);
-		final JobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
+		final ExecutionJobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
 
-		if (nonNull(statusEnum) && statusEnum.equals(JobStatusEnum.IN_PROGRESS)) {
+		if (nonNull(statusEnum) && statusEnum.equals(ExecutionJobStatusEnum.IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.debug(SUPPLY_FINISHED_MANUALLY_LOG, job.getClientIdentifier(), job.getClientIdentifier());
 			myServerAgent.manage().finishJobExecution(job, true);
@@ -99,20 +103,22 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		final String jobId = jobInstanceId.getJobId();
 
 		if (msg.getPerformative() == ACLMessage.INFORM) {
-			if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
-				MDC.put(MDC_JOB_ID, jobId);
-				logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
-				announceBookedJob(myServerAgent);
+			if (Objects.nonNull(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()))) {
+				if (messageType.equals(SERVER_JOB_CFP_PROTOCOL)) {
+					MDC.put(MDC_JOB_ID, jobId);
+					logger.info(SUPPLY_CONFIRMATION_JOB_ANNOUNCEMENT_LOG, jobId);
+					announceBookedJob(myServerAgent);
+				}
+				confirmJobAcceptance(jobInstanceId, messageType.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL));
+				scheduleJobExecution(jobInstanceId, messageType);
 			}
-			confirmJobAcceptance(jobInstanceId, messageType.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL));
-			scheduleJobExecution(jobInstanceId, messageType);
 		} else {
 			failJobAcceptance(messageType, jobInstanceId, msg);
 		}
 	}
 
 	private void scheduleJobExecution(final JobInstanceIdentifier jobInstanceId, final String messageType) {
-		final ClientJob job = myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+		final ClientJob job = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
 
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -121,7 +127,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 					.isAfter(getCurrentTime());
 			myAgent.addBehaviour(HandleJobStart.createFor(myServerAgent, job, informCNAStart, true));
 		} else {
-			logger.info(JobHandlingListenerLog.SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
+			logger.info(SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
 		}
 	}
 
@@ -133,7 +139,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 		myServerAgent.getServerJobs()
-				.replace(myServerAgent.manage().getJobByIdAndStartDate(jobInstanceId), JobStatusEnum.ACCEPTED);
+				.replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()), ExecutionJobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
 		myServerAgent.send(prepareJobStatusMessageForCNA(jobInstanceId, conversationId, myServerAgent));
 	}
@@ -148,22 +154,24 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(logMessage, jobInstanceId.getJobId());
 
-		if (myServerAgent.manage().isJobUnique(job.getJobId())) {
-			myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
+		if(Objects.nonNull(job)) {
+			if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
+				myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
+			}
+			myServerAgent.getServerJobs().remove(job);
 		}
-		myServerAgent.getServerJobs().remove(job);
 		myServerAgent.manage().updateServerGUI();
 		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
-
+		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {
 		try {
 			final JobInstanceIdentifier identifier = readMessageContent(msg, JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(identifier);
+			return getJobByIdAndStartDate(identifier, myServerAgent.getServerJobs());
 		} catch (IncorrectMessageContentException e) {
 			final String jobId = msg.getContent();
-			return myServerAgent.manage().getJobById(jobId);
+			return getJobById(jobId, myServerAgent.getServerJobs());
 		}
 	}
 

@@ -22,10 +22,10 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.initiator.InitiatePowerSupplyOffer;
 import com.greencloud.application.domain.MonitoringData;
-import com.greencloud.commons.job.PowerJob;
 import com.greencloud.application.messages.MessagingUtils;
 import com.greencloud.application.messages.domain.factory.OfferMessageFactory;
 import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
@@ -42,7 +42,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 	private final GreenEnergyAgent myGreenEnergyAgent;
 	private final MessageTemplate template;
 	private final ACLMessage cfp;
-	private final PowerJob powerJob;
+	private final ServerJob serverJob;
 	private final SequentialBehaviour parentBehaviour;
 
 	/**
@@ -50,15 +50,15 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 	 *
 	 * @param myGreenAgent agent which is executing the behaviour
 	 * @param cfp          call for proposal sent by the server to which the Green Source has to reply
-	 * @param powerJob     job that is being processed
+	 * @param serverJob    job that is being processed
 	 */
-	public ListenForNewJobWeatherData(GreenEnergyAgent myGreenAgent, final ACLMessage cfp, final PowerJob powerJob,
+	public ListenForNewJobWeatherData(GreenEnergyAgent myGreenAgent, final ACLMessage cfp, final ServerJob serverJob,
 			final SequentialBehaviour parentBehaviour) {
 		this.template = and(MatchSender(myGreenAgent.getMonitoringAgent()),
 				MatchConversationId(cfp.getConversationId()));
 		this.myGreenEnergyAgent = myGreenAgent;
 		this.cfp = cfp;
-		this.powerJob = powerJob;
+		this.serverJob = serverJob;
 		this.parentBehaviour = parentBehaviour;
 	}
 
@@ -72,11 +72,11 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 		final ACLMessage message = myAgent.receive(template);
 
 		if (nonNull(message)) {
-			MDC.put(MDC_JOB_ID, powerJob.getJobId());
+			MDC.put(MDC_JOB_ID, serverJob.getJobId());
 			final MonitoringData data = readMonitoringData(message);
 
 			if (nonNull(data)) {
-				if(message.getPerformative() == REFUSE) {
+				if (message.getPerformative() == REFUSE) {
 					logger.info(WEATHER_UNAVAILABLE_FOR_JOB_LOG);
 					handleRefusal();
 				} else if (message.getPerformative() == INFORM) {
@@ -91,20 +91,20 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	private void handleInform(final MonitoringData data) {
 		final Optional<Double> averageAvailablePower = myGreenEnergyAgent.manage()
-				.getAvailablePowerForJob(powerJob, data, true);
-		final String jobId = powerJob.getJobId();
+				.getAvailablePowerForJob(serverJob, data, true);
+		final String jobId = serverJob.getJobId();
 
 		if (averageAvailablePower.isEmpty()) {
 			logger.info(TOO_BAD_WEATHER_LOG, jobId);
 			handleRefusal();
-		} else if (powerJob.getPower() > averageAvailablePower.get()) {
-			logger.info(NOT_ENOUGH_POWER_LOG, jobId, powerJob.getPower(), averageAvailablePower.get());
+		} else if (serverJob.getPower() > averageAvailablePower.get()) {
+			logger.info(NOT_ENOUGH_POWER_LOG, jobId, serverJob.getPower(), averageAvailablePower.get());
 			handleRefusal();
 		} else {
 			logger.info(POWER_SUPPLY_PROPOSAL_LOG, jobId);
 			final ACLMessage offer = OfferMessageFactory.makeGreenEnergyPowerSupplyOffer(myGreenEnergyAgent,
 					averageAvailablePower.get(),
-					myGreenEnergyAgent.manage().computeCombinedPowerError(powerJob),
+					myGreenEnergyAgent.manage().computeCombinedPowerError(serverJob),
 					jobId, cfp.createReply());
 			myAgent.addBehaviour(new InitiatePowerSupplyOffer(myAgent, offer, data));
 		}
@@ -121,7 +121,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleRefusal() {
-		myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+		myGreenEnergyAgent.getServerJobs().remove(serverJob);
 		myGreenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp.createReply()));
 	}
 }

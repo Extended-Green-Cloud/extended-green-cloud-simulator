@@ -1,7 +1,9 @@
 package com.greencloud.application.agents.scheduler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -11,7 +13,8 @@ import com.google.common.collect.Multimap;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
@@ -22,7 +25,7 @@ import jade.core.AID;
 public abstract class AbstractSchedulerAgent extends AbstractAgent {
 
 	protected PriorityBlockingQueue<ClientJob> jobsToBeExecuted;
-	protected ConcurrentMap<ClientJob, JobStatusEnum> clientJobs;
+	protected ConcurrentMap<ClientJob, ExecutionJobStatusEnum> clientJobs;
 	protected ConcurrentMap<String, AID> cnaForJobMap;
 	protected List<AID> availableCloudNetworks;
 
@@ -30,6 +33,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected SchedulerStateManagement stateManagement;
 
 	protected Multimap<String, ClientJob> jobParts;
+	protected Set<String> failedJobs;
 
 	/**
 	 * Default constructor.
@@ -40,6 +44,8 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
 		this.jobParts = ArrayListMultimap.create();
+		this.failedJobs = new HashSet<>();
+		agentType = AgentType.SCHEDULER;
 	}
 
 	/**
@@ -52,7 +58,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	/**
 	 * @return jobs introduced to the Scheduler Agent
 	 */
-	public ConcurrentMap<ClientJob, JobStatusEnum> getClientJobs() {
+	public ConcurrentMap<ClientJob, ExecutionJobStatusEnum> getClientJobs() {
 		return clientJobs;
 	}
 
@@ -75,6 +81,13 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	 */
 	public Multimap<String, ClientJob> getJobParts() {
 		return jobParts;
+	}
+
+	/**
+	 * @return a set of all failed jobs
+	 */
+	public Set<String> getFailedJobs() {
+		return failedJobs;
 	}
 
 	/**

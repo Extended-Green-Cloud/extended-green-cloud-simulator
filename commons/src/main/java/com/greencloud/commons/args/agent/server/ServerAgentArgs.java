@@ -26,6 +26,11 @@ public interface ServerAgentArgs extends AgentArgs {
 	String getMaximumCapacity();
 
 	/**
+	 * @return limit of jobs that can be processed at the same time
+	 */
+	String getJobProcessingLimit();
+
+	/**
 	 * @return price per 1-hour
 	 */
 	String getPrice();

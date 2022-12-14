@@ -7,6 +7,8 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
@@ -15,9 +17,9 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
-import com.greencloud.commons.job.PowerJob;
-import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.job.JobResultType;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -49,12 +51,12 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		final ACLMessage message = myGreenEnergyAgent.receive(POWER_SUPPLY_STATUS_TEMPLATE);
 		if (nonNull(message)) {
 			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
-			final PowerJob powerJob = myGreenEnergyAgent.manage().getJobByIdAndStartDate(jobInstanceId);
+			final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
 
-			if (nonNull(powerJob)) {
+			if (nonNull(serverJob)) {
 				switch (message.getConversationId()) {
-					case FINISH_JOB_ID -> handlePowerSupplyFinish(powerJob, jobInstanceId);
-					case STARTED_JOB_ID -> handlePowerSupplyStart(powerJob, jobInstanceId);
+					case FINISH_JOB_ID -> handlePowerSupplyFinish(serverJob, jobInstanceId);
+					case STARTED_JOB_ID -> handlePowerSupplyStart(serverJob, jobInstanceId);
 				}
 			}
 		} else {
@@ -62,21 +64,23 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		}
 	}
 
-	private void handlePowerSupplyStart(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
-		MDC.put(MDC_JOB_ID, powerJob.getJobId());
+	private void handlePowerSupplyStart(final ServerJob serverJob, final JobInstanceIdentifier jobInstance) {
+		MDC.put(MDC_JOB_ID, serverJob.getJobId());
 		logger.info(START_POWER_SUPPLY_LOG, jobInstance.getJobId());
-		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ACCEPTED, JobStatusEnum.IN_PROGRESS);
-		myGreenEnergyAgent.getPowerJobs().replace(powerJob, JobStatusEnum.ON_HOLD_PLANNED, JobStatusEnum.ON_HOLD);
-		myGreenEnergyAgent.manage().incrementStartedJobs(jobInstance);
+		myGreenEnergyAgent.getServerJobs()
+				.replace(serverJob, ExecutionJobStatusEnum.ACCEPTED, ExecutionJobStatusEnum.IN_PROGRESS);
+		myGreenEnergyAgent.getServerJobs()
+				.replace(serverJob, ExecutionJobStatusEnum.ON_HOLD_PLANNED, ExecutionJobStatusEnum.ON_HOLD);
+		myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.STARTED);
 	}
 
-	private void handlePowerSupplyFinish(final PowerJob powerJob, final JobInstanceIdentifier jobInstance) {
-		if (powerJob.getStartTime().isBefore(TimeUtils.getCurrentTime())) {
-			myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstance);
+	private void handlePowerSupplyFinish(final ServerJob serverJob, final JobInstanceIdentifier jobInstance) {
+		if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(serverJob))) {
+			myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.FINISH);
 		}
-		MDC.put(MDC_JOB_ID, powerJob.getJobId());
+		MDC.put(MDC_JOB_ID, serverJob.getJobId());
 		logger.info(FINISH_POWER_SUPPLY_LOG, jobInstance.getJobId());
-		myGreenEnergyAgent.getPowerJobs().remove(powerJob);
+		myGreenEnergyAgent.getServerJobs().remove(serverJob);
 		myGreenEnergyAgent.manage().updateGreenSourceGUI();
 	}
 }

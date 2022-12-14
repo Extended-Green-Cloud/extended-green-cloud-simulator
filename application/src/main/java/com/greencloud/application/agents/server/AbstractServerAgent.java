@@ -1,13 +1,13 @@
 package com.greencloud.application.agents.server;
 
-import static com.greencloud.application.agents.server.domain.ServerAgentConstants.JOB_PROCESSING_LIMIT;
 import static com.greencloud.application.agents.server.domain.ServerAgentConstants.MAX_AVAILABLE_POWER_DIFFERENCE;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,8 +17,9 @@ import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.domain.GreenSourceData;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -32,11 +33,10 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected transient ServerConfigManagement configManagement;
 	protected int initialMaximumCapacity;
 	protected int currentMaximumCapacity;
-	protected double pricePerHour;
 	protected volatile AtomicLong currentlyProcessing;
-	protected volatile ConcurrentMap<ClientJob, JobStatusEnum> serverJobs;
+	protected volatile ConcurrentMap<ClientJob, ExecutionJobStatusEnum> serverJobs;
 	protected Map<String, AID> greenSourceForJobMap;
-	protected List<AID> ownedGreenSources;
+	protected Set<AID> ownedGreenSources;
 	protected AID ownerCloudNetworkAgent;
 
 	AbstractServerAgent() {
@@ -44,9 +44,10 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 		serverJobs = new ConcurrentHashMap<>();
 		initialMaximumCapacity = 0;
-		ownedGreenSources = new ArrayList<>();
+		ownedGreenSources = new HashSet<>();
 		greenSourceForJobMap = new HashMap<>();
 		currentlyProcessing = new AtomicLong(0);
+		agentType = AgentType.SERVER;
 	}
 
 	/**
@@ -70,13 +71,16 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		} catch (JsonProcessingException e) {
 			return Integer.MAX_VALUE;
 		}
-		double powerDifference = greenSource1.getAvailablePowerInTime() * weight1 - greenSource2.getAvailablePowerInTime() * weight2;
-		int errorDifference = (int) (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
+		double powerDifference =
+				greenSource1.getAvailablePowerInTime() * weight1 - greenSource2.getAvailablePowerInTime() * weight2;
+		double errorDifference = (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
+		int priceDifference = (int) (greenSource1.getPricePerPowerUnit() - greenSource2.getPricePerPowerUnit());
+
 		return (int) (errorDifference != 0 ?
+				Math.signum(errorDifference) :
 				MAX_AVAILABLE_POWER_DIFFERENCE.isValidValue((long) powerDifference) ?
-						errorDifference :
-						powerDifference
-				: powerDifference);
+						priceDifference :
+						Math.signum(powerDifference));
 	}
 
 	public int getInitialMaximumCapacity() {
@@ -95,15 +99,11 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return ownerCloudNetworkAgent;
 	}
 
-	public double getPricePerHour() {
-		return pricePerHour;
-	}
-
-	public Map<ClientJob, JobStatusEnum> getServerJobs() {
+	public Map<ClientJob, ExecutionJobStatusEnum> getServerJobs() {
 		return serverJobs;
 	}
 
-	public List<AID> getOwnedGreenSources() {
+	public Set<AID> getOwnedGreenSources() {
 		return ownedGreenSources;
 	}
 
@@ -128,6 +128,6 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	}
 
 	public boolean canTakeIntoProcessing() {
-		return currentlyProcessing.get() < JOB_PROCESSING_LIMIT;
+		return currentlyProcessing.get() < manageConfig().getJobProcessingLimit();
 	}
 }

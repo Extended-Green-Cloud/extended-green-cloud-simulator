@@ -12,6 +12,25 @@ public final class DmlQueries {
 			"INSERT INTO monitoring_data (time, aid, data_type, data) VALUES (now(), ?, ?, ?)";
 	static final String GET_LAST_1_SEC_DATA =
 			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
+	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
+			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
+					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND "
+					+ "order by aid, data_type, time desc";
+
+	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES =
+			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
+					+ "where data_type = ANY(?) "
+					+ "order by aid, data_type, time desc";
+	static final String GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME =
+			"SELECT * FROM monitoring_data where data_type = ? and aid = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
+
+	/**
+	 * System quality table queries
+	 */
+	static final String INSERT_SYSTEM_QUALITY_DATA =
+			"INSERT INTO system_quality (time, goal_id, quality) VALUES (now(), ?, ?)";
+	static final String GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL =
+			"SELECT * FROM system_quality WHERE goal_id=? ORDER BY time DESC LIMIT ?";
 
 	/**
 	 * Adaptation goals table query
@@ -29,7 +48,9 @@ public final class DmlQueries {
 			VALUES (?, ?, ?, ?, ?, ? ,?)
 			""";
 	static final String UPDATE_ADAPTATION_ACTION =
-			"UPDATE adaptation_actions SET action_results = ?, is_available = FALSE, runs = ? WHERE action_id = ?";
+			"UPDATE adaptation_actions SET action_results = ?, runs = ? WHERE action_id = ?";
+	static final String DISABLE_ADAPTATION_ACTION =
+			"UPDATE adaptation_actions SET is_available = FALSE WHERE action_id = ?";
 	static final String RELEASE_ADAPTATION_ACTION =
 			"UPDATE adaptation_actions SET is_available = TRUE WHERE action_id = ?";
 

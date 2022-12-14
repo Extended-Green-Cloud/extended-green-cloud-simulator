@@ -1,9 +1,5 @@
 package runner.factory;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,6 +12,7 @@ import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.agents.ClientAgentNode;
 import com.gui.agents.CloudNetworkAgentNode;
@@ -28,7 +25,6 @@ import com.gui.agents.ServerAgentNode;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import runner.domain.ScenarioStructureArgs;
 
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
@@ -39,13 +35,13 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	}
 
 	@Override
-	public AgentController createAgentController(AgentArgs agentArgs)
+	public AgentController createAgentController(AgentArgs agentArgs, ScenarioStructureArgs scenario)
 			throws StaleProxyException {
 
 		if (agentArgs instanceof ClientAgentArgs clientAgent) {
-			final String startDate = formatToDate(clientAgent.getStart());
-			final String endDate = formatToDate(clientAgent.getEnd());
-			final String deadline = formatToDate(clientAgent.getDeadline());
+			final String startDate = clientAgent.formatClientTime(clientAgent.getStart());
+			final String endDate = clientAgent.formatClientTime(clientAgent.getEnd());
+			final String deadline = clientAgent.formatClientTime(clientAgent.getDeadline());
 
 			return containerController.createNewAgent(clientAgent.getName(),
 					"com.greencloud.application.agents.client.ClientAgent",
@@ -53,12 +49,16 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		} else if (agentArgs instanceof ServerAgentArgs serverAgent) {
 			return containerController.createNewAgent(serverAgent.getName(),
 					"com.greencloud.application.agents.server.ServerAgent",
-					new Object[] { serverAgent.getOwnerCloudNetwork(), serverAgent.getPrice(),
-							serverAgent.getMaximumCapacity() });
+					new Object[] {
+							serverAgent.getOwnerCloudNetwork(),
+							serverAgent.getPrice(),
+							serverAgent.getMaximumCapacity(),
+							serverAgent.getJobProcessingLimit() });
 		} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
 			return containerController.createNewAgent(cloudNetworkAgent.getName(),
 					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent", new Object[] {});
 		} else if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgent) {
+			// TODO add connectedServers() when done
 			return containerController.createNewAgent(greenEnergyAgent.getName(),
 					"com.greencloud.application.agents.greenenergy.GreenEnergyAgent",
 					new Object[] { greenEnergyAgent.getMonitoringAgent(),
@@ -67,23 +67,32 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 							greenEnergyAgent.getPricePerPowerUnit(),
 							greenEnergyAgent.getLatitude(),
 							greenEnergyAgent.getLongitude(),
-							greenEnergyAgent.getEnergyType() });
+							greenEnergyAgent.getEnergyType(),
+							greenEnergyAgent.getWeatherPredictionError() });
 		} else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
 			return containerController.createNewAgent(monitoringAgent.getName(),
 					"com.greencloud.application.agents.monitoring.MonitoringAgent",
-					new Object[] {});
+					new Object[] { monitoringAgent.getBadStubProbability() });
 		} else if (agentArgs instanceof SchedulerAgentArgs schedulerAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"com.greencloud.application.agents.scheduler.SchedulerAgent",
 					new Object[] {
 							schedulerAgent.getDeadlineWeight(),
 							schedulerAgent.getPowerWeight(),
-							schedulerAgent.getMaximumQueueSize()
+							schedulerAgent.getMaximumQueueSize(),
+							schedulerAgent.getJobSplitThreshold(),
+							schedulerAgent.getSplittingFactor()
 					});
 		} else if (agentArgs instanceof ManagingAgentArgs managingAgent) {
 			return containerController.createNewAgent(agentArgs.getName(),
 					"org.greencloud.managingsystem.agent.ManagingAgent",
-					new Object[] { managingAgent.getSystemQualityThreshold() });
+					new Object[] {
+							managingAgent.getSystemQualityThreshold(),
+							scenario,
+							containerController,
+							managingAgent.getPowerShortageThreshold(),
+							managingAgent.getDisabledActions()
+					});
 		}
 		return null;
 	}
@@ -92,9 +101,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	public AbstractAgentNode createAgentNode(AgentArgs agentArgs, ScenarioStructureArgs scenarioArgs) {
 		if (agentArgs instanceof ClientAgentArgs clientArgs) {
 			return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
-					.withStart(formatToDate(clientArgs.getStart()))
-					.withEnd(formatToDate(clientArgs.getEnd()))
-					.withDeadline(formatToDate(clientArgs.getDeadline())));
+					.withStart(clientArgs.formatClientTime(clientArgs.getStart()))
+					.withEnd(clientArgs.formatClientTime(clientArgs.getEnd()))
+					.withDeadline(clientArgs.formatClientTime(clientArgs.getDeadline())));
 		}
 		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
 			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
@@ -138,11 +147,5 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return new ManagingAgentNode(managingAgentArgs);
 		}
 		return null;
-	}
-
-	private String formatToDate(final String value) {
-		final Instant date = Instant.now().plus(Long.parseLong(value), ChronoUnit.HOURS);
-		final String dateFormat = "dd/MM/yyyy HH:mm";
-		return DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId.of("UTC")).format(date);
 	}
 }

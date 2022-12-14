@@ -1,9 +1,12 @@
 package com.greencloud.application.yellowpages;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +70,15 @@ public class YellowPagesService {
 	 * @param ownership   name of the owner to be searched
 	 * @return list of agent addresses found in DF or empty list if no agents found
 	 */
-	public static List<AID> search(Agent agent, String serviceType, String ownership) {
+	public static Set<AID> search(Agent agent, String serviceType, String ownership) {
 		try {
 			return Arrays.stream(DFService.search(agent, prepareAgentDescriptionTemplate(serviceType, ownership)))
-					.map(DFAgentDescription::getName).toList();
+					.map(DFAgentDescription::getName).collect(Collectors.toSet());
 		} catch (FIPAException e) {
 			e.printStackTrace();
 		}
 
-		return emptyList();
+		return emptySet();
 	}
 
 	/**
@@ -85,15 +88,15 @@ public class YellowPagesService {
 	 * @param serviceType type of the service to be searched
 	 * @return list of agent addresses found in DF
 	 */
-	public static List<AID> search(Agent agent, String serviceType) {
+	public static Set<AID> search(Agent agent, String serviceType) {
 		try {
 			return Arrays.stream(DFService.search(agent, prepareAgentDescriptionTemplate(serviceType)))
-					.map(DFAgentDescription::getName).toList();
+					.map(DFAgentDescription::getName).collect(Collectors.toSet());
 		} catch (FIPAException e) {
 			logger.info("Haven't found any agents because {}", e.getMessage());
 		}
 
-		return emptyList();
+		return emptySet();
 	}
 
 	/**
@@ -106,6 +109,20 @@ public class YellowPagesService {
 	public static ACLMessage prepareSubscription(final Agent subscriber, final String serviceType) {
 		return DFService.createSubscriptionMessage(subscriber, subscriber.getDefaultDF(),
 				prepareAgentDescriptionTemplate(serviceType), null);
+	}
+
+	/**
+	 * Method subscribes a given agent service for the subscriber agent.
+	 *
+	 * @param subscriber  agent subscribing given service
+	 * @param serviceType type of the service to be subscribed
+	 * @param ownership   name of the owner to be searched
+	 * @return subscription ACLMessage
+	 */
+	public static ACLMessage prepareSubscription(final Agent subscriber, final String serviceType,
+			final String ownership) {
+		return DFService.createSubscriptionMessage(subscriber, subscriber.getDefaultDF(),
+				prepareAgentDescriptionTemplate(serviceType, ownership), null);
 	}
 
 	/**

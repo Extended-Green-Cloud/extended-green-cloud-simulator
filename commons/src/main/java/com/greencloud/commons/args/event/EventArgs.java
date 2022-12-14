@@ -7,18 +7,13 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
-import com.greencloud.commons.args.event.newclient.PowerShortageEventArgs;
+import com.greencloud.commons.args.event.powershortage.PowerShortageEventArgs;
 import com.greencloud.commons.exception.InvalidScenarioEventStructure;
 
 /**
  * Generic interface containing common properties for defining scenario events
  */
-@Value.Immutable
-@JsonSerialize(as = ImmutableEventArgs.class)
-@JsonDeserialize(as = ImmutableEventArgs.class)
 @JsonTypeInfo(
 		use = NAME,
 		include = PROPERTY,

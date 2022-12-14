@@ -8,6 +8,8 @@
 		<deadlineWeight>0.5</deadlineWeight>
 		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
+		<jobSplitThreshold>20</jobSplitThreshold>
+		<splittingFactor>3</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
@@ -51,6 +53,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>WindFarm1</name>
@@ -61,6 +64,7 @@
 			<pricePerPowerUnit>5</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar2</name>
@@ -71,6 +75,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind2</name>
@@ -81,6 +86,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar3</name>
@@ -91,6 +97,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind3</name>
@@ -101,6 +108,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar4</name>
@@ -111,6 +119,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind4</name>
@@ -121,6 +130,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Solar5</name>
@@ -131,6 +141,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>SOLAR</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
 			<name>Wind5</name>
@@ -141,6 +152,7 @@
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>200</maximumCapacity>
 			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
 	<serverAgentsArgs>
@@ -148,24 +160,28 @@
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
 			<maximumCapacity>100</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
 			<maximumCapacity>150</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server3</name>
 			<ownerCloudNetwork>CNA2</ownerCloudNetwork>
 			<maximumCapacity>200</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>50.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server4</name>
 			<ownerCloudNetwork>CNA2</ownerCloudNetwork>
 			<maximumCapacity>150</maximumCapacity>
+			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>100.5</price>
 		</serverAgentsArgs>
 	</serverAgentsArgs>

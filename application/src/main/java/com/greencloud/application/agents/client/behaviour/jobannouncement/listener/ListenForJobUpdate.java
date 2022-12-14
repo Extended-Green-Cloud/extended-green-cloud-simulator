@@ -39,14 +39,15 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
-import static com.greencloud.commons.job.JobStatusEnum.CREATED;
-import static com.greencloud.commons.job.JobStatusEnum.DELAYED;
-import static com.greencloud.commons.job.JobStatusEnum.FINISHED;
-import static com.greencloud.commons.job.JobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.JobStatusEnum.ON_BACK_UP;
-import static com.greencloud.commons.job.JobStatusEnum.ON_HOLD;
-import static com.greencloud.commons.job.JobStatusEnum.PROCESSED;
-import static com.greencloud.commons.job.JobStatusEnum.SCHEDULED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.DELAYED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
 import static java.util.Objects.isNull;
 
 import java.time.Instant;
@@ -62,8 +63,9 @@ import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.application.domain.job.SplitJob;
+import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
 import jade.core.behaviours.CyclicBehaviour;
@@ -125,7 +127,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		}
 	}
 
-	private void processBasedOnStatus(ACLMessage message, JobStatusEnum status, String logMessage) {
+	private void processBasedOnStatus(ACLMessage message, ClientJobStatusEnum status, String logMessage) {
 		logger.info(logMessage);
 		if (!myClientAgent.isSplit()) {
 			myNode.updateJobStatus(status);
@@ -186,6 +188,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		if (!myClientAgent.isSplit()) {
 			myClientAgent.setSimulatedJobStart(postponedStart);
 			myClientAgent.setSimulatedJobEnd(postponedEnd);
+			myNode.updateJobTimeFrame(convertToRealTime(myClientAgent.getSimulatedJobStart()),
+					convertToRealTime(myClientAgent.getSimulatedJobEnd()));
 			return;
 		}
 
@@ -193,6 +197,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		var jobPart = myClientAgent.getJobParts().get(jobPartId);
 		jobPart.setSimulatedJobStart(postponedStart);
 		jobPart.setSimulatedJobEnd(postponedEnd);
+		myNode.updateJobTimeFrame(convertToRealTime(jobPart.getSimulatedJobStart()),
+				convertToRealTime(jobPart.getSimulatedJobEnd()), jobPartId);
 	}
 
 	private void processFailedJob() {
@@ -203,7 +209,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		}
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		myClientAgent.getGuiController().updateFailedJobsCountByValue(1);
-		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(JobStatusEnum.FAILED);
+		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(ClientJobStatusEnum.FAILED);
+		myClientAgent.manage().updateJobStatusDuration(FAILED);
 		myClientAgent.manage().writeClientData(true);
 		myClientAgent.doDelete();
 	}
@@ -214,14 +221,18 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			logger.info(CLIENT_JOB_RESCHEDULED_LOG);
 			myClientAgent.setSimulatedJobStart(newTimeFrames.getNewJobStart());
 			myClientAgent.setSimulatedJobEnd(newTimeFrames.getNewJobEnd());
+			myNode.updateJobTimeFrame(convertToRealTime(myClientAgent.getSimulatedJobStart()),
+					convertToRealTime(myClientAgent.getSimulatedJobEnd()));
 			return;
 		}
 		var jobPart = myClientAgent.getJobParts().get(newTimeFrames.getJobId());
 		jobPart.setSimulatedJobStart(newTimeFrames.getNewJobStart());
 		jobPart.setSimulatedJobEnd(newTimeFrames.getNewJobEnd());
+		myNode.updateJobTimeFrame(convertToRealTime(jobPart.getSimulatedJobStart()),
+				convertToRealTime(jobPart.getSimulatedJobEnd()), newTimeFrames.getJobId());
 	}
 
-	private void processJobPartBasedOnStatus(ACLMessage message, JobStatusEnum status) {
+	private void processJobPartBasedOnStatus(ACLMessage message, ClientJobStatusEnum status) {
 		var jobPartId = message.getContent();
 		myClientAgent.getJobParts().get(jobPartId).updateJobStatusDuration(status);
 		myNode.updateJobStatus(status, jobPartId);
@@ -268,7 +279,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 
 		logger.info(CLIENT_JOB_SPLIT_LOG);
 		myClientAgent.split();
-		myNode.informAboutSplitJob(jobParts);
+		myNode.informAboutSplitJob(jobParts.stream().map(JobMapper::mapToClientJobRealTime).toList());
 		jobParts.forEach(jobPart ->
 				myClientAgent.getJobParts().put(jobPart.getJobId(), new JobPart(jobPart, CREATED,
 						myClientAgent.getSimulatedJobStart(), myClientAgent.getSimulatedJobEnd(),

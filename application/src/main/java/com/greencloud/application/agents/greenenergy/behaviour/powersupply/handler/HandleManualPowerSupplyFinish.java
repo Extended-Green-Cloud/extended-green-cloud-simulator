@@ -2,9 +2,10 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.hand
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.logs.PowerSupplyHandlerLog.MANUAL_POWER_SUPPLY_FINISH_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static com.greencloud.application.domain.job.JobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static java.util.Objects.nonNull;
 
 import java.util.Date;
@@ -15,7 +16,8 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.JobResultType;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
@@ -51,20 +53,20 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final PowerJob job = myGreenEnergyAgent.manage()
-				.getJobByIdAndStartDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime());
+		final ServerJob job = getJobByIdAndStartDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime(),
+				myGreenEnergyAgent.getServerJobs());
 
-		if (nonNull(job) && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
+		if (nonNull(job) && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(job))) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.error(MANUAL_POWER_SUPPLY_FINISH_LOG);
 
-			if(RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getPowerJobs().get(job))) {
-				myGreenEnergyAgent.manage().incrementFinishedJobs(jobInstanceId);
+			if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(job))) {
+				myGreenEnergyAgent.manage().incrementJobCounter(jobInstanceId, JobResultType.FINISH);
 			}
-			myGreenEnergyAgent.getPowerJobs().remove(job);
+			myGreenEnergyAgent.getServerJobs().remove(job);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 
-			myAgent.send(prepareManualFinishMessageForServer(jobInstanceId, myGreenEnergyAgent.getOwnerServer()));
+			myAgent.send(prepareManualFinishMessageForServer(jobInstanceId, job.getServer()));
 		}
 	}
 }

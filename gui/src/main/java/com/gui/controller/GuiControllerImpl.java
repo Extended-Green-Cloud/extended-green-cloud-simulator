@@ -11,12 +11,19 @@ import com.gui.websocket.GuiWebSocketListener;
 
 public class GuiControllerImpl implements GuiController {
 
-	private final GuiWebSocketClient webSocketClient;
-	private final GuiWebSocketListener webSocketListener;
+	private static GuiWebSocketClient webSocketClient;
+	private static GuiWebSocketListener webSocketListener;
+
+	public GuiControllerImpl() {
+	}
 
 	public GuiControllerImpl(String mainHostUri) {
-		webSocketClient = new GuiWebSocketClient(URI.create(mainHostUri));
-		webSocketListener = new GuiWebSocketListener(URI.create(mainHostUri + "powerShortage"));
+		if (webSocketClient == null) {
+			webSocketClient = new GuiWebSocketClient(URI.create(mainHostUri));
+		}
+		if (webSocketListener == null) {
+			webSocketListener = new GuiWebSocketListener(URI.create(mainHostUri + "powerShortage"));
+		}
 	}
 
 	@Override

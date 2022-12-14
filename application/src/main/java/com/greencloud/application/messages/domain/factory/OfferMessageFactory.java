@@ -1,5 +1,6 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 
 import java.io.IOException;
@@ -11,10 +12,10 @@ import com.greencloud.application.domain.GreenSourceData;
 import com.greencloud.application.domain.ImmutableGreenSourceData;
 import com.greencloud.application.domain.ImmutableServerData;
 import com.greencloud.application.domain.ServerData;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.ImmutablePricedJob;
 import com.greencloud.application.domain.job.PricedJob;
 import com.greencloud.application.mapper.JsonMapper;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.lang.acl.ACLMessage;
 
@@ -61,7 +62,7 @@ public class OfferMessageFactory {
 			final double servicePrice,
 			final String jobId,
 			final ACLMessage replyMessage) {
-		final ClientJob job = serverAgent.manage().getJobById(jobId);
+		final ClientJob job = getJobById(jobId, serverAgent.getServerJobs());
 		final int availablePower = serverAgent.manage()
 				.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 		final ImmutableServerData jobOffer = ImmutableServerData.builder()

@@ -3,22 +3,23 @@ package com.greencloud.application.agents.server.behaviour.powershortage.listene
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_SHORTAGE_FINISH_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates.SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
 
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -70,16 +71,16 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 		try {
 			final JobInstanceIdentifier jobInstanceIdentifier = getMapper().readValue(message.getContent(),
 					JobInstanceIdentifier.class);
-			return myServerAgent.manage().getJobByIdAndStartDate(jobInstanceIdentifier);
+			return getJobByIdAndStartDate(jobInstanceIdentifier, myServerAgent.getServerJobs());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	private JobStatusEnum getNewJobStatus(final ClientJob job) {
+	private ExecutionJobStatusEnum getNewJobStatus(final ClientJob job) {
 		return job.getStartTime().isAfter(getCurrentTime()) ?
-				JobStatusEnum.ACCEPTED :
-				JobStatusEnum.IN_PROGRESS;
+				ExecutionJobStatusEnum.ACCEPTED :
+				ExecutionJobStatusEnum.IN_PROGRESS;
 	}
 }

@@ -1,24 +1,24 @@
 import React, { useEffect } from 'react'
 import { styles } from './main-view-style'
 import {
-   StatisticsPanel,
    Banner,
-   NetworkPanel,
+   AgentSystemPanel,
    GraphPanel,
    AdaptationPanel,
 } from '@components'
-import { cloudNetworkActions, useAppDispatch } from '@store'
+
+interface Props {
+   openServerConnection: () => void
+}
 
 /**
  * Component representing main application view
  *
  * @returns JSX Element
  */
-const MainView = () => {
-   const dispatch = useAppDispatch()
-
+export const MainView = ({ openServerConnection }: Props) => {
    useEffect(() => {
-      dispatch(cloudNetworkActions.startNetworkStateFetching())
+      openServerConnection()
    })
 
    return (
@@ -26,8 +26,7 @@ const MainView = () => {
          <Banner />
          <div style={styles.contentContainer}>
             <div style={styles.leftContentContainer}>
-               <NetworkPanel />
-               <StatisticsPanel />
+               <AgentSystemPanel />
             </div>
             <GraphPanel />
             <div style={styles.rightContentContainer}>
@@ -37,5 +36,3 @@ const MainView = () => {
       </div>
    )
 }
-
-export default MainView

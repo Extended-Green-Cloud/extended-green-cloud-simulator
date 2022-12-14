@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.cloudnetwork;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +10,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkConfigManagement;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.application.domain.job.JobStatusEnum;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
 import jade.core.AID;
 
@@ -19,17 +22,17 @@ import jade.core.AID;
 public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	protected transient CloudNetworkStateManagement stateManagement;
-
 	protected transient CloudNetworkConfigManagement configManagement;
-	protected Map<ClientJob, JobStatusEnum> networkJobs;
+
+	protected Map<ClientJob, ExecutionJobStatusEnum> networkJobs;
 	protected Map<String, AID> serverForJobMap;
-	protected Map <AID, Integer> weightsForServersMap;
 	protected AtomicLong completedJobs;
 	protected List<AID> ownedServers;
 	protected AID scheduler;
 
 	AbstractCloudNetworkAgent() {
 		super.setup();
+		agentType = AgentType.CNA;
 	}
 
 	/**
@@ -42,14 +45,14 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		serverForJobMap = new HashMap<>();
 		networkJobs = new HashMap<>();
 		completedJobs = new AtomicLong(0L);
-		weightsForServersMap = new HashMap<>();
+		ownedServers = new ArrayList<>();
 	}
 
 	public Map<String, AID> getServerForJobMap() {
 		return serverForJobMap;
 	}
 
-	public Map<ClientJob, JobStatusEnum> getNetworkJobs() {
+	public Map<ClientJob, ExecutionJobStatusEnum> getNetworkJobs() {
 		return networkJobs;
 	}
 
@@ -61,8 +64,9 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 		return ownedServers;
 	}
 
-	public void setOwnedServers(List<AID> ownedServers) {
-		this.ownedServers = ownedServers;
+	public void setOwnedServers(Collection<AID> ownedServers) {
+		this.ownedServers.clear();
+		this.ownedServers.addAll(ownedServers);
 	}
 
 	public AID getScheduler() {

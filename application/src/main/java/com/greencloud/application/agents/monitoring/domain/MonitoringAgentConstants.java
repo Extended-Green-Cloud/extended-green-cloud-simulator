@@ -2,8 +2,6 @@ package com.greencloud.application.agents.monitoring.domain;
 
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
-import java.time.Instant;
-
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.ImmutableWeatherData;
 import com.greencloud.application.domain.MonitoringData;
@@ -26,7 +24,7 @@ public class MonitoringAgentConstants {
 							.cloudCover(25.0)
 							.temperature(25.0)
 							.windSpeed(10.0)
-							.time(Instant.now())
+							.time(getCurrentTime())
 							.build())
 					.build();
 	public static final MonitoringData BAD_STUB_DATA =

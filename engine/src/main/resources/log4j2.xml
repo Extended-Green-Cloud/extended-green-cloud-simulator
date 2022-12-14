@@ -5,10 +5,10 @@
 	<Appenders>
 		<!-- Console appender configuration -->
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L] %m%n" />
+			<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L] %m%n" />
 		</Console>
 		<Console name="ConsoleWithJobId" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+			<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 		</Console>
 
 		<Routing name="RoutingByAgent">
@@ -17,7 +17,7 @@
 				<Route key="$${ctx:agentName}">
 					<RollingFile name="Rolling-default" fileName="logs/default.log"
 						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -30,7 +30,7 @@
 				<Route>
 					<RollingFile name="Rolling-${ctx:agentName}" fileName="logs/${ctx:agentName}.log"
 						filePattern="./logs/${date:yyyy-MM}/${ctx:agentName}-other-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -45,7 +45,7 @@
 				<Route key="$${ctx:jobId}">
 					<RollingFile name="Rolling-default" fileName="logs/jobs/default.log"
 						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -58,7 +58,7 @@
 				<Route>
 					<RollingFile name="Rolling-${ctx:jobId}" fileName="logs/jobs/${ctx:jobId}.log"
 						filePattern="./logs/jobs/${date:yyyy-MM}/${ctx:jobId}-other-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %.10t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -77,6 +77,10 @@
 			<AppenderRef ref="ConsoleWithJobId" />
 			<AppenderRef ref="RoutingByAgent" />
 			<AppenderRef ref="RoutingByJobId" />
+		</Logger>
+		<Logger name="org.greencloud.managingsystem" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleWithJobId" />
+			<AppenderRef ref="RoutingByAgent" />
 		</Logger>
 	</Loggers>
 </Configuration>

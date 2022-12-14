@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import com.gui.message.ImmutableIncrementCounterMessage;
 import com.gui.message.ImmutableLogAdaptationActionMessage;
 import com.gui.message.ImmutableRegisterManagingAgentMessage;
 import com.gui.message.ImmutableUpdateSystemIndicatorsMessage;
 import com.gui.message.domain.ImmutableAdaptationLog;
-import com.gui.message.domain.ImmutableMessage;
 
 /**
  * Agent node class representing the managing agent
@@ -73,23 +73,19 @@ public class ManagingAgentNode extends AbstractAgentNode {
 						.time(adaptationTime)
 						.type(action.getType())
 						.agentName(agentName.orElse(null))
-						.description(action.getActionName())
+						.description(action.getAction().getName())
 						.build())
 				.build());
-		webSocketClient.send(ImmutableMessage.builder()
+		webSocketClient.send(ImmutableIncrementCounterMessage.builder()
 				.type(getCounterToIncrement(action.getType()))
 				.build());
 	}
 
-	private String getCounterToIncrement(final AdaptationActionEnum actionType) {
-		switch (actionType) {
-			case RECONFIGURE -> {
-				return "INCREMENT_WEAK_ADAPTATIONS";
-			}
-			case ADD_COMPONENT, REMOVE_COMPONENT -> {
-				return "INCREMENT_STRONG_ADAPTATIONS";
-			}
+	private String getCounterToIncrement(final AdaptationActionTypeEnum actionType) {
+		return switch (actionType) {
+			case RECONFIGURE -> "INCREMENT_WEAK_ADAPTATIONS";
+			case ADD_COMPONENT, REMOVE_COMPONENT -> "INCREMENT_STRONG_ADAPTATIONS";
 			default -> throw new InvalidParameterException(String.format("Invalid action type %s", actionType));
-		}
+		};
 	}
 }

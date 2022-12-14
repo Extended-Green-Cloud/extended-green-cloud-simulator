@@ -35,8 +35,7 @@
     "redux": "^4.2.0",
     "redux-saga": "^1.2.1",
     "redux-thunk": "^2.4.1",
-    "web-vitals": "^2.1.4",
-    "ws": "^8.8.1"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "craco start",

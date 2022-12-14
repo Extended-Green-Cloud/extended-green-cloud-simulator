@@ -2,6 +2,7 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.h
 
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.handler.logs.PowerShortageCloudHandlerLog.SERVER_TRANSFER_EXECUTE_TRANSFER_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
@@ -13,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -69,7 +70,7 @@ public class HandleJobTransferToServer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final ClientJob jobToExecute = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob jobToExecute = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
 		if (Objects.nonNull(jobToExecute)) {
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(SERVER_TRANSFER_EXECUTE_TRANSFER_LOG, jobId, newServer.getLocalName());

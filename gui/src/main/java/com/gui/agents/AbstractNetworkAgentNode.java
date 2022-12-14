@@ -1,5 +1,6 @@
 package com.gui.agents;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -12,13 +13,17 @@ import com.gui.message.domain.ImmutableCapacity;
 /**
  * Class represents abstract generic agent node which is a part of cloud network
  */
-public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
+public abstract class AbstractNetworkAgentNode extends AbstractAgentNode implements Serializable {
 
-	protected final double initialMaximumCapacity;
-	protected final AtomicReference<Double> currentMaximumCapacity;
-	protected final AtomicBoolean isActive;
-	protected final AtomicInteger numberOfExecutedJobs;
-	protected final AtomicInteger numberOfJobsOnHold;
+	protected double initialMaximumCapacity;
+	protected AtomicReference<Double> currentMaximumCapacity;
+	protected AtomicBoolean isActive;
+	protected AtomicInteger numberOfExecutedJobs;
+	protected AtomicInteger numberOfJobsOnHold;
+
+	protected AbstractNetworkAgentNode() {
+
+	}
 
 	/**
 	 * Network agent node constructor
@@ -99,6 +104,19 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode {
 				.data(value)
 				.agentName(agentName)
 				.type("SET_ON_HOLD_JOBS_COUNT")
+				.build());
+	}
+
+	/**
+	 * Function updates the current job success ratio of a network agent
+	 *
+	 * @param value new success ratio
+	 */
+	public void updateCurrentJobSuccessRatio(final double value) {
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.type("SET_JOB_SUCCESS_RATIO")
+				.agentName(agentName)
+				.data(value * 100)
 				.build());
 	}
 }

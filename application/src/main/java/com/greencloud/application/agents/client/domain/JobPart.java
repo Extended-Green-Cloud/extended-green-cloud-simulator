@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.greencloud.application.utils.domain.Timer;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
+import com.greencloud.commons.job.ClientJobStatusEnum;
 
 /**
  * POJO representing a part of job created after job splitting. It is used to track changes in the state of a part of
@@ -16,21 +16,21 @@ import com.greencloud.commons.job.JobStatusEnum;
 public class JobPart {
 
 	private final ClientJob job;
-	private JobStatusEnum status;
-	protected Map<JobStatusEnum, Long> jobStatusDurationMap;
+	private ClientJobStatusEnum status;
+	protected Map<ClientJobStatusEnum, Long> jobStatusDurationMap;
 	private Instant simulatedJobStart;
 	private Instant simulatedJobEnd;
 	private Instant simulatedDeadline;
 	protected final Timer timer = new Timer();
 
-	public JobPart(ClientJob job, JobStatusEnum status, Instant simulatedJobStart, Instant simulatedJobEnd,
-			Instant simulatedDeadline) {
+	public JobPart(ClientJob job, ClientJobStatusEnum status, Instant simulatedJobStart, Instant simulatedJobEnd,
+				   Instant simulatedDeadline) {
 		this.job = job;
 		this.status = status;
 		this.simulatedJobStart = simulatedJobStart;
 		this.simulatedJobEnd = simulatedJobEnd;
 		this.simulatedDeadline = simulatedDeadline;
-		jobStatusDurationMap = Arrays.stream(JobStatusEnum.values())
+		jobStatusDurationMap = Arrays.stream(ClientJobStatusEnum.values())
 				.collect(Collectors.toMap(statusEnum -> statusEnum, statusEnum -> 0L));
 		timer.startTimeMeasure();
 	}
@@ -39,11 +39,11 @@ public class JobPart {
 		return job;
 	}
 
-	public JobStatusEnum getStatus() {
+	public ClientJobStatusEnum getStatus() {
 		return status;
 	}
 
-	public void setStatus(JobStatusEnum status) {
+	public void setStatus(ClientJobStatusEnum status) {
 		this.status = status;
 	}
 
@@ -67,11 +67,11 @@ public class JobPart {
 		return simulatedDeadline;
 	}
 
-	public Map<JobStatusEnum, Long> getJobStatusDurationMap() {
+	public Map<ClientJobStatusEnum, Long> getJobStatusDurationMap() {
 		return jobStatusDurationMap;
 	}
 
-	public synchronized void updateJobStatusDuration(final JobStatusEnum newStatus) {
+	public synchronized void updateJobStatusDuration(final ClientJobStatusEnum newStatus) {
 		final long elapsedTime = timer.stopTimeMeasure();
 		timer.startTimeMeasure();
 		jobStatusDurationMap.computeIfPresent(status, (key, val) -> val + elapsedTime);

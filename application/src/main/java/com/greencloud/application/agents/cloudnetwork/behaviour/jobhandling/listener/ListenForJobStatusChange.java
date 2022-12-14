@@ -10,8 +10,8 @@ import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandli
 import static com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates.JobHandlingMessageTemplates.JOB_STATUS_CHANGE_TEMPLATE;
 import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkAgentConstants.MAX_ERROR_IN_JOB_START;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.domain.job.JobStatusEnum.ACCEPTED;
-import static com.greencloud.application.domain.job.JobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
@@ -23,20 +23,23 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForScheduler;
+import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
+import com.greencloud.commons.job.JobResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.handler.HandleDelayedJob;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.utils.TimeUtils;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -71,18 +74,18 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
 			final String jobId = jobInstanceId.getJobId();
 
-			if (Objects.nonNull(myCloudNetworkAgent.manage().getJobById(jobId))) {
+			if (Objects.nonNull(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()))) {
 				MDC.put(MDC_JOB_ID, jobId);
 
-				if (message.getProtocol().equals(CHANGE_JOB_STATUS_PROTOCOL)) {
+				if(message.getProtocol().equals(FAILED_JOB_PROTOCOL) || message.getConversationId().equals(FAILED_JOB_ID)) {
+					handleFailedJobMessage(jobId);
+				} else if (message.getProtocol().equals(CHANGE_JOB_STATUS_PROTOCOL)) {
 					switch (message.getConversationId()) {
 						case CONFIRMED_JOB_ID -> handleConfirmedJobMessage(jobId);
 						case STARTED_JOB_ID -> handleStartedJobMessage(jobId);
 						case FINISH_JOB_ID -> handleFinishJobMessage(jobId);
 						default -> handleJobStatusUpdateMessage(jobId, message.getConversationId());
 					}
-				} else if (message.getProtocol().equals(FAILED_JOB_PROTOCOL)) {
-					handleFailedJobMessage(jobId);
 				}
 			}
 		} else {
@@ -91,22 +94,26 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	}
 
 	private void handleConfirmedJobMessage(final String jobId) {
-		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
 
-		MDC.put(MDC_JOB_ID, jobId);
-		logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
-		myCloudNetworkAgent.getNetworkJobs().replace(job, ACCEPTED);
-		myAgent.addBehaviour(new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
+		if(Objects.nonNull(job)) {
+			MDC.put(MDC_JOB_ID, jobId);
+			logger.info(JOB_CONFIRMED_STATUS_LOG, jobId);
+			myCloudNetworkAgent.getNetworkJobs().replace(job, ACCEPTED);
+			myAgent.addBehaviour(
+					new HandleDelayedJob(myCloudNetworkAgent, calculateExpectedJobStart(job), job.getJobId()));
+		}
 	}
 
 	private void handleStartedJobMessage(final String jobId) {
-		final ClientJob job = myCloudNetworkAgent.manage().getJobById(jobId);
+		final ClientJob job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
 
 		if (!myCloudNetworkAgent.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, jobId);
 			logger.info(SEND_JOB_START_STATUS_LOG, jobId);
-			myCloudNetworkAgent.getNetworkJobs().replace(myCloudNetworkAgent.manage().getJobById(jobId), IN_PROGRESS);
-			myCloudNetworkAgent.manage().incrementStartedJobs(jobId);
+			myCloudNetworkAgent.getNetworkJobs()
+					.replace(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()), IN_PROGRESS);
+			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.STARTED);
 			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, STARTED_JOB_ID));
 		}
 	}
@@ -132,15 +139,23 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	private void handleFailedJobMessage(final String jobId) {
 		MDC.put(MDC_JOB_ID, jobId);
 		logger.info(SEND_JOB_FAILED_STATUS_LOG, jobId);
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
-		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, FAILED_JOB_ID));
+		var job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
+
+		if(Objects.nonNull(job)) {
+			if(!myCloudNetworkAgent.getNetworkJobs().get(job).equals(PROCESSING)) {
+				myCloudNetworkAgent.getGuiController().updateAllJobsCountByValue(-1);
+			}
+			myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
+			myCloudNetworkAgent.getServerForJobMap().remove(jobId);
+			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FAILED);
+			myAgent.send(prepareJobStatusMessageForScheduler(myCloudNetworkAgent, jobId, FAILED_JOB_ID));
+		}
 	}
 
 	private void updateNetworkInformation(final String jobId) {
-		myCloudNetworkAgent.getNetworkJobs().remove(myCloudNetworkAgent.manage().getJobById(jobId));
+		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.manage().incrementFinishedJobs(jobId);
+		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FINISH);
 	}
 
 	private Date calculateExpectedJobStart(final ClientJob job) {

@@ -1,5 +1,7 @@
 package com.gui.agents;
 
+import java.io.Serializable;
+
 import com.greencloud.commons.args.agent.monitoring.ImmutableMonitoringNodeArgs;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.websocket.GuiWebSocketClient;
@@ -7,7 +9,7 @@ import com.gui.websocket.GuiWebSocketClient;
 /**
  * Agent node class representing the monitoring agent
  */
-public class MonitoringAgentNode extends AbstractAgentNode {
+public class MonitoringAgentNode extends AbstractAgentNode implements Serializable {
 
 	private final String greenEnergyAgent;
 

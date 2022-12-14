@@ -7,8 +7,8 @@ import java.util.Map;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.agents.client.management.ClientStateManagement;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
-import com.greencloud.commons.job.JobStatusEnum;
 
 /**
  * Abstract agent class storing the data regarding Client Agent
@@ -27,6 +27,7 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected AbstractClientAgent() {
 		super.setup();
 		jobParts = new HashMap<>();
+		agentType = AgentType.CLIENT;
 	}
 
 	public ClientJob getMyJob() {
