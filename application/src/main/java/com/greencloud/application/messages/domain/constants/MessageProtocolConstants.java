@@ -23,7 +23,7 @@ public class MessageProtocolConstants {
 	 * SERVER_JOB_CFP_PROTOCOL           - protocol used in the server's call for proposal message that is sent to the green sources while
 	 * looking for the green source which will supply the server with power needed for the job execution
 	 */
-	public static final String SCHEDULER_JOB_CFP_PROTOCOL = "CLIENT_JOB_CFP";
+	public static final String SCHEDULER_JOB_CFP_PROTOCOL = "SCHEDULER_JOB_CFP";
 	public static final String CNA_JOB_CFP_PROTOCOL = "CNA_JOB_CFP";
 	public static final String SERVER_JOB_CFP_PROTOCOL = "SERVER_JOB_CFP";
 

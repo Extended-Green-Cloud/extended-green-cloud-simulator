@@ -1,5 +1,6 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 
@@ -98,6 +99,6 @@ public class OfferMessageFactory {
 				.powerPredictionError(predictionError)
 				.jobId(jobId)
 				.build();
-		return ReplyMessageFactory.prepareReply(replyMessage, responseData, PROPOSE);
+		return prepareReply(replyMessage, responseData, PROPOSE);
 	}
 }

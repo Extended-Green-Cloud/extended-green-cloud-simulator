@@ -1,8 +1,8 @@
 package com.greencloud.application.messages;
 
-import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.google.common.collect.Collections2.filter;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 
@@ -131,7 +131,7 @@ public class MessagingUtils {
 
 	private static boolean isMessageContentValid(final ACLMessage message, final Class<?> expectedType) {
 		try {
-			JsonMapper.getMapper().readValue(message.getContent(), expectedType);
+			getMapper().readValue(message.getContent(), expectedType);
 			return true;
 		} catch (JsonProcessingException e) {
 			return false;

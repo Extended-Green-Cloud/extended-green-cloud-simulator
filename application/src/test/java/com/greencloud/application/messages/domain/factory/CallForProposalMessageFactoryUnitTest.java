@@ -1,4 +1,4 @@
-package com.greencloud.application.mesages.domain.factory;
+package com.greencloud.application.messages.domain.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -15,7 +15,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
-import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.commons.job.ImmutablePowerJob;
 
 import jade.core.AID;

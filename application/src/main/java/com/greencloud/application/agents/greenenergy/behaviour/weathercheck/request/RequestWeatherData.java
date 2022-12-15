@@ -2,6 +2,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.logs.WeatherCheckRequestLog.WEATHER_REQUEST_SENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.domain.factory.PowerCheckMessageFactory.preparePowerCheckRequest;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static java.util.Objects.isNull;
@@ -20,7 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.ImmutableGreenSourceForecastData;
 import com.greencloud.application.domain.ImmutableGreenSourceWeatherData;
-import com.greencloud.application.messages.domain.factory.PowerCheckMessageFactory;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ServerJob;
 
@@ -82,7 +82,7 @@ public class RequestWeatherData extends OneShotBehaviour {
 			MDC.put(MDC_JOB_ID, serverJob.getJobId());
 		}
 		logger.info(WEATHER_REQUEST_SENT_LOG);
-		final ACLMessage request = PowerCheckMessageFactory.preparePowerCheckRequest(myGreenEnergyAgent,
+		final ACLMessage request = preparePowerCheckRequest(myGreenEnergyAgent,
 				createMessageContent(), conversationId, protocol);
 		myAgent.send(request);
 	}

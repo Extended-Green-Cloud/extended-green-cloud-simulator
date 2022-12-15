@@ -1,6 +1,7 @@
-package com.greencloud.application.mesages;
+package com.greencloud.application.messages;
 
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.exception.IncorrectMessageContentException;
-import com.greencloud.application.messages.MessagingUtils;
+import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.PowerJob;
 
 import jade.core.AID;
@@ -58,6 +59,24 @@ class MessagingUtilsUnitTest {
 						new Condition<>(message -> List.of("Message 1", "Message 2").contains(message.getContent()),
 								"secondMsg"))
 				.areNot(new Condition<>(message -> message.getContent().equals("Message 3"), "secondMsg"));
+	}
+
+	@Test
+	@DisplayName("Test retrieve empty set of messages for performative")
+	void testRetrieveForPerformativeEmpty() {
+		assertThat(MessagingUtils.retrieveForPerformative(new Vector<>(), INFORM)).isEmpty();
+	}
+
+	@Test
+	@DisplayName("Test retrieve non empty set of messages for performative")
+	void testRetrieveForPerformative() {
+		final Vector<ACLMessage> messages = new Vector<>(prepareMessages());
+
+		assertThat(MessagingUtils.retrieveForPerformative(messages, REFUSE))
+				.hasSize(1)
+				.areExactly(1,
+						new Condition<>(message -> Objects.equals("Message 3", message.getContent()),
+								"thirdMsg"));
 	}
 
 	@Test
@@ -152,12 +171,12 @@ class MessagingUtilsUnitTest {
 		final ACLMessage msg = new ACLMessage(PROPOSE);
 		msg.setContent(getMapper().writeValueAsString(jobInstance));
 
-		assertThat((JobInstanceIdentifier) MessagingUtils.readMessageContent(msg, JobInstanceIdentifier.class))
+		assertThat(MessagingUtils.readMessageContent(msg, JobInstanceIdentifier.class))
 				.isEqualTo(jobInstance);
 	}
 
 	@Test
-	@DisplayName("Test read message content (successful)")
+	@DisplayName("Test read message content (unsuccessful)")
 	void testReadMessageContentInvalid() throws JsonProcessingException {
 		final JobInstanceIdentifier jobInstance = ImmutableJobInstanceIdentifier.builder()
 				.jobId("1")
@@ -167,6 +186,46 @@ class MessagingUtilsUnitTest {
 		msg.setContent(getMapper().writeValueAsString(jobInstance));
 
 		assertThatThrownBy(() -> MessagingUtils.readMessageContent(msg, PowerJob.class))
+				.isInstanceOf(IncorrectMessageContentException.class);
+	}
+
+	@Test
+	@DisplayName("Test read message list content (successful)")
+	void testReadMessageListContent() throws JsonProcessingException {
+		final JobInstanceIdentifier jobInstance1 = ImmutableJobInstanceIdentifier.builder()
+				.jobId("2")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.build();
+		final JobInstanceIdentifier jobInstance2 = ImmutableJobInstanceIdentifier.builder()
+				.jobId("2")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.build();
+		final ACLMessage msg = new ACLMessage(PROPOSE);
+		msg.setContent(getMapper().writeValueAsString(List.of(jobInstance1, jobInstance2)));
+
+		assertThat(MessagingUtils.readMessageListContent(msg, JobInstanceIdentifier.class))
+				.hasSize(2)
+				.containsExactly(jobInstance1, jobInstance2);
+	}
+
+	@Test
+	@DisplayName("Test read message list content (unsuccessful)")
+	void testReadMessageListContentInvalid() throws JsonProcessingException {
+		final JobInstanceIdentifier jobInstance = ImmutableJobInstanceIdentifier.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.build();
+		final PowerJob powerJob = ImmutablePowerJob.builder()
+				.jobId("1")
+				.power(50)
+				.deadline(Instant.parse("2022-01-01T15:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T13:00:00.000Z"))
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.build();
+		final ACLMessage msg = new ACLMessage(PROPOSE);
+		msg.setContent(getMapper().writeValueAsString(List.of(jobInstance, powerJob)));
+
+		assertThatThrownBy(() -> MessagingUtils.readMessageListContent(msg, PowerJob.class))
 				.isInstanceOf(IncorrectMessageContentException.class);
 	}
 
