@@ -1,5 +1,6 @@
 package runner;
 
+import static java.io.File.separator;
 import static runner.service.domain.ScenarioConstants.HOST_ID;
 import static runner.service.domain.ScenarioConstants.HOST_NAME;
 import static runner.service.domain.ScenarioConstants.MAIN_HOST;
@@ -17,21 +18,31 @@ import runner.service.SingleContainerScenarioService;
  */
 public class EngineRunner {
 
-	// optional directory in which the scenario files are placed
-	private static final String SCENARIO_DIRECTORY =
-			"\\adaptation\\connectgreensource\\";
-			//"";
+	private static final String SCENARIO_NAME = "multipleCNAsScenario";
+
+	private static final boolean VERIFY = false;
+	private static final String ADAPTATION_TO_VERIFY = "addserver";
+	private static final String VERIFY_SCENARIO = "brokenServerScenario";
+
+	private static final boolean EVENTS = false;
+	private static final String EVENTS_SCENARIO = "simpleTestConnectGreenSourceEvents";
+
+	private static final String DEFAULT_SCENARIO_DIRECTORY = "";
+	private static final String VERIFY_SCENARIO_DIRECTORY = "adaptation" + separator + ADAPTATION_TO_VERIFY + separator;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenarioStructure = SCENARIO_DIRECTORY + "simpleTestConnectGreenSourceScenario";
-		Optional<String> scenarioEvents =
-				//Optional.empty();
-				Optional.of(SCENARIO_DIRECTORY + "simpleTestConnectGreenSourceEvents");
+		String scenarioPath = VERIFY ? VERIFY_SCENARIO_DIRECTORY : DEFAULT_SCENARIO_DIRECTORY;
+		String scenarioFilePath = scenarioPath + (VERIFY ? VERIFY_SCENARIO : SCENARIO_NAME);
+		Optional<String> scenarioEvents = Optional.empty();
+
+		if (EVENTS) {
+			scenarioEvents = Optional.of(VERIFY_SCENARIO_DIRECTORY + EVENTS_SCENARIO);
+		}
 
 		if (MULTI_CONTAINER) {
-			runMultiContainerService(scenarioStructure, scenarioEvents);
+			runMultiContainerService(scenarioFilePath, scenarioEvents);
 		} else {
-			runSingleContainerService(scenarioStructure, scenarioEvents);
+			runSingleContainerService(scenarioFilePath, scenarioEvents);
 		}
 	}
 
