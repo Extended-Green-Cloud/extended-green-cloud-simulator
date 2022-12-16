@@ -72,7 +72,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 			return Integer.MAX_VALUE;
 		}
 		double powerDifference =
-				greenSource1.getAvailablePowerInTime() * weight1 - greenSource2.getAvailablePowerInTime() * weight2;
+				greenSource2.getAvailablePowerInTime() * weight2 - greenSource1.getAvailablePowerInTime() * weight1;
 		double errorDifference = (greenSource1.getPowerPredictionError() - greenSource2.getPowerPredictionError());
 		int priceDifference = (int) (greenSource1.getPricePerPowerUnit() - greenSource2.getPricePerPowerUnit());
 

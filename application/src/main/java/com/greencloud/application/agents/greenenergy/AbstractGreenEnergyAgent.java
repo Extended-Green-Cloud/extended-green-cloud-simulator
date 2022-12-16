@@ -19,6 +19,7 @@ import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;

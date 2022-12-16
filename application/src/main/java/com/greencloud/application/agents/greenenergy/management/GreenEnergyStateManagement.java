@@ -272,7 +272,7 @@ public class GreenEnergyStateManagement {
 
 	private synchronized Double getPower(Instant start, MonitoringData weather) {
 		final double inUseCapacity = greenEnergyAgent.getServerJobs().keySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(greenEnergyAgent.getServerJobs().get(job)) &&
+				.filter(job -> ACTIVE_JOB_STATUSES.contains(greenEnergyAgent.getServerJobs().get(job)) &&
 						isWithinTimeStamp(job, start))
 				.mapToInt(ServerJob::getPower)
 				.sum();

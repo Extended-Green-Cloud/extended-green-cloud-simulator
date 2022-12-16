@@ -30,6 +30,7 @@ import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.domain.AgentsBackUpPower;
@@ -153,7 +154,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 
 		final List<String> greenSourcesForServer = managingAgent.getGreenCloudStructure()
 				.getGreenSourcesForServerAgent(server.name().split("@")[0]);
-		final List<String> consideredGreenSources = getGreenSourcesWithCorrectError(
+		final List<String> consideredGreenSources = getGreenSourcesWithErrorInBounds(
 				getAliveAgentsIntersection(aliveGreenSources, greenSourcesForServer));
 
 		return new AbstractMap.SimpleEntry<>(server,
@@ -168,18 +169,31 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		final Predicate<Map.Entry<String, Integer>> isPowerShortageCountCorrect = entry ->
 				entry.getValue() < POWER_SHORTAGE_THRESHOLD;
 
-		return managingAgent.getAgentNode().getDatabaseClient()
+		final List<AgentData> weatherShortagesForAgents = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, consideredGreenSources,
-						MONITOR_SYSTEM_DATA_TIME_PERIOD).stream()
+						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+		final Stream<AgentsPowerShortages> agentsWithoutPowerShortages = getGreenSourcesWithoutPowerShortages(
+				weatherShortagesForAgents, consideredGreenSources);
+		final Stream<AgentsPowerShortages> agentWithCorrectPowerShortageCount = weatherShortagesForAgents.stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, summingInt(getShortageCount)))
 				.entrySet().stream()
 				.filter(isPowerShortageCountCorrect)
-				.map(entry -> new AgentsPowerShortages(entry.getKey(), entry.getValue()))
-				.toList();
+				.map(entry -> new AgentsPowerShortages(entry.getKey(), entry.getValue()));
+
+		return Stream.concat(agentWithCorrectPowerShortageCount, agentsWithoutPowerShortages).toList();
 	}
 
 	@VisibleForTesting
-	protected List<String> getGreenSourcesWithCorrectError(final List<String> consideredGreenSources) {
+	protected Stream<AgentsPowerShortages> getGreenSourcesWithoutPowerShortages(
+			final List<AgentData> weatherShortagesForAgents, final List<String> consideredGreenSources) {
+		final List<String> agentWithDatabaseRecords = weatherShortagesForAgents.stream().map(AgentData::aid).toList();
+
+		return consideredGreenSources.stream().filter(agent -> !agentWithDatabaseRecords.contains(agent))
+				.map(agent -> new AgentsPowerShortages(agent, 0));
+	}
+
+	@VisibleForTesting
+	protected List<String> getGreenSourcesWithErrorInBounds(final List<String> consideredGreenSources) {
 		final Predicate<AgentData> isErrorCorrect = data ->
 				consideredGreenSources.contains(data.aid()) &&
 						((GreenSourceMonitoringData) data.monitoringData()).getWeatherPredictionError()
@@ -188,6 +202,17 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		return managingAgent.getAgentNode().getDatabaseClient()
 				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING)).stream()
 				.collect(filtering(isErrorCorrect, mapping(AgentData::aid, toList())));
+	}
+
+	@VisibleForTesting
+	protected Map<AgentsBackUpPower, List<AgentsPowerShortages>> getGreenSourcesPerServers() {
+		return greenSourcesPerServers;
+	}
+
+	@VisibleForTesting
+	protected void setGreenSourcesPerServers(
+			Map<AgentsBackUpPower, List<AgentsPowerShortages>> greenSourcesPerServers) {
+		this.greenSourcesPerServers = greenSourcesPerServers;
 	}
 
 	private List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> allAgentsOfType) {
