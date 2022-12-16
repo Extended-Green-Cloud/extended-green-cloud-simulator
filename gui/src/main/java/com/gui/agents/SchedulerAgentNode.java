@@ -1,11 +1,12 @@
 package com.gui.agents;
 
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.LinkedList;
 
 import com.greencloud.commons.args.agent.scheduler.ImmutableSchedulerNodeArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
 import com.greencloud.commons.job.ClientJob;
 import com.gui.message.ImmutableRegisterAgentMessage;
+import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateJobQueueMessage;
 import com.gui.websocket.GuiWebSocketClient;
 
@@ -44,7 +45,33 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 	 *
 	 * @param updatedJobQueue current job queue
 	 */
-	public void updateScheduledJobQueue(final PriorityBlockingQueue<ClientJob> updatedJobQueue) {
+	public void updateScheduledJobQueue(final LinkedList<ClientJob> updatedJobQueue) {
 		webSocketClient.send(ImmutableUpdateJobQueueMessage.builder().data(updatedJobQueue).build());
+	}
+
+	/**
+	 * Method updates the deadline priority in the scheduler agent
+	 *
+	 * @param value value being new deadline priority (eg. 0.2 as for 20%)
+	 */
+	public void updateDeadlinePriority(final double value) {
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(value)
+				.agentName(agentName)
+				.type("UPDATE_SCHEDULER_DEADLINE_PRIORITY")
+				.build());
+	}
+
+	/**
+	 * Method updates the power priority in the scheduler agent
+	 *
+	 * @param value value being new power priority (eg. 0.2 as for 20%)
+	 */
+	public void updatePowerPriority(final double value) {
+		webSocketClient.send(ImmutableSetNumericValueMessage.builder()
+				.data(value)
+				.agentName(agentName)
+				.type("UPDATE_SCHEDULER_POWER_PRIORITY")
+				.build());
 	}
 }

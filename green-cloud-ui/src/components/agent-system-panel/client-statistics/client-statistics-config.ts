@@ -7,6 +7,7 @@ export const CLIENT_STATISTICS = [
    { key: 'start', label: 'Start date' },
    { key: 'end', label: 'End date' },
    { key: 'deadline', label: 'Job execution deadline' },
+   { key: 'durationMap', label: 'Job status duration map' },
 ]
 
 export const SPLIT_JOB_STATISTICS = [

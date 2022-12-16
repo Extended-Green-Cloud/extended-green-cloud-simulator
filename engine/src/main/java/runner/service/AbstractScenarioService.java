@@ -8,11 +8,13 @@ import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.service.domain.ScenarioConstants.DATABASE_HOST_NAME;
 import static runner.service.domain.ScenarioConstants.DEADLINE_MAX;
 import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
+import static runner.service.domain.ScenarioConstants.MAIN_HOST;
 import static runner.service.domain.ScenarioConstants.MAX_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.MIN_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.RESOURCE_SCENARIO_PATH;
 import static runner.service.domain.ScenarioConstants.START_TIME_MAX;
 import static runner.service.domain.ScenarioConstants.START_TIME_MIN;
+import static runner.service.domain.ScenarioConstants.WEBSOCKET_HOST_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +89,7 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Optional<String> scenarioEventsFileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GuiControllerImpl("ws://localhost:8080/");
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
@@ -109,14 +111,16 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Integer hostId, String mainHostIp,
 			Optional<String> scenarioEventsFileName) {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", mainHostIp));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
 		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
 
-		timescaleDatabase.initDatabase();
+		if (MAIN_HOST) {
+			timescaleDatabase.initDatabase();
+		}
 		executorService.execute(guiController);
 		mainContainer = runAgentsContainer(CONTAINER_NAME_PREFIX + hostId.toString(), mainHostIp);
 	}

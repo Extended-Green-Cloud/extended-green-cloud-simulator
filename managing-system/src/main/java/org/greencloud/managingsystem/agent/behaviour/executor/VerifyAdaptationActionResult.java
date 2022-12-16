@@ -42,7 +42,13 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 
 	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, AdaptationActionEnum adaptationActionType,
 			AID targetAgent, Double initialGoalQuality) {
-		super(agent, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS * 1000L);
+		this(agent, actionTimestamp, adaptationActionType, targetAgent, initialGoalQuality,
+				VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
+	}
+
+	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, AdaptationActionEnum adaptationActionType,
+			AID targetAgent, Double initialGoalQuality, int delayInSeconds) {
+		super(agent, delayInSeconds * 1000L);
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.databaseClient = myManagingAgent.getAgentNode().getDatabaseClient();
 		this.actionTimestamp = actionTimestamp;
@@ -78,7 +84,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 				.readCurrentGoalQuality(elapsedTime);
 
 		// absolute delta
-		return initialGoalQuality - currentGoalQuality;
+		return Math.abs(initialGoalQuality - currentGoalQuality);
 	}
 
 	private void enableAdaptationAction(AdaptationAction adaptationAction) {

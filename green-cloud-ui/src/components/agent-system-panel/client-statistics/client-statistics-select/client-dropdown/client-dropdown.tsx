@@ -19,7 +19,7 @@ const selectNoClients = 'Client list is empty'
 
 interface Props {
    selectedClient: ClientAgent | null
-   setSelectedClient: (client: SingleValue<AgentOption>) => void
+   changeSelectedClient: (client: SingleValue<AgentOption>) => void
    clients: ClientAgent[]
    jobStatusMap: JobStatusSelect[]
 }
@@ -28,14 +28,14 @@ interface Props {
  * Component representing dropdown client selector
  *
  * @param {ClientAgent | null}[selectedAgent] - currently selected client
- * @param {func}[setSelectedClient] - function used to update currently selected client
+ * @param {func}[changeSelectedClient] - function used to update currently selected client
  * @param {ClientAgent[]}[clients] - all clients
  * @param {JobStatusSelect[]}[jobStatusMap] - map of relevant job statuses
  * @returns JSX Element
  */
 const ClientDropdown = ({
    selectedClient,
-   setSelectedClient,
+   changeSelectedClient,
    clients,
    jobStatusMap,
 }: Props) => {
@@ -89,7 +89,7 @@ const ClientDropdown = ({
 
    const handleOnChange = (value: SingleValue<AgentOption>) => {
       setIsFocus(false)
-      setSelectedClient(value)
+      changeSelectedClient(value)
    }
 
    const handleNoOption = () =>

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.greencloud.application.agents.server.behaviour.df.ListenForAdditionalGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
@@ -71,7 +72,7 @@ public class ServerAgent extends AbstractServerAgent {
 			}
 		} else {
 			logger.info("Incorrect arguments: some parameters for server agent are missing - "
-					+ "check the parameters in the documentation");
+						+ "check the parameters in the documentation");
 			doDelete();
 		}
 	}
@@ -86,7 +87,18 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForJobStartCheckRequest(),
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
-				new ListenForServerJobCancellation()
+				new ListenForServerJobCancellation(),
+				new ListenForAdditionalGreenSourceService(this)
 		);
+	}
+
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		this.stateManagement = new ServerStateManagement(this);
+		this.configManagement = new ServerConfigManagement(this);
+		// restoring default values
+		configManagement.setJobProcessingLimit(20);
+		configManagement.setPricePerHour(20);
 	}
 }

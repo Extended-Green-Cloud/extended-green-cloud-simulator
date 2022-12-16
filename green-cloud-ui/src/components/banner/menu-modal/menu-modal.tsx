@@ -1,9 +1,3 @@
-import {
-   agentsActions,
-   cloudNetworkActions,
-   useAppDispatch,
-   useAppSelector,
-} from '@store'
 import React, { useState } from 'react'
 import { styles } from './menu-modal-styles'
 import { Modal, Button } from 'components'
@@ -12,6 +6,11 @@ import ThirdPartyLibraries from './third-party-libraries/third-party-libraries'
 interface Props {
    isMenuOpen: boolean
    setIsMenuOpen: (state: boolean) => void
+   isServerConnected?: boolean
+   resetCloudNetwork: () => void
+   resetAgents: () => void
+   closeServerConnection: () => void
+   openServerConnection: () => void
 }
 
 /**
@@ -21,26 +20,33 @@ interface Props {
  * @param {func}[setIsMenuOpen] - function changing the state of the menu modal
  * @returns JSX Element
  */
-const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
+export const MenuModal = ({
+   isMenuOpen,
+   setIsMenuOpen,
+   isServerConnected,
+   resetCloudNetwork,
+   resetAgents,
+   closeServerConnection,
+   openServerConnection,
+}: Props) => {
    const [isThirdPartyOpen, setIsThirdPartyOpen] = useState(false)
    const { modalStyle } = styles
-   const { isServerConnected } = useAppSelector((state) => state.cloudNetwork)
-   const dispatch = useAppDispatch()
    const serverConnectionButtonClass = isServerConnected
       ? ''
       : 'button-disconnected'
 
    const handleOnReset = () => {
-      dispatch(cloudNetworkActions.resetCloudNetwork())
-      dispatch(agentsActions.resetAgents())
+      resetCloudNetwork()
+      resetAgents()
+      window.location.reload()
    }
 
    const handleOnStop = () => {
       if (isServerConnected) {
-         dispatch(cloudNetworkActions.finishNetworkStateFetching())
-         dispatch(agentsActions.resetAgents())
+         closeServerConnection()
+         resetAgents()
       } else {
-         dispatch(cloudNetworkActions.startNetworkStateFetching())
+         openServerConnection()
       }
    }
 
@@ -98,5 +104,3 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }: Props) => {
       </Modal>
    )
 }
-
-export default MenuModal

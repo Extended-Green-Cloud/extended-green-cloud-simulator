@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 		incrementGreenSourceErrorPlan = new IncrementGreenSourceErrorPlan(mockManagingAgent);
 		doReturn(mockManagingAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(mockDatabase).when(mockManagingAgentNode).getDatabaseClient();
+		doReturn(new MonitoringService(mockManagingAgent)).when(mockManagingAgent).monitor();
 	}
 
 	@Test
@@ -106,17 +108,6 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 						&& ((IncrementGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
 						== PERCENTAGE_DIFFERENCE
 				);
-	}
-
-	@Test
-	@DisplayName("Test get alive green sources")
-	void testGetAliveGreenSources() {
-		mockHealthCheckData();
-		var result = incrementGreenSourceErrorPlan.getAliveGreenSources();
-
-		assertThat(result)
-				.hasSize(3)
-				.matches((data) -> List.of("test_gs1", "test_gs2", "test_gs3").containsAll(data));
 	}
 
 	@Test
@@ -179,19 +170,16 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 
 	private List<AgentData> prepareAgentData() {
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)

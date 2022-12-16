@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -11,7 +11,11 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECO
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.commons.job.ClientJobStatusEnum.*;
+import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -19,6 +23,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -86,10 +91,12 @@ class AnalyzerServiceDatabaseTest {
 	@Test
 	@DisplayName("Test analyzer triggering")
 	void testTrigger() {
+		database.readAdaptationActions()
+				.forEach(action -> database.setAdaptationActionAvailability(action.getActionId(), false));
 		analyzerService.trigger(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
 
 		verify(mockManagingAgent).getSystemQualityThreshold();
-		verify(database).readAdaptationActions();
+		verify(database, times(2)).readAdaptationActions();
 		verify(mockManagingAgent).plan();
 		verify(plannerService).trigger(argThat(
 				adaptationActionDoubleMap -> adaptationActionDoubleMap.values().stream().allMatch(val -> val == 0)));
@@ -109,7 +116,7 @@ class AnalyzerServiceDatabaseTest {
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR,
 						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(7, ADD_GREEN_SOURCE,
+				new AdaptationAction(7, CONNECT_GREEN_SOURCE,
 						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO));
 
 		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);
@@ -137,14 +144,9 @@ class AnalyzerServiceDatabaseTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentlyExecutedJobs(10)
-				.currentlyProcessedJobs(3)
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
-				.jobProcessingLimit(5)
-				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
 				.successRatio(0.9)
-				.serverPricePerHour(20)
 				.build();
 
 		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data1);

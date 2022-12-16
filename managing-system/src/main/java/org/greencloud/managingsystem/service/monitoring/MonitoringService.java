@@ -1,12 +1,18 @@
 package org.greencloud.managingsystem.service.monitoring;
 
+import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
@@ -14,10 +20,14 @@ import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.HealthCheck;
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidGoalIdentifierException;
 import com.google.common.annotations.VisibleForTesting;
+import com.greencloud.commons.agent.AgentType;
 import com.gui.agents.ManagingAgentNode;
 
 /**
@@ -83,10 +93,14 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if success ratio goal is satisfied
 	 */
 	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio();
+		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdate();
 		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
 
 		return clientSuccessRatio && networkSuccessRatio;
+	}
+
+	public boolean isBackUpPowerMinimized() {
+		return backUpPowerUsageService.evaluateAndUpdate();
 	}
 
 	/**
@@ -100,8 +114,8 @@ public class MonitoringService extends AbstractManagingService {
 		final double trafficDistribution = 1 - trafficDistributionService.getLastMeasuredGoalQuality();
 
 		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
-			   backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
-			   trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
+				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
 	}
 
 	/**
@@ -139,10 +153,32 @@ public class MonitoringService extends AbstractManagingService {
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
-					.collect(Collectors.toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
+					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}
+	}
+
+	/**
+	 * Method retrieves list of AID's for agents of given type which are currently alive
+	 *
+	 * @param agentType type of the agent
+	 * @return list of alive agent
+	 */
+	public List<String> getAliveAgents(final AgentType agentType) {
+		final List<AgentData> healthAgentData =
+				managingAgent.getAgentNode().getDatabaseClient()
+						.readMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+
+		final Predicate<MonitoringData> isAgentAlive = data -> {
+			var healthData = ((HealthCheck) data);
+			return healthData.alive() && healthData.agentType().equals(agentType);
+		};
+
+		return healthAgentData.stream()
+				.filter(data -> isAgentAlive.test(data.monitoringData()))
+				.map(AgentData::aid)
+				.collect(Collectors.toSet()).stream().toList();
 	}
 
 	@VisibleForTesting

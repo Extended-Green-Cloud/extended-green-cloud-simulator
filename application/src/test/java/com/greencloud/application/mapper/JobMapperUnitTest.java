@@ -1,5 +1,6 @@
 package com.greencloud.application.mapper;
 
+import static com.greencloud.application.mapper.JobMapper.mapServerJobToPowerJob;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToServerJob;
 import static com.greencloud.application.mapper.JobMapper.mapToServerJobRealTime;
@@ -11,7 +12,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.job.ImmutablePowerJob;
 import com.greencloud.commons.job.ImmutableServerJob;
@@ -22,17 +22,13 @@ import jade.core.AID;
 
 class JobMapperUnitTest {
 
-	private static final ServerJob MOCK_POWER_JOB = ImmutableServerJob.builder()
+	private static final ServerJob MOCK_SERVER_JOB = ImmutableServerJob.builder()
 			.server(new AID("test_aid", AID.ISGUID))
 			.jobId("1")
 			.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 			.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
 			.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 			.power(10)
-			.build();
-	private static final JobInstanceIdentifier MOCK_JOB_INSTANCE = ImmutableJobInstanceIdentifier.builder()
-			.jobId("1")
-			.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 			.build();
 
 	@Test
@@ -42,7 +38,7 @@ class JobMapperUnitTest {
 		final Instant expectedStart = Instant.parse("2022-01-31T08:00:00.000Z");
 		final Instant expectedEnd = Instant.parse("2022-03-02T08:00:00.000Z");
 
-		final ServerJob result = mapToServerJobRealTime(MOCK_POWER_JOB);
+		final ServerJob result = mapToServerJobRealTime(MOCK_SERVER_JOB);
 
 		assertThat(result.getStartTime()).isEqualTo(expectedStart);
 		assertThat(result.getEndTime()).isEqualTo(expectedEnd);
@@ -70,9 +66,25 @@ class JobMapperUnitTest {
 	}
 
 	@Test
+	@DisplayName("Test map to power job from server job")
+	void testMapServerJobToPowerJob() {
+		final PowerJob expectedJob = ImmutablePowerJob.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10)
+				.build();
+
+		final PowerJob result = mapServerJobToPowerJob(MOCK_SERVER_JOB);
+
+		assertThat(result).isEqualTo(expectedJob);
+	}
+
+	@Test
 	@DisplayName("Test map to job instance id from power job")
 	void testMapToJobInstanceIdFromPowerJob() {
-		final JobInstanceIdentifier result = mapToJobInstanceId(MOCK_POWER_JOB);
+		final JobInstanceIdentifier result = mapToJobInstanceId(MOCK_SERVER_JOB);
 
 		assertThat(result.getStartTime()).isEqualTo(Instant.parse("2022-01-01T09:00:00.000Z"));
 		assertThat(result.getJobId()).isEqualTo("1");

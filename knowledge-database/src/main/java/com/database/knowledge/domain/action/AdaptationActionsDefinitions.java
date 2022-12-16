@@ -1,6 +1,6 @@
 package com.database.knowledge.domain.action;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -15,6 +15,7 @@ import java.util.Map;
 
 import com.database.knowledge.exception.InvalidAdaptationActionException;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
@@ -36,13 +37,14 @@ public final class AdaptationActionsDefinitions {
 					RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 			new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR,
 					RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-			new AdaptationAction(7, ADD_GREEN_SOURCE,
+			new AdaptationAction(7, CONNECT_GREEN_SOURCE,
 					ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO)
 	);
 
 	private static final Map<AdaptationActionEnum, Class<? extends AdaptationActionParameters>> ACTION_TO_PARAMS_MAP =
 			Map.of(
 					INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorParameters.class,
+					CONNECT_GREEN_SOURCE, ConnectGreenSourceParameters.class,
 					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
 					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class
 			);

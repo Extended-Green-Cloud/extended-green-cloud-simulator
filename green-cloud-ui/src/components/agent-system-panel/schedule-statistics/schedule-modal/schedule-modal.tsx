@@ -1,4 +1,3 @@
-import { useAppSelector } from '@store'
 import { ClientAgent, Job, SplitJob } from '@types'
 import { DetailsCard } from 'components/common'
 import Modal from 'components/common/modal/modal'
@@ -11,6 +10,8 @@ import { styles } from './schedule-modal-styles'
 interface Props {
    isOpen: boolean
    setIsOpen: (state: boolean) => void
+   jobs?: string[]
+   clients: ClientAgent[]
 }
 
 const header = 'Scheduled jobs'
@@ -22,13 +23,7 @@ const header = 'Scheduled jobs'
  * @param {func}[setIsOpen] - function changing the state of the modal
  * @returns JSX Element
  */
-const ScheduleModal = ({ isOpen, setIsOpen }: Props) => {
-   const jobs = useAppSelector(
-      (state) => state.cloudNetwork.scheduler?.scheduledJobs
-   )
-   const clients = useAppSelector(
-      (state) => state.agents.clients
-   ) as ClientAgent[]
+export const ScheduleModal = ({ isOpen, setIsOpen, jobs, clients }: Props) => {
    const { modalStyle } = styles
 
    const generateScheduledJobs = () => {
@@ -88,5 +83,3 @@ const ScheduleModal = ({ isOpen, setIsOpen }: Props) => {
       </Modal>
    )
 }
-
-export default ScheduleModal

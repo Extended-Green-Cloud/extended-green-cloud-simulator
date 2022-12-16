@@ -4,13 +4,12 @@ import './cloud-statistics/cloud-config'
 import { styles } from './agent-system-panel-styles'
 
 import { Card } from '@components'
-import CloudStatistics from './cloud-statistics/cloud-statistics'
+import CloudStatistics from './cloud-statistics/cloud-statistics-connected'
 import TabHeader from 'components/common/tab-header/tab-header'
-import JobSchedule from './schedule-statistics/job-schedule'
+import JobSchedule from './schedule-statistics/job-schedule-connected'
 import AgentStatisticsPanel from './agent-statistics/agent-statistics'
-import ClientPanel from './client-statistics/client-statistics'
-import { AgentStore } from '@types'
-import { useAppSelector } from '@store'
+import ClientPanel from './client-statistics/client-statistics-connected'
+import { Agent } from '@types'
 
 const statisticsHeader = 'Cloud Panel'
 const scheduleHeader = 'Job Schedule'
@@ -24,19 +23,18 @@ const tabTitles = [
    clientsHeader,
 ]
 
+interface Props {
+   selectedAgent?: Agent
+}
+
 /**
  * Component represents a panel gathering all infromations about cloud network
  *
  * @returns JSX Element
  */
-const AgentSystemPanel = () => {
+export const AgentSystemPanel = ({ selectedAgent }: Props) => {
    const [selectedTabIdx, setSelectedTabIdx] = useState(0)
    const clientIdx = 3
-
-   const agentState: AgentStore = useAppSelector((state) => state.agents)
-   const selectedAgent = agentState.agents.find(
-      (agent) => agent.name === agentState.selectedAgent
-   )
 
    const tabs = [
       <CloudStatistics />,
@@ -65,5 +63,3 @@ const AgentSystemPanel = () => {
       </Card>
    )
 }
-
-export default AgentSystemPanel

@@ -313,13 +313,11 @@ class TimescaleDatabaseIntegrationTest {
 				.weatherPredictionError(0.02)
 				.currentTraffic(10)
 				.successRatio(0.9)
-				.currentMaximumCapacity(100)
 				.build();
 		final GreenSourceMonitoringData data2 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.04)
 				.currentTraffic(15)
 				.successRatio(0.5)
-				.currentMaximumCapacity(60)
 				.build();
 
 		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
@@ -337,8 +335,7 @@ class TimescaleDatabaseIntegrationTest {
 				.isInstanceOfSatisfying(GreenSourceMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.5);
 					assertThat(data.getWeatherPredictionError()).isEqualTo(0.04);
-					assertThat(data.currentTraffic()).isEqualTo(15);
-					assertThat(data.getCurrentMaximumCapacity()).isEqualTo(60);
+					assertThat(data.getCurrentTraffic()).isEqualTo(15);
 				});
 		assertThat(result.get(0).aid())
 				.as("Resulted data has correct aid")
@@ -379,9 +376,6 @@ class TimescaleDatabaseIntegrationTest {
 		assertThat(resultServer.get(0).monitoringData())
 				.as("Resulted data for server should have correct field values")
 				.isInstanceOfSatisfying(ServerMonitoringData.class, data -> {
-					assertThat(data.getCurrentlyExecutedJobs()).isEqualTo(10L);
-					assertThat(data.getCurrentlyProcessedJobs()).isEqualTo(3L);
-					assertThat(data.getWeightsForGreenSources()).hasSize(2);
 					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
 				});
 	}
@@ -483,14 +477,9 @@ class TimescaleDatabaseIntegrationTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentlyExecutedJobs(10)
-				.currentlyProcessedJobs(3)
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
-				.jobProcessingLimit(5)
-				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
 				.successRatio(0.8)
-				.serverPricePerHour(20)
 				.build();
 		return List.of(
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),
