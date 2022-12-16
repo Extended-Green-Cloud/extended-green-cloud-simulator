@@ -3,12 +3,12 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,8 +56,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 	@Test
 	@DisplayName("Test getting average traffic for servers for empty set")
 	void testGetAverageTrafficForServersForEmptySet() {
-		assertThat(connectGreenSourcePlan.getAverageTrafficForServers(List.of("test_server1", "test_server2")))
-				.isEmpty();
+		assertThat(connectGreenSourcePlan.getAverageTrafficForServers(emptyList())).isEmpty();
 	}
 
 	@Test
@@ -67,11 +66,13 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.6)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);
@@ -91,16 +92,19 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.6)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		var mockData3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.5)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);
@@ -118,7 +122,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 	@Test
 	@DisplayName("Test getting average power for sources for empty set")
 	void testGetAveragePowerForSourcesForEmptySet() {
-		assertThat(connectGreenSourcePlan.getAveragePowerForSources(List.of("test_gs1", "test_gs2"))).isEmpty();
+		assertThat(connectGreenSourcePlan.getAveragePowerForSources(emptyList())).isEmpty();
 	}
 
 	@Test
@@ -159,7 +163,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 	@Test
 	@DisplayName("Test getting average traffic for sources for empty set")
 	void testGetAverageTrafficForSourcesForEmptySet() {
-		assertThat(connectGreenSourcePlan.getAverageTrafficForSources(List.of("test_gs1", "test_gs2"))).isEmpty();
+		assertThat(connectGreenSourcePlan.getAverageTrafficForSources(emptyList())).isEmpty();
 	}
 
 	@Test

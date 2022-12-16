@@ -135,7 +135,7 @@ class AnalyzerServiceDatabaseTest {
 	@DisplayName("Test getting adaptation actions for back up power goal")
 	void testGetAdaptationActionsForBackUpPowerGoal() {
 		var expectedResult = List.of(
-				new AdaptationAction(1, DECREASE_GREEN_SOURCE_ERROR,
+				new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
 						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER)
 		);
 
@@ -150,9 +150,6 @@ class AnalyzerServiceDatabaseTest {
 	}
 
 	private void prepareSystemData() {
-		final AID mockAID1 = mock(AID.class);
-		final AID mockAID2 = mock(AID.class);
-
 		final ClientMonitoringData data1 = ImmutableClientMonitoringData.builder()
 				.currentJobStatus(FAILED)
 				.isFinished(true)

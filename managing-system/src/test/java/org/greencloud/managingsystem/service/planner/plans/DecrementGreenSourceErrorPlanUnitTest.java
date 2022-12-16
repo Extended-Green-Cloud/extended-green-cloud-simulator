@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		mockScenarioStructure = mock(ScenarioStructureArgs.class);
 		mockAgentNode = mock(ManagingAgentNode.class);
 		mockDatabase = mock(TimescaleDatabase.class);
-		mockMonitoring = mock(MonitoringService.class);
+		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
 
 		decrementGreenSourceErrorPlan = new DecrementGreenSourceErrorPlan(mockManagingAgent);
 

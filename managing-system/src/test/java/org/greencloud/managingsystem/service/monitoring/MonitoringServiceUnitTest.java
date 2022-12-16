@@ -135,4 +135,17 @@ class MonitoringServiceUnitTest {
 				.as("Data of the goals should equal to the expected result")
 				.containsExactlyInAnyOrderEntriesOf(expectedResult);
 	}
+
+	@Test
+	@DisplayName("Test get alive agents intersection")
+	void testGetAliveAgentsIntersection() {
+		var result = monitoringService.getAliveAgentsIntersection(
+				List.of("test_gs1@192.168.56.1:6996/JADE", "test_gs2@192.168.56.1:6996/JADE"),
+				List.of("test_gs1", "test_gs2", "test_gs3"));
+
+		assertThat(result)
+				.hasSize(2)
+				.matches((data) -> List.of("test_gs1@192.168.56.1:6996/JADE", "test_gs2@192.168.56.1:6996/JADE")
+						.containsAll(data));
+	}
 }

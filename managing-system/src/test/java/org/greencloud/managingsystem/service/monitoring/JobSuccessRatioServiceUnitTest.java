@@ -152,16 +152,19 @@ class JobSuccessRatioServiceUnitTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.75)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0D)
+				.currentBackUpPowerUsage(0.4)
 				.build();
 		return List.of(
 				new AgentData(Instant.now(), "test_aid1", SERVER_MONITORING, data1),

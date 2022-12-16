@@ -155,7 +155,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		final List<String> greenSourcesForServer = managingAgent.getGreenCloudStructure()
 				.getGreenSourcesForServerAgent(server.name().split("@")[0]);
 		final List<String> consideredGreenSources = getGreenSourcesWithErrorInBounds(
-				getAliveAgentsIntersection(aliveGreenSources, greenSourcesForServer));
+				managingAgent.monitor().getAliveAgentsIntersection(aliveGreenSources, greenSourcesForServer));
 
 		return new AbstractMap.SimpleEntry<>(server,
 				getGreenSourcesWithCorrectPowerShortageCount(consideredGreenSources));
@@ -214,11 +214,4 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 			Map<AgentsBackUpPower, List<AgentsPowerShortages>> greenSourcesPerServers) {
 		this.greenSourcesPerServers = greenSourcesPerServers;
 	}
-
-	private List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> allAgentsOfType) {
-		final Predicate<String> isAgentNameValid = agentName -> allAgentsOfType.contains(agentName.split("@")[0]);
-
-		return allALiveAgents.stream().filter(isAgentNameValid).toList();
-	}
-
 }

@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
@@ -105,6 +105,7 @@ class PlannerServiceUnitTest {
 
 	@BeforeEach
 	void init() {
+		managingAgent = mock(ManagingAgent.class);
 		plannerService = spy(new PlannerService(managingAgent));
 		database = mock(TimescaleDatabase.class);
 		agentNode = mock(ManagingAgentNode.class);
@@ -116,7 +117,6 @@ class PlannerServiceUnitTest {
 		doReturn(monitoringService).when(managingAgent).monitor();
 		doReturn(database).when(agentNode).getDatabaseClient();
 		doReturn(agentNode).when(managingAgent).getAgentNode();
-		doReturn(new MonitoringService(managingAgent)).when(managingAgent).monitor();
 	}
 
 	@Test
@@ -199,8 +199,7 @@ class PlannerServiceUnitTest {
 		mockHealthCheckData();
 		prepareGreenSourceStructure();
 
-		var testAdaptationGoal = new AdaptationGoal(MINIMIZE_USED_BACKUP_POWER.adaptationGoalId,
-				"MINIMIZE_USED_BACKUP_POWER", 0.2, true, 0.7);
+		var testAdaptationGoal = new AdaptationGoal(2, "MINIMIZE_USED_BACKUP_POWER", 0.2, true, 0.7);
 
 		doReturn(testAdaptationGoal).when(monitoringService)
 				.getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);

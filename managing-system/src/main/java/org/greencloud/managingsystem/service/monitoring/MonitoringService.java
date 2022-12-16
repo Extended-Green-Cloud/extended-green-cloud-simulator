@@ -181,6 +181,19 @@ public class MonitoringService extends AbstractManagingService {
 				.collect(Collectors.toSet()).stream().toList();
 	}
 
+	/**
+	 * Method retrieves list of AID's for agents which are alive and which belong to a given agent's name set
+	 *
+	 * @param allALiveAgents   list of agents that are alive
+	 * @param agentsOfInterest list of all agents of interest
+	 * @return list of alive agent
+	 */
+	public List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> agentsOfInterest) {
+		final Predicate<String> isAgentNameValid = agentName -> agentsOfInterest.contains(agentName.split("@")[0]);
+
+		return allALiveAgents.stream().filter(isAgentNameValid).toList();
+	}
+
 	@VisibleForTesting
 	protected void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {
 		this.jobSuccessRatioService = jobSuccessRatioService;
