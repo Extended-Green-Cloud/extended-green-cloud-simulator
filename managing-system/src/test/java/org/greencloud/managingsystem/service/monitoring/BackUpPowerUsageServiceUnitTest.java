@@ -58,7 +58,7 @@ class BackUpPowerUsageServiceUnitTest {
 	@MethodSource("monitoringDataProvider")
 	void shouldCorrectlyReadCurrentGoalQuality(List<AgentData> agentData, double expectedQuality) {
 		// given
-		when(database.readMonitoringDataForDataTypes(of(CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(database.readLastMonitoringDataForDataTypes(of(CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(agentData);
 
 		// when

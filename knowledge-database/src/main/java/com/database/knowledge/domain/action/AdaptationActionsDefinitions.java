@@ -1,8 +1,9 @@
 package com.database.knowledge.domain.action;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
@@ -40,7 +41,9 @@ public final class AdaptationActionsDefinitions {
 			new AdaptationAction(7, CONNECT_GREEN_SOURCE,
 					ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
 			new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
-					RECONFIGURE, MINIMIZE_USED_BACKUP_POWER)
+					RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
+			new AdaptationAction(9, ADD_GREEN_SOURCE, ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
+
 	);
 
 	private static final Map<AdaptationActionEnum, Class<? extends AdaptationActionParameters>> ACTION_TO_PARAMS_MAP =

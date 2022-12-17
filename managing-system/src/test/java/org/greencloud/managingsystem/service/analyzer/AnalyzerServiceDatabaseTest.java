@@ -1,5 +1,6 @@
 package org.greencloud.managingsystem.service.analyzer;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
@@ -136,14 +137,16 @@ class AnalyzerServiceDatabaseTest {
 	void testGetAdaptationActionsForBackUpPowerGoal() {
 		var expectedResult = List.of(
 				new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
-						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER)
+						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
+				new AdaptationAction(9, ADD_GREEN_SOURCE,
+						ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
 		);
 
 		var result = analyzerService.getAdaptationActionsForGoal(MINIMIZE_USED_BACKUP_POWER);
 
 		assertThat(result)
 				.as("There should be 1 adaptation action")
-				.hasSize(1)
+				.hasSize(2)
 				.as("Data of the adaptation action should equal to the expected result")
 				.usingRecursiveFieldByFieldElementComparator()
 				.containsExactlyInAnyOrderElementsOf(expectedResult);

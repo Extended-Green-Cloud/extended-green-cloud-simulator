@@ -63,7 +63,6 @@ public class BackUpPowerUsageService extends AbstractGoalService {
 
 		if (backUpPower == 0.0 && greenPower == 0.0) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
-
 		}
 
 		return backUpPower / (backUpPower + greenPower);

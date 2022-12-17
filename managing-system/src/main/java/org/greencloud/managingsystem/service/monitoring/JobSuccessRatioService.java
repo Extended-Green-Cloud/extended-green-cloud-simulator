@@ -79,7 +79,7 @@ public class JobSuccessRatioService extends AbstractGoalService {
 	public boolean evaluateComponentSuccessRatio() {
 		logger.info(READ_SUCCESS_RATIO_COMPONENTS_LOG);
 		final List<AgentData> componentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+				.readLastMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (componentsData.isEmpty()) {
 			logger.info(READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG);

@@ -71,7 +71,7 @@ public abstract class AbstractGoalService extends AbstractManagingService {
 	 */
 	protected List<ClientMonitoringData> readClientMonitoringData(final int time) {
 		return managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(of(CLIENT_MONITORING), time)
+				.readLastMonitoringDataForDataTypes(of(CLIENT_MONITORING), time)
 				.stream()
 				.map(AgentData::monitoringData)
 				.map(ClientMonitoringData.class::cast)

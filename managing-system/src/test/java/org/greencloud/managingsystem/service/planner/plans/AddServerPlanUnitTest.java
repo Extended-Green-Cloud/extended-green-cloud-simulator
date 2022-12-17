@@ -68,7 +68,7 @@ class AddServerPlanUnitTest {
 	@ValueSource(doubles = { 0.8, 0.9, 0.95 })
 	void shouldReturnThatPlanIsNotExecutable(double trafficValue) {
 		// given
-		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(trafficValue));
 
 		// when
@@ -85,7 +85,7 @@ class AddServerPlanUnitTest {
 		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 		when(managingAgent.getContainerLocations("CNA1")).thenReturn(null);
 		when(managingAgent.getContainerLocations("Main-Container")).thenReturn(mock(Location.class));
-		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(trafficValue));
 		addServerPlan.isPlanExecutable();
 

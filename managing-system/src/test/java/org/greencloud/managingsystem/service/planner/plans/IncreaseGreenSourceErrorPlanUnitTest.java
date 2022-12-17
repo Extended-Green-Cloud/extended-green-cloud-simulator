@@ -73,7 +73,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@DisplayName("Test is plan executable - no agents being alive/with correct percentage")
 	void testIsPlanExecutableForNoCorrectPercentage() {
 		doReturn(Collections.emptyList()).when(mockDatabase)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+				.readLastMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
 
 		assertThat(incrementGreenSourceErrorPlan.isPlanExecutable()).isFalse();
 	}
@@ -82,7 +82,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@DisplayName("Test is plan executable - no agents with correct weather shortage count")
 	void testIsPlanExecutableForNoCorrectWeatherShortageCount() {
 		doReturn(prepareAgentData()).when(mockDatabase)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+				.readLastMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
 		doReturn(prepareEmptyWeatherShortageData()).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), anyList(), anyDouble());
 
@@ -203,7 +203,8 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
 		);
 
-		doReturn(mockData).when(mockDatabase).readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+		doReturn(mockData).when(mockDatabase)
+				.readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
+						MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 }

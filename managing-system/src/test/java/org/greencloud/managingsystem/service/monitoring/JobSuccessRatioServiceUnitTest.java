@@ -41,8 +41,6 @@ import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
-import jade.core.AID;
-
 class JobSuccessRatioServiceUnitTest {
 
 	@Mock
@@ -85,7 +83,7 @@ class JobSuccessRatioServiceUnitTest {
 	@Test
 	@DisplayName("Test is job success ratio correct for clients when data is not available")
 	void testIsClientJobSuccessRatioCorrectNotAvailable() {
-		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(singletonList(
+		doReturn(Collections.emptyList()).when(mockDatabase).readLastMonitoringDataForDataTypes(singletonList(
 				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
 		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
@@ -97,7 +95,7 @@ class JobSuccessRatioServiceUnitTest {
 	@DisplayName("Test is job success ratio correct for clients")
 	void testIsClientJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
-		doReturn(prepareClientData()).when(mockDatabase).readMonitoringDataForDataTypes(eq(singletonList(
+		doReturn(prepareClientData()).when(mockDatabase).readLastMonitoringDataForDataTypes(eq(singletonList(
 				CLIENT_MONITORING)), anyDouble());
 
 		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
@@ -107,7 +105,7 @@ class JobSuccessRatioServiceUnitTest {
 	@Test
 	@DisplayName("Test is job success ratio correct for components when ratio is not available")
 	void testIsClientJobSuccessRatioCorrectForNotAvailable() {
-		doReturn(Collections.emptyList()).when(mockDatabase).readMonitoringDataForDataTypes(
+		doReturn(Collections.emptyList()).when(mockDatabase).readLastMonitoringDataForDataTypes(
 				NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
 		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isTrue();
@@ -118,7 +116,7 @@ class JobSuccessRatioServiceUnitTest {
 	@DisplayName("Test is job success ratio correct for components")
 	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal) {
 		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
-		doReturn(prepareComponentData()).when(mockDatabase).readMonitoringDataForDataTypes(
+		doReturn(prepareComponentData()).when(mockDatabase).readLastMonitoringDataForDataTypes(
 				eq(NETWORK_AGENT_DATA_TYPES), anyDouble());
 
 		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isFalse();

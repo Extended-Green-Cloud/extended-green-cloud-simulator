@@ -1,8 +1,9 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
+import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
@@ -107,6 +109,7 @@ public class PlannerService extends AbstractManagingService {
 	protected void initializePlansForActions() {
 		planForActionMap = Map.of(
 				ADD_SERVER, new AddServerPlan(managingAgent),
+				ADD_GREEN_SOURCE, new AddGreenSourcePlan(managingAgent),
 				CONNECT_GREEN_SOURCE, new ConnectGreenSourcePlan(managingAgent),
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
 				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),

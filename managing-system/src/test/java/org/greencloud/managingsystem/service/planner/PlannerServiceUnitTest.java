@@ -284,7 +284,7 @@ class PlannerServiceUnitTest {
 				new AgentData(now(), "test_server1", HEALTH_CHECK, healthCheck4)
 		);
 
-		doReturn(mockData).when(database).readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
+		doReturn(mockData).when(database).readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
 				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 

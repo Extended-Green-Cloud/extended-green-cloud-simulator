@@ -2,6 +2,13 @@
 	<managingAgent>
 		<name>ManagingSystem</name>
 		<systemQualityThreshold>0.7</systemQualityThreshold>
+		<disabledActions>
+			<item>INCREASE_GREEN_SOURCE_PERCENTAGE</item>
+			<item>ADD_SERVER</item>
+			<item>INCREASE_DEADLINE_PRIORITY</item>
+			<item>INCREASE_GREEN_SOURCE_ERROR</item>
+			<item>CONNECT_GREEN_SOURCE</item>
+		</disabledActions>
 	</managingAgent>
 	<schedulerAgent>
 		<name>Scheduler</name>
@@ -24,7 +31,7 @@
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>50</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
