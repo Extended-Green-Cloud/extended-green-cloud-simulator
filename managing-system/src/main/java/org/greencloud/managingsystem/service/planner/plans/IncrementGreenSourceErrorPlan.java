@@ -26,7 +26,7 @@ import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.managingsystem.planner.ImmutableIncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
 
 import jade.core.AID;
 
@@ -84,7 +84,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				.orElseThrow()
 				.getKey();
 		targetAgent = new AID(selectedAgent, AID.ISGUID);
-		actionParameters = ImmutableIncrementGreenSourceErrorParameters.builder()
+		actionParameters = ImmutableAdjustGreenSourceErrorParameters.builder()
 				.percentageChange(PERCENTAGE_DIFFERENCE).build();
 		return this;
 	}

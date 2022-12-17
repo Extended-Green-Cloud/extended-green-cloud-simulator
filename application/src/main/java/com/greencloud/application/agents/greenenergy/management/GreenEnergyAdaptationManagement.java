@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.greencloud.application.agents.greenenergy.behaviour.adaptation.InitiateNewServerConnection;
 import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -39,11 +39,12 @@ public class GreenEnergyAdaptationManagement {
 	 *
 	 * @param params adaptation parameters
 	 */
-	public boolean adaptAgentWeatherPredictionError(IncrementGreenSourceErrorParameters params) {
+	public boolean adaptAgentWeatherPredictionError(AdjustGreenSourceErrorParameters params) {
 		final double currentError = greenEnergyAgent.getWeatherPredictionError();
 		final double newError = currentError + params.getPercentageChange();
+		final String log = params.getPercentageChange() > 0 ? "Increasing" : "Decreasing";
 
-		logger.info(ADAPTATION_INCREASE_ERROR_LOG, currentError, newError);
+		logger.info(ADAPTATION_INCREASE_ERROR_LOG, log, currentError, newError);
 
 		greenEnergyAgent.setWeatherPredictionError(newError);
 		greenEnergyAgent.manage().updateGreenSourceGUI();

@@ -103,6 +103,7 @@ class AddServerPlanUnitTest {
 				.successRatio(1.0)
 				.currentMaximumCapacity(200)
 				.currentTraffic(trafficValue)
+				.currentBackUpPowerUsage(0.4)
 				.build()));
 	}
 }

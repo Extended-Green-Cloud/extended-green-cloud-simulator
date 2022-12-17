@@ -273,9 +273,14 @@ public class ServerStateManagement {
 		final double trafficOverall = serverAgent.getCurrentMaximumCapacity() == 0 ?
 				0 :
 				((double) getCurrentPowerInUseForServer()) / serverAgent.getCurrentMaximumCapacity();
+		final double backUpPowerOverall = serverAgent.getCurrentMaximumCapacity() == 0 ?
+				0 :
+				((double) getCurrentBackUpPowerInUseForServer()) / serverAgent.getCurrentMaximumCapacity();
+
 		final ServerMonitoringData serverMonitoringData = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(serverAgent.getCurrentMaximumCapacity())
 				.currentTraffic(trafficOverall)
+				.currentBackUpPowerUsage(backUpPowerOverall)
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
 				.build();
 		serverAgent.writeMonitoringData(SERVER_MONITORING, serverMonitoringData);

@@ -141,6 +141,6 @@ class AbstractServerAgentUnitTest {
 
 		var result = abstractServerAgent.chooseGreenSourceToExecuteJob(List.of(offer1, offer2));
 
-		assertThat(result).isEqualTo(offer2);
+		assertThat(result).isEqualTo(offer1);
 	}
 }

@@ -159,13 +159,13 @@ class GreenEnergyStateManagementUnitTest {
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);
 
-		assertThat(result).isPresent().contains(10.0);
+		assertThat(result).isPresent().contains(70.0);
 	}
 
 	@Test
 	@DisplayName("Test get available capacity at given moment for negative power")
 	void testGetAvailableCapacityAtGivenMomentNoPower() {
-		doReturn(50.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
+		doReturn(10.0).when(MOCK_POWER_MANAGEMENT).getAvailablePower((MonitoringData) any(), any());
 		final Instant mockMoment = convertToRealTime(Instant.parse("2022-01-01T09:00:00.000Z"));
 		final MonitoringData monitoringData = ImmutableMonitoringData.builder().addWeatherData(MOCK_WEATHER).build();
 		final Optional<Double> result = mockGreenEnergyAgent.manage().getAvailablePower(mockMoment, monitoringData);

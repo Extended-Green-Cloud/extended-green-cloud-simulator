@@ -31,7 +31,7 @@ import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonit
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.gui.agents.ManagingAgentNode;
 
 class IncreaseGreenSourceErrorPlanUnitTest {
@@ -104,8 +104,8 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 
 		assertThat(incrementGreenSourceErrorPlan.constructAdaptationPlan())
 				.matches((data) -> data.getTargetAgent().getName().equals("test_gs2")
-						&& data.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-						&& ((IncrementGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
+						&& data.getActionParameters() instanceof AdjustGreenSourceErrorParameters
+						&& ((AdjustGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
 						== PERCENTAGE_DIFFERENCE
 				);
 	}

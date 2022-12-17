@@ -2,12 +2,14 @@ package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_END_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_START_LOG;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -62,20 +64,15 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 		AdaptationAction performedAction = databaseClient.readAdaptationAction(adaptationActionId);
 		logger.info(VERIFY_ACTION_START_LOG, performedAction, targetAgent, actionTimestamp);
 
-		var actionResults = getActionResults(performedAction);
+		var actionResults = getActionResults();
 		databaseClient.updateAdaptationAction(performedAction.getActionId(), actionResults);
 		enableAdaptationAction(performedAction);
 
 		logger.info(VERIFY_ACTION_END_LOG, performedAction, actionResults);
 	}
 
-	private Map<GoalEnum, Double> getActionResults(AdaptationAction performedAction) {
-		// TODO iterate over each GoalEnum value when all GoalServices are implemented
-		return Map.of(
-				performedAction.getGoal(), getGoalQualityDelta(performedAction.getGoal()),
-				GoalEnum.MINIMIZE_USED_BACKUP_POWER, 0.0,
-				GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY, 0.0
-		);
+	private Map<GoalEnum, Double> getActionResults() {
+		return Arrays.stream(GoalEnum.values()).collect(toMap(goal -> goal, this::getGoalQualityDelta));
 	}
 
 	private double getGoalQualityDelta(GoalEnum goalEnum) {

@@ -21,6 +21,6 @@ public class GreenEnergyManagementLog {
 	public static final String SOLAR_FARM_SHUTDOWN_LOG = "SOLAR farm is shutdown at {}, sunrise at {} & sunset at {}";
 
 	// ADAPTATION LOG MESSAGES
-	public static final String ADAPTATION_INCREASE_ERROR_LOG = "Increasing value of weather prediction error from {} to {}";
+	public static final String ADAPTATION_INCREASE_ERROR_LOG = "{} value of weather prediction error from {} to {}";
 	public static final String ADAPTATION_CONNECT_SERVER_LOG = "Connecting Green Source with new server: {}";
 }

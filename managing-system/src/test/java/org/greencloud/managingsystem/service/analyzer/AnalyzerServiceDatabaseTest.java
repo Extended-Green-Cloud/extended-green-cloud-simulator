@@ -1,7 +1,8 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
@@ -11,6 +12,7 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECO
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
@@ -103,8 +105,8 @@ class AnalyzerServiceDatabaseTest {
 	}
 
 	@Test
-	@DisplayName("Test getting adaptation actions for goal")
-	void testGetAdaptationActionsForGoal() {
+	@DisplayName("Test getting adaptation actions for success ratio goal")
+	void testGetAdaptationActionsForSuccessRatioGoal() {
 		var expectedResult = List.of(
 				new AdaptationAction(1, ADD_SERVER,
 						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
@@ -129,10 +131,25 @@ class AnalyzerServiceDatabaseTest {
 				.containsExactlyInAnyOrderElementsOf(expectedResult);
 	}
 
-	private void prepareSystemData() {
-		final AID mockAID1 = mock(AID.class);
-		final AID mockAID2 = mock(AID.class);
+	@Test
+	@DisplayName("Test getting adaptation actions for back up power goal")
+	void testGetAdaptationActionsForBackUpPowerGoal() {
+		var expectedResult = List.of(
+				new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
+						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER)
+		);
 
+		var result = analyzerService.getAdaptationActionsForGoal(MINIMIZE_USED_BACKUP_POWER);
+
+		assertThat(result)
+				.as("There should be 1 adaptation action")
+				.hasSize(1)
+				.as("Data of the adaptation action should equal to the expected result")
+				.usingRecursiveFieldByFieldElementComparator()
+				.containsExactlyInAnyOrderElementsOf(expectedResult);
+	}
+
+	private void prepareSystemData() {
 		final ClientMonitoringData data1 = ImmutableClientMonitoringData.builder()
 				.currentJobStatus(FAILED)
 				.isFinished(true)
@@ -147,6 +164,7 @@ class AnalyzerServiceDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.7)
 				.build();
 
 		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data1);

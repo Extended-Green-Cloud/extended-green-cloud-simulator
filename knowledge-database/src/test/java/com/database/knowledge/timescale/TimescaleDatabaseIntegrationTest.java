@@ -377,6 +377,7 @@ class TimescaleDatabaseIntegrationTest {
 				.as("Resulted data for server should have correct field values")
 				.isInstanceOfSatisfying(ServerMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
+					assertThat(data.getCurrentBackUpPowerUsage()).isEqualTo(0.7);
 				});
 	}
 
@@ -480,6 +481,7 @@ class TimescaleDatabaseIntegrationTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.8)
+				.currentBackUpPowerUsage(0.7)
 				.build();
 		return List.of(
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),

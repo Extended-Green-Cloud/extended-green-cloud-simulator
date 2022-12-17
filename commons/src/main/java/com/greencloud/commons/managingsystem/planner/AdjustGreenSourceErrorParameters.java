@@ -10,13 +10,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * prediction error is to be executed
  */
 @Value.Immutable
-@JsonDeserialize(as = ImmutableIncrementGreenSourceErrorParameters.class)
-@JsonSerialize(as = ImmutableIncrementGreenSourceErrorParameters.class)
-public interface IncrementGreenSourceErrorParameters extends AdaptationActionParameters {
+@JsonDeserialize(as = ImmutableAdjustGreenSourceErrorParameters.class)
+@JsonSerialize(as = ImmutableAdjustGreenSourceErrorParameters.class)
+public interface AdjustGreenSourceErrorParameters extends AdaptationActionParameters {
 
 	/**
-	 * @return number by which the error percentage is to be increased
+	 * @return number by which the error percentage is to be changed
 	 */
 	double getPercentageChange();
-
 }
