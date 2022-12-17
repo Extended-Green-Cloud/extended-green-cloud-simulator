@@ -51,7 +51,8 @@ public class JobMapper {
 	}
 
 	/**
-	 * @param powerJob power job to be mapped to job
+	 * @param powerJob  power job to be mapped to job
+	 * @param startTime new start time
 	 * @return PowerJob
 	 */
 	public static PowerJob mapToPowerJob(final ClientJob powerJob, final Instant startTime) {
