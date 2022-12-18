@@ -2,6 +2,7 @@ package org.greencloud.managingsystem.service.analyzer;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
@@ -49,8 +50,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
-
-import jade.core.AID;
 
 class AnalyzerServiceDatabaseTest {
 
@@ -109,24 +108,19 @@ class AnalyzerServiceDatabaseTest {
 	@DisplayName("Test getting adaptation actions for success ratio goal")
 	void testGetAdaptationActionsForSuccessRatioGoal() {
 		var expectedResult = List.of(
-				new AdaptationAction(1, ADD_SERVER,
-						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(3, INCREASE_POWER_PRIORITY,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(7, CONNECT_GREEN_SOURCE,
-						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO));
+				new AdaptationAction(1, ADD_SERVER, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(3, INCREASE_POWER_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(7, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(10, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO));
 
 		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);
 
 		assertThat(result)
 				.as("There should be 6 adaptation actions")
-				.hasSize(6)
+				.hasSize(7)
 				.as("Data of the adaptation actions should equal to the expected result")
 				.usingRecursiveFieldByFieldElementComparator()
 				.containsExactlyInAnyOrderElementsOf(expectedResult);

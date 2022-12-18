@@ -9,6 +9,7 @@ public enum AdaptationActionEnum {
 	ADD_SERVER("Add server"),
 	ADD_GREEN_SOURCE("Add green source"),
 	INCREASE_DEADLINE_PRIORITY("Increase job deadline priority"),
+	CHANGE_GREEN_SOURCE_WEIGHT("Change green source weight"),
 	INCREASE_POWER_PRIORITY("Increase job power priority"),
 	INCREASE_GREEN_SOURCE_PERCENTAGE("Increase Green Source selection chance"),
 	INCREASE_GREEN_SOURCE_ERROR("Increase Green Source weather prediction error"),
