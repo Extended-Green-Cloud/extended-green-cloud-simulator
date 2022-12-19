@@ -83,7 +83,7 @@ public class ExecutorService extends AbstractManagingService {
 				.build();
 		disableAdaptationAction(actionToBeExecuted);
 		managingAgent.addBehaviour(new InitiateAdaptationActionRequest(managingAgent, adaptationActionRequest,
-				initialGoalQuality));
+				initialGoalQuality, adaptationPlan.getPostActionHandler()));
 	}
 
 	/**

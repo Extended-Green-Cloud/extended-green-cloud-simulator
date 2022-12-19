@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
@@ -115,6 +116,11 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		actionParameters = ImmutableConnectGreenSourceParameters.builder()
 				.serverName(selectedServer)
 				.build();
+		postActionHandler = () ->
+				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+						.filter(agent -> agent.getName().equals(selectedGreenSource.name().split("@")[0]))
+						.forEach(greenSource -> greenSource.getConnectedSevers().add(selectedServer));
+
 		return this;
 	}
 
@@ -149,6 +155,10 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				.map(cloudNetwork -> {
 					final List<AgentsTraffic> serversToConsider = serversForCloudNetworks.get(cloudNetwork);
 					final Set<AgentsGreenPower> greenSourcesToConsider = greenSourcesForCloudNetworks.get(cloudNetwork);
+
+					if(Objects.isNull(serversToConsider)) {
+						return new HashMap<AgentsGreenPower, List<AgentsTraffic>>();
+					}
 
 					return greenSourcesToConsider.stream()
 							.map(greenSource -> getConnectableServersForGreenSourcePerCNA(greenSource,

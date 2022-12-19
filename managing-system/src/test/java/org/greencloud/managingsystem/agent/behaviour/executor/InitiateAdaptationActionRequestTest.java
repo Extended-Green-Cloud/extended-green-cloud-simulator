@@ -7,10 +7,9 @@ import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.time.Instant;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
@@ -45,6 +43,8 @@ class InitiateAdaptationActionRequestTest {
 	ManagingAgentNode managingAgentNode;
 	@Mock
 	TimescaleDatabase timescaleDatabase;
+	@Mock
+	Runnable mockRunnable;
 
 	ACLMessage message;
 	InitiateAdaptationActionRequest behaviour;
@@ -54,15 +54,16 @@ class InitiateAdaptationActionRequestTest {
 
 	@BeforeEach
 	void init() {
+		mockRunnable = mock(Runnable.class);
 		message = new ACLMessage(REQUEST);
 		message.addReceiver(TEST_AID);
 		message.setConversationId(ADAPTATION_ACTION_TYPE.toString());
 
 		when(managingAgent.getAgentNode()).thenReturn(managingAgentNode);
 		when(managingAgentNode.getDatabaseClient()).thenReturn(timescaleDatabase);
-		doNothing().when(managingAgentNode).logNewAdaptation(any(),any(),any());
+		doNothing().when(managingAgentNode).logNewAdaptation(any(), any(), any());
 
-		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY);
+		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY, mockRunnable);
 
 	}
 
@@ -78,6 +79,7 @@ class InitiateAdaptationActionRequestTest {
 		// then
 		verify(managingAgent).removeBehaviour(behaviour);
 		verify(managingAgent).addBehaviour(captor.capture());
+		verify(mockRunnable).run();
 		assertThat(captor.getValue())
 				.as("Created behaviour should be equal to the expected one")
 				.usingRecursiveComparison()
