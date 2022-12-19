@@ -20,12 +20,12 @@ public class EngineRunner {
 
 	private static final String SCENARIO_NAME = "multipleCNAsScenario";
 
-	private static final boolean VERIFY = false;
-	private static final String ADAPTATION_TO_VERIFY = "addgreensource";
-	private static final String VERIFY_SCENARIO = "singleServerSingleGreenSourceScenario";
+	private static final boolean VERIFY = true;
+	private static final String ADAPTATION_TO_VERIFY = "change_green_source_weight";
+	private static final String VERIFY_SCENARIO = "singleServerMultipleGreenSourcesScenario";
 
-	private static final boolean EVENTS = false;
-	private static final String EVENTS_SCENARIO = "triggerAddGreenSourceEvents";
+	private static final boolean EVENTS = true;
+	private static final String EVENTS_SCENARIO = "triggerChangeWeight";
 
 	private static final String DEFAULT_SCENARIO_DIRECTORY = "";
 	private static final String VERIFY_SCENARIO_DIRECTORY = "adaptation" + separator + ADAPTATION_TO_VERIFY + separator;

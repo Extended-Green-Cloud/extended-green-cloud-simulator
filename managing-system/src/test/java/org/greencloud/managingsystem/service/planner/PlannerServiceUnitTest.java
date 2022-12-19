@@ -1,11 +1,11 @@
 package org.greencloud.managingsystem.service.planner;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
@@ -41,12 +41,12 @@ import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
+import org.greencloud.managingsystem.service.planner.plans.ChangeGreenSourceWeightPlan;
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourcePercentagePlan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,7 +99,7 @@ class PlannerServiceUnitTest {
 				arguments(INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityPlan.class),
 				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlan.class),
 				arguments(INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorPlan.class),
-				arguments(INCREASE_GREEN_SOURCE_PERCENTAGE, IncrementGreenSourcePercentagePlan.class)
+				arguments(CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeightPlan.class)
 		);
 	}
 
@@ -160,9 +160,9 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((plan) ->
 				plan.getTargetAgent().equals(mockAgent)
-						&& plan.getActionParameters() instanceof AdjustGreenSourceErrorParameters
-						&& ((AdjustGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
-						== 0.07));
+				&& plan.getActionParameters() instanceof AdjustGreenSourceErrorParameters
+				&& ((AdjustGreenSourceErrorParameters) plan.getActionParameters()).getPercentageChange()
+				   == 0.07));
 	}
 
 	@Test
@@ -184,7 +184,7 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((val) ->
 				val.getTargetAgent().getName().equals("test_gs2") &&
-						val.getActionParameters() instanceof AdjustGreenSourceErrorParameters));
+				val.getActionParameters() instanceof AdjustGreenSourceErrorParameters));
 	}
 
 	@Test
@@ -215,7 +215,7 @@ class PlannerServiceUnitTest {
 		verify(managingAgent).execute();
 		verify(executorService).executeAdaptationAction(argThat((val) ->
 				val.getTargetAgent().getName().equals("test_gs3") &&
-						val.getActionParameters() instanceof AdjustGreenSourceErrorParameters));
+				val.getActionParameters() instanceof AdjustGreenSourceErrorParameters));
 	}
 
 	private void prepareGreenSourceStructure() {

@@ -1,14 +1,19 @@
 package com.greencloud.application.agents.server;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
+import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.greencloud.application.agents.server.behaviour.df.ListenForAdditionalGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
@@ -21,9 +26,12 @@ import com.greencloud.application.agents.server.behaviour.powershortage.listener
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
+import com.greencloud.application.behaviours.ListenForAdaptationAction;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.yellowpages.YellowPagesService;
 import com.greencloud.application.yellowpages.domain.DFServiceConstants;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -88,7 +96,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
 				new ListenForServerJobCancellation(),
-				new ListenForAdditionalGreenSourceService(this)
+				new ListenForAdditionalGreenSourceService(this),
+				new ListenForAdaptationAction(this)
 		);
 	}
 
@@ -100,5 +109,26 @@ public class ServerAgent extends AbstractServerAgent {
 		// restoring default values
 		configManagement.setJobProcessingLimit(20);
 		configManagement.setPricePerHour(20);
+	}
+
+	@Override
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		if (adaptationAction.getAction() == CHANGE_GREEN_SOURCE_WEIGHT) {
+			return changeGreenSourceWeights(((ChangeGreenSourceWeights) actionParameters).greenSourceName());
+		}
+
+		return false;
+	}
+
+	private boolean changeGreenSourceWeights(String targetGreenSource) {
+		var newWeights = manageConfig().getWeightsForGreenSourcesMap().entrySet().stream()
+				.peek(entry -> {
+					if (!entry.getKey().getName().equals(targetGreenSource)) {
+						entry.setValue(nextFibonacci(entry.getValue()));
+					}
+				})
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+		manageConfig().setWeightsForGreenSourcesMap(newWeights);
+		return true;
 	}
 }
