@@ -7,6 +7,7 @@ import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONIT
 
 import java.util.List;
 
+import com.greencloud.commons.managingsystem.planner.ImmutableIncreaseDeadlinePriorityParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
@@ -46,6 +47,8 @@ public class IncreaseDeadlinePriorityPlan extends AbstractPlan {
 
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
+		this.actionParameters = ImmutableIncreaseDeadlinePriorityParameters.builder()
+				.build();
 		return this;
 	}
 

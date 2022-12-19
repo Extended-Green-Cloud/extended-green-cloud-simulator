@@ -7,6 +7,7 @@ import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONIT
 
 import java.util.List;
 
+import com.greencloud.commons.managingsystem.planner.ImmutableIncreaseJobDivisionPriorityParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
@@ -43,6 +44,8 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
+
+		this.actionParameters = ImmutableIncreaseJobDivisionPriorityParameters.builder().build();
 		return this;
 	}
 

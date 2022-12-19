@@ -10,8 +10,8 @@ import org.immutables.value.Value;
  * The content is empty, just a skeleton.
  */
 @Value.Immutable
-@JsonDeserialize(as = IncreaseDeadlinePriorityParameters.class)
-@JsonSerialize(as = IncreaseDeadlinePriorityParameters.class)
+@JsonDeserialize(as = ImmutableIncreaseDeadlinePriorityParameters.class)
+@JsonSerialize(as = ImmutableIncreaseDeadlinePriorityParameters.class)
 public interface IncreaseDeadlinePriorityParameters extends AdaptationActionParameters {
 
 }

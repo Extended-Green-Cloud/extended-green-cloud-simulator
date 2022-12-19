@@ -45,7 +45,7 @@ public class SchedulerConfigurationManagement {
 		this.maximumQueueSize = maximumQueueSize;
 		this.jobSplitThreshold = jobSplitThreshold;
 		this.splittingFactor = splittingFactor;
-		computeWeights();
+		updateWeights();
 	}
 
 	/**
@@ -89,8 +89,9 @@ public class SchedulerConfigurationManagement {
 		int oldWeight = underlyingDeadlineWeight;
 		underlyingDeadlineWeight = nextFibonacci(underlyingDeadlineWeight);
 		logger.info(INCREASE_DEADLINE_WEIGHT_LOG, oldWeight, underlyingDeadlineWeight);
-		computeWeights();
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(underlyingDeadlineWeight);
+		updateWeights();
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(deadlineWeightPriority);
 		return true;
 	}
 
@@ -101,12 +102,13 @@ public class SchedulerConfigurationManagement {
 		int oldWeight = underlyingPowerWeight;
 		underlyingPowerWeight = nextFibonacci(underlyingPowerWeight);
 		logger.info(INCREASE_POWER_WEIGHT_LOG, oldWeight, underlyingPowerWeight);
-		computeWeights();
+		updateWeights();
 		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(deadlineWeightPriority);
 		return true;
 	}
 
-	private void computeWeights() {
+	private void updateWeights() {
 		this.deadlineWeightPriority =
 				(double) underlyingDeadlineWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
 		this.powerWeightPriority = (double) underlyingPowerWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
