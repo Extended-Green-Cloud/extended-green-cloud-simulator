@@ -1,0 +1,87 @@
+<ScenarioEventsArgs>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>2</occurrenceTime>
+		<name>Client1</name>
+		<jobId>1</jobId>
+		<start>3</start>
+		<end>38</end>
+		<deadline>50</deadline>
+		<power>300</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER1 AND GS WINDFARM1 -->
+	<!-- EXPECTED OUTCOME: SERVER1 USES ALL ITS CAPACITY -->
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>5</occurrenceTime>
+		<name>Client2</name>
+		<jobId>2</jobId>
+		<start>5</start>
+		<end>20</end>
+		<deadline>30</deadline>
+		<power>70</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER2 AND GS WINDFARM3 -->
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>7</occurrenceTime>
+		<name>Client3</name>
+		<jobId>3</jobId>
+		<start>5</start>
+		<end>20</end>
+		<deadline>30</deadline>
+		<power>50</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER2 AND GS WINDFARM3 -->
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>7</occurrenceTime>
+		<name>Client4</name>
+		<jobId>4</jobId>
+		<start>5</start>
+		<end>20</end>
+		<deadline>30</deadline>
+		<power>70</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER2 AND GS WINDFARM3 -->
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>15</occurrenceTime>
+		<agentName>WindFarm3</agentName>
+		<newMaximumCapacity>0</newMaximumCapacity>
+		<isFinished>false</isFinished>
+		<cause>PHYSICAL_CAUSE</cause>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB 2,4 PUT ON BACK_UP_POWER AND JOB 3 TRANSFERRED TO WINDFARM 2 -->
+	<!-- EXPECTED OUTCOME: ADAPTATION OF WINDFARM 2 (DECREASING ERROR) AFTER 25s OF SIMuLATION -->
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>24</occurrenceTime>
+		<agentName>WindFarm3</agentName>
+		<newMaximumCapacity>2000000</newMaximumCapacity>
+		<isFinished>true</isFinished>
+		<cause>PHYSICAL_CAUSE</cause>
+	</event>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>28</occurrenceTime>
+		<name>Client5</name>
+		<jobId>5</jobId>
+		<start>2</start>
+		<end>12</end>
+		<deadline>30</deadline>
+		<power>30</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER2 AND GS WINDFARM2 -->
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>29</occurrenceTime>
+		<name>Client6</name>
+		<jobId>6</jobId>
+		<start>2</start>
+		<end>12</end>
+		<deadline>30</deadline>
+		<power>20</power>
+	</event>
+	<!-- EXPECTED OUTCOME: JOB IS ACCEPTED BY SERVER2 AND GS WINDFARM2 -->
+	<event type="POWER_SHORTAGE_EVENT">
+		<occurrenceTime>32</occurrenceTime>
+		<agentName>WindFarm3</agentName>
+		<newMaximumCapacity>0</newMaximumCapacity>
+		<isFinished>false</isFinished>
+		<cause>PHYSICAL_CAUSE</cause>
+	</event>
+	<!-- EXPECTED OUTCOME: NONE OF THE JOBS AFFECTED -->
+</ScenarioEventsArgs>

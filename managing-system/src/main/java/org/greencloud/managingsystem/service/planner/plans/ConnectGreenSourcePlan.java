@@ -9,7 +9,6 @@ import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.filtering;
-import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -17,13 +16,11 @@ import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONIT
 
 import java.util.AbstractMap;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
@@ -183,7 +180,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	@VisibleForTesting
 	protected List<AgentsTraffic> getServersForCNA(final String cna, final List<String> aliveServers) {
 		final List<String> serversForCNA = managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(cna);
-		final List<String> aliveServersForCNA = getAliveAgentsIntersection(aliveServers, serversForCNA);
+		final List<String> aliveServersForCNA = managingAgent.monitor()
+				.getAliveAgentsIntersection(aliveServers, serversForCNA);
 
 		return getAverageTrafficForServers(aliveServersForCNA).entrySet().stream()
 				.filter(server -> server.getValue() <= SERVER_TRAFFIC_THRESHOLD)
@@ -197,7 +195,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		final List<String> greenSourcesForCNA = managingAgent.getGreenCloudStructure()
 				.getGreenSourcesForCloudNetwork(cloudNetworkName);
 
-		final List<String> aliveSourcesForServer = getAliveAgentsIntersection(aliveGreenSources, greenSourcesForCNA);
+		final List<String> aliveSourcesForServer = managingAgent.monitor()
+				.getAliveAgentsIntersection(aliveGreenSources, greenSourcesForCNA);
 		final List<String> sourcesWithEnoughPower = getSourcesWithEnoughPower(aliveSourcesForServer);
 
 		return getAverageTrafficForSources(sourcesWithEnoughPower).entrySet().stream()
@@ -234,7 +233,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		return getAverageValuesMap(SERVER_MONITORING, aliveServersForCNA, getTrafficForServer);
 	}
 
-	public void setConnectableServersForGreenSource(
+	@VisibleForTesting
+	protected void setConnectableServersForGreenSource(
 			Map<AgentsGreenPower, List<AgentsTraffic>> connectableServersForGreenSource) {
 		this.connectableServersForGreenSource = connectableServersForGreenSource;
 	}
@@ -245,19 +245,23 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 			return Collections.emptyMap();
 		}
 
-		return managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest,
-						MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD).stream()
-				.collect(Collectors.groupingBy(
-						AgentData::aid,
-						TreeMap::new,
-						averagingDouble(averagingFunc)
-				));
+		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
+				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest, MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD);
+		final List<String> agentsPresentInDatabase = agentsData.stream().map(AgentData::aid).toList();
+
+		final Map<String, Double> agentsWithRecordsMap = agentsData.stream()
+				.collect(Collectors.groupingBy(AgentData::aid, TreeMap::new, averagingDouble(averagingFunc)));
+		final Map<String, Double> agentsWithNoRecords = getAgentsNotPresentInData(agentsPresentInDatabase,
+				agentsOfInterest);
+		agentsWithRecordsMap.putAll(agentsWithNoRecords);
+
+		return agentsWithRecordsMap;
 	}
 
-	private List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> allAgentsOfType) {
-		final Predicate<String> isAgentNameValid = agentName -> allAgentsOfType.contains(agentName.split("@")[0]);
-
-		return allALiveAgents.stream().filter(isAgentNameValid).toList();
+	private Map<String, Double> getAgentsNotPresentInData(final List<String> presentAgents,
+			final List<String> allConsideredAgents) {
+		return allConsideredAgents.stream()
+				.filter(agent -> !presentAgents.contains(agent))
+				.collect(toMap(agent -> agent, agent -> 0.0));
 	}
 }

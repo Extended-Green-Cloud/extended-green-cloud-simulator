@@ -32,7 +32,7 @@
 	<serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server</name>
-			<ownerCloudNetwork>CNA</ownerCloudNetwork>
+			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
 			<maximumCapacity>300</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
@@ -40,7 +40,7 @@
 	</serverAgentsArgs>
 	<cloudNetworkAgentsArgs>
 		<cloudNetworkAgent>
-			<name>CNA</name>
+			<name>CNA1</name>
 		</cloudNetworkAgent>
 	</cloudNetworkAgentsArgs>
 </ScenarioStructureArgs>

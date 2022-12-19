@@ -1,7 +1,10 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
@@ -11,6 +14,7 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECO
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
@@ -46,8 +50,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
-
-import jade.core.AID;
 
 class AnalyzerServiceDatabaseTest {
 
@@ -103,36 +105,48 @@ class AnalyzerServiceDatabaseTest {
 	}
 
 	@Test
-	@DisplayName("Test getting adaptation actions for goal")
-	void testGetAdaptationActionsForGoal() {
+	@DisplayName("Test getting adaptation actions for success ratio goal")
+	void testGetAdaptationActionsForSuccessRatioGoal() {
 		var expectedResult = List.of(
-				new AdaptationAction(1, ADD_SERVER,
-						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(3, INCREASE_POWER_PRIORITY,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR,
-						RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(7, CONNECT_GREEN_SOURCE,
-						ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO));
+				new AdaptationAction(1, ADD_SERVER, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(3, INCREASE_POWER_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(7, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(10, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO));
 
 		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);
 
 		assertThat(result)
 				.as("There should be 6 adaptation actions")
-				.hasSize(6)
+				.hasSize(7)
 				.as("Data of the adaptation actions should equal to the expected result")
 				.usingRecursiveFieldByFieldElementComparator()
 				.containsExactlyInAnyOrderElementsOf(expectedResult);
 	}
 
-	private void prepareSystemData() {
-		final AID mockAID1 = mock(AID.class);
-		final AID mockAID2 = mock(AID.class);
+	@Test
+	@DisplayName("Test getting adaptation actions for back up power goal")
+	void testGetAdaptationActionsForBackUpPowerGoal() {
+		var expectedResult = List.of(
+				new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
+						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
+				new AdaptationAction(9, ADD_GREEN_SOURCE,
+						ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
+		);
 
+		var result = analyzerService.getAdaptationActionsForGoal(MINIMIZE_USED_BACKUP_POWER);
+
+		assertThat(result)
+				.as("There should be 1 adaptation action")
+				.hasSize(2)
+				.as("Data of the adaptation action should equal to the expected result")
+				.usingRecursiveFieldByFieldElementComparator()
+				.containsExactlyInAnyOrderElementsOf(expectedResult);
+	}
+
+	private void prepareSystemData() {
 		final ClientMonitoringData data1 = ImmutableClientMonitoringData.builder()
 				.currentJobStatus(FAILED)
 				.isFinished(true)
@@ -147,6 +161,7 @@ class AnalyzerServiceDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
 				.successRatio(0.9)
+				.currentBackUpPowerUsage(0.7)
 				.build();
 
 		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data1);

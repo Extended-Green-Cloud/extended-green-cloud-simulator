@@ -81,7 +81,7 @@ class ReportWeatherShortagesDatabaseTest {
 		verify(greenEnergyAgent, times(2)).manage();
 		verify(management, times(2)).getWeatherShortagesCounter();
 
-		var result = database.readMonitoringDataForDataTypes(singletonList(WEATHER_SHORTAGES), 10);
+		var result = database.readLastMonitoringDataForDataTypes(singletonList(WEATHER_SHORTAGES), 10);
 
 		assertThat(management.getWeatherShortagesCounter().get()).isZero();
 		assertThat(result).as("Data has one record").hasSize(1);

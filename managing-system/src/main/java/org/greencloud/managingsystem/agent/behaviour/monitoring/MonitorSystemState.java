@@ -46,10 +46,10 @@ public class MonitorSystemState extends TickerBehaviour {
 		logger.info(MONITOR_SYSTEM_STATE_LOG);
 
 		//HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
-		final boolean areGoalsSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized()
-										  && myManagingAgent.monitor().isBackUpPowerMinimized();
+		final boolean isSuccessRatioSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized();
+		final boolean isBackUpPowerSatisfied = myManagingAgent.monitor().isBackUpPowerMinimized();
 
-		if (areGoalsSatisfied) {
+		if (isBackUpPowerSatisfied && isSuccessRatioSatisfied) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);
 			//end feedback iteration
 			return;

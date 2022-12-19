@@ -1,6 +1,5 @@
 package org.greencloud.managingsystem.service.executor;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
@@ -126,8 +125,9 @@ public class ExecutorService extends AbstractManagingService {
 		disableAdaptationAction(actionToBeExecuted);
 		((ManagingAgentNode) managingAgent.getAgentNode()).logNewAdaptation(
 				getAdaptationAction(actionToBeExecuted.getAction()), getCurrentTime(), Optional.empty());
-		managingAgent.addBehaviour(new VerifyAdaptationActionResult(managingAgent, getCurrentTime(), ADD_SERVER, null,
-				initialGoalQuality, SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY));
+		managingAgent.addBehaviour(new VerifyAdaptationActionResult(managingAgent, getCurrentTime(),
+				systemAdaptationPlan.getAdaptationActionEnum(), null, initialGoalQuality,
+				SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY));
 	}
 
 	private List<AgentController> createAgents(SystemPlan systemAdaptationPlan) {

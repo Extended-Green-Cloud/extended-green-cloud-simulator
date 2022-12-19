@@ -51,7 +51,7 @@ class ConnectGreenSourcePlanUnitTest {
 	void init() {
 		mockManagingAgent = spy(ManagingAgent.class);
 		mockStructure = mock(ScenarioStructureArgs.class);
-		mockMonitoring = mock(MonitoringService.class);
+		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
 
 		doReturn(mockStructure).when(mockManagingAgent).getGreenCloudStructure();
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();

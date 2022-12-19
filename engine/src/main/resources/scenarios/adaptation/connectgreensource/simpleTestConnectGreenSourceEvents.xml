@@ -40,7 +40,7 @@
 		<power>100</power>
 	</event>
 	<!-- EXPECTED OUTCOME: JOB FAILED, POWER SUCCESS RATIO DROP	-->
-	<!-- ADAPTATION: WIND1 SELECTED FOR CONNECTING TO SERVER2 -->
+	<!-- ADAPTATION: WIND2 SELECTED FOR CONNECTING TO SERVER2 -->
 	<event type="NEW_CLIENT_EVENT">
 		<occurrenceTime>20</occurrenceTime>
 		<name>Client5</name>

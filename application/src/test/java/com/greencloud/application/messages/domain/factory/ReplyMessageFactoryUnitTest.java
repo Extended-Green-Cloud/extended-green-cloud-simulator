@@ -143,13 +143,21 @@ class ReplyMessageFactoryUnitTest {
 	@Test
 	@DisplayName("Test prepare failure reply message")
 	void testPrepareFailureReply() {
-		var result = prepareFailureReply(MOCK_REQUEST);
+		var content = ImmutableJobInstanceIdentifier.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.build();
+
+		var result = prepareFailureReply(MOCK_REQUEST, content, "TEST_PROTOCOL");
 		final Iterable<AID> receiverIt = result::getAllReceiver;
 
+		final String expectedContent = "{\"jobId\":\"1\",\"startTime\":1641043800.000000000}";
+
+
 		assertThat(result.getPerformative()).isEqualTo(FAILURE);
-		assertThat(result.getContent()).isEqualTo("FAILURE");
+		assertThat(result.getContent()).isEqualTo(expectedContent);
 		assertThat(result.getConversationId()).isEqualTo("test_conversationId");
-		assertThat(result.getProtocol()).isEqualTo("test_protocol");
+		assertThat(result.getProtocol()).isEqualTo("TEST_PROTOCOL");
 		assertThat(receiverIt).allMatch(aid -> aid.equals(MOCK_SENDER));
 	}
 

@@ -153,7 +153,12 @@ public class MonitoringService extends AbstractManagingService {
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
-					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
+					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), entry -> {
+						if (entry.getKey().getAdaptationGoalId() == 1)
+							return entry.getValue();
+						else
+							return 1 - entry.getValue();
+					}));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}
@@ -168,7 +173,8 @@ public class MonitoringService extends AbstractManagingService {
 	public List<String> getAliveAgents(final AgentType agentType) {
 		final List<AgentData> healthAgentData =
 				managingAgent.getAgentNode().getDatabaseClient()
-						.readMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+						.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK),
+								MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 
 		final Predicate<MonitoringData> isAgentAlive = data -> {
 			var healthData = ((HealthCheck) data);
@@ -179,6 +185,19 @@ public class MonitoringService extends AbstractManagingService {
 				.filter(data -> isAgentAlive.test(data.monitoringData()))
 				.map(AgentData::aid)
 				.collect(Collectors.toSet()).stream().toList();
+	}
+
+	/**
+	 * Method retrieves list of AID's for agents which are alive and which belong to a given agent's name set
+	 *
+	 * @param allALiveAgents   list of agents that are alive
+	 * @param agentsOfInterest list of all agents of interest
+	 * @return list of alive agent
+	 */
+	public List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> agentsOfInterest) {
+		final Predicate<String> isAgentNameValid = agentName -> agentsOfInterest.contains(agentName.split("@")[0]);
+
+		return allALiveAgents.stream().filter(isAgentNameValid).toList();
 	}
 
 	@VisibleForTesting
