@@ -23,7 +23,6 @@ import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParam
 import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
 
 /**
  * Definitions provider for each of the adaptation actions. Used internally by the Timescale Database when initializing

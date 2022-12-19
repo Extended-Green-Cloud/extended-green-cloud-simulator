@@ -67,7 +67,7 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 					logger.info("Incorrect arguments: Queue size must be a positive integer!");
 					doDelete();
 				}
-				this.configManagement = new SchedulerConfigurationManagement(deadlineWeight, powerWeight, maxQueueSize,
+				this.configManagement = new SchedulerConfigurationManagement(this, deadlineWeight, powerWeight, maxQueueSize,
 						jobSplitThreshold, splittingFactor);
 				this.stateManagement = new SchedulerStateManagement(this);
 				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),

@@ -6,6 +6,8 @@ import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
 
 import java.time.Duration;
 
+import com.greencloud.application.agents.scheduler.SchedulerAgent;
+import com.gui.agents.SchedulerAgentNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ public class SchedulerConfigurationManagement {
 	private int jobSplitThreshold;
 	private int splittingFactor;
 
+	private SchedulerAgent schedulerAgent;
+
 	/**
 	 * Constructor
 	 *
@@ -33,8 +37,9 @@ public class SchedulerConfigurationManagement {
 	 * @param maximumQueueSize       maximum queue size
 	 *                               //@param jobSplitThreshold	 job size at which splitting will be triggered, can be adjusted by the ManagingAgent
 	 */
-	public SchedulerConfigurationManagement(int deadlineWeightPriority, int powerWeightPriority, int maximumQueueSize,
+	public SchedulerConfigurationManagement(SchedulerAgent schedulerAgent, int deadlineWeightPriority, int powerWeightPriority, int maximumQueueSize,
 			int jobSplitThreshold, int splittingFactor) {
+		this.schedulerAgent = schedulerAgent;
 		this.underlyingDeadlineWeight = deadlineWeightPriority;
 		this.underlyingPowerWeight = powerWeightPriority;
 		this.maximumQueueSize = maximumQueueSize;
@@ -85,6 +90,7 @@ public class SchedulerConfigurationManagement {
 		underlyingDeadlineWeight = nextFibonacci(underlyingDeadlineWeight);
 		logger.info(INCREASE_DEADLINE_WEIGHT_LOG, oldWeight, underlyingDeadlineWeight);
 		computeWeights();
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(underlyingDeadlineWeight);
 		return true;
 	}
 
@@ -96,6 +102,7 @@ public class SchedulerConfigurationManagement {
 		underlyingPowerWeight = nextFibonacci(underlyingPowerWeight);
 		logger.info(INCREASE_POWER_WEIGHT_LOG, oldWeight, underlyingPowerWeight);
 		computeWeights();
+		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
 		return true;
 	}
 

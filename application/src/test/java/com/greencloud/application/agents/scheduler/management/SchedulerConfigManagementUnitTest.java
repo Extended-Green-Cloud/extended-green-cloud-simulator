@@ -1,9 +1,12 @@
 package com.greencloud.application.agents.scheduler.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 
+import com.greencloud.application.agents.scheduler.SchedulerAgent;
+import com.gui.agents.SchedulerAgentNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +22,15 @@ public class SchedulerConfigManagementUnitTest {
 			.deadline(Instant.parse("2022-01-01T12:00:00.000Z")).power(100).build();
 
 	private SchedulerConfigurationManagement schedulerConfigManagement;
+	private SchedulerAgent mockSchedulerAgent;
+	private SchedulerAgentNode mockSchedulerAgentNode;
 
 	@BeforeEach
 	void setUp() {
-		schedulerConfigManagement = new SchedulerConfigurationManagement(1, 1, 100, 1000, 2);
+		mockSchedulerAgent = spy(SchedulerAgent.class);
+		mockSchedulerAgentNode = mock(SchedulerAgentNode.class);
+		doReturn(mockSchedulerAgentNode).when(mockSchedulerAgent).getAgentNode();
+		schedulerConfigManagement = new SchedulerConfigurationManagement(mockSchedulerAgent,1, 1, 100, 1000, 2);
 	}
 
 	@Test
