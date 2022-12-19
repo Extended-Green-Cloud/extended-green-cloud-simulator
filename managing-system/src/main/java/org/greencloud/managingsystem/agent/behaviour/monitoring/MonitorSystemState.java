@@ -49,12 +49,12 @@ public class MonitorSystemState extends TickerBehaviour {
 		final boolean isSuccessRatioSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized();
 		final boolean isBackUpPowerSatisfied = myManagingAgent.monitor().isBackUpPowerMinimized();
 
+		myManagingAgent.monitor().updateSystemStatistics();
 		if (isBackUpPowerSatisfied && isSuccessRatioSatisfied) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);
 			//end feedback iteration
 			return;
 		}
-		myManagingAgent.monitor().updateSystemStatistics();
 		myManagingAgent.analyze().trigger(getGoalWithWorstQuality());
 	}
 
