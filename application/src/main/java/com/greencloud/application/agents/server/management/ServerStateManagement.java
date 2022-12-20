@@ -127,6 +127,7 @@ public class ServerStateManagement {
 							getCurrentTime())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			supplyJobsWithBackupPower(jobsWithinTimeStamp);
 		}
+		updateServerGUI();
 	}
 
 	/**

@@ -63,8 +63,11 @@ public class ListenForCloudNetworkJobCancellation extends CyclicBehaviour {
 				var jobPartStatus = myCloudNetworkAgent.getNetworkJobs().get(jobPart);
 				myCloudNetworkAgent.getNetworkJobs().remove(jobPart);
 				myCloudNetworkAgent.getServerForJobMap().remove(jobPart.getJobId());
-				if (!List.of(CREATED, PROCESSING, ACCEPTED).contains(jobPartStatus)) {
-					myCloudNetworkAgent.manage().incrementJobCounter(jobPart.getJobId(), JobResultType.FINISH);
+				if(!List.of(CREATED, PROCESSING).contains(jobPartStatus)) {
+					myCloudNetworkAgent.getGuiController().updateAllJobsCountByValue(-1);
+					if(!jobPartStatus.equals(ACCEPTED)) {
+						myCloudNetworkAgent.manage().incrementJobCounter(jobPart.getJobId(), JobResultType.FINISH);
+					}
 				}
 				MDC.put(MDC_JOB_ID, jobPart.getJobId());
 				logger.info(CANCELLED_JOB_PART_LOG);

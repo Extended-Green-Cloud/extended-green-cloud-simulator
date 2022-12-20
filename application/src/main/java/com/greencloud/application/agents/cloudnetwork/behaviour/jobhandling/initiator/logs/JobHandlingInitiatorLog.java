@@ -15,8 +15,8 @@ public class JobHandlingInitiatorLog {
 
 	// FINDING JOB EXECUTOR LOG MESSAGES
 	public static final String NO_SERVER_RESPONSES_LOG = "No responses were retrieved";
-	public static final String NO_SERVER_AVAILABLE_LOG = "All servers refused to execute the job - sending refuse response"
-			+ "to Scheduler.";
+	public static final String NO_SERVER_AVAILABLE_LOG =
+			"All servers refused to execute the job - sending refuse response to Scheduler.";
 	public static final String CHOSEN_SERVER_FOR_JOB_LOG =
 			"Chosen Server for the job {}: {}. Sending job execution offer to Scheduler Agent";
 	public static final String INCORRECT_PROPOSAL_FORMAT_LOG =
