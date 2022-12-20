@@ -2,11 +2,8 @@ package com.greencloud.application.agents.server;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
-import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -24,6 +21,7 @@ import com.greencloud.application.agents.server.behaviour.powershortage.handler.
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
+import com.greencloud.application.agents.server.management.ServerAdaptationManagement;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.behaviours.ListenForAdaptationAction;
@@ -106,6 +104,7 @@ public class ServerAgent extends AbstractServerAgent {
 		super.afterMove();
 		this.stateManagement = new ServerStateManagement(this);
 		this.configManagement = new ServerConfigManagement(this);
+		this.serverAdaptationManagement = new ServerAdaptationManagement(this);
 		// restoring default values
 		configManagement.setJobProcessingLimit(20);
 		configManagement.setPricePerHour(20);
@@ -114,21 +113,10 @@ public class ServerAgent extends AbstractServerAgent {
 	@Override
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
 		if (adaptationAction.getAction() == CHANGE_GREEN_SOURCE_WEIGHT) {
-			return changeGreenSourceWeights(((ChangeGreenSourceWeights) actionParameters).greenSourceName());
+			return adaptationManagement()
+					.changeGreenSourceWeights(((ChangeGreenSourceWeights) actionParameters).greenSourceName());
 		}
 
 		return false;
-	}
-
-	private boolean changeGreenSourceWeights(String targetGreenSource) {
-		var newWeights = manageConfig().getWeightsForGreenSourcesMap().entrySet().stream()
-				.peek(entry -> {
-					if (!entry.getKey().getName().equals(targetGreenSource)) {
-						entry.setValue(nextFibonacci(entry.getValue()));
-					}
-				})
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-		manageConfig().setWeightsForGreenSourcesMap(newWeights);
-		return true;
 	}
 }

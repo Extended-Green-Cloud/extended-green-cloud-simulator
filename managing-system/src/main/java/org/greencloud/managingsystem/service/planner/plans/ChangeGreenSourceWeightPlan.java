@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
@@ -22,14 +23,13 @@ import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 
 public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 
-	private final Map<String, Integer> greenSourceExecutedActions;
-	private final Map<String, Integer> greenSourceAccumulatedShortages;
+	static final Map<String, Integer> greenSourceExecutedActions = new HashMap<>();
+	static final Map<String, Integer> greenSourceAccumulatedShortages = new HashMap<>();
+
 	private final Map<String, Integer> recentShortages;
 
 	public ChangeGreenSourceWeightPlan(ManagingAgent managingAgent) {
 		super(CHANGE_GREEN_SOURCE_WEIGHT, managingAgent);
-		greenSourceExecutedActions = new HashMap<>();
-		greenSourceAccumulatedShortages = new HashMap<>();
 		recentShortages = new HashMap<>();
 	}
 
@@ -44,6 +44,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 		var readGreenSourceShortages = managingAgent.getAgentNode().getDatabaseClient()
 				.readLastMonitoringDataForDataTypes(of(SHORTAGES))
 				.stream()
+				.filter(filterAliveGreenEnergyAgents())
 				.collect(toMap(AgentData::aid, data -> ((Shortages) data.monitoringData()).shortages()));
 
 		if (readGreenSourceShortages.isEmpty()) {
@@ -74,6 +75,13 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 		return true;
 	}
 
+	private Predicate<AgentData> filterAliveGreenEnergyAgents() {
+		return data -> managingAgent.getGreenCloudStructure()
+				.getGreenEnergyAgentsArgs()
+				.stream()
+				.anyMatch(args -> data.aid().contains(args.getName()));
+	}
+
 	/**
 	 * Picks the green source with the least number of executed actions that recently had a shortage.
 	 *
@@ -92,7 +100,6 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 				.orElse(null);
 
 		if (targetServer == null) {
-			recentShortages.clear();
 			return null;
 		}
 
@@ -100,7 +107,6 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 				.filter(aid -> aid.toString().contains(targetServer))
 				.findFirst()
 				.orElse(null);
-		recentShortages.clear();
 
 		if (targetAgent == null) {
 			return null;

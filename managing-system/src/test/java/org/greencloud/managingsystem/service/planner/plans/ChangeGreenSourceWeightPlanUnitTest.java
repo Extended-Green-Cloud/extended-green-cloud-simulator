@@ -26,6 +26,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
@@ -40,6 +42,7 @@ import com.gui.agents.ManagingAgentNode;
 import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ChangeGreenSourceWeightPlanUnitTest {
 
 	@Mock
@@ -81,11 +84,14 @@ class ChangeGreenSourceWeightPlanUnitTest {
 
 		when(managingAgent.getAgentNode()).thenReturn(managingAgentNode);
 		when(managingAgentNode.getDatabaseClient()).thenReturn(timescaleDatabase);
+		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 	}
 
 	@AfterEach
 	void cleanUp() {
 		yellowPagesService.close();
+		ChangeGreenSourceWeightPlan.greenSourceExecutedActions.clear();
+		ChangeGreenSourceWeightPlan.greenSourceAccumulatedShortages.clear();
 	}
 
 	@ParameterizedTest
@@ -144,7 +150,6 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	@Test
 	void shouldCorrectlyBuildAdaptationPlan() {
 		// given
-		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SHORTAGES)))
 				.thenReturn(of(generateTestData("Wind1")));
 		var isPlanExecutable = changeGreenSourceWeightPlan.isPlanExecutable();
