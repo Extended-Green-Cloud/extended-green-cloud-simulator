@@ -6,6 +6,7 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartStatusRequestMessage;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 	private static final Logger logger = LoggerFactory.getLogger(HandleDelayedJob.class);
 
 	private final String jobId;
+	private final Instant jobStart;
 	private final CloudNetworkAgent myCloudNetworkAgent;
 
 	/**
@@ -43,6 +45,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 		super(agent, startTime);
 		this.myCloudNetworkAgent = (CloudNetworkAgent) agent;
 		this.jobId = jobId;
+		this.jobStart = startTime.toInstant();
 	}
 
 	/**
@@ -60,7 +63,7 @@ public class HandleDelayedJob extends WakerBehaviour {
 			final AID server = myCloudNetworkAgent.getServerForJobMap().get(jobId);
 			final ACLMessage checkMessage = prepareJobStartStatusRequestMessage(jobId, server);
 
-			myAgent.addBehaviour(new InitiateJobStartCheck(myCloudNetworkAgent, checkMessage, jobId));
+			myAgent.addBehaviour(new InitiateJobStartCheck(myCloudNetworkAgent, checkMessage, jobId, jobStart));
 		}
 	}
 }

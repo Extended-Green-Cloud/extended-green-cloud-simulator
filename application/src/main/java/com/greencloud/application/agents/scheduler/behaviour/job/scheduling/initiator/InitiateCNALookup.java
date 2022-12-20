@@ -2,16 +2,16 @@ package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.ini
 
 import static com.greencloud.application.agents.scheduler.domain.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.MessagingUtils.rejectJobOffers;
 import static com.greencloud.application.messages.MessagingUtils.retrieveProposals;
 import static com.greencloud.application.messages.MessagingUtils.retrieveValidMessages;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
-import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.POSTPONED_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.preparePostponeJobMessageForClient;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 
 import java.util.List;
@@ -94,13 +94,11 @@ public class InitiateCNALookup extends ContractNetInitiator {
 	private void handleFailure() {
 		if (myScheduler.manage().postponeJobExecution(job)) {
 			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_RETRY_LOG);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
-					POSTPONED_JOB_ID));
+			myScheduler.send(preparePostponeJobMessageForClient(job));
 		} else {
 			logger.info(JobSchedulingInitiatorLog.NO_CLOUD_AVAILABLE_NO_RETRY_LOG);
 			myScheduler.manage().handleFailedJobCleanUp(job, parent);
-			myScheduler.send(prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(),
-					FAILED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job, FAILED_JOB_ID));
 		}
 	}
 

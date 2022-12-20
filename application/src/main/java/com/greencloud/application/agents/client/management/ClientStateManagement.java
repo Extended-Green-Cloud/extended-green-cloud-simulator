@@ -2,6 +2,7 @@ package com.greencloud.application.agents.client.management;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
@@ -10,6 +11,7 @@ import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toMap;
 
+import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -46,7 +48,7 @@ public class ClientStateManagement {
 		currentJobStatus = CREATED;
 		jobStatusDurationMap = Arrays.stream(ClientJobStatusEnum.values())
 				.collect(toMap(status -> status, status -> 0L));
-		timer.startTimeMeasure();
+		timer.startTimeMeasure(getCurrentTime());
 	}
 
 	/**
@@ -54,9 +56,9 @@ public class ClientStateManagement {
 	 *
 	 * @param newStatus new job status
 	 */
-	public synchronized void updateJobStatusDuration(final ClientJobStatusEnum newStatus) {
-		final long elapsedTime = timer.stopTimeMeasure();
-		timer.startTimeMeasure();
+	public synchronized void updateJobStatusDuration(final ClientJobStatusEnum newStatus, final Instant time) {
+		final long elapsedTime = timer.stopTimeMeasure(time);
+		timer.startTimeMeasure(time);
 		jobStatusDurationMap.computeIfPresent(currentJobStatus, (key, val) -> val + elapsedTime);
 		currentJobStatus = newStatus;
 	}

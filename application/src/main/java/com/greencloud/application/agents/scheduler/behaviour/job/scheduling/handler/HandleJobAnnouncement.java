@@ -89,8 +89,7 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 		logger.info(ANNOUNCE_JOB_CNA_LOG, mapToJobInstanceId(adjustedJob));
 		final ACLMessage cfp = createCallForProposal(adjustedJob, myScheduler.getAvailableCloudNetworks(),
 				SCHEDULER_JOB_CFP_PROTOCOL);
-		final ACLMessage clientMessage = prepareJobStatusMessageForClient(adjustedJob.getClientIdentifier(),
-				adjustedJob.getJobId(), PROCESSING_JOB_ID);
+		final ACLMessage clientMessage = prepareJobStatusMessageForClient(adjustedJob, PROCESSING_JOB_ID);
 
 		myScheduler.getClientJobs().replace(adjustedJob, CREATED, PROCESSING);
 		myScheduler.send(clientMessage);
@@ -109,8 +108,7 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 		if (newAdjustedEnd.isAfter(job.getDeadline().minusMillis(JOB_PROCESSING_DEADLINE_ADJUSTMENT))) {
 			logger.info(JOB_EXECUTION_AFTER_DEADLINE_LOG, job.getJobId());
 			myScheduler.getClientJobs().remove(job);
-			myScheduler.send(
-					prepareJobStatusMessageForClient(job.getClientIdentifier(), job.getJobId(), FAILED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job, FAILED_JOB_ID));
 			return null;
 		}
 
