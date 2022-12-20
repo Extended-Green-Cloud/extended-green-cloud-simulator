@@ -32,7 +32,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 	protected transient ServerStateManagement stateManagement;
 	protected transient ServerConfigManagement configManagement;
-	protected transient ServerAdaptationManagement serverAdaptationManagement;
+	protected transient ServerAdaptationManagement adaptationManagement;
 	protected int initialMaximumCapacity;
 	protected int currentMaximumCapacity;
 	protected volatile AtomicLong currentlyProcessing;
@@ -122,7 +122,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	}
 
 	public ServerAdaptationManagement adaptationManagement() {
-		return serverAdaptationManagement;
+		return adaptationManagement;
 	}
 
 	public void tookJobIntoProcessing() {

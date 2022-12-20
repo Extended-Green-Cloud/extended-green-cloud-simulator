@@ -66,6 +66,7 @@ public class ServerAgent extends AbstractServerAgent {
 		if (Objects.nonNull(args) && args.length == 4) {
 			this.stateManagement = new ServerStateManagement(this);
 			this.configManagement = new ServerConfigManagement(this);
+			this.adaptationManagement = new ServerAdaptationManagement(this);
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			try {
 				this.manageConfig().setPricePerHour(Double.parseDouble(args[1].toString()));
@@ -73,7 +74,7 @@ public class ServerAgent extends AbstractServerAgent {
 				this.initialMaximumCapacity = Integer.parseInt(args[2].toString());
 				this.manageConfig().setJobProcessingLimit(Integer.parseInt(args[3].toString()));
 			} catch (final NumberFormatException e) {
-				logger.info("Some of the arguments is not a number!");
+				logger.info("Some of the arguments are not a number!");
 				doDelete();
 			}
 		} else {
@@ -104,7 +105,7 @@ public class ServerAgent extends AbstractServerAgent {
 		super.afterMove();
 		this.stateManagement = new ServerStateManagement(this);
 		this.configManagement = new ServerConfigManagement(this);
-		this.serverAdaptationManagement = new ServerAdaptationManagement(this);
+		this.adaptationManagement = new ServerAdaptationManagement(this);
 		// restoring default values
 		configManagement.setJobProcessingLimit(20);
 		configManagement.setPricePerHour(20);
