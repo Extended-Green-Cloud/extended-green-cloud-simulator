@@ -2,11 +2,11 @@ package org.greencloud.managingsystem.service.planner;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static java.util.Objects.nonNull;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.CONSTRUCTING_PLAN_FOR_ACTION_LOG;
@@ -23,12 +23,12 @@ import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
+import org.greencloud.managingsystem.service.planner.plans.ChangeGreenSourceWeightPlan;
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourcePercentagePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class PlannerService extends AbstractManagingService {
 		final AdaptationAction bestAction = selectBestAction(executableActions);
 		final AbstractPlan constructedPlan = getPlanForAdaptationAction(bestAction);
 		final boolean isPlanConstructed = nonNull(constructedPlan)
-				&& nonNull(constructedPlan.constructAdaptationPlan());
+										  && nonNull(constructedPlan.constructAdaptationPlan());
 
 		if (!isPlanConstructed) {
 			logger.info(COULD_NOT_CONSTRUCT_PLAN_LOG);
@@ -114,7 +114,7 @@ public class PlannerService extends AbstractManagingService {
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
 				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_ERROR, new IncrementGreenSourceErrorPlan(managingAgent),
-				INCREASE_GREEN_SOURCE_PERCENTAGE, new IncrementGreenSourcePercentagePlan(managingAgent),
+				CHANGE_GREEN_SOURCE_WEIGHT, new ChangeGreenSourceWeightPlan(managingAgent),
 				DECREASE_GREEN_SOURCE_ERROR, new DecrementGreenSourceErrorPlan(managingAgent)
 		);
 	}

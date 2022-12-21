@@ -30,6 +30,7 @@ const TabHeader = ({ tabTitles, selectedTabIdx, setSelectedTabIdx }: Props) => {
    const generateTabHeader = (headerText: string, index: number) => {
       return (
          <div
+            key={headerText}
             style={getHeaderStyle(index)}
             onClick={() => setSelectedTabIdx(index)}
          >

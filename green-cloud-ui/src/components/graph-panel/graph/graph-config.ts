@@ -279,7 +279,7 @@ export const GRAPH_LAYOUT: Cytoscape.LayoutOptions = {
    name: 'fcose',
    quality: 'default',
    fit: true,
-   animate: false,
+   animate: true,
    animationDuration: 1000,
    padding: 20,
    packComponents: false,

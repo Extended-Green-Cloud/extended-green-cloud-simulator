@@ -3,17 +3,19 @@
 		<name>ManagingSystem</name>
 		<systemQualityThreshold>0.7</systemQualityThreshold>
 		<disabledActions>
-			<item>INCREASE_GREEN_SOURCE_PERCENTAGE</item>
+			<item>ADD_GREEN_SOURCE</item>
 			<item>ADD_SERVER</item>
+			<item>INCREASE_POWER_PRIORITY</item>
 			<item>INCREASE_DEADLINE_PRIORITY</item>
 			<item>INCREASE_GREEN_SOURCE_ERROR</item>
+			<item>DECREASE_GREEN_SOURCE_ERROR</item>
 			<item>CONNECT_GREEN_SOURCE</item>
 		</disabledActions>
 	</managingAgent>
 	<schedulerAgent>
 		<name>Scheduler</name>
-		<deadlineWeight>1</deadlineWeight>
-		<powerWeight>1</powerWeight>
+		<deadlineWeight>0.5</deadlineWeight>
+		<powerWeight>0.5</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
 		<jobSplitThreshold>20</jobSplitThreshold>
 		<splittingFactor>3</splittingFactor>
@@ -30,8 +32,19 @@
 			<ownerSever>Server</ownerSever>
 			<latitude>52</latitude>
 			<longitude>20</longitude>
+			<pricePerPowerUnit>4</pricePerPowerUnit>
+			<maximumCapacity>15</maximumCapacity>
+			<energyType>WIND</energyType>
+			<weatherPredictionError>0.02</weatherPredictionError>
+		</greenenergyAgent>
+		<greenenergyAgent>
+			<name>WindFarm2</name>
+			<monitoringAgent>Weather</monitoringAgent>
+			<ownerSever>Server</ownerSever>
+			<latitude>52</latitude>
+			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>300</maximumCapacity>
+			<maximumCapacity>15</maximumCapacity>
 			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
@@ -40,7 +53,7 @@
 		<serverAgentsArgs>
 			<name>Server</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
-			<maximumCapacity>300</maximumCapacity>
+			<maximumCapacity>15</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>

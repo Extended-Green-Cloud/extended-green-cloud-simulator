@@ -6,10 +6,10 @@ import static com.greencloud.application.agents.scheduler.behaviour.job.scheduli
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.QUEUE_THRESHOLD_EXCEEDED_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.templates.JobSchedulingMessageTemplates.NEW_JOB_ANNOUNCEMENT_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareSplitJobMessageForClient;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
-import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.SPLIT_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
 import static java.lang.String.format;
 
@@ -75,26 +75,26 @@ public class ListenForClientJob extends CyclicBehaviour {
 		if (job.getPower() >= myScheduler.config().getJobSplitThreshold()) {
 			splitJobAndPutToQueue(job, client);
 		} else {
-			putJobToQueue(job, client);
+			putJobToQueue(job);
 		}
 	}
 
 	private void splitJobAndPutToQueue(ClientJob job, String client) {
 		var jobParts = splitJob(job);
 		var messageContent = new SplitJob(jobParts);
-		myScheduler.send(prepareJobStatusMessageForClient(client, messageContent, SPLIT_JOB_ID));
+		myScheduler.send(prepareSplitJobMessageForClient(client, messageContent));
 		jobParts.forEach(jobPart -> {
 			myScheduler.getJobParts().put(job.getJobId(), jobPart);
-			putJobToQueue(jobPart, client);
+			putJobToQueue(jobPart);
 		});
 	}
 
-	private void putJobToQueue(ClientJob job, String client) {
+	private void putJobToQueue(ClientJob job) {
 		myScheduler.getClientJobs().put(job, CREATED);
 		if (myScheduler.getJobsToBeExecuted().offer(job)) {
 			logger.info(JOB_ENQUEUED_SUCCESSFULLY_LOG, job.getJobId());
 			myScheduler.manage().updateJobQueue();
-			myScheduler.send(prepareJobStatusMessageForClient(client, job.getJobId(), SCHEDULED_JOB_ID));
+			myScheduler.send(prepareJobStatusMessageForClient(job, SCHEDULED_JOB_ID));
 		} else {
 			logger.info(QUEUE_THRESHOLD_EXCEEDED_LOG);
 		}

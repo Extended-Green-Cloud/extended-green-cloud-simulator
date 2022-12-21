@@ -7,7 +7,6 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.ADD_COMPONENT;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
@@ -111,16 +110,16 @@ class AnalyzerServiceDatabaseTest {
 				new AdaptationAction(1, ADD_SERVER, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(3, INCREASE_POWER_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+				new AdaptationAction(4, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 				new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(7, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
-				new AdaptationAction(10, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO));
+				new AdaptationAction(6, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO)
+		);
 
 		var result = analyzerService.getAdaptationActionsForGoal(MAXIMIZE_JOB_SUCCESS_RATIO);
 
 		assertThat(result)
 				.as("There should be 6 adaptation actions")
-				.hasSize(7)
+				.hasSize(6)
 				.as("Data of the adaptation actions should equal to the expected result")
 				.usingRecursiveFieldByFieldElementComparator()
 				.containsExactlyInAnyOrderElementsOf(expectedResult);
@@ -130,9 +129,9 @@ class AnalyzerServiceDatabaseTest {
 	@DisplayName("Test getting adaptation actions for back up power goal")
 	void testGetAdaptationActionsForBackUpPowerGoal() {
 		var expectedResult = List.of(
-				new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR,
+				new AdaptationAction(7, DECREASE_GREEN_SOURCE_ERROR,
 						RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
-				new AdaptationAction(9, ADD_GREEN_SOURCE,
+				new AdaptationAction(8, ADD_GREEN_SOURCE,
 						ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
 		);
 

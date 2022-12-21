@@ -24,6 +24,7 @@ const LogEntry = ({ adaptationLog }: Props) => {
       descriptionContainer,
       headerContainer,
       agentName,
+      dateContainer,
    } = styles
    const icon = { ...(ICON_MAP as any) }[adaptationLog?.type.toString()]
    const date = convertUnixToTime(adaptationLog?.time)
@@ -35,7 +36,7 @@ const LogEntry = ({ adaptationLog }: Props) => {
          </div>
          <div style={contentContainer}>
             <div style={headerContainer}>
-               <div>{['[', date, ']'].join('')}</div>
+               <div style={dateContainer}>{['[', date, ']'].join('')}</div>
                {adaptationLog.agentName && (
                   <span style={agentName}>
                      {adaptationLog.agentName.toUpperCase()}

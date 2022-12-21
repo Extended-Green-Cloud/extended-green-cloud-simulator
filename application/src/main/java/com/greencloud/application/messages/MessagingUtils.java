@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.greencloud.application.agents.AbstractAgent;
@@ -102,7 +103,7 @@ public class MessagingUtils {
 	public static <T> T readMessageContent(final ACLMessage message, final Class<T> expectedClassType) {
 		try {
 			return getMapper().readValue(message.getContent(), expectedClassType);
-		} catch (MismatchedInputException e) {
+		} catch (MismatchedInputException | JsonParseException e) {
 			throw new IncorrectMessageContentException();
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

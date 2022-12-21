@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.client.behaviour.jobannouncement.listener;
 
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.templates.JobAnnouncementMessageTemplates.CLIENT_JOB_UPDATE_TEMPLATE;
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.DELAYED_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -31,9 +33,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.client.ClientAgent;
 import com.greencloud.application.agents.client.domain.JobPart;
 import com.greencloud.application.agents.client.management.ClientStateManagement;
+import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusUpdate;
 import com.greencloud.commons.job.ClientJobStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -70,7 +75,8 @@ class ListenForJobUpdateUnitTest {
 
 	@ParameterizedTest
 	@MethodSource("jobStatusProvider")
-	void shouldCorrectlyProcessesJobStatus(String conversationId, ClientJobStatusEnum status) {
+	void shouldCorrectlyProcessesJobStatus(String conversationId, ClientJobStatusEnum status)
+			throws JsonProcessingException {
 		// given
 		var message = messageBuilder(conversationId, JOB_ID);
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);
@@ -85,7 +91,7 @@ class ListenForJobUpdateUnitTest {
 	@ParameterizedTest
 	@MethodSource("jobStatusProvider")
 	void shouldCorrectlyProcessPartJobStatus(String conversationId, ClientJobStatusEnum status,
-			ClientJobStatusEnum currentStatus) {
+			ClientJobStatusEnum currentStatus) throws JsonProcessingException {
 		// given
 		var message = messageBuilder(conversationId, JOB_PART_ID);
 		when(clientAgent.receive(CLIENT_JOB_UPDATE_TEMPLATE)).thenReturn(message);
@@ -97,7 +103,7 @@ class ListenForJobUpdateUnitTest {
 		listenForJobUpdate.action();
 
 		// then
-		verify(jobPart).updateJobStatusDuration(status);
+		verify(jobPart).updateJobStatusDuration(status, Instant.parse("2022-01-01T13:30:00.000Z"));
 		verify(clientAgentNode).updateJobStatus(status, JOB_PART_ID);
 	}
 
@@ -113,10 +119,14 @@ class ListenForJobUpdateUnitTest {
 		);
 	}
 
-	private static ACLMessage messageBuilder(String conversationId, String content) {
+	private static ACLMessage messageBuilder(String conversationId, String jobId) throws JsonProcessingException {
+		JobStatusUpdate messageContent = new JobStatusUpdate(ImmutableJobInstanceIdentifier.builder()
+				.jobId(jobId).startTime(Instant.parse("2022-01-01T13:30:00.000Z")).build(),
+				Instant.parse("2022-01-01T13:30:00.000Z"));
+
 		ACLMessage message = new ACLMessage();
 		message.setConversationId(conversationId);
-		message.setContent(content);
+		message.setContent(getMapper().writeValueAsString(messageContent));
 		return message;
 	}
 }

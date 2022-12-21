@@ -4,7 +4,6 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.in
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_ACCEPT_PROPOSAL_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.initiator.logs.JobHandlingInitiatorLog.SERVER_OFFER_REJECT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_BY_SERVER;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
@@ -13,6 +12,8 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareFailureReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_BY_SERVER;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
@@ -25,6 +26,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusUpdate;
 import com.greencloud.application.domain.job.JobWithProtocol;
 import com.greencloud.commons.job.ClientJob;
 
@@ -115,8 +117,9 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		myServerAgent.getGreenSourceForJobMap().remove(jobInstance.getJobId());
 		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
 
+		final JobStatusUpdate jobStatusUpdate = new JobStatusUpdate(jobInstanceId, getCurrentTime());
 		myServerAgent.send(prepareReply(replyMessage, jobInstanceId, REJECT_PROPOSAL));
-		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobInstanceId, responseProtocol));
+		myServerAgent.send(prepareFailureReply(cnaAccept.createReply(), jobStatusUpdate, responseProtocol));
 	}
 
 	private void acceptGreenSourceForJobExecution(final JobInstanceIdentifier jobInstanceId,

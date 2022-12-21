@@ -153,12 +153,7 @@ public class MonitoringService extends AbstractManagingService {
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
-					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), entry -> {
-						if (entry.getKey().getAdaptationGoalId() == 1)
-							return entry.getValue();
-						else
-							return 1 - entry.getValue();
-					}));
+					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}

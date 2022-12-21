@@ -40,7 +40,7 @@ function* fetchState() {
             put(managinSystemActions.setAdaptationData(data.managingSystem)),
             put(graphActions.setGraphData(data.graph)),
          ])
-         yield delay(300)
+         yield delay(200)
       } catch (err: any) {
          if (err.code === 'ERR_NETWORK') {
             console.error('Server is disconnected')

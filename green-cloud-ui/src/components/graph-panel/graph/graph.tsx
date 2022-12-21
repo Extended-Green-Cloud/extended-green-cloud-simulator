@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useRef, useState } from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
 import Cytoscape from 'cytoscape'
 import fcose from 'cytoscape-fcose'
@@ -28,6 +28,8 @@ export const DisplayGraph = ({
    scheduler,
    setSelectedAgent,
 }: Props) => {
+   const [core, setCyCore] = useState<Cytoscape.Core>()
+   const nodesRef = useRef<number>(-1)
    const elements = useMemo(
       () =>
          CytoscapeComponent.normalizeElements({
@@ -37,13 +39,19 @@ export const DisplayGraph = ({
       [nodes, connections]
    )
 
+   useEffect(() => {
+      if (nodesRef.current !== nodes.length) {
+         if (core) {
+            core.layout(GRAPH_LAYOUT).run()
+            core.fit()
+         }
+         nodesRef.current = nodes.length
+      }
+   }, [nodes])
+
    const cy = (core: Cytoscape.Core): void => {
       setCore(core)
-
-      core.on('add', 'node', () => {
-         core.layout(GRAPH_LAYOUT).run()
-         core.fit()
-      })
+      setCyCore(core)
 
       core.on('tap', 'node', (event) => {
          if (event.target.id() !== scheduler?.name) {

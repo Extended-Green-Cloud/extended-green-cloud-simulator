@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.AbstractAgent;
+import com.greencloud.application.agents.server.management.ServerAdaptationManagement;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.domain.GreenSourceData;
@@ -31,6 +32,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 	protected transient ServerStateManagement stateManagement;
 	protected transient ServerConfigManagement configManagement;
+	protected transient ServerAdaptationManagement adaptationManagement;
 	protected int initialMaximumCapacity;
 	protected int currentMaximumCapacity;
 	protected volatile AtomicLong currentlyProcessing;
@@ -117,6 +119,10 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 	public ServerConfigManagement manageConfig() {
 		return configManagement;
+	}
+
+	public ServerAdaptationManagement adaptationManagement() {
+		return adaptationManagement;
 	}
 
 	public void tookJobIntoProcessing() {

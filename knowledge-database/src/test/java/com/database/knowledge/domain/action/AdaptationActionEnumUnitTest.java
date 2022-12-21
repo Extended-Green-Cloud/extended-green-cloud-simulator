@@ -1,10 +1,10 @@
 package com.database.knowledge.domain.action;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.getAdaptationActionEnumByName;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +28,7 @@ class AdaptationActionEnumUnitTest {
 				arguments("Add server", ADD_SERVER),
 				arguments("Increase job deadline priority", INCREASE_DEADLINE_PRIORITY),
 				arguments("Increase job power priority", INCREASE_POWER_PRIORITY),
-				arguments("Increase Green Source selection chance", INCREASE_GREEN_SOURCE_PERCENTAGE),
+				arguments("Change Green Source selection weight", CHANGE_GREEN_SOURCE_WEIGHT),
 				arguments("Increase Green Source weather prediction error", INCREASE_GREEN_SOURCE_ERROR),
 				arguments("Connecting Green Source", CONNECT_GREEN_SOURCE)
 		);

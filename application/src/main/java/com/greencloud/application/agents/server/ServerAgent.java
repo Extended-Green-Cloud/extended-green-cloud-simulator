@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.server;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_AGENT_NAME;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.greencloud.application.agents.server.behaviour.df.ListenForAdditionalGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
@@ -19,11 +21,15 @@ import com.greencloud.application.agents.server.behaviour.powershortage.handler.
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
 import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
+import com.greencloud.application.agents.server.management.ServerAdaptationManagement;
 import com.greencloud.application.agents.server.management.ServerConfigManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
+import com.greencloud.application.behaviours.ListenForAdaptationAction;
 import com.greencloud.application.behaviours.ReceiveGUIController;
 import com.greencloud.application.yellowpages.YellowPagesService;
 import com.greencloud.application.yellowpages.domain.DFServiceConstants;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -60,6 +66,7 @@ public class ServerAgent extends AbstractServerAgent {
 		if (Objects.nonNull(args) && args.length == 4) {
 			this.stateManagement = new ServerStateManagement(this);
 			this.configManagement = new ServerConfigManagement(this);
+			this.adaptationManagement = new ServerAdaptationManagement(this);
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			try {
 				this.manageConfig().setPricePerHour(Double.parseDouble(args[1].toString()));
@@ -67,7 +74,7 @@ public class ServerAgent extends AbstractServerAgent {
 				this.initialMaximumCapacity = Integer.parseInt(args[2].toString());
 				this.manageConfig().setJobProcessingLimit(Integer.parseInt(args[3].toString()));
 			} catch (final NumberFormatException e) {
-				logger.info("Some of the arguments is not a number!");
+				logger.info("Some of the arguments are not a number!");
 				doDelete();
 			}
 		} else {
@@ -88,7 +95,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
 				new ListenForServerJobCancellation(),
-				new ListenForAdditionalGreenSourceService(this)
+				new ListenForAdditionalGreenSourceService(this),
+				new ListenForAdaptationAction(this)
 		);
 	}
 
@@ -97,8 +105,19 @@ public class ServerAgent extends AbstractServerAgent {
 		super.afterMove();
 		this.stateManagement = new ServerStateManagement(this);
 		this.configManagement = new ServerConfigManagement(this);
+		this.adaptationManagement = new ServerAdaptationManagement(this);
 		// restoring default values
 		configManagement.setJobProcessingLimit(20);
 		configManagement.setPricePerHour(20);
+	}
+
+	@Override
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		if (adaptationAction.getAction() == CHANGE_GREEN_SOURCE_WEIGHT) {
+			return adaptationManagement()
+					.changeGreenSourceWeights(((ChangeGreenSourceWeights) actionParameters).greenSourceName());
+		}
+
+		return false;
 	}
 }

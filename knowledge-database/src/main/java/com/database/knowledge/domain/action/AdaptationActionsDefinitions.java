@@ -7,7 +7,6 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_PERCENTAGE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.ADD_COMPONENT;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
@@ -20,6 +19,7 @@ import java.util.Map;
 import com.database.knowledge.exception.InvalidAdaptationActionException;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
@@ -35,13 +35,12 @@ public final class AdaptationActionsDefinitions {
 			new AdaptationAction(1, ADD_SERVER, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
 			new AdaptationAction(2, INCREASE_DEADLINE_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 			new AdaptationAction(3, INCREASE_POWER_PRIORITY, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-			new AdaptationAction(4, INCREASE_GREEN_SOURCE_PERCENTAGE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+			new AdaptationAction(4, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
 			new AdaptationAction(5, INCREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
-			new AdaptationAction(7, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
-			new AdaptationAction(10, CHANGE_GREEN_SOURCE_WEIGHT, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO),
+			new AdaptationAction(6, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
 			// MINIMIZE BACKUP POWER
-			new AdaptationAction(8, DECREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
-			new AdaptationAction(9, ADD_GREEN_SOURCE, ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
+			new AdaptationAction(7, DECREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
+			new AdaptationAction(8, ADD_GREEN_SOURCE, ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
 
 	);
 
@@ -50,6 +49,7 @@ public final class AdaptationActionsDefinitions {
 					INCREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
 					DECREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
 					CONNECT_GREEN_SOURCE, ConnectGreenSourceParameters.class,
+					CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeights.class,
 					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
 					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class
 			);

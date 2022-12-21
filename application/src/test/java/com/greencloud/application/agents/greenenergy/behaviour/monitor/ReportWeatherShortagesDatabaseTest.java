@@ -74,12 +74,14 @@ class ReportWeatherShortagesDatabaseTest {
 	@DisplayName("Test on tick when power shortage count is not empty")
 	void testTickPowerShortageNonEmpty() {
 		management.getWeatherShortagesCounter().set(10);
+		management.getShortagesAccumulator().set(10);
 		clearInvocations(management);
 
 		reportWeatherShortages.onTick();
 
-		verify(greenEnergyAgent, times(2)).manage();
+		verify(greenEnergyAgent, times(4)).manage();
 		verify(management, times(2)).getWeatherShortagesCounter();
+		verify(management, times(2)).getShortagesAccumulator();
 
 		var result = database.readLastMonitoringDataForDataTypes(singletonList(WEATHER_SHORTAGES), 10);
 
@@ -95,11 +97,12 @@ class ReportWeatherShortagesDatabaseTest {
 	@DisplayName("Test on tick when power shortage count is empty")
 	void testTickPowerShortageEmpty() {
 		management.getWeatherShortagesCounter().set(0);
+		management.getShortagesAccumulator().set(0);
 		clearInvocations(management);
 
 		reportWeatherShortages.onTick();
 
-		verify(greenEnergyAgent).manage();
+		verify(greenEnergyAgent, times(2)).manage();
 		verify(management).getWeatherShortagesCounter();
 		verifyNoInteractions(greenEnergyAgentNode);
 
