@@ -1,7 +1,5 @@
 package com.greencloud.application.utils.domain;
 
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,8 +18,8 @@ public class Timer {
 	/**
 	 * Method starts the timer
 	 */
-	public void startTimeMeasure() {
-		timeStart.set(getCurrentTime());
+	public void startTimeMeasure(final Instant startTime) {
+		timeStart.set(startTime);
 	}
 
 	/**
@@ -29,8 +27,8 @@ public class Timer {
 	 *
 	 * @return elapsed time in ms
 	 */
-	public long stopTimeMeasure() {
-		return Duration.between(timeStart.get(), getCurrentTime()).toMillis();
+	public long stopTimeMeasure(final Instant stopTime) {
+		return Duration.between(timeStart.get(), stopTime).toMillis();
 	}
 
 	public AtomicReference<Instant> getTimeStart() {

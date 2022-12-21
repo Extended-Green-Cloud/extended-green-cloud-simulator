@@ -1,5 +1,8 @@
 package org.greencloud.managingsystem.service.monitoring;
 
+import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
+import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
@@ -16,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
@@ -67,5 +72,30 @@ class MonitoringServiceDatabaseTest {
 				.as("Data of the goals should equal to the expected result")
 				.usingRecursiveFieldByFieldElementComparator()
 				.containsExactlyInAnyOrderElementsOf(expectedResult);
+	}
+
+	@Test
+	@DisplayName("Test get alive agents for green sources")
+	void testGetAliveAgentsForGreenSources() {
+		mockHealthCheckData();
+		var result = monitoringService.getAliveAgents(GREEN_SOURCE);
+
+		assertThat(result)
+				.hasSize(3)
+				.matches((data) -> List.of("test_gs1", "test_gs2", "test_gs3").containsAll(data));
+	}
+
+	private void mockHealthCheckData() {
+		var healthCheck1 = new HealthCheck(true, GREEN_SOURCE);
+		var healthCheck2 = new HealthCheck(true, GREEN_SOURCE);
+		var healthCheck3 = new HealthCheck(true, GREEN_SOURCE);
+
+		var mockData = List.of(
+				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
+		);
+
+		mockData.forEach(data -> database.writeMonitoringData(data.aid(), data.dataType(), data.monitoringData()));
 	}
 }

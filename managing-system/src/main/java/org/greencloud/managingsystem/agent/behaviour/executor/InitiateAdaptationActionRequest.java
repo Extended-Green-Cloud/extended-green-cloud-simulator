@@ -5,6 +5,7 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.COMPLETED_ACTION_LOG;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -32,14 +33,17 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	private final AdaptationActionEnum adaptationActionType;
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
+	private final Runnable postActionHandler;
 
-	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Double initialGoalQuality) {
+	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Double initialGoalQuality,
+			Runnable postActionHandler) {
 		super(agent, message);
 		this.adaptationActionType = AdaptationActionEnum.valueOf(message.getConversationId());
 		this.targetAgent = (AID) message.getAllReceiver().next();
 		this.initialGoalQuality = initialGoalQuality;
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.managingAgentNode = (ManagingAgentNode) myManagingAgent.getAgentNode();
+		this.postActionHandler = postActionHandler;
 	}
 
 	/**
@@ -53,15 +57,22 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	protected void handleInform(ACLMessage inform) {
 		logger.info(COMPLETED_ACTION_LOG, adaptationActionType, targetAgent);
 		scheduleVerifyBehaviour();
+		executePostAdaptationAction();
 		managingAgentNode.logNewAdaptation(getAdaptationAction(adaptationActionType), getCurrentTime(),
 				Optional.of(targetAgent.getLocalName()));
 		myManagingAgent.removeBehaviour(this);
 	}
 
 	private void scheduleVerifyBehaviour() {
-		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, getCurrentTime()
-				, adaptationActionType, targetAgent, initialGoalQuality);
+		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, getCurrentTime(),
+				adaptationActionType, targetAgent, initialGoalQuality);
 		myManagingAgent.addBehaviour(verifyingBehaviour);
+	}
+
+	private void executePostAdaptationAction() {
+		if(Objects.nonNull(postActionHandler)) {
+			postActionHandler.run();
+		}
 	}
 
 	/**

@@ -53,24 +53,6 @@ public class SubscribeGreenSourceService extends SubscriptionInitiator {
 		final List<AID> announcedGreenSources = decodeSubscription(inform);
 
 		logger.info(RECEIVE_GS_ANNOUNCEMENT_LOG);
-		myServerAgent.getOwnedGreenSources().addAll(announcedGreenSources);
-		assignWeightsToNewGreenSources(announcedGreenSources);
-	}
-
-	protected void assignWeightsToNewGreenSources(final List<AID> newGreenSources) {
-		final int weight =
-				myServerAgent.manageConfig().getWeightsForGreenSourcesMap().isEmpty() ?
-						1 :
-						getMaximumValueForConfiguration();
-		newGreenSources.forEach(greenSource -> myServerAgent.manageConfig().getWeightsForGreenSourcesMap()
-				.putIfAbsent(greenSource, weight));
-	}
-
-	private int getMaximumValueForConfiguration() {
-		return myServerAgent.manageConfig().getWeightsForGreenSourcesMap()
-				.values()
-				.stream()
-				.max(Integer::compare)
-				.orElseThrow();
+		myServerAgent.manageConfig().connectNewGreenSourcesToServer(announcedGreenSources);
 	}
 }

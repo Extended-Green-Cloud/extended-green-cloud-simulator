@@ -63,7 +63,6 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 			logger.info(ACCEPT_SERVER_PROPOSAL_LOG);
 
 			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.ACCEPTED);
-			myCloudNetworkAgent.manageConfig().saveMonitoringData();
 			myAgent.send(
 					prepareAcceptReplyWithProtocol(replyMessage, mapToJobInstanceId(job), SERVER_JOB_CFP_PROTOCOL));
 		}
@@ -85,9 +84,7 @@ public class InitiateMakingNewJobOffer extends ProposeInitiator {
 		if (Objects.nonNull(job)) {
 			myCloudNetworkAgent.getServerForJobMap().remove(jobId);
 			myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
-			myCloudNetworkAgent.manageConfig().saveMonitoringData();
+			myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 		}
-
-		myCloudNetworkAgent.send(prepareReply(replyMessage, mapToJobInstanceId(job), REJECT_PROPOSAL));
 	}
 }

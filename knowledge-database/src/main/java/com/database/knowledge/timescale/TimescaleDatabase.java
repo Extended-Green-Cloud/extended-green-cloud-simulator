@@ -46,26 +46,29 @@ public class TimescaleDatabase implements Closeable {
 	private static final String PASSWORD = "password";
 	private static final String LOCAL_DATABASE_HOST_NAME = "127.0.0.1";
 
-	private final Connection sqlConnection;
-	private final JdbcStatementsExecutor statementsExecutor;
+	private static Connection sqlConnection;
+	private static JdbcStatementsExecutor statementsExecutor;
 
 	public TimescaleDatabase() {
 		this(LOCAL_DATABASE_HOST_NAME);
 	}
 
 	public TimescaleDatabase(String hostName) {
-		try {
-			sqlConnection = connect(hostName);
-		} catch (SQLException exception) {
-			throw new ConnectDatabaseException(exception);
+		if (sqlConnection == null) {
+			try {
+				sqlConnection = connect(hostName);
+			} catch (SQLException exception) {
+				throw new ConnectDatabaseException(exception);
+			}
+			statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 		}
-		statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 	}
 
 	@Override
 	public void close() {
 		try {
 			sqlConnection.close();
+			sqlConnection = null;
 		} catch (SQLException exception) {
 			throw new ClosingDatabaseException(exception);
 		}
@@ -161,8 +164,8 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
-	 * Provides reading capability for Managing Agent. Provides unique data records from last, specified by parameter, seconds
-	 * that were saved to database for given data types.
+	 * Provides reading capability for Managing Agent. Provides data records from last, specified by parameter,
+	 * seconds that were saved to database for given data types.
 	 *
 	 * @param dataTypes types of the data to be retrieved
 	 * @param seconds   number of seconds for which the data is retrieved
@@ -177,6 +180,22 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
+	 * Provides reading capability for Managing Agent. Provides unique data records from last, specified by parameter,
+	 * seconds that were saved to database for given data types.
+	 *
+	 * @param dataTypes types of the data to be retrieved
+	 * @param seconds   number of seconds for which the data is retrieved
+	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
+	 */
+	public List<AgentData> readLastMonitoringDataForDataTypes(List<DataType> dataTypes, double seconds) {
+		try {
+			return statementsExecutor.executeReadLastMonitoringDataForDataTypesStatement(dataTypes, seconds);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
 	 * Provides reading capability for Managing Agent. Provides unique data records from last records
 	 * that were saved to database for given data types.
 	 *
@@ -185,7 +204,7 @@ public class TimescaleDatabase implements Closeable {
 	 */
 	public List<AgentData> readLastMonitoringDataForDataTypes(List<DataType> dataTypes) {
 		try {
-			return statementsExecutor.executeLastReadMonitoringDataForDataTypesStatement(dataTypes);
+			return statementsExecutor.executeReadLastMonitoringDataForDataTypesStatement(dataTypes);
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new ReadDataException(exception);
 		}
@@ -304,9 +323,6 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(CREATE_ADAPTATION_GOALS);
 			statement.execute(CREATE_ADAPTATION_ACTIONS);
 			statement.execute(CREATE_SYSTEM_QUALITY);
-		}
-
-		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.execute(CREATE_MONITORING_INDEX);

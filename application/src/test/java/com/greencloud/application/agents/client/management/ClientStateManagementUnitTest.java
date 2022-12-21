@@ -1,6 +1,5 @@
 package com.greencloud.application.agents.client.management;
 
-import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.DELAYED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
@@ -85,12 +84,10 @@ class ClientStateManagementUnitTest {
 
 	@Test
 	@DisplayName("Test update job status duration map")
-	void testUpdateJobStatusDuration() throws InterruptedException {
+	void testUpdateJobStatusDuration() {
 		mockClientManagement.setCurrentJobStatus(PROCESSED);
-		useMockTime(Instant.parse("2022-01-01T10:00:00.000Z"), ZoneId.of("UTC"));
-		mockClientManagement.getTimer().startTimeMeasure();
-		useMockTime(Instant.parse("2022-01-01T10:00:02.000Z"), ZoneId.of("UTC"));
-		mockClientManagement.updateJobStatusDuration(IN_PROGRESS);
+		mockClientManagement.getTimer().startTimeMeasure(Instant.parse("2022-01-01T10:00:00.000Z"));
+		mockClientManagement.updateJobStatusDuration(IN_PROGRESS, Instant.parse("2022-01-01T10:00:02.000Z"));
 
 		var result = mockClientManagement.jobStatusDurationMap;
 		var notProcessed = result.entrySet().stream()

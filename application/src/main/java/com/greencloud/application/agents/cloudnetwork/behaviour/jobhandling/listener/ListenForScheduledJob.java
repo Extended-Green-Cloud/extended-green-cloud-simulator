@@ -62,7 +62,6 @@ public class ListenForScheduledJob extends CyclicBehaviour {
 				CNA_JOB_CFP_PROTOCOL);
 
 		myCloudNetworkAgent.getNetworkJobs().put(job, ExecutionJobStatusEnum.PROCESSING);
-		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 		myAgent.addBehaviour(new InitiateNewJobExecutorLookup(myAgent, cfp, message, job));
 	}
 }

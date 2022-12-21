@@ -37,7 +37,22 @@ public class JobMapper {
 	}
 
 	/**
-	 * @param powerJob power job to be mapped to job
+	 * @param job server job to be mapped to power job
+	 * @return PowerJob
+	 */
+	public static PowerJob mapServerJobToPowerJob(final ServerJob job) {
+		return ImmutablePowerJob.builder()
+				.jobId(job.getJobId())
+				.power(job.getPower())
+				.startTime(job.getStartTime())
+				.endTime(job.getEndTime())
+				.deadline(job.getDeadline())
+				.build();
+	}
+
+	/**
+	 * @param powerJob  power job to be mapped to job
+	 * @param startTime new start time
 	 * @return PowerJob
 	 */
 	public static PowerJob mapToPowerJob(final ClientJob powerJob, final Instant startTime) {
@@ -62,6 +77,21 @@ public class JobMapper {
 				.startTime(convertToRealTime(serverJob.getStartTime()))
 				.endTime(convertToRealTime(serverJob.getEndTime()))
 				.deadline(convertToRealTime(serverJob.getDeadline()))
+				.build();
+	}
+
+	/**
+	 * @param job client job to be mapped to job
+	 * @return ClientJob
+	 */
+	public static ClientJob mapToClientJobRealTime(final ClientJob job) {
+		return ImmutableClientJob.builder()
+				.clientIdentifier(job.getClientIdentifier())
+				.jobId(job.getJobId())
+				.power(job.getPower())
+				.startTime(convertToRealTime(job.getStartTime()))
+				.endTime(convertToRealTime(job.getEndTime()))
+				.deadline(convertToRealTime(job.getDeadline()))
 				.build();
 	}
 
@@ -147,7 +177,7 @@ public class JobMapper {
 
 	/**
 	 * @param powerJob power job
-	 * @param server server that sent given job
+	 * @param server   server that sent given job
 	 * @return ServerJob
 	 */
 	public static ServerJob mapToServerJob(final PowerJob powerJob, final AID server) {

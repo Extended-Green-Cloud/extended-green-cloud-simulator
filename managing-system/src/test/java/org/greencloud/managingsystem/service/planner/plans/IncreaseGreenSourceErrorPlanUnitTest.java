@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonit
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.gui.agents.ManagingAgentNode;
 
 class IncreaseGreenSourceErrorPlanUnitTest {
@@ -53,6 +54,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 		incrementGreenSourceErrorPlan = new IncrementGreenSourceErrorPlan(mockManagingAgent);
 		doReturn(mockManagingAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(mockDatabase).when(mockManagingAgentNode).getDatabaseClient();
+		doReturn(new MonitoringService(mockManagingAgent)).when(mockManagingAgent).monitor();
 	}
 
 	@Test
@@ -71,7 +73,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@DisplayName("Test is plan executable - no agents being alive/with correct percentage")
 	void testIsPlanExecutableForNoCorrectPercentage() {
 		doReturn(Collections.emptyList()).when(mockDatabase)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+				.readLastMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
 
 		assertThat(incrementGreenSourceErrorPlan.isPlanExecutable()).isFalse();
 	}
@@ -80,7 +82,7 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	@DisplayName("Test is plan executable - no agents with correct weather shortage count")
 	void testIsPlanExecutableForNoCorrectWeatherShortageCount() {
 		doReturn(prepareAgentData()).when(mockDatabase)
-				.readMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
+				.readLastMonitoringDataForDataTypes(eq(List.of(HEALTH_CHECK, GREEN_SOURCE_MONITORING)), anyDouble());
 		doReturn(prepareEmptyWeatherShortageData()).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), anyList(), anyDouble());
 
@@ -102,21 +104,10 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 
 		assertThat(incrementGreenSourceErrorPlan.constructAdaptationPlan())
 				.matches((data) -> data.getTargetAgent().getName().equals("test_gs2")
-						&& data.getActionParameters() instanceof IncrementGreenSourceErrorParameters
-						&& ((IncrementGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
+						&& data.getActionParameters() instanceof AdjustGreenSourceErrorParameters
+						&& ((AdjustGreenSourceErrorParameters) data.getActionParameters()).getPercentageChange()
 						== PERCENTAGE_DIFFERENCE
 				);
-	}
-
-	@Test
-	@DisplayName("Test get alive green sources")
-	void testGetAliveGreenSources() {
-		mockHealthCheckData();
-		var result = incrementGreenSourceErrorPlan.getAliveGreenSources();
-
-		assertThat(result)
-				.hasSize(3)
-				.matches((data) -> List.of("test_gs1", "test_gs2", "test_gs3").containsAll(data));
 	}
 
 	@Test
@@ -179,19 +170,16 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 
 	private List<AgentData> prepareAgentData() {
 		var data1 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(10)
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)
@@ -215,7 +203,8 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
 		);
 
-		doReturn(mockData).when(mockDatabase).readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+		doReturn(mockData).when(mockDatabase)
+				.readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
+						MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 }

@@ -6,10 +6,12 @@ import static com.greencloud.application.messages.MessagingUtils.readMessageCont
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
+import static com.greencloud.application.yellowpages.YellowPagesService.search;
+import static com.greencloud.application.yellowpages.domain.DFServiceConstants.GS_SERVICE_TYPE;
 
 import java.util.Objects;
+import java.util.Set;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,7 +22,9 @@ import com.greencloud.application.agents.server.behaviour.jobexecution.listener.
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.templates.JobHandlingMessageTemplates;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
+import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -59,7 +63,7 @@ public class ListenForNewJob extends CyclicBehaviour {
 					.getAvailableCapacity(job.getStartTime(), job.getEndTime(), null, null);
 			final boolean validJobConditions =
 					job.getPower() <= availableCapacity && !myServerAgent.getServerJobs().containsKey(job)
-							&& myServerAgent.canTakeIntoProcessing();
+					&& myServerAgent.canTakeIntoProcessing();
 
 			if (validJobConditions) {
 				initiateNegotiationWithPowerSources(job, message);
@@ -78,10 +82,18 @@ public class ListenForNewJob extends CyclicBehaviour {
 
 		myServerAgent.getServerJobs().putIfAbsent(job, ExecutionJobStatusEnum.PROCESSING);
 		myServerAgent.tookJobIntoProcessing();
+		if (myServerAgent.getOwnedGreenSources().isEmpty()) {
+			reSearchGreenSources();
+		}
 
 		final ACLMessage cfp = createCallForProposal(JobMapper.mapJobToPowerJob(job),
 				myServerAgent.getOwnedGreenSources().stream().toList(), SERVER_JOB_CFP_PROTOCOL);
 
 		myAgent.addBehaviour(new InitiatePowerDeliveryForJob(myAgent, cfp, cnaMessage.createReply(), job));
+	}
+
+	private void reSearchGreenSources() {
+		Set<AID> greenSources = search(myAgent, GS_SERVICE_TYPE, myAgent.getName());
+		myServerAgent.getOwnedGreenSources().addAll(greenSources);
 	}
 }

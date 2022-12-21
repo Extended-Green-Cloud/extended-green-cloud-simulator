@@ -1,6 +1,5 @@
 import { styles } from './client-statistics-select-styles'
 import { SingleValue } from 'react-select'
-import { agentsActions } from '@store'
 import { ClientAgent } from '@types'
 import { useEffect, useState } from 'react'
 import {
@@ -10,13 +9,12 @@ import {
 } from '../client-statistics-config'
 import StatusFilterBox from '../../../agent-system-panel/client-statistics/client-statistics-select/status-filter-box/status-filter-box'
 import ClientDropdown from '../../../agent-system-panel/client-statistics/client-statistics-select/client-dropdown/client-dropdown'
-import { AnyAction, Dispatch } from 'redux'
 import Collapse from 'components/common/collapse/collapse'
 
 interface Props {
    clients: ClientAgent[]
    selectedClient: ClientAgent | null
-   dispatch: Dispatch<AnyAction>
+   setSelectedClient: (client: string | null) => void
 }
 
 const collapseOpen = 'Hide Client Selector'
@@ -30,7 +28,7 @@ const collapseClose = 'Display Client Selector'
 const ClientStatisticsSelect = ({
    clients,
    selectedClient,
-   dispatch,
+   setSelectedClient,
 }: Props) => {
    const { collapseStyle, collapseOpenStyle, collapseCloseStyle } = styles
    const [jobStatusMap, setJobStatusMap] =
@@ -43,10 +41,10 @@ const ClientStatisticsSelect = ({
       if (clients.length === 0) {
          setSelectedClient(null)
       }
-   }, [clients, dispatch])
+   }, [clients])
 
-   const setSelectedClient = (value: SingleValue<AgentOption>) => {
-      dispatch(agentsActions.setSelectedClient(value?.label ?? null))
+   const changeSelectedClient = (value: SingleValue<AgentOption>) => {
+      setSelectedClient(value?.label ?? null)
    }
 
    return (
@@ -60,7 +58,7 @@ const ClientStatisticsSelect = ({
       >
          <StatusFilterBox {...{ jobStatusMap, setJobStatusMap }} />
          <ClientDropdown
-            {...{ selectedClient, clients, jobStatusMap, setSelectedClient }}
+            {...{ selectedClient, clients, jobStatusMap, changeSelectedClient }}
          />
       </Collapse>
    )

@@ -16,7 +16,6 @@ public class ReportHealthCheck extends TickerBehaviour {
 	 * The period defined in MS on how often agents should report their health check. When setting the value is
 	 * important to take into account the pressure it puts on the environment - every created agent reports that metric.
 	 */
-	// TODO to be adjusted
 	private static final long HEALTH_CHECK_PERIOD = 250;
 	private final AbstractAgent myAbstractAgent;
 

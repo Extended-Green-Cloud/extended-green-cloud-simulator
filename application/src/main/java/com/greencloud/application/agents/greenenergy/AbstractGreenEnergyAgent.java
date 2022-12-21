@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.greenenergy;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +18,12 @@ import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
-import com.greencloud.commons.managingsystem.planner.IncrementGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract agent class storing data of the Green Source Energy Agent
@@ -29,7 +33,7 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	protected transient GreenPowerManagement greenPowerManagement;
 	protected transient GreenEnergyStateManagement stateManagement;
 	protected transient GreenEnergyAdaptationManagement adaptationManagement;
-	protected transient Location location;
+	protected Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected double pricePerPowerUnit;
 	protected volatile ConcurrentMap<ServerJob, ExecutionJobStatusEnum> serverJobs;
@@ -106,9 +110,19 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	@Override
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
 		return switch (adaptationAction.getAction()) {
-			case INCREASE_GREEN_SOURCE_ERROR -> adaptationManagement.adaptAgentWeatherPredictionError(
-					(IncrementGreenSourceErrorParameters) actionParameters);
+			case INCREASE_GREEN_SOURCE_ERROR, DECREASE_GREEN_SOURCE_ERROR ->
+					adaptationManagement.adaptAgentWeatherPredictionError(
+							(AdjustGreenSourceErrorParameters) actionParameters);
 			default -> false;
 		};
+	}
+
+	@Override
+	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
+			ACLMessage adaptationMessage) {
+		if (adaptationAction.getAction().equals(CONNECT_GREEN_SOURCE)) {
+			adaptationManagement.connectNewServerToGreenSource((ConnectGreenSourceParameters) actionParameters,
+					adaptationMessage);
+		}
 	}
 }

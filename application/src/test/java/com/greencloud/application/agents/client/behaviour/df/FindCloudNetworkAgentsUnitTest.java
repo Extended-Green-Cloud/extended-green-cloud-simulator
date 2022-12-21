@@ -1,13 +1,12 @@
 package com.greencloud.application.agents.client.behaviour.df;
 
-import static com.greencloud.application.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ class FindCloudNetworkAgentsUnitTest {
 		// when
 		try (var yellowPagesService = mockStatic(YellowPagesService.class)) {
 			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, SCHEDULER_SERVICE_TYPE))
-					.thenReturn(emptyList());
+					.thenReturn(emptySet());
 
 			testedBehaviour.onStart();
 			testedBehaviour.action();
@@ -65,7 +64,7 @@ class FindCloudNetworkAgentsUnitTest {
 		// when
 		try (var yellowPagesService = mockStatic(YellowPagesService.class)) {
 			yellowPagesService.when(() -> YellowPagesService.search(clientAgent, SCHEDULER_SERVICE_TYPE))
-					.thenReturn(List.of(new AID("test", true)));
+					.thenReturn(Set.of(new AID("test", true)));
 
 			testedBehaviour.onStart();
 			testedBehaviour.action();

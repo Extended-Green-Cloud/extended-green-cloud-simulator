@@ -10,6 +10,7 @@ interface Styles {
    contentContainer: React.CSSProperties
    descriptionContainer: React.CSSProperties
    headerContainer: React.CSSProperties
+   dateContainer: React.CSSProperties
    agentName: React.CSSProperties
 }
 
@@ -45,7 +46,7 @@ export const styles: Styles = {
    },
    headerContainer: {
       fontWeight: 400,
-      fontSize: 'var(--font-size-5)',
+      fontSize: 'var(--font-size-4)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -58,5 +59,10 @@ export const styles: Styles = {
       textAlign: 'right',
       color: 'var(--gray-3)',
       borderBottom: '1px solid var(--gray-1)',
+      marginLeft: '5px',
+      overflowWrap: 'anywhere',
+   },
+   dateContainer: {
+      overflowWrap: 'anywhere',
    },
 }

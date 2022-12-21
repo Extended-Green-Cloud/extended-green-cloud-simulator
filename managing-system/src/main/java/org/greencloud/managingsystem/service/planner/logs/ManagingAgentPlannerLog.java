@@ -12,4 +12,7 @@ public class ManagingAgentPlannerLog {
 			"Constructing adaptation plan for action {} and passing it to executor...";
 	public static final String COULD_NOT_CONSTRUCT_PLAN_LOG =
 			"Constructing adaptation plan failed.";
+
+	// PLANS LOGS
+	public static final String NO_LOCATION_LOG = "Couldn't find target container for a new server!";
 }

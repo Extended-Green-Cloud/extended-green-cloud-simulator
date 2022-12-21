@@ -2,15 +2,19 @@ import React from 'react'
 
 import { styles } from './adaptation-goals-styles'
 
-import { useAppSelector } from '@store'
 import DetailsField from 'components/common/details-field/details-field'
+import { AdaptationGoal } from '@types'
+
+interface Props {
+   goals: AdaptationGoal[]
+}
 
 /**
  * Component represents tab gathering data regarding current adaptation goals in the system
  *
  * @returns JSX Element
  */
-const AdaptationGoals = () => {
+export const AdaptationGoals = ({ goals }: Props) => {
    const {
       containerStyle,
       headerStyle,
@@ -18,8 +22,6 @@ const AdaptationGoals = () => {
       fieldLabelStyle,
       fieldValueStyle,
    } = styles
-   const goals = useAppSelector((state) => state.managingSystem.adaptationGoals)
-
    const generateGoalFields = () => {
       return goals.map((goal) => {
          const { name, threshold, isAboveThreshold, weight } = goal
@@ -52,5 +54,3 @@ const AdaptationGoals = () => {
 
    return <div>{generateGoalFields()}</div>
 }
-
-export default AdaptationGoals

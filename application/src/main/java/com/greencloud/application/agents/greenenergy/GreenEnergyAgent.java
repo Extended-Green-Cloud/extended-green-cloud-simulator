@@ -36,6 +36,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyAgent.class);
 
+	private int scenarioMaximumCapacity;
+
 	/**
 	 * Method run at the agent's start. In initialize the Green Source Agent based on the given by the user arguments,
 	 * registers it in the DF and then runs the starting behaviours - listening for the power requests and listening for
@@ -58,7 +60,8 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 			this.stateManagement = new GreenEnergyStateManagement(this);
 			this.adaptationManagement = new GreenEnergyAdaptationManagement(this);
 			try {
-				this.greenPowerManagement = new GreenPowerManagement(Integer.parseInt(args[2].toString()), this);
+				this.scenarioMaximumCapacity = Integer.parseInt(args[2].toString());
+				this.greenPowerManagement = new GreenPowerManagement(scenarioMaximumCapacity, this);
 				this.pricePerPowerUnit = Double.parseDouble(args[3].toString());
 				this.location = ImmutableLocation.builder()
 						.latitude(Double.parseDouble(args[4].toString()))
@@ -91,5 +94,13 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				new ListenForGreenEnergyJobCancellation(),
 				new ReportWeatherShortages(this)
 		);
+	}
+
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		this.greenPowerManagement = new GreenPowerManagement(scenarioMaximumCapacity, this);
+		this.adaptationManagement = new GreenEnergyAdaptationManagement(this);
+		this.stateManagement = new GreenEnergyStateManagement(this);
 	}
 }

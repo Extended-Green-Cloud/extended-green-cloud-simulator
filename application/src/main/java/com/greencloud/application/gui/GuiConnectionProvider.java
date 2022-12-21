@@ -11,17 +11,27 @@ public class GuiConnectionProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(GuiConnectionProvider.class);
 
+	/**
+	 * Method connects agent with GUI
+	 *
+	 * @param abstractAgent agent connected to GUI
+	 */
 	public static void connectToGui(AbstractAgent abstractAgent) {
-		connect(abstractAgent, 0);
-		connect(abstractAgent, 1);
+		connectAgentObject(abstractAgent, 0, abstractAgent.getO2AObject());
+		connectAgentObject(abstractAgent, 1, abstractAgent.getO2AObject());
 	}
 
-	private static void connect(AbstractAgent abstractAgent, Integer objectCounter) {
-		final Object object = abstractAgent.getO2AObject();
-
-		if (object instanceof GuiController guiController) {
+	/**
+	 * Method connects agent with given object
+	 *
+	 * @param abstractAgent agent to be connected with object
+	 * @param objectCounter connected objects counter
+	 * @param currentObject object to be connected with agent
+	 */
+	public static void connectAgentObject(AbstractAgent abstractAgent, Integer objectCounter, Object currentObject) {
+		if (currentObject instanceof GuiController guiController) {
 			abstractAgent.setGuiController(guiController);
-		} else if (object instanceof AbstractAgentNode node) {
+		} else if (currentObject instanceof AbstractAgentNode node) {
 			abstractAgent.setAgentNode(node);
 		}
 		if (objectCounter == 1) {

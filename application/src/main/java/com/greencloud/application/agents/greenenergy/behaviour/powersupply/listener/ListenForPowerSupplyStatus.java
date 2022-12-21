@@ -17,6 +17,7 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.application.domain.job.JobStatusUpdate;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.ServerJob;
@@ -50,7 +51,8 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 	public void action() {
 		final ACLMessage message = myGreenEnergyAgent.receive(POWER_SUPPLY_STATUS_TEMPLATE);
 		if (nonNull(message)) {
-			final JobInstanceIdentifier jobInstanceId = readMessageContent(message, JobInstanceIdentifier.class);
+			final JobStatusUpdate jobStatusUpdate = readMessageContent(message, JobStatusUpdate.class);
+			final JobInstanceIdentifier jobInstanceId = jobStatusUpdate.jobInstance();
 			final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
 
 			if (nonNull(serverJob)) {

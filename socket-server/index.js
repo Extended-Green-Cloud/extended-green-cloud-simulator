@@ -12,7 +12,6 @@ const { handlePowerShortage } = require("./utils/event-utils");
 
 let STATE = {
   network: {
-    scheduler: null,
     finishedJobsNo: 0,
     failedJobsNo: 0,
     currPlannedJobsNo: 0,
@@ -20,9 +19,9 @@ let STATE = {
     currClientsNo: 0
   },
   agents: {
+    scheduler: null,
     agents: [],
-    clients: [],
-    connections: []
+    clients: []
   },
   managingSystem: {
     systemIndicator: 0,
@@ -32,6 +31,10 @@ let STATE = {
     strongAdaptations: 0,
     adaptationLogs: [],
     adaptationGoals: []
+  },
+  graph: {
+    nodes: [],
+    connections: []
   }
 }
 
@@ -67,10 +70,9 @@ app.get(ROUTE_TYPES.FRONT, (req, res) => {
   res.send(JSON.stringify(STATE))
 })
 
-app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
-  STATE = {
+app.get(ROUTE_TYPES.FRONT + '/reset', async(req, res) => {
+  const newState = {
     network: {
-      scheduler: null,
       finishedJobsNo: 0,
       failedJobsNo: 0,
       currPlannedJobsNo: 0,
@@ -78,9 +80,9 @@ app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
       currClientsNo: 0
     },
     agents: {
+      scheduler: null,
       agents: [],
       clients: [],
-      connections: []
     },
     managingSystem: {
       systemIndicator: 0,
@@ -90,8 +92,13 @@ app.get(ROUTE_TYPES.FRONT + '/reset', (req, res) => {
       strongAdaptations: 0,
       adaptationLogs: [],
       adaptationGoals: []
+    },
+    graph: {
+      nodes: [],
+      connections: []
     }
   }
+  await Object.assign(STATE, newState)
   logStateReset()
   logState(STATE)
 })

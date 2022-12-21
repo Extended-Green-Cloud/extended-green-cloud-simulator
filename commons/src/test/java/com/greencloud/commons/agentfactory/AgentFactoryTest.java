@@ -57,7 +57,7 @@ class AgentFactoryTest {
 		assertThat(result.getLatitude()).isEqualTo("50");
 		assertThat(result.getLongitude()).isEqualTo("20");
 		assertThat(result.getPricePerPowerUnit()).isEqualTo("10");
-		assertThat(result.getEnergyType()).isEqualTo("SOLAR");
+		assertThat(result.getEnergyType()).isEqualTo("WIND");
 	}
 
 	@Test

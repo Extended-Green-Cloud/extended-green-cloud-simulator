@@ -5,6 +5,7 @@ import static com.database.knowledge.timescale.DmlQueries.DISABLE_ADAPTATION_ACT
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DmlQueries.GET_ALL_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
@@ -123,6 +124,18 @@ public class JdbcStatementsExecutor {
 
 	List<AgentData> executeReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes, double seconds)
 			throws SQLException, JsonProcessingException {
+		try (var statement = sqlConnection.prepareStatement(GET_ALL_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME)) {
+			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
+			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
+			statement.setArray(1, array);
+			statement.setDouble(2, seconds);
+			var resultSet = statement.executeQuery();
+			return readAgentDataFromResultSet(resultSet);
+		}
+	}
+
+	List<AgentData> executeReadLastMonitoringDataForDataTypesStatement(List<DataType> dataTypes, double seconds)
+			throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.prepareStatement(GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME)) {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
@@ -133,7 +146,7 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
-	List<AgentData> executeLastReadMonitoringDataForDataTypesStatement(List<DataType> dataTypes)
+	List<AgentData> executeReadLastMonitoringDataForDataTypesStatement(List<DataType> dataTypes)
 			throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.prepareStatement(GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES)) {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();

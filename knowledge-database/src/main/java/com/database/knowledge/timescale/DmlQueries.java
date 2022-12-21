@@ -5,6 +5,8 @@ package com.database.knowledge.timescale;
  */
 public final class DmlQueries {
 
+	private static final String ORDER_BY = "order by aid, data_type, time desc";
+
 	/**
 	 * Monitoring data table queries
 	 */
@@ -12,15 +14,14 @@ public final class DmlQueries {
 			"INSERT INTO monitoring_data (time, aid, data_type, data) VALUES (now(), ?, ?, ?)";
 	static final String GET_LAST_1_SEC_DATA =
 			"SELECT * FROM monitoring_data WHERE time > now() - INTERVAL '1s'";
+	static final String GET_ALL_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
+			"SELECT * FROM monitoring_data "
+			+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1s' order by data_type, time desc";
 	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME =
 			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
-					+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND "
-					+ "order by aid, data_type, time desc";
-
+			+ "where data_type = ANY(?) and time > now() - ? * INTERVAL '1' SECOND " + ORDER_BY;
 	static final String GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES =
-			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data "
-					+ "where data_type = ANY(?) "
-					+ "order by aid, data_type, time desc";
+			"SELECT DISTINCT ON (aid, data_type) * FROM monitoring_data where data_type = ANY(?) " + ORDER_BY;
 	static final String GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME =
 			"SELECT * FROM monitoring_data where data_type = ? and aid = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 

@@ -17,6 +17,8 @@ public abstract class AbstractPlan {
 	protected AdaptationActionParameters actionParameters;
 	protected AID targetAgent;
 
+	protected Runnable postActionHandler;
+
 	/**
 	 * Default abstract constructor
 	 *
@@ -53,5 +55,9 @@ public abstract class AbstractPlan {
 
 	public AdaptationActionParameters getActionParameters() {
 		return actionParameters;
+	}
+
+	public Runnable getPostActionHandler() {
+		return postActionHandler;
 	}
 }

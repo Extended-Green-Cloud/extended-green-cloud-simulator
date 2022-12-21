@@ -1,29 +1,20 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
-import com.database.knowledge.domain.agent.DataType;
-import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
-import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
-import com.greencloud.commons.job.PowerJob;
-
-import jade.core.AID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
-import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
-import static com.greencloud.commons.job.JobResultType.ACCEPTED;
-import static com.greencloud.commons.job.JobResultType.FAILED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
+
+import jade.core.AID;
 
 public class CloudNetworkConfigManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(CloudNetworkStateManagement.class);
+
 	private final CloudNetworkAgent cloudNetworkAgent;
 	private Map<AID, Integer> weightsForServersMap;
 

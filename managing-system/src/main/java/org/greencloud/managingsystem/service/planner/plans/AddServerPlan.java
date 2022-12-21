@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingDouble;
@@ -10,7 +9,7 @@ import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.NO_LOCATION_LOG;
 
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,14 @@ import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.managingsystem.planner.AddServerActionParameters;
+import com.greencloud.commons.managingsystem.planner.SystemAdaptationActionParameters;
 
 import jade.core.Location;
 
 /**
  * Class containing adaptation plan which realizes the action of adding new server to the system
  */
-public class AddServerPlan extends AbstractPlan implements SystemPlan {
+public class AddServerPlan extends SystemPlan {
 
 	private static final Logger logger = LoggerFactory.getLogger(AddServerPlan.class);
 
@@ -61,7 +61,7 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 	 */
 	@Override
 	public boolean isPlanExecutable() {
-		serversData = getServerData();
+		serversData = getLastServerData();
 		return serversData.stream()
 				.map(AgentData::monitoringData)
 				.map(ServerMonitoringData.class::cast)
@@ -70,9 +70,9 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 				.allMatch(traffic -> traffic >= TRAFFIC_LOAD_THRESHOLD);
 	}
 
-	private List<AgentData> getServerData() {
-		return managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(List.of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
+	@Override
+	public SystemAdaptationActionParameters getSystemAdaptationActionParameters() {
+		return (SystemAdaptationActionParameters) this.actionParameters;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 		Location targetLocation = findTargetLocation(candidateCloudNetworkAgent);
 
 		if (isNull(targetLocation)) {
-			logger.warn("Couldn't find target container for a new server!");
+			logger.warn(NO_LOCATION_LOG);
 			return null;
 		}
 
@@ -126,12 +126,5 @@ public class AddServerPlan extends AbstractPlan implements SystemPlan {
 				.stream()
 				.filter(entry -> entry.getKey().contains(serverArgs.getName()))
 				.map(Map.Entry::getValue);
-	}
-
-	private Location findTargetLocation(String candidateCloudNetwork) {
-		var cloudNetworkContainer = managingAgent.getContainerLocations(candidateCloudNetwork);
-		return isNull(cloudNetworkContainer)
-				? managingAgent.getContainerLocations("Main-Container")
-				: cloudNetworkContainer;
 	}
 }

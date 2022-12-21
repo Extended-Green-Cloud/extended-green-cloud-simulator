@@ -7,6 +7,7 @@ const registerScheduler = (data) => {
         scheduledJobs: [],
         events: [],
         isActive: true,
+        adaptation: 'inactive',
         ...data
     }
 }
@@ -19,8 +20,10 @@ const registerClient = (data) => {
         events: [],
         name,
         isActive: false,
+        adaptation: 'inactive',
         isSplit: false,
         splitJobs: [],
+        durationMap: null,
         job: jobData
     }
 }
@@ -33,6 +36,7 @@ const registerCloudNetwork = (data) => {
         totalNumberOfExecutedJobs: 0,
         events: [],
         isActive: false,
+        adaptation: 'inactive',
         ...data
     }
 }
@@ -44,6 +48,7 @@ const registerGreenEnergy = (data) => {
         type: AGENT_TYPES.GREEN_ENERGY,
         events,
         isActive: false,
+        adaptation: 'inactive',
         connectedServers: [data.serverAgent],
         ...INITIAL_NETWORK_AGENT_STATE(data),
         ...data
@@ -59,6 +64,7 @@ const registerServer = (data) => {
         backUpTraffic: 0,
         events,
         isActive: false,
+        adaptation: 'inactive',
         ...INITIAL_NETWORK_AGENT_STATE(data),
         ...data
     }
@@ -69,8 +75,67 @@ const registerMonitoring = (data) => {
         type: AGENT_TYPES.MONITORING,
         events: [],
         isActive: false,
+        adaptation: 'inactive',
         ...data
     }
+}
+
+const createNodeForAgent = (agent) => {
+    const node = {
+        id: agent.name,
+        label: agent.name,
+        type: agent.type,
+        adaptation: agent.adaptation,
+    }
+    switch (agent.type) {
+        case AGENT_TYPES.CLOUD_NETWORK:
+        case AGENT_TYPES.GREEN_ENERGY:
+        case AGENT_TYPES.SERVER:
+            return { state: 'inactive', ...node }
+        default:
+            return node
+    }
+}
+
+const getNodeState = (agent) => {
+    switch (agent.type) {
+        case AGENT_TYPES.CLOUD_NETWORK:
+            return getCloudNetworkState(agent)
+        case AGENT_TYPES.GREEN_ENERGY:
+            return getGreenEnergyState(agent)
+        case AGENT_TYPES.SERVER:
+            return getServerState(agent)
+        default:
+            return null
+    }
+}
+
+const getCloudNetworkState = (cloudNetwork) => {
+    if (cloudNetwork.traffic > 85) return 'high'
+    if (cloudNetwork.traffic > 50) return 'medium'
+
+    return cloudNetwork.traffic > 0 ? 'low' : 'inactive'
+}
+
+const getServerState = (server) => {
+    if (server.numberOfJobsOnHold > 0) return 'on_hold'
+    if (server.backUpTraffic > 0) return 'back_up'
+
+    return server.isActive ? 'active' : 'inactive'
+}
+
+const getGreenEnergyState = (greenEnergy) => {
+    if (greenEnergy.numberOfJobsOnHold > 0 && greenEnergy.numberOfExecutedJobs > 0)
+        return 'on_hold'
+
+    return greenEnergy.isActive ? 'active' : 'inactive'
+}
+
+
+const createCloudNetworkEdges = (agent, state) => {
+    const schedulerEdge = createEdge(agent.name, state.agents.scheduler.name)
+
+    return [schedulerEdge]
 }
 
 const createServerEdges = (agent) => {
@@ -95,6 +160,9 @@ module.exports = {
     getAgentByName: function (agents, agentName) {
         return agents.find(agent => agent.name === agentName)
     },
+    getAgentNodeById: function (nodes, id) {
+        return nodes.find(node => node.id === id)
+    },
     getNewTraffic: function (maximumCapacity, powerInUse) {
         return maximumCapacity === 0 ? 0 : powerInUse / maximumCapacity * 100
     },
@@ -114,12 +182,15 @@ module.exports = {
                 return registerScheduler(data)
         }
     },
-    createEdge,
-    createAgentConnections: function (agent) {
+    createAgentConnections: function (agent, state) {
         switch (agent.type) {
             case AGENT_TYPES.SERVER: return createServerEdges(agent)
             case AGENT_TYPES.GREEN_ENERGY: return createGreenEnergyEdges(agent)
+            case AGENT_TYPES.CLOUD_NETWORK: return createCloudNetworkEdges(agent, state)
             default: return []
         }
-    }
+    },
+    createEdge,
+    createNodeForAgent,
+    getNodeState
 }

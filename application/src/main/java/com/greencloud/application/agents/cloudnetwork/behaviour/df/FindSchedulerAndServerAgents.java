@@ -6,7 +6,7 @@ import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 
-import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ public class FindSchedulerAndServerAgents extends OneShotBehaviour {
 	 */
 	@Override
 	public void action() {
-		final List<AID> serverAgents = search(myAgent, SA_SERVICE_TYPE, myAgent.getName());
-		final List<AID> schedulerAgents = search(myAgent, SCHEDULER_SERVICE_TYPE);
+		final Set<AID> serverAgents = search(myAgent, SA_SERVICE_TYPE, myAgent.getName());
+		final Set<AID> schedulerAgents = search(myAgent, SCHEDULER_SERVICE_TYPE);
 
 		if (serverAgents.isEmpty()) {
 			logger.info(NO_SERVERS_FOUND_LOG);
@@ -52,9 +52,8 @@ public class FindSchedulerAndServerAgents extends OneShotBehaviour {
 		}
 
 		myCloudNetworkAgent.setOwnedServers(serverAgents);
-		myCloudNetworkAgent.setScheduler(schedulerAgents.get(0));
+		myCloudNetworkAgent.setScheduler(schedulerAgents.stream().findFirst().orElseThrow());
 		initializeWeights();
-		myCloudNetworkAgent.manageConfig().saveMonitoringData();
 	}
 
 	private void initializeWeights() {

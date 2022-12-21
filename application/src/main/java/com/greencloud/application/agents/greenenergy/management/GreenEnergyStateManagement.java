@@ -62,6 +62,7 @@ public class GreenEnergyStateManagement {
 
 	private final ConcurrentMap<JobResultType, Long> jobCounters;
 	private final GreenEnergyAgent greenEnergyAgent;
+	private final AtomicInteger shortagesAccumulator;
 	private final AtomicInteger weatherShortagesCounter;
 
 	/**
@@ -71,6 +72,7 @@ public class GreenEnergyStateManagement {
 	 */
 	public GreenEnergyStateManagement(GreenEnergyAgent greenEnergyAgent) {
 		this.greenEnergyAgent = greenEnergyAgent;
+		this.shortagesAccumulator = new AtomicInteger(0);
 		this.weatherShortagesCounter = new AtomicInteger(0);
 		this.jobCounters = Arrays.stream(JobResultType.values())
 				.collect(Collectors.toConcurrentMap(status -> status, status -> 0L));
@@ -228,7 +230,8 @@ public class GreenEnergyStateManagement {
 	public int getCurrentPowerInUseForGreenSource() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
 				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS)
-						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+							   && isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
+						getCurrentTime()))
 				.mapToInt(job -> job.getKey().getPower())
 				.sum();
 	}
@@ -253,6 +256,10 @@ public class GreenEnergyStateManagement {
 		}
 	}
 
+	public AtomicInteger getShortagesAccumulator() {
+		return shortagesAccumulator;
+	}
+
 	public ConcurrentMap<JobResultType, Long> getJobCounters() {
 		return jobCounters;
 	}
@@ -263,7 +270,6 @@ public class GreenEnergyStateManagement {
 				currentMaxCapacity == 0 ? 0 : ((double) getCurrentPowerInUseForGreenSource()) / currentMaxCapacity;
 
 		final GreenSourceMonitoringData greenSourceMonitoring = ImmutableGreenSourceMonitoringData.builder()
-				.currentMaximumCapacity(currentMaxCapacity)
 				.currentTraffic(trafficOverall)
 				.weatherPredictionError(greenEnergyAgent.getWeatherPredictionError())
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
@@ -273,8 +279,8 @@ public class GreenEnergyStateManagement {
 
 	private synchronized Double getPower(Instant start, MonitoringData weather) {
 		final double inUseCapacity = greenEnergyAgent.getServerJobs().keySet().stream()
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(greenEnergyAgent.getServerJobs().get(job)) &&
-						isWithinTimeStamp(job, start))
+				.filter(job -> ACTIVE_JOB_STATUSES.contains(greenEnergyAgent.getServerJobs().get(job)) &&
+							   isWithinTimeStamp(job, start))
 				.mapToInt(ServerJob::getPower)
 				.sum();
 		return greenEnergyAgent.manageGreenPower().getAvailablePower(weather, start) - inUseCapacity;
@@ -283,7 +289,7 @@ public class GreenEnergyStateManagement {
 	private int getOnHoldJobCount() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
 				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue())
-						&& isWithinTimeStamp(
+							   && isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.toList()
 				.size();
@@ -292,7 +298,8 @@ public class GreenEnergyStateManagement {
 	private int getJobCount() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
 				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue())
-						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+							   && isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
+						getCurrentTime()))
 				.map(Map.Entry::getKey)
 				.map(ServerJob::getJobId)
 				.collect(Collectors.toSet())

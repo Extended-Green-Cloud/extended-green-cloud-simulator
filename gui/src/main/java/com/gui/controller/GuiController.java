@@ -1,12 +1,14 @@
 package com.gui.controller;
 
+import java.io.Serializable;
+
 import com.gui.agents.AbstractAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
 
 /**
  * Controller for GUI
  */
-public interface GuiController extends Runnable {
+public interface GuiController extends Runnable, Serializable {
 
 	/**
 	 * Method creates the GUI

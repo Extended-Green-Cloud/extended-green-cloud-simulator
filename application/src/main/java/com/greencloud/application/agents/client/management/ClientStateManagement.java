@@ -1,18 +1,24 @@
 package com.greencloud.application.agents.client.management;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
 import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.SCHEDULED;
+import static java.util.stream.Collectors.filtering;
+import static java.util.stream.Collectors.toMap;
 
+import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.ToLongFunction;
 
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
@@ -41,8 +47,8 @@ public class ClientStateManagement {
 		this.clientAgent = clientAgent;
 		currentJobStatus = CREATED;
 		jobStatusDurationMap = Arrays.stream(ClientJobStatusEnum.values())
-				.collect(Collectors.toMap(status -> status, status -> 0L));
-		timer.startTimeMeasure();
+				.collect(toMap(status -> status, status -> 0L));
+		timer.startTimeMeasure(getCurrentTime());
 	}
 
 	/**
@@ -50,9 +56,9 @@ public class ClientStateManagement {
 	 *
 	 * @param newStatus new job status
 	 */
-	public synchronized void updateJobStatusDuration(final ClientJobStatusEnum newStatus) {
-		final long elapsedTime = timer.stopTimeMeasure();
-		timer.startTimeMeasure();
+	public synchronized void updateJobStatusDuration(final ClientJobStatusEnum newStatus, final Instant time) {
+		final long elapsedTime = timer.stopTimeMeasure(time);
+		timer.startTimeMeasure(time);
 		jobStatusDurationMap.computeIfPresent(currentJobStatus, (key, val) -> val + elapsedTime);
 		currentJobStatus = newStatus;
 	}
@@ -87,12 +93,17 @@ public class ClientStateManagement {
 	 * @param isFinished flag indicating if the state is final
 	 */
 	public void writeClientData(final boolean isFinished) {
+		var jobDurationMap = getJobStatusDurationMap().entrySet().stream()
+				.collect(filtering(entry -> List.of(ON_BACK_UP, IN_PROGRESS).contains(entry.getKey()),
+						toMap(Map.Entry::getKey, Map.Entry::getValue)));
 		final ClientMonitoringData data = ImmutableClientMonitoringData.builder()
 				.currentJobStatus(currentJobStatus)
-				.jobStatusDurationMap(getJobStatusDurationMap())
+				.jobStatusDurationMap(jobDurationMap)
 				.isFinished(isFinished)
 				.build();
+
 		clientAgent.writeMonitoringData(CLIENT_MONITORING, data);
+		updateJobDurationMapGUI();
 	}
 
 	public ClientJobStatusEnum getCurrentJobStatus() {
@@ -105,6 +116,17 @@ public class ClientStateManagement {
 
 	public Timer getTimer() {
 		return timer;
+	}
+
+	private void updateJobDurationMapGUI() {
+		final List<ClientJobStatusEnum> simulationStatuses = List.of(SCHEDULED, PROCESSED, CREATED);
+		final ToLongFunction<Map.Entry<ClientJobStatusEnum, Long>> getRealDuration = entry ->
+				simulationStatuses.contains(entry.getKey()) ? entry.getValue() : convertToRealTime(entry.getValue());
+
+		var guiJobDurationMap = getJobStatusDurationMap().entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, getRealDuration::applyAsLong));
+
+		((ClientAgentNode) clientAgent.getAgentNode()).updateJobDurationMap(guiJobDurationMap);
 	}
 
 	private Map<ClientJobStatusEnum, Long> getJobStatusDurationMap() {

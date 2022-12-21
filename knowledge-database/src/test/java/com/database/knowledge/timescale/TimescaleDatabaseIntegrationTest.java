@@ -17,7 +17,6 @@ import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.mock;
 
 import java.util.AbstractMap;
 import java.util.List;
@@ -50,8 +49,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
-
-import jade.core.AID;
 
 @ExtendWith(MockitoExtension.class)
 class TimescaleDatabaseIntegrationTest {
@@ -308,18 +305,58 @@ class TimescaleDatabaseIntegrationTest {
 	}
 
 	@Test
+	void shouldCorrectlyReadMonitoringDataFieldsForDataType() throws InterruptedException {
+		var data1 = ImmutableGreenSourceMonitoringData.builder()
+				.weatherPredictionError(0.02)
+				.currentTraffic(10)
+				.successRatio(0.9)
+				.build();
+		var data2 = ImmutableGreenSourceMonitoringData.builder()
+				.weatherPredictionError(0.04)
+				.currentTraffic(15)
+				.successRatio(0.5)
+				.build();
+
+		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
+		TimeUnit.SECONDS.sleep(1);
+		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data2);
+
+		var result = database.readMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING), 5);
+
+		assertThat(result)
+				.as("Read data for green source should have size %d", 2)
+				.hasSize(2);
+
+		assertThat(result.get(0).monitoringData())
+				.as("Read data for first green source should have correct field values")
+				.isInstanceOfSatisfying(GreenSourceMonitoringData.class, data -> {
+					assertThat(data.getSuccessRatio()).isEqualTo(0.5);
+					assertThat(data.getWeatherPredictionError()).isEqualTo(0.04);
+					assertThat(data.getCurrentTraffic()).isEqualTo(15);
+				});
+		assertThat(result.get(1).monitoringData())
+				.as("Read data for first green source should have correct field values")
+				.isInstanceOfSatisfying(GreenSourceMonitoringData.class, data -> {
+					assertThat(data.getSuccessRatio()).isEqualTo(0.9);
+					assertThat(data.getWeatherPredictionError()).isEqualTo(0.02);
+					assertThat(data.getCurrentTraffic()).isEqualTo(10);
+				});
+		assertThat(result.get(0).aid())
+				.as("Resulted data has correct aid")
+				.isEqualTo("test_data_1");
+	}
+
+	@Test
 	void shouldCorrectlyReadLastMonitoringDataFieldsForDataType() throws InterruptedException {
 		final GreenSourceMonitoringData data1 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.02)
 				.currentTraffic(10)
 				.successRatio(0.9)
-				.currentMaximumCapacity(100)
 				.build();
 		final GreenSourceMonitoringData data2 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.04)
 				.currentTraffic(15)
 				.successRatio(0.5)
-				.currentMaximumCapacity(60)
 				.build();
 
 		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
@@ -337,8 +374,7 @@ class TimescaleDatabaseIntegrationTest {
 				.isInstanceOfSatisfying(GreenSourceMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.5);
 					assertThat(data.getWeatherPredictionError()).isEqualTo(0.04);
-					assertThat(data.currentTraffic()).isEqualTo(15);
-					assertThat(data.getCurrentMaximumCapacity()).isEqualTo(60);
+					assertThat(data.getCurrentTraffic()).isEqualTo(15);
 				});
 		assertThat(result.get(0).aid())
 				.as("Resulted data has correct aid")
@@ -346,7 +382,7 @@ class TimescaleDatabaseIntegrationTest {
 	}
 
 	@Test
-	void shouldCorrectlyReadMonitoringDataFieldsForDataType() {
+	void shouldCorrectlyReadLastMonitoringDataFieldsForDataTypeInPeriod() {
 		var inputData = prepareMonitoredDataForTest();
 		AtomicInteger i = new AtomicInteger();
 
@@ -356,8 +392,8 @@ class TimescaleDatabaseIntegrationTest {
 			i.getAndIncrement();
 		});
 
-		var resultClient = database.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 500);
-		var resultServer = database.readMonitoringDataForDataTypes(singletonList(SERVER_MONITORING), 500);
+		var resultClient = database.readLastMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 500);
+		var resultServer = database.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING), 500);
 
 		assertThat(resultClient)
 				.as("Resulted data for client should have size 2")
@@ -379,10 +415,8 @@ class TimescaleDatabaseIntegrationTest {
 		assertThat(resultServer.get(0).monitoringData())
 				.as("Resulted data for server should have correct field values")
 				.isInstanceOfSatisfying(ServerMonitoringData.class, data -> {
-					assertThat(data.getCurrentlyExecutedJobs()).isEqualTo(10L);
-					assertThat(data.getCurrentlyProcessedJobs()).isEqualTo(3L);
-					assertThat(data.getWeightsForGreenSources()).hasSize(2);
 					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
+					assertThat(data.getCurrentBackUpPowerUsage()).isEqualTo(0.7);
 				});
 	}
 
@@ -402,12 +436,12 @@ class TimescaleDatabaseIntegrationTest {
 			i.getAndIncrement();
 		});
 
-		var resultBefore = database.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 50);
+		var resultBefore = database.readLastMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 50);
 
 		TimeUnit.SECONDS.sleep(2);
 		database.writeMonitoringData("test_new_aid", CLIENT_MONITORING, newData);
 
-		var resultNew = database.readMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 1);
+		var resultNew = database.readLastMonitoringDataForDataTypes(singletonList(CLIENT_MONITORING), 1);
 
 		assertThat(resultBefore)
 				.as("Old data result for client should have size 2")
@@ -469,9 +503,6 @@ class TimescaleDatabaseIntegrationTest {
 	}
 
 	private List<Map.Entry<DataType, MonitoringData>> prepareMonitoredDataForTest() {
-		final AID mockAID1 = mock(AID.class);
-		final AID mockAID2 = mock(AID.class);
-
 		final ClientMonitoringData data1 = ImmutableClientMonitoringData.builder()
 				.currentJobStatus(IN_PROGRESS)
 				.isFinished(false)
@@ -483,14 +514,10 @@ class TimescaleDatabaseIntegrationTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentlyExecutedJobs(10)
-				.currentlyProcessedJobs(3)
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
-				.jobProcessingLimit(5)
-				.weightsForGreenSources(Map.of(mockAID1, 3, mockAID2, 2))
 				.successRatio(0.8)
-				.serverPricePerHour(20)
+				.currentBackUpPowerUsage(0.7)
 				.build();
 		return List.of(
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),

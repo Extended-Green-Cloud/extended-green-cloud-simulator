@@ -1,9 +1,9 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.PROPOSE;
-
-import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
@@ -14,7 +14,6 @@ import com.greencloud.application.domain.ImmutableServerData;
 import com.greencloud.application.domain.ServerData;
 import com.greencloud.application.domain.job.ImmutablePricedJob;
 import com.greencloud.application.domain.job.PricedJob;
-import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.lang.acl.ACLMessage;
@@ -42,7 +41,7 @@ public class OfferMessageFactory {
 				.build();
 		replyMessage.setPerformative(PROPOSE);
 		try {
-			replyMessage.setContent(JsonMapper.getMapper().writeValueAsString(pricedJob));
+			replyMessage.setContent(getMapper().writeValueAsString(pricedJob));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -72,8 +71,8 @@ public class OfferMessageFactory {
 				.build();
 		replyMessage.setPerformative(ACLMessage.PROPOSE);
 		try {
-			replyMessage.setContent(JsonMapper.getMapper().writeValueAsString(jobOffer));
-		} catch (final IOException e) {
+			replyMessage.setContent(getMapper().writeValueAsString(jobOffer));
+		} catch (final JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		return replyMessage;
@@ -98,6 +97,6 @@ public class OfferMessageFactory {
 				.powerPredictionError(predictionError)
 				.jobId(jobId)
 				.build();
-		return ReplyMessageFactory.prepareReply(replyMessage, responseData, PROPOSE);
+		return prepareReply(replyMessage, responseData, PROPOSE);
 	}
 }

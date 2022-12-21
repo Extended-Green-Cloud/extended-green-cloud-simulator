@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener;
 
+import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.CHANGE_JOB_STATUS_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.NO_POWER_DROP_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.listener.logs.WeatherCheckListenerLog.NO_POWER_LEAVE_ON_HOLD_LOG;
@@ -47,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.AnnounceSourcePowerShortage;
 import com.greencloud.application.domain.MonitoringData;
@@ -162,7 +164,7 @@ public class ListenForWeatherData extends CyclicBehaviour {
 		final Instant time = convertToRealTime(getCurrentTime());
 		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(-1.0);
 
-		if (availablePower < 0) {
+		if (availablePower < 0 && !myGreenEnergyAgent.getServerJobs().isEmpty()) {
 			logger.info(POWER_DROP_LOG, time);
 			myAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null, time, availablePower,
 					WEATHER_CAUSE));
@@ -170,6 +172,15 @@ public class ListenForWeatherData extends CyclicBehaviour {
 		} else {
 			logger.info(NO_POWER_DROP_LOG, time);
 		}
+		reportAvailableEnergyData(myGreenEnergyAgent.manageGreenPower().getAvailablePower(data, time));
+	}
+
+	private void reportAvailableEnergyData(final double availablePower) {
+		final double currentMaximumCapacity = myGreenEnergyAgent.manageGreenPower().getCurrentMaximumCapacity();
+		final double availableGreenEnergyPercentage =
+				currentMaximumCapacity == 0 ? 0 : availablePower / currentMaximumCapacity;
+		final AvailableGreenEnergy greenEnergy = new AvailableGreenEnergy(availableGreenEnergyPercentage);
+		myGreenEnergyAgent.writeMonitoringData(AVAILABLE_GREEN_ENERGY, greenEnergy);
 	}
 
 	private void handleWeatherDataForReSupply(final MonitoringData data) {

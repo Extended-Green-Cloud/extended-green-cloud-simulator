@@ -1,7 +1,7 @@
 package com.greencloud.commons.message;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +61,7 @@ public class MessageBuilder {
 		return this;
 	}
 
-	public MessageBuilder withReceivers(List<AID> aids) {
+	public MessageBuilder withReceivers(Collection<AID> aids) {
 		aids.forEach(aclMessage::addReceiver);
 		return this;
 	}

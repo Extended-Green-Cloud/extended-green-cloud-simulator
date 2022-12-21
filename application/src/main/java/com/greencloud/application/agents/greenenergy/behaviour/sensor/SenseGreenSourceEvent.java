@@ -50,9 +50,11 @@ public class SenseGreenSourceEvent extends TickerBehaviour {
 			} else if (event.getCause().equals(PHYSICAL_CAUSE)) {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent,
 						null, event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), PHYSICAL_CAUSE));
+				myGreenEnergyAgent.manage().getShortagesAccumulator().getAndIncrement();
 			} else {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null,
 						event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), WEATHER_CAUSE));
+				myGreenEnergyAgent.manage().getShortagesAccumulator().getAndIncrement();
 				myGreenEnergyAgent.manage().getWeatherShortagesCounter().getAndIncrement();
 			}
 		});
