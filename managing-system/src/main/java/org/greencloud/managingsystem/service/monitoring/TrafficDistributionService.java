@@ -12,9 +12,12 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+import com.google.common.primitives.Doubles;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,53 +46,33 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	@Override
 	public double readCurrentGoalQuality(int time) {
+		List<Double> allQualities = new ArrayList<>();
+
 		//CNAs
 		List<String> CNAs = findCNAs();
-		List<AgentData> cloudNetworkMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMultipleRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
-				.stream()
-				.toList();
-
-		double CNAQuality;
-		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size()) {
-			CNAQuality =  DATA_NOT_AVAILABLE_INDICATOR;
-		}
-		else {
-			CNAQuality = computeGoalQualityForComponent(cloudNetworkMonitoringData);
-		}
+		double CNAQuality = readCNAQuality(CNAs);
+		allQualities.add(CNAQuality);
 
 		//Servers
 		List<List<String>> servers = findServers(CNAs);
-		List<Double> serversQuality = new ArrayList<>();
-		servers.stream().forEach(serversList -> {
-			double quality;
-			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-					.readMultipleRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
-					.stream()
-					.toList();
-			if (serverMonitoringData.size() < AGGREGATION_SIZE * servers.size()) {
-				quality = DATA_NOT_AVAILABLE_INDICATOR;
-			}
-			else {
-				quality = computeGoalQualityForComponent(serverMonitoringData);
-			}
-			serversQuality.add(quality);
-		});
+		List<Double> serversQuality = readServerQuality(servers);
+		allQualities.addAll(serversQuality);
 
-		double worstQuality = serversQuality.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min().isPresent() ?
-				serversQuality.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min().getAsDouble() : DATA_NOT_AVAILABLE_INDICATOR;
+		// Worst quality
+		OptionalDouble worstQuality = allQualities.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min();
 
-		if(CNAQuality < worstQuality && CNAQuality != DATA_NOT_AVAILABLE_INDICATOR) {
-			worstQuality = CNAQuality;
+		if(!worstQuality.isPresent()) {
+			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
 
-		return worstQuality;
+		return worstQuality.getAsDouble();
 	}
 
 	@Override
 	public boolean evaluateAndUpdate() {
 		logger.info(READ_JOB_DSTRIBUTION_LOG);
 		double currentGoalQuality = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_TIME_PERIOD);
+
 		if (currentGoalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_JOB_DSTRIBUTION_LOG_NO_DATA_YET);
 			return true;
@@ -97,10 +80,12 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 		logger.info(JOB_DISTRIBUTION_LOG, currentGoalQuality);
 		updateGoalQuality(GOAL, currentGoalQuality);
-		boolean result = currentGoalQuality > 0.3;
+		boolean result = currentGoalQuality > 0.5;
+
 		if (!result) {
 			logger.info(JOB_DISTRIBUTION_UNSATISFIED_LOG, currentGoalQuality);
 		}
+
 		return result;
 	}
 
@@ -117,7 +102,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	@VisibleForTesting
-	protected double computeGoalQualityForComponent(List<AgentData> data) {
+	protected double computeGoalQualityForCNA(List<AgentData> data) {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
@@ -133,7 +118,23 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	@VisibleForTesting
-	protected List<String> findCNAs() {
+	protected double computeGoalQualityForServer(List<AgentData> data) {
+		var grouppedData = data.stream()
+				.collect(Collectors.groupingBy(AgentData::aid));
+		List<Double> coeffs = new ArrayList<>();
+		for (int i = 0; i < grouppedData.get(data.get(0).aid()).size(); i++) {
+			List<Double> traffic = new ArrayList<>();
+			for (var entry : grouppedData.entrySet()) {
+				traffic.add(
+						((ServerMonitoringData) entry.getValue().get(i).monitoringData()).getCurrentMaximumCapacity() -
+								((ServerMonitoringData)entry.getValue().get(i).monitoringData()).getCurrentTraffic());
+			}
+			coeffs.add(computeCoefficient(traffic));
+		}
+		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
+	}
+
+	private List<String> findCNAs() {
 		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
 				.stream()
 				.map(CloudNetworkArgs::getName)
@@ -141,7 +142,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 				.toList();
 	}
 
-	protected List<List<String>> findServers(List<String> CNAs) {
+	private List<List<String>> findServers(List<String> CNAs) {
 		List<List<String>> serversList = new ArrayList<>();
 		CNAs.stream().forEach(CNA -> {
 			var serverList = new ArrayList<>(managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(CNA.split("@")[0]));
@@ -149,5 +150,40 @@ public class TrafficDistributionService extends AbstractGoalService {
 			serversList.add(fullNameList);
 		});
 		return serversList;
+	}
+
+	private double readCNAQuality(List<String> CNAs) {
+		List<AgentData> cloudNetworkMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
+				.readMultipleRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
+				.stream()
+				.toList();
+
+		double CNAQuality;
+		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size()) {
+			CNAQuality =  DATA_NOT_AVAILABLE_INDICATOR;
+		}
+		else {
+			CNAQuality = computeGoalQualityForCNA(cloudNetworkMonitoringData);
+		}
+		return CNAQuality;
+	}
+
+	private List<Double> readServerQuality(List<List<String>> servers) {
+		List<Double> serversQuality = new ArrayList<>();
+		servers.stream().forEach(serversList -> {
+			double quality;
+			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
+					.readMultipleRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
+					.stream()
+					.toList();
+			if (serverMonitoringData.size() < AGGREGATION_SIZE * servers.size()) {
+				quality = DATA_NOT_AVAILABLE_INDICATOR;
+			}
+			else {
+				quality = computeGoalQualityForServer(serverMonitoringData);
+			}
+			serversQuality.add(quality);
+		});
+		return serversQuality;
 	}
 }
