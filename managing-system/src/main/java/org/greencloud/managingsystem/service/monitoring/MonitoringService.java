@@ -109,7 +109,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return boolean indication if traffic distribution goal is satisfied
 	 */
 	public boolean isTrafficDistributedEvenly() {
-		return trafficDistributionService.evaluateAndUpdateTrafficDistributionGoal();
+		return trafficDistributionService.evaluateAndUpdate();
 	}
 
 	/**

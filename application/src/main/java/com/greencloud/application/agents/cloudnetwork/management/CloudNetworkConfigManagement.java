@@ -4,12 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
+import com.greencloud.commons.job.PowerJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 
 import jade.core.AID;
+
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 
 public class CloudNetworkConfigManagement {
 
@@ -65,8 +72,7 @@ public class CloudNetworkConfigManagement {
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
 				.percentagesForServersMap(getPercentages())
 				.availablePower(getAvailablePower())
-				.successRatio(getJobSuccessRatio(cloudNetworkAgent.manage().getJobCounters().get(ACCEPTED),
-						cloudNetworkAgent.manage().getJobCounters().get(FAILED)))
+				.successRatio(cloudNetworkAgent.manage().getSuccessRatio())
 				.build();
 		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
 		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());

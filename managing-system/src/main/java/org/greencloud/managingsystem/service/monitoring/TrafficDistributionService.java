@@ -1,6 +1,7 @@
 package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
+import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
@@ -41,11 +42,6 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	@Override
-	public boolean evaluateAndUpdate() {
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
 	public double readCurrentGoalQuality(int time) {
 		//CNAs
 		List<String> CNAs = findCNAs();
@@ -53,13 +49,45 @@ public class TrafficDistributionService extends AbstractGoalService {
 				.readMultipleRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
 				.stream()
 				.toList();
+
+		double CNAQuality;
 		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size()) {
-			return DATA_NOT_AVAILABLE_INDICATOR;
+			CNAQuality =  DATA_NOT_AVAILABLE_INDICATOR;
 		}
-		return computeGoalQualityForComponent(cloudNetworkMonitoringData);
+		else {
+			CNAQuality = computeGoalQualityForComponent(cloudNetworkMonitoringData);
+		}
+
+		//Servers
+		List<List<String>> servers = findServers(CNAs);
+		List<Double> serversQuality = new ArrayList<>();
+		servers.stream().forEach(serversList -> {
+			double quality;
+			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
+					.readMultipleRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
+					.stream()
+					.toList();
+			if (serverMonitoringData.size() < AGGREGATION_SIZE * servers.size()) {
+				quality = DATA_NOT_AVAILABLE_INDICATOR;
+			}
+			else {
+				quality = computeGoalQualityForComponent(serverMonitoringData);
+			}
+			serversQuality.add(quality);
+		});
+
+		double worstQuality = serversQuality.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min().isPresent() ?
+				serversQuality.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min().getAsDouble() : DATA_NOT_AVAILABLE_INDICATOR;
+
+		if(CNAQuality < worstQuality && CNAQuality != DATA_NOT_AVAILABLE_INDICATOR) {
+			worstQuality = CNAQuality;
+		}
+
+		return worstQuality;
 	}
 
-	public boolean evaluateAndUpdateTrafficDistributionGoal() {
+	@Override
+	public boolean evaluateAndUpdate() {
 		logger.info(READ_JOB_DSTRIBUTION_LOG);
 		double currentGoalQuality = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_TIME_PERIOD);
 		if (currentGoalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
@@ -111,5 +139,15 @@ public class TrafficDistributionService extends AbstractGoalService {
 				.map(CloudNetworkArgs::getName)
 				.map(name -> new AID(name, AID.ISLOCALNAME).getName())
 				.toList();
+	}
+
+	protected List<List<String>> findServers(List<String> CNAs) {
+		List<List<String>> serversList = new ArrayList<>();
+		CNAs.stream().forEach(CNA -> {
+			var serverList = new ArrayList<>(managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(CNA.split("@")[0]));
+			var fullNameList = serverList.stream().map(server -> new AID(server, AID.ISLOCALNAME).getName()).toList();
+			serversList.add(fullNameList);
+		});
+		return serversList;
 	}
 }
