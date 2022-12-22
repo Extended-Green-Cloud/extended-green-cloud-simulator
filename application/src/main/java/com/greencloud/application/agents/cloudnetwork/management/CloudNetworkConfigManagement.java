@@ -70,7 +70,6 @@ public class CloudNetworkConfigManagement {
 	 */
 	public void saveMonitoringData() {
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
-				.percentagesForServersMap(getPercentages())
 				.availablePower(getAvailablePower())
 				.successRatio(cloudNetworkAgent.manage().getSuccessRatio())
 				.build();
