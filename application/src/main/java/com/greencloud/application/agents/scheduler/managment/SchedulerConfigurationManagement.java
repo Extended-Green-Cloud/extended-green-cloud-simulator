@@ -90,8 +90,6 @@ public class SchedulerConfigurationManagement {
 		underlyingDeadlineWeight = nextFibonacci(underlyingDeadlineWeight);
 		logger.info(INCREASE_DEADLINE_WEIGHT_LOG, oldWeight, underlyingDeadlineWeight);
 		updateWeights();
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(deadlineWeightPriority);
 		return true;
 	}
 
@@ -103,8 +101,6 @@ public class SchedulerConfigurationManagement {
 		underlyingPowerWeight = nextFibonacci(underlyingPowerWeight);
 		logger.info(INCREASE_POWER_WEIGHT_LOG, oldWeight, underlyingPowerWeight);
 		updateWeights();
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
-		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(deadlineWeightPriority);
 		return true;
 	}
 
@@ -112,5 +108,9 @@ public class SchedulerConfigurationManagement {
 		this.deadlineWeightPriority =
 				(double) underlyingDeadlineWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
 		this.powerWeightPriority = (double) underlyingPowerWeight / (underlyingDeadlineWeight + underlyingPowerWeight);
+		if(schedulerAgent.getAgentNode() != null) {
+			((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(powerWeightPriority);
+			((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(deadlineWeightPriority);
+		}
 	}
 }
