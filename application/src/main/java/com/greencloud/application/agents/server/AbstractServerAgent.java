@@ -35,6 +35,8 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected transient ServerAdaptationManagement adaptationManagement;
 	protected int initialMaximumCapacity;
 	protected int currentMaximumCapacity;
+
+	protected boolean isDisabled;
 	protected volatile AtomicLong currentlyProcessing;
 	protected volatile ConcurrentMap<ClientJob, ExecutionJobStatusEnum> serverJobs;
 	protected Map<String, AID> greenSourceForJobMap;

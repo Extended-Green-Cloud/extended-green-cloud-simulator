@@ -68,6 +68,7 @@ public class ServerAgent extends AbstractServerAgent {
 			this.configManagement = new ServerConfigManagement(this);
 			this.adaptationManagement = new ServerAdaptationManagement(this);
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
+			this.isDisabled = false;
 			try {
 				this.manageConfig().setPricePerHour(Double.parseDouble(args[1].toString()));
 				this.currentMaximumCapacity = Integer.parseInt(args[2].toString());
