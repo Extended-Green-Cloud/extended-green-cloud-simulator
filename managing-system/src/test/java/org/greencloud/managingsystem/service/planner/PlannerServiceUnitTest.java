@@ -45,8 +45,9 @@ import org.greencloud.managingsystem.service.planner.plans.ChangeGreenSourceWeig
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
+import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourcePercentagePlan;
+import org.greencloud.managingsystem.service.planner.plans.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

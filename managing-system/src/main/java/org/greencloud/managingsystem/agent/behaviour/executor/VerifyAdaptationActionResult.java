@@ -87,6 +87,15 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	}
 
 	private void enableAdaptationAction(AdaptationAction adaptationAction) {
+		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY) {
+			myManagingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(
+							getAdaptationAction(AdaptationActionEnum.INCREASE_POWER_PRIORITY).getActionId(), true);
+		} else if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_POWER_PRIORITY) {
+			myManagingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(
+							getAdaptationAction(AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY).getActionId(), true);
+		}
 		myManagingAgent.getAgentNode().getDatabaseClient()
 				.setAdaptationActionAvailability(adaptationAction.getActionId(), true);
 	}

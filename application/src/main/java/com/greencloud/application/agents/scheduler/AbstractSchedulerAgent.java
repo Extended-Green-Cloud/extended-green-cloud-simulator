@@ -8,14 +8,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
+import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 
 import jade.core.AID;
 
@@ -28,7 +30,6 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected ConcurrentMap<ClientJob, ExecutionJobStatusEnum> clientJobs;
 	protected ConcurrentMap<String, AID> cnaForJobMap;
 	protected List<AID> availableCloudNetworks;
-
 	protected SchedulerConfigurationManagement configManagement;
 	protected SchedulerStateManagement stateManagement;
 
@@ -102,5 +103,14 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	 */
 	public SchedulerStateManagement manage() {
 		return stateManagement;
+	}
+
+	@Override
+	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
+		return switch (adaptationAction.getAction()) {
+			case INCREASE_DEADLINE_PRIORITY -> config().increaseDeadlineWeight();
+			case INCREASE_POWER_PRIORITY -> config().increasePowerWeight();
+			default -> false;
+		};
 	}
 }

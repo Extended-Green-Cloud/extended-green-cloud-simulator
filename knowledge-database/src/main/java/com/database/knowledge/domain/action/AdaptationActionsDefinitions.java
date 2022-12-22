@@ -21,6 +21,8 @@ import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
+import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
 
 /**
  * Definitions provider for each of the adaptation actions. Used internally by the Timescale Database when initializing
@@ -47,7 +49,9 @@ public final class AdaptationActionsDefinitions {
 					INCREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
 					DECREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
 					CONNECT_GREEN_SOURCE, ConnectGreenSourceParameters.class,
-					CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeights.class
+					CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeights.class,
+					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
+					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class
 			);
 
 	private AdaptationActionsDefinitions() {
