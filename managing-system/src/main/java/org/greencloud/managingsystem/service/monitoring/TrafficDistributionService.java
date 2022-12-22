@@ -12,12 +12,10 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.google.common.primitives.Doubles;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +78,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 		logger.info(JOB_DISTRIBUTION_LOG, currentGoalQuality);
 		updateGoalQuality(GOAL, currentGoalQuality);
-		boolean result = currentGoalQuality > 0.5;
+		boolean result = managingAgent.monitor().isQualityInBounds(currentGoalQuality, DISTRIBUTE_TRAFFIC_EVENLY);
 
 		if (!result) {
 			logger.info(JOB_DISTRIBUTION_UNSATISFIED_LOG, currentGoalQuality);
