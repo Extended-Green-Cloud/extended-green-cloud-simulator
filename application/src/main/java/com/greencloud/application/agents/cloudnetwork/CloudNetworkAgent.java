@@ -36,8 +36,9 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 	@Override
 	protected void setup() {
 		super.setup();
+		final Object[] args = getArguments();
 		MDC.put(MDC_AGENT_NAME, super.getLocalName());
-		initializeAgent();
+		initializeAgent(args);
 		addBehaviour(new ReceiveGUIController(this, prepareBehaviours()));
 	}
 
@@ -46,10 +47,11 @@ public class CloudNetworkAgent extends AbstractCloudNetworkAgent {
 		super.takeDown();
 	}
 
-	private void initializeAgent() {
+	private void initializeAgent(final Object[] args) {
 		register(this, CNA_SERVICE_TYPE, CNA_SERVICE_NAME);
 		this.stateManagement = new CloudNetworkStateManagement(this);
 		this.configManagement = new CloudNetworkConfigManagement(this);
+		this.maximumCapacity = args[0] != null ? Double.parseDouble(args[0].toString()) : 0.0;
 	}
 
 	private List<Behaviour> prepareBehaviours() {
