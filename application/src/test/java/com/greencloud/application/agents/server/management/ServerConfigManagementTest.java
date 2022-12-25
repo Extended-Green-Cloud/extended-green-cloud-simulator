@@ -1,19 +1,24 @@
 package com.greencloud.application.agents.server.management;
 
-import com.greencloud.application.agents.server.ServerAgent;
-import jade.core.AID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-public class ServerConfigManagementTest {
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.greencloud.application.agents.server.ServerAgent;
+
+import jade.core.AID;
+
+@ExtendWith(MockitoExtension.class)
+class ServerConfigManagementTest {
 
     //MOCK OBJECTS
     @Mock
@@ -34,12 +39,12 @@ public class ServerConfigManagementTest {
 
     //TESTS
     @Test
-    public void testGetGreenSourcePercentages() {
+    void testGetGreenSourcePercentages() {
         Map<AID, Double> greenSourcePercentages = mockServerAgent.manageConfig().getPercentages();
-        assertThat(greenSourcePercentages.get(new AID("1", AID.ISGUID))).isEqualTo(1.0 * 100/7);
-        assertThat(greenSourcePercentages.get(new AID("2", AID.ISGUID))).isEqualTo(1.0 * 100/7);
-        assertThat(greenSourcePercentages.get(new AID("3", AID.ISGUID))).isEqualTo(3.0 * 100/7);
-        assertThat(greenSourcePercentages.get(new AID("4", AID.ISGUID))).isEqualTo(2.0 * 100/7);
+        assertThat(greenSourcePercentages.get(new AID("1", AID.ISGUID))).isEqualTo(1.0 * 100 / 7);
+        assertThat(greenSourcePercentages.get(new AID("2", AID.ISGUID))).isEqualTo(1.0 * 100 / 7);
+        assertThat(greenSourcePercentages.get(new AID("3", AID.ISGUID))).isEqualTo(3.0 * 100 / 7);
+        assertThat(greenSourcePercentages.get(new AID("4", AID.ISGUID))).isEqualTo(2.0 * 100 / 7);
     }
 
     private Map<AID, Integer> initMap() {

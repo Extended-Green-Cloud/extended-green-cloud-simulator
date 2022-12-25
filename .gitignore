@@ -41,3 +41,6 @@
 /managing-system/target/
 /managing-system/target/*
 
+/engine/logs/
+/engine/APDescription.txt
+/engine/MTPs-Main-Container.txt

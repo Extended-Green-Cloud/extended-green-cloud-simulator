@@ -9,6 +9,9 @@ import static runner.service.domain.ScenarioConstants.MULTI_CONTAINER;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jade.wrapper.StaleProxyException;
 import runner.service.MultiContainerScenarioService;
 import runner.service.SingleContainerScenarioService;
@@ -18,25 +21,49 @@ import runner.service.SingleContainerScenarioService;
  */
 public class EngineRunner {
 
-	private static final String SCENARIO_NAME = "multipleCNAsScenario";
+	private static final Logger logger = LoggerFactory.getLogger(EngineRunner.class);
 
-	private static final boolean VERIFY = false;
-	private static final String ADAPTATION_TO_VERIFY = "change_green_source_weight";
-	private static final String VERIFY_SCENARIO = "singleServerMultipleGreenSourcesScenario";
+	private static String scenarioName = "multipleCNAsScenario";
 
-	private static final boolean EVENTS = false;
-	private static final String EVENTS_SCENARIO = "triggerChangeWeight";
+	private static boolean verify = false;
+	private static String adaptationToVerify = "change_green_source_weight";
+	private static String verifyScenario = "singleServerMultipleGreenSourcesScenario";
 
-	private static final String DEFAULT_SCENARIO_DIRECTORY = "";
-	private static final String VERIFY_SCENARIO_DIRECTORY = "adaptation" + separator + ADAPTATION_TO_VERIFY + separator;
+	private static boolean events = false;
+	private static String eventsScenario = "triggerChangeWeight";
+
+	private static String defaultScenarioDirectory = "";
+	private static String verifyScenarioDirectory = "adaptation" + separator + adaptationToVerify + separator;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
-		String scenarioPath = VERIFY ? VERIFY_SCENARIO_DIRECTORY : DEFAULT_SCENARIO_DIRECTORY;
-		String scenarioFilePath = scenarioPath + (VERIFY ? VERIFY_SCENARIO : SCENARIO_NAME);
+		if (args.length == 2 && args[0].equals("run")) {
+			scenarioName = args[1];
+			logger.info("Running Green Cloud on scenario {}.", scenarioName);
+		}
+
+		if (args.length == 3 && args[0].equals("verify")) {
+			verify = true;
+			adaptationToVerify = args[1];
+			verifyScenario = args[2];
+			logger.info("Running Green Cloud adaptation {} verify on scenario {}.", adaptationToVerify, verifyScenario);
+		}
+
+		if (args.length == 4 && args[0].equals("verify+events")) {
+			verify = true;
+			events = true;
+			adaptationToVerify = args[1];
+			verifyScenario = args[2];
+			eventsScenario = args[3];
+			logger.info("Running Green Cloud adaptation {} verify on scenario {} with events {}.", adaptationToVerify,
+					verifyScenario, events);
+		}
+
+		String scenarioPath = verify ? verifyScenarioDirectory : defaultScenarioDirectory;
+		String scenarioFilePath = scenarioPath + (verify ? verifyScenario : scenarioName);
 		Optional<String> scenarioEvents = Optional.empty();
 
-		if (EVENTS) {
-			scenarioEvents = Optional.of(VERIFY_SCENARIO_DIRECTORY + EVENTS_SCENARIO);
+		if (events) {
+			scenarioEvents = Optional.of(verifyScenarioDirectory + eventsScenario);
 		}
 
 		if (MULTI_CONTAINER) {

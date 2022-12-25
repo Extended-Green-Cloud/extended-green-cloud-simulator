@@ -18,8 +18,7 @@ import static runner.service.domain.ScenarioConstants.WEBSOCKET_HOST_NAME;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,10 +126,12 @@ public abstract class AbstractScenarioService {
 	}
 
 	protected File readFile(final String fileName) {
-		URL resource = getClass().getClassLoader().getResource(RESOURCE_SCENARIO_PATH + fileName + ".xml");
-		try {
-			return new File(resource.toURI());
-		} catch (URISyntaxException | NullPointerException e) {
+		try (InputStream inputStream = getClass().getClassLoader()
+				.getResourceAsStream(RESOURCE_SCENARIO_PATH + fileName + ".xml")) {
+			File scenarioTempFile = File.createTempFile("test", ".txt");
+			FileUtils.copyInputStreamToFile(inputStream, scenarioTempFile);
+			return scenarioTempFile;
+		} catch (IOException | NullPointerException e) {
 			throw new InvalidScenarioException("Invalid scenario file name.", e);
 		}
 	}
