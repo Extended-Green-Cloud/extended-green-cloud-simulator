@@ -1,0 +1,27 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  timescale:
+    image: timescale/timescaledb-ha:pg14-latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+  socket-server:
+    image: socket-server
+    build: ./socket-server
+    ports:
+      - "8080:8080"
+  #  green-cloud-frontend:
+  #    image: frontend
+  #    build: ./green-cloud-ui
+  #    environment:
+  #      - REACT_APP_WEB_SOCKET_FRONTEND_URL=http://socket-server:8080/frontend
+  #    ports:
+  #      - "3000:3000"
+  #    depends_on:
+  #      - socket-server
