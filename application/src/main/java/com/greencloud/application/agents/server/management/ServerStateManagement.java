@@ -283,6 +283,7 @@ public class ServerStateManagement {
 				.currentTraffic(trafficOverall)
 				.currentBackUpPowerUsage(backUpPowerOverall)
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
+				.isDisabled(serverAgent.isDisabled())
 				.build();
 		serverAgent.writeMonitoringData(SERVER_MONITORING, serverMonitoringData);
 	}

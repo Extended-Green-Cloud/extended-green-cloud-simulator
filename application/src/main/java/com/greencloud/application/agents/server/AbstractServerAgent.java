@@ -115,6 +115,8 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return greenSourceForJobMap;
 	}
 
+	public boolean isDisabled() { return isDisabled; }
+
 	public ServerStateManagement manage() {
 		return stateManagement;
 	}
@@ -136,6 +138,6 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	}
 
 	public boolean canTakeIntoProcessing() {
-		return currentlyProcessing.get() < manageConfig().getJobProcessingLimit();
+		return currentlyProcessing.get() < manageConfig().getJobProcessingLimit() && !isDisabled();
 	}
 }

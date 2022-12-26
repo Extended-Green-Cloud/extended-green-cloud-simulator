@@ -174,10 +174,14 @@ public class TrafficDistributionService extends AbstractGoalService {
 					.readMultipleRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
 					.stream()
 					.toList();
-			if (serverMonitoringData.size() < AGGREGATION_SIZE * servers.size()) {
+			if (serverMonitoringData.size() < AGGREGATION_SIZE * serversList.size()) {
 				quality = DATA_NOT_AVAILABLE_INDICATOR;
 			}
 			else {
+				serverMonitoringData = serverMonitoringData
+						.stream()
+						.filter(data -> !((ServerMonitoringData)data.monitoringData()).isDisabled())
+						.toList();
 				quality = computeGoalQualityForServer(serverMonitoringData);
 			}
 			serversQuality.add(quality);
