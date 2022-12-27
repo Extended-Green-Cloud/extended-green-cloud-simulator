@@ -36,6 +36,7 @@ services:
     build: ./engine
     ports:
       - "1099:1099"
+      - "6996:6996"
     deploy:
       restart_policy:
         condition: on-failure
