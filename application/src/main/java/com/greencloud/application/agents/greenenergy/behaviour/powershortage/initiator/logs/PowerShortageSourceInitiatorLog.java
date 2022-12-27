@@ -10,7 +10,7 @@ public class PowerShortageSourceInitiatorLog {
 	public static final String SOURCE_JOB_TRANSFER_REFUSE_NOT_FOUND_LOG =
 			"The job {} does not exist anymore. Finishing the job.";
 	public static final String SOURCE_JOB_TRANSFER_REFUSE_LOG =
-			"Server refused to transfer the job {}.";
+			"Server refused to transfer the job instance {}.";
 	public static final String SOURCE_JOB_TRANSFER_SUCCESSFUL_LOG =
 			"Transfer of job with id {} was established successfully. Finishing job on power shortage.";
 	public static final String SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG =

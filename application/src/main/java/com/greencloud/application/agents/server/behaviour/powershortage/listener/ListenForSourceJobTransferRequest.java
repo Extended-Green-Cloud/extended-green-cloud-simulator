@@ -5,8 +5,9 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.l
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.time.Instant;
@@ -29,7 +30,6 @@ import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.PowerJob;
 
@@ -89,7 +89,8 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 					}
 					schedulePowerShortageHandling(affectedJob, transferRequest);
 				} else {
-					myAgent.send(prepareReply(transferRequest.createReply(), JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE));
+					myAgent.send(
+							prepareStringReply(transferRequest.createReply(), JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE));
 				}
 			}
 		} else {

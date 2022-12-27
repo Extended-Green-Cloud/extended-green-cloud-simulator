@@ -3,13 +3,16 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.l
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_ASK_SERVERS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_JOB_NOT_FOUND_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.logs.PowerShortageCloudListenerLog.SERVER_TRANSFER_REQUEST_NO_SERVERS_AVAILABLE_LOG;
+import static com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobNewStartTime;
+import static com.greencloud.application.mapper.JobMapper.mapToPowerShortageJob;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_PROCESSING_MESSAGE;
+import static com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory.createCallForProposal;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static com.greencloud.application.utils.JobUtils.getJobById;
@@ -27,11 +30,8 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.initiator.InitiateJobTransferRequest;
-import com.greencloud.application.agents.cloudnetwork.behaviour.powershortage.listener.templates.PowerShortageCloudMessageTemplates;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
-import com.greencloud.application.mapper.JobMapper;
-import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
@@ -62,8 +62,7 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 	 */
 	@Override
 	public void action() {
-		final ACLMessage transferRequest = myAgent.receive(
-				PowerShortageCloudMessageTemplates.SERVER_JOB_TRANSFER_REQUEST_TEMPLATE);
+		final ACLMessage transferRequest = myAgent.receive(SERVER_JOB_TRANSFER_REQUEST_TEMPLATE);
 		if (Objects.nonNull(transferRequest)) {
 			final PowerShortageJob powerShortageJob = readMessageContent(transferRequest, PowerShortageJob.class);
 			final JobInstanceIdentifier jobInstance = powerShortageJob.getJobInstanceId();
@@ -97,10 +96,8 @@ public class ListenForServerJobTransferRequest extends CyclicBehaviour {
 	private void askRemainingServersToTransferJob(final List<AID> remainingServers, final ClientJob originalJob,
 			final Instant shortageStartTime, final ACLMessage originalRequest) {
 		final ClientJob jobToTransfer = prepareJobToTransfer(originalJob, shortageStartTime);
-		final PowerShortageJob newPowerShortageJob = JobMapper.mapToPowerShortageJob(jobToTransfer, shortageStartTime);
-		final ACLMessage cfp = CallForProposalMessageFactory.createCallForProposal(jobToTransfer, remainingServers,
-				CNA_JOB_CFP_PROTOCOL);
-
+		final PowerShortageJob newPowerShortageJob = mapToPowerShortageJob(jobToTransfer, shortageStartTime);
+		final ACLMessage cfp = createCallForProposal(jobToTransfer, remainingServers, CNA_JOB_CFP_PROTOCOL);
 		myAgent.addBehaviour(new InitiateJobTransferRequest(myAgent, cfp, originalRequest, newPowerShortageJob));
 	}
 

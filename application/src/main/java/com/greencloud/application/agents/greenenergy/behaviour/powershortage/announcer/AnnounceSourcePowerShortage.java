@@ -5,9 +5,10 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.mapper.JobMapper.mapToPowerShortageJob;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
-import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
@@ -26,7 +27,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.HandleSourcePowerShortage;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.initiator.InitiateServerJobTransfer;
-import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.args.event.powershortage.PowerShortageCause;
 import com.greencloud.commons.job.ServerJob;
 
@@ -84,10 +84,10 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 			}
 
 			jobsToTransfer.forEach(serverJob -> {
-				MDC.put(MDC_JOB_ID, serverJob.getJobId());
-				logger.info(POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG, serverJob.getJobId());
 				final ServerJob jobToTransfer = myGreenAgent.manage()
 						.divideServerJobForPowerShortage(serverJob, shortageStartTime);
+				MDC.put(MDC_JOB_ID, serverJob.getJobId());
+				logger.info(POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG, mapToJobInstanceId(jobToTransfer));
 				requestJobTransferInServer(serverJob, jobToTransfer);
 				myGreenAgent.manage().updateGreenSourceGUI();
 			});
@@ -109,7 +109,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 
 	private void requestJobTransferInServer(final ServerJob originalJob, final ServerJob jobToTransfer) {
 		final ACLMessage transferMessage = preparePowerShortageTransferRequest(
-				JobMapper.mapToPowerShortageJob(originalJob, shortageStartTime), jobToTransfer.getServer());
+				mapToPowerShortageJob(originalJob, shortageStartTime), originalJob.getServer());
 
 		myGreenAgent.addBehaviour(new InitiateServerJobTransfer(myGreenAgent, transferMessage, jobToTransfer));
 	}
@@ -128,7 +128,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	private List<ServerJob> getAffectedServerJobs() {
 		return myGreenAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(serverJobToInclude) || !job.equals(serverJobToInclude))
-				.filter(job -> shortageStartTime.isBefore(convertToRealTime(job.getEndTime())) &&
+				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) &&
 						List.of(IN_PROGRESS, ACCEPTED).contains(myGreenAgent.getServerJobs().get(job)))
 				.toList();
 	}

@@ -22,6 +22,8 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACK
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
@@ -204,9 +206,10 @@ public class ServerStateManagement {
 			final ExecutionJobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
 
 			serverAgent.getServerJobs().remove(job);
-			serverAgent.getServerJobs().put(affectedJobInstance, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
+			serverAgent.getServerJobs().put(affectedJobInstance, ON_HOLD_TRANSFER_PLANNED);
 			serverAgent.getServerJobs().put(notAffectedJobInstance, currentJobStatus);
 
+			incrementJobCounter(mapToJobInstanceId(affectedJobInstance), ACCEPTED);
 			serverAgent.addBehaviour(HandleJobStart.createFor(serverAgent, affectedJobInstance, false, true));
 			serverAgent.addBehaviour(HandleJobFinish.createFor(serverAgent, notAffectedJobInstance, false));
 
@@ -216,7 +219,7 @@ public class ServerStateManagement {
 
 			return affectedJobInstance;
 		} else {
-			serverAgent.getServerJobs().replace(job, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
+			serverAgent.getServerJobs().replace(job, ON_HOLD_TRANSFER_PLANNED);
 			updateServerGUI();
 			return job;
 		}
@@ -294,7 +297,6 @@ public class ServerStateManagement {
 				Collections.singletonList(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()));
 		final ACLMessage finishJobMessage = prepareJobFinishMessage(jobToFinish.getJobId(), jobToFinish.getStartTime(),
 				receivers);
-
 		serverAgent.send(finishJobMessage);
 	}
 
@@ -354,7 +356,8 @@ public class ServerStateManagement {
 	private int getOnHoldJobsCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
 				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime())).toList().size();
+						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.toList().size();
 	}
 
 	private boolean getIsActiveState() {

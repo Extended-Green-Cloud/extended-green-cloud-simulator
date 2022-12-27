@@ -161,8 +161,9 @@ public class ListenForWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleWeatherDataForPeriodicCheck(final MonitoringData data) {
-		final Instant time = convertToRealTime(getCurrentTime());
-		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(-1.0);
+		final Instant time = getCurrentTime();
+		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(convertToRealTime(time), data)
+				.orElse(-1.0);
 
 		if (availablePower < 0 && !myGreenEnergyAgent.getServerJobs().isEmpty()) {
 			logger.info(POWER_DROP_LOG, time);
@@ -188,7 +189,8 @@ public class ListenForWeatherData extends CyclicBehaviour {
 				.getAvailablePowerForJob(serverJob, data, false);
 
 		if (availablePower.isEmpty() || serverJob.getPower() > availablePower.get()) {
-			logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, serverJob.getJobId());
+			var power = availablePower.orElse(0D);
+			logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, serverJob.getPower(), power, serverJob.getJobId());
 			myGreenEnergyAgent.send(prepareReply(reply, NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE, FAILURE));
 		} else {
 			if (myGreenEnergyAgent.getServerJobs().containsKey(serverJob)) {
