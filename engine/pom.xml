@@ -102,7 +102,6 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>runner.EngineRunner</mainClass>
 							<classpathPrefix>dependency-jars/</classpathPrefix>
 						</manifest>
 					</archive>

@@ -1,6 +1,13 @@
 package runner;
 
 import static java.io.File.separator;
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.parseInt;
+import static runner.EngineConstants.databaseHostName;
+import static runner.EngineConstants.hostId;
+import static runner.EngineConstants.hostName;
+import static runner.EngineConstants.mainHost;
+import static runner.EngineConstants.websocketHostName;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -10,14 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jade.wrapper.StaleProxyException;
-import runner.service.SingleContainerScenarioService;
+import runner.service.MultiContainerScenarioService;
 
 /**
- * Main method which runs the engine on a single host and the given scenario
+ * Main method which runs the engine on a multiple hosts and the given scenario
  */
-public class EngineRunner {
+public class MultiEngineRunner {
 
-	private static final Logger logger = LoggerFactory.getLogger(EngineRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(MultiEngineRunner.class);
 
 	private static String scenarioName = "multipleCNAsScenario";
 
@@ -33,19 +40,26 @@ public class EngineRunner {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
 		logger.info("Passed arguments: {}", Arrays.stream(args).toList());
-		if (args.length == 2 && args[0].equals("run")) {
+		String[] multiHostArguments;
+
+		if (args.length == 1) {
+			multiHostArguments = args[0].split(";");
+			parseMultiHostArgs(multiHostArguments);
+		}
+
+		if (args.length == 3 && args[0].equals("run")) {
 			scenarioName = args[1];
 			logger.info("Running Green Cloud on scenario {}.", scenarioName);
 		}
 
-		if (args.length == 3 && args[0].equals("verify")) {
+		if (args.length == 4 && args[0].equals("verify")) {
 			verify = true;
 			adaptationToVerify = args[1];
 			verifyScenario = args[2];
 			logger.info("Running Green Cloud adaptation {} verify on scenario {}.", adaptationToVerify, verifyScenario);
 		}
 
-		if (args.length == 4 && args[0].equals("verify+events")) {
+		if (args.length == 5 && args[0].equals("verify+events")) {
 			verify = true;
 			events = true;
 			adaptationToVerify = args[1];
@@ -66,12 +80,29 @@ public class EngineRunner {
 			scenarioEvents = Optional.of(verifyScenarioDirectory + eventsScenario);
 		}
 
-		runSingleContainerService(scenarioFilePath, scenarioEvents);
+		runMultiContainerService(scenarioFilePath, scenarioEvents);
 	}
 
-	public static void runSingleContainerService(String scenarioStructure, Optional<String> scenarioEvents)
+	public static void runMultiContainerService(String scenarioStructure, Optional<String> scenarioEvents)
 			throws StaleProxyException, ExecutionException, InterruptedException {
-		var scenarioService = new SingleContainerScenarioService(scenarioStructure, scenarioEvents);
+		MultiContainerScenarioService scenarioService;
+		if (mainHost) {
+			scenarioService = new MultiContainerScenarioService(scenarioStructure);
+		} else {
+			scenarioService = new MultiContainerScenarioService(scenarioStructure, scenarioEvents, hostId, hostName);
+		}
 		scenarioService.run();
+	}
+
+	private static void parseMultiHostArgs(String[] multiHostArgs) {
+		if (multiHostArgs.length != 5) {
+			throw new IllegalStateException("Can't run multi container Green Cloud without required arguments");
+		}
+
+		mainHost = parseBoolean(multiHostArgs[0]);
+		hostId = parseInt(multiHostArgs[1]);
+		hostName = multiHostArgs[2];
+		databaseHostName = multiHostArgs[3];
+		websocketHostName = multiHostArgs[4];
 	}
 }

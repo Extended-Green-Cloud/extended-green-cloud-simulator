@@ -4,17 +4,17 @@ import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
 import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static runner.EngineConstants.databaseHostName;
+import static runner.EngineConstants.mainHost;
+import static runner.EngineConstants.websocketHostName;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static runner.service.domain.ScenarioConstants.DATABASE_HOST_NAME;
 import static runner.service.domain.ScenarioConstants.DEADLINE_MAX;
 import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
-import static runner.service.domain.ScenarioConstants.MAIN_HOST;
 import static runner.service.domain.ScenarioConstants.MAX_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.MIN_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.RESOURCE_SCENARIO_PATH;
 import static runner.service.domain.ScenarioConstants.START_TIME_MAX;
 import static runner.service.domain.ScenarioConstants.START_TIME_MIN;
-import static runner.service.domain.ScenarioConstants.WEBSOCKET_HOST_NAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,12 +89,12 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Optional<String> scenarioEventsFileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostName));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostName);
 
 		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
@@ -111,14 +111,14 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Integer hostId, String mainHostIp,
 			Optional<String> scenarioEventsFileName) {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostName));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostName);
 
-		if (MAIN_HOST) {
+		if (mainHost) {
 			timescaleDatabase.initDatabase();
 		}
 		executorService.execute(guiController);
