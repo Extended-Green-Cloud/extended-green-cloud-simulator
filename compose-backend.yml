@@ -1,0 +1,16 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  backend:
+    image: green-cloud/backend
+    build: ./engine
+    ports:
+      - "1099:1099"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 5
+    environment:
+      - MAIN_CLASS=$MAIN_CLASS
+      - GC_PARAMS=$PARAMS
+      - GC_HOST_PARAMS=$HOST_PARAMS
