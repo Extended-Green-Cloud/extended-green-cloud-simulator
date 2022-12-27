@@ -6,6 +6,7 @@ import static runner.service.domain.ScenarioConstants.HOST_NAME;
 import static runner.service.domain.ScenarioConstants.MAIN_HOST;
 import static runner.service.domain.ScenarioConstants.MULTI_CONTAINER;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +37,7 @@ public class EngineRunner {
 	private static String verifyScenarioDirectory = "adaptation" + separator + adaptationToVerify + separator;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException, StaleProxyException {
+		logger.info("Passed arguments: {}", Arrays.stream(args).toList());
 		if (args.length == 2 && args[0].equals("run")) {
 			scenarioName = args[1];
 			logger.info("Running Green Cloud on scenario {}.", scenarioName);
@@ -57,6 +59,9 @@ public class EngineRunner {
 			logger.info("Running Green Cloud adaptation {} verify on scenario {} with events {}.", adaptationToVerify,
 					verifyScenario, events);
 		}
+
+		// wait for GUI to set up
+		Thread.sleep(5000);
 
 		String scenarioPath = verify ? verifyScenarioDirectory : defaultScenarioDirectory;
 		String scenarioFilePath = scenarioPath + (verify ? verifyScenario : scenarioName);

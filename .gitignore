@@ -40,9 +40,10 @@
 /commons.iml
 /managing-system/target/
 /managing-system/target/*
-
 /engine/logs/
 /engine/APDescription.txt
 /engine/MTPs-Main-Container.txt
 /green-cloud-ui/yarn.lock
 /node_modules/
+.DS_Store
+/**/*/.DS_Store
