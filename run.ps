@@ -1,4 +1,0 @@
-$Env:MAIN_CLASS = runner.EngineRunner
-docker-compose --log-level ERROR -f compose-gc.yml up -d
-Start-Sleep -s 5
-command -v python3 >/dunev/null 2>&1 && python3 -m webbrowser -t "http://localhost:3000"

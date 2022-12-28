@@ -3,11 +3,12 @@ package runner;
 import static java.io.File.separator;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
-import static runner.EngineConstants.databaseHostName;
+import static runner.EngineConstants.databaseHostIp;
 import static runner.EngineConstants.hostId;
-import static runner.EngineConstants.hostName;
+import static runner.EngineConstants.localHostIp;
 import static runner.EngineConstants.mainHost;
-import static runner.EngineConstants.websocketHostName;
+import static runner.EngineConstants.mainHostIp;
+import static runner.EngineConstants.websocketHostIp;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class MultiEngineRunner {
 		String[] multiHostArguments;
 
 		if (args.length == 1) {
-			multiHostArguments = args[0].split(";");
+			multiHostArguments = args[0].split("_");
 			parseMultiHostArgs(multiHostArguments);
 		}
 
@@ -89,20 +90,27 @@ public class MultiEngineRunner {
 		if (mainHost) {
 			scenarioService = new MultiContainerScenarioService(scenarioStructure);
 		} else {
-			scenarioService = new MultiContainerScenarioService(scenarioStructure, scenarioEvents, hostId, hostName);
+			scenarioService = new MultiContainerScenarioService(scenarioStructure, scenarioEvents, hostId, mainHostIp);
 		}
 		scenarioService.run();
 	}
 
 	private static void parseMultiHostArgs(String[] multiHostArgs) {
-		if (multiHostArgs.length != 5) {
+		if (multiHostArgs.length != 6) {
 			throw new IllegalStateException("Can't run multi container Green Cloud without required arguments");
 		}
 
-		mainHost = parseBoolean(multiHostArgs[0]);
-		hostId = parseInt(multiHostArgs[1]);
-		hostName = multiHostArgs[2];
-		databaseHostName = multiHostArgs[3];
-		websocketHostName = multiHostArgs[4];
+		for (String arg : multiHostArgs) {
+			String[] argKeyValue = arg.split("=");
+			switch (argKeyValue[0]) {
+				case "mainHost" -> mainHost = parseBoolean(argKeyValue[1]);
+				case "hostId" -> hostId = parseInt(argKeyValue[1]);
+				case "localHostIp" -> localHostIp = argKeyValue[1];
+				case "mainHostIp" -> mainHostIp = argKeyValue[1];
+				case "databaseIp" -> databaseHostIp = argKeyValue[1];
+				case "websocketIp" -> websocketHostIp = argKeyValue[1];
+				default -> throw new IllegalStateException("Provided unsupported parameter key!");
+			}
+		}
 	}
 }

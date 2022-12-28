@@ -4,9 +4,10 @@ import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
 import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static runner.EngineConstants.databaseHostName;
+import static runner.EngineConstants.databaseHostIp;
+import static runner.EngineConstants.localHostIp;
 import static runner.EngineConstants.mainHost;
-import static runner.EngineConstants.websocketHostName;
+import static runner.EngineConstants.websocketHostIp;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.service.domain.ScenarioConstants.DEADLINE_MAX;
 import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
@@ -89,12 +90,12 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Optional<String> scenarioEventsFileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostName));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostIp));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(databaseHostName);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
 
 		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
@@ -111,12 +112,12 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Integer hostId, String mainHostIp,
 			Optional<String> scenarioEventsFileName) {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostName));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostIp));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(databaseHostName);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
 
 		if (mainHost) {
 			timescaleDatabase.initDatabase();
@@ -227,6 +228,9 @@ public abstract class AbstractScenarioService {
 		profile.setParameter(Profile.CONTAINER_NAME, "Main-Container");
 		profile.setParameter(Profile.MAIN_HOST, "localhost");
 		profile.setParameter(Profile.MAIN_PORT, "6996");
+		if (localHostIp != null) {
+			profile.setParameter(Profile.EXPORT_HOST, localHostIp);
+		}
 		return executorService.submit(() -> jadeRuntime.createMainContainer(profile)).get();
 	}
 
@@ -235,6 +239,9 @@ public abstract class AbstractScenarioService {
 		profile.setParameter(Profile.CONTAINER_NAME, containerName);
 		profile.setParameter(Profile.MAIN_HOST, host);
 		profile.setParameter(Profile.MAIN_PORT, "6996");
+		if (localHostIp != null) {
+			profile.setParameter(Profile.EXPORT_HOST, localHostIp);
+		}
 		try {
 			return executorService.submit(() -> jadeRuntime.createAgentContainer(profile)).get();
 		} catch (InterruptedException | ExecutionException e) {

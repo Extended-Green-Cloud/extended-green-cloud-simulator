@@ -23,8 +23,6 @@ services:
       - REACT_APP_WEB_SOCKET_FRONTEND_URL=http://localhost:8080/frontend
     ports:
       - "3000:3000"
-    depends_on:
-      - socket-server
     healthcheck:
       test: curl --fail http://localhost:3000 || exit 1
       interval: 5s
@@ -46,7 +44,3 @@ services:
       - MAIN_CLASS=$MAIN_CLASS
       - GC_PARAMS=$PARAMS
       - GC_HOST_PARAMS=$HOST_PARAMS
-    depends_on:
-      - timescale
-      - socket-server
-      - frontend
