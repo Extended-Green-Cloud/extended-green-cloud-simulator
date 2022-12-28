@@ -23,6 +23,7 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.WEATHER_UNAVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.WEATHER_CAUSE;
@@ -149,9 +150,8 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, serverJob.getJobId());
 		} else {
 			logger.info(CHANGE_JOB_STATUS_LOG, serverJob.getJobId());
-			final ExecutionJobStatusEnum newStatus = serverJob.getStartTime().isAfter(getCurrentTime()) ?
-					ACCEPTED :
-					IN_PROGRESS;
+			final ExecutionJobStatusEnum newStatus =
+					isJobStarted(serverJob, myGreenEnergyAgent.getServerJobs()) ? IN_PROGRESS : ACCEPTED;
 
 			myGreenEnergyAgent.getServerJobs().replace(serverJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();

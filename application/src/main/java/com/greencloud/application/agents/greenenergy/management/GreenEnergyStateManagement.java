@@ -16,14 +16,15 @@ import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMa
 import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
 import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACTIVE_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
@@ -145,14 +146,15 @@ public class GreenEnergyStateManagement {
 			greenEnergyAgent.getServerJobs().put(affectedServerJobInstance, ON_HOLD_TRANSFER_PLANNED);
 			greenEnergyAgent.getServerJobs().put(notAffectedServerJobInstance, currentJobStatus);
 			greenEnergyAgent.addBehaviour(new HandleManualPowerSupplyFinish(greenEnergyAgent,
-					calculateExpectedJobEndTime(affectedServerJobInstance),
-					mapToJobInstanceId(affectedServerJobInstance)));
+					calculateExpectedJobEndTime(affectedServerJobInstance), affectedServerJobInstance));
 			incrementJobCounter(mapToJobInstanceId(affectedServerJobInstance), ACCEPTED);
 
 			updateGreenSourceGUI();
 			return affectedServerJobInstance;
 		} else {
-			greenEnergyAgent.getServerJobs().replace(serverJob, ON_HOLD_TRANSFER_PLANNED);
+			final ExecutionJobStatusEnum jobStatus = isJobStarted(serverJob, greenEnergyAgent.getServerJobs()) ?
+					ON_HOLD_TRANSFER : ON_HOLD_TRANSFER_PLANNED;
+			greenEnergyAgent.getServerJobs().replace(serverJob, jobStatus);
 			updateGreenSourceGUI();
 			return serverJob;
 		}
@@ -302,7 +304,7 @@ public class GreenEnergyStateManagement {
 
 	private int getJobCount() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
-				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue())
+				.filter(job -> isJobStarted(job.getValue())
 						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
 						getCurrentTime()))
 				.map(Map.Entry::getKey)

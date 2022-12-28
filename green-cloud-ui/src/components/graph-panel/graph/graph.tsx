@@ -55,7 +55,6 @@ export const DisplayGraph = ({
 
       core.on('tap', 'node', (event) => {
          if (event.target.id() !== scheduler?.name) {
-            console.warn(event.target.id())
             setSelectedAgent(event.target.id())
          }
       })
