@@ -3,12 +3,12 @@ package com.greencloud.application.agents.server.behaviour.powershortage.listene
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_SHORTAGE_FINISH_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.templates.PowerShortageServerMessageTemplates.SOURCE_POWER_SHORTAGE_FINISH_TEMPLATE;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.util.Objects;
 
@@ -79,7 +79,7 @@ public class ListenForSourcePowerShortageFinish extends CyclicBehaviour {
 	}
 
 	private ExecutionJobStatusEnum getNewJobStatus(final ClientJob job) {
-		return job.getStartTime().isAfter(getCurrentTime()) ?
+		return isJobStarted(job, myServerAgent.getServerJobs()) ?
 				ExecutionJobStatusEnum.ACCEPTED :
 				ExecutionJobStatusEnum.IN_PROGRESS;
 	}

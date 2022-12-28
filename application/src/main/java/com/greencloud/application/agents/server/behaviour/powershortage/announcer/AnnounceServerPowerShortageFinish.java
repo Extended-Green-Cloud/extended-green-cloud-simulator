@@ -12,7 +12,7 @@ import static com.greencloud.application.messages.domain.constants.MessageConver
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -118,7 +118,7 @@ public class AnnounceServerPowerShortageFinish extends OneShotBehaviour {
 	}
 
 	private void supplyJobWithGreenEnergy(final ClientJob job, final JobInstanceIdentifier jobInstance) {
-		final boolean hasStarted = job.getStartTime().isAfter(getCurrentTime());
+		final boolean hasStarted = isJobStarted(job, myServerAgent.getServerJobs());
 		final ExecutionJobStatusEnum newStatus = hasStarted ?
 				ExecutionJobStatusEnum.ACCEPTED :
 				ExecutionJobStatusEnum.IN_PROGRESS;

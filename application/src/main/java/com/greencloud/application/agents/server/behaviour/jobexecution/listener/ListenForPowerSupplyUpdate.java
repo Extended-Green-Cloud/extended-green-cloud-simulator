@@ -23,6 +23,7 @@ import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -125,8 +126,8 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.info(SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG, jobInstanceId.getJobId());
-			final boolean informCNAStart = messageType.equals(SERVER_JOB_CFP_PROTOCOL) || jobInstanceId.getStartTime()
-					.isAfter(getCurrentTime());
+			final boolean informCNAStart = messageType.equals(SERVER_JOB_CFP_PROTOCOL) ||
+					PLANNED_JOB_STATUSES.contains(myServerAgent.getServerJobs().get(job));
 			myAgent.addBehaviour(HandleJobStart.createFor(myServerAgent, job, informCNAStart, true));
 		} else {
 			logger.info(SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());

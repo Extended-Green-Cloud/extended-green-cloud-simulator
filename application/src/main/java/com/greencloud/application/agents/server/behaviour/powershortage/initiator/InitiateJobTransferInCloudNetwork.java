@@ -17,8 +17,8 @@ import static com.greencloud.application.messages.domain.factory.JobStatusMessag
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -164,7 +164,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 	}
 
 	private void updateServerStateUponJobFinish(final ClientJob job) {
-		if (job.getStartTime().isBefore(getCurrentTime())) {
+		if (isJobStarted(job, myServerAgent.getServerJobs())) {
 			myServerAgent.manage().incrementJobCounter(mapToJobInstanceId(job), FINISH);
 		}
 		if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
@@ -189,7 +189,7 @@ public class InitiateJobTransferInCloudNetwork extends AchieveREInitiator {
 		final int availableBackUpPower =
 				myServerAgent.manage().getAvailableCapacity(job.getStartTime(), job.getEndTime(),
 						jobToTransfer.getJobInstanceId(), BACK_UP_POWER_STATUSES);
-		final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
+		final boolean hasStarted = isJobStarted(job, myServerAgent.getServerJobs());
 
 		MDC.put(MDC_JOB_ID, jobId);
 		if (isNull(greenSourceRequest)) {
