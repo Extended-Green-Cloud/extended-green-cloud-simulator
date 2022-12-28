@@ -6,6 +6,7 @@ import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -119,7 +120,7 @@ class GreenEnergyStateManagementUnitTest {
 
 		assertThat(mockGreenEnergyAgent.getServerJobs()).hasSameSizeAs(MOCK_POWER_JOBS);
 		assertTrue(mockGreenEnergyAgent.getServerJobs().containsKey(serverJob));
-		assertThat(statusAfterUpdate).isEqualTo(ON_HOLD_TRANSFER);
+		assertThat(statusAfterUpdate).isEqualTo(ON_HOLD_TRANSFER_PLANNED);
 	}
 
 	@Test
@@ -138,9 +139,9 @@ class GreenEnergyStateManagementUnitTest {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		final Map.Entry<PowerJob, ExecutionJobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER)).findFirst().orElse(null);
+				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER_PLANNED)).findFirst().orElse(null);
 		final Map.Entry<PowerJob, ExecutionJobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER)).findFirst().orElse(null);
+				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER_PLANNED)).findFirst().orElse(null);
 
 		assertThat(mockGreenEnergyAgent.getServerJobs()).hasSize(6);
 		assertFalse(mockGreenEnergyAgent.getServerJobs().containsKey(serverJob));
