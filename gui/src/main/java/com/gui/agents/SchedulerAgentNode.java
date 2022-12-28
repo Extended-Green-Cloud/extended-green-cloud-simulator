@@ -27,8 +27,9 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 	public SchedulerAgentNode(SchedulerAgentArgs args) {
 		super(args.getName());
 
-		this.deadlinePriorityWeight = args.getDeadlineWeight();
-		this.powerPriorityWeight = args.getPowerWeight();
+		this.deadlinePriorityWeight = (double)args.getDeadlineWeight() / (args.getDeadlineWeight() + args.getPowerWeight());
+		this.powerPriorityWeight = (double)args.getPowerWeight() / (args.getPowerWeight() + args.getDeadlineWeight());
+
 		this.maxQueueSize = args.getMaximumQueueSize();
 	}
 

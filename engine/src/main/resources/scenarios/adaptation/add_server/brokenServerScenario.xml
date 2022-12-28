@@ -5,8 +5,8 @@
 	</managingAgent>
 	<schedulerAgent>
 		<name>Scheduler</name>
-		<deadlineWeight>0.5</deadlineWeight>
-		<powerWeight>0.5</powerWeight>
+		<deadlineWeight>1</deadlineWeight>
+		<powerWeight>1</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
 		<jobSplitThreshold>200</jobSplitThreshold>
 		<splittingFactor>2</splittingFactor>

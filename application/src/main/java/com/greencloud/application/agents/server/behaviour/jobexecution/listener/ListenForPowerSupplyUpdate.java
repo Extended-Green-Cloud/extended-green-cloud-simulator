@@ -88,7 +88,9 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
 		final ClientJob job = retrieveJobFromMessage(inform);
-		final ExecutionJobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
+		final ExecutionJobStatusEnum statusEnum = isNull(job) ?
+				null :
+				myServerAgent.getServerJobs().getOrDefault(job, null);
 
 		if (nonNull(statusEnum) && statusEnum.equals(ExecutionJobStatusEnum.IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());

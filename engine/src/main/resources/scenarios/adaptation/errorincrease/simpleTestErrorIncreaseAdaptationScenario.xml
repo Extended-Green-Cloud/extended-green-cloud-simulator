@@ -8,37 +8,24 @@
 		<deadlineWeight>1</deadlineWeight>
 		<powerWeight>1</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
-		<jobSplitThreshold>20</jobSplitThreshold>
+		<jobSplitThreshold>100</jobSplitThreshold>
 		<splittingFactor>3</splittingFactor>
 	</schedulerAgent>
 	<monitoringAgentsArgs>
 		<monitoringAgent>
-			<name>Weather1</name>
-		</monitoringAgent>
-		<monitoringAgent>
-			<name>Weather2</name>
+			<name>Weather</name>
+			<badStubProbability>1</badStubProbability>
 		</monitoringAgent>
 	</monitoringAgentsArgs>
 	<greenEnergyAgentsArgs>
 		<greenenergyAgent>
 			<name>WindFarm1</name>
-			<monitoringAgent>Weather1</monitoringAgent>
+			<monitoringAgent>Weather</monitoringAgent>
 			<ownerSever>Server</ownerSever>
 			<latitude>52</latitude>
 			<longitude>20</longitude>
 			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
-			<energyType>WIND</energyType>
-			<weatherPredictionError>0.02</weatherPredictionError>
-		</greenenergyAgent>
-		<greenenergyAgent>
-			<name>WindFarm2</name>
-			<monitoringAgent>Weather2</monitoringAgent>
-			<ownerSever>Server</ownerSever>
-			<latitude>52</latitude>
-			<longitude>20</longitude>
-			<pricePerPowerUnit>5</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>50</maximumCapacity>
 			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
@@ -47,7 +34,7 @@
 		<serverAgentsArgs>
 			<name>Server</name>
 			<ownerCloudNetwork>CNA</ownerCloudNetwork>
-			<maximumCapacity>400</maximumCapacity>
+			<maximumCapacity>50</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>

@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult;
 import org.greencloud.managingsystem.service.AbstractManagingService;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
+import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.message.MessageBuilder;
 import com.gui.agents.ManagingAgentNode;
@@ -50,9 +52,14 @@ public class ExecutorService extends AbstractManagingService {
 
 	public ExecutorService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
-		AgentControllerFactory agentControllerFactory =
-				new AgentControllerFactory(this.managingAgent.getGreenCloudController());
+		var agentControllerFactory = new AgentControllerFactory(this.managingAgent.getGreenCloudController());
 		agentRunner = new AgentRunner(this.managingAgent, agentControllerFactory);
+	}
+
+	@VisibleForTesting
+	protected ExecutorService(ManagingAgent managingAgent, AgentRunner agentRunner) {
+		super(managingAgent);
+		this.agentRunner = agentRunner;
 	}
 
 	/**

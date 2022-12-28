@@ -9,6 +9,7 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerShortageJob;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
+import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
@@ -128,7 +129,7 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	private List<ServerJob> getAffectedServerJobs() {
 		return myGreenAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(serverJobToInclude) || !job.equals(serverJobToInclude))
-				.filter(job -> shortageStartTime.isBefore(job.getEndTime()) &&
+				.filter(job -> shortageStartTime.isBefore(convertToRealTime(job.getEndTime())) &&
 						List.of(IN_PROGRESS, ACCEPTED).contains(myGreenAgent.getServerJobs().get(job)))
 				.toList();
 	}
