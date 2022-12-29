@@ -2,14 +2,19 @@ package com.greencloud.application.messages.domain.factory;
 
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.greencloud.application.agents.server.ServerAgent;
+import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.PowerShortageJob;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.message.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -56,6 +61,25 @@ public class PowerShortageMessageFactory {
 		message.setProtocol(SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL);
 		message.addReceiver(receiver);
 		return message;
+	}
+
+	/**
+	 * Method prepares the message about the job transfer update sent to scheduler
+	 *
+	 * @param jobInstanceId unique job instance
+	 * @param server        server that is sending the message
+	 * @param protocol      protocol used in transfer messages
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareJobTransferUpdateMessageForCNA(final JobInstanceIdentifier jobInstanceId,
+			final String protocol, final ServerAgent server) {
+		final int performative = protocol.equals(FAILED_TRANSFER_PROTOCOL) ? FAILURE : INFORM;
+		return MessageBuilder.builder()
+				.withObjectContent(jobInstanceId)
+				.withPerformative(performative)
+				.withReceivers(server.getOwnerCloudNetworkAgent())
+				.withMessageProtocol(protocol)
+				.build();
 	}
 
 	/**

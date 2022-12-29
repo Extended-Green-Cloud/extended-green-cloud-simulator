@@ -9,7 +9,12 @@ import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
 import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchContent;
@@ -26,6 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourceJobTransfer;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.ClientJob;
 
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -103,12 +109,25 @@ public class ListenForSourceJobTransferConfirmation extends MsgReceiver {
 
 	private void handleJobTransfer(final ACLMessage inform) {
 		myServerAgent.send(prepareReply(greenSourceRequest.createReply(), TRANSFER_SUCCESSFUL_MESSAGE, INFORM));
+		final ClientJob jobToExecute = getJobByIdAndStartDate(jobToTransfer, myServerAgent.getServerJobs());
+		if (Objects.nonNull(jobToExecute)) {
+			updateJobStatus(jobToExecute);
+		}
 		myAgent.addBehaviour(HandleSourceJobTransfer.createFor(myServerAgent, jobToTransfer, inform.getSender()));
 	}
 
 	private void handleJobFinish() {
-		final ACLMessage failTransferMessage = prepareReply(greenSourceRequest.createReply(),
+		final ACLMessage failTransferMessage = prepareStringReply(greenSourceRequest.createReply(),
 				JOB_NOT_FOUND_CAUSE_MESSAGE, FAILURE);
 		myServerAgent.send(failTransferMessage);
+	}
+
+	private void updateJobStatus(final ClientJob jobToExecute) {
+		final boolean isJobRunning = myServerAgent.getServerJobs().get(jobToExecute).equals(ON_HOLD_TRANSFER);
+		if(isJobRunning) {
+			myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS);
+		} else {
+			myServerAgent.getServerJobs().replace(jobToExecute, ACCEPTED);
+		}
 	}
 }

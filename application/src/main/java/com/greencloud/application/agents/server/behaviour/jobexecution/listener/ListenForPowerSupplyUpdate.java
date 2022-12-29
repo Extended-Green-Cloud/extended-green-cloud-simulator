@@ -11,24 +11,25 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.li
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
-import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.CONFIRMED_JOB_TRANSFER_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FAILED_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobTransferUpdateMessageForCNA;
 import static com.greencloud.application.utils.GUIUtils.announceBookedJob;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Objects;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -39,6 +40,7 @@ import com.greencloud.application.agents.server.behaviour.jobexecution.listener.
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -87,7 +89,9 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
 	private void handlePowerSupplyManualFinishMessage(final ACLMessage inform) {
 		final ClientJob job = retrieveJobFromMessage(inform);
-		final ExecutionJobStatusEnum statusEnum = isNull(job) ? null : myServerAgent.getServerJobs().getOrDefault(job, null);
+		final ExecutionJobStatusEnum statusEnum = isNull(job) ?
+				null :
+				myServerAgent.getServerJobs().getOrDefault(job, null);
 
 		if (nonNull(statusEnum) && statusEnum.equals(ExecutionJobStatusEnum.IN_PROGRESS)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -122,8 +126,8 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.info(SUPPLY_CONFIRMATION_JOB_SCHEDULING_LOG, jobInstanceId.getJobId());
-			final boolean informCNAStart = messageType.equals(SERVER_JOB_CFP_PROTOCOL) || jobInstanceId.getStartTime()
-					.isAfter(getCurrentTime());
+			final boolean informCNAStart = messageType.equals(SERVER_JOB_CFP_PROTOCOL) ||
+					PLANNED_JOB_STATUSES.contains(myServerAgent.getServerJobs().get(job));
 			myAgent.addBehaviour(HandleJobStart.createFor(myServerAgent, job, informCNAStart, true));
 		} else {
 			logger.info(SUPPLY_CONFIRMATION_JOB_FINISHED_LOG, jobInstanceId.getJobId());
@@ -131,37 +135,45 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	private void confirmJobAcceptance(final JobInstanceIdentifier jobInstanceId, final boolean isTransferred) {
-		final String logMessage = isTransferred ?
-				SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG :
-				SUPPLY_CONFIRMATION_INFORM_CNA_LOG;
-		final String conversationId = isTransferred ? CONFIRMED_JOB_TRANSFER_ID : CONFIRMED_JOB_ID;
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		logger.info(logMessage, jobInstanceId.getJobId());
-		myServerAgent.getServerJobs()
-				.replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()), ExecutionJobStatusEnum.ACCEPTED);
+
+		myServerAgent.getServerJobs().replace(getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs()),
+				ExecutionJobStatusEnum.ACCEPTED);
 		myServerAgent.manage().updateClientNumberGUI();
-		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, conversationId);
+
+		if (!isTransferred) {
+			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, CONFIRMED_JOB_ID);
+			logger.info(SUPPLY_CONFIRMATION_INFORM_CNA_LOG, jobInstanceId.getJobId());
+		} else {
+			myServerAgent.send(
+					prepareJobTransferUpdateMessageForCNA(jobInstanceId, CONFIRMED_TRANSFER_PROTOCOL, myServerAgent));
+			logger.info(SUPPLY_CONFIRMATION_INFORM_CNA_TRANSFER_LOG, jobInstanceId.getJobId());
+		}
 	}
 
 	private void failJobAcceptance(final String protocol, final JobInstanceIdentifier jobInstanceId,
 			final ACLMessage message) {
-		final String logMessage = protocol.equals(FAILED_TRANSFER_PROTOCOL) ?
-				SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG :
-				SUPPLY_FAILURE_INFORM_CNA_LOG;
+		final boolean isTransferred = protocol.equals(FAILED_TRANSFER_PROTOCOL);
 		final ClientJob job = retrieveJobFromMessage(message);
-
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
-		logger.info(logMessage, jobInstanceId.getJobId());
 
-		if(Objects.nonNull(job)) {
+		if (Objects.nonNull(job)) {
 			if (isJobUnique(job.getJobId(), myServerAgent.getServerJobs())) {
 				myServerAgent.getGreenSourceForJobMap().remove(job.getJobId());
 			}
 			myServerAgent.getServerJobs().remove(job);
 		}
-		myServerAgent.manage().updateServerGUI();
-		myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
 		myServerAgent.manage().incrementJobCounter(jobInstanceId, FAILED);
+		myServerAgent.manage().updateServerGUI();
+
+		if (!isTransferred) {
+			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, FAILED_JOB_ID);
+			logger.info(SUPPLY_FAILURE_INFORM_CNA_LOG, jobInstanceId.getJobId());
+		} else {
+			myServerAgent.send(
+					prepareJobTransferUpdateMessageForCNA(jobInstanceId, FAILED_TRANSFER_PROTOCOL, myServerAgent));
+			logger.info(SUPPLY_FAILURE_INFORM_CNA_TRANSFER_LOG, jobInstanceId.getJobId());
+		}
 	}
 
 	private ClientJob retrieveJobFromMessage(final ACLMessage msg) {

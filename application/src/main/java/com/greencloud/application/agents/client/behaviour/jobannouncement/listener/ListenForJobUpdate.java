@@ -221,7 +221,7 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 		}
 		myClientAgent.getGuiController().updateClientsCountByValue(-1);
 		myClientAgent.getGuiController().updateFailedJobsCountByValue(1);
-		((ClientAgentNode) myClientAgent.getAgentNode()).updateJobStatus(ClientJobStatusEnum.FAILED);
+		myNode.updateJobStatus(FAILED);
 		myClientAgent.manage().updateJobStatusDuration(FAILED, jobStatusUpdate.changeTime());
 		myClientAgent.manage().writeClientData(true);
 		myClientAgent.doDelete();

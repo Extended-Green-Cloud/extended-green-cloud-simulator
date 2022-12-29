@@ -52,14 +52,6 @@
 			<groupId>com.tilab.jade</groupId>
 			<artifactId>jade</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.tilab.jade</groupId>
-			<artifactId>jade-test-suite</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.tilab.jade</groupId>
-			<artifactId>jade-misc</artifactId>
-		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.assertj</groupId>

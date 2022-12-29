@@ -22,6 +22,7 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForScheduler;
 import static com.greencloud.application.utils.JobUtils.getJobById;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
@@ -153,9 +154,15 @@ public class ListenForJobStatusChange extends CyclicBehaviour {
 	}
 
 	private void updateNetworkInformation(final String jobId) {
+		var job = getJobById(jobId, myCloudNetworkAgent.getNetworkJobs());
+
+		if(isJobStarted(job, myCloudNetworkAgent.getNetworkJobs())) {
+			myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FINISH);
+		}
+
 		myCloudNetworkAgent.getNetworkJobs().remove(getJobById(jobId, myCloudNetworkAgent.getNetworkJobs()));
 		myCloudNetworkAgent.getServerForJobMap().remove(jobId);
-		myCloudNetworkAgent.manage().incrementJobCounter(jobId, JobResultType.FINISH);
+		myCloudNetworkAgent.manage().updateCloudNetworkGUI();
 	}
 
 	private Date calculateExpectedJobStart(final ClientJob job) {

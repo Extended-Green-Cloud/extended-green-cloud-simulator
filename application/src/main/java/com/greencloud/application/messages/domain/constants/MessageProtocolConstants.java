@@ -35,6 +35,7 @@ public class MessageProtocolConstants {
 	 * after which the information about job being finished has passed
 	 * JOB_START_STATUS_PROTOCOL       - protocol used in messages with request of the update regarding the job start status
 	 * CHANGE_JOB_STATUS_PROTOCOL      - protocol used in messages informing that the status of the job has changed
+	 * CONFIRMED_TRANSFER_PROTOCOL	   - protocol used in messages informing that the job transfer was confirmed
 	 * FAILED_JOB_PROTOCOL         	   - protocol used in messages informing that the job execution has failed
 	 * FAILED_TRANSFER_PROTOCOL        - protocol used in messages informing that the job transfer has failed
 	 * FAILED_SOURCE_TRANSFER_PROTOCOL - protocol used in messages informing that the job transfer between green sources has failed
@@ -43,6 +44,7 @@ public class MessageProtocolConstants {
 	public static final String MANUAL_JOB_FINISH_PROTOCOL = "MANUAL_FINISH";
 	public static final String JOB_START_STATUS_PROTOCOL = "START_STATUS_PROTOCOL";
 	public static final String CHANGE_JOB_STATUS_PROTOCOL = "CHANGE_JOB_STATUS_PROTOCOL";
+	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER_PROTOCOL";
 	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
 	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";
 	public static final String FAILED_SOURCE_TRANSFER_PROTOCOL = "FAILED_SOURCE_TRANSFER_PROTOCOL";
