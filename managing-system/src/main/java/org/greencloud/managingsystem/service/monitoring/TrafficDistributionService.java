@@ -18,6 +18,7 @@ import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,10 @@ public class TrafficDistributionService extends AbstractGoalService {
 		allQualities.addAll(serversQuality);
 
 		// Worst quality
-		OptionalDouble worstQuality = allQualities.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR).mapToDouble(Double::doubleValue).min();
+		OptionalDouble worstQuality = allQualities.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR)
+				.mapToDouble(Double::doubleValue).min();
 
-		if(!worstQuality.isPresent()) {
+		if (!worstQuality.isPresent()) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
 
@@ -110,7 +112,8 @@ public class TrafficDistributionService extends AbstractGoalService {
 			int finalI = i;
 			List<Double> traffic = grouppedData.entrySet()
 					.stream()
-					.map(entry -> ((CloudNetworkMonitoringData) entry.getValue().get(finalI).monitoringData()).getAvailablePower())
+					.map(entry -> ((CloudNetworkMonitoringData) entry.getValue().get(finalI)
+							.monitoringData()).getAvailablePower())
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
@@ -126,8 +129,9 @@ public class TrafficDistributionService extends AbstractGoalService {
 			int finalI = i;
 			List<Double> traffic = grouppedData.entrySet()
 					.stream()
-					.map(entry -> ((ServerMonitoringData) entry.getValue().get(finalI).monitoringData()).getCurrentMaximumCapacity() -
-							((ServerMonitoringData)entry.getValue().get(finalI).monitoringData()).getCurrentTraffic())
+					.map(entry -> ((ServerMonitoringData) entry.getValue().get(finalI)
+							.monitoringData()).getCurrentMaximumCapacity() -
+							((ServerMonitoringData) entry.getValue().get(finalI).monitoringData()).getCurrentTraffic())
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
@@ -152,7 +156,8 @@ public class TrafficDistributionService extends AbstractGoalService {
 				.readLatestNRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
 				.stream()
 				.toList();
-		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size() || cloudNetworkMonitoringData.isEmpty()) {
+		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size()
+				|| cloudNetworkMonitoringData.isEmpty()) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
 		return computeGoalQualityForCNA(cloudNetworkMonitoringData);
@@ -168,8 +173,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 					.toList();
 			if (serverMonitoringData.size() < AGGREGATION_SIZE * serversList.size() || serversList.isEmpty()) {
 				quality = DATA_NOT_AVAILABLE_INDICATOR;
-			}
-			else {
+			} else {
 				quality = computeGoalQualityForServer(serverMonitoringData);
 			}
 			serversQuality.add(quality);
