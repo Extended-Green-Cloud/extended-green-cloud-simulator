@@ -9,7 +9,7 @@ import static com.database.knowledge.timescale.DmlQueries.GET_ALL_RECORDS_DATA_F
 import static com.database.knowledge.timescale.DmlQueries.GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_1_SEC_DATA;
 import static com.database.knowledge.timescale.DmlQueries.GET_LAST_N_QUALITY_DATA_RECORDS_FOR_GOAL;
-import static com.database.knowledge.timescale.DmlQueries.GET_MULTIPLE_ROWS_DATA_FOR_DATA_TYPE_AND_AIDS;
+import static com.database.knowledge.timescale.DmlQueries.GET_LATEST_N_ROWS_FOR_DATA_TYPE_AND_AIDS;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
@@ -171,7 +171,7 @@ public class JdbcStatementsExecutor {
 
 	List<AgentData> executeMultipleRowsReadMonitoringDataForDataTypeAndAID(DataType type, List<String> aid, int rows)
 			throws SQLException, JsonProcessingException {
-		try (var statement = sqlConnection.prepareStatement(GET_MULTIPLE_ROWS_DATA_FOR_DATA_TYPE_AND_AIDS)) {
+		try (var statement = sqlConnection.prepareStatement(GET_LATEST_N_ROWS_FOR_DATA_TYPE_AND_AIDS)) {
 			final Array array = statement.getConnection().createArrayOf("text", aid.toArray());
 			statement.setString(1, type.toString());
 			statement.setArray(2, array);
@@ -255,10 +255,10 @@ public class JdbcStatementsExecutor {
 		while (resultSet.next()) {
 			var type = DataType.valueOf(resultSet.getString("data_type"));
 			var agentData = new AgentData(
-					resultSet.getTimestamp("time").toInstant(), // record time
-					resultSet.getString("aid"), // agent's aid
-					type, // data type
-					objectMapper.readValue(resultSet.getObject("data").toString(), type.getDataTypeClass()) // data
+					resultSet.getTimestamp("time").toInstant(),
+					resultSet.getString("aid"),
+					type,
+					objectMapper.readValue(resultSet.getObject("data").toString(), type.getDataTypeClass())
 			);
 			result.add(agentData);
 		}

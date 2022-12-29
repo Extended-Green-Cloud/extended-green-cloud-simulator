@@ -3,6 +3,8 @@ package org.greencloud.managingsystem.service.monitoring;
 import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.greencloud.commons.agent.AgentType.CNA;
+import static com.greencloud.commons.agent.AgentType.SERVER;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.JOB_DISTRIBUTION_LOG;
@@ -24,9 +26,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
-
-import jade.core.AID;
 
 /**
  * Service containing methods connected with monitoring system's traffic distribution
@@ -90,13 +89,16 @@ public class TrafficDistributionService extends AbstractGoalService {
 	@VisibleForTesting
 	protected double computeCoefficient(List<Double> traffic) {
 		int n = traffic.size();
-		OptionalDouble avg = traffic.stream().mapToDouble(Double::doubleValue).average();
-		double sum = 0;
-		for (var data : traffic) {
-			sum += Math.pow(data - avg.getAsDouble(), 2);
+		if (n <= 1) {
+			return 0;
 		}
+		OptionalDouble mean = traffic.stream().mapToDouble(Double::doubleValue).average();
+		if (mean.getAsDouble() == 0.0) {
+			return 0;
+		}
+		double sum = traffic.stream().mapToDouble(data -> Math.pow(data - mean.getAsDouble(), 2)).sum();
 		double sd = Math.sqrt(sum / (n - 1));
-		return sd / avg.getAsDouble();
+		return sd / mean.getAsDouble();
 	}
 
 	@VisibleForTesting
@@ -104,12 +106,12 @@ public class TrafficDistributionService extends AbstractGoalService {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
-		for (int i = 0; i < grouppedData.get(data.get(0).aid()).size(); i++) {
-			List<Double> traffic = new ArrayList<>();
-			for (var entry : grouppedData.entrySet()) {
-				traffic.add(
-						((CloudNetworkMonitoringData) entry.getValue().get(i).monitoringData()).getAvailablePower());
-			}
+		for (int i = 0; i < AGGREGATION_SIZE; i++) {
+			int finalI = i;
+			List<Double> traffic = grouppedData.entrySet()
+					.stream()
+					.map(entry -> ((CloudNetworkMonitoringData) entry.getValue().get(finalI).monitoringData()).getAvailablePower())
+					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
 		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
@@ -120,31 +122,26 @@ public class TrafficDistributionService extends AbstractGoalService {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
-		for (int i = 0; i < grouppedData.get(data.get(0).aid()).size(); i++) {
-			List<Double> traffic = new ArrayList<>();
-			for (var entry : grouppedData.entrySet()) {
-				traffic.add(
-						((ServerMonitoringData) entry.getValue().get(i).monitoringData()).getCurrentMaximumCapacity() -
-								((ServerMonitoringData)entry.getValue().get(i).monitoringData()).getCurrentTraffic());
-			}
+		for (int i = 0; i < AGGREGATION_SIZE; i++) {
+			int finalI = i;
+			List<Double> traffic = grouppedData.entrySet()
+					.stream()
+					.map(entry -> ((ServerMonitoringData) entry.getValue().get(finalI).monitoringData()).getCurrentMaximumCapacity() -
+							((ServerMonitoringData)entry.getValue().get(finalI).monitoringData()).getCurrentTraffic())
+					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
 		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
 	private List<String> findCNAs() {
-		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
-				.stream()
-				.map(CloudNetworkArgs::getName)
-				.map(name -> new AID(name, AID.ISLOCALNAME).getName())
-				.toList();
+		return managingAgent.monitor().getAliveAgents(CNA);
 	}
 
 	private List<List<String>> findServers(List<String> CNAs) {
 		List<List<String>> serversList = new ArrayList<>();
 		CNAs.stream().forEach(CNA -> {
-			var serverList = new ArrayList<>(managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(CNA.split("@")[0]));
-			var fullNameList = serverList.stream().map(server -> new AID(server, AID.ISLOCALNAME).getName()).toList();
+			var fullNameList = managingAgent.monitor().getAliveAgents(SERVER);
 			serversList.add(fullNameList);
 		});
 		return serversList;
@@ -152,18 +149,13 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	private double readCNAQuality(List<String> CNAs) {
 		List<AgentData> cloudNetworkMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMultipleRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
+				.readLatestNRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE)
 				.stream()
 				.toList();
-
-		double CNAQuality;
-		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size()) {
-			CNAQuality =  DATA_NOT_AVAILABLE_INDICATOR;
+		if (cloudNetworkMonitoringData.size() < AGGREGATION_SIZE * CNAs.size() || cloudNetworkMonitoringData.isEmpty()) {
+			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
-		else {
-			CNAQuality = computeGoalQualityForCNA(cloudNetworkMonitoringData);
-		}
-		return CNAQuality;
+		return computeGoalQualityForCNA(cloudNetworkMonitoringData);
 	}
 
 	private List<Double> readServerQuality(List<List<String>> servers) {
@@ -171,10 +163,10 @@ public class TrafficDistributionService extends AbstractGoalService {
 		servers.stream().forEach(serversList -> {
 			double quality;
 			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-					.readMultipleRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
+					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE)
 					.stream()
 					.toList();
-			if (serverMonitoringData.size() < AGGREGATION_SIZE * servers.size()) {
+			if (serverMonitoringData.size() < AGGREGATION_SIZE * serversList.size() || serversList.isEmpty()) {
 				quality = DATA_NOT_AVAILABLE_INDICATOR;
 			}
 			else {

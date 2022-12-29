@@ -56,7 +56,9 @@ public class MonitorSystemState extends TickerBehaviour {
 			//end feedback iteration
 			return;
 		}
-		myManagingAgent.analyze().trigger(getGoalWithWorstQuality());
+
+		GoalEnum worstGoal = getGoalWithWorstQuality();
+		myManagingAgent.analyze().trigger(worstGoal);
 	}
 
 	private GoalEnum getGoalWithWorstQuality() {
