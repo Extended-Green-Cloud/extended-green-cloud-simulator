@@ -40,14 +40,6 @@
 			<groupId>com.tilab.jade</groupId>
 			<artifactId>jade</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.tilab.jade</groupId>
-			<artifactId>jade-test-suite</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.tilab.jade</groupId>
-			<artifactId>jade-misc</artifactId>
-		</dependency>
 		<!-- WebSocket -->
 		<dependency>
 			<groupId>org.java-websocket</groupId>
