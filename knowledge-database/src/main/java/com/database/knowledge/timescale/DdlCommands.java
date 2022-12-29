@@ -37,7 +37,7 @@ public final class DdlCommands {
 			INSERT INTO adaptation_goals (goal_id, goal_name, threshold, is_above_threshold, weight) VALUES
 			(1, 'Maximize job success ratio', 0.8, true, 0.6),
 			(2, 'Minimize used backup power', 0.2, false, 0.2),
-			(3, 'Distribute traffic evenly', 0.4, true, 0.2)
+			(3, 'Distribute traffic evenly', 0.75, true, 0.2)
 			""";
 
 	/**

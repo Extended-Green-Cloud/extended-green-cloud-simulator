@@ -38,4 +38,9 @@ public class ServerAdaptationManagement {
 			entry.setValue(nextFibonacci(entry.getValue()));
 		}
 	}
+
+	public boolean disableServer() {
+		serverAgent.disable();
+		return true;
+	}
 }

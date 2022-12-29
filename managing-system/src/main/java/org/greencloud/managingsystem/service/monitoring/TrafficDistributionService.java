@@ -40,6 +40,8 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	public TrafficDistributionService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
+		currentGoalQuality.set(1.0);
+		updateGoalQuality(GOAL, currentGoalQuality.get());
 	}
 
 	@Override

@@ -40,7 +40,6 @@ public class DisableServerPlan extends AbstractPlan{
                 idleExists.set(true);
             }
         });
-
         return idleExists.get();
     }
 
@@ -51,7 +50,9 @@ public class DisableServerPlan extends AbstractPlan{
 
         targetAgent = selectTargetAgent(serverMonitoring);
 
-        actionParameters = ImmutableDisableServerActionParameters.builder().build();
+        actionParameters = ImmutableDisableServerActionParameters.builder()
+                .build();
+
         return this;
     }
 
@@ -60,6 +61,6 @@ public class DisableServerPlan extends AbstractPlan{
                 .filter(monitoring -> ((ServerMonitoringData)monitoring.monitoringData()).getCurrentTraffic() == 0)
                 .toList();
         AgentData chosenServerData = Collections.max(idleServers, Comparator.comparing(idleServer -> ((ServerMonitoringData)idleServer.monitoringData()).getCurrentMaximumCapacity()));
-        return new AID(chosenServerData.aid(), AID.ISLOCALNAME);
+        return new AID(chosenServerData.aid(), AID.ISGUID);
     }
 }

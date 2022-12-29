@@ -117,6 +117,8 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 	public boolean isDisabled() { return isDisabled; }
 
+	public void disable() { isDisabled = true; }
+
 	public ServerStateManagement manage() {
 		return stateManagement;
 	}

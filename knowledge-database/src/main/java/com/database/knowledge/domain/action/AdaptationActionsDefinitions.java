@@ -13,6 +13,7 @@ import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.DisableServerActionParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
 
@@ -45,7 +46,8 @@ public final class AdaptationActionsDefinitions {
 					CONNECT_GREEN_SOURCE, ConnectGreenSourceParameters.class,
 					CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeights.class,
 					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
-					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class
+					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class,
+					DISABLE_SERVER, DisableServerActionParameters.class
 			);
 
 	private AdaptationActionsDefinitions() {
