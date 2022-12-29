@@ -115,11 +115,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			final List<ServerAgentArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
 					.filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
 					.toList();
-			final double maximumCapacity = ownedServers.stream()
-					.mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
 			final List<String> serverList = ownedServers.stream().map(ServerAgentArgs::getName).toList();
 
-			return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), maximumCapacity, serverList);
+			return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), getMaximumCapacity(ownedServers), serverList);
 		}
 		if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
 			return new GreenEnergyAgentNode(greenEnergyAgentArgs);
@@ -153,5 +151,10 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			return new ManagingAgentNode(managingAgentArgs);
 		}
 		return null;
+	}
+
+	private double getMaximumCapacity(List<ServerAgentArgs> ownedServers) {
+		return ownedServers.stream()
+				.mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
 	}
 }

@@ -236,8 +236,8 @@ public class TimescaleDatabase implements Closeable {
 	 * @param rowCount amount of rows per aid to be retrieved
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */
-	public List<AgentData> readMultipleRowsMonitoringDataForDataTypeAndAID(DataType type, List<String> aidList,
-			int rowCount) {
+	public List<AgentData> readLatestNRowsMonitoringDataForDataTypeAndAID(DataType type, List<String> aidList,
+																		  int rowCount) {
 		try {
 			return statementsExecutor.executeMultipleRowsReadMonitoringDataForDataTypeAndAID(type, aidList, rowCount);
 		} catch (SQLException | JsonProcessingException exception) {
