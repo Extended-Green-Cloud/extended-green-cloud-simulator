@@ -1,12 +1,18 @@
 package com.greencloud.application.utils;
 
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDateAndServer;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -25,11 +31,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ImmutableClientJob;
 import com.greencloud.commons.job.ImmutablePowerJob;
+import com.greencloud.commons.job.ImmutableServerJob;
 import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
+
+import jade.core.AID;
 
 class JobUtilsUnitTest {
 
@@ -52,8 +62,28 @@ class JobUtilsUnitTest {
 						.build(), false));
 	}
 
+	private static Stream<Arguments> parametersGetByIdAndStartAndServer() {
+		return Stream.of(
+				Arguments.of(
+						ImmutableJobInstanceIdentifier.builder().startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
+								.jobId("2")
+								.build(), 2, true),
+				Arguments.of(
+						ImmutableJobInstanceIdentifier.builder().startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
+								.jobId("2")
+								.build(), 1, false),
+				Arguments.of(
+						ImmutableJobInstanceIdentifier.builder().startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
+								.jobId("1")
+								.build(), 1, false));
+	}
+
 	private static Stream<Arguments> parametersIsJobUnique() {
 		return Stream.of(Arguments.of("5", false), Arguments.of("3", true), Arguments.of("1", false));
+	}
+
+	private static Stream<Arguments> parametersIsJobStarted() {
+		return Stream.of(arguments(IN_PROGRESS, true), arguments(ACCEPTED, false), arguments(ON_HOLD_TRANSFER, true));
 	}
 
 	private static Stream<Arguments> parametersGetSuccessRatio() {
@@ -125,6 +155,35 @@ class JobUtilsUnitTest {
 				.power(20).build();
 
 		final PowerJob jobResult = JobUtils.getJobByIdAndStartDate(jobInstance,
+				Map.of(mockJob1, CREATED, mockJob2, IN_PROGRESS));
+		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
+	}
+
+	@ParameterizedTest
+	@MethodSource("parametersGetByIdAndStartAndServer")
+	@DisplayName("Test getting power job by id and start time instant")
+	void testGettingJobByIdAndStartAndServer(final JobInstanceIdentifier jobInstance, final int serverIdx,
+			final boolean result) {
+		final AID mockServer1 = mock(AID.class);
+		final AID mockServer2 = mock(AID.class);
+
+		final ServerJob mockJob1 = ImmutableServerJob.builder()
+				.jobId("1")
+				.server(mockServer1)
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10).build();
+		final ServerJob mockJob2 = ImmutableServerJob.builder()
+				.jobId("2")
+				.server(mockServer2)
+				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(20).build();
+
+		final AID serverToUse = serverIdx == 1 ? mockServer1 : mockServer2;
+		final PowerJob jobResult = getJobByIdAndStartDateAndServer(jobInstance, serverToUse,
 				Map.of(mockJob1, CREATED, mockJob2, IN_PROGRESS));
 		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
 	}
@@ -217,6 +276,39 @@ class JobUtilsUnitTest {
 		testJobs.put(mockJob, IN_PROGRESS);
 
 		assertThat(JobUtils.isJobUnique(jobId, testJobs)).isEqualTo(result);
+	}
+
+	@Test
+	@DisplayName("Test is job started using map")
+	void testIsJobStartedFromMap() {
+		final PowerJob mockJob = ImmutablePowerJob.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10)
+				.build();
+		final PowerJob mockJob2 = ImmutablePowerJob.builder()
+				.jobId("2")
+				.startTime(Instant.parse("2022-01-01T10:30:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10)
+				.build();
+
+		final Map<PowerJob, ExecutionJobStatusEnum> testJobs = setUpMockJobs();
+		testJobs.put(mockJob, IN_PROGRESS);
+		testJobs.put(mockJob2, ACCEPTED);
+
+		assertThat(isJobStarted(mockJob, testJobs)).isTrue();
+		assertThat(isJobStarted(mockJob2, testJobs)).isFalse();
+	}
+
+	@ParameterizedTest
+	@MethodSource("parametersIsJobStarted")
+	@DisplayName("Test is job started using statuses")
+	void testIsJobStarted(final ExecutionJobStatusEnum status, final boolean result) {
+		assertThat(isJobStarted(status)).isEqualTo(result);
 	}
 
 	@ParameterizedTest

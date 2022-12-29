@@ -11,6 +11,7 @@ import static com.greencloud.application.messages.domain.factory.JobStatusMessag
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -22,7 +23,8 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACK
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE_PLANNED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
@@ -198,15 +200,16 @@ public class ServerStateManagement {
 	 * @param powerShortageStart time when power shortage starts
 	 */
 	public ClientJob divideJobForPowerShortage(final ClientJob job, final Instant powerShortageStart) {
-		if (powerShortageStart.isAfter(job.getStartTime()) && !powerShortageStart.equals(job.getStartTime())) {
+		if (powerShortageStart.isAfter(job.getStartTime())) {
 			final ClientJob affectedJobInstance = JobMapper.mapToJobNewStartTime(job, powerShortageStart);
 			final ClientJob notAffectedJobInstance = JobMapper.mapToJobNewEndTime(job, powerShortageStart);
 			final ExecutionJobStatusEnum currentJobStatus = serverAgent.getServerJobs().get(job);
 
 			serverAgent.getServerJobs().remove(job);
-			serverAgent.getServerJobs().put(affectedJobInstance, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
+			serverAgent.getServerJobs().put(affectedJobInstance, ON_HOLD_TRANSFER_PLANNED);
 			serverAgent.getServerJobs().put(notAffectedJobInstance, currentJobStatus);
 
+			incrementJobCounter(mapToJobInstanceId(affectedJobInstance), ACCEPTED);
 			serverAgent.addBehaviour(HandleJobStart.createFor(serverAgent, affectedJobInstance, false, true));
 			serverAgent.addBehaviour(HandleJobFinish.createFor(serverAgent, notAffectedJobInstance, false));
 
@@ -216,7 +219,9 @@ public class ServerStateManagement {
 
 			return affectedJobInstance;
 		} else {
-			serverAgent.getServerJobs().replace(job, ExecutionJobStatusEnum.ON_HOLD_TRANSFER);
+			final ExecutionJobStatusEnum jobStatus = isJobStarted(job, serverAgent.getServerJobs()) ?
+					ON_HOLD_TRANSFER : ON_HOLD_TRANSFER_PLANNED;
+			serverAgent.getServerJobs().replace(job, jobStatus);
 			updateServerGUI();
 			return job;
 		}
@@ -294,18 +299,24 @@ public class ServerStateManagement {
 				Collections.singletonList(serverAgent.getGreenSourceForJobMap().get(jobToFinish.getJobId()));
 		final ACLMessage finishJobMessage = prepareJobFinishMessage(jobToFinish.getJobId(), jobToFinish.getStartTime(),
 				receivers);
-
 		serverAgent.send(finishJobMessage);
 	}
 
 	private void updateStateAfterJobIsDone(final ClientJob jobToBeDone, JobResultType jobResultType) {
 		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(jobToBeDone);
-		incrementJobCounter(jobInstance, jobResultType);
+		final boolean isFinishedJobStarted =
+				jobResultType.equals(FINISH) && isJobStarted(jobToBeDone, serverAgent.getServerJobs());
+
+		if (jobResultType.equals(FAILED) || isFinishedJobStarted) {
+			incrementJobCounter(jobInstance, jobResultType);
+		}
+
 		if (isJobUnique(jobToBeDone.getJobId(), serverAgent.getServerJobs())) {
 			serverAgent.getGreenSourceForJobMap().remove(jobToBeDone.getJobId());
 			updateClientNumberGUI();
 		}
 		serverAgent.getServerJobs().remove(jobToBeDone);
+		updateServerGUI();
 	}
 
 	private void supplyJobsWithBackupPower(final Map<ClientJob, ExecutionJobStatusEnum> jobEntries) {
@@ -329,7 +340,7 @@ public class ServerStateManagement {
 
 	private int getJobCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> RUNNING_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
+				.filter(job -> isJobStarted(job.getValue()) && isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
 				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(Collectors.toSet()).size();
 	}
@@ -354,7 +365,8 @@ public class ServerStateManagement {
 	private int getOnHoldJobsCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
 				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime())).toList().size();
+						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.toList().size();
 	}
 
 	private boolean getIsActiveState() {

@@ -4,22 +4,22 @@ import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
 import static jade.core.Runtime.instance;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static runner.domain.EngineConstants.databaseHostIp;
+import static runner.domain.EngineConstants.localHostIp;
+import static runner.domain.EngineConstants.mainHost;
+import static runner.domain.EngineConstants.websocketHostIp;
 import static runner.service.domain.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static runner.service.domain.ScenarioConstants.DATABASE_HOST_NAME;
 import static runner.service.domain.ScenarioConstants.DEADLINE_MAX;
 import static runner.service.domain.ScenarioConstants.END_TIME_MAX;
-import static runner.service.domain.ScenarioConstants.MAIN_HOST;
 import static runner.service.domain.ScenarioConstants.MAX_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.MIN_JOB_POWER;
 import static runner.service.domain.ScenarioConstants.RESOURCE_SCENARIO_PATH;
 import static runner.service.domain.ScenarioConstants.START_TIME_MAX;
 import static runner.service.domain.ScenarioConstants.START_TIME_MIN;
-import static runner.service.domain.ScenarioConstants.WEBSOCKET_HOST_NAME;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,12 +90,12 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Optional<String> scenarioEventsFileName)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostIp));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
 
 		timescaleDatabase.initDatabase();
 		executorService.execute(guiController);
@@ -111,14 +112,14 @@ public abstract class AbstractScenarioService {
 	 */
 	protected AbstractScenarioService(String scenarioStructureFileName, Integer hostId, String mainHostIp,
 			Optional<String> scenarioEventsFileName) {
-		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", WEBSOCKET_HOST_NAME));
+		this.guiController = new GuiControllerImpl(format("ws://%s:8080/", websocketHostIp));
 		this.eventService = new ScenarioEventService(this);
 		this.scenarioStructureFileName = scenarioStructureFileName;
 		this.scenarioEventsFileName = scenarioEventsFileName.orElse(null);
 		this.jadeRuntime = instance();
-		this.timescaleDatabase = new TimescaleDatabase(DATABASE_HOST_NAME);
+		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
 
-		if (MAIN_HOST) {
+		if (mainHost) {
 			timescaleDatabase.initDatabase();
 		}
 		executorService.execute(guiController);
@@ -126,10 +127,12 @@ public abstract class AbstractScenarioService {
 	}
 
 	protected File readFile(final String fileName) {
-		URL resource = getClass().getClassLoader().getResource(RESOURCE_SCENARIO_PATH + fileName + ".xml");
-		try {
-			return new File(resource.toURI());
-		} catch (URISyntaxException | NullPointerException e) {
+		try (InputStream inputStream = getClass().getClassLoader()
+				.getResourceAsStream(RESOURCE_SCENARIO_PATH + fileName + ".xml")) {
+			File scenarioTempFile = File.createTempFile("test", ".txt");
+			FileUtils.copyInputStreamToFile(inputStream, scenarioTempFile);
+			return scenarioTempFile;
+		} catch (IOException | NullPointerException e) {
 			throw new InvalidScenarioException("Invalid scenario file name.", e);
 		}
 	}
@@ -225,6 +228,9 @@ public abstract class AbstractScenarioService {
 		profile.setParameter(Profile.CONTAINER_NAME, "Main-Container");
 		profile.setParameter(Profile.MAIN_HOST, "localhost");
 		profile.setParameter(Profile.MAIN_PORT, "6996");
+		if (localHostIp != null) {
+			profile.setParameter(Profile.EXPORT_HOST, localHostIp);
+		}
 		return executorService.submit(() -> jadeRuntime.createMainContainer(profile)).get();
 	}
 
@@ -233,6 +239,9 @@ public abstract class AbstractScenarioService {
 		profile.setParameter(Profile.CONTAINER_NAME, containerName);
 		profile.setParameter(Profile.MAIN_HOST, host);
 		profile.setParameter(Profile.MAIN_PORT, "6996");
+		if (localHostIp != null) {
+			profile.setParameter(Profile.EXPORT_HOST, localHostIp);
+		}
 		try {
 			return executorService.submit(() -> jadeRuntime.createAgentContainer(profile)).get();
 		} catch (InterruptedException | ExecutionException e) {

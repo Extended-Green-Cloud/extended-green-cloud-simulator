@@ -11,7 +11,6 @@ public class MessageConversationConstants {
 	 * RE_SCHEDULED_JOB_ID		   - the job time frames has been adjusted
 	 * PROCESSING_JOB_ID		   - the job execution is being processed
 	 * CONFIRMED_JOB_ID			   - the job execution has been confirmed
-	 * CONFIRMED_JOB_TRANSFER_ID   - the job transfer has been confirmed
 	 * STARTED_JOB_ID			   - the job execution has started
 	 * DELAYED_JOB_ID			   - the job execution is being delayed
 	 * POSTPONED_JOB_ID			   - the job execution is being postponed
@@ -26,7 +25,6 @@ public class MessageConversationConstants {
 	public static final String RE_SCHEDULED_JOB_ID = "RE_SCHEDULED_JOB_ID";
 	public static final String PROCESSING_JOB_ID = "PROCESSING_JOB_ID";
 	public static final String CONFIRMED_JOB_ID = "CONFIRMED_JOB_ID";
-	public static final String CONFIRMED_JOB_TRANSFER_ID = "CONFIRMED_JOB_TRANSFER_ID";
 	public static final String STARTED_JOB_ID = "STARTED_JOB_ID";
 	public static final String DELAYED_JOB_ID = "DELAYED_JOB_ID";
 	public static final String POSTPONED_JOB_ID = "POSTPONED_JOB_ID";

@@ -100,8 +100,8 @@ public class JobStatusMessageFactory {
 	/**
 	 * Method prepares the information message about the job split sent to client with split jobs as message content
 	 *
-	 * @param client         client to which the message is sent
-	 * @param splitJob       jobs created after split
+	 * @param client   client to which the message is sent
+	 * @param splitJob jobs created after split
 	 * @return inform ACLMessage
 	 */
 	public static ACLMessage prepareSplitJobMessageForClient(final String client, final SplitJob splitJob) {
@@ -111,7 +111,7 @@ public class JobStatusMessageFactory {
 	/**
 	 * Method prepares the information message about the job split sent to client with jobId as message content
 	 *
-	 * @param job            job of interest
+	 * @param job job of interest
 	 * @return inform ACLMessage
 	 */
 	public static ACLMessage preparePostponeJobMessageForClient(final ClientJob job) {
@@ -178,7 +178,6 @@ public class JobStatusMessageFactory {
 			final List<AID> receivers) {
 		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(jobId, jobStartTime);
 		return prepareJobStatusMessage(receivers, new JobStatusUpdate(jobInstanceId, getCurrentTime()), STARTED_JOB_ID);
-
 	}
 
 	/**

@@ -6,6 +6,7 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.GS_TRANSFER_NONE_AVAILABLE_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.GS_TRANSFER_NO_RESPONSE_RETRIEVED_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
@@ -22,7 +23,6 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareAcceptReplyWithProtocol;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 
 import java.time.Instant;
 import java.util.List;
@@ -134,7 +134,7 @@ public class InitiateJobTransferInGreenSources extends ContractNetInitiator {
 			final int availableBackUpPower = myServerAgent.manage()
 					.getAvailableCapacity(jobToTransfer.getStartTime(), jobToTransfer.getEndTime(),
 							jobToTransferInstance, BACK_UP_POWER_STATUSES);
-			final boolean hasStarted = !job.getStartTime().isAfter(getCurrentTime());
+			final boolean hasStarted = isJobStarted(job, myServerAgent.getServerJobs());
 
 			if (availableBackUpPower < jobToTransfer.getPower()) {
 				putJobOnHold(job, hasStarted);

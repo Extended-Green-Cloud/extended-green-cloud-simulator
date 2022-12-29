@@ -1,10 +1,12 @@
 package com.greencloud.application.messages.domain.factory;
 
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareGreenPowerSupplyRequest;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
+import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobTransferUpdateMessageForCNA;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.powershortage.ImmutablePowerShortageJob;
@@ -103,5 +106,31 @@ class PowerShortageMessageFactoryUnitTest {
 		assertThat(result.getPerformative()).isEqualTo(INFORM);
 		assertThat(result.getContent()).isEqualTo(expectedContent);
 		assertThat(receiverIt).allMatch(aid -> aid.equals(mockReceiver));
+	}
+
+	@Test
+	@DisplayName("Test prepare job transfer update message for CNA")
+	void testPrepareJobTransferUpdateMessageForCNA() {
+		final ServerAgent mockServer = mock(ServerAgent.class);
+		final AID mockCloud = mock(AID.class);
+
+		doReturn("test_cloud").when(mockCloud).getName();
+		doReturn(mockCloud).when(mockServer).getOwnerCloudNetworkAgent();
+
+		final JobInstanceIdentifier mockJobInstance = ImmutableJobInstanceIdentifier.builder()
+				.jobId("1")
+				.startTime(Instant.parse("2022-01-01T13:30:00.000Z"))
+				.build();
+		final String protocol = CONFIRMED_TRANSFER_PROTOCOL;
+
+		final String expectedContent = "{\"jobId\":\"1\",\"startTime\":1641043800.000000000}";
+
+		final ACLMessage result = prepareJobTransferUpdateMessageForCNA(mockJobInstance, protocol, mockServer);
+		final Iterable<AID> receiverIt = result::getAllReceiver;
+
+		assertThat(result.getProtocol()).isEqualTo(protocol);
+		assertThat(result.getPerformative()).isEqualTo(INFORM);
+		assertThat(result.getContent()).isEqualTo(expectedContent);
+		assertThat(receiverIt).allMatch(aid -> aid.equals(mockCloud));
 	}
 }

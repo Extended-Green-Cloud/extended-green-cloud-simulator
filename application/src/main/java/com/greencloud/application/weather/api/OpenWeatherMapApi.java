@@ -2,11 +2,10 @@ package com.greencloud.application.weather.api;
 
 import static java.lang.String.format;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -37,17 +36,17 @@ public class OpenWeatherMapApi {
 
 	public OpenWeatherMapApi() {
 		Properties properties = new Properties();
-		URL res = getClass().getClassLoader().getResource("config.properties");
 
-		try (FileInputStream fileInputStream = new FileInputStream(Paths.get(res.toURI()).toFile())) {
-			properties.load(fileInputStream);
+		try (InputStream res = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+			properties.load(res);
 		} catch (FileNotFoundException fileNotFoundException) {
 			logger.error("Could not find the properties file", fileNotFoundException);
 		} catch (Exception exception) {
 			logger.error("Could not load properties file {}", exception.toString());
 		}
 
-		this.apiKey = properties.getProperty("weather_api_key");
+		this.apiKey = Optional.ofNullable(System.getenv("GC_WEATHER_API_KEY"))
+				.orElse(properties.getProperty("weather_api_key"));
 		this.client = new OkHttpClient();
 	}
 

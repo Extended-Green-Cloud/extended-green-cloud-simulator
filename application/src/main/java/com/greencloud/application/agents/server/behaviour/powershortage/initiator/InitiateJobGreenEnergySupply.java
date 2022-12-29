@@ -7,12 +7,12 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.i
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.SERVER_RE_SUPPLY_REFUSE_NOT_FOUND_SERVER_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.initiator.logs.PowerShortageServerInitiatorLog.SERVER_RE_SUPPLY_SUCCESSFUL_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 
 import java.util.Objects;
 
@@ -22,9 +22,9 @@ import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.greencloud.application.agents.server.ServerAgent;
+import com.greencloud.application.exception.IncorrectMessageContentException;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
-import com.greencloud.application.exception.IncorrectMessageContentException;
 
 import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
@@ -91,7 +91,11 @@ public class InitiateJobGreenEnergySupply extends AchieveREInitiator {
 
 		if (myServerAgent.getServerJobs().containsKey(jobToSupply)) {
 			final ExecutionJobStatusEnum jobStatus = myServerAgent.getServerJobs().get(jobToSupply);
-			myServerAgent.getServerJobs().replace(jobToSupply, getNewJobStatus(jobStatus));
+			final ExecutionJobStatusEnum newStatus = getNewJobStatus(jobStatus);
+
+			if (Objects.nonNull(newStatus)) {
+				myServerAgent.getServerJobs().replace(jobToSupply, newStatus);
+			}
 			myServerAgent.manage().updateServerGUI();
 		} else {
 			logger.info(SERVER_RE_SUPPLY_REFUSE_NOT_FOUND_SERVER_LOG, jobToSupply.getJobId());

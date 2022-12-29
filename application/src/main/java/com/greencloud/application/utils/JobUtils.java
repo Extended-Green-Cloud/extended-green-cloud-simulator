@@ -2,17 +2,21 @@ package com.greencloud.application.utils;
 
 import static com.greencloud.application.common.constant.DataConstant.DATA_NOT_AVAILABLE_INDICATOR;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.jetbrains.annotations.Nullable;
 
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
+
+import jade.core.AID;
 
 /**
  * Class defines set of utilities used to handle jobs
@@ -71,6 +75,25 @@ public class JobUtils {
 	}
 
 	/**
+	 * Method retrieves the server job by the job id, start time and corresponding server from job map
+	 *
+	 * @param jobInstanceId unique identifier of the job instance
+	 * @param server        server of interest
+	 * @param jobMap        map to traverse
+	 * @return ServerJob
+	 */
+	@Nullable
+	public static ServerJob getJobByIdAndStartDateAndServer(final JobInstanceIdentifier jobInstanceId, final AID server,
+			final Map<ServerJob, ExecutionJobStatusEnum> jobMap) {
+		return jobMap.keySet().stream()
+				.filter(job -> job.getJobId().equals(jobInstanceId.getJobId())
+						&& job.getStartTime().equals(jobInstanceId.getStartTime())
+						&& job.getServer().equals(server))
+				.findFirst()
+				.orElse(null);
+	}
+
+	/**
 	 * Method returns the instance of the job for current time
 	 *
 	 * @param jobId  unique job identifier
@@ -79,7 +102,7 @@ public class JobUtils {
 	 */
 	@Nullable
 	public static <T extends PowerJob> Map.Entry<T, ExecutionJobStatusEnum> getCurrentJobInstance(final String jobId,
-																								  final Map<T, ExecutionJobStatusEnum> jobMap) {
+			final Map<T, ExecutionJobStatusEnum> jobMap) {
 		final Instant currentTime = getCurrentTime();
 		return jobMap.entrySet().stream().filter(jobEntry -> {
 			final T job = jobEntry.getKey();
@@ -90,13 +113,35 @@ public class JobUtils {
 	}
 
 	/**
+	 * Method verifies if the given job has started
+	 *
+	 * @param job    job of interest
+	 * @param jobMap map to traverse
+	 * @return boolean indicating if a given job has started
+	 */
+	public static <T extends PowerJob> boolean isJobStarted(final T job, final Map<T, ExecutionJobStatusEnum> jobMap) {
+		return RUNNING_JOB_STATUSES.contains(jobMap.get(job));
+	}
+
+	/**
+	 * Method verifies if the given job has started
+	 *
+	 * @param jobStatus    current job status
+	 * @return boolean indicating if a given job has started
+	 */
+	public static boolean isJobStarted(final ExecutionJobStatusEnum jobStatus) {
+		return RUNNING_JOB_STATUSES.contains(jobStatus);
+	}
+
+	/**
 	 * Method verifies if there is only 1 instance of the given job
 	 *
 	 * @param jobId  unique job identifier
 	 * @param jobMap map to traverse
 	 * @return boolean
 	 */
-	public static <T extends PowerJob> boolean isJobUnique(final String jobId, final Map<T, ExecutionJobStatusEnum> jobMap) {
+	public static <T extends PowerJob> boolean isJobUnique(final String jobId,
+			final Map<T, ExecutionJobStatusEnum> jobMap) {
 		return jobMap.keySet().stream().filter(job -> job.getJobId().equals(jobId)).toList().size() == 1;
 	}
 

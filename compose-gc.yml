@@ -1,0 +1,46 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  timescale:
+    image: timescale/timescaledb-ha:pg14-latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+  socket-server:
+    image: green-cloud/socket-server
+    build: ./socket-server
+    ports:
+      - "8080:8080"
+  frontend:
+    image: green-cloud/frontend
+    build: ./green-cloud-ui
+    environment:
+      - REACT_APP_WEB_SOCKET_FRONTEND_URL=http://${SOCKET_SERVER_IP:-localhost}:8080/frontend
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: curl --fail http://localhost:3000 || exit 1
+      interval: 5s
+      timeout: 15s
+      start_period: 5s
+      retries: 10
+  backend:
+    image: green-cloud/backend
+    build: ./engine
+    ports:
+      - "1099:1099"
+      - "6996:6996"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 5
+    environment:
+      - MAIN_CLASS=$MAIN_CLASS
+      - GC_PARAMS=$PARAMS
+      - GC_HOST_PARAMS=$HOST_PARAMS
