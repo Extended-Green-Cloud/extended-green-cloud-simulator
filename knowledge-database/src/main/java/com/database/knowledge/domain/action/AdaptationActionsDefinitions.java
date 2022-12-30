@@ -5,11 +5,14 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERV
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.ADD_COMPONENT;
 import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
+import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.REMOVE_COMPONENT;
+import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 
@@ -19,8 +22,8 @@ import java.util.Map;
 import com.database.knowledge.exception.InvalidAdaptationActionException;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
 
@@ -40,7 +43,9 @@ public final class AdaptationActionsDefinitions {
 			new AdaptationAction(6, CONNECT_GREEN_SOURCE, ADD_COMPONENT, MAXIMIZE_JOB_SUCCESS_RATIO),
 			// MINIMIZE BACKUP POWER
 			new AdaptationAction(7, DECREASE_GREEN_SOURCE_ERROR, RECONFIGURE, MINIMIZE_USED_BACKUP_POWER),
-			new AdaptationAction(8, ADD_GREEN_SOURCE, ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER)
+			new AdaptationAction(8, ADD_GREEN_SOURCE, ADD_COMPONENT, MINIMIZE_USED_BACKUP_POWER),
+			// DISTRIBUTE TRAFFIC EVENLY
+			new AdaptationAction(9, DISCONNECT_GREEN_SOURCE, REMOVE_COMPONENT, DISTRIBUTE_TRAFFIC_EVENLY)
 
 	);
 
@@ -48,7 +53,8 @@ public final class AdaptationActionsDefinitions {
 			Map.of(
 					INCREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
 					DECREASE_GREEN_SOURCE_ERROR, AdjustGreenSourceErrorParameters.class,
-					CONNECT_GREEN_SOURCE, ConnectGreenSourceParameters.class,
+					CONNECT_GREEN_SOURCE, ChangeGreenSourceConnectionParameters.class,
+					DISCONNECT_GREEN_SOURCE, ChangeGreenSourceConnectionParameters.class,
 					CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeights.class,
 					INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityParameters.class,
 					INCREASE_POWER_PRIORITY, IncreaseJobDivisionPriorityParameters.class

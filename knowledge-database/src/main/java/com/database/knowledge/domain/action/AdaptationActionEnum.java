@@ -13,7 +13,8 @@ public enum AdaptationActionEnum {
 	INCREASE_POWER_PRIORITY("Increase job power priority"),
 	INCREASE_GREEN_SOURCE_ERROR("Increase Green Source weather prediction error"),
 	DECREASE_GREEN_SOURCE_ERROR("Decrement Green Source weather prediction error"),
-	CONNECT_GREEN_SOURCE("Connecting Green Source");
+	CONNECT_GREEN_SOURCE("Connecting Green Source"),
+	DISCONNECT_GREEN_SOURCE("Disconnecting Green Source");
 
 	private final String name;
 

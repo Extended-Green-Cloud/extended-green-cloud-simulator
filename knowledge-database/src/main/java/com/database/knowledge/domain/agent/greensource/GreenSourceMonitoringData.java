@@ -23,4 +23,9 @@ public interface GreenSourceMonitoringData extends NetworkComponentMonitoringDat
 	 * @return current traffic of green source
 	 */
 	double getCurrentTraffic();
+
+	/**
+	 * @return flag indicating if a green source is currently ongoing some server disconnection adaptation
+	 */
+	boolean isBeingDisconnected();
 }
