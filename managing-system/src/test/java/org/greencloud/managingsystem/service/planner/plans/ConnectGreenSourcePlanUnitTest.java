@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,8 +82,8 @@ class ConnectGreenSourcePlanUnitTest {
 				.isNotNull()
 				.matches(data ->
 						data.getTargetAgent().getName().equals("test_gs1@192.168.56.1:6996/JADE") &&
-								data.getActionParameters() instanceof ConnectGreenSourceParameters &&
-								((ConnectGreenSourceParameters) data.getActionParameters()).getServerName()
+								data.getActionParameters() instanceof ChangeGreenSourceConnectionParameters &&
+								((ChangeGreenSourceConnectionParameters) data.getActionParameters()).getServerName()
 										.equals("test_server2@192.168.56.1:6996/JADE")
 				);
 	}

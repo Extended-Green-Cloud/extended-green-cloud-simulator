@@ -12,7 +12,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -124,9 +123,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 				data -> ((ServerMonitoringData) data.monitoringData()).getCurrentBackUpPowerUsage();
 		final Predicate<Map.Entry<String, Double>> isWithinThreshold = entry -> entry.getValue() > threshold;
 
-		return managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, aliveServers, MONITOR_SYSTEM_DATA_TIME_PERIOD)
-				.stream().collect(groupingBy(AgentData::aid, TreeMap::new, averagingDouble(getBackUpUsage)))
+		return managingAgent.monitor().getAverageValuesForAgents(SERVER_MONITORING, aliveServers, getBackUpUsage)
 				.entrySet().stream()
 				.filter(isWithinThreshold)
 				.map(entry -> new AgentsBackUpPower(entry.getKey(), entry.getValue()))

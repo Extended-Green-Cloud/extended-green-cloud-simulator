@@ -204,8 +204,8 @@ class PlannerServiceUnitTest {
 		doReturn(testAdaptationGoal).when(monitoringService)
 				.getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);
 		doReturn(prepareServerData()).when(database)
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(eq(SERVER_MONITORING), eq(List.of("test_server1")),
+						anyDouble());
 		doReturn(prepareGSData()).when(database).readLastMonitoringDataForDataTypes(List.of(GREEN_SOURCE_MONITORING));
 		doReturn(preparePowerShortageData()).when(database)
 				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), eq(List.of("test_gs3")),
@@ -242,16 +242,19 @@ class PlannerServiceUnitTest {
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
+				.isBeingDisconnected(false)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)
+				.isBeingDisconnected(false)
 				.build();
 
 		return List.of(

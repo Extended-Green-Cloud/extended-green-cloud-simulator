@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERV
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
@@ -26,6 +27,7 @@ import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
 import org.greencloud.managingsystem.service.planner.plans.ChangeGreenSourceWeightPlan;
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
+import org.greencloud.managingsystem.service.planner.plans.DisconnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
@@ -111,6 +113,7 @@ public class PlannerService extends AbstractManagingService {
 				ADD_SERVER, new AddServerPlan(managingAgent),
 				ADD_GREEN_SOURCE, new AddGreenSourcePlan(managingAgent),
 				CONNECT_GREEN_SOURCE, new ConnectGreenSourcePlan(managingAgent),
+				DISCONNECT_GREEN_SOURCE, new DisconnectGreenSourcePlan(managingAgent),
 				INCREASE_DEADLINE_PRIORITY, new IncreaseDeadlinePriorityPlan(managingAgent),
 				INCREASE_POWER_PRIORITY, new IncreaseJobDivisionPowerPriorityPlan(managingAgent),
 				INCREASE_GREEN_SOURCE_ERROR, new IncrementGreenSourceErrorPlan(managingAgent),
