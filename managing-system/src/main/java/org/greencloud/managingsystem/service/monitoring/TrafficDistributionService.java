@@ -59,7 +59,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 		// Worst quality
 		OptionalDouble worstQuality = allQualities.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR)
-				.mapToDouble(Double::doubleValue).min();
+				.mapToDouble(Double::doubleValue).max();
 
 		if (!worstQuality.isPresent()) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
@@ -117,7 +117,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
-		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
+		return coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
 	@VisibleForTesting
@@ -133,7 +133,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
 		}
-		return 1 - coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
+		return coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
 	private List<String> findCNAs() {
