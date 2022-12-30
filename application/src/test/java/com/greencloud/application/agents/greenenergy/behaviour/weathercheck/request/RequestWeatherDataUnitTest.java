@@ -2,6 +2,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData.getJobsTimetable;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +22,11 @@ import com.greencloud.commons.job.ServerJob;
 import jade.core.AID;
 
 class RequestWeatherDataUnitTest {
+
+	@BeforeEach
+	void init() {
+		setSystemStartTime();
+	}
 
 	@Test
 	@DisplayName("Test get jobs timetable with repeatable time instances")

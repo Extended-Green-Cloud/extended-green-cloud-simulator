@@ -1,7 +1,5 @@
 package com.greencloud.application.agents.greenenergy;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +17,7 @@ import com.greencloud.commons.job.ServerJob;
 import com.greencloud.commons.location.Location;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.gui.agents.GreenEnergyAgentNode;
 
 import jade.core.AID;
@@ -107,6 +105,10 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		return greenPowerManagement;
 	}
 
+	public GreenEnergyAdaptationManagement adapt() {
+		return adaptationManagement;
+	}
+
 	@Override
 	public boolean executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters) {
 		return switch (adaptationAction.getAction()) {
@@ -120,8 +122,12 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 	@Override
 	public void executeAction(AdaptationAction adaptationAction, AdaptationActionParameters actionParameters,
 			ACLMessage adaptationMessage) {
-		if (adaptationAction.getAction().equals(CONNECT_GREEN_SOURCE)) {
-			adaptationManagement.connectNewServerToGreenSource((ConnectGreenSourceParameters) actionParameters,
+		switch (adaptationAction.getAction()) {
+			case CONNECT_GREEN_SOURCE -> adaptationManagement.connectNewServerToGreenSource(
+					(ChangeGreenSourceConnectionParameters) actionParameters,
+					adaptationMessage);
+			case DISCONNECT_GREEN_SOURCE -> adaptationManagement.disconnectGreenSourceFromServer(
+					(ChangeGreenSourceConnectionParameters) actionParameters,
 					adaptationMessage);
 		}
 	}

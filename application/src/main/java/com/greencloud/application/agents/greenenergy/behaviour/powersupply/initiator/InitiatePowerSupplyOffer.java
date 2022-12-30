@@ -89,7 +89,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(rejectProposal, JobInstanceIdentifier.class);
 		final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
 		if (Objects.nonNull(serverJob)) {
-			myGreenEnergyAgent.getServerJobs().remove(serverJob);
+			myGreenEnergyAgent.manage().removeJob(serverJob);
 		}
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info(POWER_SUPPLY_PROPOSAL_REJECTED_LOG);
@@ -132,7 +132,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	private void sendPowerFailureInformation(final ServerJob job, final JobWithProtocol jobWithProtocol,
 			final ACLMessage proposal) {
 		logger.info(SEND_POWER_SUPPLY_FAILURE_LOG, job.getJobId());
-		myGreenEnergyAgent.getServerJobs().remove(job);
+		myGreenEnergyAgent.manage().removeJob(job);
 
 		final String responseProtocol =
 				jobWithProtocol.getReplyProtocol().equals(POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL) ?
@@ -142,7 +142,6 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 								FAILED_JOB_PROTOCOL;
 		myGreenEnergyAgent.manage()
 				.incrementJobCounter(jobWithProtocol.getJobInstanceIdentifier(), JobResultType.FAILED);
-		myGreenEnergyAgent.getServerJobs().remove(job);
 
 		final ACLMessage failureMessage = prepareFailureReply(proposal.createReply(),
 				jobWithProtocol.getJobInstanceIdentifier(), responseProtocol);

@@ -29,7 +29,6 @@ import com.greencloud.application.mapper.JsonMapper;
 import com.greencloud.application.messages.domain.constants.MessageProtocolConstants;
 import com.greencloud.application.messages.domain.factory.CallForProposalMessageFactory;
 import com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory;
-import com.greencloud.application.messages.domain.factory.ReplyMessageFactory;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.PowerJob;
 
@@ -148,7 +147,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 	}
 
 	private List<AID> getRemainingGreenSources(final AID greenSourceSender) {
-		return myServerAgent.getOwnedGreenSources().stream()
+		return myServerAgent.manage().getOwnedActiveGreenSources().stream()
 				.filter(greenSource -> !greenSource.equals(greenSourceSender)).toList();
 	}
 }

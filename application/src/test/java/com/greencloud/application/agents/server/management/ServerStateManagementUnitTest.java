@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
@@ -226,7 +227,7 @@ class ServerStateManagementUnitTest {
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
 		assertThat(serverAgent.getGreenSourceForJobMap()).isEmpty();
-		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(FINISH, 1L);
 	}
 
 	@Test
@@ -245,9 +246,28 @@ class ServerStateManagementUnitTest {
 				.findFirst().orElse(null);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(MOCK_MANAGEMENT.getJobCounters().get(FINISH)).isEqualTo(1);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(FINISH, 1L);
 		assertNotNull(updatedStatus);
 		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY_PLANNED);
+	}
+
+	@Test
+	@DisplayName("Test getting active owned Green Sources")
+	void testGetOwnedActiveGreenSources() {
+		var testGreenSources = Map.of(
+				new AID("test_gs1", AID.ISGUID), true,
+				new AID("test_gs2", AID.ISGUID), false,
+				new AID("test_gs3", AID.ISGUID), true
+		);
+
+		serverAgent.getOwnedGreenSources().clear();
+		serverAgent.getOwnedGreenSources().putAll(testGreenSources);
+
+		var result = serverAgent.manage().getOwnedActiveGreenSources();
+
+		assertThat(result)
+				.hasSize(2)
+				.allMatch(greenSource -> Set.of("test_gs1", "test_gs3").contains(greenSource.getName()));
 	}
 
 	/**

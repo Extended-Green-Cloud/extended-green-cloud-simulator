@@ -33,7 +33,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 /**
- * Behaviour listens for the Monitoring Agent's response with com.greencloud.application.weather data checked for new job execution.
+ * Behaviour listens for the Monitoring Agent's response with weather data checked for new job execution.
  */
 public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
@@ -64,7 +64,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 
 	/**
 	 * Method listens for the Monitoring Agent reply.
-	 * It processes the received com.greencloud.application.weather information, calculates the available power and then either supplies the job with power
+	 * It processes the received weather information, calculates the available power and then either supplies the job with power
 	 * and sends ACCEPT message, or sends the REFUSE message.
 	 */
 	@Override
@@ -121,7 +121,7 @@ public class ListenForNewJobWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleRefusal() {
-		myGreenEnergyAgent.getServerJobs().remove(serverJob);
+		myGreenEnergyAgent.manage().removeJob(serverJob);
 		myGreenEnergyAgent.send(ReplyMessageFactory.prepareRefuseReply(cfp.createReply()));
 	}
 }
