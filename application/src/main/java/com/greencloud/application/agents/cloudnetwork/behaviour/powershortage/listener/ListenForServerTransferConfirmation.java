@@ -30,7 +30,6 @@ import com.greencloud.application.domain.powershortage.PowerShortageJob;
 
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.states.MsgReceiver;
@@ -63,7 +62,7 @@ public class ListenForServerTransferConfirmation extends MsgReceiver {
 	 * @param powerShortageJob job that is being transferred
 	 * @param server           server to which the job is transferred
 	 */
-	public static Behaviour createFor(final Agent agent, final ACLMessage replyMessage,
+	public static ListenForServerTransferConfirmation createFor(final Agent agent, final ACLMessage replyMessage,
 			final PowerShortageJob powerShortageJob, final AID server) {
 		final MessageTemplate template = and(SERVER_JOB_TRANSFER_CONFIRMATION_TEMPLATE,
 				MatchContent(getExpectedContent(powerShortageJob)));

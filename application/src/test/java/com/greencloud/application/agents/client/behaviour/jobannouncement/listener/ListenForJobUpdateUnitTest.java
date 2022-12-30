@@ -82,6 +82,30 @@ class ListenForJobUpdateUnitTest {
 
 	Map<String, JobPart> jobParts;
 
+	static private Stream<Arguments> jobStatusProvider() {
+		return Stream.of(
+				arguments(SCHEDULED_JOB_ID, SCHEDULED, SCHEDULED),
+				arguments(PROCESSING_JOB_ID, PROCESSED, SCHEDULED),
+				arguments(DELAYED_JOB_ID, DELAYED, PROCESSED),
+				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, IN_PROGRESS),
+				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, PROCESSED),
+				arguments(GREEN_POWER_JOB_ID, IN_PROGRESS, PROCESSED),
+				arguments(ON_HOLD_JOB_ID, ON_HOLD, IN_PROGRESS)
+		);
+	}
+
+	private static ACLMessage messageBuilder(String conversationId, String jobId) throws JsonProcessingException {
+		JobStatusUpdate messageContent = new JobStatusUpdate(ImmutableJobInstanceIdentifier.builder()
+				.jobId(jobId)
+				.startTime(parse("2022-01-01T13:30:00.000Z"))
+				.build(), parse("2022-01-01T13:30:00.000Z"));
+
+		ACLMessage message = new ACLMessage();
+		message.setConversationId(conversationId);
+		message.setContent(getMapper().writeValueAsString(messageContent));
+		return message;
+	}
+
 	@BeforeEach
 	void init() {
 		jobParts = new HashMap<>();
@@ -122,18 +146,6 @@ class ListenForJobUpdateUnitTest {
 		// then
 		verify(jobPart).updateJobStatusDuration(status, parse("2022-01-01T13:30:00.000Z"));
 		verify(clientAgentNode).updateJobStatus(status, JOB_PART_ID);
-	}
-
-	static private Stream<Arguments> jobStatusProvider() {
-		return Stream.of(
-				arguments(SCHEDULED_JOB_ID, SCHEDULED, SCHEDULED),
-				arguments(PROCESSING_JOB_ID, PROCESSED, SCHEDULED),
-				arguments(DELAYED_JOB_ID, DELAYED, PROCESSED),
-				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, IN_PROGRESS),
-				arguments(BACK_UP_POWER_JOB_ID, ON_BACK_UP, PROCESSED),
-				arguments(GREEN_POWER_JOB_ID, IN_PROGRESS, PROCESSED),
-				arguments(ON_HOLD_JOB_ID, ON_HOLD, IN_PROGRESS)
-		);
 	}
 
 	@Test
@@ -280,17 +292,5 @@ class ListenForJobUpdateUnitTest {
 		verify(jobPart).setSimulatedJobStart(timeframes.getNewJobStart());
 		verify(jobPart).setSimulatedJobEnd(timeframes.getNewJobEnd());
 		verify(clientAgentNode).updateJobTimeFrame(any(Instant.class), any(Instant.class), eq(JOB_PART_ID));
-	}
-
-	private static ACLMessage messageBuilder(String conversationId, String jobId) throws JsonProcessingException {
-		JobStatusUpdate messageContent = new JobStatusUpdate(ImmutableJobInstanceIdentifier.builder()
-				.jobId(jobId)
-				.startTime(parse("2022-01-01T13:30:00.000Z"))
-				.build(), parse("2022-01-01T13:30:00.000Z"));
-
-		ACLMessage message = new ACLMessage();
-		message.setConversationId(conversationId);
-		message.setContent(getMapper().writeValueAsString(messageContent));
-		return message;
 	}
 }

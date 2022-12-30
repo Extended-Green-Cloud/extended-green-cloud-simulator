@@ -23,6 +23,7 @@ import static com.greencloud.application.messages.domain.constants.PowerShortage
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.WEATHER_UNAVAILABLE_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.WEATHER_CAUSE;
@@ -149,9 +150,8 @@ public class ListenForWeatherData extends CyclicBehaviour {
 			logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, serverJob.getJobId());
 		} else {
 			logger.info(CHANGE_JOB_STATUS_LOG, serverJob.getJobId());
-			final ExecutionJobStatusEnum newStatus = serverJob.getStartTime().isAfter(getCurrentTime()) ?
-					ACCEPTED :
-					IN_PROGRESS;
+			final ExecutionJobStatusEnum newStatus =
+					isJobStarted(serverJob, myGreenEnergyAgent.getServerJobs()) ? IN_PROGRESS : ACCEPTED;
 
 			myGreenEnergyAgent.getServerJobs().replace(serverJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
@@ -161,8 +161,9 @@ public class ListenForWeatherData extends CyclicBehaviour {
 	}
 
 	private void handleWeatherDataForPeriodicCheck(final MonitoringData data) {
-		final Instant time = convertToRealTime(getCurrentTime());
-		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(time, data).orElse(-1.0);
+		final Instant time = getCurrentTime();
+		final double availablePower = myGreenEnergyAgent.manage().getAvailablePower(convertToRealTime(time), data)
+				.orElse(-1.0);
 
 		if (availablePower < 0 && !myGreenEnergyAgent.getServerJobs().isEmpty()) {
 			logger.info(POWER_DROP_LOG, time);
@@ -188,7 +189,8 @@ public class ListenForWeatherData extends CyclicBehaviour {
 				.getAvailablePowerForJob(serverJob, data, false);
 
 		if (availablePower.isEmpty() || serverJob.getPower() > availablePower.get()) {
-			logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, serverJob.getJobId());
+			var power = availablePower.orElse(0D);
+			logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, serverJob.getPower(), power, serverJob.getJobId());
 			myGreenEnergyAgent.send(prepareReply(reply, NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE, FAILURE));
 		} else {
 			if (myGreenEnergyAgent.getServerJobs().containsKey(serverJob)) {

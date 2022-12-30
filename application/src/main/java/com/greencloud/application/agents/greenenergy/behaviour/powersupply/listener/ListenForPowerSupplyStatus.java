@@ -7,8 +7,14 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.MessagingUtils.readMessageContent;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.STARTED_JOB_ID;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDateAndServer;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_PLANNED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
 import static java.util.Objects.nonNull;
 
 import org.slf4j.Logger;
@@ -18,7 +24,6 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusUpdate;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.ServerJob;
 
@@ -53,7 +58,8 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 		if (nonNull(message)) {
 			final JobStatusUpdate jobStatusUpdate = readMessageContent(message, JobStatusUpdate.class);
 			final JobInstanceIdentifier jobInstanceId = jobStatusUpdate.jobInstance();
-			final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
+			final ServerJob serverJob = getJobByIdAndStartDateAndServer(jobInstanceId, message.getSender(),
+					myGreenEnergyAgent.getServerJobs());
 
 			if (nonNull(serverJob)) {
 				switch (message.getConversationId()) {
@@ -69,19 +75,18 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 	private void handlePowerSupplyStart(final ServerJob serverJob, final JobInstanceIdentifier jobInstance) {
 		MDC.put(MDC_JOB_ID, serverJob.getJobId());
 		logger.info(START_POWER_SUPPLY_LOG, jobInstance.getJobId());
-		myGreenEnergyAgent.getServerJobs()
-				.replace(serverJob, ExecutionJobStatusEnum.ACCEPTED, ExecutionJobStatusEnum.IN_PROGRESS);
-		myGreenEnergyAgent.getServerJobs()
-				.replace(serverJob, ExecutionJobStatusEnum.ON_HOLD_PLANNED, ExecutionJobStatusEnum.ON_HOLD);
+		myGreenEnergyAgent.getServerJobs().replace(serverJob, ACCEPTED, IN_PROGRESS);
+		myGreenEnergyAgent.getServerJobs().replace(serverJob, ON_HOLD_PLANNED, ON_HOLD);
+		myGreenEnergyAgent.getServerJobs().replace(serverJob, ON_HOLD_TRANSFER_PLANNED, ON_HOLD_TRANSFER);
 		myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.STARTED);
 	}
 
 	private void handlePowerSupplyFinish(final ServerJob serverJob, final JobInstanceIdentifier jobInstance) {
-		if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(serverJob))) {
+		if (isJobStarted(serverJob, myGreenEnergyAgent.getServerJobs())) {
 			myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, JobResultType.FINISH);
 		}
 		MDC.put(MDC_JOB_ID, serverJob.getJobId());
-		logger.info(FINISH_POWER_SUPPLY_LOG, jobInstance.getJobId());
+		logger.info(FINISH_POWER_SUPPLY_LOG, jobInstance);
 		myGreenEnergyAgent.manage().removeJob(serverJob);
 		myGreenEnergyAgent.manage().updateGreenSourceGUI();
 	}

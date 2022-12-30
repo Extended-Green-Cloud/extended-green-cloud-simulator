@@ -2,11 +2,10 @@ package com.greencloud.application.agents.greenenergy.behaviour.powersupply.hand
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.logs.PowerSupplyHandlerLog.MANUAL_POWER_SUPPLY_FINISH_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
-import static java.util.Objects.nonNull;
 
 import java.util.Date;
 
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.ServerJob;
 
@@ -29,21 +27,21 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 
 	private static final Logger logger = LoggerFactory.getLogger(HandleManualPowerSupplyFinish.class);
 
-	private final JobInstanceIdentifier jobInstanceId;
+	private final ServerJob job;
 	private final GreenEnergyAgent myGreenEnergyAgent;
 
 	/**
 	 * Behaviour constructor.
 	 *
-	 * @param agent         agent which is executing the behaviour
-	 * @param endDate       date when the job execution should finish
-	 * @param jobInstanceId unique job instance identifier
+	 * @param agent   agent which is executing the behaviour
+	 * @param endDate date when the job execution should finish
+	 * @param job     unique job
 	 */
 	public HandleManualPowerSupplyFinish(final Agent agent, final Date endDate,
-			final JobInstanceIdentifier jobInstanceId) {
+			final ServerJob job) {
 		super(agent, endDate);
 		this.myGreenEnergyAgent = (GreenEnergyAgent) agent;
-		this.jobInstanceId = jobInstanceId;
+		this.job = job;
 	}
 
 	/**
@@ -53,20 +51,19 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
-		final ServerJob job = getJobByIdAndStartDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime(),
-				myGreenEnergyAgent.getServerJobs());
+		final boolean isJobPresent = myGreenEnergyAgent.getServerJobs().containsKey(job);
 
-		if (nonNull(job) && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(job))) {
+		if (isJobPresent && ACCEPTED_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(job))) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			logger.error(MANUAL_POWER_SUPPLY_FINISH_LOG);
 
-			if (RUNNING_JOB_STATUSES.contains(myGreenEnergyAgent.getServerJobs().get(job))) {
-				myGreenEnergyAgent.manage().incrementJobCounter(jobInstanceId, JobResultType.FINISH);
+			if (isJobStarted(job, myGreenEnergyAgent.getServerJobs())) {
+				myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(job), JobResultType.FINISH);
 			}
 			myGreenEnergyAgent.manage().removeJob(job);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 
-			myAgent.send(prepareManualFinishMessageForServer(jobInstanceId, job.getServer()));
+			myAgent.send(prepareManualFinishMessageForServer(mapToJobInstanceId(job), job.getServer()));
 		}
 	}
 }

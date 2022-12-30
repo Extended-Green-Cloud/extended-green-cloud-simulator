@@ -6,33 +6,34 @@ import static com.greencloud.application.agents.server.behaviour.jobexecution.ha
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_INFORM_LOG;
 import static com.greencloud.application.agents.server.behaviour.jobexecution.handler.logs.JobHandlingHandlerLog.JOB_START_NO_PRESENT_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.job.JobResultType.STARTED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.PLANNED_JOB_STATUSES;
+import static com.greencloud.commons.job.JobResultType.STARTED;
 import static java.util.Collections.singletonList;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.commons.job.ClientJob;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
+import com.greencloud.commons.job.ClientJob;
+import com.greencloud.commons.job.ExecutionJobStatusEnum;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -140,7 +141,10 @@ public class HandleJobStart extends WakerBehaviour {
 				myServerAgent.getServerJobs().replace(jobToExecute, IN_PROGRESS_BACKUP_ENERGY);
 				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, BACK_UP_POWER_JOB_ID);
 			}
-			case ON_HOLD_TRANSFER -> myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_ID);
+			case ON_HOLD_TRANSFER_PLANNED -> {
+				myServerAgent.getServerJobs().replace(jobToExecute, ON_HOLD_TRANSFER);
+				myServerAgent.manage().informCNAAboutStatusChange(jobInstance, ON_HOLD_JOB_ID);
+			}
 		}
 	}
 
@@ -148,7 +152,7 @@ public class HandleJobStart extends WakerBehaviour {
 		final List<AID> receivers = informCNAStart
 				? List.of(myServerAgent.getGreenSourceForJobMap().get(jobId),
 				myServerAgent.getOwnerCloudNetworkAgent())
-				: singletonList(myServerAgent.getGreenSourceForJobMap().get(jobToExecute.getJobId()));
+				: singletonList(myServerAgent.getGreenSourceForJobMap().get(jobId));
 		final ACLMessage startedJobMessage = prepareJobStartedMessage(jobId, jobToExecute.getStartTime(), receivers);
 
 		myAgent.send(startedJobMessage);

@@ -5,9 +5,8 @@ import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-import static com.greencloud.commons.job.JobResultType.STARTED;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ClientJob;
 
 import jade.core.AID;
@@ -81,11 +79,12 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 			MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
 			logger.info(GS_TRANSFER_EXECUTION_LOG);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
-			myServerAgent.getServerJobs().replace(jobToExecute, ExecutionJobStatusEnum.IN_PROGRESS);
-			myServerAgent.manage().incrementJobCounter(jobInstanceId, STARTED);
 			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, GREEN_POWER_JOB_ID);
 			myServerAgent.manage().updateServerGUI();
-			startJobExecutionInNewGreenSource(jobToExecute);
+
+			if(isJobStarted(jobToExecute, myServerAgent.getServerJobs())) {
+				startJobExecutionInNewGreenSource(jobToExecute);
+			}
 		}
 	}
 

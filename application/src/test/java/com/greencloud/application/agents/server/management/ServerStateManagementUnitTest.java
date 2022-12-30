@@ -5,6 +5,7 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.GREEN_ENERGY_STA
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -180,7 +181,7 @@ class ServerStateManagementUnitTest {
 
 		assertThat(serverAgent.getServerJobs()).hasSameSizeAs(MOCK_JOBS);
 		assertTrue(serverAgent.getServerJobs().containsKey(job));
-		assertThat(statusAfterUpdate).isEqualTo(ON_HOLD_TRANSFER);
+		assertThat(statusAfterUpdate).isEqualTo(ON_HOLD_TRANSFER_PLANNED);
 	}
 
 	@Test
@@ -197,10 +198,10 @@ class ServerStateManagementUnitTest {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		final Map.Entry<ClientJob, ExecutionJobStatusEnum> jobOnHold = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER))
+				.filter(jobEntry -> jobEntry.getValue().equals(ON_HOLD_TRANSFER_PLANNED))
 				.findFirst().orElse(null);
 		final Map.Entry<ClientJob, ExecutionJobStatusEnum> jobInProgress = updatedJobInstances.entrySet().stream()
-				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER))
+				.filter(jobEntry -> !jobEntry.getValue().equals(ON_HOLD_TRANSFER_PLANNED))
 				.findFirst().orElse(null);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(7);
@@ -246,7 +247,7 @@ class ServerStateManagementUnitTest {
 				.findFirst().orElse(null);
 
 		assertThat(serverAgent.getServerJobs()).hasSize(5);
-		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(FINISH, 1L);
+		assertThat(MOCK_MANAGEMENT.getJobCounters()).containsEntry(FINISH, 0L);
 		assertNotNull(updatedStatus);
 		assertThat(updatedStatus).isEqualTo(IN_PROGRESS_BACKUP_ENERGY_PLANNED);
 	}

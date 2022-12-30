@@ -18,8 +18,10 @@ import static com.greencloud.application.messages.domain.constants.MessageProtoc
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.PROCESSING_RE_SUPPLY_MESSAGE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDateAndServer;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static jade.lang.acl.ACLMessage.AGREE;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
@@ -88,8 +90,8 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private void handleServerPowerShortageStart(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		MDC.put(MDC_JOB_ID, powerShortageJob.getJobInstanceId().getJobId());
-		final ServerJob affectedJob = getJobByIdAndStartDate(powerShortageJob.getJobInstanceId(),
-				myGreenEnergyAgent.getServerJobs());
+		final ServerJob affectedJob = getJobByIdAndStartDateAndServer(powerShortageJob.getJobInstanceId(),
+				inform.getSender(), myGreenEnergyAgent.getServerJobs());
 
 		if (Objects.nonNull(affectedJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_START_LOG, powerShortageJob.getJobInstanceId().getJobId());
@@ -102,14 +104,14 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleServerPowerShortageFinish(final ACLMessage inform) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(inform, JobInstanceIdentifier.class);
-		final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
+		final ServerJob serverJob = getJobByIdAndStartDateAndServer(jobInstanceId, inform.getSender(),
+				myGreenEnergyAgent.getServerJobs());
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(serverJob)) {
 			logger.info(SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG, jobInstanceId.getJobId());
-			final ExecutionJobStatusEnum newStatus = serverJob.getStartTime().isAfter(getCurrentTime()) ?
-					ExecutionJobStatusEnum.ACCEPTED :
-					ExecutionJobStatusEnum.IN_PROGRESS;
+			final ExecutionJobStatusEnum newStatus =
+					isJobStarted(serverJob, myGreenEnergyAgent.getServerJobs()) ? IN_PROGRESS : ACCEPTED;
 			myGreenEnergyAgent.getServerJobs().replace(serverJob, newStatus);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 		} else {
@@ -120,11 +122,12 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 	private void handleServerJobTransferFailure(final ACLMessage inform) {
 		final PowerShortageJob powerShortageJob = readMessageContent(inform, PowerShortageJob.class);
 		final JobInstanceIdentifier jobInstanceId = powerShortageJob.getJobInstanceId();
-		final ServerJob jobToPutOnHold = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
+		final ServerJob jobToPutOnHold = getJobByIdAndStartDateAndServer(jobInstanceId, inform.getSender(),
+				myGreenEnergyAgent.getServerJobs());
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 
 		if (Objects.nonNull(jobToPutOnHold)) {
-			final boolean hasStarted = !jobToPutOnHold.getStartTime().isAfter(getCurrentTime());
+			final boolean hasStarted = isJobStarted(jobToPutOnHold, myGreenEnergyAgent.getServerJobs());
 			logger.info(SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG, jobInstanceId.getJobId());
 			myGreenEnergyAgent.getServerJobs()
 					.replace(jobToPutOnHold,
@@ -137,7 +140,8 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 
 	private void handleJobReSupplyingWithGreenEnergy(final ACLMessage request) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(request, JobInstanceIdentifier.class);
-		final ServerJob jobToCheck = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
+		final ServerJob jobToCheck = getJobByIdAndStartDateAndServer(jobInstanceId, request.getSender(),
+				myGreenEnergyAgent.getServerJobs());
 
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		if (Objects.nonNull(jobToCheck)) {

@@ -15,7 +15,7 @@ import static com.greencloud.application.messages.domain.factory.ReplyMessageFac
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
 import static com.greencloud.application.utils.JobUtils.getJobById;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDateAndServer;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.util.Objects.isNull;
 
@@ -35,6 +35,7 @@ import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.ServerJob;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
@@ -72,7 +73,8 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	@Override
 	protected void handleAcceptProposal(final ACLMessage acceptProposal) {
 		final JobWithProtocol jobWithProtocol = readMessageContent(acceptProposal, JobWithProtocol.class);
-		final ServerJob job = findCorrespondingJob(jobWithProtocol.getJobInstanceIdentifier());
+		final ServerJob job = findCorrespondingJob(jobWithProtocol.getJobInstanceIdentifier(),
+				acceptProposal.getSender());
 
 		if (Objects.nonNull(job)) {
 			handleAcceptPowerSupply(job, acceptProposal, jobWithProtocol);
@@ -87,7 +89,8 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	@Override
 	protected void handleRejectProposal(final ACLMessage rejectProposal) {
 		final JobInstanceIdentifier jobInstanceId = readMessageContent(rejectProposal, JobInstanceIdentifier.class);
-		final ServerJob serverJob = getJobByIdAndStartDate(jobInstanceId, myGreenEnergyAgent.getServerJobs());
+		final ServerJob serverJob = getJobByIdAndStartDateAndServer(jobInstanceId, rejectProposal.getSender(),
+				myGreenEnergyAgent.getServerJobs());
 		if (Objects.nonNull(serverJob)) {
 			myGreenEnergyAgent.manage().removeJob(serverJob);
 		}
@@ -95,8 +98,8 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		logger.info(POWER_SUPPLY_PROPOSAL_REJECTED_LOG);
 	}
 
-	private ServerJob findCorrespondingJob(final JobInstanceIdentifier jobInstance) {
-		ServerJob job = getJobByIdAndStartDate(jobInstance, myGreenEnergyAgent.getServerJobs());
+	private ServerJob findCorrespondingJob(final JobInstanceIdentifier jobInstance, final AID server) {
+		ServerJob job = getJobByIdAndStartDateAndServer(jobInstance, server, myGreenEnergyAgent.getServerJobs());
 		if (isNull(job)) {
 			job = getJobById(jobInstance.getJobId(), myGreenEnergyAgent.getServerJobs());
 		}
@@ -123,7 +126,7 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 		myGreenEnergyAgent.getServerJobs().replace(job, ExecutionJobStatusEnum.ACCEPTED);
 
 		final Behaviour manualFinishBehaviour = new HandleManualPowerSupplyFinish(myGreenEnergyAgent,
-				calculateExpectedJobEndTime(job), mapToJobInstanceId(job));
+				calculateExpectedJobEndTime(job), job);
 		myAgent.addBehaviour(manualFinishBehaviour);
 
 		sendResponseToServer(proposal, jobWithProtocol);

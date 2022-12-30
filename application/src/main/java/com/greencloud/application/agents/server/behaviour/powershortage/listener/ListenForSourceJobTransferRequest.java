@@ -3,10 +3,13 @@ package com.greencloud.application.agents.server.behaviour.powershortage.listene
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_ASK_OTHER_GS_LOG;
 import static com.greencloud.application.agents.server.behaviour.powershortage.listener.logs.PowerShortageServerListenerLog.GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG;
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.DELAYED_JOB_ALREADY_FINISHED_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static com.greencloud.application.messages.domain.constants.PowerShortageMessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
-import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareReply;
+import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareStringReply;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.lang.acl.ACLMessage.REFUSE;
 
 import java.time.Instant;
@@ -72,23 +75,29 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 						myServerAgent.getServerJobs());
 
 				if (Objects.nonNull(originalJob)) {
-					final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);
-					final List<AID> remainingGreenSources = getRemainingGreenSources(transferRequest.getSender());
-					myAgent.send(prepareReply(transferRequest.createReply(),
-							TRANSFER_SUCCESSFUL_MESSAGE, ACLMessage.AGREE));
-
-					MDC.put(MDC_JOB_ID, powerJob.getJobId());
-					if (!remainingGreenSources.isEmpty()) {
-						logger.info(GS_TRANSFER_REQUEST_ASK_OTHER_GS_LOG, powerJob.getJobId());
-						askForTransferInRemainingGS(remainingGreenSources, powerJob,
-								affectedJob.getPowerShortageStart(), transferRequest);
+					if (!originalJob.getEndTime().isAfter(getCurrentTime())) {
+						myAgent.send(prepareStringReply(transferRequest.createReply(),
+								DELAYED_JOB_ALREADY_FINISHED_CAUSE_MESSAGE, REFUSE));
 					} else {
-						logger.info(GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG);
-						passTransferRequestToCNA(affectedJob, powerJob, transferRequest);
+						final PowerJob powerJob = createJobTransferInstance(affectedJob, originalJob);
+						final List<AID> remainingGreenSources = getRemainingGreenSources(transferRequest.getSender());
+						myAgent.send(prepareReply(transferRequest.createReply(),
+								TRANSFER_SUCCESSFUL_MESSAGE, ACLMessage.AGREE));
+
+						MDC.put(MDC_JOB_ID, powerJob.getJobId());
+						if (!remainingGreenSources.isEmpty()) {
+							logger.info(GS_TRANSFER_REQUEST_ASK_OTHER_GS_LOG, powerJob.getJobId());
+							askForTransferInRemainingGS(remainingGreenSources, powerJob,
+									affectedJob.getPowerShortageStart(), transferRequest);
+						} else {
+							logger.info(GS_TRANSFER_REQUEST_NO_GS_AVAILABLE_LOG);
+							passTransferRequestToCNA(affectedJob, powerJob, transferRequest);
+						}
+						schedulePowerShortageHandling(affectedJob, transferRequest);
 					}
-					schedulePowerShortageHandling(affectedJob, transferRequest);
 				} else {
-					myAgent.send(prepareReply(transferRequest.createReply(), JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE));
+					myAgent.send(
+							prepareStringReply(transferRequest.createReply(), JOB_NOT_FOUND_CAUSE_MESSAGE, REFUSE));
 				}
 			}
 		} else {
