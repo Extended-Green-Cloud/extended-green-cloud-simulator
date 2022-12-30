@@ -32,7 +32,7 @@ public interface GreenEnergyAgentArgs extends AgentArgs {
 	 * @return list of connected servers
 	 */
 	@Value.Default
-	default ArrayList<String> getConnectedSevers() {
+	default ArrayList<String> getConnectedServers() {
 		return new ArrayList<>(singleton(getOwnerSever()));
 	}
 

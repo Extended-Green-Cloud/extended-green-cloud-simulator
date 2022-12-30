@@ -62,8 +62,8 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 	public boolean isPlanExecutable() {
 		final Map<String, List<String>> greenSourcesWithConnectedServers = managingAgent.getGreenCloudStructure()
 				.getGreenEnergyAgentsArgs().stream()
-				.filter(greenSource -> greenSource.getConnectedSevers().size() > 1)
-				.collect(toMap(AgentArgs::getName, GreenEnergyAgentArgs::getConnectedSevers));
+				.filter(greenSource -> greenSource.getConnectedServers().size() > 1)
+				.collect(toMap(AgentArgs::getName, GreenEnergyAgentArgs::getConnectedServers));
 
 		// verify if there are Green Sources connected to more than 1 server
 		if (greenSourcesWithConnectedServers.isEmpty()) {
@@ -123,7 +123,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 		postActionHandler = () ->
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(agent -> agent.getName().equals(selectedGreenSource.split("@")[0]))
-						.forEach(greenSource -> greenSource.getConnectedSevers().remove(selectedServer));
+						.forEach(greenSource -> greenSource.getConnectedServers().remove(selectedServer));
 
 		return this;
 	}
@@ -189,7 +189,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				.toList();
 
 		return managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
-				.flatMap(entry -> entry.getConnectedSevers().stream()
+				.flatMap(entry -> entry.getConnectedServers().stream()
 						.map(server -> new AbstractMap.SimpleEntry<>(server, entry.getName())))
 				.filter(entry -> aliveServers.contains(entry.getKey()))
 				.collect(groupingBy(AbstractMap.SimpleEntry::getKey, TreeMap::new, counting()));

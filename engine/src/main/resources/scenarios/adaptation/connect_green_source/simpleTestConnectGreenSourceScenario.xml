@@ -3,7 +3,7 @@
 		<name>ManagingSystem</name>
 		<systemQualityThreshold>0.7</systemQualityThreshold>
 		<disabledActions>
-			<item>INCREASE_GREEN_SOURCE_PERCENTAGE</item>
+			<item>INCREASE_GREEN_SOURCE_ERROR</item>
 		</disabledActions>
 	</managingAgent>
 	<schedulerAgent>

@@ -116,7 +116,7 @@ public class ScenarioStructureArgs implements Serializable {
 	public List<String> getGreenSourcesForServerAgent(final String serverAgentName) {
 		return getGreenEnergyAgentsArgs()
 				.stream()
-				.filter(agent -> agent.getConnectedSevers().contains(serverAgentName))
+				.filter(agent -> agent.getConnectedServers().contains(serverAgentName))
 				.map(AgentArgs::getName)
 				.toList();
 	}

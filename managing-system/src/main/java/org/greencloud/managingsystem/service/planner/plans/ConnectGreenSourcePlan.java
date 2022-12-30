@@ -113,7 +113,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		postActionHandler = () ->
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(agent -> agent.getName().equals(selectedGreenSource.name().split("@")[0]))
-						.forEach(greenSource -> greenSource.getConnectedSevers().add(selectedServer.split("@")[0]));
+						.forEach(greenSource -> greenSource.getConnectedServers().add(selectedServer.split("@")[0]));
 
 		return this;
 	}
@@ -172,7 +172,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(gs -> gs.getName().equals(greenSourceLocalName))
 						.findFirst().orElseThrow()
-						.getConnectedSevers();
+						.getConnectedServers();
 
 		final List<AgentsTraffic> availableForConnectionServers =
 				serversToConsider.stream().collect(filtering(server ->
