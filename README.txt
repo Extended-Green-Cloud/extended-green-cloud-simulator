@@ -8,7 +8,7 @@ For MacOS hosts ZSH shell and Docker Desktop combination was tested and is recom
 Optionally if Python3 is present a browser on http://localhost:3000 with the Green Cloud UI will automatically open.
 
 On first run (or after any source code alterations) execute following command to compile necessary binaries:
-	$ mvn clean package
+    $ mvn clean package
 
 Additionally, after any source code alterations run the following command to remove stale docker images:
 	$ ./clean.sh
