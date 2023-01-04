@@ -14,14 +14,14 @@ public abstract class AbstractEngineRunner {
 
 	private static final Integer GUI_SETUP_MILLISECONDS_DELAY = 5000;
 
-	protected static String scenarioName = "multipleCNAsScenario";
+	protected static String scenarioName = "complicatedScenarioNoWeatherChanging";
 
 	protected static boolean verify = false;
-	protected static String adaptationToVerify = "change_green_source_weight";
-	protected static String verifyScenario = "singleServerMultipleGreenSourcesScenario";
+	protected static String adaptationToVerify = "disable_server";
+	protected static String verifyScenario = "disableServerScenario";
 
 	protected static boolean events = false;
-	protected static String eventsScenario = "triggerChangeWeight";
+	protected static String eventsScenario = "disableServerEvents";
 
 	protected static String defaultScenarioDirectory = "";
 	protected static String verifyScenarioDirectory = "adaptation" + separator + adaptationToVerify + separator;
