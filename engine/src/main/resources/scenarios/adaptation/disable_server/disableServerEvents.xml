@@ -10,24 +10,6 @@
 	</event>
 	<event type="NEW_CLIENT_EVENT">
 		<occurrenceTime>2</occurrenceTime>
-		<name>Client2</name>
-		<jobId>2</jobId>
-		<start>5</start>
-		<end>7</end>
-		<deadline>50</deadline>
-		<power>300</power>
-	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client3</name>
-		<jobId>3</jobId>
-		<start>7</start>
-		<end>9</end>
-		<deadline>50</deadline>
-		<power>300</power>
-	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
 		<name>Client4</name>
 		<jobId>4</jobId>
 		<start>2</start>
@@ -35,25 +17,14 @@
 		<deadline>50</deadline>
 		<power>1</power>
 	</event>
+<!--	Job is rejected since one server has not enough power and second one is disabled-->
 	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client5</name>
-		<jobId>5</jobId>
-		<start>4</start>
-		<end>6</end>
+		<occurrenceTime>15</occurrenceTime>
+		<name>Client7</name>
+		<jobId>7</jobId>
+		<start>1</start>
+		<end>2</end>
 		<deadline>50</deadline>
-		<power>1</power>
+		<power>300</power>
 	</event>
-	<event type="NEW_CLIENT_EVENT">
-		<occurrenceTime>2</occurrenceTime>
-		<name>Client6</name>
-		<jobId>6</jobId>
-		<start>8</start>
-		<end>9</end>
-		<deadline>50</deadline>
-		<power>1</power>
-	</event>
-<!--	Enough data to compute traffic distribution which doesn't satisfy the goal-->
-<!--	-->
-<!--	one of the servers is idle and action can be executed-->
 </ScenarioEventsArgs>

@@ -36,7 +36,8 @@ public class DisableServerPlan extends AbstractPlan{
         AtomicBoolean idleExists = new AtomicBoolean(false);
 
         serverMonitoring.stream().forEach(data -> {
-            if(((ServerMonitoringData)data.monitoringData()).getCurrentTraffic() == 0) {
+			var serverMonitoringData = (ServerMonitoringData) data.monitoringData();
+            if(serverMonitoringData.getCurrentTraffic() == 0 && !serverMonitoringData.isDisabled()) {
                 idleExists.set(true);
             }
         });

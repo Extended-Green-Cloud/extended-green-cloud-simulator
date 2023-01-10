@@ -41,6 +41,7 @@ public class ServerAdaptationManagement {
 
 	public boolean disableServer() {
 		serverAgent.disable();
+		serverAgent.manage().updateServerGUI();
 		return true;
 	}
 }
