@@ -11,8 +11,6 @@ import java.util.List;
 
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import jade.core.Agent;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,7 +66,7 @@ public class TrafficDistributionServiceTest {
 	public void testComputeGoalQualityForCNA() {
 		double goalQuality = trafficDistributionService.computeGoalQualityForCNA(prepareCNAData());
 
-		assertThat(goalQuality).isEqualTo(0.4107443490112104);
+		assertThat(goalQuality).isEqualTo(0.565685424949238);
 	}
 
 	@Test
@@ -76,7 +74,7 @@ public class TrafficDistributionServiceTest {
 	public void testComputeGoalQualityForServer() {
 		double goalQuality = trafficDistributionService.computeGoalQualityForServer(prepareServerData());
 
-		assertThat(goalQuality).isEqualTo(0.4107443490112104);
+		assertThat(goalQuality).isEqualTo(0.2449741919638695);
 	}
 
 	private List<AgentData> prepareCNAData() {
@@ -107,31 +105,25 @@ public class TrafficDistributionServiceTest {
 	private List<AgentData> prepareServerData() {
 		final ServerMonitoringData data1 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(150)
-				.currentTraffic(100.0)
+				.currentTraffic(1.0 / 3.0)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(200)
-				.currentTraffic(100.0)
+				.currentTraffic(25.0)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(250)
-				.currentTraffic(100.0)
+				.currentTraffic(20.0)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(300)
-				.currentTraffic(100.0)
-				.currentBackUpPowerUsage(0.0)
-				.successRatio(0.0)
-				.build();
-		final ServerMonitoringData data5 = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(350)
-				.currentTraffic(100.0)
+				.currentTraffic(25.0)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
@@ -141,9 +133,5 @@ public class TrafficDistributionServiceTest {
 				new AgentData(Instant.now(), "test_aid2", SERVER_MONITORING, data3),
 				new AgentData(Instant.now(), "test_aid2", SERVER_MONITORING, data4)
 		);
-	}
-
-	private List<String> prepareStructure() {
-		return List.of("test_aid1", "test_aid2", "test_aid3");
 	}
 }
