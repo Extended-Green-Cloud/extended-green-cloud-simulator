@@ -18,6 +18,9 @@ import jade.core.AID;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
+
 public class CloudNetworkConfigManagement {
 
 	private static final Logger logger = LoggerFactory.getLogger(CloudNetworkStateManagement.class);
@@ -80,7 +83,7 @@ public class CloudNetworkConfigManagement {
 	private double getAvailablePower() {
 		int currentTraffic = cloudNetworkAgent.getNetworkJobs()
 				.entrySet().stream()
-				.filter(entry -> RUNNING_JOB_STATUSES.contains(entry.getValue()))
+				.filter(entry -> isJobStarted(entry.getValue()))
 				.map(Map.Entry::getKey)
 				.mapToInt(PowerJob::getPower)
 				.sum();
