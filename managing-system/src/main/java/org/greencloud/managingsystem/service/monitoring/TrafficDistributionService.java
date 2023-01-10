@@ -14,7 +14,6 @@ import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgen
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
@@ -109,14 +108,13 @@ public class TrafficDistributionService extends AbstractGoalService {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
-		for (int i = 0; i < AGGREGATION_SIZE; i++) {
-			int finalI = i;
-			List<Double> traffic = grouppedData.entrySet()
-					.stream()
-					.map(entry -> mapEntryToCNAAvailableCapacity(entry, finalI))
+
+		grouppedData.forEach((key, value) -> {
+			List<Double> traffic = value.stream()
+					.map(this::mapAgentDataToCNAAvailableCapacity)
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
-		}
+		});
 		return coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
@@ -125,14 +123,12 @@ public class TrafficDistributionService extends AbstractGoalService {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
 		List<Double> coeffs = new ArrayList<>();
-		for (int i = 0; i < AGGREGATION_SIZE; i++) {
-			int finalI = i;
-			List<Double> traffic = grouppedData.entrySet()
-					.stream()
-					.map(entry -> mapEntryToServerAvailableCapacity(entry, finalI))
+		grouppedData.forEach((key, value) -> {
+			List<Double> traffic = value.stream()
+					.map(this::mapAgentDataToServerAvailableCapacity)
 					.toList();
 			coeffs.add(computeCoefficient(traffic));
-		}
+		});
 		return coeffs.stream().mapToDouble(coeff -> coeff).average().getAsDouble();
 	}
 
@@ -158,7 +154,6 @@ public class TrafficDistributionService extends AbstractGoalService {
 	private List<Double> readServerQuality(List<List<String>> servers) {
 		List<Double> serversQuality = new ArrayList<>();
 		servers.stream().forEach(serversList -> {
-			double quality;
 			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
 					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE);
 			if (serverMonitoringData.size() < AGGREGATION_SIZE * serversList.size() || serversList.isEmpty()) {
@@ -170,13 +165,13 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return serversQuality;
 	}
 
-	private double mapEntryToServerAvailableCapacity(Map.Entry<String, List<AgentData>> entry, int index) {
-		return ((ServerMonitoringData) entry.getValue().get(index).monitoringData()).getCurrentMaximumCapacity() -
-				((ServerMonitoringData) entry.getValue().get(index).monitoringData()).getCurrentTraffic();
+	private double mapAgentDataToServerAvailableCapacity(AgentData agentData) {
+		double currentMaximumCapacity = ((ServerMonitoringData) agentData.monitoringData()).getCurrentMaximumCapacity();
+		return currentMaximumCapacity - currentMaximumCapacity * ((ServerMonitoringData) agentData.monitoringData()).getCurrentTraffic();
 	}
 
-	private double mapEntryToCNAAvailableCapacity(Map.Entry<String, List<AgentData>> entry, int index) {
-		return ((CloudNetworkMonitoringData) entry.getValue().get(index).monitoringData()).getAvailablePower();
+	private double mapAgentDataToCNAAvailableCapacity(AgentData data) {
+		return ((CloudNetworkMonitoringData) data.monitoringData()).getAvailablePower();
 	}
 
 	private List<List<String>> groupServersByCNA(List<String> aliveServers, List<String> CNAs) {
