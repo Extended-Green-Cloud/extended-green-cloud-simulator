@@ -25,6 +25,11 @@ public final class DmlQueries {
 	static final String GET_DATA_FOR_DATA_TYPE_AND_AIDS_AND_TIME =
 			"SELECT * FROM monitoring_data where data_type = ? and aid = ANY(?) and time > now() - ? * INTERVAL '1' SECOND";
 
+	static final String GET_LATEST_N_ROWS_FOR_DATA_TYPE_AND_AIDS =
+			"SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY aid ORDER BY time DESC) AS row, m.*"
+					+ "FROM monitoring_data m WHERE m.data_type = ? AND m.aid = ANY(?)) rows "
+					+ "WHERE rows.row <= ? ORDER BY rows.aid";
+
 	/**
 	 * System quality table queries
 	 */

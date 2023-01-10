@@ -228,6 +228,24 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
+	 * Provides reading capability for Managing Agent. Provides multiple data records, specified by parameter, rowCount
+	 * that were saved to database for given data type and agents.
+	 *
+	 * @param type     type of the data to be retrieved
+	 * @param aidList  aid list of the agents of interest
+	 * @param rowCount amount of rows per aid to be retrieved
+	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
+	 */
+	public List<AgentData> readLatestNRowsMonitoringDataForDataTypeAndAID(DataType type, List<String> aidList,
+																		  int rowCount) {
+		try {
+			return statementsExecutor.executeMultipleRowsReadMonitoringDataForDataTypeAndAID(type, aidList, rowCount);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new ReadDataException(exception);
+		}
+	}
+
+	/**
 	 * Provides reading capability of predefined and hardcoded into the database adaptation goals
 	 *
 	 * @return List of {@link AdaptationGoal}s

@@ -29,5 +29,14 @@ public class ManagingAgentMonitoringLog {
 			"There is no backup power quality data available yet.";
 	public static final String BACKUP_POWER_LOG =
 			"Back up power quality ratio: current {}; aggregated: {}.";
-}
 
+	// JOB DISTRIBUTION
+	public static final String READ_JOB_DSTRIBUTION_LOG =
+			"Reading job distribution coefficients from database...";
+	public static final String READ_JOB_DSTRIBUTION_LOG_NO_DATA_YET =
+			"Job distribution data is not available yet";
+	public static final String JOB_DISTRIBUTION_LOG =
+			"Current job distribution: {}";
+	public static final String JOB_DISTRIBUTION_UNSATISFIED_LOG =
+			"Job distribution is not satisfied! Current job distribution: {}";
+}

@@ -4,12 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
+import com.greencloud.commons.job.PowerJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 
 import jade.core.AID;
+
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
 
 public class CloudNetworkConfigManagement {
 
@@ -56,5 +63,27 @@ public class CloudNetworkConfigManagement {
 	 */
 	public void setWeightsForServersMap(Map<AID, Integer> weightsForServersMap) {
 		this.weightsForServersMap = weightsForServersMap;
+	}
+
+	/**
+	 * Method assembles the object that stores monitoring data and saves it in the database
+	 */
+	public void saveMonitoringData() {
+		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
+				.availablePower(getAvailablePower())
+				.successRatio(cloudNetworkAgent.manage().getSuccessRatio())
+				.build();
+		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
+		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
+	}
+
+	private double getAvailablePower() {
+		int currentTraffic = cloudNetworkAgent.getNetworkJobs()
+				.entrySet().stream()
+				.filter(entry -> isJobStarted(entry.getValue()))
+				.map(Map.Entry::getKey)
+				.mapToInt(PowerJob::getPower)
+				.sum();
+		return cloudNetworkAgent.getMaximumCapacity() - currentTraffic;
 	}
 }

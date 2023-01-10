@@ -6,9 +6,13 @@ import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(as = CloudNetworkMonitoringData.class)
-@JsonDeserialize(as = CloudNetworkMonitoringData.class)
+@JsonSerialize(as = ImmutableCloudNetworkMonitoringData.class)
+@JsonDeserialize(as = ImmutableCloudNetworkMonitoringData.class)
 @Value.Immutable
 public interface CloudNetworkMonitoringData extends NetworkComponentMonitoringData {
 
+	/**
+	 * @return available power of the cna
+	 */
+	double getAvailablePower();
 }

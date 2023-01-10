@@ -479,7 +479,48 @@ class TimescaleDatabaseIntegrationTest {
 				.allMatch((data) -> expectedContent.contains(data.monitoringData()));
 	}
 
-	private List<WeatherShortages> prepareMonitoredDataForAIDTest() {
+	@Test
+	void shouldCorrectlyReadLatestNRowsMonitoringDataForDataTypeAndAID() {
+		final ServerMonitoringData data1 = ImmutableServerMonitoringData.builder()
+				.successRatio(0.5)
+				.currentBackUpPowerUsage(0.4)
+				.currentMaximumCapacity(30)
+				.currentTraffic(10)
+				.build();
+		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
+				.successRatio(0.6)
+				.currentBackUpPowerUsage(0.5)
+				.currentMaximumCapacity(30)
+				.currentTraffic(10)
+				.build();
+		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
+				.successRatio(0.7)
+				.currentBackUpPowerUsage(0.6)
+				.currentMaximumCapacity(30)
+				.currentTraffic(10)
+				.build();
+		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
+				.successRatio(0.8)
+				.currentBackUpPowerUsage(0.7)
+				.currentMaximumCapacity(30)
+				.currentTraffic(10)
+				.build();
+		database.writeMonitoringData("test_aid1", SERVER_MONITORING, data1);
+		database.writeMonitoringData("test_aid1", SERVER_MONITORING, data2);
+		database.writeMonitoringData("test_aid2", SERVER_MONITORING, data3);
+		database.writeMonitoringData("test_aid3", SERVER_MONITORING, data4);
+
+		var result = database.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING,
+				List.of("test_aid1", "test_aid2"),
+				1);
+
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(0).monitoringData()).isEqualTo(data2);
+		assertThat(result.get(1).monitoringData()).isEqualTo(data3);
+	}
+
+
+   private List<WeatherShortages> prepareMonitoredDataForAIDTest() {
 		final WeatherShortages data1 = new WeatherShortages(1, 1000);
 		final WeatherShortages data2 = new WeatherShortages(10, 1000);
 		final WeatherShortages data3 = new WeatherShortages(3, 1000);

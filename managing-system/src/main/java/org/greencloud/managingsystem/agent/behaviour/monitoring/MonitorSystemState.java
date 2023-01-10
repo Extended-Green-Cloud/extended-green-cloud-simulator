@@ -48,14 +48,17 @@ public class MonitorSystemState extends TickerBehaviour {
 		//HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
 		final boolean isSuccessRatioSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized();
 		final boolean isBackUpPowerSatisfied = myManagingAgent.monitor().isBackUpPowerMinimized();
+		final boolean isTrafficDistributionSatisfied = myManagingAgent.monitor().isTrafficDistributedEvenly();
 
 		myManagingAgent.monitor().updateSystemStatistics();
-		if (isBackUpPowerSatisfied && isSuccessRatioSatisfied) {
+		if (isBackUpPowerSatisfied && isSuccessRatioSatisfied && isTrafficDistributionSatisfied) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);
 			//end feedback iteration
 			return;
 		}
-		myManagingAgent.analyze().trigger(getGoalWithWorstQuality());
+
+		GoalEnum worstGoal = getGoalWithWorstQuality();
+		myManagingAgent.analyze().trigger(worstGoal);
 	}
 
 	private GoalEnum getGoalWithWorstQuality() {
