@@ -9,4 +9,9 @@ public interface NetworkComponentMonitoringData extends MonitoringData {
 	 * @return current aggregated success ratio
 	 */
 	double getSuccessRatio();
+
+	/**
+	 * @return current traffic of network component
+	 */
+	double getCurrentTraffic();
 }

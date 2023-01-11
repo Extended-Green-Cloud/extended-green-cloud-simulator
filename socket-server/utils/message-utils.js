@@ -258,7 +258,7 @@ const handleUpdateServerConnection = (state, msg) => {
             Object.assign(state.graph.connections, state.graph.connections.concat(createEdge(agent.name, serverName)))
         } else {
             agent.connectedServers = agent.connectedServers.filter(server => server !== serverName)
-            Object.assign(state.graph.connections, state.graph.connections.filter(edge => edge.data.id !== [agent.name, serverName, 'BI'].join('-')))
+            state.graph.connections = state.graph.connections.filter(edge => edge.data.id !== [agent.name, serverName, 'BI'].join('-'))
         }
     }
 }
@@ -293,12 +293,12 @@ async function finishAdaptation(node) {
     node.adaptation = 'inactive'
 }
 
-const handleIncrementWeakAdaptations = (state, msg) => {
+const handleIncrementWeakAdaptations = (state, _msg) => {
     state.managingSystem.weakAdaptations += 1
     state.managingSystem.performedAdaptations += 1
 }
 
-const handleIncrementStrongAdaptations = (state, msg) => {
+const handleIncrementStrongAdaptations = (state, _msg) => {
     state.managingSystem.strongAdaptations += 1
     state.managingSystem.performedAdaptations += 1
 }

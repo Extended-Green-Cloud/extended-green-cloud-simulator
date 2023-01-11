@@ -22,16 +22,14 @@ export const JobSchedule = ({ scheduler }: Props) => {
    const [isOpen, setIsOpen] = useState(false)
 
    const parseValue = (val: any, key: string) =>
-      key !== 'maxQueueSize' ? [(val as number) * 100, '%'].join('') : val
+      key !== 'maxQueueSize' ? [((val as number) * 100).toFixed(0), '%'].join('') : val
 
    const mapStatisticsToFields = () => {
       return SCHEDULER_CONFIGURATION.map((field) => {
          const { key, label } = field
          const value = { ...scheduler }[key] ?? 0
 
-         return (
-            <DetailsField {...{ label, value: parseValue(value, key), key }} />
-         )
+         return <DetailsField {...{ label, value: parseValue(value, key), key }} />
       })
    }
 

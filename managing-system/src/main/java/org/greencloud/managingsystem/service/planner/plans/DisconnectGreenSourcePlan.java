@@ -139,11 +139,12 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 						.toList();
 
 		final Function<Map.Entry<String, List<String>>, List<String>> getServersForGreenSource = entry ->
-				entry.getValue().stream().filter(serversWithMoreThanOneGreenSource::contains).toList();
+				entry.getValue().stream().map(server -> getAIDByName(serversWithMoreThanOneGreenSource, server))
+						.toList();
 
 		return greenSourcesForDisconnection.entrySet().stream()
 				.filter(greenSource -> greenSource.getValue().stream()
-						.anyMatch(serversWithMoreThanOneGreenSource::contains))
+						.anyMatch(server -> isNameInAIDs(serversWithMoreThanOneGreenSource, server)))
 				.collect(toMap(Map.Entry::getKey, getServersForGreenSource));
 
 	}
@@ -162,10 +163,21 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				!((GreenSourceMonitoringData) agentData.monitoringData()).isBeingDisconnected() &&
 						aliveGreenSources.contains(agentData.aid());
 
-		return managingAgent.getAgentNode().getDatabaseClient()
+		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
+				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
+
+		final Map<String, List<String>> agentsSatisfyingConditions = managingAgent.getAgentNode().getDatabaseClient()
 				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING)).stream()
 				.filter(isAgentAvailableToDisconnect)
 				.collect(toMap(AgentData::aid, data -> greenSources.get(data.aid().split("@")[0])));
+
+		final Map<String, List<String>> missingAliveAgents = aliveGreenSources.stream()
+				.filter(agent -> agentsData.stream().noneMatch(agentDB -> agentDB.aid().equals(agent)))
+				.collect(toMap(agent -> agent, agent -> greenSources.get(agent.split("@")[0])));
+
+		agentsSatisfyingConditions.putAll(missingAliveAgents);
+
+		return agentsSatisfyingConditions;
 	}
 
 	private List<AgentsTraffic> getAverageTrafficForGreenSources(final List<String> greenSourcesForDisconnection) {
@@ -185,14 +197,13 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				.toList();
 		final List<String> aliveServers = managingAgent.monitor()
 				.getAliveAgentsIntersection(managingAgent.monitor().getAliveAgents(SERVER), consideredServers).stream()
-				.map(name -> name.split("@")[0])
 				.toList();
 
 		return managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 				.flatMap(entry -> entry.getConnectedServers().stream()
 						.map(server -> new AbstractMap.SimpleEntry<>(server, entry.getName())))
-				.filter(entry -> aliveServers.contains(entry.getKey()))
-				.collect(groupingBy(AbstractMap.SimpleEntry::getKey, TreeMap::new, counting()));
+				.filter(entry -> isNameInAIDs(aliveServers, entry.getKey()))
+				.collect(groupingBy(entry -> getAIDByName(aliveServers, entry.getKey()), TreeMap::new, counting()));
 	}
 
 	@VisibleForTesting
@@ -204,5 +215,16 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 	protected void setGreenSourcesWithServers(
 			Map<String, List<String>> greenSourcesWithServers) {
 		this.greenSourcesWithServers = greenSourcesWithServers;
+	}
+
+	private String getAIDByName(List<String> aidList, String name) {
+		return aidList.stream()
+				.filter(server -> server.split("@")[0].equals(name))
+				.findFirst()
+				.orElseThrow();
+	}
+
+	private boolean isNameInAIDs(List<String> aidList, String server) {
+		return aidList.stream().anyMatch(aid -> aid.split("@")[0].equals(server));
 	}
 }

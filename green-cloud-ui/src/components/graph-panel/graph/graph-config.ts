@@ -65,8 +65,7 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       },
    },
    {
-      selector:
-         "node[type = 'GREEN_ENERGY'][state = 'on_hold'][adaptation = 'active']",
+      selector: "node[type = 'GREEN_ENERGY'][state = 'on_hold'][adaptation = 'active']",
       style: {
          'border-color': '#DB432C',
          'background-color': '#DB432C',
@@ -99,8 +98,7 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       },
    },
    {
-      selector:
-         "node[type = 'SERVER'][state = 'on_hold'][adaptation: 'active']",
+      selector: "node[type = 'SERVER'][state = 'on_hold'][adaptation: 'active']",
       style: {
          'border-color': '#DB432C',
          'background-image': [iconGearDark, iconPause],
@@ -108,8 +106,7 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       },
    },
    {
-      selector:
-         "node[type = 'SERVER'][state = 'back_up'][adaptation: 'active']",
+      selector: "node[type = 'SERVER'][state = 'back_up'][adaptation: 'active']",
       style: {
          'border-color': '#8AE423',
          'background-image': [iconGearDark, iconBattery],
@@ -267,13 +264,12 @@ export const EDGE_UNIDIRECTED_ACTIVE = {
    'line-color': '#58B905',
 }
 
-export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> =
-   COMMON_STYLESHEET.concat(CNA_STYLESHEET)
-      .concat(SERVER_STYLESHEET)
-      .concat(GREEN_ENERGY_STYLESHEET)
-      .concat(MONITORING_STYLESHEET)
-      .concat(SCHEDULER_STYLESHEET)
-      .concat(IMAGE_STYLESHEET)
+export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> = COMMON_STYLESHEET.concat(CNA_STYLESHEET)
+   .concat(SERVER_STYLESHEET)
+   .concat(GREEN_ENERGY_STYLESHEET)
+   .concat(MONITORING_STYLESHEET)
+   .concat(SCHEDULER_STYLESHEET)
+   .concat(IMAGE_STYLESHEET)
 
 export const GRAPH_LAYOUT: Cytoscape.LayoutOptions = {
    name: 'fcose',

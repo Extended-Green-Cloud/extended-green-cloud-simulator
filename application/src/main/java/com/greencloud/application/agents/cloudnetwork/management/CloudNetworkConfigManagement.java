@@ -20,7 +20,7 @@ import static com.greencloud.application.utils.JobUtils.isJobStarted;
 
 public class CloudNetworkConfigManagement {
 
-	private static final Logger logger = LoggerFactory.getLogger(CloudNetworkStateManagement.class);
+	private static final Logger logger = LoggerFactory.getLogger(CloudNetworkConfigManagement.class);
 
 	private final CloudNetworkAgent cloudNetworkAgent;
 	private Map<AID, Integer> weightsForServersMap;
@@ -69,21 +69,24 @@ public class CloudNetworkConfigManagement {
 	 * Method assembles the object that stores monitoring data and saves it in the database
 	 */
 	public void saveMonitoringData() {
+		var maxCapacity = cloudNetworkAgent.getMaximumCapacity();
+		var traffic = getCurrentTraffic();
+
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
-				.availablePower(getAvailablePower())
+				.currentTraffic(maxCapacity == 0 ? 0 : traffic / maxCapacity)
+				.availablePower(maxCapacity - traffic)
 				.successRatio(cloudNetworkAgent.manage().getSuccessRatio())
 				.build();
 		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
 		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
 	}
 
-	private double getAvailablePower() {
-		int currentTraffic = cloudNetworkAgent.getNetworkJobs()
+	private double getCurrentTraffic() {
+		return cloudNetworkAgent.getNetworkJobs()
 				.entrySet().stream()
 				.filter(entry -> isJobStarted(entry.getValue()))
 				.map(Map.Entry::getKey)
 				.mapToInt(PowerJob::getPower)
 				.sum();
-		return cloudNetworkAgent.getMaximumCapacity() - currentTraffic;
 	}
 }
