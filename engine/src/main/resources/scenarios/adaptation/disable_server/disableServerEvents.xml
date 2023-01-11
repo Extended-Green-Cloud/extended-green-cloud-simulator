@@ -10,10 +10,28 @@
 	</event>
 	<event type="NEW_CLIENT_EVENT">
 		<occurrenceTime>2</occurrenceTime>
+		<name>Client2</name>
+		<jobId>2</jobId>
+		<start>5</start>
+		<end>6</end>
+		<deadline>50</deadline>
+		<power>300</power>
+	</event>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>2</occurrenceTime>
 		<name>Client4</name>
 		<jobId>4</jobId>
 		<start>2</start>
 		<end>4</end>
+		<deadline>50</deadline>
+		<power>1</power>
+	</event>
+	<event type="NEW_CLIENT_EVENT">
+		<occurrenceTime>2</occurrenceTime>
+		<name>Client3</name>
+		<jobId>3</jobId>
+		<start>1</start>
+		<end>3</end>
 		<deadline>50</deadline>
 		<power>1</power>
 	</event>

@@ -16,7 +16,6 @@ import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.REMO
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static com.database.knowledge.domain.goal.GoalEnum.*;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.DisableServerActionParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
 import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;

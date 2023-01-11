@@ -8,15 +8,13 @@ import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.greencloud.commons.job.PowerJob;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 
 import jade.core.AID;
-
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.RUNNING_JOB_STATUSES;
 
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
