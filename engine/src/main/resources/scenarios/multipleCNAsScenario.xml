@@ -33,41 +33,41 @@
 			<latitude>30.0</latitude>
 			<longitude>20.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>Wind2</name>
+			<name>Solar</name>
 			<monitoringAgent>Weather2</monitoringAgent>
 			<ownerSever>Server1</ownerSever>
 			<latitude>50.0</latitude>
 			<longitude>88.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
-			<energyType>WIND</energyType>
+			<maximumCapacity>300</maximumCapacity>
+			<energyType>SOLAR</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>Wind3</name>
+			<name>WindFarm</name>
 			<monitoringAgent>Weather3</monitoringAgent>
 			<ownerSever>Server2</ownerSever>
 			<latitude>50.0</latitude>
 			<longitude>30.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>Wind4</name>
+			<name>SolarFarm</name>
 			<monitoringAgent>Weather4</monitoringAgent>
 			<ownerSever>Server3</ownerSever>
 			<latitude>10.0</latitude>
 			<longitude>88.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>200</maximumCapacity>
-			<energyType>WIND</energyType>
+			<maximumCapacity>300</maximumCapacity>
+			<energyType>SOLAR</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
@@ -75,21 +75,21 @@
 		<serverAgentsArgs>
 			<name>Server1</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>10.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server2</name>
 			<ownerCloudNetwork>CNA1</ownerCloudNetwork>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>15.5</price>
 		</serverAgentsArgs>
 		<serverAgentsArgs>
 			<name>Server3</name>
 			<ownerCloudNetwork>CNA2</ownerCloudNetwork>
-			<maximumCapacity>200</maximumCapacity>
+			<maximumCapacity>300</maximumCapacity>
 			<jobProcessingLimit>20</jobProcessingLimit>
 			<price>30.5</price>
 		</serverAgentsArgs>

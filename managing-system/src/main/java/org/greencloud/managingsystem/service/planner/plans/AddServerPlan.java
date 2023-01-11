@@ -38,7 +38,7 @@ public class AddServerPlan extends SystemPlan {
 
 	private static final Logger logger = LoggerFactory.getLogger(AddServerPlan.class);
 
-	protected static final double TRAFFIC_LOAD_THRESHOLD = 0.9;
+	protected static final double TRAFFIC_LOAD_THRESHOLD = 0.8;
 
 	private final AgentFactory agentFactory;
 
