@@ -108,14 +108,12 @@ public class TrafficDistributionService extends AbstractGoalService {
 	protected double computeGoalQualityForCNA(List<AgentData> data) {
 		var grouppedData = data.stream()
 				.collect(Collectors.groupingBy(AgentData::aid));
-		List<Double> availableCapacities = new ArrayList<>();
-
-		grouppedData.forEach((key, value) -> {
-			double traffic = value.stream()
-					.mapToDouble(this::mapAgentDataToCNAAvailableCapacity)
-					.average().getAsDouble();
-			availableCapacities.add(traffic);
-		});
+		List<Double> availableCapacities =
+				grouppedData.values().stream()
+						.map(agentData -> agentData.stream()
+								.mapToDouble(this::mapAgentDataToCNAAvailableCapacity)
+								.average().orElseThrow())
+						.toList();
 		return computeCoefficient(availableCapacities);
 	}
 
@@ -153,7 +151,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	private List<Double> readServerQuality(List<List<String>> servers) {
 		List<Double> serversQuality = new ArrayList<>();
-		servers.stream().forEach(serversList -> {
+		servers.forEach(serversList -> {
 			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
 					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE);
 			if (!allAgentsHaveData(serverMonitoringData, serversList) || serversList.isEmpty()) {
@@ -168,7 +166,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 	private double mapAgentDataToServerAvailableCapacity(AgentData agentData) {
 		double currentMaximumCapacity = ((ServerMonitoringData) agentData.monitoringData()).getCurrentMaximumCapacity();
 		return currentMaximumCapacity - (currentMaximumCapacity
-				* ((ServerMonitoringData) agentData.monitoringData()).getCurrentTraffic() / 100);
+				* ((ServerMonitoringData) agentData.monitoringData()).getCurrentTraffic());
 	}
 
 	private double mapAgentDataToCNAAvailableCapacity(AgentData data) {
