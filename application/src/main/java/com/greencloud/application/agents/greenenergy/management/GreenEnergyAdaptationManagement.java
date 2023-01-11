@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.ADAPTATION_CONNECT_SERVER_LOG;
+import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.ADAPTATION_DISCONNECT_SERVER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.ADAPTATION_INCREASE_ERROR_LOG;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static jade.lang.acl.ACLMessage.REQUEST;
@@ -9,9 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
-import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.application.agents.greenenergy.behaviour.adaptation.InitiateGreenSourceDeactivation;
 import com.greencloud.application.agents.greenenergy.behaviour.adaptation.InitiateNewServerConnection;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.application.agents.greenenergy.domain.GreenSourceDisconnection;
+import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -24,6 +27,7 @@ public class GreenEnergyAdaptationManagement {
 	private static final Logger logger = LoggerFactory.getLogger(GreenEnergyAdaptationManagement.class);
 
 	private final GreenEnergyAgent greenEnergyAgent;
+	private GreenSourceDisconnection greenSourceDisconnection;
 
 	/**
 	 * Default constructor
@@ -32,6 +36,18 @@ public class GreenEnergyAdaptationManagement {
 	 */
 	public GreenEnergyAdaptationManagement(GreenEnergyAgent greenEnergyAgent) {
 		this.greenEnergyAgent = greenEnergyAgent;
+		this.greenSourceDisconnection = new GreenSourceDisconnection();
+	}
+
+	/**
+	 * @return curren state of Green Source disconnection parameters
+	 */
+	public GreenSourceDisconnection getGreenSourceDisconnectionState() {
+		return greenSourceDisconnection;
+	}
+
+	public void setGreenSourceDisconnection(GreenSourceDisconnection greenSourceDisconnection) {
+		this.greenSourceDisconnection = greenSourceDisconnection;
 	}
 
 	/**
@@ -57,7 +73,8 @@ public class GreenEnergyAdaptationManagement {
 	 * @param params            adaptation parameters
 	 * @param adaptationMessage original adaptation message
 	 */
-	public void connectNewServerToGreenSource(ConnectGreenSourceParameters params, ACLMessage adaptationMessage) {
+	public void connectNewServerToGreenSource(ChangeGreenSourceConnectionParameters params,
+			ACLMessage adaptationMessage) {
 		final String serverToBeConnected = params.getServerName().split("@")[0];
 		logger.info(ADAPTATION_CONNECT_SERVER_LOG, serverToBeConnected);
 
@@ -70,4 +87,21 @@ public class GreenEnergyAdaptationManagement {
 				new InitiateNewServerConnection(greenEnergyAgent, connectionRequest, adaptationMessage,
 						serverToBeConnected));
 	}
+
+	/**
+	 * Method disconnects a green source from given server
+	 *
+	 * @param params            adaptation parameters
+	 * @param adaptationMessage original adaptation message
+	 */
+	public void disconnectGreenSourceFromServer(ChangeGreenSourceConnectionParameters params,
+			ACLMessage adaptationMessage) {
+		final String serverToBeConnected = params.getServerName().split("@")[0];
+		logger.info(ADAPTATION_DISCONNECT_SERVER_LOG, serverToBeConnected);
+
+		getGreenSourceDisconnectionState().setBeingDisconnected(true);
+		getGreenSourceDisconnectionState().setOriginalAdaptationMessage(adaptationMessage);
+		greenEnergyAgent.addBehaviour(InitiateGreenSourceDeactivation.create(greenEnergyAgent, params.getServerName()));
+	}
+
 }

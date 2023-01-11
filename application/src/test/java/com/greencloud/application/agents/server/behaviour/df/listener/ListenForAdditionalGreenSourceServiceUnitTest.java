@@ -1,11 +1,10 @@
-package com.greencloud.application.agents.server.behaviour.df;
+package com.greencloud.application.agents.server.behaviour.df.listener;
 
-import static com.greencloud.application.agents.server.behaviour.df.templates.DFServerMessageTemplates.GREEN_SOURCE_CONNECTION_TEMPLATE;
+import static com.greencloud.application.agents.server.behaviour.df.listener.templates.DFServerMessageTemplates.GREEN_SOURCE_CONNECTION_TEMPLATE;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static jade.lang.acl.ACLMessage.REQUEST;
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
@@ -14,8 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,7 +57,7 @@ class ListenForAdditionalGreenSourceServiceUnitTest {
 		receivedInfo.setProtocol(CONNECT_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		doReturn(Set.of(testAID)).when(mockServerAgent).getOwnedGreenSources();
+		doReturn(Map.of(testAID, true)).when(mockServerAgent).getOwnedGreenSources();
 		when(mockServerAgent.receive(GREEN_SOURCE_CONNECTION_TEMPLATE)).thenReturn(receivedInfo);
 
 		listenForAdditionalGreenSourceService.action();
@@ -76,7 +74,7 @@ class ListenForAdditionalGreenSourceServiceUnitTest {
 		receivedInfo.setProtocol(CONNECT_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		doReturn(new HashSet<>()).when(mockServerAgent).getOwnedGreenSources();
+		doReturn(new HashMap<>()).when(mockServerAgent).getOwnedGreenSources();
 		mockConfigManagement.setWeightsForGreenSourcesMap(new HashMap<>());
 		when(mockServerAgent.receive(GREEN_SOURCE_CONNECTION_TEMPLATE)).thenReturn(receivedInfo);
 
@@ -86,7 +84,7 @@ class ListenForAdditionalGreenSourceServiceUnitTest {
 
 		assertThat(mockServerAgent.getOwnedGreenSources())
 				.hasSize(1)
-				.contains(testAID);
+				.containsKey(testAID);
 		assertThat(mockConfigManagement.getWeightsForGreenSourcesMap()).containsEntry(testAID, 1);
 	}
 }

@@ -45,6 +45,7 @@ public class TimescaleDatabase implements Closeable {
 	private static final String USER = "postgres";
 	private static final String PASSWORD = "password";
 	private static final String LOCAL_DATABASE_HOST_NAME = "timescale";
+	private static final String TEST_DATABASE_HOST_NAME = "localhost";
 
 	private static Connection sqlConnection;
 	private static JdbcStatementsExecutor statementsExecutor;
@@ -62,6 +63,10 @@ public class TimescaleDatabase implements Closeable {
 			}
 			statementsExecutor = new JdbcStatementsExecutor(sqlConnection);
 		}
+	}
+
+	public static TimescaleDatabase setUpForTests() {
+		return new TimescaleDatabase(TEST_DATABASE_HOST_NAME);
 	}
 
 	@Override

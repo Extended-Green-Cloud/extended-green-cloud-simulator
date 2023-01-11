@@ -136,7 +136,7 @@ class TimescaleDatabaseIntegrationTest {
 
 	@BeforeEach
 	void init() {
-		database = new TimescaleDatabase();
+		database = TimescaleDatabase.setUpForTests();
 		database.initDatabase();
 	}
 
@@ -207,7 +207,7 @@ class TimescaleDatabaseIntegrationTest {
 		var expectedAdaptationGoals = List.of(
 				new AdaptationGoal(1, "Maximize job success ratio", 0.8, true, 0.6),
 				new AdaptationGoal(2, "Minimize used backup power", 0.2, false, 0.2),
-				new AdaptationGoal(3, "Distribute traffic evenly", 0.7, false, 0.2)
+				new AdaptationGoal(3, "Distribute traffic evenly", 0.8, false, 0.2)
 		);
 
 		// when
@@ -310,11 +310,13 @@ class TimescaleDatabaseIntegrationTest {
 				.weatherPredictionError(0.02)
 				.currentTraffic(10)
 				.successRatio(0.9)
+				.isBeingDisconnected(false)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.04)
 				.currentTraffic(15)
 				.successRatio(0.5)
+				.isBeingDisconnected(false)
 				.build();
 
 		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
@@ -352,11 +354,13 @@ class TimescaleDatabaseIntegrationTest {
 				.weatherPredictionError(0.02)
 				.currentTraffic(10)
 				.successRatio(0.9)
+				.isBeingDisconnected(false)
 				.build();
 		final GreenSourceMonitoringData data2 = ImmutableGreenSourceMonitoringData.builder()
 				.weatherPredictionError(0.04)
 				.currentTraffic(15)
 				.successRatio(0.5)
+				.isBeingDisconnected(true)
 				.build();
 
 		database.writeMonitoringData("test_data_1", GREEN_SOURCE_MONITORING, data1);
@@ -375,6 +379,7 @@ class TimescaleDatabaseIntegrationTest {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.5);
 					assertThat(data.getWeatherPredictionError()).isEqualTo(0.04);
 					assertThat(data.getCurrentTraffic()).isEqualTo(15);
+					assertThat(data.isBeingDisconnected()).isTrue();
 				});
 		assertThat(result.get(0).aid())
 				.as("Resulted data has correct aid")
@@ -509,7 +514,7 @@ class TimescaleDatabaseIntegrationTest {
 				List.of("test_aid1", "test_aid2"),
 				1);
 
-		assertThat(result.size()).isEqualTo(2);
+		assertThat(result).hasSize(2);
 		assertThat(result.get(0).monitoringData()).isEqualTo(data2);
 		assertThat(result.get(1).monitoringData()).isEqualTo(data3);
 	}

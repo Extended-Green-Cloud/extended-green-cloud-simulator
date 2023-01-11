@@ -1,8 +1,8 @@
-package com.greencloud.application.agents.server.behaviour.df;
+package com.greencloud.application.agents.server.behaviour.df.listener;
 
-import static com.greencloud.application.agents.server.behaviour.df.logs.ServerDFLog.CONNECT_GREEN_SOURCE_LOG;
-import static com.greencloud.application.agents.server.behaviour.df.logs.ServerDFLog.GREEN_SOURCE_ALREADY_CONNECTED_LOG;
-import static com.greencloud.application.agents.server.behaviour.df.templates.DFServerMessageTemplates.GREEN_SOURCE_CONNECTION_TEMPLATE;
+import static com.greencloud.application.agents.server.behaviour.df.listener.logs.ServerDFListenerLog.CONNECT_GREEN_SOURCE_LOG;
+import static com.greencloud.application.agents.server.behaviour.df.listener.logs.ServerDFListenerLog.GREEN_SOURCE_ALREADY_CONNECTED_LOG;
+import static com.greencloud.application.agents.server.behaviour.df.listener.templates.DFServerMessageTemplates.GREEN_SOURCE_CONNECTION_TEMPLATE;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareInformReply;
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static java.util.Collections.singletonList;
@@ -45,7 +45,7 @@ public class ListenForAdditionalGreenSourceService extends CyclicBehaviour {
 		final ACLMessage request = myServerAgent.receive(GREEN_SOURCE_CONNECTION_TEMPLATE);
 
 		if (Objects.nonNull(request)) {
-			if (myServerAgent.getOwnedGreenSources().contains(request.getSender())) {
+			if (myServerAgent.getOwnedGreenSources().containsKey(request.getSender())) {
 				logger.info(GREEN_SOURCE_ALREADY_CONNECTED_LOG, request.getSender().getName());
 				myServerAgent.send(prepareRefuseReply(request.createReply()));
 			} else {
@@ -57,5 +57,4 @@ public class ListenForAdditionalGreenSourceService extends CyclicBehaviour {
 			block();
 		}
 	}
-
 }

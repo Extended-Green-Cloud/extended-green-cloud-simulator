@@ -10,7 +10,6 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.resetMockClock;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
-import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -33,6 +32,7 @@ import com.greencloud.application.domain.ImmutableGreenSourceForecastData;
 import com.greencloud.application.domain.ImmutableGreenSourceWeatherData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.exception.APIFetchInternalException;
+import com.greencloud.application.utils.TimeUtils;
 import com.greencloud.application.weather.api.OpenWeatherMapApi;
 import com.greencloud.application.weather.cache.WeatherCache;
 import com.greencloud.application.weather.domain.Clouds;
@@ -74,14 +74,13 @@ class MonitoringWeatherManagementUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting current com.greencloud.application.weather present in cache")
+	@DisplayName("Test getting current weather present in cache")
 	void testGetWeatherPresentInCache() {
 		final Forecast currentForecast = ImmutableForecast.copyOf(MOCK_FORECAST)
-				.withList(ImmutableFutureWeather.copyOf(MOCK_FUTURE_WEATHER).withTimestamp(
-						now()));
+				.withList(ImmutableFutureWeather.copyOf(MOCK_FUTURE_WEATHER).withTimestamp(MOCK_TIME));
 		mockCache.updateCache(MOCK_LOCATION, currentForecast);
 
-		setSystemStartTime();
+		TimeUtils.useMockTime(MOCK_TIME, ZoneId.of("UTC"));
 		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
 
 		assertThat(result.getWeatherData()).hasSize(1);
@@ -89,7 +88,7 @@ class MonitoringWeatherManagementUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting current com.greencloud.application.weather for api call")
+	@DisplayName("Test getting current weather for api call")
 	void testGetWeatherApiCall() {
 		useMockTime(Instant.parse("2022-01-01T10:00:00.000Z"), ZoneId.of("UTC"));
 		setSystemStartTime();

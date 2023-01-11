@@ -8,10 +8,16 @@ public class MessageProtocolConstants {
 	/**
 	 * Agent connections protocols
 	 *
-	 * CONNECT_GREEN_SOURCE_PROTOCOL - protocol used in messages sent by the Green Source informing Server that
-	 * 								   it can be added to its connections
+	 * CONNECT_GREEN_SOURCE_PROTOCOL 	- protocol used in messages sent by the Green Source informing Server that
+	 * 								   	  it can be added to its connections
+	 * DEACTIVATE_GREEN_SOURCE_PROTOCOL	- protocol used in messages sent by the Green Source informing Server that
+	 * 								   	  it should deactivate given green source
+	 * DISCONNECT_GREEN_SOURCE_PROTOCOL	- protocol used in messages sent by the Green Source informing Server that
+	 * 								   	  it remove given green source connection
 	 */
 	public static final String CONNECT_GREEN_SOURCE_PROTOCOL = "CONNECT_GREEN_SOURCE_PROTOCOL";
+	public static final String DEACTIVATE_GREEN_SOURCE_PROTOCOL = "DEACTIVATE_GREEN_SOURCE_PROTOCOL";
+	public static final String DISCONNECT_GREEN_SOURCE_PROTOCOL = "DISCONNECT_GREEN_SOURCE_PROTOCOL";
 
 	/**
 	 * Call for proposals protocols
@@ -75,9 +81,9 @@ public class MessageProtocolConstants {
 	/**
 	 * Dynamic weather handling related protocols
 	 *
-	 * ON_HOLD_JOB_CHECK_PROTOCOL           - protocol used in messages that check the com.greencloud.application.weather before putting the job which was on hold back
+	 * ON_HOLD_JOB_CHECK_PROTOCOL           - protocol used in messages that check the weather before putting the job which was on hold back
 	 * to in progress
-	 * PERIODIC_WEATHER_CHECK_PROTOCOL      - protocol used in messages that check periodically the current com.greencloud.application.weather
+	 * PERIODIC_WEATHER_CHECK_PROTOCOL      - protocol used in messages that check periodically the current weather
 	 */
 	public static final String ON_HOLD_JOB_CHECK_PROTOCOL = "ON_HOLD_JOB_CHECK_PROTOCOL";
 	public static final String PERIODIC_WEATHER_CHECK_PROTOCOL = "PERIODIC_WEATHER_CHECK_PROTOCOL";

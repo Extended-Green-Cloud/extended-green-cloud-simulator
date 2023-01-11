@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,12 +38,13 @@ class ConnectGreenSourcePlanDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = spy(new TimescaleDatabase());
+		database = spy(TimescaleDatabase.setUpForTests());
 		database.initDatabase();
 
 		mockManagingAgent = spy(ManagingAgent.class);
 		mockAgentNode = mock(ManagingAgentNode.class);
 
+		doReturn(new MonitoringService(mockManagingAgent)).when(mockManagingAgent).monitor();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(database).when(mockAgentNode).getDatabaseClient();
 		connectGreenSourcePlan = new ConnectGreenSourcePlan(mockManagingAgent);
@@ -173,11 +175,13 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentTraffic(0.6)
 				.successRatio(0.8)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 		var mockData2 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.4)
 				.successRatio(0.8)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(true)
 				.build();
 
 		database.writeMonitoringData("test_gs1", GREEN_SOURCE_MONITORING, mockData1);
@@ -197,16 +201,19 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentTraffic(0.6)
 				.successRatio(0.8)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 		var mockData2 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.4)
 				.successRatio(0.8)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(true)
 				.build();
 		var mockData3 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.5)
 				.successRatio(0.8)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 
 		database.writeMonitoringData("test_gs1", GREEN_SOURCE_MONITORING, mockData1);

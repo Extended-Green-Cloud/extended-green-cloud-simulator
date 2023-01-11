@@ -74,25 +74,29 @@ public class TrafficDistributionServiceTest {
 	public void testComputeGoalQualityForServer() {
 		double goalQuality = trafficDistributionService.computeGoalQualityForServer(prepareServerData());
 
-		assertThat(goalQuality).isEqualTo(0.2449741919638695);
+		assertThat(goalQuality).isEqualTo(0.3666479606152469);
 	}
 
 	private List<AgentData> prepareCNAData() {
 		final CloudNetworkMonitoringData data1 = ImmutableCloudNetworkMonitoringData.builder()
 				.successRatio(0.5)
+				.currentTraffic(0.5)
 				.availablePower(50.0)
 				.build();
 		final CloudNetworkMonitoringData data2 = ImmutableCloudNetworkMonitoringData.builder()
 				.successRatio(0.5)
 				.availablePower(100.0)
+				.currentTraffic(0.5)
 				.build();
 		final CloudNetworkMonitoringData data3 = ImmutableCloudNetworkMonitoringData.builder()
 				.successRatio(0.5)
 				.availablePower(150.0)
+				.currentTraffic(0.5)
 				.build();
 		final CloudNetworkMonitoringData data4 = ImmutableCloudNetworkMonitoringData.builder()
 				.successRatio(0.5)
 				.availablePower(200.0)
+				.currentTraffic(0.5)
 				.build();
 		return List.of(
 				new AgentData(Instant.now(), "test_aid1", CLOUD_NETWORK_MONITORING, data1),
@@ -111,19 +115,19 @@ public class TrafficDistributionServiceTest {
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(200)
-				.currentTraffic(25.0)
+				.currentTraffic(0.25)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(250)
-				.currentTraffic(20.0)
+				.currentTraffic(0.2)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(300)
-				.currentTraffic(25.0)
+				.currentTraffic(0.25)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.build();

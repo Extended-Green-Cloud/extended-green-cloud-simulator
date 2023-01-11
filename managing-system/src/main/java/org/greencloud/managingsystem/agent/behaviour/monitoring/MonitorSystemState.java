@@ -71,7 +71,8 @@ public class MonitorSystemState extends TickerBehaviour {
 	private double getGoalQuality(final Map.Entry<GoalEnum, Double> goalEntry) {
 		final AdaptationGoal goal = myManagingAgent.monitor().getAdaptationGoal(goalEntry.getKey());
 		final double quality = goalEntry.getValue();
+		final double difference = quality - goal.threshold();
 
-		return goal.isAboveThreshold() ? quality : 1 - quality;
+		return goal.isAboveThreshold() ? difference : (-1) * difference;
 	}
 }

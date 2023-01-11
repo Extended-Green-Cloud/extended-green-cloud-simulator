@@ -6,13 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -63,14 +60,14 @@ class SubscribeGreenSourceServiceUnitTest {
 	@Test
 	@DisplayName("Test receiving new Green Source information from DF - no green sources added yet")
 	void testHandleInformForNoGreenSources() {
-		doReturn(new HashSet<AID>()).when(mockServerAgent).getOwnedGreenSources();
+		doReturn(new HashMap<AID, Boolean>()).when(mockServerAgent).getOwnedGreenSources();
 
 		subscribeGreenSourceService.handleInform(prepareDFMessage());
 
 		verify(mockServerAgent).getOwnedGreenSources();
 		verify(mockServerAgent).manageConfig();
 
-		assertThat(mockServerAgent.getOwnedGreenSources())
+		assertThat(mockServerAgent.getOwnedGreenSources().keySet())
 				.as("Set size should be equal to 1")
 				.hasSize(1)
 				.as("Set should contain correct green source")
@@ -86,7 +83,7 @@ class SubscribeGreenSourceServiceUnitTest {
 		doReturn("test_old_gs1@" + mockJadeAddress).when(mockGS1).getName();
 		doReturn("test_old_gs2@" + mockJadeAddress).when(mockGS2).getName();
 
-		doReturn(new HashSet<>(Set.of(mockGS1, mockGS2))).when(mockServerAgent).getOwnedGreenSources();
+		doReturn(new HashMap<>(Map.of(mockGS1, true, mockGS2, true))).when(mockServerAgent).getOwnedGreenSources();
 		mockConfigManagement.setWeightsForGreenSourcesMap(new HashMap<>(Map.of(mockGS1, 5, mockGS2, 8)));
 
 		subscribeGreenSourceService.handleInform(prepareDFMessage());
@@ -94,7 +91,7 @@ class SubscribeGreenSourceServiceUnitTest {
 		verify(mockServerAgent).getOwnedGreenSources();
 		verify(mockServerAgent).manageConfig();
 
-		assertThat(mockServerAgent.getOwnedGreenSources())
+		assertThat(mockServerAgent.getOwnedGreenSources().keySet())
 				.as("Set size should be equal to 3")
 				.hasSize(3)
 				.as("Set should contain correct green sources")
@@ -118,7 +115,8 @@ class SubscribeGreenSourceServiceUnitTest {
 		doReturn("test_old_gs1@" + mockJadeAddress).when(mockGS1).getName();
 		var mockDuplicatedGS = decodeSubscription(prepareDFMessage());
 
-		doReturn(new HashSet<>(Set.of(mockGS1, mockDuplicatedGS.get(0)))).when(mockServerAgent).getOwnedGreenSources();
+		doReturn(new HashMap<>(Map.of(mockGS1, true, mockDuplicatedGS.get(0), true))).when(mockServerAgent)
+				.getOwnedGreenSources();
 		doReturn(new HashMap<>(Map.of(mockGS1, 5, mockGreenSource, 8))).when(mockConfigManagement)
 				.getWeightsForGreenSourcesMap();
 
@@ -127,7 +125,7 @@ class SubscribeGreenSourceServiceUnitTest {
 		verify(mockServerAgent).getOwnedGreenSources();
 		verify(mockServerAgent).manageConfig();
 
-		assertThat(mockServerAgent.getOwnedGreenSources())
+		assertThat(mockServerAgent.getOwnedGreenSources().keySet())
 				.as("Set size should be equal to 2")
 				.hasSize(2)
 				.as("Set should contain correct green sources")

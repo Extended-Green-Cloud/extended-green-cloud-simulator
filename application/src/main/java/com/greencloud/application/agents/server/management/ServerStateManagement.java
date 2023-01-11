@@ -29,6 +29,7 @@ import static com.greencloud.commons.job.JobResultType.ACCEPTED;
 import static com.greencloud.commons.job.JobResultType.FAILED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
 import static com.greencloud.commons.job.JobResultType.STARTED;
+import static java.util.stream.Collectors.toSet;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -93,7 +94,7 @@ public class ServerStateManagement {
 				statusEnums;
 		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
 				.filter(job -> Objects.isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
-				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job))).collect(Collectors.toSet());
+				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job))).collect(toSet());
 		final int maxUsedPower = AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp(jobsOfInterest, startDate, endDate);
 		return serverAgent.getCurrentMaximumCapacity() - maxUsedPower;
 	}
@@ -271,6 +272,18 @@ public class ServerStateManagement {
 		serverAgent.send(information);
 	}
 
+	/**
+	 * Method retrieves the addresses of green sources that are marked as active
+	 *
+	 * @return set of active green sources
+	 */
+	public Set<AID> getOwnedActiveGreenSources() {
+		return serverAgent.getOwnedGreenSources().entrySet().stream()
+				.filter(Map.Entry::getValue)
+				.map(Map.Entry::getKey)
+				.collect(toSet());
+	}
+
 	public ConcurrentMap<JobResultType, Long> getJobCounters() {
 		return jobCounters;
 	}
@@ -343,7 +356,7 @@ public class ServerStateManagement {
 		return serverAgent.getServerJobs().entrySet().stream()
 				.filter(job -> isJobStarted(job.getValue()) && isWithinTimeStamp(
 						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
-				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(Collectors.toSet()).size();
+				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(toSet()).size();
 	}
 
 	private int getClientNumber() {

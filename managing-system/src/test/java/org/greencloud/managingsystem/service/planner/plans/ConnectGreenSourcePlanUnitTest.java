@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,8 +82,8 @@ class ConnectGreenSourcePlanUnitTest {
 				.isNotNull()
 				.matches(data ->
 						data.getTargetAgent().getName().equals("test_gs1@192.168.56.1:6996/JADE") &&
-								data.getActionParameters() instanceof ConnectGreenSourceParameters &&
-								((ConnectGreenSourceParameters) data.getActionParameters()).getServerName()
+								data.getActionParameters() instanceof ChangeGreenSourceConnectionParameters &&
+								((ChangeGreenSourceConnectionParameters) data.getActionParameters()).getServerName()
 										.equals("test_server2@192.168.56.1:6996/JADE")
 				);
 	}
@@ -410,7 +410,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server1")))
+				.connectedServers(new ArrayList<>(List.of("test_server1")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")
@@ -422,7 +422,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server1")))
+				.connectedServers(new ArrayList<>(List.of("test_server1")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")
@@ -434,7 +434,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server2")))
+				.connectedServers(new ArrayList<>(List.of("test_server2")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")
@@ -446,7 +446,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs4")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server3")))
+				.connectedServers(new ArrayList<>(List.of("test_server3")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")
@@ -458,7 +458,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs5")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server3")))
+				.connectedServers(new ArrayList<>(List.of("test_server3")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")
@@ -470,7 +470,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.name("test_gs6")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.connectedSevers(new ArrayList<>(List.of("test_server4")))
+				.connectedServers(new ArrayList<>(List.of("test_server4")))
 				.latitude("50")
 				.longitude("30")
 				.pricePerPowerUnit("10")

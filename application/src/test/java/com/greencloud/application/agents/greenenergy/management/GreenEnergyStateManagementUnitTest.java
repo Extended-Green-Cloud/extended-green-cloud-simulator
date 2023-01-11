@@ -5,17 +5,22 @@ import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.WIND;
-import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
+import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
+import static jade.lang.acl.ACLMessage.REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
@@ -38,6 +43,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
+import com.greencloud.application.agents.greenenergy.behaviour.adaptation.InitiateGreenSourceDisconnection;
+import com.greencloud.application.agents.greenenergy.domain.GreenSourceDisconnection;
 import com.greencloud.application.domain.ImmutableMonitoringData;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.ImmutableJobInstanceIdentifier;
@@ -49,6 +56,7 @@ import com.greencloud.commons.job.PowerJob;
 import com.greencloud.commons.job.ServerJob;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -66,6 +74,8 @@ class GreenEnergyStateManagementUnitTest {
 	private static GreenEnergyStateManagement MOCK_MANAGEMENT;
 	@Mock
 	private static GreenPowerManagement MOCK_POWER_MANAGEMENT;
+	@Mock
+	private static GreenEnergyAdaptationManagement MOCK_ADAPTATION_MANAGEMENT;
 
 	// TEST SET-UP
 
@@ -227,6 +237,89 @@ class GreenEnergyStateManagementUnitTest {
 		assertThat(mockGreenEnergyAgent.manage().computeCombinedPowerError(mockJob)).isEqualTo(0.03);
 	}
 
+	@Test
+	@DisplayName("Test performing post job removal check for no disconnection undergoing")
+	void testPerformPostJobRemovalCheckNoDisconnection() {
+		clearInvocations(mockGreenEnergyAgent);
+		MOCK_ADAPTATION_MANAGEMENT.setGreenSourceDisconnection(new GreenSourceDisconnection());
+
+		mockGreenEnergyAgent.manage().performPostJobRemovalCheck();
+
+		//
+		verify(mockGreenEnergyAgent, times(0)).getServerJobs();
+		verify(mockGreenEnergyAgent, times(0)).addBehaviour(any());
+	}
+
+	@Test
+	@DisplayName("Test performing post job removal check if not all jobs cleared")
+	void testPerformPostJobRemovalCheckNotAllJobsCleared() {
+		var mockMessage = new ACLMessage(REQUEST);
+		var mockServer = new AID("test_server", AID.ISGUID);
+
+		var testDisconnection = new GreenSourceDisconnection(mockServer, mockMessage, true);
+		MOCK_ADAPTATION_MANAGEMENT.setGreenSourceDisconnection(testDisconnection);
+
+		clearInvocations(mockGreenEnergyAgent);
+		clearInvocations(MOCK_ADAPTATION_MANAGEMENT);
+
+		mockGreenEnergyAgent.manage().performPostJobRemovalCheck();
+
+		verify(MOCK_ADAPTATION_MANAGEMENT, times(2)).getGreenSourceDisconnectionState();
+		verify(mockGreenEnergyAgent, times(1)).getServerJobs();
+		verify(mockGreenEnergyAgent, times(0)).addBehaviour(any());
+	}
+
+	@Test
+	@DisplayName("Test performing post job removal check if all jobs cleared")
+	void testPerformPostJobRemovalCheckAllJobsCleared() {
+		var mockMessage = new ACLMessage(REQUEST);
+		var mockServer = new AID("test_server1", AID.ISGUID);
+
+		var testDisconnection = new GreenSourceDisconnection(mockServer, mockMessage, true);
+		MOCK_ADAPTATION_MANAGEMENT.setGreenSourceDisconnection(testDisconnection);
+
+		clearInvocations(mockGreenEnergyAgent);
+		clearInvocations(MOCK_ADAPTATION_MANAGEMENT);
+
+		mockGreenEnergyAgent.manage().performPostJobRemovalCheck();
+
+		verify(MOCK_ADAPTATION_MANAGEMENT, times(4)).getGreenSourceDisconnectionState();
+		verify(mockGreenEnergyAgent, times(1)).getServerJobs();
+		verify(mockGreenEnergyAgent, times(1)).addBehaviour(
+				argThat(behaviour -> behaviour instanceof InitiateGreenSourceDisconnection));
+	}
+
+	@Test
+	@DisplayName("Test job removal")
+	void testRemoveJob() {
+		var mockMessage = new ACLMessage(REQUEST);
+		var mockServer = new AID("test_server1", AID.ISGUID);
+		var testDisconnection = new GreenSourceDisconnection(mockServer, mockMessage, true);
+		MOCK_ADAPTATION_MANAGEMENT.setGreenSourceDisconnection(testDisconnection);
+
+		var testJob = ImmutableServerJob.builder()
+				.jobId("100")
+				.server(new AID("test_server1", AID.ISGUID))
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10)
+				.build();
+		mockGreenEnergyAgent.getServerJobs().put(testJob, IN_PROGRESS);
+
+		clearInvocations(mockGreenEnergyAgent);
+		clearInvocations(MOCK_ADAPTATION_MANAGEMENT);
+
+		mockGreenEnergyAgent.manage().removeJob(testJob);
+
+		verify(MOCK_ADAPTATION_MANAGEMENT, times(4)).getGreenSourceDisconnectionState();
+		verify(mockGreenEnergyAgent, times(2)).getServerJobs();
+		verify(mockGreenEnergyAgent, times(1)).addBehaviour(
+				argThat(behaviour -> behaviour instanceof InitiateGreenSourceDisconnection));
+
+		assertThat(mockGreenEnergyAgent.getServerJobs()).doesNotContainKey(testJob);
+	}
+
 	// PREPARING TEST DATA
 
 	/**
@@ -241,31 +334,31 @@ class GreenEnergyStateManagementUnitTest {
 	 */
 	private Map<ServerJob, ExecutionJobStatusEnum> setUpGreenEnergyJobs() {
 		final ServerJob mockJob1 = ImmutableServerJob.builder().jobId("1")
-				.server(mock(AID.class))
+				.server(new AID("test_server", AID.ISGUID))
 				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ServerJob mockJob2 = ImmutableServerJob.builder().jobId("2")
-				.server(mock(AID.class))
+				.server(new AID("test_server", AID.ISGUID))
 				.startTime(Instant.parse("2022-01-01T07:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(20).build();
 		final ServerJob mockJob3 = ImmutableServerJob.builder().jobId("3")
-				.server(mock(AID.class))
+				.server(new AID("test_server", AID.ISGUID))
 				.startTime(Instant.parse("2022-01-01T06:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T15:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(50).build();
 		final ServerJob mockJob4 = ImmutableServerJob.builder().jobId("4")
-				.server(mock(AID.class))
+				.server(new AID("test_server", AID.ISGUID))
 				.startTime(Instant.parse("2022-01-01T09:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
 				.power(10).build();
 		final ServerJob mockJob5 = ImmutableServerJob.builder().jobId("5")
-				.server(mock(AID.class))
+				.server(new AID("test_server", AID.ISGUID))
 				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
 				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
 				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
@@ -285,11 +378,13 @@ class GreenEnergyStateManagementUnitTest {
 		MOCK_POWER_MANAGEMENT = spy(new GreenPowerManagement(MOCK_CAPACITY, mockGreenEnergyAgent));
 		final GreenEnergyStateManagement management = new GreenEnergyStateManagement(mockGreenEnergyAgent);
 		MOCK_MANAGEMENT = spy(management);
+		MOCK_ADAPTATION_MANAGEMENT = spy(new GreenEnergyAdaptationManagement(mockGreenEnergyAgent));
 		mockGreenEnergyAgent.setGreenPowerManagement(MOCK_POWER_MANAGEMENT);
 
 		doReturn(WIND).when(mockGreenEnergyAgent).getEnergyType();
 		doReturn(MOCK_PRICE).when(mockGreenEnergyAgent).getPricePerPowerUnit();
 		doReturn(MOCK_MANAGEMENT).when(mockGreenEnergyAgent).manage();
+		doReturn(MOCK_ADAPTATION_MANAGEMENT).when(mockGreenEnergyAgent).adapt();
 		doNothing().when(mockGreenEnergyAgent).addBehaviour(any());
 		doNothing().when(mockGreenEnergyAgent).send(any());
 	}

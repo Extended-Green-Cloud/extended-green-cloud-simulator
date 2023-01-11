@@ -48,6 +48,7 @@ import org.slf4j.MDC;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
+import com.greencloud.application.agents.greenenergy.behaviour.adaptation.InitiateGreenSourceDisconnection;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.handler.HandleManualPowerSupplyFinish;
 import com.greencloud.application.domain.MonitoringData;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
@@ -56,6 +57,8 @@ import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
 import com.greencloud.commons.job.ServerJob;
 import com.gui.agents.GreenEnergyAgentNode;
+
+import jade.core.AID;
 
 /**
  * Set of methods used to manage the internal state of the green energy agent
@@ -164,7 +167,7 @@ public class GreenEnergyStateManagement {
 	 * Computes power available during computation of the job being processed
 	 *
 	 * @param serverJob job of interest
-	 * @param weather   monitoring data with com.greencloud.application.weather for requested timetable
+	 * @param weather   monitoring data with weather for requested timetable
 	 * @param isNewJob  flag indicating whether job of interest is a processed new job
 	 * @return available power as decimal or empty optional if power not available
 	 */
@@ -218,7 +221,7 @@ public class GreenEnergyStateManagement {
 	 * Computes available power available in the given moment
 	 *
 	 * @param time    time of the check (in real time)
-	 * @param weather monitoring data with com.greencloud.application.weather for requested timetable
+	 * @param weather monitoring data with weather for requested timetable
 	 * @return average available power as decimal or empty optional if power not available
 	 */
 	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
@@ -263,6 +266,37 @@ public class GreenEnergyStateManagement {
 		}
 	}
 
+	/**
+	 * Method removes a job from Green Source map
+	 *
+	 * @param job job to be removed
+	 */
+	public void removeJob(final ServerJob job) {
+		greenEnergyAgent.getServerJobs().remove(job);
+		performPostJobRemovalCheck();
+	}
+
+	/**
+	 * Method performs post-removal actions.
+	 * For a Green Source which is undergoing server disconnection, it verifies if the last job instance for a given
+	 * server was removed.
+	 * If so, it adds a behaviour requesting a full Green Source disconnection
+	 * in the Server agent.
+	 */
+	public void performPostJobRemovalCheck() {
+		if (greenEnergyAgent.adapt().getGreenSourceDisconnectionState().isBeingDisconnectedFromServer()) {
+			final AID serverForDisconnection = greenEnergyAgent.adapt().getGreenSourceDisconnectionState()
+					.getServerToBeDisconnected();
+			final boolean isTheLastJobRemoved = greenEnergyAgent.getServerJobs().keySet().stream()
+					.noneMatch(job -> job.getServer().equals(serverForDisconnection));
+
+			if (isTheLastJobRemoved) {
+				greenEnergyAgent.addBehaviour(InitiateGreenSourceDisconnection.create(greenEnergyAgent,
+						greenEnergyAgent.adapt().getGreenSourceDisconnectionState().getServerToBeDisconnected()));
+			}
+		}
+	}
+
 	public AtomicInteger getShortagesAccumulator() {
 		return shortagesAccumulator;
 	}
@@ -280,6 +314,7 @@ public class GreenEnergyStateManagement {
 				.currentTraffic(trafficOverall)
 				.weatherPredictionError(greenEnergyAgent.getWeatherPredictionError())
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
+				.isBeingDisconnected(greenEnergyAgent.adapt().getGreenSourceDisconnectionState().isBeingDisconnected())
 				.build();
 		greenEnergyAgent.writeMonitoringData(GREEN_SOURCE_MONITORING, greenSourceMonitoring);
 	}

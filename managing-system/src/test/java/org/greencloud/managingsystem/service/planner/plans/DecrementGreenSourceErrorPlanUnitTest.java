@@ -11,6 +11,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -206,8 +208,8 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		// given
 		doReturn(List.of("test_server1", "test_server2")).when(mockMonitoring).getAliveAgents(SERVER);
 		doReturn(prepareServerMonitoringData()).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(eq(SERVER_MONITORING), eq(List.of("test_server1", "test_server2")),
+						anyDouble());
 		var threshold = 0.7;
 
 		// when
@@ -282,14 +284,14 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		doReturn(testAdaptationGoal).when(mockMonitoring).getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);
 		doReturn(List.of("test_server1", "test_server2")).when(mockMonitoring).getAliveAgents(SERVER);
 		doReturn(prepareServerMonitoringData()).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(eq(SERVER_MONITORING), eq(List.of("test_server1", "test_server2")),
+						anyDouble());
 		doReturn(monitoringData1).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs1"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), eq(List.of("test_gs1")),
+						anyDouble());
 		doReturn(monitoringData2).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs3", "test_gs4"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(eq(WEATHER_SHORTAGES), eq(List.of("test_gs3", "test_gs4")),
+						anyDouble());
 
 		// when
 		var result = decrementGreenSourceErrorPlan.isPlanExecutable();
@@ -380,21 +382,25 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.weatherPredictionError(0.04)
+				.isBeingDisconnected(false)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.weatherPredictionError(0.06)
+				.isBeingDisconnected(false)
 				.build();
 		var data4 = ImmutableGreenSourceMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.weatherPredictionError(0.08)
+				.isBeingDisconnected(false)
 				.build();
 
 		return List.of(

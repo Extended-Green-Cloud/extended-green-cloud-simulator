@@ -46,7 +46,7 @@ class ReportWeatherShortagesDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = new TimescaleDatabase();
+		database = TimescaleDatabase.setUpForTests();
 		database.initDatabase();
 
 		var mockAID = mock(AID.class);

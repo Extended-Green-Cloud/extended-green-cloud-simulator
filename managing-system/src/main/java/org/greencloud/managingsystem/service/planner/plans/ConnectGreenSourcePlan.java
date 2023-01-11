@@ -7,36 +7,30 @@ import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Comparator.comparingDouble;
-import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
 
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.domain.AgentsGreenPower;
 import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.managingsystem.planner.ImmutableConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableChangeGreenSourceConnectionParameters;
 
 import jade.core.AID;
 
@@ -113,13 +107,13 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 						.name();
 
 		targetAgent = new AID(selectedGreenSource.name(), AID.ISGUID);
-		actionParameters = ImmutableConnectGreenSourceParameters.builder()
+		actionParameters = ImmutableChangeGreenSourceConnectionParameters.builder()
 				.serverName(selectedServer)
 				.build();
 		postActionHandler = () ->
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(agent -> agent.getName().equals(selectedGreenSource.name().split("@")[0]))
-						.forEach(greenSource -> greenSource.getConnectedSevers().add(selectedServer.split("@")[0]));
+						.forEach(greenSource -> greenSource.getConnectedServers().add(selectedServer.split("@")[0]));
 
 		return this;
 	}
@@ -178,7 +172,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(gs -> gs.getName().equals(greenSourceLocalName))
 						.findFirst().orElseThrow()
-						.getConnectedSevers();
+						.getConnectedServers();
 
 		final List<AgentsTraffic> availableForConnectionServers =
 				serversToConsider.stream().collect(filtering(server ->
@@ -226,21 +220,24 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	protected Map<String, Double> getAverageTrafficForSources(final List<String> aliveSourcesForServer) {
 		final ToDoubleFunction<AgentData> getTrafficForGreenSource =
 				data -> ((GreenSourceMonitoringData) data.monitoringData()).getCurrentTraffic();
-		return getAverageValuesMap(GREEN_SOURCE_MONITORING, aliveSourcesForServer, getTrafficForGreenSource);
+		return managingAgent.monitor()
+				.getAverageValuesForAgents(GREEN_SOURCE_MONITORING, aliveSourcesForServer, getTrafficForGreenSource);
 	}
 
 	@VisibleForTesting
 	protected Map<String, Double> getAveragePowerForSources(final List<String> aliveSourcesForServer) {
 		final ToDoubleFunction<AgentData> getPowerForGreenSource =
 				data -> ((AvailableGreenEnergy) data.monitoringData()).availablePowerPercentage();
-		return getAverageValuesMap(AVAILABLE_GREEN_ENERGY, aliveSourcesForServer, getPowerForGreenSource);
+		return managingAgent.monitor()
+				.getAverageValuesForAgents(AVAILABLE_GREEN_ENERGY, aliveSourcesForServer, getPowerForGreenSource);
 	}
 
 	@VisibleForTesting
 	protected Map<String, Double> getAverageTrafficForServers(final List<String> aliveServersForCNA) {
 		final ToDoubleFunction<AgentData> getTrafficForServer =
 				data -> ((ServerMonitoringData) data.monitoringData()).getCurrentTraffic();
-		return getAverageValuesMap(SERVER_MONITORING, aliveServersForCNA, getTrafficForServer);
+		return managingAgent.monitor()
+				.getAverageValuesForAgents(SERVER_MONITORING, aliveServersForCNA, getTrafficForServer);
 	}
 
 	@VisibleForTesting
@@ -249,29 +246,4 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		this.connectableServersForGreenSource = connectableServersForGreenSource;
 	}
 
-	private Map<String, Double> getAverageValuesMap(final DataType dataType, final List<String> agentsOfInterest,
-			final ToDoubleFunction<AgentData> averagingFunc) {
-		if (agentsOfInterest.isEmpty()) {
-			return Collections.emptyMap();
-		}
-
-		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest, MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD);
-		final List<String> agentsPresentInDatabase = agentsData.stream().map(AgentData::aid).toList();
-
-		final Map<String, Double> agentsWithRecordsMap = agentsData.stream()
-				.collect(Collectors.groupingBy(AgentData::aid, TreeMap::new, averagingDouble(averagingFunc)));
-		final Map<String, Double> agentsWithNoRecords = getAgentsNotPresentInData(agentsPresentInDatabase,
-				agentsOfInterest);
-		agentsWithRecordsMap.putAll(agentsWithNoRecords);
-
-		return agentsWithRecordsMap;
-	}
-
-	private Map<String, Double> getAgentsNotPresentInData(final List<String> presentAgents,
-			final List<String> allConsideredAgents) {
-		return allConsideredAgents.stream()
-				.filter(agent -> !presentAgents.contains(agent))
-				.collect(toMap(agent -> agent, agent -> 0.0));
-	}
 }

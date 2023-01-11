@@ -28,7 +28,7 @@ import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.mapper.JobMapper;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
-import com.greencloud.commons.job.PowerJob;
+import com.greencloud.commons.job.ServerJob;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -76,9 +76,9 @@ public class ListenForGreenEnergyJobCancellation extends CyclicBehaviour {
 		}
 	}
 
-	private void processJobPart(PowerJob jobPart) {
+	private void processJobPart(ServerJob jobPart) {
 		var jobPartStatus = myGreenEnergyAgent.getServerJobs().get(jobPart);
-		myGreenEnergyAgent.getServerJobs().remove(jobPart);
+		myGreenEnergyAgent.manage().removeJob(jobPart);
 		if (!JOB_NOT_STARTED_STATUSES.contains(jobPartStatus)) {
 			myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(jobPart), JobResultType.FINISH);
 		}

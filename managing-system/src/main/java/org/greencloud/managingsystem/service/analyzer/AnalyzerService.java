@@ -130,7 +130,7 @@ public class AnalyzerService extends AbstractManagingService {
 		final List<Instant> qualityInstants = systemQualities.stream().map(SystemQuality::timestamp).toList();
 		final List<Double> qualityValues = systemQualities.stream().map(SystemQuality::quality).toList();
 
-		if (qualityInstants.size() < 3 || qualityValues.stream().allMatch(qualityValues.get(0)::equals)) {
+		if (qualityInstants.size() < 4 || qualityValues.stream().allMatch(qualityValues.get(0)::equals)) {
 			return 0;
 		}
 

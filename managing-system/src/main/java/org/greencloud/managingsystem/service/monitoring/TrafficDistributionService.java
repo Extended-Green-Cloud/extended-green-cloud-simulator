@@ -5,6 +5,8 @@ import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.greencloud.commons.agent.AgentType.CNA;
 import static com.greencloud.commons.agent.AgentType.SERVER;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.JOB_DISTRIBUTION_LOG;
@@ -16,16 +18,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.stream.Collectors;
-
-import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+import java.util.function.Predicate;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -34,10 +36,9 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class TrafficDistributionService extends AbstractGoalService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TrafficDistributionService.class);
 	public static final GoalEnum GOAL = DISTRIBUTE_TRAFFIC_EVENLY;
-
-	public static final int AGGREGATION_SIZE = 3;
+	public static final int AGGREGATION_SIZE = 2;
+	private static final Logger logger = LoggerFactory.getLogger(TrafficDistributionService.class);
 
 	public TrafficDistributionService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
@@ -61,7 +62,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 		OptionalDouble worstQuality = allQualities.stream().filter(q -> q != DATA_NOT_AVAILABLE_INDICATOR)
 				.mapToDouble(Double::doubleValue).max();
 
-		if (!worstQuality.isPresent()) {
+		if (worstQuality.isEmpty()) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
 		}
 
@@ -96,7 +97,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 			return 0;
 		}
 		OptionalDouble mean = traffic.stream().mapToDouble(Double::doubleValue).average();
-		if (mean.getAsDouble() == 0.0) {
+		if (mean.orElseThrow() == 0.0) {
 			return 0;
 		}
 		double sum = traffic.stream().mapToDouble(data -> Math.pow(data - mean.getAsDouble(), 2)).sum();
@@ -106,30 +107,25 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	@VisibleForTesting
 	protected double computeGoalQualityForCNA(List<AgentData> data) {
-		var grouppedData = data.stream()
-				.collect(Collectors.groupingBy(AgentData::aid));
-		List<Double> availableCapacities = new ArrayList<>();
-
-		grouppedData.forEach((key, value) -> {
-			double traffic = value.stream()
-					.mapToDouble(this::mapAgentDataToCNAAvailableCapacity)
-					.average().getAsDouble();
-			availableCapacities.add(traffic);
-		});
+		var groupedData = data.stream()
+				.collect(groupingBy(AgentData::aid));
+		List<Double> availableCapacities = groupedData.values().stream()
+				.map(agentData -> agentData.stream()
+						.mapToDouble(this::mapAgentDataToCNAAvailableCapacity)
+						.average().orElseThrow())
+				.toList();
 		return computeCoefficient(availableCapacities);
 	}
 
 	@VisibleForTesting
 	protected double computeGoalQualityForServer(List<AgentData> data) {
-		var grouppedData = data.stream()
-				.collect(Collectors.groupingBy(AgentData::aid));
-		List<Double> availableCapacities = new ArrayList<>();
-		grouppedData.forEach((key, value) -> {
-			double traffic = value.stream()
+		var groupedData = data.stream()
+				.collect(groupingBy(AgentData::aid));
+		List<Double> availableCapacities = groupedData.values().stream()
+				.map(agentData -> agentData.stream()
 					.mapToDouble(this::mapAgentDataToServerAvailableCapacity)
-					.average().getAsDouble();
-			availableCapacities.add(traffic);
-		});
+					.average().orElseThrow())
+				.toList();
 		return computeCoefficient(availableCapacities);
 	}
 
@@ -147,17 +143,21 @@ public class TrafficDistributionService extends AbstractGoalService {
 				.readLatestNRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, CNAs, AGGREGATION_SIZE);
 		if (!allAgentsHaveData(cloudNetworkMonitoringData, CNAs) || cloudNetworkMonitoringData.isEmpty()) {
 			return DATA_NOT_AVAILABLE_INDICATOR;
+		} else if (isTrafficZero(cloudNetworkMonitoringData)) {
+			return 0;
 		}
 		return computeGoalQualityForCNA(cloudNetworkMonitoringData);
 	}
 
 	private List<Double> readServerQuality(List<List<String>> servers) {
 		List<Double> serversQuality = new ArrayList<>();
-		servers.stream().forEach(serversList -> {
+		servers.forEach(serversList -> {
 			List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
 					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE);
 			if (!allAgentsHaveData(serverMonitoringData, serversList) || serversList.isEmpty()) {
 				serversQuality.add((double) DATA_NOT_AVAILABLE_INDICATOR);
+			} else if (isTrafficZero(serverMonitoringData)) {
+				serversQuality.add(0.0);
 			} else {
 				serversQuality.add(computeGoalQualityForServer(serverMonitoringData));
 			}
@@ -168,7 +168,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 	private double mapAgentDataToServerAvailableCapacity(AgentData agentData) {
 		double currentMaximumCapacity = ((ServerMonitoringData) agentData.monitoringData()).getCurrentMaximumCapacity();
 		return currentMaximumCapacity - (currentMaximumCapacity
-				* ((ServerMonitoringData) agentData.monitoringData()).getCurrentTraffic() / 100);
+				* ((ServerMonitoringData) agentData.monitoringData()).getCurrentTraffic());
 	}
 
 	private double mapAgentDataToCNAAvailableCapacity(AgentData data) {
@@ -177,7 +177,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	private List<List<String>> groupServersByCNA(List<String> aliveServers, List<String> CNAs) {
 		List<List<String>> serversList = new ArrayList<>();
-		CNAs.stream().forEach(CNA -> {
+		CNAs.forEach(CNA -> {
 			List<String> servers = managingAgent.getGreenCloudStructure()
 					.getServersForCloudNetworkAgent(CNA.split("@")[0]);
 			List<String> childServers = new ArrayList<>();
@@ -192,6 +192,15 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	private boolean allAgentsHaveData(List<AgentData> data, List<String> agents) {
-		return new HashSet<>(data.stream().map(AgentData::aid).collect(Collectors.toList())).containsAll(agents);
+		return new HashSet<>(data.stream().map(AgentData::aid).toList()).containsAll(agents);
+	}
+
+	private boolean isTrafficZero(List<AgentData> data) {
+		final Predicate<AgentData> isTrafficZero = agentData ->
+				((NetworkComponentMonitoringData) agentData.monitoringData()).getCurrentTraffic() == 0;
+		return data.stream()
+				.collect(groupingBy(AgentData::aid)).values().stream()
+				.map(dataSet -> dataSet.stream().max(comparing(AgentData::timestamp)).orElseThrow())
+				.allMatch(isTrafficZero);
 	}
 }

@@ -4,15 +4,21 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.averagingDouble;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
@@ -21,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
@@ -202,6 +209,41 @@ public class MonitoringService extends AbstractManagingService {
 		final Predicate<String> isAgentNameValid = agentName -> agentsOfInterest.contains(agentName.split("@")[0]);
 
 		return allALiveAgents.stream().filter(isAgentNameValid).toList();
+	}
+
+	/**
+	 * Method retrieves data from the database for given agents and averages specific value using predefined
+	 * averaging function
+	 *
+	 * @param dataType         type of the data to be retrieved
+	 * @param agentsOfInterest agents which are taken into account
+	 * @param averagingFunc    function used to average given entry
+	 * @return map of agents and assigned to them averaged data
+	 */
+	public Map<String, Double> getAverageValuesForAgents(final DataType dataType, final List<String> agentsOfInterest,
+			final ToDoubleFunction<AgentData> averagingFunc) {
+		if (agentsOfInterest.isEmpty()) {
+			return emptyMap();
+		}
+
+		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
+				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest, MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD);
+		final List<String> agentsPresentInDatabase = agentsData.stream().map(AgentData::aid).toList();
+
+		final Map<String, Double> agentsWithRecordsMap = agentsData.stream()
+				.collect(groupingBy(AgentData::aid, TreeMap::new, averagingDouble(averagingFunc)));
+		final Map<String, Double> agentsWithNoRecords =
+				getAgentsNotPresentInData(agentsPresentInDatabase, agentsOfInterest);
+		agentsWithRecordsMap.putAll(agentsWithNoRecords);
+
+		return agentsWithRecordsMap;
+	}
+
+	private Map<String, Double> getAgentsNotPresentInData(final List<String> presentAgents,
+			final List<String> allConsideredAgents) {
+		return allConsideredAgents.stream()
+				.filter(agent -> !presentAgents.contains(agent))
+				.collect(toMap(agent -> agent, agent -> 0.0));
 	}
 
 	@VisibleForTesting

@@ -8,7 +8,9 @@ import static com.greencloud.application.messages.domain.factory.CallForProposal
 import static com.greencloud.application.messages.domain.factory.ReplyMessageFactory.prepareRefuseReply;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.GS_SERVICE_TYPE;
+import static java.util.stream.Collectors.toMap;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -87,13 +89,14 @@ public class ListenForNewJob extends CyclicBehaviour {
 		}
 
 		final ACLMessage cfp = createCallForProposal(JobMapper.mapJobToPowerJob(job),
-				myServerAgent.getOwnedGreenSources().stream().toList(), SERVER_JOB_CFP_PROTOCOL);
+				myServerAgent.manage().getOwnedActiveGreenSources().stream().toList(), SERVER_JOB_CFP_PROTOCOL);
 
 		myAgent.addBehaviour(new InitiatePowerDeliveryForJob(myAgent, cfp, cnaMessage.createReply(), job));
 	}
 
 	private void reSearchGreenSources() {
 		Set<AID> greenSources = search(myAgent, GS_SERVICE_TYPE, myAgent.getName());
-		myServerAgent.getOwnedGreenSources().addAll(greenSources);
+		Map<AID, Boolean> greenSourcesWithState = greenSources.stream().collect(toMap(gs -> gs, gs -> true));
+		myServerAgent.getOwnedGreenSources().putAll(greenSourcesWithState);
 	}
 }

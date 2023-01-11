@@ -60,7 +60,7 @@ public class HandleManualPowerSupplyFinish extends WakerBehaviour {
 			if (isJobStarted(job, myGreenEnergyAgent.getServerJobs())) {
 				myGreenEnergyAgent.manage().incrementJobCounter(mapToJobInstanceId(job), JobResultType.FINISH);
 			}
-			myGreenEnergyAgent.getServerJobs().remove(job);
+			myGreenEnergyAgent.manage().removeJob(job);
 			myGreenEnergyAgent.manage().updateGreenSourceGUI();
 
 			myAgent.send(prepareManualFinishMessageForServer(mapToJobInstanceId(job), job.getServer()));

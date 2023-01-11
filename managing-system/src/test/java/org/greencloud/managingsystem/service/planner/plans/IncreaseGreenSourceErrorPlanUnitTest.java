@@ -173,16 +173,19 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.02)
+				.isBeingDisconnected(false)
 				.build();
 		var data2 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(0.05)
+				.isBeingDisconnected(false)
 				.build();
 		var data3 = ImmutableGreenSourceMonitoringData.builder()
 				.currentTraffic(0.8)
 				.successRatio(0.7)
 				.weatherPredictionError(1.0)
+				.isBeingDisconnected(false)
 				.build();
 
 		return List.of(

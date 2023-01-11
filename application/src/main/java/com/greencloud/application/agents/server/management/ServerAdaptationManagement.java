@@ -1,7 +1,6 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +24,7 @@ public class ServerAdaptationManagement {
 			return false;
 		}
 
-		newWeights.entrySet().stream()
-				.peek(entry -> increaseWeight(entry, targetGreenSource))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+		newWeights.entrySet().forEach(entry -> increaseWeight(entry, targetGreenSource));
 		serverAgent.manageConfig().setWeightsForGreenSourcesMap(newWeights);
 		return true;
 	}

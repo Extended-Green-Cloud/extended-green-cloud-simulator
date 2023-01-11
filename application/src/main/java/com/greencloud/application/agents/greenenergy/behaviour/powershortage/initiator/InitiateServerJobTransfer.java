@@ -97,7 +97,7 @@ public class InitiateServerJobTransfer extends AchieveREInitiator {
 			if (isJobStarted(jobToTransfer, myGreenAgent.getServerJobs())) {
 				myGreenAgent.manage().incrementJobCounter(mapToJobInstanceId(jobToTransfer), FINISH);
 			}
-			myGreenAgent.getServerJobs().remove(jobToTransfer);
+			myGreenAgent.manage().removeJob(jobToTransfer);
 			myGreenAgent.manage().updateGreenSourceGUI();
 		} else {
 			logger.info(SOURCE_JOB_TRANSFER_SUCCESSFUL_NOT_FOUND_LOG, jobToTransfer.getJobId());

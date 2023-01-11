@@ -22,12 +22,7 @@ interface Props {
  *
  * @returns Cytoscape graph
  */
-export const DisplayGraph = ({
-   nodes,
-   connections,
-   scheduler,
-   setSelectedAgent,
-}: Props) => {
+export const DisplayGraph = ({ nodes, connections, scheduler, setSelectedAgent }: Props) => {
    const [core, setCyCore] = useState<Cytoscape.Core>()
    const nodesRef = useRef<number>(-1)
    const elements = useMemo(

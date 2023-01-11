@@ -4,10 +4,8 @@ import static com.greencloud.application.agents.server.domain.ServerAgentConstan
 import static com.greencloud.application.mapper.JsonMapper.getMapper;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +38,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected volatile AtomicLong currentlyProcessing;
 	protected volatile ConcurrentMap<ClientJob, ExecutionJobStatusEnum> serverJobs;
 	protected Map<String, AID> greenSourceForJobMap;
-	protected Set<AID> ownedGreenSources;
+	protected Map<AID, Boolean> ownedGreenSources;
 	protected AID ownerCloudNetworkAgent;
 
 	AbstractServerAgent() {
@@ -48,7 +46,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 		serverJobs = new ConcurrentHashMap<>();
 		initialMaximumCapacity = 0;
-		ownedGreenSources = new HashSet<>();
+		ownedGreenSources = new HashMap<>();
 		greenSourceForJobMap = new HashMap<>();
 		currentlyProcessing = new AtomicLong(0);
 		agentType = AgentType.SERVER;
@@ -107,7 +105,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 		return serverJobs;
 	}
 
-	public Set<AID> getOwnedGreenSources() {
+	public Map<AID, Boolean> getOwnedGreenSources() {
 		return ownedGreenSources;
 	}
 

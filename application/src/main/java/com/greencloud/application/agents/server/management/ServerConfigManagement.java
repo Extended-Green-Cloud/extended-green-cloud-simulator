@@ -1,12 +1,12 @@
 package com.greencloud.application.agents.server.management;
 
 import static com.greencloud.application.utils.JobUtils.getJobById;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.GreenSourceData;
@@ -44,7 +44,7 @@ public class ServerConfigManagement implements Serializable {
 		return weightsForGreenSourcesMap
 				.entrySet()
 				.stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, entry -> ((double) entry.getValue() * 100) / sum));
+				.collect(toMap(Map.Entry::getKey, entry -> ((double) entry.getValue() * 100) / sum));
 	}
 
 	/**
@@ -84,7 +84,8 @@ public class ServerConfigManagement implements Serializable {
 	 * @param newGreenSources list of green sources to connect to the server
 	 */
 	public void connectNewGreenSourcesToServer(final List<AID> newGreenSources) {
-		serverAgent.getOwnedGreenSources().addAll(newGreenSources);
+		Map<AID, Boolean> greenSourceWithState = newGreenSources.stream().collect(toMap(gs -> gs, gs -> true));
+		serverAgent.getOwnedGreenSources().putAll(greenSourceWithState);
 		assignWeightsToNewGreenSources(newGreenSources);
 	}
 

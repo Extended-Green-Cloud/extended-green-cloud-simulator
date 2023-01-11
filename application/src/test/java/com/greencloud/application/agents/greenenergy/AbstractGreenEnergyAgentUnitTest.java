@@ -1,5 +1,7 @@
 package com.greencloud.application.agents.greenenergy;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,8 +19,8 @@ import org.mockito.Mock;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
-import com.greencloud.commons.managingsystem.planner.ImmutableConnectGreenSourceParameters;
 import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableChangeGreenSourceConnectionParameters;
 
 import jade.lang.acl.ACLMessage;
 
@@ -71,13 +73,31 @@ class AbstractGreenEnergyAgentUnitTest {
 	@Test
 	@DisplayName("Test executing adaptation action for connecting green source to server")
 	void testExecuteActionForConnectingGreenSource() {
-		var adaptationAction = getAdaptationAction(AdaptationActionEnum.CONNECT_GREEN_SOURCE);
-		var adaptationParams = ImmutableConnectGreenSourceParameters.builder()
+		var adaptationAction = getAdaptationAction(CONNECT_GREEN_SOURCE);
+		var adaptationParams = ImmutableChangeGreenSourceConnectionParameters.builder()
 				.serverName("test_server")
 				.build();
-		var message =  new ACLMessage(REQUEST);
+		var message = new ACLMessage(REQUEST);
 		agent.executeAction(adaptationAction, adaptationParams, message);
 
 		verify(mockAdaptationManagement).connectNewServerToGreenSource(adaptationParams, message);
+	}
+
+	@Test
+	@DisplayName("Test executing adaptation action for disconnecting green source from server")
+	void testExecuteActionForDisconnectGreenSource() {
+		var adaptationAction = getAdaptationAction(DISCONNECT_GREEN_SOURCE);
+		var adaptationParams = ImmutableChangeGreenSourceConnectionParameters.builder()
+				.serverName("test_server")
+				.build();
+		var message = new ACLMessage(REQUEST);
+		agent.executeAction(adaptationAction, adaptationParams, message);
+
+		verify(mockAdaptationManagement).disconnectGreenSourceFromServer(adaptationParams, message);
+
+		assertThat(mockAdaptationManagement.getGreenSourceDisconnectionState()).satisfies(state -> {
+			assertThat(state.getOriginalAdaptationMessage()).isEqualTo(message);
+			assertThat(state.isBeingDisconnected()).isTrue();
+		});
 	}
 }

@@ -156,7 +156,7 @@ public class ListenForSourceJobTransferRequest extends CyclicBehaviour {
 	}
 
 	private List<AID> getRemainingGreenSources(final AID greenSourceSender) {
-		return myServerAgent.getOwnedGreenSources().stream()
+		return myServerAgent.manage().getOwnedActiveGreenSources().stream()
 				.filter(greenSource -> !greenSource.equals(greenSourceSender)).toList();
 	}
 }

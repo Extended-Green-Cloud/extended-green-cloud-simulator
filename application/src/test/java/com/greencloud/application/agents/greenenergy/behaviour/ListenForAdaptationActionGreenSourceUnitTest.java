@@ -2,6 +2,7 @@ package com.greencloud.application.agents.greenenergy.behaviour;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_REQUEST;
@@ -34,9 +35,9 @@ import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdapt
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
 import com.greencloud.application.behaviours.ListenForAdaptationAction;
 import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.ConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.ImmutableConnectGreenSourceParameters;
+import com.greencloud.commons.managingsystem.planner.ImmutableChangeGreenSourceConnectionParameters;
 import com.greencloud.commons.message.MessageBuilder;
 
 import jade.core.AID;
@@ -115,11 +116,28 @@ class ListenForAdaptationActionGreenSourceUnitTest {
 
 		verify(greenEnergyAgent).executeAction(
 				argThat((data -> data.getAction().equals(CONNECT_GREEN_SOURCE))),
-				argThat((data) -> data instanceof ConnectGreenSourceParameters &&
-						Objects.equals(((ConnectGreenSourceParameters) data).getServerName(), "test_server")),
+				argThat((data) -> data instanceof ChangeGreenSourceConnectionParameters &&
+						Objects.equals(((ChangeGreenSourceConnectionParameters) data).getServerName(), "test_server")),
 				eq(testMessage));
 
 		verify(greenEnergyAdaptationManagement).connectNewServerToGreenSource(any(), eq(testMessage));
+	}
+
+	@Test
+	@DisplayName("Test receiving adaptation message for disconnecting green source with server")
+	void testDisConnectGreenSourceAction() {
+		var testMessage = prepareTestDisconnectGreenSourceMessage();
+		when(greenEnergyAgent.receive(EXECUTE_ACTION_REQUEST)).thenReturn(testMessage);
+
+		listenForAdaptationAction.action();
+
+		verify(greenEnergyAgent).executeAction(
+				argThat((data -> data.getAction().equals(DISCONNECT_GREEN_SOURCE))),
+				argThat((data) -> data instanceof ChangeGreenSourceConnectionParameters &&
+						Objects.equals(((ChangeGreenSourceConnectionParameters) data).getServerName(), "test_server")),
+				eq(testMessage));
+
+		verify(greenEnergyAdaptationManagement).disconnectGreenSourceFromServer(any(), eq(testMessage));
 	}
 
 	private ACLMessage prepareTestAdjustErrorMessage(AdaptationActionEnum action, double value) {
@@ -139,7 +157,19 @@ class ListenForAdaptationActionGreenSourceUnitTest {
 				.withPerformative(REQUEST)
 				.withConversationId(CONNECT_GREEN_SOURCE.toString())
 				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
-				.withObjectContent(ImmutableConnectGreenSourceParameters.builder()
+				.withObjectContent(ImmutableChangeGreenSourceConnectionParameters.builder()
+						.serverName("test_server")
+						.build())
+				.withReceivers(mock(AID.class))
+				.build();
+	}
+
+	private ACLMessage prepareTestDisconnectGreenSourceMessage() {
+		return MessageBuilder.builder()
+				.withPerformative(REQUEST)
+				.withConversationId(DISCONNECT_GREEN_SOURCE.toString())
+				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
+				.withObjectContent(ImmutableChangeGreenSourceConnectionParameters.builder()
 						.serverName("test_server")
 						.build())
 				.withReceivers(mock(AID.class))

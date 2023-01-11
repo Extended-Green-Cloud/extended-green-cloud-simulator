@@ -20,11 +20,6 @@ public interface ServerMonitoringData extends NetworkComponentMonitoringData {
 	int getCurrentMaximumCapacity();
 
 	/**
-	 * @return current server traffic
-	 */
-	double getCurrentTraffic();
-
-	/**
 	 * @return current back up power usage
 	 */
 	double getCurrentBackUpPowerUsage();

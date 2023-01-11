@@ -77,7 +77,7 @@ class ExecutorServiceDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = spy(new TimescaleDatabase());
+		database = spy(TimescaleDatabase.setUpForTests());
 		database.initDatabase();
 
 		agentRunner = mock(AgentRunner.class);
