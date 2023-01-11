@@ -50,10 +50,12 @@ class CloudNetworkStateManagementUnitTest {
 	void init() {
 		Map<ClientJob, ExecutionJobStatusEnum> MOCK_JOBS = setUpCloudNetworkJobs();
 		var mockAID = mock(AID.class);
+		var mockConfig = mock(CloudNetworkConfigManagement.class);
 
 		when(mockAID.getName()).thenReturn("test_name");
 		when(mockCloudNetwork.getAID()).thenReturn(mockAID);
 		when(mockCloudNetwork.getGuiController()).thenReturn(guiController);
+		when(mockCloudNetwork.manageConfig()).thenReturn(mockConfig);
 		cloudNetworkStateManagement = new CloudNetworkStateManagement(mockCloudNetwork);
 
 		doReturn(MOCK_JOBS).when(mockCloudNetwork).getNetworkJobs();

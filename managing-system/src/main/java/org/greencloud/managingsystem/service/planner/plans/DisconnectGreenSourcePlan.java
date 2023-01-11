@@ -139,7 +139,9 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 						.toList();
 
 		final Function<Map.Entry<String, List<String>>, List<String>> getServersForGreenSource = entry ->
-				entry.getValue().stream().map(server -> getAIDByName(serversWithMoreThanOneGreenSource, server))
+				entry.getValue().stream()
+						.filter(server -> isNameInAIDs(serversWithMoreThanOneGreenSource, server))
+						.map(server -> getAIDByName(serversWithMoreThanOneGreenSource, server))
 						.toList();
 
 		return greenSourcesForDisconnection.entrySet().stream()

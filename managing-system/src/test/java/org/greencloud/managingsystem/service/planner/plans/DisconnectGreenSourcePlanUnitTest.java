@@ -66,7 +66,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		mockManagingAgent = spy(ManagingAgent.class);
 		mockStructure = mock(ScenarioStructureArgs.class);
 		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
-		mockDatabase = spy(TimescaleDatabase.class);
+		mockDatabase = spy(TimescaleDatabase.setUpForTests());
 
 		doReturn(mockStructure).when(mockManagingAgent).getGreenCloudStructure();
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();
@@ -133,8 +133,9 @@ class DisconnectGreenSourcePlanUnitTest {
 				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 
 		var expectedMap = Map.of(
-				"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2"),
-				"test_gs2@192.168.56.1:6996/JADE", List.of("test_server2", "test_server3")
+				"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2@192.168.56.1:6996/JADE"),
+				"test_gs2@192.168.56.1:6996/JADE",
+				List.of("test_server2@192.168.56.1:6996/JADE", "test_server3@192.168.56.1:6996/JADE")
 		);
 
 		assertThat(disconnectGreenSourcePlan.getGreenSourcesWithServersForDisconnection(greenSourcesWithServers))
@@ -306,8 +307,9 @@ class DisconnectGreenSourcePlanUnitTest {
 				.hasSize(2)
 				.as("Result contains correct fields")
 				.containsExactlyInAnyOrderEntriesOf(Map.of(
-						"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2"),
-						"test_gs2@192.168.56.1:6996/JADE", List.of("test_server2", "test_server3")
+						"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2@192.168.56.1:6996/JADE"),
+						"test_gs2@192.168.56.1:6996/JADE",
+						List.of("test_server2@192.168.56.1:6996/JADE", "test_server3@192.168.56.1:6996/JADE")
 				));
 		assertThat(result).isTrue();
 	}

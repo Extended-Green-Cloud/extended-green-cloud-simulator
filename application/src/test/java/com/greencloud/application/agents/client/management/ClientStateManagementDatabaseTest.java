@@ -50,7 +50,7 @@ class ClientStateManagementDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = new TimescaleDatabase();
+		database = TimescaleDatabase.setUpForTests();
 		database.initDatabase();
 
 		mockClient = spy(ClientAgent.class);

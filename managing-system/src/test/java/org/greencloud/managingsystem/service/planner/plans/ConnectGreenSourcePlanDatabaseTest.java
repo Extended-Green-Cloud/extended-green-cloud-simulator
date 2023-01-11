@@ -38,7 +38,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 
 	@BeforeEach
 	void init() {
-		database = spy(new TimescaleDatabase());
+		database = spy(TimescaleDatabase.setUpForTests());
 		database.initDatabase();
 
 		mockManagingAgent = spy(ManagingAgent.class);
