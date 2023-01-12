@@ -64,7 +64,6 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 					"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent",
 					new Object[] { maximumCapacity });
 		} else if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgent) {
-			// TODO add connectedServers() when done
 			return containerController.createNewAgent(greenEnergyAgent.getName(),
 					"com.greencloud.application.agents.greenenergy.GreenEnergyAgent",
 					new Object[] { greenEnergyAgent.getMonitoringAgent(),
