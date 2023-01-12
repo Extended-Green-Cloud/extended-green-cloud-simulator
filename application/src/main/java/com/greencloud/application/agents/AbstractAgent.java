@@ -1,6 +1,11 @@
 package com.greencloud.application.agents;
 
+import static com.greencloud.commons.agent.AgentType.CLIENT;
+
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.DataType;
@@ -19,6 +24,8 @@ import jade.lang.acl.ACLMessage;
  */
 public abstract class AbstractAgent extends Agent {
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractAgent.class);
+
 	protected AgentType agentType;
 	private GuiController guiController;
 	private AbstractAgentNode agentNode;
@@ -34,7 +41,8 @@ public abstract class AbstractAgent extends Agent {
 
 	@Override
 	protected void takeDown() {
-		if (Objects.nonNull(getGuiController())) {
+		logger.info("I'm finished. Bye!");
+		if (Objects.nonNull(getGuiController()) && !agentType.equals(CLIENT)) {
 			getGuiController().removeAgentNodeFromGraph(getAgentNode());
 		}
 		super.takeDown();

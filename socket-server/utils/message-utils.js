@@ -317,6 +317,14 @@ const handleJobSplit = (state, msg) => {
 const handleUpdatePowerPriority = (state, msg) => state.agents.scheduler.powerPriority = msg.data
 const handleUpdateDeadlinePriority = (state, msg) => state.agents.scheduler.deadlinePriority = msg.data
 
+const handleRemoveAgent = (state, msg) => {
+    const agentName = msg.agentName
+
+    state.agents.agents = state.agents.agents.filter(agent => agent.name !== agentName)
+    state.graph.nodes = state.graph.nodes.filter(node => node.id !== agentName)
+    state.graph.connections =
+        state.graph.connections.filter(edge => edge.data.target !== agentName && edge.data.source !== agentName)
+}
 
 module.exports = {
     MESSAGE_HANDLERS: {
@@ -346,6 +354,7 @@ module.exports = {
         SET_WEATHER_PREDICTION_ERROR: handleWeatherPredictionError,
         SPLIT_JOB: handleJobSplit,
         REGISTER_AGENT: handleRegisterAgent,
+        REMOVE_AGENT: handleRemoveAgent,
         REGISTER_MANAGING: handleRegisterManaging,
         ADD_ADAPTATION_LOG: handleAddAdaptationLog,
     }

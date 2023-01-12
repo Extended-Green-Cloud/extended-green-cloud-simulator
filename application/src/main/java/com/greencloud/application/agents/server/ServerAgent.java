@@ -57,12 +57,6 @@ public class ServerAgent extends AbstractServerAgent {
 		addBehaviour(new ReceiveGUIController(this, behavioursRunAtStart()));
 	}
 
-	@Override
-	protected void takeDown() {
-		logger.info("I'm finished. Bye!");
-		super.takeDown();
-	}
-
 	private void initializeAgent(final Object[] args) {
 		if (Objects.nonNull(args) && args.length == 4) {
 			this.stateManagement = new ServerStateManagement(this);
