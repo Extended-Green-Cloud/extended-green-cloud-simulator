@@ -6,21 +6,25 @@ import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_GOA
 import static com.database.knowledge.timescale.DdlCommands.CREATE_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_DATA;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_INDEX;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_CONSTANTS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
+import static com.database.knowledge.timescale.DdlCommands.DROP_SYSTEM_CONSTANTS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_SYSTEM_QUALITY;
 import static com.database.knowledge.timescale.DdlCommands.INSERT_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_5_SEC;
 import static com.database.knowledge.timescale.DdlCommands.SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC;
+import static com.database.knowledge.timescale.DmlQueries.INSERT_DEFAULT_SYSTEM_CONSTANTS;
 import static java.lang.String.format;
 
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -141,6 +145,17 @@ public class TimescaleDatabase implements Closeable {
 	}
 
 	/**
+	 * Method reads constant system start time
+	 */
+	public Instant readSystemStartTime() {
+		try {
+			return statementsExecutor.executeReadSystemStartStatement();
+		} catch (SQLException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
 	 * Sets given adaptation action as again available
 	 *
 	 * @param actionId id of the adaption action to update
@@ -242,7 +257,7 @@ public class TimescaleDatabase implements Closeable {
 	 * @return List of {@link AgentData}, which are immutable java records which represent in 1:1 relation read rows.
 	 */
 	public List<AgentData> readLatestNRowsMonitoringDataForDataTypeAndAID(DataType type, List<String> aidList,
-																		  int rowCount) {
+			int rowCount) {
 		try {
 			return statementsExecutor.executeMultipleRowsReadMonitoringDataForDataTypeAndAID(type, aidList, rowCount);
 		} catch (SQLException | JsonProcessingException exception) {
@@ -319,6 +334,7 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(DROP_ADAPTATION_ACTIONS);
 			statement.execute(DROP_ADAPTATION_GOALS);
 			statement.execute(DROP_SYSTEM_QUALITY);
+			statement.execute(DROP_SYSTEM_CONSTANTS);
 		}
 	}
 
@@ -328,12 +344,14 @@ public class TimescaleDatabase implements Closeable {
 			statement.execute(CREATE_ADAPTATION_GOALS);
 			statement.execute(CREATE_ADAPTATION_ACTIONS);
 			statement.execute(CREATE_SYSTEM_QUALITY);
+			statement.execute(CREATE_SYSTEM_CONSTANTS);
 			statement.execute(CREATE_HYPERTABLE);
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.execute(CREATE_MONITORING_INDEX);
 			statement.execute(CREATE_SYSTEM_QUALITY_HYPERTABLE);
 			statement.execute(SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
+			statement.executeUpdate(INSERT_DEFAULT_SYSTEM_CONSTANTS);
 			for (var action : getAdaptationActions()) {
 				statementsExecutor.executeWriteStatement(action);
 			}

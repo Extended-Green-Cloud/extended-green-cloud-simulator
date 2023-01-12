@@ -3,6 +3,7 @@ package com.greencloud.application.agents.greenenergy.behaviour.weathercheck.req
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData.getJobsTimetable;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -25,7 +26,7 @@ class RequestWeatherDataUnitTest {
 
 	@BeforeEach
 	void init() {
-		setSystemStartTime();
+		setSystemStartTime(now());
 	}
 
 	@Test

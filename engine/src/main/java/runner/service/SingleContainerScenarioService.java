@@ -51,8 +51,8 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 			createAgents(scenario.getServerAgentsArgs(), scenario);
 			createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
 		}
+		setSystemStartTime(timescaleDatabase.readSystemStartTime());
 		runAgents(AGENTS_TO_RUN);
-		setSystemStartTime();
 
 		if (Objects.isNull(scenarioEventsFileName)) {
 			runClientAgents(CLIENT_NUMBER, factory);

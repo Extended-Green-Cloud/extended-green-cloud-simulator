@@ -68,6 +68,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	public void run() {
 		File scenarioFile = readFile(scenarioStructureFileName);
 		scenario = parseScenarioStructure(scenarioFile);
+		setSystemStartTime(timescaleDatabase.readSystemStartTime());
 
 		if (mainHost) {
 			runCommonAgentContainers(scenario);
@@ -75,7 +76,6 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		}
 
 		if (hostId == CLIENTS_CONTAINER_ID.ordinal()) {
-			setSystemStartTime();
 			if (Objects.nonNull(scenarioEventsFileName)) {
 				var factory = new AgentControllerFactoryImpl(mainContainer);
 				eventService.runScenarioEvents(factory);

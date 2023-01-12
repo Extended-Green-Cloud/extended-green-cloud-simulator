@@ -1,7 +1,6 @@
 package com.greencloud.application.utils;
 
 import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
-import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -16,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,9 +37,7 @@ public class TimeUtils {
 	private static final int SECONDS_IN_HOUR = 3600;
 	private static final int MINUTES_IN_HOUR = 60;
 	private static final Long TIME_ERROR = 5L;
-
-	//TODO store this information in the database so that all agents has access to it
-	public static Instant SYSTEM_START_TIME = now();
+	public static Instant SYSTEM_START_TIME;
 	private static Clock CLOCK = Clock.systemDefaultZone();
 
 	/**
@@ -202,18 +198,9 @@ public class TimeUtils {
 	}
 
 	/**
-	 * Method sets the system start time to the current time
+	 * Method sets the system start time to given value
 	 */
-	public static void setSystemStartTime() {
-		if (Objects.isNull(SYSTEM_START_TIME)) {
-			SYSTEM_START_TIME = getCurrentTime();
-		}
-	}
-
-	/**
-	 * Method sets the system start time to mock value
-	 */
-	public static void setSystemStartTimeMock(Instant instant) {
+	public static void setSystemStartTime(Instant instant) {
 		SYSTEM_START_TIME = instant;
 	}
 }

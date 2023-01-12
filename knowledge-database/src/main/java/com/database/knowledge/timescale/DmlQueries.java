@@ -60,6 +60,14 @@ public final class DmlQueries {
 	static final String RELEASE_ADAPTATION_ACTION =
 			"UPDATE adaptation_actions SET is_available = TRUE WHERE action_id = ?";
 
+	/**
+	 * System constants table queries
+	 */
+	static final String INSERT_DEFAULT_SYSTEM_CONSTANTS =
+			"INSERT INTO system_constants (start_time) VALUES (NOW())";
+	static final String READ_SYSTEM_START_TIME =
+			"SELECT start_time FROM system_constants LIMIT 1 ";
+
 	private DmlQueries() {
 	}
 }

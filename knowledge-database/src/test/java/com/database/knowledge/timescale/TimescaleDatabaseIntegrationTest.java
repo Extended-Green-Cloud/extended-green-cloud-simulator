@@ -14,8 +14,11 @@ import static com.greencloud.commons.job.ClientJobStatusEnum.FAILED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.AbstractMap;
@@ -519,8 +522,16 @@ class TimescaleDatabaseIntegrationTest {
 		assertThat(result.get(1).monitoringData()).isEqualTo(data3);
 	}
 
+	@Test
+	void testReadSystemStartTime() {
+		var currentTime = now();
 
-   private List<WeatherShortages> prepareMonitoredDataForAIDTest() {
+		database.initDatabase();
+		var result = database.readSystemStartTime();
+		assertThat(result).isCloseTo(currentTime, within(1, SECONDS));
+	}
+
+	private List<WeatherShortages> prepareMonitoredDataForAIDTest() {
 		final WeatherShortages data1 = new WeatherShortages(1, 1000);
 		final WeatherShortages data2 = new WeatherShortages(10, 1000);
 		final WeatherShortages data3 = new WeatherShortages(3, 1000);

@@ -6,6 +6,15 @@ package com.database.knowledge.timescale;
 public final class DdlCommands {
 
 	/**
+	 * System constants table commands
+	 */
+	static final String DROP_SYSTEM_CONSTANTS = "DROP TABLE IF EXISTS system_constants";
+	static final String CREATE_SYSTEM_CONSTANTS = """
+			CREATE TABLE system_constants (
+			start_time TIMESTAMPTZ NOT NULL)
+			""";
+
+	/**
 	 * Monitoring data table commands
 	 */
 	static final String DROP_MONITORING_DATA = "DROP TABLE IF EXISTS monitoring_data";

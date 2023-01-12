@@ -2,7 +2,7 @@ package com.greencloud.application.utils;
 
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDateAndServer;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.CREATED;
@@ -97,7 +97,7 @@ class JobUtilsUnitTest {
 	@BeforeEach
 	void setUp() {
 		useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
-		setSystemStartTimeMock(Instant.parse("2022-01-01T05:00:00.000Z"));
+		setSystemStartTime(Instant.parse("2022-01-01T05:00:00.000Z"));
 	}
 
 	// TESTS
