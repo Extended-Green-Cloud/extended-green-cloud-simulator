@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.greencloud.application.agents.server.behaviour.df.listener.ListenForAdditionalGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
-import com.greencloud.application.agents.server.behaviour.df.listener.ListenForGreenSourceServiceDisconnection;
+import com.greencloud.application.agents.server.behaviour.df.listener.ListenForCloudNetworkInformationRequest;
+import com.greencloud.application.agents.server.behaviour.df.listener.ListenForGreenSourceServiceUpdate;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
@@ -96,8 +96,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
 				new ListenForServerJobCancellation(),
-				new ListenForAdditionalGreenSourceService(this),
-				new ListenForGreenSourceServiceDisconnection(this),
+				new ListenForCloudNetworkInformationRequest(this),
+				new ListenForGreenSourceServiceUpdate(this),
 				new ListenForAdaptationAction(this)
 		);
 	}

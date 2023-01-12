@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
+import com.greencloud.application.utils.TimeUtils;
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.ImmutableClientJob;
@@ -66,6 +68,7 @@ class CloudNetworkStateManagementUnitTest {
 	@Test
 	@DisplayName("Test get current power in use")
 	void testGetCurrentPowerInUser() {
+		TimeUtils.useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
 		assertThat(cloudNetworkStateManagement.getCurrentPowerInUse()).isEqualTo(30);
 	}
 

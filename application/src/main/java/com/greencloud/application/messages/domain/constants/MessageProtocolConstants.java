@@ -6,6 +6,14 @@ package com.greencloud.application.messages.domain.constants;
 public class MessageProtocolConstants {
 
 	/**
+	 * Service protocols
+	 *
+	 * ASK_FOR_POWER_PROTOCOL - protocol used in messages sent by the Cloud Network Agents asking owned Servers for
+	 * 							their maximum capacity information
+	 */
+	public static final String ASK_FOR_POWER_PROTOCOL= "ASK_FOR_POWER_PROTOCOL";
+
+	/**
 	 * Agent connections protocols
 	 *
 	 * CONNECT_GREEN_SOURCE_PROTOCOL 	- protocol used in messages sent by the Green Source informing Server that

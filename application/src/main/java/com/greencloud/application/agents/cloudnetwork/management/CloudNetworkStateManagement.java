@@ -7,6 +7,9 @@ import static com.greencloud.application.agents.cloudnetwork.management.logs.Clo
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.GUIUtils.announceFinishedJob;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
+import static com.greencloud.application.utils.JobUtils.isJobStarted;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.PROCESSING;
 import static com.greencloud.commons.job.JobResultType.ACCEPTED;
@@ -25,8 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.commons.job.ExecutionJobStatusEnum;
 import com.greencloud.commons.job.JobResultType;
+import com.greencloud.commons.job.PowerJob;
 import com.gui.agents.CloudNetworkAgentNode;
 
 /**
@@ -50,9 +53,11 @@ public class CloudNetworkStateManagement {
 	 * @return current power in use
 	 */
 	public int getCurrentPowerInUse() {
-		return cloudNetworkAgent.getNetworkJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS))
-				.mapToInt(job -> job.getKey().getPower())
+		return cloudNetworkAgent.getNetworkJobs().keySet()
+				.stream()
+				.filter(job -> isJobStarted(job, cloudNetworkAgent.getNetworkJobs()) &&
+						isWithinTimeStamp(job.getStartTime(), job.getEndTime(), getCurrentTime()))
+				.mapToInt(PowerJob::getPower)
 				.sum();
 	}
 
@@ -82,6 +87,17 @@ public class CloudNetworkStateManagement {
 		updateCloudNetworkGUI();
 	}
 
+	/**
+	 * Method updates information regarding CNA's maximum capacity
+	 *
+	 * @param newCapacity new maximum capacity
+	 */
+	public void updateMaximumCapacity(final double newCapacity) {
+		cloudNetworkAgent.setMaximumCapacity(newCapacity);
+		((CloudNetworkAgentNode) cloudNetworkAgent.getAgentNode()).updateMaximumCapacity(newCapacity,
+				getCurrentPowerInUse());
+	}
+
 	public Map<JobResultType, Long> getJobCounters() {
 		return jobCounters;
 	}
@@ -103,7 +119,6 @@ public class CloudNetworkStateManagement {
 		cloudNetworkAgent.manageConfig().saveMonitoringData();
 	}
 
-
 	private int getJobInProgressCount() {
 		return cloudNetworkAgent.getNetworkJobs().entrySet().stream()
 				.filter(job -> job.getValue().equals(IN_PROGRESS))
@@ -120,6 +135,7 @@ public class CloudNetworkStateManagement {
 
 	/**
 	 * Method returns the success ratio of the cna
+	 *
 	 * @return success ratio
 	 */
 	public double getSuccessRatio() {

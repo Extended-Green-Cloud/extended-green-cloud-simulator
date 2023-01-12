@@ -353,8 +353,7 @@ public class ServerStateManagement {
 
 	private int getJobCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> isJobStarted(job.getValue()) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.filter(job -> isJobStarted(job.getValue()))
 				.map(Map.Entry::getKey).map(ClientJob::getJobId).collect(toSet()).size();
 	}
 
@@ -364,21 +363,21 @@ public class ServerStateManagement {
 
 	private int getCurrentPowerInUseForServer() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(IN_PROGRESS) && isWithinTimeStamp(job.getKey().getStartTime(),
-						job.getKey().getEndTime(), getCurrentTime())).mapToInt(job -> job.getKey().getPower()).sum();
+				.filter(job -> job.getValue().equals(IN_PROGRESS))
+				.mapToInt(job -> job.getKey().getPower())
+				.sum();
 	}
 
 	private int getCurrentBackUpPowerInUseForServer() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(IN_PROGRESS_BACKUP_ENERGY) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
-				.mapToInt(job -> job.getKey().getPower()).sum();
+				.filter(job -> job.getValue().equals(IN_PROGRESS_BACKUP_ENERGY))
+				.mapToInt(job -> job.getKey().getPower())
+				.sum();
 	}
 
 	private int getOnHoldJobsCount() {
 		return serverAgent.getServerJobs().entrySet().stream()
-				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()) && isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()))
 				.toList().size();
 	}
 

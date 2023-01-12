@@ -18,7 +18,6 @@ import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndT
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ACTIVE_JOB_STATUSES;
@@ -239,9 +238,7 @@ public class GreenEnergyStateManagement {
 	 */
 	public int getCurrentPowerInUseForGreenSource() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
-				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS)
-						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
-						getCurrentTime()))
+				.filter(job -> job.getValue().equals(ExecutionJobStatusEnum.IN_PROGRESS))
 				.mapToInt(job -> job.getKey().getPower())
 				.sum();
 	}
@@ -330,18 +327,14 @@ public class GreenEnergyStateManagement {
 
 	private int getOnHoldJobCount() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
-				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue())
-						&& isWithinTimeStamp(
-						job.getKey().getStartTime(), job.getKey().getEndTime(), getCurrentTime()))
+				.filter(job -> JOB_ON_HOLD_STATUSES.contains(job.getValue()))
 				.toList()
 				.size();
 	}
 
 	private int getJobCount() {
 		return greenEnergyAgent.getServerJobs().entrySet().stream()
-				.filter(job -> isJobStarted(job.getValue())
-						&& isWithinTimeStamp(job.getKey().getStartTime(), job.getKey().getEndTime(),
-						getCurrentTime()))
+				.filter(job -> isJobStarted(job.getValue()))
 				.map(Map.Entry::getKey)
 				.map(ServerJob::getJobId)
 				.collect(Collectors.toSet())

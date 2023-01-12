@@ -1,5 +1,5 @@
 const { AGENT_TYPES, JOB_STATUES } = require("../constants/constants")
-const { getAgentByName, getAgentNodeById, getNewTraffic, createAgentConnections, registerAgent, createEdge, createNodeForAgent, getNodeState } = require("./agent-utils")
+const { getAgentByName, getAgentNodeById, getNewTraffic, createAgentConnections, registerAgent, createEdge, createNodeForAgent, getNodeState, getNewCloudNetworkTraffic } = require("./agent-utils")
 const sleep = require('util').promisify(setTimeout)
 
 const handleIncrementFinishJobs = (state, msg) => {
@@ -27,9 +27,14 @@ const handleSetMaximumCapacity = (state, msg) => {
     const node = getAgentNodeById(state.graph.nodes, msg.agentName)
     const { maximumCapacity, powerInUse } = msg.data
 
-    if (agent) {
-        agent.currentMaximumCapacity = maximumCapacity
-        agent.traffic = getNewTraffic(maximumCapacity, powerInUse)
+    if (agent) {    
+        if (agent.type === AGENT_TYPES.CLOUD_NETWORK) {
+            agent.maximumCapacity = maximumCapacity
+            getNewCloudNetworkTraffic(agent, powerInUse, state)
+        } else {
+            agent.currentMaximumCapacity = maximumCapacity
+            agent.traffic = getNewTraffic(maximumCapacity, powerInUse)
+        }
 
         if (node) {
             node.state = getNodeState(agent)
@@ -44,14 +49,7 @@ const handleSetTraffic = (state, msg) => {
 
     if (agent) {
         if (agent.type === AGENT_TYPES.CLOUD_NETWORK) {
-            agent.isActive = powerInUse > 0
-            agent.traffic = getNewTraffic(agent.maximumCapacity, powerInUse)
-
-            const connection = state.graph.connections.find(el => el.data.source === agent.name)
-
-            if (connection) {
-                connection.state = agent.isActive ? 'active' : 'inactive'
-            }
+            getNewCloudNetworkTraffic(agent, powerInUse, state)
         } else {
             agent.traffic = getNewTraffic(agent.currentMaximumCapacity, powerInUse)
         }

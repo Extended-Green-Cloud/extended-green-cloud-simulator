@@ -1,22 +1,20 @@
 package com.greencloud.application.agents.cloudnetwork.management;
 
+import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.database.knowledge.domain.agent.DataType;
-import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
-import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
-import com.greencloud.commons.job.PowerJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 
 import jade.core.AID;
-
-import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.SAVED_MONITORING_DATA_LOG;
-import static com.greencloud.application.utils.JobUtils.isJobStarted;
 
 public class CloudNetworkConfigManagement {
 
@@ -70,8 +68,7 @@ public class CloudNetworkConfigManagement {
 	 */
 	public void saveMonitoringData() {
 		var maxCapacity = cloudNetworkAgent.getMaximumCapacity();
-		var traffic = getCurrentTraffic();
-
+		var traffic = cloudNetworkAgent.manage().getCurrentPowerInUse();
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
 				.currentTraffic(maxCapacity == 0 ? 0 : traffic / maxCapacity)
 				.availablePower(maxCapacity - traffic)
@@ -81,12 +78,4 @@ public class CloudNetworkConfigManagement {
 		logger.info(SAVED_MONITORING_DATA_LOG, cloudNetworkAgent.getAID().getName());
 	}
 
-	private double getCurrentTraffic() {
-		return cloudNetworkAgent.getNetworkJobs()
-				.entrySet().stream()
-				.filter(entry -> isJobStarted(entry.getValue()))
-				.map(Map.Entry::getKey)
-				.mapToInt(PowerJob::getPower)
-				.sum();
-	}
 }

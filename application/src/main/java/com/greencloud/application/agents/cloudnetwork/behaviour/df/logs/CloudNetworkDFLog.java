@@ -12,4 +12,7 @@ public class CloudNetworkDFLog {
 	// NETWORK CHANGE LISTENER
 	public static final String FOUND_NEW_SERVERS_LOG = "Found {} new servers in the network!";
 	public static final String FOUND_REMOVED_SERVERS_LOG = "Found {} removed servers in the network!";
+
+	// ASK FOR SERVER POWER LOG MESSAGES
+	public static final String UPDATE_MAX_CAPACITY_LOG = "Updating information regarding maximum capacity!";
 }

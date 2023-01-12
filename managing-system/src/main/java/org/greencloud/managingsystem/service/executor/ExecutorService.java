@@ -149,6 +149,7 @@ public class ExecutorService extends AbstractManagingService {
 		ACLMessage announcementMessage = MessageBuilder.builder()
 				.withPerformative(INFORM)
 				.withMessageProtocol(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
+				.withStringContent(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
 				.withReceivers(cloudNetworkAgents)
 				.build();
 		managingAgent.send(announcementMessage);
