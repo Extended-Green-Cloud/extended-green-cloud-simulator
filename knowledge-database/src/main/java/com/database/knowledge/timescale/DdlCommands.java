@@ -6,6 +6,15 @@ package com.database.knowledge.timescale;
 public final class DdlCommands {
 
 	/**
+	 * System constants table commands
+	 */
+	static final String DROP_SYSTEM_CONSTANTS = "DROP TABLE IF EXISTS system_constants";
+	static final String CREATE_SYSTEM_CONSTANTS = """
+			CREATE TABLE system_constants (
+			start_time TIMESTAMPTZ NOT NULL)
+			""";
+
+	/**
 	 * Monitoring data table commands
 	 */
 	static final String DROP_MONITORING_DATA = "DROP TABLE IF EXISTS monitoring_data";
@@ -37,7 +46,7 @@ public final class DdlCommands {
 			INSERT INTO adaptation_goals (goal_id, goal_name, threshold, is_above_threshold, weight) VALUES
 			(1, 'Maximize job success ratio', 0.8, true, 0.6),
 			(2, 'Minimize used backup power', 0.2, false, 0.2),
-			(3, 'Distribute traffic evenly', 0.8, false, 0.2)
+			(3, 'Distribute traffic evenly', 1, false, 0.2)
 			""";
 
 	/**

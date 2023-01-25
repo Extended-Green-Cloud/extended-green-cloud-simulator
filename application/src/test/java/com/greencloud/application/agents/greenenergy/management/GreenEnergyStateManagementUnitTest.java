@@ -2,7 +2,7 @@ package com.greencloud.application.agents.greenenergy.management;
 
 import static com.greencloud.application.constants.CacheTestConstants.MOCK_WEATHER;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
 import static com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS;
@@ -82,7 +82,7 @@ class GreenEnergyStateManagementUnitTest {
 	@BeforeAll
 	static void setUpAll() {
 		useMockTime(Instant.parse("2022-01-01T09:00:00.000Z"), ZoneId.of("UTC"));
-		setSystemStartTimeMock(Instant.parse("2022-01-01T05:00:00.000Z"));
+		setSystemStartTime(Instant.parse("2022-01-01T05:00:00.000Z"));
 	}
 
 	@BeforeEach

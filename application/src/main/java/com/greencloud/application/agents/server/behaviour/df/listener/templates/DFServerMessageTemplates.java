@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.server.behaviour.df.listener.templates;
 
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.ASK_FOR_POWER_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DEACTIVATE_GREEN_SOURCE_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DISCONNECT_GREEN_SOURCE_PROTOCOL;
@@ -15,8 +16,10 @@ import jade.lang.acl.MessageTemplate;
  * Class stores all message templates used in listener behaviours for DF registration
  */
 public class DFServerMessageTemplates {
-	public static final MessageTemplate GREEN_SOURCE_CONNECTION_TEMPLATE = and(MatchPerformative(REQUEST),
-			MatchProtocol(CONNECT_GREEN_SOURCE_PROTOCOL));
-	public static final MessageTemplate GREEN_SOURCE_DISCONNECTION_TEMPLATE = and(MatchPerformative(REQUEST),
-			or(MatchProtocol(DEACTIVATE_GREEN_SOURCE_PROTOCOL), MatchProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL)));
+	public static final MessageTemplate GREEN_SOURCE_UPDATE_TEMPLATE = and(MatchPerformative(REQUEST),
+			or(or(MatchProtocol(DEACTIVATE_GREEN_SOURCE_PROTOCOL), MatchProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL)),
+					MatchProtocol(CONNECT_GREEN_SOURCE_PROTOCOL)));
+
+	public static final MessageTemplate CLOUD_NETWORK_INFORMATION_TEMPLATE =
+			and(MatchPerformative(REQUEST), MatchProtocol(ASK_FOR_POWER_PROTOCOL));
 }

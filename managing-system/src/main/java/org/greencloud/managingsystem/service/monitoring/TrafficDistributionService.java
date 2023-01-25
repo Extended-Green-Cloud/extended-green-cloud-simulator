@@ -37,7 +37,7 @@ import com.google.common.annotations.VisibleForTesting;
 public class TrafficDistributionService extends AbstractGoalService {
 
 	public static final GoalEnum GOAL = DISTRIBUTE_TRAFFIC_EVENLY;
-	public static final int AGGREGATION_SIZE = 2;
+	public static final int AGGREGATION_SIZE = 10;
 	private static final Logger logger = LoggerFactory.getLogger(TrafficDistributionService.class);
 
 	public TrafficDistributionService(AbstractManagingAgent managingAgent) {

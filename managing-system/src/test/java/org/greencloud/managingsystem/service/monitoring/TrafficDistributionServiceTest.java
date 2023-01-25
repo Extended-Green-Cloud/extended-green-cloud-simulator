@@ -23,7 +23,7 @@ import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMon
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
-public class TrafficDistributionServiceTest {
+class TrafficDistributionServiceTest {
 
 	@Mock
 	private ManagingAgent mockManagingAgent;
@@ -55,7 +55,7 @@ public class TrafficDistributionServiceTest {
 
 	@Test
 	@DisplayName("Test compute coefficient")
-	public void testComputeCoefficient() {
+	void testComputeCoefficient() {
 		double coefficient = trafficDistributionService.computeCoefficient(List.of(1.0, 2.0, 3.0, 4.0, 5.0));
 
 		assertThat(coefficient).isEqualTo(0.5270462766947299);
@@ -63,7 +63,7 @@ public class TrafficDistributionServiceTest {
 
 	@Test
 	@DisplayName("Test compute goal quality for CNA")
-	public void testComputeGoalQualityForCNA() {
+	void testComputeGoalQualityForCNA() {
 		double goalQuality = trafficDistributionService.computeGoalQualityForCNA(prepareCNAData());
 
 		assertThat(goalQuality).isEqualTo(0.565685424949238);
@@ -71,7 +71,7 @@ public class TrafficDistributionServiceTest {
 
 	@Test
 	@DisplayName("Test compute goal quality for server")
-	public void testComputeGoalQualityForServer() {
+	void testComputeGoalQualityForServer() {
 		double goalQuality = trafficDistributionService.computeGoalQualityForServer(prepareServerData());
 
 		assertThat(goalQuality).isEqualTo(0.3666479606152469);

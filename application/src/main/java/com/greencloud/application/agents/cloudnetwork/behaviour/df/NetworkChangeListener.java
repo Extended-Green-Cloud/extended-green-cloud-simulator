@@ -62,10 +62,12 @@ public class NetworkChangeListener extends CyclicBehaviour {
 
 		if (!addedServers.isEmpty()) {
 			handleAddedServers(addedServers);
+			myCloudNetworkAgent.addBehaviour(AskServerForPowerInformation.create(myCloudNetworkAgent, serverAgents));
 		}
 
 		if (!removedServers.isEmpty()) {
 			handleRemovedServers(removedServers);
+			myCloudNetworkAgent.addBehaviour(AskServerForPowerInformation.create(myCloudNetworkAgent, serverAgents));
 		}
 	}
 

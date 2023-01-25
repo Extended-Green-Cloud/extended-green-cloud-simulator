@@ -19,4 +19,9 @@ public class ServerDFListenerLog {
 			"Green Source {} is still active thus cannot be disconnected.";
 	public static final String DISCONNECT_GREEN_SOURCE_LOG =
 			"Disconnecting Green Source {} from given server";
+
+	// LISTEN FOR CLOUD NETWORK POWER INFORMATION REQUEST
+	public static final String RECEIVED_POWER_INFORMATION_REQUEST_LOG =
+			"Cloud Network Agent {} asked server for maximum capacity information.";
+
 }

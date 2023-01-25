@@ -45,11 +45,6 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 		addBehaviour(new ReceiveGUIController(this, prepareBehaviours()));
 	}
 
-	@Override
-	protected void takeDown() {
-		super.takeDown();
-	}
-
 	private void initializeAgent(final Object[] args) {
 		if (Objects.nonNull(args) && args.length == 5) {
 			try {

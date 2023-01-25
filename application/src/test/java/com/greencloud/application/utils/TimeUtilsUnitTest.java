@@ -12,10 +12,9 @@ import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
 import static com.greencloud.application.utils.TimeUtils.resetMockClock;
 import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
 import static com.greencloud.application.utils.TimeUtils.useMockTime;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -26,7 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Percentage;
@@ -90,7 +88,7 @@ class TimeUtilsUnitTest {
 
 	@BeforeEach
 	void resetMockStartTime() {
-		setSystemStartTimeMock(null);
+		TimeUtils.setSystemStartTime(null);
 	}
 
 	@Test
@@ -188,7 +186,7 @@ class TimeUtilsUnitTest {
 	@ParameterizedTest
 	@MethodSource("parametersTimeStampJobTest")
 	void testIsWithinTimeStampForJob(final Instant timeToCheck, final PowerJob job, final boolean expectedResult) {
-		setSystemStartTime();
+		setSystemStartTime(now());
 		assertThat(isWithinTimeStamp(job, convertToRealTime(timeToCheck))).isEqualTo(expectedResult);
 	}
 
@@ -205,6 +203,14 @@ class TimeUtilsUnitTest {
 				.contains(startTime)
 				.contains(endTime);
 
+	}
+
+	@Test
+	@DisplayName("Test set system start time for system null")
+	void testSetSystemStartTimeForNull() {
+		resetMockClock();
+		setSystemStartTime(now());
+		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now(), new TemporalUnitWithinOffset(100, MILLIS));
 	}
 
 	@Test
@@ -225,31 +231,12 @@ class TimeUtilsUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test set system start time for system null")
-	void testSetSystemStartTimeForNull() {
-		resetMockClock();
-		setSystemStartTime();
-		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now(), new TemporalUnitWithinOffset(100, MILLIS));
-	}
-
-	@Test
-	@DisplayName("Test set system start time for system not null")
-	void testSetSystemStartTimeForNotNull() throws InterruptedException {
-		resetMockClock();
-		setSystemStartTime();
-		TimeUnit.SECONDS.sleep(2);
-		setSystemStartTime();
-		assertThat(SYSTEM_START_TIME).isCloseTo(Instant.now().minus(2, SECONDS),
-				new TemporalUnitWithinOffset(100, MILLIS));
-	}
-
-	@Test
 	@DisplayName("Test convert to real time for 10 000 ms")
 	void testConvertToRealTime() {
 		final Instant simulatedInstant = Instant.parse("2022-01-01T09:00:10.000Z");
 		final Instant expectedDate = Instant.parse("2022-01-01T11:00:00.000Z");
 
-		setSystemStartTimeMock(Instant.parse("2022-01-01T09:00:00.000Z"));
+		TimeUtils.setSystemStartTime(Instant.parse("2022-01-01T09:00:00.000Z"));
 		assertThat(convertToRealTime(simulatedInstant)).isEqualTo(expectedDate);
 	}
 

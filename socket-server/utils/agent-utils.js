@@ -156,6 +156,20 @@ const createEdge = (source, target) => {
     return ({ data: { id, source, target }, state: 'inactive' })
 }
 
+const getNewTraffic = (maximumCapacity, powerInUse) =>
+    maximumCapacity === 0 ? 0 : powerInUse / maximumCapacity * 100
+
+const getNewCloudNetworkTraffic = (agent, powerInUse, state) => {
+    agent.isActive = powerInUse > 0
+    agent.traffic = getNewTraffic(agent.maximumCapacity, powerInUse)
+
+    const connection = state.graph.connections.find(el => el.data.source === agent.name)
+
+    if (connection) {
+        connection.state = agent.isActive ? 'active' : 'inactive'
+    }
+}
+
 module.exports = {
     getAgentByName: function (agents, agentName) {
         return agents.find(agent => agent.name === agentName)
@@ -163,9 +177,8 @@ module.exports = {
     getAgentNodeById: function (nodes, id) {
         return nodes.find(node => node.id === id)
     },
-    getNewTraffic: function (maximumCapacity, powerInUse) {
-        return maximumCapacity === 0 ? 0 : powerInUse / maximumCapacity * 100
-    },
+    getNewTraffic,
+    getNewCloudNetworkTraffic,
     registerAgent: function (data, type) {
         switch (type) {
             case AGENT_TYPES.CLIENT:

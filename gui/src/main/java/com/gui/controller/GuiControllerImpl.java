@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.gui.agents.AbstractAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
+import com.gui.message.ImmutableRemoveAgentMessage;
 import com.gui.message.ImmutableUpdateSingleValueMessage;
 import com.gui.websocket.GuiWebSocketClient;
 import com.gui.websocket.GuiWebSocketListener;
@@ -42,7 +43,9 @@ public class GuiControllerImpl implements GuiController {
 
 	@Override
 	public void removeAgentNodeFromGraph(AbstractAgentNode agentNode) {
-		// TODO
+		webSocketClient.send(ImmutableRemoveAgentMessage.builder()
+				.agentName(agentNode.getAgentName())
+				.build());
 	}
 
 	@Override

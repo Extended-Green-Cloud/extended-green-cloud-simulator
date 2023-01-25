@@ -55,15 +55,6 @@ public class ClientAgent extends AbstractClientAgent {
 		}
 	}
 
-	/**
-	 * Method run before the Client is being deleted. It logs the Client's finish information.
-	 */
-	@Override
-	protected void takeDown() {
-		logger.info("I'm finished. Bye!");
-		super.takeDown();
-	}
-
 	private ClientJob initializeAgentJob(final Object[] arguments) {
 		try {
 			final Instant startTime = TimeUtils.convertToInstantTime(arguments[0].toString());

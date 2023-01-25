@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.commons.args.agent.AgentArgs;
@@ -99,6 +100,14 @@ public class ExecutorService extends AbstractManagingService {
 	 * @param adaptationAction adaptation action to be disabled
 	 */
 	private void disableAdaptationAction(AdaptationAction adaptationAction) {
+		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY) {
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(3, false);
+		}
+		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_POWER_PRIORITY) {
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(2, false);
+		}
 		managingAgent.getAgentNode().getDatabaseClient()
 				.setAdaptationActionAvailability(adaptationAction.getActionId(), false);
 	}
@@ -140,6 +149,7 @@ public class ExecutorService extends AbstractManagingService {
 		ACLMessage announcementMessage = MessageBuilder.builder()
 				.withPerformative(INFORM)
 				.withMessageProtocol(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
+				.withStringContent(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
 				.withReceivers(cloudNetworkAgents)
 				.build();
 		managingAgent.send(announcementMessage);

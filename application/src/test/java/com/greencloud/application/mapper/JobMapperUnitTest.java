@@ -11,7 +11,7 @@ import static com.greencloud.application.mapper.JobMapper.mapToPowerJob;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerShortageJob;
 import static com.greencloud.application.mapper.JobMapper.mapToServerJob;
 import static com.greencloud.application.mapper.JobMapper.mapToServerJobRealTime;
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
@@ -87,7 +87,7 @@ class JobMapperUnitTest {
 	@Test
 	@DisplayName("Test map to server job with real time")
 	void testMapToServerJobRealTime() {
-		setSystemStartTimeMock(Instant.parse("2022-01-01T08:00:00.000Z"));
+		setSystemStartTime(Instant.parse("2022-01-01T08:00:00.000Z"));
 		final Instant expectedStart = Instant.parse("2022-01-31T08:00:00.000Z");
 		final Instant expectedEnd = Instant.parse("2022-03-02T08:00:00.000Z");
 
@@ -102,7 +102,7 @@ class JobMapperUnitTest {
 	@Test
 	@DisplayName("Test map to client job with real time")
 	void testMapToClientJobRealTime() {
-		setSystemStartTimeMock(Instant.parse("2022-01-01T08:00:00.000Z"));
+		setSystemStartTime(Instant.parse("2022-01-01T08:00:00.000Z"));
 		final Instant expectedStart = Instant.parse("2022-01-31T08:00:00.000Z");
 		final Instant expectedEnd = Instant.parse("2022-03-02T08:00:00.000Z");
 		final Instant expectedDeadline = Instant.parse("2022-05-01T08:00:00.000Z");

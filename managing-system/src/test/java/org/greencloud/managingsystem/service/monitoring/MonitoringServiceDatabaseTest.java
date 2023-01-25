@@ -65,7 +65,7 @@ class MonitoringServiceDatabaseTest {
 		var expectedResult = List.of(
 				new AdaptationGoal(1, "Maximize job success ratio", 0.8, true, 0.6),
 				new AdaptationGoal(2, "Minimize used backup power", 0.2, false, 0.2),
-				new AdaptationGoal(3, "Distribute traffic evenly", 0.8, false, 0.2)
+				new AdaptationGoal(3, "Distribute traffic evenly", 1.0, false, 0.2)
 		);
 		monitoringService.readSystemAdaptationGoals();
 

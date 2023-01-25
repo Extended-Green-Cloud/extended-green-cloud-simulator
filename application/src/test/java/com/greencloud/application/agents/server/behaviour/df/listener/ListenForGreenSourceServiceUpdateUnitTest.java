@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.server.behaviour.df.listener;
 
-import static com.greencloud.application.agents.server.behaviour.df.listener.templates.DFServerMessageTemplates.GREEN_SOURCE_DISCONNECTION_TEMPLATE;
+import static com.greencloud.application.agents.server.behaviour.df.listener.templates.DFServerMessageTemplates.GREEN_SOURCE_UPDATE_TEMPLATE;
+import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DEACTIVATE_GREEN_SOURCE_PROTOCOL;
 import static com.greencloud.application.messages.domain.constants.MessageProtocolConstants.DISCONNECT_GREEN_SOURCE_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -35,14 +36,14 @@ import jade.lang.acl.ACLMessage;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
-class ListenForGreenSourceServiceDisconnectionUnitTest {
+class ListenForGreenSourceServiceUpdateUnitTest {
 
 	@Mock
 	private ServerAgent mockServerAgent;
 	@Mock
 	private ServerConfigManagement mockConfigManagement;
 
-	private ListenForGreenSourceServiceDisconnection listenForGreenSourceServiceDisconnection;
+	private ListenForGreenSourceServiceUpdate listenForGreenSourceServiceUpdate;
 
 	@BeforeEach
 	void init() {
@@ -53,7 +54,7 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		doReturn(new HashMap<>()).when(mockServerAgent).getGreenSourceForJobMap();
 		prepareOwnedGreenSources();
 
-		listenForGreenSourceServiceDisconnection = new ListenForGreenSourceServiceDisconnection(mockServerAgent);
+		listenForGreenSourceServiceUpdate = new ListenForGreenSourceServiceUpdate(mockServerAgent);
 	}
 
 	@Test
@@ -65,12 +66,12 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		receivedInfo.setProtocol(DEACTIVATE_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent).getOwnedGreenSources();
 		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == REFUSE));
@@ -85,12 +86,12 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		receivedInfo.setProtocol(DEACTIVATE_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent, times(2)).getOwnedGreenSources();
 		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == INFORM));
@@ -107,12 +108,12 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		receivedInfo.setProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent).getOwnedGreenSources();
 		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == REFUSE));
@@ -127,12 +128,12 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		receivedInfo.setProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent, times(2)).getOwnedGreenSources();
 		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == REFUSE));
@@ -149,12 +150,12 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 
 		mockServerAgent.getGreenSourceForJobMap().put("1", testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent, times(2)).getOwnedGreenSources();
 		verify(mockServerAgent).getGreenSourceForJobMap();
@@ -170,18 +171,58 @@ class ListenForGreenSourceServiceDisconnectionUnitTest {
 		receivedInfo.setProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL);
 		receivedInfo.setSender(testAID);
 
-		when(mockServerAgent.receive(GREEN_SOURCE_DISCONNECTION_TEMPLATE)).thenReturn(receivedInfo);
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
 
 		clearInvocations(mockConfigManagement);
 		clearInvocations(mockServerAgent);
 
-		listenForGreenSourceServiceDisconnection.action();
+		listenForGreenSourceServiceUpdate.action();
 
 		verify(mockServerAgent, times(3)).getOwnedGreenSources();
 		verify(mockServerAgent).getGreenSourceForJobMap();
 		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == INFORM));
 
 		assertThat(mockServerAgent.getOwnedGreenSources()).doesNotContainKey(testAID);
+	}
+
+	@Test
+	@DisplayName("Test receiving new green source service for already existing green source")
+	void testActionForExistingGreenSource() {
+		final AID testAID = new AID("test_green_source", AID.ISGUID);
+
+		final ACLMessage receivedInfo = new ACLMessage(REQUEST);
+		receivedInfo.setProtocol(CONNECT_GREEN_SOURCE_PROTOCOL);
+		receivedInfo.setSender(testAID);
+
+		doReturn(Map.of(testAID, true)).when(mockServerAgent).getOwnedGreenSources();
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
+
+		listenForGreenSourceServiceUpdate.action();
+
+		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == REFUSE));
+	}
+
+	@Test
+	@DisplayName("Test receiving new green source service for non existing green source")
+	void testActionForNonExistingGreenSource() {
+		final AID testAID = new AID("test_green_source", AID.ISGUID);
+
+		final ACLMessage receivedInfo = new ACLMessage(REQUEST);
+		receivedInfo.setProtocol(CONNECT_GREEN_SOURCE_PROTOCOL);
+		receivedInfo.setSender(testAID);
+
+		doReturn(new HashMap<>()).when(mockServerAgent).getOwnedGreenSources();
+		mockConfigManagement.setWeightsForGreenSourcesMap(new HashMap<>());
+		when(mockServerAgent.receive(GREEN_SOURCE_UPDATE_TEMPLATE)).thenReturn(receivedInfo);
+
+		listenForGreenSourceServiceUpdate.action();
+
+		verify(mockServerAgent).send(argThat(msg -> msg.getPerformative() == INFORM));
+
+		assertThat(mockServerAgent.getOwnedGreenSources())
+				.hasSize(1)
+				.containsKey(testAID);
+		assertThat(mockConfigManagement.getWeightsForGreenSourcesMap()).containsEntry(testAID, 1);
 	}
 
 	void prepareOwnedGreenSources() {

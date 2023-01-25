@@ -15,6 +15,7 @@ import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORD
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_DATA;
+import static com.database.knowledge.timescale.DmlQueries.READ_SYSTEM_START_TIME;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
 
@@ -22,6 +23,7 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +92,14 @@ public class JdbcStatementsExecutor {
 			statement.setInt(1, adaptationGoalId);
 			statement.setDouble(2, quality);
 			statement.executeUpdate();
+		}
+	}
+
+	Instant executeReadSystemStartStatement() throws SQLException {
+		try (var statement = sqlConnection.prepareStatement(READ_SYSTEM_START_TIME)) {
+			var result = statement.executeQuery();
+			result.next();
+			return result.getTimestamp("start_time").toInstant();
 		}
 	}
 

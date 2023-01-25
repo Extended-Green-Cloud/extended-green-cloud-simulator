@@ -4,7 +4,7 @@ import static com.greencloud.commons.job.ExecutionJobStatusEnum.BACK_UP_POWER_ST
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.GREEN_ENERGY_STATUSES;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.IN_PROGRESS_BACKUP_ENERGY_PLANNED;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER;
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTimeMock;
+import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
 import static com.greencloud.commons.job.ExecutionJobStatusEnum.ON_HOLD_TRANSFER_PLANNED;
 import static com.greencloud.commons.job.JobResultType.FINISH;
 import static java.time.Instant.parse;
@@ -68,7 +68,7 @@ class ServerStateManagementUnitTest {
 	@BeforeAll
 	static void setUpAll() {
 		TimeUtils.useMockTime(MOCK_NOW, ZoneId.of("UTC"));
-		setSystemStartTimeMock(MOCK_NOW);
+		setSystemStartTime(MOCK_NOW);
 	}
 
 	@BeforeEach

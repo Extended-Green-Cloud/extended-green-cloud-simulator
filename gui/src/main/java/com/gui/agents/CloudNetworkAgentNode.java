@@ -6,7 +6,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkNodeArgs;
 import com.gui.message.ImmutableRegisterAgentMessage;
+import com.gui.message.ImmutableSetMaximumCapacityMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.message.domain.ImmutableCapacity;
 import com.gui.websocket.GuiWebSocketClient;
 
 /**
@@ -102,6 +104,22 @@ public class CloudNetworkAgentNode extends AbstractAgentNode {
 				.type("SET_JOB_SUCCESS_RATIO")
 				.agentName(agentName)
 				.data(value * 100)
+				.build());
+	}
+
+	/**
+	 * Function updates the current maximum capacity of a cloud network
+	 *
+	 * @param maximumCapacity new maximum capacity
+	 * @param powerInUse current power in use
+	 */
+	public void updateMaximumCapacity(final double maximumCapacity, final double powerInUse) {
+		webSocketClient.send(ImmutableSetMaximumCapacityMessage.builder()
+				.agentName(agentName)
+				.data(ImmutableCapacity.builder()
+						.maximumCapacity(maximumCapacity)
+						.powerInUse(powerInUse)
+						.build())
 				.build());
 	}
 }

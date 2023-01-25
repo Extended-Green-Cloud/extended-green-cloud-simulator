@@ -89,4 +89,8 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	public double getMaximumCapacity() {
 		return maximumCapacity;
 	}
+
+	public void setMaximumCapacity(double maximumCapacity) {
+		this.maximumCapacity = maximumCapacity;
+	}
 }
