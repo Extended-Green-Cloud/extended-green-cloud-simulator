@@ -459,18 +459,21 @@ class DisconnectGreenSourcePlanUnitTest {
 				.currentMaximumCapacity(100)
 				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
+				.isDisabled(false)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.4)
 				.currentMaximumCapacity(100)
 				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
+				.isDisabled(false)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.8)
 				.currentMaximumCapacity(100)
 				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
+				.isDisabled(false)
 				.build();
 
 		var mockData = List.of(

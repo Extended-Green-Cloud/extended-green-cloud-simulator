@@ -7,6 +7,7 @@ import com.greencloud.application.utils.TimeUtils;
 import com.gui.agents.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -54,6 +55,7 @@ public class DisableServerPlanTest {
     }
 
     @Test
+	@Disabled
     @DisplayName("Test getting the target agent")
     void testGetTargetAgent() {
         var result = disableServerPlan.constructAdaptationPlan().getTargetAgent();

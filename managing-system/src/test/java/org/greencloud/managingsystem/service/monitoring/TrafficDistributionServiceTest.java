@@ -112,24 +112,28 @@ class TrafficDistributionServiceTest {
 				.currentTraffic(1.0 / 3.0)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
+				.isDisabled(false)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(200)
 				.currentTraffic(0.25)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
+				.isDisabled(false)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(250)
 				.currentTraffic(0.2)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
+				.isDisabled(false)
 				.build();
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(300)
 				.currentTraffic(0.25)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
+				.isDisabled(false)
 				.build();
 		return List.of(
 				new AgentData(Instant.now(), "test_aid1", SERVER_MONITORING, data1),

@@ -69,12 +69,14 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentTraffic(0.6)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);
@@ -95,18 +97,21 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentTraffic(0.6)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build();
 		var mockData2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build();
 		var mockData3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.5)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build();
 
 		database.writeMonitoringData("test_server1", SERVER_MONITORING, mockData1);

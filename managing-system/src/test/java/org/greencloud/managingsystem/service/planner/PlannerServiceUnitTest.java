@@ -17,7 +17,6 @@ import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -230,6 +229,7 @@ class PlannerServiceUnitTest {
 				.currentBackUpPowerUsage(0.8)
 				.currentTraffic(0.4)
 				.currentMaximumCapacity(200)
+				.isDisabled(false)
 				.build();
 
 		return List.of(

@@ -417,24 +417,28 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.currentTraffic(0.6)
 				.currentBackUpPowerUsage(0.8)
 				.currentMaximumCapacity(100)
+				.isDisabled(false)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.currentBackUpPowerUsage(0.7)
 				.currentMaximumCapacity(100)
+				.isDisabled(false)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.currentBackUpPowerUsage(0.8)
 				.currentMaximumCapacity(100)
+				.isDisabled(false)
 				.build();
 		var data4 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.currentBackUpPowerUsage(0.1)
 				.currentMaximumCapacity(100)
+				.isDisabled(false)
 				.build();
 
 		return List.of(

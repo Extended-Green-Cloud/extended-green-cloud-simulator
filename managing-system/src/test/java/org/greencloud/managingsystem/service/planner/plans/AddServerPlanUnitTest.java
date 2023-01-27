@@ -104,6 +104,7 @@ class AddServerPlanUnitTest {
 				.currentMaximumCapacity(200)
 				.currentTraffic(trafficValue)
 				.currentBackUpPowerUsage(0.4)
+				.isDisabled(false)
 				.build()));
 	}
 }

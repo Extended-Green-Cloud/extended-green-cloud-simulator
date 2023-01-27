@@ -161,6 +161,7 @@ class AnalyzerServiceDatabaseTest {
 				.currentTraffic(0.7)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.7)
+				.isDisabled(false)
 				.build();
 
 		database.writeMonitoringData("test_aid1", CLIENT_MONITORING, data1);

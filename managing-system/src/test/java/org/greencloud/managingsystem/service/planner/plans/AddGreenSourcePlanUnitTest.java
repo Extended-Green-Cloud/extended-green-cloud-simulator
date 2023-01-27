@@ -122,12 +122,14 @@ class AddGreenSourcePlanUnitTest {
 						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
 						.currentBackUpPowerUsage(backUpPowerValue1)
+						.isDisabled(false)
 						.build()),
 				new AgentData(now(), serverName, SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
 						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
 						.currentBackUpPowerUsage(backUpPowerValue2)
+						.isDisabled(false)
 						.build()));
 	}
 }
