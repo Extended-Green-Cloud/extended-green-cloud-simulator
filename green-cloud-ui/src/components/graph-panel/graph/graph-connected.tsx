@@ -11,8 +11,7 @@ import { DisplayGraph } from './graph'
 
 const mapDispatchToProps = (dispatch: AppDispatch) => {
    return {
-      setSelectedAgent: (id: string) =>
-         dispatch(agentsActions.setSelectedAgent(id)),
+      setSelectedAgent: (id: string) => dispatch(agentsActions.setSelectedAgent(id)),
    }
 }
 

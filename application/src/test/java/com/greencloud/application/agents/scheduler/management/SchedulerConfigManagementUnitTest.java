@@ -15,7 +15,7 @@ import com.greencloud.application.agents.scheduler.managment.SchedulerConfigurat
 import com.greencloud.commons.job.ClientJob;
 import com.greencloud.commons.job.ImmutableClientJob;
 
-public class SchedulerConfigManagementUnitTest {
+class SchedulerConfigManagementUnitTest {
 
 	private ClientJob mockJob = ImmutableClientJob.builder().jobId("1").clientIdentifier("Client1")
 			.startTime(Instant.parse("2022-01-01T08:00:00.000Z")).endTime(Instant.parse("2022-01-01T10:00:00.000Z"))

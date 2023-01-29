@@ -29,10 +29,10 @@ public final class EngineConstants {
 	 * Local IP of the host running Timescale database. Defaults to IP value used by the Docker, defined by the
 	 * docker-compose service name.
 	 */
-	public static String databaseHostIp = "127.0.0.1";
+	public static String databaseHostIp = "timescale";
 
 	/**
 	 * Local IP of the host running socket server. Defaults to IP value used by the Docker.
 	 */
-	public static String websocketHostIp = "127.0.0.1";
+	public static String websocketHostIp = "socket-server";
 }

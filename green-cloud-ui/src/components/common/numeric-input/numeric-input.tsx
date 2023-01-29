@@ -19,16 +19,8 @@ interface Props {
  * @param {void}[handleChange] - callback function to handle input change
  * @returns JSX Element
  */
-const NumericInput = ({
-   label,
-   placeholder,
-   value,
-   handleChange,
-   disabled,
-}: Props) => {
-   const numericInputStyle = disabled
-      ? 'numeric-input numeric-input-inactive'
-      : 'numeric-input numeric-input-active'
+const NumericInput = ({ label, placeholder, value, handleChange, disabled }: Props) => {
+   const numericInputStyle = disabled ? 'numeric-input numeric-input-inactive' : 'numeric-input numeric-input-active'
    const labelStyle = [
       'numeric-input-label',
       disabled ? 'numeric-input-disabled-label' : 'numeric-input-active-label',
@@ -44,6 +36,7 @@ const NumericInput = ({
                placeholder,
                type: 'number',
                className: numericInputStyle,
+               min: 0,
                disabled,
             }}
          />

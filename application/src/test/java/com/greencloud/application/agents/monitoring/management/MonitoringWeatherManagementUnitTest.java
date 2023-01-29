@@ -81,6 +81,7 @@ class MonitoringWeatherManagementUnitTest {
 				.withList(ImmutableFutureWeather.copyOf(MOCK_FUTURE_WEATHER).withTimestamp(MOCK_TIME));
 		mockCache.updateCache(MOCK_LOCATION, currentForecast);
 
+		setSystemStartTime(MOCK_TIME);
 		TimeUtils.useMockTime(MOCK_TIME, ZoneId.of("UTC"));
 		final MonitoringData result = monitoringWeatherManagement.getWeather(MOCK_GS_WEATHER);
 

@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.scheduler;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,14 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.jobParts = ArrayListMultimap.create();
 		this.failedJobs = new HashSet<>();
 		agentType = AgentType.SCHEDULER;
+	}
+
+	/**
+	 * Method initialized priority queue
+	 */
+	public void setUpPriorityQueue() {
+		this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
+				Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
 	}
 
 	/**
