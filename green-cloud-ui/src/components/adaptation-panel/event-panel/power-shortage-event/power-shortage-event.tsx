@@ -25,12 +25,7 @@ const topButtonLabel = 'Maximum Capacity'
  *
  * @returns JSX Element
  */
-const PowerShortageEvent = ({
-   event,
-   label,
-   agentName,
-   triggerPowerShortage,
-}: Props) => {
+const PowerShortageEvent = ({ event, label, agentName, triggerPowerShortage }: Props) => {
    const [inputVal, setInputVal] = useState<number>()
 
    const disabled = event.state === EventState.INACTIVE || event.disabled
@@ -41,10 +36,7 @@ const PowerShortageEvent = ({
    }, [agentName])
 
    const getButtonStyle = () => {
-      const eventStyle =
-         event.state === EventState.ACTIVE
-            ? 'event-active-button'
-            : 'event-inactive-button'
+      const eventStyle = event.state === EventState.ACTIVE ? 'event-active-button' : 'event-inactive-button'
       return ['event-button', eventStyle].join(' ')
    }
 
@@ -53,15 +45,11 @@ const PowerShortageEvent = ({
    }
 
    function handlePowerShortageTrigger() {
-      if (
-         typeof inputVal === 'undefined' &&
-         event?.state === EventState.ACTIVE
-      ) {
+      if (typeof inputVal === 'undefined' && event?.state === EventState.ACTIVE) {
          toast.dismiss()
          toast.info('The new maximum capacity must be specified!')
       } else {
-         const message =
-            event?.state === EventState.ACTIVE ? 'triggered' : 'finished'
+         const message = event?.state === EventState.ACTIVE ? 'triggered' : 'finished'
          toast.dismiss()
          toast.warn(`Power shortage ${message} in ${agentName}`)
          triggerPowerShortage({

@@ -42,10 +42,15 @@ public abstract class AbstractAgent extends Agent {
 	@Override
 	protected void takeDown() {
 		logger.info("I'm finished. Bye!");
-		if (Objects.nonNull(getGuiController()) && !agentType.equals(CLIENT)) {
+		super.takeDown();
+	}
+
+	@Override
+	public void clean(boolean ok) {
+		if(!ok && Objects.nonNull(getGuiController()) && !agentType.equals(CLIENT)) {
 			getGuiController().removeAgentNodeFromGraph(getAgentNode());
 		}
-		super.takeDown();
+		super.clean(ok);
 	}
 
 	public AgentType getAgentType() {
