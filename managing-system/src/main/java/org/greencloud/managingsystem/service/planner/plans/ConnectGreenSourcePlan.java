@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.planner.domain.AgentsGreenPower;
-import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
@@ -39,7 +39,7 @@ import jade.core.AID;
  */
 public class ConnectGreenSourcePlan extends AbstractPlan {
 
-	private static final double SERVER_TRAFFIC_THRESHOLD = 0.9;
+	private static final double SERVER_TRAFFIC_THRESHOLD = 0.8;
 	private static final double GREEN_SOURCE_TRAFFIC_THRESHOLD = 0.5;
 	private static final double GREEN_SOURCE_POWER_THRESHOLD = 0.7;
 
@@ -54,9 +54,9 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	 * Method verifies if the plan is executable. The plan is executable if:
 	 * 1. there are some GS alive in the system
 	 * 2. there are some Green Sources which are connected to the Servers from one CNA and for which the
-	 * average traffic during last 15s was not greater than 50% (i.e. idle green sources)
-	 * 3. the available power for these Green Sources during last 15s was on average equal to at least 70% of
-	 * maximum capacity (i.e. green sources were not on idle due to bad weather conditions)
+	 * average traffic during last 15s was not greater than 50% (i.e. there are idle green sources)
+	 * 3. the available power for these Green Sources in last timestamp was on average equal to at least 70% of
+	 * maximum capacity (i.e. the green sources were not on idle due to bad weather conditions)
 	 * 4. there are some Servers in the Cloud Network which traffic is less than 90% (i.e. not all servers are using
 	 * all operational power)
 	 * 5. the list of Servers (satisfying the above thresholds) to which a Green Source (which also satisfy
@@ -86,7 +86,11 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	/**
-	 * Method constructs plan which connects an additional green source to the given server
+	 * Method constructs plan which connects an additional green source to the given server.
+	 * The method selects:
+	 * - Server with minimal traffic
+	 * - Green Source with minimal power usage
+	 * Upon executing the action, the structure of cloud network is updated.
 	 *
 	 * @return prepared adaptation plan
 	 */

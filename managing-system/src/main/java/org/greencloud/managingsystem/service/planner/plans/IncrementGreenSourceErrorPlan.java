@@ -5,24 +5,25 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
-import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
+import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.ToIntFunction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.google.common.annotations.VisibleForTesting;
@@ -37,7 +38,7 @@ import jade.core.AID;
 public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 	protected static final double PERCENTAGE_DIFFERENCE = 0.02;
-	private static final int MAXIMUM_PREDICTION_ERROR = 1;   // 1 is equivalent to 100%
+	private static final int MAXIMUM_PREDICTION_ERROR = 1;
 	private Map<String, Integer> greenSourcesPowerShortages;
 
 	public IncrementGreenSourceErrorPlan(ManagingAgent managingAgent) {
@@ -96,46 +97,30 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 	@VisibleForTesting
 	protected Map<String, Double> getGreenSourcesWithErrors(List<AgentData> greenSourceData, List<String> aliveAgents) {
 		final Predicate<String> isAgentAlive = aliveAgents::contains;
-		final Predicate<AgentData> isGreenSourceMonitoring = data -> data.dataType().equals(GREEN_SOURCE_MONITORING);
-		final Predicate<MonitoringData> isErrorWithinBounds = data -> {
-			var error = ((GreenSourceMonitoringData) data).getWeatherPredictionError();
+		final Predicate<AgentData> isErrorWithinBounds = data -> {
+			var error = ((GreenSourceMonitoringData) data.monitoringData()).getWeatherPredictionError();
 			return error < MAXIMUM_PREDICTION_ERROR - PERCENTAGE_DIFFERENCE;
 		};
-		final ToDoubleFunction<MonitoringData> mapToError = data ->
-				((GreenSourceMonitoringData) data).getWeatherPredictionError();
+		final ToDoubleFunction<AgentData> mapToError = data ->
+				((GreenSourceMonitoringData) data.monitoringData()).getWeatherPredictionError();
 
 		return greenSourceData.stream()
-				.filter(agentData -> isAgentAlive.test(agentData.aid())
-						&& isGreenSourceMonitoring.test(agentData)
-						&& isErrorWithinBounds.test(agentData.monitoringData()))
-				.collect(toMap(AgentData::aid, agentData -> mapToError.applyAsDouble(agentData.monitoringData())));
+				.filter(agentData -> isAgentAlive.test(agentData.aid()) && isErrorWithinBounds.test(agentData))
+				.collect(toMap(AgentData::aid, mapToError::applyAsDouble));
 	}
 
 	@VisibleForTesting
-	protected Map<String, Integer> getGreenSourcesWithPowerShortages(Set<String> agentsOfInterest) {
-		final Map<String, List<Integer>> powerShortageMap = new HashMap<>();
+	protected Map<String, Integer> getGreenSourcesWithPowerShortages(final Set<String> agentsOfInterest) {
+		final ToIntFunction<AgentData> getPowerShortageCount = agentData ->
+				((WeatherShortages) agentData.monitoringData()).weatherShortagesNumber();
 
-		managingAgent.getAgentNode().getDatabaseClient()
+		final Map<String, Integer> powerShortageMap = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, agentsOfInterest.stream().toList(),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD)
-				.forEach(agentData -> putInPowerShortageMap(agentData, powerShortageMap));
+						MONITOR_SYSTEM_DATA_TIME_PERIOD).stream()
+				.collect(groupingBy(AgentData::aid, TreeMap::new, summingInt(getPowerShortageCount)));
 
 		return powerShortageMap.entrySet().stream()
-				.collect(toMap(Map.Entry::getKey,
-						entry -> entry.getValue().stream().reduce(0, Integer::sum)))
-				.entrySet().stream()
 				.filter(entry -> entry.getValue() >= POWER_SHORTAGE_THRESHOLD)
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
-
-	private void putInPowerShortageMap(AgentData agentData, Map<String, List<Integer>> powerShortageMap) {
-		final int shortageCount = ((WeatherShortages) agentData.monitoringData()).weatherShortagesNumber();
-		final UnaryOperator<List<Integer>> putCountIntoMap = list -> {
-			list.add(shortageCount);
-			return list;
-		};
-		powerShortageMap.computeIfPresent(agentData.aid(), (agent, list) -> putCountIntoMap.apply(list));
-		powerShortageMap.computeIfAbsent(agentData.aid(), aid -> new ArrayList<>(singletonList(shortageCount)));
-	}
-
 }

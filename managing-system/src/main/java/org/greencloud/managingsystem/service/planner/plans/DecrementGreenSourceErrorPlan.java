@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
-import static org.greencloud.managingsystem.service.planner.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
+import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -32,8 +32,8 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.planner.domain.AgentsBackUpPower;
-import org.greencloud.managingsystem.service.planner.domain.AgentsPowerShortages;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsPowerShortages;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
@@ -61,11 +61,12 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 
 	/**
 	 * Method verifies if the plan is executable. The plan is executable if:
-	 * 1. there are some servers which average back up power during last 5 seconds of simulation
-	 * was above the desired threshold
+	 * 1. there are some servers which average back up power during last timespan
+	 * was above the desired threshold (i.e. green sources use considerably more back-up power than green power)
 	 * 2. the aforementioned servers have at least 1 green source which weather prediction error is greater
-	 * than 0.02
-	 * 3. the considered green sources had no more than 2 power shortages during last 5s
+	 * than 0.02 (i.e. the green sources have prediction error above minimal value)
+	 * 3. the considered green sources had no more than 2 power shortages during last timespan (i.e. the green sources
+	 * do not suffer for inconsistent weather conditions)
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
@@ -79,6 +80,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 			return false;
 		}
 
+		// verify if there are green sources satisfying given conditions per selected servers
 		greenSourcesPerServers = getGreenSourcesPerServers(consideredServers);
 
 		return !greenSourcesPerServers.isEmpty();
@@ -121,11 +123,11 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 
 		final ToDoubleFunction<AgentData> getBackUpUsage =
 				data -> ((ServerMonitoringData) data.monitoringData()).getCurrentBackUpPowerUsage();
-		final Predicate<Map.Entry<String, Double>> isWithinThreshold = entry -> entry.getValue() > threshold;
+		final Predicate<Map.Entry<String, Double>> isBackUpWithinThreshold = entry -> entry.getValue() > threshold;
 
 		return managingAgent.monitor().getAverageValuesForAgents(SERVER_MONITORING, aliveServers, getBackUpUsage)
 				.entrySet().stream()
-				.filter(isWithinThreshold)
+				.filter(isBackUpWithinThreshold)
 				.map(entry -> new AgentsBackUpPower(entry.getKey(), entry.getValue()))
 				.toList();
 	}
@@ -169,8 +171,9 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		final List<AgentData> weatherShortagesForAgents = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, consideredGreenSources,
 						MONITOR_SYSTEM_DATA_TIME_PERIOD);
-		final Stream<AgentsPowerShortages> agentsWithoutPowerShortages = getGreenSourcesWithoutPowerShortages(
-				weatherShortagesForAgents, consideredGreenSources);
+		final Stream<AgentsPowerShortages> agentsWithoutPowerShortages = managingAgent.monitor()
+				.getAgentsNotPresentInTheDatabase(weatherShortagesForAgents, consideredGreenSources).stream()
+				.map(agent -> new AgentsPowerShortages(agent, 0));
 		final Stream<AgentsPowerShortages> agentWithCorrectPowerShortageCount = weatherShortagesForAgents.stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, summingInt(getShortageCount)))
 				.entrySet().stream()
@@ -178,15 +181,6 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 				.map(entry -> new AgentsPowerShortages(entry.getKey(), entry.getValue()));
 
 		return Stream.concat(agentWithCorrectPowerShortageCount, agentsWithoutPowerShortages).toList();
-	}
-
-	@VisibleForTesting
-	protected Stream<AgentsPowerShortages> getGreenSourcesWithoutPowerShortages(
-			final List<AgentData> weatherShortagesForAgents, final List<String> consideredGreenSources) {
-		final List<String> agentWithDatabaseRecords = weatherShortagesForAgents.stream().map(AgentData::aid).toList();
-
-		return consideredGreenSources.stream().filter(agent -> !agentWithDatabaseRecords.contains(agent))
-				.map(agent -> new AgentsPowerShortages(agent, 0));
 	}
 
 	@VisibleForTesting

@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.planner.domain;
+package org.greencloud.managingsystem.service.planner.plans.domain;
 
 /**
  * Record describing back up power usage for corresponding agent

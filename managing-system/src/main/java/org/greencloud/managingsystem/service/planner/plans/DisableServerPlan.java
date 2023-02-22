@@ -1,56 +1,61 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.managingsystem.planner.ImmutableDisableServerActionParameters;
+import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
+import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.greencloud.commons.agent.AgentType.SERVER;
+import static java.util.Collections.max;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.toMap;
 
-import jade.core.AID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.managingsystem.planner.ImmutableDisableServerActionParameters;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static java.util.stream.Collectors.toMap;
+import jade.core.AID;
 
 /**
  * Class containing adaptation plan which realizes the action of disabling the idle server
  */
 public class DisableServerPlan extends AbstractPlan {
 
-	/**
-	 * Default abstract constructor
-	 *
-	 * @param managingAgent managing agent executing the action
-	 */
+	private final Predicate<AgentData> canServerBeDisabled = agentData -> {
+		var serverMonitoringData = (ServerMonitoringData) agentData.monitoringData();
+		return serverMonitoringData.getCurrentTraffic() == 0 && !serverMonitoringData.isDisabled();
+	};
+	private List<AgentData> idleServers;
+
 	public DisableServerPlan(ManagingAgent managingAgent) {
 		super(DISABLE_SERVER, managingAgent);
+		idleServers = new ArrayList<>();
 	}
 
 	/**
 	 * Method verifies if the plan is executable. The plan is executable if:
-	 * 1. There are some idle servers in the system (servers that current traffic is equal to zero)
+	 * 1. there are some idle servers in the system (servers that current traffic is equal to zero)
+	 * 2. those servers haven't been yet disabled
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
 	@Override
 	public boolean isPlanExecutable() {
-		List<AgentData> serverMonitoring = managingAgent.getAgentNode().getDatabaseClient().
+		final List<AgentData> serverMonitoring = managingAgent.getAgentNode().getDatabaseClient().
 				readLastMonitoringDataForDataTypes(List.of(SERVER_MONITORING));
 
-		AtomicBoolean idleExists = new AtomicBoolean(false);
+		idleServers = serverMonitoring.stream()
+				.filter(canServerBeDisabled)
+				.toList();
 
-		serverMonitoring.stream().forEach(data -> {
-			var serverMonitoringData = (ServerMonitoringData) data.monitoringData();
-			if (serverMonitoringData.getCurrentTraffic() == 0 && !serverMonitoringData.isDisabled()) {
-				idleExists.set(true);
-			}
-		});
-		return idleExists.get();
+		return !idleServers.isEmpty();
 	}
 
 	/**
@@ -61,57 +66,43 @@ public class DisableServerPlan extends AbstractPlan {
 	 */
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
-		List<AgentData> serverMonitoring = managingAgent.getAgentNode().getDatabaseClient()
-				.readLastMonitoringDataForDataTypes(List.of(SERVER_MONITORING));
+		final Map<String, Integer> consideredServers = idleServers.stream()
+				.collect(toMap(AgentData::aid, data -> getServerCurrentMaxCapacity().applyAsInt(data)));
 
-		targetAgent = selectTargetAgent(serverMonitoring);
+		// consider also servers which has not registered any data in database (i.e. did not accept any jobs)
+		consideredServers.putAll(getAgentsNotInDatabase(idleServers));
 
-		actionParameters = ImmutableDisableServerActionParameters.builder()
-				.build();
+		final String chosenServer = max(consideredServers.entrySet(), comparingByValue()).getKey();
+		targetAgent = new AID(chosenServer, AID.ISGUID);
+
+		actionParameters = ImmutableDisableServerActionParameters.builder().build();
 
 		return this;
 	}
 
-	protected AID selectTargetAgent(List<AgentData> data) {
+	private Map<String, Integer> getAgentsNotInDatabase(List<AgentData> agentDataFromDatabase) {
+		final List<String> consideredServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs().stream()
+				.map(AgentArgs::getName).toList();
+		final List<String> aliveServers = managingAgent.monitor().getAliveAgentsIntersection(SERVER, consideredServers);
 
-		Map<String, Integer> consideredServers = getAgentsNotInDatabase(data);
-
-		List<AgentData> idleServers = data.stream()
-				.filter(monitoring -> ((ServerMonitoringData) monitoring.monitoringData()).getCurrentTraffic() == 0)
-				.toList();
-
-		consideredServers.putAll(idleServers.stream().collect(toMap(AgentData::aid,
-				agentData -> ((ServerMonitoringData) agentData.monitoringData()).getCurrentMaximumCapacity())));
-
-		String chosenServer = Collections.max(consideredServers.entrySet(),
-				Map.Entry.comparingByValue()).getKey();
-		return new AID(chosenServer, AID.ISGUID);
+		return managingAgent.monitor().getAgentsNotPresentInTheDatabase(agentDataFromDatabase, aliveServers).stream()
+				.collect(toMap(aid -> aid, aid -> getServerMaxCapacity().applyAsInt(aid)));
 	}
 
-	private Map<String, Integer> getAgentsNotInDatabase(List<AgentData> data) {
-		Map<String, Integer> allConsideredAgentsToMaxCapacity = managingAgent.getGreenCloudStructure()
-				.getServerAgentsArgs()
-				.stream().collect(toMap(AgentArgs::getName, arg -> Integer.parseInt(arg.getMaximumCapacity())));
-
-		allConsideredAgentsToMaxCapacity = updateKeysToAID(allConsideredAgentsToMaxCapacity);
-
-		List<String> agentsInDataBase = data.stream().map(AgentData::aid).toList();
-		return allConsideredAgentsToMaxCapacity.entrySet().stream()
-				.filter(entry -> !agentsInDataBase.contains(entry.getKey()))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+	private ToIntFunction<AgentData> getServerCurrentMaxCapacity() {
+		return serverData -> ((ServerMonitoringData) serverData.monitoringData()).getCurrentMaximumCapacity();
 	}
 
-	private Map<String, Integer> updateKeysToAID(Map<String, Integer> map) {
-		List<String> aliveServers = managingAgent.monitor().getAliveAgents(AgentType.SERVER);
+	private ToIntFunction<String> getServerMaxCapacity() {
+		return serverAID -> {
+			final List<ServerAgentArgs> allServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs();
 
-		aliveServers.stream().forEach(name -> {
-			var shortName = name.split("@")[0];
-			if (map.containsKey(shortName)) {
-				int tmp = map.get(shortName);
-				map.remove(shortName);
-				map.put(name, tmp);
-			}
-		});
-		return map;
+			return allServers.stream()
+					.filter(server -> server.getName().equals(serverAID.split("@")[0]))
+					.findFirst()
+					.map(ServerAgentArgs::getMaximumCapacity)
+					.map(Integer::parseInt)
+					.orElseThrow();
+		};
 	}
 }

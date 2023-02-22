@@ -21,6 +21,9 @@ import com.google.common.collect.Maps;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 
+/**
+ * Class containing adaptation plan which realizes the action of changing weight of selection of new green source
+ */
 public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 
 	static final Map<String, Integer> greenSourceExecutedActions = new HashMap<>();
@@ -34,10 +37,10 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 	}
 
 	/**
-	 * Plan is executable if any of monitoring servers reported any power shortages, both caused by
-	 * physical or weather factors.
+	 * Method verifies if the plan is executable. The plan is executable if:
+	 * 1. any of the green sources reported any power shortages, both caused by physical or weather factors
 	 *
-	 * @return result of the test
+	 * @return boolean value indicating if the plan is executable
 	 */
 	@Override
 	public boolean isPlanExecutable() {
@@ -75,17 +78,11 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 		return true;
 	}
 
-	private Predicate<AgentData> filterAliveGreenEnergyAgents() {
-		return data -> managingAgent.getGreenCloudStructure()
-				.getGreenEnergyAgentsArgs()
-				.stream()
-				.anyMatch(args -> data.aid().contains(args.getName()));
-	}
-
 	/**
-	 * Picks the green source with the least number of executed actions that recently had a shortage.
+	 * Method constructs plan which changes the weight of selection of a given green source.
+	 * The green source that is picked has the least number of executed actions that recently had a shortage.
 	 *
-	 * @return plan ready to be executed
+	 * @return prepared adaptation plan
 	 */
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
@@ -113,6 +110,13 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 		}
 
 		return this;
+	}
+
+	private Predicate<AgentData> filterAliveGreenEnergyAgents() {
+		return data -> managingAgent.getGreenCloudStructure()
+				.getGreenEnergyAgentsArgs()
+				.stream()
+				.anyMatch(args -> data.aid().contains(args.getName()));
 	}
 
 	private Map<String, Integer> getGreenSourceExecutedActionsForRecentShortages() {

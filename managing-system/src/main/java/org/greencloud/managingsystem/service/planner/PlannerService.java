@@ -69,27 +69,23 @@ public class PlannerService extends AbstractManagingService {
 
 		logger.info(SELECTING_BEST_ACTION_LOG);
 		final AdaptationAction bestAction = selectBestAction(executableActions);
-		final AbstractPlan constructedPlan = getPlanForAdaptationAction(bestAction);
-		final boolean isPlanConstructed = nonNull(constructedPlan)
-										  && nonNull(constructedPlan.constructAdaptationPlan());
+		final AbstractPlan selectedPlan = getPlanForAdaptationAction(bestAction);
+		final boolean isPlanConstructed = nonNull(selectedPlan)
+										  && nonNull(selectedPlan.constructAdaptationPlan());
 
 		if (!isPlanConstructed) {
 			logger.info(COULD_NOT_CONSTRUCT_PLAN_LOG);
 			return;
 		}
 
-		logger.info(CONSTRUCTING_PLAN_FOR_ACTION_LOG, constructedPlan.getAdaptationActionEnum().getName());
-		managingAgent.execute().executeAdaptationAction(constructedPlan);
+		logger.info(CONSTRUCTING_PLAN_FOR_ACTION_LOG, selectedPlan.getAdaptationActionEnum().getName());
+		managingAgent.execute().executeAdaptationAction(selectedPlan);
 	}
 
-	protected void setPlanForActionMap(Map<AdaptationActionEnum, AbstractPlan> planForActionMap) {
-		this.planForActionMap = planForActionMap;
-	}
 
 	@VisibleForTesting
 	protected AdaptationAction selectBestAction(final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
-				.filter(action -> action.getKey().getAvailable())
 				.max(Comparator.comparingDouble(Map.Entry::getValue))
 				.orElse(adaptationActions.entrySet().stream().findFirst().orElseThrow())
 				.getKey();
@@ -99,8 +95,8 @@ public class PlannerService extends AbstractManagingService {
 	protected Map<AdaptationAction, Double> getPlansWhichCanBeExecuted(
 			final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
-				.filter(entry -> planForActionMap.containsKey(entry.getKey().getAction()))
 				.filter(entry -> entry.getKey().getAvailable())
+				.filter(entry -> planForActionMap.containsKey(entry.getKey().getAction()))
 				.filter(entry -> planForActionMap.get(entry.getKey().getAction()).isPlanExecutable())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
@@ -123,5 +119,10 @@ public class PlannerService extends AbstractManagingService {
 				DECREASE_GREEN_SOURCE_ERROR, new DecrementGreenSourceErrorPlan(managingAgent),
 				DISABLE_SERVER, new DisableServerPlan(managingAgent)
 		);
+	}
+
+	@VisibleForTesting
+	protected void setPlanForActionMap(Map<AdaptationActionEnum, AbstractPlan> planForActionMap) {
+		this.planForActionMap = planForActionMap;
 	}
 }

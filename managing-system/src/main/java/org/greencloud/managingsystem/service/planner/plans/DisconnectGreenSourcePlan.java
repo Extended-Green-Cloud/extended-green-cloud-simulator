@@ -11,6 +11,7 @@ import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Stream.concat;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -23,7 +24,7 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
@@ -153,33 +154,29 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 
 	@VisibleForTesting
 	protected Map<String, List<String>> getGreenSourcesForDisconnection(final Map<String, List<String>> greenSources) {
-		final List<String> aliveGreenSources = managingAgent.monitor()
-				.getAliveAgentsIntersection(managingAgent.monitor().getAliveAgents(GREEN_SOURCE),
-						greenSources.keySet().stream().toList());
+		final List<String> consideredGreenSources = managingAgent.monitor()
+				.getAliveAgentsIntersection(GREEN_SOURCE, greenSources.keySet().stream().toList());
 
-		if (aliveGreenSources.isEmpty()) {
+		if (consideredGreenSources.isEmpty()) {
 			return emptyMap();
 		}
 
-		final Predicate<AgentData> isAgentAvailableToDisconnect = agentData ->
-				!((GreenSourceMonitoringData) agentData.monitoringData()).isBeingDisconnected() &&
-						aliveGreenSources.contains(agentData.aid());
-
-		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
+		final List<AgentData> greenSourcesFromDB = managingAgent.getAgentNode().getDatabaseClient()
 				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
+		final List<AgentData> agentsSatisfyingConditions = greenSourcesFromDB.stream()
+				.filter(data -> isAgentAvailableToDisconnect(consideredGreenSources).test(data))
+				.toList();
+		final List<String> agentsNotInDatabase = managingAgent.monitor()
+				.getAgentsNotPresentInTheDatabase(greenSourcesFromDB, consideredGreenSources);
 
-		final Map<String, List<String>> agentsSatisfyingConditions = managingAgent.getAgentNode().getDatabaseClient()
-				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING)).stream()
-				.filter(isAgentAvailableToDisconnect)
-				.collect(toMap(AgentData::aid, data -> greenSources.get(data.aid().split("@")[0])));
+		return concat(agentsSatisfyingConditions.stream().map(AgentData::aid), agentsNotInDatabase.stream())
+				.collect(toMap(aid -> aid, aid -> greenSources.get(aid.split("@")[0])));
+	}
 
-		final Map<String, List<String>> missingAliveAgents = aliveGreenSources.stream()
-				.filter(agent -> agentsData.stream().noneMatch(agentDB -> agentDB.aid().equals(agent)))
-				.collect(toMap(agent -> agent, agent -> greenSources.get(agent.split("@")[0])));
-
-		agentsSatisfyingConditions.putAll(missingAliveAgents);
-
-		return agentsSatisfyingConditions;
+	private Predicate<AgentData> isAgentAvailableToDisconnect(final List<String> consideredGreenSources) {
+		return agentData ->
+				!((GreenSourceMonitoringData) agentData.monitoringData()).isBeingDisconnected() &&
+						consideredGreenSources.contains(agentData.aid());
 	}
 
 	private List<AgentsTraffic> getAverageTrafficForGreenSources(final List<String> greenSourcesForDisconnection) {
@@ -198,7 +195,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				.flatMap(Collection::stream)
 				.toList();
 		final List<String> aliveServers = managingAgent.monitor()
-				.getAliveAgentsIntersection(managingAgent.monitor().getAliveAgents(SERVER), consideredServers).stream()
+				.getAliveAgentsIntersection(SERVER, consideredServers).stream()
 				.toList();
 
 		return managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()

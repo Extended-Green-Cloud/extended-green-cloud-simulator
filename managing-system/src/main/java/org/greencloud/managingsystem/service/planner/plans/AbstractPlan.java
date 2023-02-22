@@ -1,14 +1,11 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.greencloud.commons.agent.AgentType.SCHEDULER;
-
-import java.util.function.Predicate;
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
+import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.HealthCheck;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 
 import jade.core.AID;
@@ -20,10 +17,6 @@ public abstract class AbstractPlan {
 
 	protected final ManagingAgent managingAgent;
 	protected final AdaptationActionEnum adaptationActionEnum;
-	protected final Predicate<AgentData> getAliveSchedulerPredicate = agentData -> {
-		var healthData = ((HealthCheck) agentData.monitoringData());
-		return healthData.alive() && healthData.agentType().equals(SCHEDULER);
-	};
 	protected AdaptationActionParameters actionParameters;
 	protected AID targetAgent;
 
@@ -54,6 +47,32 @@ public abstract class AbstractPlan {
 	 * @return prepared adaptation plan
 	 */
 	public abstract AbstractPlan constructAdaptationPlan();
+
+	/**
+	 * Method returns the function that disables the execution of adaptation action that corresponds to the given plan.
+	 * It is used particularly in the ExecutorService after a given plan is enacted on the system in order to enable
+	 * gathering the results of a selected adaptation.
+	 */
+	public Runnable disablePlanAction() {
+		return () -> {
+			final AdaptationAction action = getAdaptationAction(adaptationActionEnum);
+
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(action.getActionId(), false);
+		};
+	}
+
+	/**
+	 * Method enables the execution of adaptation action that corresponds to the given plan.
+	 */
+	public Runnable enablePlanAction() {
+		return () -> {
+			final AdaptationAction action = getAdaptationAction(adaptationActionEnum);
+
+			managingAgent.getAgentNode().getDatabaseClient()
+					.setAdaptationActionAvailability(action.getActionId(), true);
+		};
+	}
 
 	public AID getTargetAgent() {
 		return targetAgent;

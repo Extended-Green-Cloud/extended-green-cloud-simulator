@@ -1,23 +1,20 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
+import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
-import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
-import static com.greencloud.commons.agent.AgentType.SCHEDULER;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
+import static java.util.Objects.nonNull;
 
-import java.util.List;
-
-import com.greencloud.commons.managingsystem.planner.ImmutableIncreaseJobDivisionPriorityParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
-import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.HealthCheck;
+import com.database.knowledge.domain.action.AdaptationAction;
+import com.greencloud.commons.managingsystem.planner.ImmutableIncreaseJobDivisionPriorityParameters;
 
 import jade.core.AID;
 
 /**
  * Class containing adaptation plan which realizes the action of increasing the job division priority with respect to
- * power
+ * the job's power
  */
 public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 
@@ -27,39 +24,58 @@ public class IncreaseJobDivisionPowerPriorityPlan extends AbstractPlan {
 
 	/**
 	 * Method verifies if the plan is executable. The plan is executable if:
-	 * 1. The Scheduler Agent is alive
+	 * 1. the Scheduler Agent is alive
 	 *
 	 * @return boolean information if the plan is executable in current conditions
 	 */
 	@Override
 	public boolean isPlanExecutable() {
-		final List<AgentData> queryResult = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypes(List.of(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
-		boolean schedulerAgentAlive = isSchedulerAlive(queryResult);
-		if (schedulerAgentAlive) {
-			targetAgent = new AID(getTargetScheduler(queryResult), AID.ISGUID);
+		final String aliveScheduler = managingAgent.monitor().getAliveScheduler();
+
+		if (nonNull(aliveScheduler)) {
+			targetAgent = new AID(aliveScheduler, AID.ISGUID);
 		}
-		return schedulerAgentAlive;
+		return nonNull(aliveScheduler);
 	}
 
+	/**
+	 * Method creates adaptation plan which increases (to next Fibonacci number)
+	 * the job scheduling priority with respect to job's power
+	 *
+	 * @return prepared adaptation plan
+	 */
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
-
-		this.actionParameters = ImmutableIncreaseJobDivisionPriorityParameters.builder().build();
+		actionParameters = ImmutableIncreaseJobDivisionPriorityParameters.builder().build();
 		return this;
 	}
 
-	boolean isSchedulerAlive(List<AgentData> agentDataList) {
-		return agentDataList.stream().anyMatch(agentData -> {
-			var healthData = ((HealthCheck) agentData.monitoringData());
-			return healthData.alive() && healthData.agentType().equals(SCHEDULER);
-		});
+	/**
+	 * Method disables the INCREASE_POWER_PRIORITY along with its corresponding INCREASE_DEADLINE_PRIORITY action
+	 */
+	@Override
+	public Runnable disablePlanAction() {
+		return () -> {
+			super.disablePlanAction();
+			changeDeadlinePriorityActionAvailability(false);
+		};
 	}
 
-	String getTargetScheduler(List<AgentData> agentDataList) {
-		return agentDataList.stream().filter(getAliveSchedulerPredicate)
-				.map(AgentData::aid)
-				.findFirst()
-				.orElse(null);
+	/**
+	 * Method enables the INCREASE_POWER_PRIORITY along with its corresponding INCREASE_DEADLINE_PRIORITY action
+	 */
+	@Override
+	public Runnable enablePlanAction() {
+		return () -> {
+			super.disablePlanAction();
+			changeDeadlinePriorityActionAvailability(true);
+		};
+	}
+
+	private void changeDeadlinePriorityActionAvailability(boolean availability) {
+		final AdaptationAction increaseDeadlineAction = getAdaptationAction(INCREASE_DEADLINE_PRIORITY);
+
+		managingAgent.getAgentNode().getDatabaseClient()
+				.setAdaptationActionAvailability(increaseDeadlineAction.getActionId(), availability);
 	}
 }
