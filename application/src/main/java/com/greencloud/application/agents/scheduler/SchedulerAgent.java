@@ -6,10 +6,8 @@ import static com.greencloud.application.yellowpages.domain.DFServiceConstants.S
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static com.greencloud.commons.utils.CommonUtils.isFibonacci;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,11 +60,11 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 					logger.info("Incorrect arguments: Queue size must be a positive integer!");
 					doDelete();
 				}
-				this.configManagement = new SchedulerConfigurationManagement(this, deadlineWeight, powerWeight, maxQueueSize,
+				this.configManagement = new SchedulerConfigurationManagement(this, deadlineWeight, powerWeight,
+						maxQueueSize,
 						jobSplitThreshold, splittingFactor);
 				this.stateManagement = new SchedulerStateManagement(this);
-				this.jobsToBeExecuted = new PriorityBlockingQueue<>(configManagement.getMaximumQueueSize(),
-						Comparator.comparingDouble(job -> configManagement.getJobPriority(job)));
+				this.setUpPriorityQueue();
 
 				register(this, SCHEDULER_SERVICE_TYPE, SCHEDULER_SERVICE_NAME);
 			} catch (final NumberFormatException e) {

@@ -36,6 +36,7 @@ const NumericInput = ({ label, placeholder, value, handleChange, disabled }: Pro
                placeholder,
                type: 'number',
                className: numericInputStyle,
+               min: 0,
                disabled,
             }}
          />

@@ -38,36 +38,36 @@
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>Solar</name>
+			<name>Wind2</name>
 			<monitoringAgent>Weather2</monitoringAgent>
 			<ownerSever>Server1</ownerSever>
 			<latitude>50.0</latitude>
 			<longitude>88.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>300</maximumCapacity>
-			<energyType>SOLAR</energyType>
+			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>WindFarm</name>
+			<name>Solar1</name>
 			<monitoringAgent>Weather3</monitoringAgent>
 			<ownerSever>Server2</ownerSever>
 			<latitude>50.0</latitude>
 			<longitude>30.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
-			<maximumCapacity>300</maximumCapacity>
-			<energyType>WIND</energyType>
+			<maximumCapacity>200</maximumCapacity>
+			<energyType>SOLAR</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 		<greenenergyAgent>
-			<name>SolarFarm</name>
+			<name>Wind4</name>
 			<monitoringAgent>Weather4</monitoringAgent>
 			<ownerSever>Server3</ownerSever>
 			<latitude>10.0</latitude>
 			<longitude>88.1</longitude>
 			<pricePerPowerUnit>10</pricePerPowerUnit>
 			<maximumCapacity>300</maximumCapacity>
-			<energyType>SOLAR</energyType>
+			<energyType>WIND</energyType>
 			<weatherPredictionError>0.02</weatherPredictionError>
 		</greenenergyAgent>
 	</greenEnergyAgentsArgs>
