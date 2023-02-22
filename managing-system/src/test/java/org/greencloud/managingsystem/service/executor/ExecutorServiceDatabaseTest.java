@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.service.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
@@ -33,6 +32,7 @@ import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptation
 import org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult;
 import org.greencloud.managingsystem.service.common.TestPlanParameters;
 import org.greencloud.managingsystem.service.executor.jade.AgentRunner;
+import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
@@ -43,6 +43,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
@@ -56,6 +58,7 @@ import jade.core.AID;
 import jade.core.Location;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ExecutorServiceDatabaseTest {
 
 	private static final Integer TEST_VALUE = 1;
@@ -68,6 +71,7 @@ class ExecutorServiceDatabaseTest {
 	@Mock
 	Location location;
 
+	MobilityService mobilityService;
 	AgentRunner agentRunner;
 	AbstractPlan adaptationPlan;
 	TimescaleDatabase database;
@@ -77,6 +81,7 @@ class ExecutorServiceDatabaseTest {
 
 	@BeforeEach
 	void init() {
+		mobilityService = spy(new MobilityService(managingAgent));
 		database = spy(TimescaleDatabase.setUpForTests());
 		database.initDatabase();
 
@@ -88,6 +93,7 @@ class ExecutorServiceDatabaseTest {
 		when(managingAgent.monitor()).thenReturn(monitoringService);
 		when(managingAgent.getAgentNode()).thenReturn(abstractAgentNode);
 		when(abstractAgentNode.getDatabaseClient()).thenReturn(database);
+		when(managingAgent.move()).thenReturn(mobilityService);
 
 		adaptationPlan = getTestAdaptationPlan(managingAgent, TEST_AID, new TestPlanParameters(TEST_VALUE));
 	}
@@ -138,7 +144,7 @@ class ExecutorServiceDatabaseTest {
 		ScenarioStructureArgs greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
 				List.of(serverAgentArgs), emptyList(), emptyList());
 		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
-		when(managingAgent.getContainerLocations("CNA1")).thenReturn(location);
+		when(mobilityService.getContainerLocations("CNA1")).thenReturn(location);
 		when(location.getName()).thenReturn("Main-Container");
 		yellowPagesService.when(() -> YellowPagesService.search(any(), eq(CNA_SERVICE_TYPE)))
 				.thenReturn(Set.of(new AID("CNA1", true)));
@@ -156,8 +162,7 @@ class ExecutorServiceDatabaseTest {
 
 		// then
 		verify(agentRunner).runAgents(anyList());
-		verify(abstractAgentNode).logNewAdaptation(eq(getAdaptationAction(ADD_SERVER)), any(Instant.class),
-				eq(Optional.empty()));
+		verify(abstractAgentNode).logNewAdaptation(eq(ADD_SERVER), any(Instant.class), eq(Optional.empty()));
 		verify(managingAgent).addBehaviour(any(VerifyAdaptationActionResult.class));
 	}
 }

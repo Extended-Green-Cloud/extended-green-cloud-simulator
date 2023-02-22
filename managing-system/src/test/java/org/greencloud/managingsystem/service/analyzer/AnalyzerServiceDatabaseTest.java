@@ -81,7 +81,7 @@ class AnalyzerServiceDatabaseTest {
 
 		mockManagingAgent.monitor().readSystemAdaptationGoals();
 		prepareSystemData();
-		monitoringService.isSuccessRatioMaximized();
+		monitoringService.getGoalService(MAXIMIZE_JOB_SUCCESS_RATIO).evaluateAndUpdate();
 	}
 
 	@AfterEach

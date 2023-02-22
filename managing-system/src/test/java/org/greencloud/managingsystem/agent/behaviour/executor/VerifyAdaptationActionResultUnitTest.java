@@ -15,8 +15,8 @@ import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.service.monitoring.JobSuccessRatioService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.JobSuccessRatioService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,9 +64,9 @@ class VerifyAdaptationActionResultUnitTest {
 	void shouldCorrectlyProcessAfterWakeUp() {
 		// given
 		verifyAdaptationActionResult = new VerifyAdaptationActionResult(managingAgent, ACTION_TIMESTAMP,
-				adaptationPlan.getAdaptationActionEnum(), null, INITIAL_QUALITY, 5);
+				adaptationPlan.getAdaptationActionEnum(), null, INITIAL_QUALITY, adaptationPlan.enablePlanAction(), 5);
 		when(monitoringService.getGoalService(any())).thenReturn(jobSuccessRatioService);
-		when(jobSuccessRatioService.readCurrentGoalQuality(anyInt())).thenReturn(RESULT_QUALITY);
+		when(jobSuccessRatioService.computeCurrentGoalQuality(anyInt())).thenReturn(RESULT_QUALITY);
 
 		// when
 		verifyAdaptationActionResult.onWake();

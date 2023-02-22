@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
@@ -62,7 +62,7 @@ class BackUpPowerUsageServiceUnitTest {
 				.thenReturn(agentData);
 
 		// when
-		var result = backUpPowerUsageService.readCurrentGoalQuality();
+		var result = backUpPowerUsageService.computeCurrentGoalQuality();
 
 		// then
 		assertThat(result)

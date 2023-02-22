@@ -100,7 +100,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		var greenSourcesWithServers = Map.of(
 				"test_gs1", List.of("test_server1", "test_server2"),
 				"test_gs2", List.of("test_server1", "test_server3"),
-				"test_gs3", List.of("test_server3", "test_server3")
+				"test_gs3", List.of("test_server3")
 		);
 
 		doReturn(prepareAliveGreenSourcesData()).when(mockDatabase)

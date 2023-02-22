@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.JobSuccessRatioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -86,8 +88,7 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(Collections.emptyList()).when(mockDatabase).readLastMonitoringDataForDataTypes(singletonList(
 				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 
-		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
-				MONITOR_SYSTEM_DATA_TIME_PERIOD)).isTrue();
+		assertThat(jobSuccessRatioService.evaluateAndUpdate()).isTrue();
 	}
 
 	@ParameterizedTest
@@ -98,8 +99,7 @@ class JobSuccessRatioServiceUnitTest {
 		doReturn(prepareClientData()).when(mockDatabase).readLastMonitoringDataForDataTypes(eq(singletonList(
 				CLIENT_MONITORING)), anyDouble());
 
-		assertThat(jobSuccessRatioService.evaluateAndUpdateClientJobSuccessRatio(
-				MONITOR_SYSTEM_DATA_TIME_PERIOD)).isFalse();
+		assertThat(jobSuccessRatioService.evaluateAndUpdate()).isFalse();
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
@@ -9,9 +9,8 @@ import static org.mockito.Mockito.mock;
 import java.time.Instant;
 import java.util.List;
 
-import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,8 @@ import org.mockito.Mock;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
@@ -64,7 +65,8 @@ class TrafficDistributionServiceTest {
 	@Test
 	@DisplayName("Test compute goal quality for CNA")
 	void testComputeGoalQualityForCNA() {
-		double goalQuality = trafficDistributionService.computeGoalQualityForCNA(prepareCNAData());
+		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(prepareCNAData(),
+				data -> trafficDistributionService.mapAgentDataToCNAAvailableCapacity(data));
 
 		assertThat(goalQuality).isEqualTo(0.565685424949238);
 	}
@@ -72,7 +74,8 @@ class TrafficDistributionServiceTest {
 	@Test
 	@DisplayName("Test compute goal quality for server")
 	void testComputeGoalQualityForServer() {
-		double goalQuality = trafficDistributionService.computeGoalQualityForServer(prepareServerData());
+		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(prepareServerData(),
+				data -> trafficDistributionService.mapAgentDataToServerAvailableCapacity(data));
 
 		assertThat(goalQuality).isEqualTo(0.3666479606152469);
 	}

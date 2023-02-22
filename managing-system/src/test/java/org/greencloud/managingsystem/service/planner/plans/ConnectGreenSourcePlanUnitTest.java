@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
-import org.greencloud.managingsystem.service.planner.domain.AgentsGreenPower;
-import org.greencloud.managingsystem.service.planner.domain.AgentsTraffic;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

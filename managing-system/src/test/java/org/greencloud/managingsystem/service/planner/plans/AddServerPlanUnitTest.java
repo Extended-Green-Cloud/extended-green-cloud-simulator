@@ -8,11 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.planner.plans.AddServerPlan.TRAFFIC_LOAD_THRESHOLD;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
@@ -33,6 +37,7 @@ import com.gui.agents.ManagingAgentNode;
 import jade.core.Location;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AddServerPlanUnitTest {
 
 	@Mock
@@ -42,11 +47,13 @@ class AddServerPlanUnitTest {
 	@Mock
 	private TimescaleDatabase timescaleDatabase;
 
+	private MobilityService mobilityService;
 	private AddServerPlan addServerPlan;
 	private ScenarioStructureArgs greenCloudStructure;
 
 	@BeforeEach
 	void init() {
+		mobilityService = spy(new MobilityService(managingAgent));
 		addServerPlan = new AddServerPlan(managingAgent);
 		ServerAgentArgs serverAgentArgs = ImmutableServerAgentArgs.builder()
 				.jobProcessingLimit("200")
@@ -62,13 +69,15 @@ class AddServerPlanUnitTest {
 
 		when(managingAgent.getAgentNode()).thenReturn(managingAgentNode);
 		when((managingAgentNode.getDatabaseClient())).thenReturn(timescaleDatabase);
+		when(managingAgent.move()).thenReturn(mobilityService);
 	}
 
 	@ParameterizedTest
 	@ValueSource(doubles = { 0.8, 0.9, 0.95 })
 	void shouldReturnThatPlanIsNotExecutable(double trafficValue) {
 		// given
-		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING),
+				MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(trafficValue));
 
 		// when
@@ -83,9 +92,10 @@ class AddServerPlanUnitTest {
 		// given
 		var trafficValue = 0.9;
 		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
-		when(managingAgent.getContainerLocations("CNA1")).thenReturn(null);
-		when(managingAgent.getContainerLocations("Main-Container")).thenReturn(mock(Location.class));
-		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(mobilityService.getContainerLocations("CNA1")).thenReturn(null);
+		when(mobilityService.getContainerLocations("Main-Container")).thenReturn(mock(Location.class));
+		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING),
+				MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(trafficValue));
 		addServerPlan.isPlanExecutable();
 

@@ -5,6 +5,7 @@ import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForAgentAction;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -63,21 +64,20 @@ class InitiateAdaptationActionRequestTest {
 		when(managingAgentNode.getDatabaseClient()).thenReturn(timescaleDatabase);
 		doNothing().when(managingAgentNode).logNewAdaptation(any(), any(), any());
 
-		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY, mockRunnable);
+		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY, mockRunnable, mockRunnable);
 
 	}
 
 	@Test
 	void shouldCorrectlyHandleInform() {
 		// given
-		var expectedVerifyBehaviour = new VerifyAdaptationActionResult(managingAgent, now(), ADAPTATION_ACTION_TYPE,
-				TEST_AID, GOAL_QUALITY);
+		var expectedVerifyBehaviour = createForAgentAction(managingAgent, now(), ADAPTATION_ACTION_TYPE,
+				TEST_AID, GOAL_QUALITY, mockRunnable);
 
 		// when
 		behaviour.handleInform(message);
 
 		// then
-		verify(managingAgent).removeBehaviour(behaviour);
 		verify(managingAgent).addBehaviour(captor.capture());
 		verify(mockRunnable).run();
 		assertThat(captor.getValue())
@@ -95,6 +95,5 @@ class InitiateAdaptationActionRequestTest {
 		// then
 		verify(timescaleDatabase).setAdaptationActionAvailability(
 				getAdaptationAction(ADAPTATION_ACTION_TYPE).getActionId(), true);
-		verify(managingAgent).removeBehaviour(behaviour);
 	}
 }

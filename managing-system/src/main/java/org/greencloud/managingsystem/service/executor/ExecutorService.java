@@ -8,6 +8,7 @@ import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemp
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
+import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForSystemAction;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 
 import java.util.List;
@@ -17,7 +18,6 @@ import java.util.Set;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
-import org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.executor.jade.AgentControllerFactory;
 import org.greencloud.managingsystem.service.executor.jade.AgentRunner;
@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.commons.args.agent.AgentArgs;
@@ -38,14 +37,11 @@ import jade.core.AID;
 import jade.core.Location;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentController;
-import jade.wrapper.StaleProxyException;
 
 /**
  * Service containing methods used in execution of the adaptation plan
  */
 public class ExecutorService extends AbstractManagingService {
-
-	private static final Integer SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY = 20;
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorService.class);
 
@@ -68,52 +64,33 @@ public class ExecutorService extends AbstractManagingService {
 	 *
 	 * @param adaptationPlan plan containing all necessary data to correctly execute adaptation action
 	 */
-	public void executeAdaptationAction(AbstractPlan adaptationPlan) {
-		AdaptationAction actionToBeExecuted = getAdaptationAction(adaptationPlan.getAdaptationActionEnum());
-		Double initialGoalQuality = getInitialGoalQuality(actionToBeExecuted.getGoal());
+	public void executeAdaptationAction(final AbstractPlan adaptationPlan) {
+		final AdaptationAction actionToBeExecuted = getAdaptationAction(adaptationPlan.getAdaptationActionEnum());
+		final Double initialGoalQuality = getInitialGoalQuality(actionToBeExecuted.getGoal());
+
 		if (adaptationPlan instanceof SystemPlan systemAdaptationPlan) {
 			logger.info("Executing system plan!");
 			this.executeAdaptationActionOnSystem(systemAdaptationPlan, actionToBeExecuted, initialGoalQuality);
 		} else {
-			this.executeAdaptationActionOnAgent(adaptationPlan, actionToBeExecuted, initialGoalQuality);
+			this.executeAdaptationActionOnAgent(adaptationPlan, initialGoalQuality);
 		}
 	}
 
-	private void executeAdaptationActionOnAgent(AbstractPlan adaptationPlan, AdaptationAction actionToBeExecuted,
-			Double initialGoalQuality) {
-		ACLMessage adaptationActionRequest = MessageBuilder.builder()
+	private void executeAdaptationActionOnAgent(final AbstractPlan adaptationPlan, final Double initialGoalQuality) {
+		final ACLMessage adaptationActionRequest = MessageBuilder.builder()
 				.withPerformative(REQUEST)
 				.withConversationId(adaptationPlan.getAdaptationActionEnum().toString())
 				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
 				.withObjectContent(adaptationPlan.getActionParameters())
 				.withReceivers(adaptationPlan.getTargetAgent())
 				.build();
-		disableAdaptationAction(actionToBeExecuted);
+		adaptationPlan.disablePlanAction().run();
 		managingAgent.addBehaviour(new InitiateAdaptationActionRequest(managingAgent, adaptationActionRequest,
-				initialGoalQuality, adaptationPlan.getPostActionHandler()));
+				initialGoalQuality, adaptationPlan.getPostActionHandler(), adaptationPlan.enablePlanAction()));
 	}
 
-	/**
-	 * Disables executed adaptation action performed within the plan until the results od the adaptation
-	 * action are verified.
-	 *
-	 * @param adaptationAction adaptation action to be disabled
-	 */
-	private void disableAdaptationAction(AdaptationAction adaptationAction) {
-		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY) {
-			managingAgent.getAgentNode().getDatabaseClient()
-					.setAdaptationActionAvailability(3, false);
-		}
-		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_POWER_PRIORITY) {
-			managingAgent.getAgentNode().getDatabaseClient()
-					.setAdaptationActionAvailability(2, false);
-		}
-		managingAgent.getAgentNode().getDatabaseClient()
-				.setAdaptationActionAvailability(adaptationAction.getActionId(), false);
-	}
-
-	private double getInitialGoalQuality(GoalEnum targetGoal) {
-		var goalQuality = managingAgent.monitor().getGoalService(targetGoal).readCurrentGoalQuality();
+	private double getInitialGoalQuality(final GoalEnum targetGoal) {
+		var goalQuality = managingAgent.monitor().getGoalService(targetGoal).computeCurrentGoalQuality();
 
 		if (goalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
 			throw new IllegalStateException("Goal quality must be present to initiate action, this should not happen.");
@@ -124,21 +101,22 @@ public class ExecutorService extends AbstractManagingService {
 
 	private void executeAdaptationActionOnSystem(SystemPlan systemAdaptationPlan, AdaptationAction actionToBeExecuted,
 			Double initialGoalQuality) {
-		List<AgentController> createdAgents = createAgents(systemAdaptationPlan);
+		final List<AgentController> createdAgents = createAgents(systemAdaptationPlan);
+		final Location location = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsTargetLocation();
 		agentRunner.runAgents(createdAgents);
-		moveContainers(systemAdaptationPlan, createdAgents);
+		managingAgent.move().moveContainers(location, createdAgents);
 		announceNetworkChange();
-		disableAdaptationAction(actionToBeExecuted);
-		((ManagingAgentNode) managingAgent.getAgentNode()).logNewAdaptation(
-				getAdaptationAction(actionToBeExecuted.getAction()), getCurrentTime(), Optional.empty());
-		managingAgent.addBehaviour(new VerifyAdaptationActionResult(managingAgent, getCurrentTime(),
-				systemAdaptationPlan.getAdaptationActionEnum(), null, initialGoalQuality,
-				SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY));
+		systemAdaptationPlan.disablePlanAction().run();
+		((ManagingAgentNode) managingAgent.getAgentNode()).logNewAdaptation(actionToBeExecuted.getAction(),
+				getCurrentTime(), Optional.empty());
+		managingAgent.addBehaviour(createForSystemAction(managingAgent, getCurrentTime(),
+				systemAdaptationPlan.getAdaptationActionEnum(), initialGoalQuality,
+				systemAdaptationPlan.enablePlanAction()));
 	}
 
 	private List<AgentController> createAgents(SystemPlan systemAdaptationPlan) {
 		List<AgentArgs> args = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsArguments();
-		managingAgent.addAgentsToStructure(args);
+		managingAgent.move().addAgentsToStructure(args);
 		return args.stream()
 				.map(agentRunner::runAgentController)
 				.toList();
@@ -155,18 +133,5 @@ public class ExecutorService extends AbstractManagingService {
 		managingAgent.send(announcementMessage);
 	}
 
-	private void moveContainers(SystemPlan systemAdaptationPlan, List<AgentController> createdAgents) {
-		Location targetContainer = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsTargetLocation();
-		if (!targetContainer.getName().equals("Main-Container")) {
-			createdAgents.forEach(agentController -> moveAgentController(agentController, targetContainer));
-		}
-	}
 
-	private void moveAgentController(AgentController agentController, Location targetContainer) {
-		try {
-			agentController.move(targetContainer);
-		} catch (StaleProxyException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }

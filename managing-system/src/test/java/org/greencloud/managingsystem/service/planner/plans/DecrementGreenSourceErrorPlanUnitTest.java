@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
-import org.greencloud.managingsystem.service.planner.domain.AgentsBackUpPower;
-import org.greencloud.managingsystem.service.planner.domain.AgentsPowerShortages;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
+import org.greencloud.managingsystem.service.planner.plans.domain.AgentsPowerShortages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -94,26 +94,6 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.hasSize(3)
 				.as("Retrieve data contains correct fields")
 				.containsExactly("test_gs1", "test_gs3", "test_gs4");
-	}
-
-	@Test
-	@DisplayName("Test getting green sources without power shortages")
-	void testGetGreenSourcesWithoutPowerShortages() {
-		// given
-		var weatherShortagesForAgents = prepareGreenSourceWeatherShortageData();
-		var consideredAgents = List.of("test_gs2", "test_gs3", "test_gs4", "test_gs5", "test_gs6");
-
-		// when
-		var result = decrementGreenSourceErrorPlan.getGreenSourcesWithoutPowerShortages(weatherShortagesForAgents,
-				consideredAgents);
-
-		// then
-		assertThat(result)
-				.as("Retrieve data has correct size equal 2")
-				.hasSize(2)
-				.as("Retrieve data contains correct fields")
-				.contains(new AgentsPowerShortages("test_gs5", 0),
-						new AgentsPowerShortages("test_gs6", 0));
 	}
 
 	@Test

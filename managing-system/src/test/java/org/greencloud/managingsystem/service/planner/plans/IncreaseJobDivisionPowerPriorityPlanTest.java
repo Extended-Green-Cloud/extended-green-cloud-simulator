@@ -2,6 +2,7 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static java.time.Instant.now;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.mockito.Mockito.doReturn;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.agent.AgentType;
 import com.gui.agents.ManagingAgentNode;
 
-public class IncreaseJobDivisionPowerPriorityPlanTest {
+class IncreaseJobDivisionPowerPriorityPlanTest {
 
 	@Mock
 	private ManagingAgent managingAgent;
@@ -44,6 +46,7 @@ public class IncreaseJobDivisionPowerPriorityPlanTest {
 		increaseJobDivisionPowerPriorityPlan = new IncreaseJobDivisionPowerPriorityPlan(managingAgent);
 		doReturn(timescaleDatabase).when(managingAgentNode).getDatabaseClient();
 		doReturn(managingAgentNode).when(managingAgent).getAgentNode();
+		doReturn(new MonitoringService(managingAgent)).when(managingAgent).monitor();
 		mockHealthCheckData();
 	}
 
@@ -55,31 +58,10 @@ public class IncreaseJobDivisionPowerPriorityPlanTest {
 		assertThat(result).isTrue();
 	}
 
-	@Test
-	@DisplayName("Test is scheduler alive")
-	void testIsSchedulerAlive() {
-		var result = increaseJobDivisionPowerPriorityPlan.isSchedulerAlive(
-				timescaleDatabase.readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-						MONITOR_SYSTEM_DATA_HEALTH_PERIOD));
-
-		assertThat(result).isTrue();
-	}
-
-	@Test
-	@DisplayName("Test getting the targer scheduler agent")
-	void testGetTargetSchedulerAgent() {
-		var result = increaseJobDivisionPowerPriorityPlan.getTargetScheduler(
-				timescaleDatabase.readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-						MONITOR_SYSTEM_DATA_HEALTH_PERIOD));
-
-		assertThat(result).isNotNull();
-	}
-
 	private void mockHealthCheckData() {
 		var healthCheck = new HealthCheck(true, AgentType.SCHEDULER);
 		var mockData = List.of(new AgentData(now(), "schedulerTest", HEALTH_CHECK, healthCheck));
 		doReturn(mockData).when(timescaleDatabase)
-				.readMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-						MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
 	}
 }
