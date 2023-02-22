@@ -1,19 +1,17 @@
 package org.greencloud.managingsystem.agent;
 
+import static com.greencloud.commons.agent.AgentType.MANAGING;
+
 import java.util.List;
 
 import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
+import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 import jade.core.Location;
@@ -35,13 +33,18 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	protected AnalyzerService analyzerService;
 	protected PlannerService plannerService;
 	protected ExecutorService executorService;
+	protected MobilityService mobilityService;
 
 	/**
 	 * Default constructor
 	 */
 	protected AbstractManagingAgent() {
 		super.setup();
-		agentType = AgentType.MANAGING;
+		agentType = MANAGING;
+	}
+
+	public ScenarioStructureArgs getGreenCloudStructure() {
+		return greenCloudStructure;
 	}
 
 	public MonitoringService monitor() {
@@ -59,6 +62,7 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	public ExecutorService execute() {
 		return executorService;
 	}
+	public MobilityService move() {return  mobilityService;}
 
 	public double getSystemQualityThreshold() {
 		return systemQualityThreshold;
@@ -73,27 +77,6 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	}
 
 	/**
-	 * @return current green cloud structure
-	 */
-	public ScenarioStructureArgs getGreenCloudStructure() {
-		return greenCloudStructure;
-	}
-
-	public void addAgentsToStructure(List<AgentArgs> agentArgs) {
-		for (AgentArgs args : agentArgs) {
-			if (args instanceof ServerAgentArgs serverAgentArgs) {
-				greenCloudStructure.getServerAgentsArgs().add(serverAgentArgs);
-			}
-			if (args instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
-				greenCloudStructure.getGreenEnergyAgentsArgs().add(greenEnergyAgentArgs);
-			}
-			if (args instanceof MonitoringAgentArgs monitoringAgentArgs) {
-				greenCloudStructure.getMonitoringAgentsArgs().add(monitoringAgentArgs);
-			}
-		}
-	}
-
-	/**
 	 * @return green cloud controller, used to modify green cloud structure, add/remove agents
 	 */
 	public ContainerController getGreenCloudController() {
@@ -101,15 +84,8 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	}
 
 	/**
-	 * @return returns a container with a given name
+	 * @return locations of all agent containers present in the system
 	 */
-	public Location getContainerLocations(String containerName) {
-		return containersLocations.stream()
-				.filter(location -> location.getName().contains(containerName))
-				.findFirst()
-				.orElse(null);
-	}
-
 	public List<Location> getContainersLocations() {
 		return containersLocations;
 	}

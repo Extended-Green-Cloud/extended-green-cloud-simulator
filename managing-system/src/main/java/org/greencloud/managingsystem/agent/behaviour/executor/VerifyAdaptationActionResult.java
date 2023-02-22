@@ -3,9 +3,10 @@ package org.greencloud.managingsystem.agent.behaviour.executor;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.VERIFY_ACTION_END_LOG;
+import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.VERIFY_ACTION_START_LOG;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS;
-import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_END_LOG;
-import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.VERIFY_ACTION_START_LOG;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,10 +27,7 @@ import jade.core.Agent;
 import jade.core.behaviours.WakerBehaviour;
 
 /**
- * Measures delta of each Goal's qualities for a time period starting from action execution to now().
- * After measuring results of the {@link AdaptationAction} they are aggregated and stored in database.
- * Aggregation and update is done by the {@link TimescaleDatabase} client. Final action is to enable
- * back the verified action back.
+ * Behaviour verifies the results of performed adaptation and updates the statistics in the database.
  */
 public class VerifyAdaptationActionResult extends WakerBehaviour {
 
@@ -37,36 +35,75 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 
 	private final ManagingAgent myManagingAgent;
 	private final TimescaleDatabase databaseClient;
-	private final Instant actionTimestamp;
+	private final Instant actionExecutionTime;
 	private final Integer adaptationActionId;
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
+	private final Runnable enablePlanAction;
 
-	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, AdaptationActionEnum adaptationActionType,
-			AID targetAgent, Double initialGoalQuality) {
-		this(agent, actionTimestamp, adaptationActionType, targetAgent, initialGoalQuality,
-				VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
-	}
-
-	public VerifyAdaptationActionResult(Agent agent, Instant actionTimestamp, AdaptationActionEnum adaptationActionType,
-			AID targetAgent, Double initialGoalQuality, int delayInSeconds) {
+	protected VerifyAdaptationActionResult(Agent agent, Instant actionExecutionTime,
+			AdaptationActionEnum adaptationActionType,
+			AID targetAgent, Double initialGoalQuality, Runnable enablePlanAction, int delayInSeconds) {
 		super(agent, delayInSeconds * 1000L);
+
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.databaseClient = myManagingAgent.getAgentNode().getDatabaseClient();
-		this.actionTimestamp = actionTimestamp;
+		this.actionExecutionTime = actionExecutionTime;
 		this.adaptationActionId = getAdaptationAction(adaptationActionType).getActionId();
 		this.targetAgent = targetAgent;
 		this.initialGoalQuality = initialGoalQuality;
+		this.enablePlanAction = enablePlanAction;
 	}
 
+	/**
+	 * Method creates verification behaviour for actions executed on singular agents.
+	 * (with behaviour execution delay equals to VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS)
+	 *
+	 * @param agent                - agent executing the behaviour
+	 * @param actionExecutionTime  - time when the adaptation was executed
+	 * @param adaptationActionType - type of the executed action
+	 * @param targetAgent          - agent on which adaptation was executed
+	 * @param initialGoalQuality   - value of the goal quality before performing the adaptation
+	 * @param enablePlanAction     - method performed in order to enable availability of an action corresponding to
+	 *                             *                           given plan
+	 * @return VerifyAdaptationActionResult behaviour
+	 */
+	public static VerifyAdaptationActionResult createForAgentAction(Agent agent, Instant actionExecutionTime,
+			AdaptationActionEnum adaptationActionType, AID targetAgent, Double initialGoalQuality,
+			Runnable enablePlanAction) {
+		return new VerifyAdaptationActionResult(agent, actionExecutionTime, adaptationActionType, targetAgent,
+				initialGoalQuality, enablePlanAction, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
+	}
+
+	/**
+	 * Method creates verification behaviour for actions executed on entire system.
+	 * (with behaviour execution delay equals to SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY)
+	 *
+	 * @param agent                - agent executing the behaviour
+	 * @param actionExecutionTime  - time when the adaptation was executed
+	 * @param adaptationActionType - type of the executed action
+	 * @param initialGoalQuality   - value of the goal quality before performing the adaptation
+	 * @param enablePlanAction     - method performed in order to enable availability of an action corresponding to
+	 *                             *                           given plan
+	 * @return VerifyAdaptationActionResult behaviour
+	 */
+	public static VerifyAdaptationActionResult createForSystemAction(Agent agent, Instant actionExecutionTime,
+			AdaptationActionEnum adaptationActionType, Double initialGoalQuality, Runnable enablePlanAction) {
+		return new VerifyAdaptationActionResult(agent, actionExecutionTime, adaptationActionType, null,
+				initialGoalQuality, enablePlanAction, SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY);
+	}
+
+	/**
+	 * Method reads the result of adaptation action and updates the corresponding fields in the database
+	 */
 	@Override
 	protected void onWake() {
 		AdaptationAction performedAction = databaseClient.readAdaptationAction(adaptationActionId);
-		logger.info(VERIFY_ACTION_START_LOG, performedAction, targetAgent, actionTimestamp);
+		logger.info(VERIFY_ACTION_START_LOG, performedAction, targetAgent, actionExecutionTime);
 
 		var actionResults = getActionResults();
 		databaseClient.updateAdaptationAction(performedAction.getActionId(), actionResults);
-		enableAdaptationAction(performedAction);
+		enablePlanAction.run();
 
 		logger.info(VERIFY_ACTION_END_LOG, performedAction, actionResults);
 	}
@@ -76,24 +113,11 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	}
 
 	private double getGoalQualityDelta(GoalEnum goalEnum) {
-		int elapsedTime = (int) Duration.between(actionTimestamp, getCurrentTime()).toSeconds();
-		double currentGoalQuality = myManagingAgent.monitor().getGoalService(goalEnum)
-				.readCurrentGoalQuality(elapsedTime);
+		final int elapsedTime = (int) Duration.between(actionExecutionTime, getCurrentTime()).toSeconds();
+		final double currentGoalQuality = myManagingAgent.monitor().getGoalService(goalEnum)
+				.computeCurrentGoalQuality(elapsedTime);
 
 		// absolute delta
 		return Math.abs(initialGoalQuality - currentGoalQuality);
-	}
-
-	private void enableAdaptationAction(AdaptationAction adaptationAction) {
-		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY) {
-			myManagingAgent.getAgentNode().getDatabaseClient()
-					.setAdaptationActionAvailability(3, true);
-		}
-		if (adaptationAction.getAction() == AdaptationActionEnum.INCREASE_POWER_PRIORITY) {
-			myManagingAgent.getAgentNode().getDatabaseClient()
-					.setAdaptationActionAvailability(2, true);
-		}
-		myManagingAgent.getAgentNode().getDatabaseClient()
-				.setAdaptationActionAvailability(adaptationAction.getActionId(), true);
 	}
 }

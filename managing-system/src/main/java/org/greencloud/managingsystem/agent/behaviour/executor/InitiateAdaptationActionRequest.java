@@ -2,8 +2,9 @@ package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.ACTION_FAILED_LOG;
-import static org.greencloud.managingsystem.service.executor.logs.ExecutorLogs.COMPLETED_ACTION_LOG;
+import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForAgentAction;
+import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.ACTION_FAILED_LOG;
+import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.COMPLETED_ACTION_LOG;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -21,7 +22,7 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
 
 /**
- * Initiates the adaptation action request for the given agent and handles its execution result, either
+ * Initiates the adaptation action request for the given agent and handles its execution result - either
  * successful or failed execution.
  */
 public class InitiateAdaptationActionRequest extends AchieveREInitiator {
@@ -34,49 +35,57 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	private final AID targetAgent;
 	private final Double initialGoalQuality;
 	private final Runnable postActionHandler;
+	private final Runnable enablePlanAction;
 
+	/**
+	 * Behaviour constructor
+	 *
+	 * @param agent              - managing agent that executes the behaviour
+	 * @param message            - request of adaptation that is to be sent to the targeted agent
+	 * @param initialGoalQuality - value of the goal quality before performing the adaptation
+	 * @param postActionHandler  - action performed after adaptation is finished
+	 * @param enablePlanAction   - method performed in order to enable availability of an action corresponding to
+	 *                           given plan
+	 */
 	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Double initialGoalQuality,
-			Runnable postActionHandler) {
+			Runnable postActionHandler, Runnable enablePlanAction) {
 		super(agent, message);
 		this.adaptationActionType = AdaptationActionEnum.valueOf(message.getConversationId());
 		this.targetAgent = (AID) message.getAllReceiver().next();
-		this.initialGoalQuality = initialGoalQuality;
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.managingAgentNode = (ManagingAgentNode) myManagingAgent.getAgentNode();
+		this.initialGoalQuality = initialGoalQuality;
 		this.postActionHandler = postActionHandler;
+		this.enablePlanAction = enablePlanAction;
 	}
 
 	/**
-	 * If the action is correctly executes Agent responds with an INFORM message. In that case
-	 * a verification of the executed action must be scheduled. The {@link VerifyAdaptationActionResult}
-	 * is scheduled after the period defined in VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS constant.
+	 * Method handles INFORM message coming from given adapted agent which tells that the
+	 * adaptation was successfully executed.
+	 * Method schedules the {@link VerifyAdaptationActionResult} behaviour that will be responsible for
+	 * verifying the adaptation outcome.
 	 *
 	 * @param inform message received from the target agent
 	 */
 	@Override
 	protected void handleInform(ACLMessage inform) {
-		logger.info(COMPLETED_ACTION_LOG, adaptationActionType, targetAgent);
-		scheduleVerifyBehaviour();
-		executePostAdaptationAction();
-		managingAgentNode.logNewAdaptation(getAdaptationAction(adaptationActionType), getCurrentTime(),
-				Optional.of(targetAgent.getLocalName()));
-		myManagingAgent.removeBehaviour(this);
-	}
+		var actionExecutionTime = getCurrentTime();
+		logger.info(COMPLETED_ACTION_LOG, adaptationActionType, actionExecutionTime, targetAgent);
 
-	private void scheduleVerifyBehaviour() {
-		var verifyingBehaviour = new VerifyAdaptationActionResult(myManagingAgent, getCurrentTime(),
-				adaptationActionType, targetAgent, initialGoalQuality);
-		myManagingAgent.addBehaviour(verifyingBehaviour);
-	}
-
-	private void executePostAdaptationAction() {
-		if(Objects.nonNull(postActionHandler)) {
+		if (Objects.nonNull(postActionHandler)) {
 			postActionHandler.run();
 		}
+		var verifyingBehaviour = createForAgentAction(myManagingAgent, actionExecutionTime,
+				adaptationActionType, targetAgent, initialGoalQuality, enablePlanAction);
+
+		myManagingAgent.addBehaviour(verifyingBehaviour);
+		managingAgentNode.logNewAdaptation(adaptationActionType, actionExecutionTime,
+				Optional.of(targetAgent.getLocalName()));
 	}
 
 	/**
-	 * If the action fails it should be released immediately
+	 * Method handles FAILURE message coming from given agent selected for adaptation which tells that the
+	 * adaptation execution has failed.
 	 *
 	 * @param failure failure message received from the target agent
 	 */
@@ -85,6 +94,5 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 		logger.info(ACTION_FAILED_LOG, adaptationActionType, targetAgent);
 		myManagingAgent.getAgentNode().getDatabaseClient()
 				.setAdaptationActionAvailability(getAdaptationAction(adaptationActionType).getActionId(), true);
-		myManagingAgent.removeBehaviour(this);
 	}
 }
