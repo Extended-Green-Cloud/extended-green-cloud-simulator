@@ -20,11 +20,7 @@ export const store = configureStore({
       managingSystem: managingSystemSlice.reducer,
    },
    middleware: (getDefaultMiddleware) => {
-      return getDefaultMiddleware({ thunk: false }).concat([
-         crashMiddleware,
-         sagaMiddleware,
-         loggingMiddleware,
-      ])
+      return getDefaultMiddleware({ thunk: false }).concat([crashMiddleware, sagaMiddleware, loggingMiddleware])
    },
 })
 

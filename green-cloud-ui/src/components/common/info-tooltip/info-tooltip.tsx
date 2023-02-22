@@ -35,12 +35,7 @@ const InfoTooltip = ({ header, id, content, place }: Props) => {
    )
 
    return (
-      <Tooltip
-         anchorId={id}
-         style={tooltipStyle}
-         place={place ?? 'left'}
-         delayShow={1000}
-      >
+      <Tooltip anchorId={id} style={tooltipStyle} place={place ?? 'left'} delayShow={1000}>
          {tooltipContent}
       </Tooltip>
    )

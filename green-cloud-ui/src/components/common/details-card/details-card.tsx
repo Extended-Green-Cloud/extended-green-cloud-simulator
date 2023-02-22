@@ -17,8 +17,7 @@ interface Props {
  * @returns
  */
 const DetailsCard = ({ fieldMap, title, objectMap }: Props) => {
-   const { container, fieldWrapper, fieldLabel, fieldValue, titleStyle } =
-      styles
+   const { container, fieldWrapper, fieldLabel, fieldValue, titleStyle } = styles
 
    const parseField = (label: string, key: string) => {
       const value = { ...objectMap }[key]
@@ -36,9 +35,7 @@ const DetailsCard = ({ fieldMap, title, objectMap }: Props) => {
    return (
       <div style={container}>
          <div style={titleStyle}>{title}</div>
-         <div>
-            {fieldMap.map((field) => parseField(field.label, field.key))}
-         </div>
+         <div>{fieldMap.map((field) => parseField(field.label, field.key))}</div>
       </div>
    )
 }

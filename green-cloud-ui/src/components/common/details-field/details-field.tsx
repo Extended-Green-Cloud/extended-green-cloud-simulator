@@ -35,22 +35,14 @@ const DetailsField = ({
    const { valueText, headerLabel, detailsContainer, headerContainer } = styles
 
    const textStyle = { ...styles.value, ...valueText }
-   const labelStyle = !isHeader
-      ? styles.label
-      : { ...styles.label, ...headerLabel }
-   const containerStyle = !isHeader
-      ? detailsContainer
-      : { ...detailsContainer, ...headerContainer }
+   const labelStyle = !isHeader ? styles.label : { ...styles.label, ...headerLabel }
+   const containerStyle = !isHeader ? detailsContainer : { ...detailsContainer, ...headerContainer }
 
    const getValue = () =>
       typeof valueObject !== 'undefined' ? (
-         <div style={{ ...styles.value, ...fieldValueStyle }}>
-            {valueObject}
-         </div>
+         <div style={{ ...styles.value, ...fieldValueStyle }}>{valueObject}</div>
       ) : (
-         <div style={{ ...textStyle, ...fieldValueStyle }}>
-            {value.toString().toUpperCase()}
-         </div>
+         <div style={{ ...textStyle, ...fieldValueStyle }}>{value.toString().toUpperCase()}</div>
       )
 
    return (

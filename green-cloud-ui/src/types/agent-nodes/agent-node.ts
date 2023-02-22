@@ -1,10 +1,4 @@
-import {
-   AgentAdaptationState,
-   AgentType,
-   CloudNetworkTraffic,
-   GreenEnergyState,
-   ServerState,
-} from 'types/enum'
+import { AgentAdaptationState, AgentType, CloudNetworkTraffic, GreenEnergyState, ServerState } from 'types/enum'
 
 export interface AgentNode {
    id: string

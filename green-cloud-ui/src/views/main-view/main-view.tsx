@@ -1,11 +1,6 @@
 import React, { useEffect } from 'react'
 import { styles } from './main-view-style'
-import {
-   Banner,
-   AgentSystemPanel,
-   GraphPanel,
-   AdaptationPanel,
-} from '@components'
+import { Banner, AgentSystemPanel, GraphPanel, AdaptationPanel } from '@components'
 
 interface Props {
    openServerConnection: () => void

@@ -14,12 +14,7 @@ interface Props {
  * @param {func}[onClick] - function tirggered on button click
  * @returns JSX Element
  */
-const Button = ({
-   buttonClassName,
-   title,
-   isDisabled = false,
-   onClick,
-}: Props) => {
+const Button = ({ buttonClassName, title, isDisabled = false, onClick }: Props) => {
    return (
       <button
          {...{

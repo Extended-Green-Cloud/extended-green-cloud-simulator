@@ -22,16 +22,8 @@ interface Props {
  * @param {boolean}[isNested] - optional flag indicating if the modal is nested
  * @returns JSX Element
  */
-const Modal = ({
-   isOpen,
-   setIsOpen,
-   header,
-   children,
-   contentStyle,
-   isNested,
-}: Props) => {
-   const { modalStyle, modalTitle, mainContainer, contentWrapper, nested } =
-      styles
+const Modal = ({ isOpen, setIsOpen, header, children, contentStyle, isNested }: Props) => {
+   const { modalStyle, modalTitle, mainContainer, contentWrapper, nested } = styles
    const { content, overlay, ...otherStyles } = modalStyle
    const styleModal = {
       content: { ...contentStyle, ...content },

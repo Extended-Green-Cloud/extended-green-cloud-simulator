@@ -17,10 +17,7 @@ export const agentSlice = createSlice({
    name: 'agents',
    initialState: INITIAL_STATE,
    reducers: {
-      triggerPowerShortage(
-         state,
-         action: PayloadAction<PowerShortageEventData>
-      ) {
+      triggerPowerShortage(state, action: PayloadAction<PowerShortageEventData>) {
          const { agentName, newMaximumCapacity } = action.payload
 
          if (getAgentByName(state.agents, agentName)) {

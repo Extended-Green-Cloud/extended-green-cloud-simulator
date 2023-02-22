@@ -11,17 +11,5 @@ export const convertUnixToTime = (unix: number) => {
    const minFormatted = min < 10 ? '0' + min : min
    const secFormatted = sec < 10 ? '0' + sec : sec
 
-   return (
-      day +
-      '/' +
-      month +
-      '/' +
-      year +
-      ' ' +
-      hourFormatted +
-      ':' +
-      minFormatted +
-      ':' +
-      secFormatted
-   )
+   return day + '/' + month + '/' + year + ' ' + hourFormatted + ':' + minFormatted + ':' + secFormatted
 }

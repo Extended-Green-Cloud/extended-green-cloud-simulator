@@ -22,21 +22,12 @@ interface Props {
  * @param {React.ReactNode | React.ReactNode[]}[children] - content of the collapse
  * @returns JSX Element
  */
-const Collapse = ({
-   title,
-   titleClosed,
-   triggerStyle,
-   triggerClosedStyle,
-   wrapperStyle,
-   children,
-}: Props) => {
+const Collapse = ({ title, titleClosed, triggerStyle, triggerClosedStyle, wrapperStyle, children }: Props) => {
    const { collapseStyle, collapseContentStyle } = styles
    const [isOpen, setIsOpen] = useState(false)
 
    const styleTrigger = { ...collapseStyle, ...triggerStyle }
-   const styleTriggerClosed = triggerClosedStyle
-      ? { ...collapseStyle, ...triggerClosedStyle }
-      : styleTrigger
+   const styleTriggerClosed = triggerClosedStyle ? { ...collapseStyle, ...triggerClosedStyle } : styleTrigger
    const styleCollapse = !isOpen ? styleTriggerClosed : styleTrigger
 
    const trigger = (

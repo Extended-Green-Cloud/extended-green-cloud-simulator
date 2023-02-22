@@ -9,12 +9,8 @@ export const managingSystemSelect = (state: RootState) => state.managingSystem
 /**
  * Method returns adaptation logs sorted by time
  */
-export const selectSortedAdaptationLogs = createSelector(
-   [managingSystemSelect],
-   (managingSystemSelect) =>
-      [...managingSystemSelect.adaptationLogs].sort(
-         (log1, log2) => log2.time - log1.time
-      )
+export const selectSortedAdaptationLogs = createSelector([managingSystemSelect], (managingSystemSelect) =>
+   [...managingSystemSelect.adaptationLogs].sort((log1, log2) => log2.time - log1.time)
 )
 
 /**

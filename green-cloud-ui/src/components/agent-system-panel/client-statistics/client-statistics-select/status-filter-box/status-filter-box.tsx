@@ -22,9 +22,7 @@ const StatusFilterBox = ({ jobStatusMap, setJobStatusMap }: Props) => {
    const handleSelectChange = (status: string) => {
       setJobStatusMap((prevState) =>
          prevState.map((jobStatus) => {
-            return jobStatus.jobStatus === status
-               ? { ...jobStatus, isSelected: !jobStatus.isSelected }
-               : jobStatus
+            return jobStatus.jobStatus === status ? { ...jobStatus, isSelected: !jobStatus.isSelected } : jobStatus
          })
       )
    }

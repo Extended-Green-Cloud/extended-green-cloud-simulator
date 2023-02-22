@@ -1,8 +1,4 @@
-import {
-   AdaptationGoal,
-   AdaptationGoalQuality,
-   AdaptationLog,
-} from 'types/adaptation'
+import { AdaptationGoal, AdaptationGoalQuality, AdaptationLog } from 'types/adaptation'
 
 export type ManagingSystemStore = {
    systemIndicator: number

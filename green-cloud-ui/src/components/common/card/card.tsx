@@ -20,24 +20,14 @@ interface Props {
  *
  * @returns JSX Element
  */
-const Card = ({
-   header,
-   children,
-   containerStyle,
-   contentStyle,
-   removeScroll,
-}: Props) => {
+const Card = ({ header, children, containerStyle, contentStyle, removeScroll }: Props) => {
    const contentFinalStyle = removeScroll
       ? { ...styles.cardContent, ...contentStyle }
       : { ...styles.cardContent, ...styles.cardContentScroll }
    const parentContainerStyle = { ...styles.cardContainer, ...containerStyle }
 
    const mapHeader = () =>
-      typeof header === 'string' ? (
-         <div style={styles.cardHeader}>{header?.toUpperCase()}</div>
-      ) : (
-         header
-      )
+      typeof header === 'string' ? <div style={styles.cardHeader}>{header?.toUpperCase()}</div> : header
 
    return (
       <div style={parentContainerStyle}>

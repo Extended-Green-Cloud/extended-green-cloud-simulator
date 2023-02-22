@@ -14,10 +14,7 @@ export const selectConnectionState = createSelector(
 /**
  * Method returns currect connection state
  */
-export const selectNetworkStatistics = createSelector(
-   [cloudNetworkSelect],
-   (cloudNetworkSelect) => {
-      const { isServerConnected, ...statistics } = cloudNetworkSelect // eslint-disable-line @typescript-eslint/no-unused-vars
-      return statistics
-   }
-)
+export const selectNetworkStatistics = createSelector([cloudNetworkSelect], (cloudNetworkSelect) => {
+   const { isServerConnected, ...statistics } = cloudNetworkSelect // eslint-disable-line @typescript-eslint/no-unused-vars
+   return statistics
+})
