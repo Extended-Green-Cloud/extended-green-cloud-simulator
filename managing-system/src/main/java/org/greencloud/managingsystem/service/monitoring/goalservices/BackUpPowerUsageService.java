@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
 import com.greencloud.commons.job.ClientJobStatusEnum;
 
 /**
@@ -26,17 +25,15 @@ public class BackUpPowerUsageService extends AbstractGoalService {
 
 	private static final Logger logger = LoggerFactory.getLogger(BackUpPowerUsageService.class);
 
-	private static final GoalEnum GOAL = MINIMIZE_USED_BACKUP_POWER;
-
 	public BackUpPowerUsageService(AbstractManagingAgent managingAgent) {
-		super(managingAgent);
+		super(managingAgent, MINIMIZE_USED_BACKUP_POWER);
 	}
 
 	@Override
 	public boolean evaluateAndUpdate() {
 		logger.info(READ_BACKUP_POWER_QUALITY_LOG);
-		double currentBackupPowerQuality = readCurrentGoalQuality();
-		double aggregatedBackupPowerQuality = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+		double currentBackupPowerQuality = computeCurrentGoalQuality();
+		double aggregatedBackupPowerQuality = computeCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (currentBackupPowerQuality == DATA_NOT_AVAILABLE_INDICATOR
 			|| aggregatedBackupPowerQuality == DATA_NOT_AVAILABLE_INDICATOR) {
@@ -45,13 +42,12 @@ public class BackUpPowerUsageService extends AbstractGoalService {
 		}
 
 		logger.info(BACKUP_POWER_LOG, currentBackupPowerQuality, aggregatedBackupPowerQuality);
-		updateGoalQuality(GOAL, currentBackupPowerQuality);
-		aggregatedGoalQuality.set(aggregatedBackupPowerQuality);
+		updateGoalQuality(currentBackupPowerQuality);
 		return false;
 	}
 
 	@Override
-	public double readCurrentGoalQuality(int time) {
+	public double computeCurrentGoalQuality(int time) {
 		List<ClientMonitoringData> clientsData = readClientMonitoringData(time);
 
 		if (clientsData.isEmpty()) {
@@ -72,8 +68,7 @@ public class BackUpPowerUsageService extends AbstractGoalService {
 		return clientsData.stream()
 				.map(ClientMonitoringData::getJobStatusDurationMap)
 				.map(map -> map.get(status))
-				.map(Long::doubleValue)
-				.mapToDouble(Double::doubleValue)
+				.mapToDouble(Long::doubleValue)
 				.sum();
 	}
 }

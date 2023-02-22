@@ -1,4 +1,4 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static java.util.List.of;
@@ -15,60 +15,68 @@ import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.util.concurrent.AtomicDouble;
 
+/**
+ * Abstract adaptation goal service that evaluates goal's fulfillment
+ */
 public abstract class AbstractGoalService extends AbstractManagingService {
 
-	protected final AtomicDouble aggregatedGoalQuality;
 	protected final AtomicDouble currentGoalQuality;
+	protected final GoalEnum goal;
 
 	/**
 	 * Default constructor
 	 *
 	 * @param managingAgent agent using the service to monitor the system
 	 */
-	protected AbstractGoalService(AbstractManagingAgent managingAgent) {
+	protected AbstractGoalService(AbstractManagingAgent managingAgent, GoalEnum goal) {
 		super(managingAgent);
-		this.aggregatedGoalQuality = new AtomicDouble(0);
 		this.currentGoalQuality = new AtomicDouble(0);
+		this.goal = goal;
 	}
 
-	public double getLastMeasuredGoalQuality() {
+	/**
+	 * Method retrieves lastly measured goal quality
+	 *
+	 * @return double goal quality
+	 */
+	public double readLastMeasuredGoalQuality() {
 		return currentGoalQuality.get();
 	}
 
+	/**
+	 * Method updates the value of the goal quality according to current data and evaluates if the
+	 * goal is fulfilled.
+	 *
+	 * @return boolean value indicating if the goal is fulfilled
+	 */
 	public abstract boolean evaluateAndUpdate();
 
 	/**
-	 * Read current goal quality for a custom measuring time.
+	 * Method recalculates the quality of a given goal based on data stored over a specified period of time.
 	 *
-	 * @param time time window defined in seconds for which goal quality should be read
-	 * @return current goal quality
+	 * @param time number of seconds used in retrieving last data records
+	 * @return current goal quality for the given period
 	 */
-	public abstract double readCurrentGoalQuality(int time);
+	public abstract double computeCurrentGoalQuality(int time);
 
 	/**
-	 * Read current goal quality with default measuring time defined in
-	 * MONITOR_SYSTEM_DATA_TIME_PERIOD constant.
+	 * Method recalculates the quality of a given goal based on data stored over a default period of time
+	 * specified by MONITOR_SYSTEM_DATA_TIME_PERIOD constant.
 	 *
 	 * @return current goal quality for the given period
 	 */
-	public double readCurrentGoalQuality() {
-		return readCurrentGoalQuality(MONITOR_SYSTEM_DATA_TIME_PERIOD);
+	public double computeCurrentGoalQuality() {
+		return computeCurrentGoalQuality(MONITOR_SYSTEM_DATA_TIME_PERIOD);
 	}
 
-	protected void updateGoalQuality(GoalEnum goalEnum, Double currentGoalQuality) {
+	protected void updateGoalQuality(Double currentGoalQuality) {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			managingAgent.getAgentNode().getDatabaseClient()
-					.writeSystemQualityData(goalEnum.getAdaptationGoalId(), currentGoalQuality);
+					.writeSystemQualityData(goal.getAdaptationGoalId(), currentGoalQuality);
 		}
 		this.currentGoalQuality.set(currentGoalQuality);
 	}
 
-	/**
-	 * Reads Client Agent Monitoring data for the given time span.
-	 *
-	 * @param time seconds defining the time span as difference from {@link java.time.Instant}.now()
-	 * @return read monitoring data
-	 */
 	protected List<ClientMonitoringData> readClientMonitoringData(final int time) {
 		return managingAgent.getAgentNode().getDatabaseClient()
 				.readLastMonitoringDataForDataTypes(of(CLIENT_MONITORING), time)

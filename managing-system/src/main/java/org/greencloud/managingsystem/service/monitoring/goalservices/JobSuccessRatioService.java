@@ -1,9 +1,8 @@
-package org.greencloud.managingsystem.service.monitoring;
+package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
 import com.greencloud.commons.job.ClientJobStatusEnum;
 
 /**
@@ -31,44 +29,42 @@ public class JobSuccessRatioService extends AbstractGoalService {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobSuccessRatioService.class);
 
-	private static final GoalEnum GOAL = MAXIMIZE_JOB_SUCCESS_RATIO;
-
 	public JobSuccessRatioService(AbstractManagingAgent managingAgent) {
-		super(managingAgent);
+		super(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
 	}
 
-	/**
-	 * Method evaluates the job success ratio for overall job execution (aggregated and at the current moment)
-	 * for the default time period.
-	 *
-	 * @return boolean indicating if the analyzer should be triggered
-	 */
 	@Override
 	public boolean evaluateAndUpdate() {
-		return evaluateAndUpdateClientJobSuccessRatio(MONITOR_SYSTEM_DATA_TIME_PERIOD);
-	}
-
-	/**
-	 * Method evaluates the job success ratio for overall job execution (aggregated and at the current moment)
-	 *
-	 * @param time time used to retrieve current system data
-	 * @return boolean indicating if the analyzer should be triggered
-	 */
-	public boolean evaluateAndUpdateClientJobSuccessRatio(final int time) {
 		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
-		final double currentSuccessRatio = readCurrentGoalQuality(time);
-		final double aggregatedSuccessRatio = readCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+		final double currentSuccessRatio = computeCurrentGoalQuality();
+		final double aggregatedSuccessRatio = computeCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
 
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR
-			|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
+				|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
 			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
 			return true;
 		}
 
 		logger.info(SUCCESS_RATIO_CLIENT_LOG, currentSuccessRatio, aggregatedSuccessRatio);
-		updateGoalQuality(GOAL, currentSuccessRatio);
-		aggregatedGoalQuality.set(aggregatedSuccessRatio);
+		updateGoalQuality(currentSuccessRatio);
 		return false;
+	}
+
+	@Override
+	public double computeCurrentGoalQuality(final int time) {
+		final List<ClientMonitoringData> clientsData = readClientMonitoringData(time);
+
+		if (clientsData.isEmpty()) {
+			return DATA_NOT_AVAILABLE_INDICATOR;
+		}
+
+		final long allCount = clientsData.size();
+		final long failCount = clientsData.stream()
+				.filter(data -> data.getIsFinished() &&
+						data.getCurrentJobStatus().equals(ClientJobStatusEnum.FAILED))
+				.count();
+
+		return 1 - ((double) failCount / allCount);
 	}
 
 	/**
@@ -99,19 +95,5 @@ public class JobSuccessRatioService extends AbstractGoalService {
 		}
 
 		return result;
-	}
-
-	@Override
-	public double readCurrentGoalQuality(final int time) {
-		final List<ClientMonitoringData> clientsData = readClientMonitoringData(time);
-		if (clientsData.isEmpty()) {
-			return DATA_NOT_AVAILABLE_INDICATOR;
-		}
-
-		final long allCount = clientsData.size();
-		final long failCount = clientsData.stream()
-				.filter(data -> data.getIsFinished() && data.getCurrentJobStatus().equals(ClientJobStatusEnum.FAILED))
-				.count();
-		return 1 - ((double) failCount / allCount);
 	}
 }

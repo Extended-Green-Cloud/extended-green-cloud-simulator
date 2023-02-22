@@ -1,12 +1,14 @@
 package com.gui.agents;
 
+import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
+
 import java.security.InvalidParameterException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.database.knowledge.domain.action.AdaptationAction;
+import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
@@ -62,22 +64,24 @@ public class ManagingAgentNode extends AbstractAgentNode {
 	/**
 	 * Method sends log message to GUI informing about new adaptation
 	 *
-	 * @param action         performed adaptation action
+	 * @param action         performed adaptation action type
 	 * @param adaptationTime time when the action was performed
 	 * @param agentName      optional parameter indicating the agent on which the adaptation was performed
 	 */
-	public void logNewAdaptation(final AdaptationAction action, final Instant adaptationTime,
+	public void logNewAdaptation(final AdaptationActionEnum action, final Instant adaptationTime,
 			final Optional<String> agentName) {
+		var adaptationAction = getAdaptationAction(action);
+
 		webSocketClient.send(ImmutableLogAdaptationActionMessage.builder()
 				.data(ImmutableAdaptationLog.builder()
 						.time(adaptationTime)
-						.type(action.getType())
+						.type(adaptationAction.getType())
 						.agentName(agentName.orElse(null))
-						.description(action.getAction().getName())
+						.description(adaptationAction.getAction().getName())
 						.build())
 				.build());
 		webSocketClient.send(ImmutableIncrementCounterMessage.builder()
-				.type(getCounterToIncrement(action.getType()))
+				.type(getCounterToIncrement(adaptationAction.getType()))
 				.build());
 	}
 

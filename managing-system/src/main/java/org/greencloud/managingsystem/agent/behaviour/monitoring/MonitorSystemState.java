@@ -45,19 +45,17 @@ public class MonitorSystemState extends TickerBehaviour {
 	protected void onTick() {
 		logger.info(MONITOR_SYSTEM_STATE_LOG);
 
-		//HERE WE WANT TO ADD MORE GOALS IN THE FUTURE
-		final boolean isSuccessRatioSatisfied = myManagingAgent.monitor().isSuccessRatioMaximized();
-		final boolean isBackUpPowerSatisfied = myManagingAgent.monitor().isBackUpPowerMinimized();
-		final boolean isTrafficDistributionSatisfied = myManagingAgent.monitor().isTrafficDistributedEvenly();
+		final boolean isSystemStable = myManagingAgent.monitor().getGoalsFulfillment().stream()
+				.allMatch(goalFulfillment -> goalFulfillment.equals(true));
 
 		myManagingAgent.monitor().updateSystemStatistics();
-		if (isBackUpPowerSatisfied && isSuccessRatioSatisfied && isTrafficDistributionSatisfied) {
+		if (isSystemStable) {
 			logger.info(SYSTEM_STABLE_STATE_LOG);
 			//end feedback iteration
 			return;
 		}
 
-		GoalEnum worstGoal = getGoalWithWorstQuality();
+		final GoalEnum worstGoal = getGoalWithWorstQuality();
 		myManagingAgent.analyze().trigger(worstGoal);
 	}
 
@@ -65,7 +63,8 @@ public class MonitorSystemState extends TickerBehaviour {
 		return myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
 				.stream()
 				.min(Comparator.comparingDouble(this::getGoalQuality))
-				.orElseThrow().getKey();
+				.orElseThrow()
+				.getKey();
 	}
 
 	private double getGoalQuality(final Map.Entry<GoalEnum, Double> goalEntry) {

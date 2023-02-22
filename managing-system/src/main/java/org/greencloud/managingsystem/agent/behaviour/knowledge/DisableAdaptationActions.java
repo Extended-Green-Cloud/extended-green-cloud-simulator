@@ -12,7 +12,7 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 import jade.core.behaviours.OneShotBehaviour;
 
 /**
- * Behaviour is responsible for disabling specified by the user adaptation actions
+ * Behaviour is responsible for disabling (initially) specified by the user adaptation actions
  */
 public class DisableAdaptationActions extends OneShotBehaviour {
 

@@ -4,7 +4,7 @@ import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 /**
- * Abstract service inherited by all services implementing the MAPEK reference model
+ * Abstract service inherited by all services used in managing agent
  */
 public abstract class AbstractManagingService {
 

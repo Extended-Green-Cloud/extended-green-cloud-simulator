@@ -1,9 +1,7 @@
 package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.greencloud.commons.agent.AgentType.SCHEDULER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.averagingDouble;
@@ -13,6 +11,7 @@ import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONIT
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +22,10 @@ import java.util.stream.Collectors;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.AbstractGoalService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.BackUpPowerUsageService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.JobSuccessRatioService;
+import org.greencloud.managingsystem.service.monitoring.goalservices.TrafficDistributionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +59,7 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
-	 * Get service for the provided goal
+	 * Method retrieves service for the provided goal
 	 *
 	 * @param goal goal for the service
 	 * @return Service for the given goal
@@ -67,6 +70,17 @@ public class MonitoringService extends AbstractManagingService {
 			case MINIMIZE_USED_BACKUP_POWER -> backUpPowerUsageService;
 			case DISTRIBUTE_TRAFFIC_EVENLY -> trafficDistributionService;
 		};
+	}
+
+	/**
+	 * Method evaluates the goals' qualities and retrieves list informing about goals' fulfillment
+	 *
+	 * @return list indicating goals' fulfillment
+	 */
+	public List<Boolean> getGoalsFulfillment() {
+		return Arrays.stream(GoalEnum.values())
+				.map(goal -> getGoalService(goal).evaluateAndUpdate())
+				.toList();
 	}
 
 	/**
@@ -95,43 +109,21 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
-	 * Method calls Job Success Ratio Service and retrieved the information if success ratio goal is satisfied
-	 *
-	 * @return boolean indication if success ratio goal is satisfied
-	 */
-	public boolean isSuccessRatioMaximized() {
-		final boolean clientSuccessRatio = jobSuccessRatioService.evaluateAndUpdate();
-		final boolean networkSuccessRatio = jobSuccessRatioService.evaluateComponentSuccessRatio();
-
-		return clientSuccessRatio && networkSuccessRatio;
-	}
-
-	public boolean isBackUpPowerMinimized() {
-		return backUpPowerUsageService.evaluateAndUpdate();
-	}
-
-	/**
-	 * Mehod calls Traffic Distribution Service and retrieves the information if traffic distribution goal is satisfied
-	 *
-	 * @return boolean indication if traffic distribution goal is satisfied
-	 */
-	public boolean isTrafficDistributedEvenly() {
-		return trafficDistributionService.evaluateAndUpdate();
-	}
-
-	/**
 	 * Method computes current system quality indicator
 	 *
 	 * @return quality indicator
 	 */
 	public double computeSystemIndicator() {
-		final double successRatio = jobSuccessRatioService.getLastMeasuredGoalQuality();
-		final double backUpUsage = 1 - backUpPowerUsageService.getLastMeasuredGoalQuality();
-		final double trafficDistribution = 1 - trafficDistributionService.getLastMeasuredGoalQuality();
-
-		return successRatio * getAdaptationGoal(MAXIMIZE_JOB_SUCCESS_RATIO).weight() +
-				backUpUsage * getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER).weight() +
-				trafficDistribution * getAdaptationGoal(DISTRIBUTE_TRAFFIC_EVENLY).weight();
+		return Arrays.stream(GoalEnum.values())
+				.mapToDouble(goal -> {
+					final AdaptationGoal adaptationGoal = getAdaptationGoal(goal);
+					final double lastMeasuredQuality = getGoalService(goal).readLastMeasuredGoalQuality();
+					final double goalQuality = adaptationGoal.isAboveThreshold() ?
+							lastMeasuredQuality :
+							1 - lastMeasuredQuality;
+					return goalQuality * adaptationGoal.weight();
+				})
+				.sum();
 	}
 
 	/**
@@ -140,14 +132,8 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return map containing adaptation goal qualities
 	 */
 	public Map<GoalEnum, Double> getCurrentGoalQualities() {
-		final double successRatio = jobSuccessRatioService.getLastMeasuredGoalQuality();
-		final double backUpUsage = backUpPowerUsageService.getLastMeasuredGoalQuality();
-		final double trafficDistribution = trafficDistributionService.getLastMeasuredGoalQuality();
-		return Map.of(
-				MAXIMIZE_JOB_SUCCESS_RATIO, successRatio,
-				MINIMIZE_USED_BACKUP_POWER, backUpUsage,
-				DISTRIBUTE_TRAFFIC_EVENLY, trafficDistribution
-		);
+		return Arrays.stream(GoalEnum.values())
+				.collect(toMap(goal -> goal, goal -> getGoalService(goal).readLastMeasuredGoalQuality()));
 	}
 
 	/**
@@ -195,20 +181,62 @@ public class MonitoringService extends AbstractManagingService {
 		return healthAgentData.stream()
 				.filter(data -> isAgentAlive.test(data.monitoringData()))
 				.map(AgentData::aid)
-				.collect(Collectors.toSet()).stream().toList();
+				.collect(Collectors.toSet()).stream()
+				.toList();
+	}
+
+	/**
+	 * Method retrieves alive scheduler agent.
+	 *
+	 * @return scheduler AID or null if no scheduler agent is alive
+	 */
+	public String getAliveScheduler() {
+		return getAliveAgents(SCHEDULER).stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	/**
 	 * Method retrieves list of AID's for agents which are alive and which belong to a given agent's name set
 	 *
-	 * @param allALiveAgents   list of agents that are alive
-	 * @param agentsOfInterest list of all agents of interest
-	 * @return list of alive agent
+	 * @param allALiveAgents   list of agents that are alive (their AIDs)
+	 * @param agentsOfInterest list of all agents of interest (their local names)
+	 * @return list of alive agent (AIDs)
 	 */
 	public List<String> getAliveAgentsIntersection(List<String> allALiveAgents, List<String> agentsOfInterest) {
 		final Predicate<String> isAgentNameValid = agentName -> agentsOfInterest.contains(agentName.split("@")[0]);
 
 		return allALiveAgents.stream().filter(isAgentNameValid).toList();
+	}
+
+	/**
+	 * Method retrieves list of AID's for agents which are alive and which belong to a given agent's name set
+	 *
+	 * @param agentType        type of agents
+	 * @param agentsOfInterest list of all agents of interest (their local names)
+	 * @return list of alive agent (AIDs)
+	 */
+	public List<String> getAliveAgentsIntersection(final AgentType agentType, List<String> agentsOfInterest) {
+		return getAliveAgentsIntersection(getAliveAgents(agentType), agentsOfInterest);
+	}
+
+	/**
+	 * Method returns list od agents which did not report the data into database but despite that should be considered
+	 *
+	 * @param agentsFromDatabase  - list retrieved from the database
+	 * @param allConsideredAgents - list of all agents that should be considered
+	 * @return list of AIDs (or names) of agents not present in the database
+	 */
+	public List<String> getAgentsNotPresentInTheDatabase(final List<AgentData> agentsFromDatabase,
+			final List<String> allConsideredAgents) {
+		final List<String> agentWithDatabaseRecords = agentsFromDatabase.stream()
+				.map(AgentData::aid)
+				.map(aid -> aid.split("@")[0])
+				.toList();
+
+		return allConsideredAgents.stream()
+				.filter(agent -> !agentWithDatabaseRecords.contains(agent.split("@")[0]))
+				.toList();
 	}
 
 	/**

@@ -31,8 +31,8 @@ public class AdaptationAction {
 		this.runs = 0;
 	}
 
-	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type, GoalEnum goal, Map<GoalEnum, Double> actionResults,
-			Boolean isAvailable, Integer runs) {
+	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type,
+			GoalEnum goal, Map<GoalEnum, Double> actionResults, Boolean isAvailable, Integer runs) {
 		this.actionId = actionId;
 		this.action = action;
 		this.type = type;

@@ -1,6 +1,8 @@
 package org.greencloud.managingsystem.service.analyzer;
 
 import static java.lang.Math.sqrt;
+import static java.util.stream.Collectors.toMap;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.AGGREGATION_SIZE;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.COMPUTE_ADAPTATION_ACTION_QUALITY_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_ABOVE_THRESHOLD_LOG;
 import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_BELOW_THRESHOLD_LOG;
@@ -15,11 +17,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import org.greencloud.managingsystem.exception.DatabaseConnectionNotAvailable;
+import com.database.knowledge.exception.DatabaseConnectionNotAvailable;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +43,9 @@ public class AnalyzerService extends AbstractManagingService {
 	}
 
 	/**
-	 * Method is used to trigger the system analysis from the perspective of the violated adaptation goal
+	 * Method is used to trigger the system analysis for the given adaptation goal
 	 *
-	 * @param violatedGoal adaptation goal which threshold was violated
+	 * @param violatedGoal adaptation goal for which the system analysis is triggered
 	 */
 	public void trigger(final GoalEnum violatedGoal) {
 		final String adaptationInfo =
@@ -63,7 +64,7 @@ public class AnalyzerService extends AbstractManagingService {
 
 			logger.info(COMPUTE_ADAPTATION_ACTION_QUALITY_LOG);
 			final Map<AdaptationAction, Double> actionsQualityMap = availableActions.stream()
-					.collect(Collectors.toMap(action -> action, this::computeQualityOfAdaptationAction));
+					.collect(toMap(action -> action, this::computeQualityOfAdaptationAction));
 
 			managingAgent.plan().trigger(actionsQualityMap);
 		}
@@ -72,18 +73,16 @@ public class AnalyzerService extends AbstractManagingService {
 	@VisibleForTesting
 	protected List<AdaptationAction> getAdaptationActionsForGoal(final GoalEnum violatedGoal) {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			return managingAgent.getAgentNode().getDatabaseClient().readAdaptationActions()
-					.stream()
+			return managingAgent.getAgentNode().getDatabaseClient().readAdaptationActions().stream()
 					.filter(action -> action.getGoal().equals(violatedGoal))
 					.toList();
 		}
-		throw new DatabaseConnectionNotAvailable("Couldn't retrieve adaptation actions");
+		throw new DatabaseConnectionNotAvailable("Agent node doesn't exist - couldn't retrieve adaptation actions");
 	}
 
 	@VisibleForTesting
 	protected double computeQualityOfAdaptationAction(final AdaptationAction action) {
-		return action.getActionResults().entrySet()
-				.stream()
+		return action.getActionResults().entrySet().stream()
 				.mapToDouble(result ->
 						managingAgent.monitor().getAdaptationGoal(result.getKey()).weight() * result.getValue())
 				.sum();
@@ -93,14 +92,13 @@ public class AnalyzerService extends AbstractManagingService {
 		final double systemQualityForGoal = managingAgent.monitor().getCurrentGoalQualities().get(goal);
 
 		if (!managingAgent.monitor().isQualityInBounds(systemQualityForGoal, goal)) {
-			logger.info(GOAL_QUALITY_BELOW_THRESHOLD_LOG);
+			logger.info(GOAL_QUALITY_BELOW_THRESHOLD_LOG, goal);
 			return true;
 		}
-		logger.info(GOAL_QUALITY_ABOVE_THRESHOLD_LOG);
+		logger.info(GOAL_QUALITY_ABOVE_THRESHOLD_LOG, goal);
 
 		final List<SystemQuality> systemQualities = managingAgent.getAgentNode().getDatabaseClient()
-				.readSystemQualityData(goal.getAdaptationGoalId(), 10);
-
+				.readSystemQualityData(goal.getAdaptationGoalId(), AGGREGATION_SIZE);
 		final boolean shouldIncrease = managingAgent.monitor().getAdaptationGoal(goal).isAboveThreshold();
 		final int testResult = testAdaptationQualitiesForTrend(systemQualities);
 
