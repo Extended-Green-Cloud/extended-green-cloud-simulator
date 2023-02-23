@@ -50,8 +50,17 @@ class JobUtilsUnitTest {
 	}
 
 	private static Stream<Arguments> parametersGetByIdAndStart() {
-		return Stream.of(Arguments.of(Instant.parse("2022-01-01T07:00:00.000Z"), "2", true),
-				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false));
+		return Stream.of(
+				Arguments.of(Instant.parse("2022-01-01T07:00:00.000Z"), "2", true),
+				Arguments.of(Instant.parse("2022-01-01T04:30:00.000Z"), "1", false)
+		);
+	}
+
+	private static Stream<Arguments> parametersGetByIdAndEnd() {
+		return Stream.of(
+				Arguments.of(Instant.parse("2022-01-01T10:00:00.000Z"), "1", true),
+				Arguments.of(Instant.parse("2022-01-01T14:00:00.000Z"), "3", false)
+		);
 	}
 
 	private static Stream<Arguments> parametersGetByIdAndStartInstant() {
@@ -136,6 +145,26 @@ class JobUtilsUnitTest {
 
 		final PowerJob jobResult = JobUtils.getJobByIdAndStartDate(jobId, startTime,
 				Map.of(mockJob1, CREATED, mockJob2, IN_PROGRESS));
+		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
+	}
+
+	@ParameterizedTest
+	@MethodSource("parametersGetByIdAndEnd")
+	@DisplayName("Test getting power job by id and end time")
+	void testGettingJobByIdAndEndTime(final Instant endTime, final String jobId, final boolean result) {
+		final PowerJob mockJob1 = ImmutablePowerJob.builder().jobId("1")
+				.startTime(Instant.parse("2022-01-01T08:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T10:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(10).build();
+		final PowerJob mockJob3 = ImmutablePowerJob.builder().jobId("3")
+				.startTime(Instant.parse("2022-01-01T11:00:00.000Z"))
+				.endTime(Instant.parse("2022-01-01T12:00:00.000Z"))
+				.deadline(Instant.parse("2022-01-01T20:00:00.000Z"))
+				.power(25).build();
+
+		final PowerJob jobResult = JobUtils.getJobByIdAndEndDate(jobId, endTime,
+				Map.of(mockJob1, CREATED, mockJob3, ACCEPTED));
 		assertThat(Objects.nonNull(jobResult)).isEqualTo(result);
 	}
 

@@ -75,6 +75,23 @@ public class JobUtils {
 	}
 
 	/**
+	 * Method retrieves the job by the job id and end time from job map
+	 *
+	 * @param jobId   job identifier
+	 * @param endTime job end time
+	 * @param jobMap  map to traverse
+	 * @return job
+	 */
+	@Nullable
+	public static <T extends PowerJob> T getJobByIdAndEndDate(final String jobId, final Instant endTime,
+			final Map<T, ExecutionJobStatusEnum> jobMap) {
+		return jobMap.keySet().stream()
+				.filter(job -> job.getJobId().equals(jobId) && job.getEndTime().equals(endTime))
+				.findFirst()
+				.orElse(null);
+	}
+
+	/**
 	 * Method retrieves the server job by the job id, start time and corresponding server from job map
 	 *
 	 * @param jobInstanceId unique identifier of the job instance
@@ -126,7 +143,7 @@ public class JobUtils {
 	/**
 	 * Method verifies if the given job has started
 	 *
-	 * @param jobStatus    current job status
+	 * @param jobStatus current job status
 	 * @return boolean indicating if a given job has started
 	 */
 	public static boolean isJobStarted(final ExecutionJobStatusEnum jobStatus) {

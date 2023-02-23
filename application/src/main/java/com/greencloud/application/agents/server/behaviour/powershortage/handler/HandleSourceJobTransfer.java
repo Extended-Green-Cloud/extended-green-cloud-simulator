@@ -4,13 +4,15 @@ import static com.greencloud.application.agents.server.behaviour.powershortage.h
 import static com.greencloud.application.common.constant.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.messages.domain.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.domain.factory.JobStatusMessageFactory.prepareJobStartedMessage;
+import static com.greencloud.application.utils.JobUtils.getJobByIdAndEndDate;
 import static com.greencloud.application.utils.JobUtils.getJobByIdAndStartDate;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static java.util.Objects.nonNull;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,17 +76,29 @@ public class HandleSourceJobTransfer extends WakerBehaviour {
 	 */
 	@Override
 	protected void onWake() {
+		final ClientJob previousInstance = getJobByIdAndEndDate(jobInstanceId.getJobId(), jobInstanceId.getStartTime(),
+				myServerAgent.getServerJobs());
 		final ClientJob jobToExecute = getJobByIdAndStartDate(jobInstanceId, myServerAgent.getServerJobs());
-		if (Objects.nonNull(jobToExecute)) {
-			MDC.put(MDC_JOB_ID, jobToExecute.getJobId());
+
+		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
+		finishPreviousInstance(previousInstance);
+
+		if (nonNull(jobToExecute)) {
 			logger.info(GS_TRANSFER_EXECUTION_LOG);
 			myServerAgent.getGreenSourceForJobMap().replace(jobToExecute.getJobId(), newGreenSource);
 			myServerAgent.manage().informCNAAboutStatusChange(jobInstanceId, GREEN_POWER_JOB_ID);
 			myServerAgent.manage().updateServerGUI();
 
-			if(isJobStarted(jobToExecute, myServerAgent.getServerJobs())) {
+			if (isJobStarted(jobToExecute, myServerAgent.getServerJobs())) {
 				startJobExecutionInNewGreenSource(jobToExecute);
 			}
+		}
+	}
+
+	private void finishPreviousInstance(final ClientJob job) {
+		if (nonNull(job)) {
+			myServerAgent.manage().finishJobExecution(job, false);
+			myServerAgent.manage().updateServerGUI();
 		}
 	}
 
