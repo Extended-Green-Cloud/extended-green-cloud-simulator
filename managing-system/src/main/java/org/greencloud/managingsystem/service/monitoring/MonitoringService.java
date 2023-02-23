@@ -59,6 +59,18 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Method is used to read from the database, the system's adaptation goals
+	 */
+	public void readSystemAdaptationGoals() {
+		if (Objects.nonNull(managingAgent.getAgentNode())) {
+			logger.info(READ_ADAPTATION_GOALS_LOG);
+			managingAgent.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
+			((ManagingAgentNode) managingAgent.getAgentNode()).registerManagingAgent(
+					managingAgent.getAdaptationGoalList());
+		}
+	}
+
+	/**
 	 * Method retrieves service for the provided goal
 	 *
 	 * @param goal goal for the service
@@ -81,18 +93,6 @@ public class MonitoringService extends AbstractManagingService {
 		return Arrays.stream(GoalEnum.values())
 				.map(goal -> getGoalService(goal).evaluateAndUpdate())
 				.toList();
-	}
-
-	/**
-	 * Method is used to read from the database, the system's adaptation goals
-	 */
-	public void readSystemAdaptationGoals() {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			logger.info(READ_ADAPTATION_GOALS_LOG);
-			managingAgent.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
-			((ManagingAgentNode) managingAgent.getAgentNode()).registerManagingAgent(
-					managingAgent.getAdaptationGoalList());
-		}
 	}
 
 	/**
@@ -127,13 +127,23 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Method return last measured adaptation goal qualities
+	 *
+	 * @return map containing adaptation goal qualities
+	 */
+	public Map<GoalEnum, Double> getLastMeasuredGoalQualities() {
+		return Arrays.stream(GoalEnum.values())
+				.collect(toMap(goal -> goal, goal -> getGoalService(goal).readLastMeasuredGoalQuality()));
+	}
+
+	/**
 	 * Method return current state of adaptation goal qualities
 	 *
 	 * @return map containing adaptation goal qualities
 	 */
 	public Map<GoalEnum, Double> getCurrentGoalQualities() {
 		return Arrays.stream(GoalEnum.values())
-				.collect(toMap(goal -> goal, goal -> getGoalService(goal).readLastMeasuredGoalQuality()));
+				.collect(toMap(goal -> goal, goal -> getGoalService(goal).computeCurrentGoalQuality()));
 	}
 
 	/**
@@ -154,7 +164,7 @@ public class MonitoringService extends AbstractManagingService {
 	 */
 	public void updateSystemStatistics() {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			final Map<Integer, Double> qualityMap = getCurrentGoalQualities().entrySet().stream()
+			final Map<Integer, Double> qualityMap = getLastMeasuredGoalQualities().entrySet().stream()
 					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
@@ -256,23 +266,17 @@ public class MonitoringService extends AbstractManagingService {
 
 		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest, MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD);
-		final List<String> agentsPresentInDatabase = agentsData.stream().map(AgentData::aid).toList();
 
 		final Map<String, Double> agentsWithRecordsMap = agentsData.stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, averagingDouble(averagingFunc)));
-		final Map<String, Double> agentsWithNoRecords =
-				getAgentsNotPresentInData(agentsPresentInDatabase, agentsOfInterest);
+		final Map<String, Double> agentsWithNoRecords = getAgentsNotPresentInTheDatabase(agentsData, agentsOfInterest)
+				.stream()
+				.collect(toMap(agent -> agent, agent -> 0.0));
 		agentsWithRecordsMap.putAll(agentsWithNoRecords);
 
 		return agentsWithRecordsMap;
 	}
 
-	private Map<String, Double> getAgentsNotPresentInData(final List<String> presentAgents,
-			final List<String> allConsideredAgents) {
-		return allConsideredAgents.stream()
-				.filter(agent -> !presentAgents.contains(agent))
-				.collect(toMap(agent -> agent, agent -> 0.0));
-	}
 
 	@VisibleForTesting
 	protected void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {

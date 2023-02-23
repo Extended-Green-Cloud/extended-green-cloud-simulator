@@ -1,6 +1,9 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
+import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.time.Instant.now;
@@ -11,6 +14,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Map;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.agents.ManagingAgentNode;
 
@@ -34,7 +40,10 @@ import jade.lang.acl.ACLMessage;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InitiateAdaptationActionRequestTest {
 
-	private static final Double GOAL_QUALITY = 0.5;
+	private static final Map<GoalEnum, Double> GOAL_QUALITIES = Map.of(
+			MINIMIZE_USED_BACKUP_POWER, 0.5,
+			MAXIMIZE_JOB_SUCCESS_RATIO, 0.3,
+			DISTRIBUTE_TRAFFIC_EVENLY, 0.6);
 	private static final AdaptationActionEnum ADAPTATION_ACTION_TYPE = AdaptationActionEnum.ADD_SERVER;
 	private static final AID TEST_AID = new AID("test", ISGUID);
 
@@ -64,7 +73,8 @@ class InitiateAdaptationActionRequestTest {
 		when(managingAgentNode.getDatabaseClient()).thenReturn(timescaleDatabase);
 		doNothing().when(managingAgentNode).logNewAdaptation(any(), any(), any());
 
-		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITY, mockRunnable, mockRunnable);
+		behaviour = new InitiateAdaptationActionRequest(managingAgent, message, GOAL_QUALITIES, mockRunnable,
+				mockRunnable);
 
 	}
 
@@ -72,7 +82,7 @@ class InitiateAdaptationActionRequestTest {
 	void shouldCorrectlyHandleInform() {
 		// given
 		var expectedVerifyBehaviour = createForAgentAction(managingAgent, now(), ADAPTATION_ACTION_TYPE,
-				TEST_AID, GOAL_QUALITY, mockRunnable);
+				TEST_AID, GOAL_QUALITIES, mockRunnable);
 
 		// when
 		behaviour.handleInform(message);

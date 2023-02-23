@@ -60,7 +60,7 @@ public class MonitorSystemState extends TickerBehaviour {
 	}
 
 	private GoalEnum getGoalWithWorstQuality() {
-		return myManagingAgent.monitor().getCurrentGoalQualities().entrySet()
+		return myManagingAgent.monitor().getLastMeasuredGoalQualities().entrySet()
 				.stream()
 				.min(Comparator.comparingDouble(this::getGoalQuality))
 				.orElseThrow()

@@ -6,6 +6,7 @@ import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdapt
 import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.COMPLETED_ACTION_LOG;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
+import com.database.knowledge.domain.goal.GoalEnum;
 import com.gui.agents.ManagingAgentNode;
 
 import jade.core.AID;
@@ -33,28 +35,28 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	private final ManagingAgentNode managingAgentNode;
 	private final AdaptationActionEnum adaptationActionType;
 	private final AID targetAgent;
-	private final Double initialGoalQuality;
+	private final Map<GoalEnum, Double> initialGoalQualities;
 	private final Runnable postActionHandler;
 	private final Runnable enablePlanAction;
 
 	/**
 	 * Behaviour constructor
 	 *
-	 * @param agent              - managing agent that executes the behaviour
-	 * @param message            - request of adaptation that is to be sent to the targeted agent
-	 * @param initialGoalQuality - value of the goal quality before performing the adaptation
-	 * @param postActionHandler  - action performed after adaptation is finished
-	 * @param enablePlanAction   - method performed in order to enable availability of an action corresponding to
-	 *                           given plan
+	 * @param agent                - managing agent that executes the behaviour
+	 * @param message              - request of adaptation that is to be sent to the targeted agent
+	 * @param initialGoalQualities - values of the goal qualities before performing the adaptation
+	 * @param postActionHandler    - action performed after adaptation is finished
+	 * @param enablePlanAction     - method performed in order to enable availability of an action corresponding to
+	 *                             given plan
 	 */
-	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Double initialGoalQuality,
+	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Map<GoalEnum, Double> initialGoalQualities,
 			Runnable postActionHandler, Runnable enablePlanAction) {
 		super(agent, message);
 		this.adaptationActionType = AdaptationActionEnum.valueOf(message.getConversationId());
 		this.targetAgent = (AID) message.getAllReceiver().next();
 		this.myManagingAgent = (ManagingAgent) agent;
 		this.managingAgentNode = (ManagingAgentNode) myManagingAgent.getAgentNode();
-		this.initialGoalQuality = initialGoalQuality;
+		this.initialGoalQualities = initialGoalQualities;
 		this.postActionHandler = postActionHandler;
 		this.enablePlanAction = enablePlanAction;
 	}
@@ -76,7 +78,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 			postActionHandler.run();
 		}
 		var verifyingBehaviour = createForAgentAction(myManagingAgent, actionExecutionTime,
-				adaptationActionType, targetAgent, initialGoalQuality, enablePlanAction);
+				adaptationActionType, targetAgent, initialGoalQualities, enablePlanAction);
 
 		myManagingAgent.addBehaviour(verifyingBehaviour);
 		managingAgentNode.logNewAdaptation(adaptationActionType, actionExecutionTime,

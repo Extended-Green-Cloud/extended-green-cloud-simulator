@@ -134,7 +134,7 @@ class MonitoringServiceUnitTest {
 		doReturn(0.7).when(mockTrafficDistributionService).readLastMeasuredGoalQuality();
 		doReturn(0.5).when(mockBackUpPowerUsageService).readLastMeasuredGoalQuality();
 
-		assertThat(monitoringService.getCurrentGoalQualities())
+		assertThat(monitoringService.getLastMeasuredGoalQualities())
 				.as("Map should contain 3 goals")
 				.hasSize(3)
 				.as("Data of the goals should equal to the expected result")

@@ -8,11 +8,12 @@ import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemp
 import static com.greencloud.commons.managingsystem.executor.ExecutorMessageTemplates.EXECUTE_ACTION_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
+import static java.util.Optional.empty;
 import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForSystemAction;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.managingsystem.service.executor.logs.ManagingAgentExecutorLog.EXECUTING_ADAPTATION_ACTION_LOG;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
@@ -66,17 +67,21 @@ public class ExecutorService extends AbstractManagingService {
 	 */
 	public void executeAdaptationAction(final AbstractPlan adaptationPlan) {
 		final AdaptationAction actionToBeExecuted = getAdaptationAction(adaptationPlan.getAdaptationActionEnum());
-		final Double initialGoalQuality = getInitialGoalQuality(actionToBeExecuted.getGoal());
+		final Map<GoalEnum, Double> initialGoalQualities = managingAgent.monitor().getCurrentGoalQualities();
+
+		logger.info(EXECUTING_ADAPTATION_ACTION_LOG, actionToBeExecuted.getAction());
 
 		if (adaptationPlan instanceof SystemPlan systemAdaptationPlan) {
-			logger.info("Executing system plan!");
-			this.executeAdaptationActionOnSystem(systemAdaptationPlan, actionToBeExecuted, initialGoalQuality);
+			executeAdaptationActionOnSystem(systemAdaptationPlan, actionToBeExecuted, initialGoalQualities);
 		} else {
-			this.executeAdaptationActionOnAgent(adaptationPlan, initialGoalQuality);
+			executeAdaptationActionOnAgent(adaptationPlan, initialGoalQualities);
 		}
+
+		adaptationPlan.disablePlanAction().run();
 	}
 
-	private void executeAdaptationActionOnAgent(final AbstractPlan adaptationPlan, final Double initialGoalQuality) {
+	private void executeAdaptationActionOnAgent(final AbstractPlan adaptationPlan,
+			final Map<GoalEnum, Double> initialGoalQualities) {
 		final ACLMessage adaptationActionRequest = MessageBuilder.builder()
 				.withPerformative(REQUEST)
 				.withConversationId(adaptationPlan.getAdaptationActionEnum().toString())
@@ -84,36 +89,25 @@ public class ExecutorService extends AbstractManagingService {
 				.withObjectContent(adaptationPlan.getActionParameters())
 				.withReceivers(adaptationPlan.getTargetAgent())
 				.build();
-		adaptationPlan.disablePlanAction().run();
+
 		managingAgent.addBehaviour(new InitiateAdaptationActionRequest(managingAgent, adaptationActionRequest,
-				initialGoalQuality, adaptationPlan.getPostActionHandler(), adaptationPlan.enablePlanAction()));
+				initialGoalQualities, adaptationPlan.getPostActionHandler(), adaptationPlan.enablePlanAction()));
 	}
 
-	private double getInitialGoalQuality(final GoalEnum targetGoal) {
-		var goalQuality = managingAgent.monitor().getGoalService(targetGoal).computeCurrentGoalQuality();
-
-		if (goalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
-			throw new IllegalStateException("Goal quality must be present to initiate action, this should not happen.");
-		}
-
-		return goalQuality;
-	}
-
-	private void executeAdaptationActionOnSystem(SystemPlan systemAdaptationPlan, AdaptationAction actionToBeExecuted,
-			Double initialGoalQuality) {
+	private void executeAdaptationActionOnSystem(final SystemPlan systemAdaptationPlan,
+			final AdaptationAction actionToBeExecuted, final Map<GoalEnum, Double> initialGoalQualities) {
 		final List<AgentController> createdAgents = createAgents(systemAdaptationPlan);
 		final Location location = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsTargetLocation();
+
 		agentRunner.runAgents(createdAgents);
 		managingAgent.move().moveContainers(location, createdAgents);
 		announceNetworkChange();
-		systemAdaptationPlan.disablePlanAction().run();
 		((ManagingAgentNode) managingAgent.getAgentNode()).logNewAdaptation(actionToBeExecuted.getAction(),
-				getCurrentTime(), Optional.empty());
-		managingAgent.addBehaviour(createForSystemAction(managingAgent, getCurrentTime(),
-				systemAdaptationPlan.getAdaptationActionEnum(), initialGoalQuality,
+				getCurrentTime(), empty());
+		managingAgent.addBehaviour(createForSystemAction(managingAgent,
+				systemAdaptationPlan.getAdaptationActionEnum(), initialGoalQualities,
 				systemAdaptationPlan.enablePlanAction()));
 	}
-
 	private List<AgentController> createAgents(SystemPlan systemAdaptationPlan) {
 		List<AgentArgs> args = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsArguments();
 		managingAgent.move().addAgentsToStructure(args);
@@ -123,8 +117,8 @@ public class ExecutorService extends AbstractManagingService {
 	}
 
 	private void announceNetworkChange() {
-		Set<AID> cloudNetworkAgents = search(managingAgent, CNA_SERVICE_TYPE);
-		ACLMessage announcementMessage = MessageBuilder.builder()
+		final Set<AID> cloudNetworkAgents = search(managingAgent, CNA_SERVICE_TYPE);
+		final ACLMessage announcementMessage = MessageBuilder.builder()
 				.withPerformative(INFORM)
 				.withMessageProtocol(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
 				.withStringContent(ANNOUNCE_NETWORK_CHANGE_PROTOCOL)
@@ -132,6 +126,5 @@ public class ExecutorService extends AbstractManagingService {
 				.build();
 		managingAgent.send(announcementMessage);
 	}
-
 
 }

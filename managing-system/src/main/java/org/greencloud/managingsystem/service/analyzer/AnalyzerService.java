@@ -89,7 +89,7 @@ public class AnalyzerService extends AbstractManagingService {
 	}
 
 	private boolean shouldAdaptationBeTriggered(final GoalEnum goal) {
-		final double systemQualityForGoal = managingAgent.monitor().getCurrentGoalQualities().get(goal);
+		final double systemQualityForGoal = managingAgent.monitor().getLastMeasuredGoalQualities().get(goal);
 
 		if (!managingAgent.monitor().isQualityInBounds(systemQualityForGoal, goal)) {
 			logger.info(GOAL_QUALITY_BELOW_THRESHOLD_LOG, goal);

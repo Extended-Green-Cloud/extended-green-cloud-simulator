@@ -38,12 +38,12 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	private final Instant actionExecutionTime;
 	private final Integer adaptationActionId;
 	private final AID targetAgent;
-	private final Double initialGoalQuality;
+	private final Map<GoalEnum, Double> initialGoalQualities;
 	private final Runnable enablePlanAction;
 
 	protected VerifyAdaptationActionResult(Agent agent, Instant actionExecutionTime,
-			AdaptationActionEnum adaptationActionType,
-			AID targetAgent, Double initialGoalQuality, Runnable enablePlanAction, int delayInSeconds) {
+			AdaptationActionEnum adaptationActionType, AID targetAgent, Map<GoalEnum, Double> initialGoalQualities,
+			Runnable enablePlanAction, int delayInSeconds) {
 		super(agent, delayInSeconds * 1000L);
 
 		this.myManagingAgent = (ManagingAgent) agent;
@@ -51,7 +51,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 		this.actionExecutionTime = actionExecutionTime;
 		this.adaptationActionId = getAdaptationAction(adaptationActionType).getActionId();
 		this.targetAgent = targetAgent;
-		this.initialGoalQuality = initialGoalQuality;
+		this.initialGoalQualities = initialGoalQualities;
 		this.enablePlanAction = enablePlanAction;
 	}
 
@@ -63,16 +63,16 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	 * @param actionExecutionTime  - time when the adaptation was executed
 	 * @param adaptationActionType - type of the executed action
 	 * @param targetAgent          - agent on which adaptation was executed
-	 * @param initialGoalQuality   - value of the goal quality before performing the adaptation
+	 * @param initialGoalQualities - values of the goal qualities before performing the adaptation
 	 * @param enablePlanAction     - method performed in order to enable availability of an action corresponding to
 	 *                             *                           given plan
 	 * @return VerifyAdaptationActionResult behaviour
 	 */
 	public static VerifyAdaptationActionResult createForAgentAction(Agent agent, Instant actionExecutionTime,
-			AdaptationActionEnum adaptationActionType, AID targetAgent, Double initialGoalQuality,
+			AdaptationActionEnum adaptationActionType, AID targetAgent, Map<GoalEnum, Double> initialGoalQualities,
 			Runnable enablePlanAction) {
 		return new VerifyAdaptationActionResult(agent, actionExecutionTime, adaptationActionType, targetAgent,
-				initialGoalQuality, enablePlanAction, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
+				initialGoalQualities, enablePlanAction, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
 	}
 
 	/**
@@ -80,17 +80,17 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	 * (with behaviour execution delay equals to SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY)
 	 *
 	 * @param agent                - agent executing the behaviour
-	 * @param actionExecutionTime  - time when the adaptation was executed
 	 * @param adaptationActionType - type of the executed action
-	 * @param initialGoalQuality   - value of the goal quality before performing the adaptation
+	 * @param initialGoalQualities - values of the goal qualities before performing the adaptation
 	 * @param enablePlanAction     - method performed in order to enable availability of an action corresponding to
 	 *                             *                           given plan
 	 * @return VerifyAdaptationActionResult behaviour
 	 */
-	public static VerifyAdaptationActionResult createForSystemAction(Agent agent, Instant actionExecutionTime,
-			AdaptationActionEnum adaptationActionType, Double initialGoalQuality, Runnable enablePlanAction) {
-		return new VerifyAdaptationActionResult(agent, actionExecutionTime, adaptationActionType, null,
-				initialGoalQuality, enablePlanAction, SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY);
+	public static VerifyAdaptationActionResult createForSystemAction(Agent agent,
+			AdaptationActionEnum adaptationActionType, Map<GoalEnum, Double> initialGoalQualities,
+			Runnable enablePlanAction) {
+		return new VerifyAdaptationActionResult(agent, getCurrentTime(), adaptationActionType, null,
+				initialGoalQualities, enablePlanAction, SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY);
 	}
 
 	/**
@@ -117,7 +117,6 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 		final double currentGoalQuality = myManagingAgent.monitor().getGoalService(goalEnum)
 				.computeCurrentGoalQuality(elapsedTime);
 
-		// absolute delta
-		return Math.abs(initialGoalQuality - currentGoalQuality);
+		return currentGoalQuality - initialGoalQualities.get(goalEnum);
 	}
 }
