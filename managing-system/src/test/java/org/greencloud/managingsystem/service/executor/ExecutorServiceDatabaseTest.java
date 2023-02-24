@@ -2,12 +2,13 @@ package org.greencloud.managingsystem.service.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
+import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
+import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
-import static com.greencloud.commons.job.ClientJobStatusEnum.CREATED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.FINISHED;
 import static com.greencloud.commons.job.ClientJobStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.job.ClientJobStatusEnum.PROCESSED;
+import static com.greencloud.commons.job.ClientJobStatusEnum.ON_BACK_UP;
 import static jade.core.AID.ISGUID;
 import static java.util.Collections.emptyList;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
@@ -46,11 +47,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
+import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.application.yellowpages.YellowPagesService;
+import com.greencloud.commons.agent.AgentType;
 import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.agents.ManagingAgentNode;
 
@@ -107,12 +110,7 @@ class ExecutorServiceDatabaseTest {
 	@Test
 	void shouldCorrectlyExecuteAdaptationAction() {
 		// given
-		var monitoringData = ImmutableClientMonitoringData.builder()
-				.currentJobStatus(FINISHED)
-				.isFinished(true)
-				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
-				.build();
-		database.writeMonitoringData("test", CLIENT_MONITORING, monitoringData);
+		initializeData();
 
 		// when
 		executorService.executeAdaptationAction(adaptationPlan);
@@ -132,27 +130,11 @@ class ExecutorServiceDatabaseTest {
 	@Test
 	void shouldCorrectlyExecuteSystemAdaptationPlan() {
 		// given
-		ServerAgentArgs serverAgentArgs = ImmutableServerAgentArgs.builder()
-				.jobProcessingLimit("200")
-				.name("Server1")
-				.latitude("latitude")
-				.longitude("longitude")
-				.maximumCapacity("200")
-				.ownerCloudNetwork("CNA1")
-				.price("5.0")
-				.build();
-		ScenarioStructureArgs greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
-				List.of(serverAgentArgs), emptyList(), emptyList());
-		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
+		initializeData();
 		when(mobilityService.getContainerLocations("CNA1")).thenReturn(location);
 		when(location.getName()).thenReturn("Main-Container");
 		yellowPagesService.when(() -> YellowPagesService.search(any(), eq(CNA_SERVICE_TYPE)))
 				.thenReturn(Set.of(new AID("CNA1", true)));
-		var monitoringData = ImmutableClientMonitoringData.builder()
-				.currentJobStatus(FINISHED)
-				.isFinished(true)
-				.build();
-		database.writeMonitoringData("test", CLIENT_MONITORING, monitoringData);
 		adaptationPlan = new AddServerPlan(managingAgent);
 		adaptationPlan.isPlanExecutable();
 		adaptationPlan.constructAdaptationPlan();
@@ -164,5 +146,36 @@ class ExecutorServiceDatabaseTest {
 		verify(agentRunner).runAgents(anyList());
 		verify(abstractAgentNode).logNewAdaptation(eq(ADD_SERVER), any(Instant.class), eq(Optional.empty()));
 		verify(managingAgent).addBehaviour(any(VerifyAdaptationActionResult.class));
+	}
+
+	private void initializeData() {
+		var serverAgentArgs = ImmutableServerAgentArgs.builder()
+				.jobProcessingLimit("200")
+				.name("Server1")
+				.latitude("latitude")
+				.longitude("longitude")
+				.maximumCapacity("200")
+				.ownerCloudNetwork("CNA1")
+				.price("5.0")
+				.build();
+		var greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
+				List.of(serverAgentArgs), emptyList(), emptyList());
+		var monitoringData = ImmutableClientMonitoringData.builder()
+				.currentJobStatus(FINISHED)
+				.jobStatusDurationMap(Map.of(ON_BACK_UP, 10L, IN_PROGRESS, 20L))
+				.isFinished(true)
+				.build();
+		var cnaHealthData = new HealthCheck(true, AgentType.CNA);
+		var cnaTrafficData = ImmutableCloudNetworkMonitoringData.builder()
+				.currentTraffic(0.7)
+				.availablePower(30D)
+				.successRatio(0.8)
+				.build();
+
+		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
+
+		database.writeMonitoringData("test", CLIENT_MONITORING, monitoringData);
+		database.writeMonitoringData("testCNA", HEALTH_CHECK, cnaHealthData);
+		database.writeMonitoringData("testCNA", CLOUD_NETWORK_MONITORING, cnaTrafficData);
 	}
 }

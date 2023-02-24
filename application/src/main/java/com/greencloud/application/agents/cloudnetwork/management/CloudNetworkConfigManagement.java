@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
-import com.greencloud.commons.job.PowerJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 
@@ -75,7 +72,7 @@ public class CloudNetworkConfigManagement {
 		var traffic = cloudNetworkAgent.manage().getCurrentPowerInUse();
 		CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
 				.currentTraffic(maxCapacity == 0 ? 0 : traffic / maxCapacity)
-				.availablePower(maxCapacity - traffic)
+				.availablePower(maxCapacity - (double) traffic)
 				.successRatio(cloudNetworkAgent.manage().getSuccessRatio())
 				.build();
 		cloudNetworkAgent.writeMonitoringData(DataType.CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);

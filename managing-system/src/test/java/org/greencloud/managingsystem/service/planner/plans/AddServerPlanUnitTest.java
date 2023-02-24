@@ -112,6 +112,7 @@ class AddServerPlanUnitTest {
 		return of(new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 				.successRatio(1.0)
 				.currentMaximumCapacity(200)
+				.availablePower(30D)
 				.currentTraffic(trafficValue)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)

@@ -289,9 +289,10 @@ public class ServerStateManagement {
 	}
 
 	private void writeStateToDatabase() {
+		final double powerInUse = getCurrentPowerInUseForServer();
 		final double trafficOverall = serverAgent.getCurrentMaximumCapacity() == 0 ?
 				0 :
-				((double) getCurrentPowerInUseForServer()) / serverAgent.getCurrentMaximumCapacity();
+				powerInUse / serverAgent.getCurrentMaximumCapacity();
 		final double backUpPowerOverall = serverAgent.getCurrentMaximumCapacity() == 0 ?
 				0 :
 				((double) getCurrentBackUpPowerInUseForServer()) / serverAgent.getCurrentMaximumCapacity();
@@ -299,6 +300,7 @@ public class ServerStateManagement {
 		final ServerMonitoringData serverMonitoringData = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(serverAgent.getCurrentMaximumCapacity())
 				.currentTraffic(trafficOverall)
+				.availablePower((double) serverAgent.getCurrentMaximumCapacity() - powerInUse)
 				.currentBackUpPowerUsage(backUpPowerOverall)
 				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED), jobCounters.get(FAILED)))
 				.isDisabled(serverAgent.isDisabled())

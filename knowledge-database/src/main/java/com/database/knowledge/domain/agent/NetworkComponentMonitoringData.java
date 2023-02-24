@@ -1,5 +1,7 @@
 package com.database.knowledge.domain.agent;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Interface storing monitoring data common for network components
  */
@@ -14,4 +16,11 @@ public interface NetworkComponentMonitoringData extends MonitoringData {
 	 * @return current traffic of network component
 	 */
 	double getCurrentTraffic();
+
+
+	/**
+	 * @return available power of the server
+	 */
+	@Nullable
+	Double getAvailablePower();
 }

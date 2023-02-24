@@ -67,7 +67,7 @@ public class BackUpPowerUsageService extends AbstractGoalService {
 	private double getPowerByType(List<ClientMonitoringData> clientsData, ClientJobStatusEnum status) {
 		return clientsData.stream()
 				.map(ClientMonitoringData::getJobStatusDurationMap)
-				.map(map -> map.get(status))
+				.map(map -> map.containsKey(status) ? map.get(status) : 0)
 				.mapToDouble(Long::doubleValue)
 				.sum();
 	}

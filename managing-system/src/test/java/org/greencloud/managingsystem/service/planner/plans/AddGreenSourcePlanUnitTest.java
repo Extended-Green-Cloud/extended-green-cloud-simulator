@@ -132,6 +132,7 @@ class AddGreenSourcePlanUnitTest {
 						.successRatio(1.0)
 						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
+						.availablePower(30D)
 						.currentBackUpPowerUsage(backUpPowerValue1)
 						.isDisabled(false)
 						.build()),
@@ -139,6 +140,7 @@ class AddGreenSourcePlanUnitTest {
 						.successRatio(1.0)
 						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
+						.availablePower(30D)
 						.currentBackUpPowerUsage(backUpPowerValue2)
 						.isDisabled(false)
 						.build()));

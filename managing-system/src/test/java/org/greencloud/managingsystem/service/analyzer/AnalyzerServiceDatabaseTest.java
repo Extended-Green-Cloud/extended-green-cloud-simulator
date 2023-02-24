@@ -159,6 +159,7 @@ class AnalyzerServiceDatabaseTest {
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.7)
+				.availablePower(30D)
 				.successRatio(0.9)
 				.currentBackUpPowerUsage(0.7)
 				.isDisabled(false)

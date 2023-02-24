@@ -68,6 +68,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.6)
 				.successRatio(0.9)
+				.availablePower(30D)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
@@ -75,6 +76,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
+				.availablePower(30D)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
@@ -96,6 +98,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.6)
 				.successRatio(0.9)
+				.availablePower(30D)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
@@ -103,6 +106,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.8)
 				.successRatio(0.9)
+				.availablePower(30D)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
@@ -110,6 +114,7 @@ class ConnectGreenSourcePlanDatabaseTest {
 				.currentMaximumCapacity(100)
 				.currentTraffic(0.5)
 				.successRatio(0.9)
+				.availablePower(30D)
 				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-public class DisableServerPlanTest {
+class DisableServerPlanTest {
 
     @Mock
     ManagingAgent managingAgent;
@@ -60,7 +60,7 @@ public class DisableServerPlanTest {
     void testGetTargetAgent() {
         var result = disableServerPlan.constructAdaptationPlan().getTargetAgent();
 
-        assertThat(result).isEqualTo("server2");
+        assertThat(result.getName()).isEqualTo("server2");
     }
 
     private void mockServerMonitoringData() {
@@ -68,6 +68,7 @@ public class DisableServerPlanTest {
                 .isDisabled(false)
                 .currentMaximumCapacity(100)
                 .currentTraffic(0)
+				.availablePower(30D)
                 .successRatio(0.0)
                 .currentBackUpPowerUsage(0)
                 .build();
@@ -75,6 +76,7 @@ public class DisableServerPlanTest {
                 .isDisabled(false)
                 .currentMaximumCapacity(101)
                 .currentTraffic(0)
+				.availablePower(30D)
                 .successRatio(0.0)
                 .currentBackUpPowerUsage(0)
                 .build();
@@ -82,6 +84,7 @@ public class DisableServerPlanTest {
                 .isDisabled(false)
                 .currentMaximumCapacity(102)
                 .currentTraffic(10.0)
+				.availablePower(30D)
                 .successRatio(0.0)
                 .currentBackUpPowerUsage(0)
                 .build();
@@ -89,6 +92,7 @@ public class DisableServerPlanTest {
                 .isDisabled(true)
                 .currentMaximumCapacity(100)
                 .currentTraffic(0)
+				.availablePower(30D)
                 .successRatio(0.0)
                 .currentBackUpPowerUsage(0)
                 .build();

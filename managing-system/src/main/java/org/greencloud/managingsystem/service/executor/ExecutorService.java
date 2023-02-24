@@ -10,6 +10,7 @@ import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.util.Optional.empty;
 import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForSystemAction;
+import static org.greencloud.managingsystem.domain.ManagingSystemConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.managingsystem.service.executor.logs.ManagingAgentExecutorLog.EXECUTING_ADAPTATION_ACTION_LOG;
 
 import java.util.List;
@@ -68,6 +69,10 @@ public class ExecutorService extends AbstractManagingService {
 	public void executeAdaptationAction(final AbstractPlan adaptationPlan) {
 		final AdaptationAction actionToBeExecuted = getAdaptationAction(adaptationPlan.getAdaptationActionEnum());
 		final Map<GoalEnum, Double> initialGoalQualities = managingAgent.monitor().getCurrentGoalQualities();
+
+		if(initialGoalQualities.values().stream().anyMatch(val -> val == DATA_NOT_AVAILABLE_INDICATOR)) {
+			throw new IllegalStateException("The data for all goals should be present!");
+		}
 
 		logger.info(EXECUTING_ADAPTATION_ACTION_LOG, actionToBeExecuted.getAction());
 

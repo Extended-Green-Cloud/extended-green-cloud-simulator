@@ -65,8 +65,9 @@ class TrafficDistributionServiceTest {
 	@Test
 	@DisplayName("Test compute goal quality for CNA")
 	void testComputeGoalQualityForCNA() {
-		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(prepareCNAData(),
-				data -> trafficDistributionService.mapAgentDataToCNAAvailableCapacity(data));
+		var cnaData = prepareCNAData();
+		var cnaList = cnaData.stream().map(AgentData::aid).toList();
+		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(cnaData, cnaList);
 
 		assertThat(goalQuality).isEqualTo(0.565685424949238);
 	}
@@ -74,8 +75,9 @@ class TrafficDistributionServiceTest {
 	@Test
 	@DisplayName("Test compute goal quality for server")
 	void testComputeGoalQualityForServer() {
-		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(prepareServerData(),
-				data -> trafficDistributionService.mapAgentDataToServerAvailableCapacity(data));
+		var serverData = prepareServerData();
+		var serverList = serverData.stream().map(AgentData::aid).toList();
+		double goalQuality = trafficDistributionService.computeGoalQualityForAgent(serverData, serverList);
 
 		assertThat(goalQuality).isEqualTo(0.3666479606152469);
 	}
@@ -113,6 +115,7 @@ class TrafficDistributionServiceTest {
 		final ServerMonitoringData data1 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(150)
 				.currentTraffic(1.0 / 3.0)
+				.availablePower(100D)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.isDisabled(false)
@@ -120,6 +123,7 @@ class TrafficDistributionServiceTest {
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(200)
 				.currentTraffic(0.25)
+				.availablePower(150D)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.isDisabled(false)
@@ -127,6 +131,7 @@ class TrafficDistributionServiceTest {
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(250)
 				.currentTraffic(0.2)
+				.availablePower(200D)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.isDisabled(false)
@@ -134,6 +139,7 @@ class TrafficDistributionServiceTest {
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.currentMaximumCapacity(300)
 				.currentTraffic(0.25)
+				.availablePower(225D)
 				.currentBackUpPowerUsage(0.0)
 				.successRatio(0.0)
 				.isDisabled(false)

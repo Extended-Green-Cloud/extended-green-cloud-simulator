@@ -94,6 +94,7 @@ class InitiateAdaptationActionRequestTest {
 				.as("Created behaviour should be equal to the expected one")
 				.usingRecursiveComparison()
 				.ignoringFields("actionTimestamp")
+				.ignoringFields("actionExecutionTime")
 				.isEqualTo(expectedVerifyBehaviour);
 	}
 

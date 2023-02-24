@@ -10,9 +10,4 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableCloudNetworkMonitoringData.class)
 @Value.Immutable
 public interface CloudNetworkMonitoringData extends NetworkComponentMonitoringData {
-
-	/**
-	 * @return available power of the cna
-	 */
-	double getAvailablePower();
 }

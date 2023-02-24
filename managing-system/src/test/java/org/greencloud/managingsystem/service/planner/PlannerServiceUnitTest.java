@@ -228,6 +228,7 @@ class PlannerServiceUnitTest {
 				.successRatio(0.8)
 				.currentBackUpPowerUsage(0.8)
 				.currentTraffic(0.4)
+				.availablePower(30D)
 				.currentMaximumCapacity(200)
 				.isDisabled(false)
 				.build();

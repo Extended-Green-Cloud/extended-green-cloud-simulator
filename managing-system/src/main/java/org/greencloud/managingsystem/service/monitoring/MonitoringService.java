@@ -1,7 +1,9 @@
 package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
+import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.greencloud.commons.agent.AgentType.SCHEDULER;
+import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.averagingDouble;
@@ -33,6 +35,7 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.MonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidGoalIdentifierException;
@@ -196,6 +199,25 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
+	 * Method retrieves list of AID's for active servers
+	 *
+	 * @return list of active servers
+	 */
+	public List<String> getActiveServers() {
+		final List<String> servers = getAliveAgents(SERVER);
+
+		final Predicate<AgentData> isServerActive = data ->
+				((ServerMonitoringData) data.monitoringData()).isDisabled() &&
+						servers.contains(data.aid());
+
+		return managingAgent.getAgentNode().getDatabaseClient()
+				.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING)).stream()
+				.filter(isServerActive)
+				.map(AgentData::aid)
+				.toList();
+	}
+
+	/**
 	 * Method retrieves alive scheduler agent.
 	 *
 	 * @return scheduler AID or null if no scheduler agent is alive
@@ -276,7 +298,6 @@ public class MonitoringService extends AbstractManagingService {
 
 		return agentsWithRecordsMap;
 	}
-
 
 	@VisibleForTesting
 	protected void setJobSuccessRatioService(final JobSuccessRatioService jobSuccessRatioService) {
