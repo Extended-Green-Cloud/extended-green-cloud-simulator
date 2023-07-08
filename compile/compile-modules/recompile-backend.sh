@@ -6,6 +6,8 @@ PROJECT_DIR=$(pwd)
 PARENT_DIR=${PROJECT_DIR%/"green-cloud"*}
 cd "${PARENT_DIR}/green-cloud" || exit
 
-echo "Recompiling backend application"
-mvn clean compile
+mvn clean compile package
 echo "Recompilation of the backend application completed"
+
+# NAVIGATE BACK TO COMPILE DIRECTORY
+cd ./compile || exit

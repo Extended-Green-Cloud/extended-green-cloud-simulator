@@ -12,6 +12,11 @@ at once**.
 
 **IMPORTANT! All compilation scripts have to be executed from the ./compile directory!**
 
+```bash
+cd compile
+```
+
+
 ## Compiling modules separately
 
 ### Compiling agent system
@@ -117,14 +122,19 @@ source ./run-modules/run-database.sh
 To run project with single host use:
 
 ```bash
-source ./run-modules/run-backend.sh SINGLE
+source ./run-modules/run-backend.sh SINGLE <package name>
 ```
 
 To run project with multiple hosts use:
 
 ```bash
-source ./run-modules/run-backend.sh MULTI
+source ./run-modules/run-backend.sh MULTI <package name>
 ```
+
+Both scripts allow passing a parameter `package name` (e.g. green-cloud-engine.jar). The parameters indicate the
+name of the _.jar_ package (strategy) that is to be run. If the `package name` is specified, the engine will select
+the package from _./engine/strategy_ that corresponds to the provided name. The user does not have to specify
+the name of the package. In such case, the engine selects a default package with name _green-cloud-engine.jar._
 
 ### Running GUI
 

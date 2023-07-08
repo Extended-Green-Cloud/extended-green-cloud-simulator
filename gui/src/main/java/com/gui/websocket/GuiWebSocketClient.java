@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.gui.message.ImmutableReportSystemStartTimeMessage;
 
 public class GuiWebSocketClient extends WebSocketClient {
 
-	protected static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+	protected static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
+			.registerModule(new JavaTimeModule());
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketClient.class);
 
 	public GuiWebSocketClient(URI serverUri) {
@@ -55,13 +57,14 @@ public class GuiWebSocketClient extends WebSocketClient {
 
 	@Override
 	public void connect() {
-		if(!isOpen()) {
+		if (!isOpen()) {
 			super.connect();
 		}
 	}
 
 	/**
 	 * Method sends the information about simulation start time to a given Websocket server
+	 *
 	 * @param time time when the simulation has started
 	 */
 	public void reportSystemStartTime(final Instant time) {

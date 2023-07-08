@@ -103,3 +103,5 @@ weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domai
 weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domain/ImmutableMain.java
 weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domain/ImmutableWeather.java
 weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domain/ImmutableWind.java
+/engine/strategy/logs
+/engine/strategy/*.txt

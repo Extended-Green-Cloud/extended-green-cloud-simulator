@@ -11,14 +11,21 @@ function navigate() {
 # NAVIGATE TO ENGINE DIR
 PROJECT_DIR=$(pwd)
 PARENT_DIR=${PROJECT_DIR%/"green-cloud"*}
-cd "${PARENT_DIR}/green-cloud/engine/target" || exit
+cd "${PARENT_DIR}/green-cloud/engine/strategy" || exit
+
+PACKAGE_NAME="green-cloud-engine.jar"
+
+if [ ! -z "$2" ]
+then
+  PACKAGE_NAME=$2
+fi
 
 if [ "$1" == "SINGLE" ]
 then
-  java -cp green-cloud-engine.jar runner.EngineRunner
+  java -cp "${PACKAGE_NAME}" runner.EngineRunner
 elif [ "$1" == "MULTI" ]
 then
-  java -cp green-cloud-engine.jar runner.MultiEngineRunner
+  java -cp "${PACKAGE_NAME}" runner.MultiEngineRunner
 fi
 
 # NAVIGATE BACK TO COMPILE DIRECTORY
