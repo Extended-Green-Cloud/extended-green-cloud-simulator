@@ -20,6 +20,14 @@ then
   PACKAGE_NAME=$2
 fi
 
+# COPY CONFIGURATION TO JAR
+
+cp -R ../src/main/resources/scenarios ./scenarios
+cp -R ../src/main/resources/properties ./properties
+
+jar -uvf "${PACKAGE_NAME}" -C properties ./properties
+jar -uvf "${PACKAGE_NAME}" -C scenarios ./scenarios
+
 if [ "$1" == "SINGLE" ]
 then
   java -cp "${PACKAGE_NAME}" runner.EngineRunner
