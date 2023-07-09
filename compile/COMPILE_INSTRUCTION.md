@@ -16,7 +16,6 @@ at once**.
 cd compile
 ```
 
-
 ## Compiling modules separately
 
 ### Compiling agent system
@@ -43,6 +42,17 @@ To recompile the agent system (in case of any changes) execute:
 ```bash
 source ./compile-modules/recompile-backend.sh
 ```
+
+#### Compiling strategy
+
+In order to only compile backend with new strategy execute:
+
+```bash
+source ./compile-modules/initialize-strategy.sh
+```
+
+Compiled _.jar_ will be initially placed in _./engine/target_ directory. In order to include this jar as a potential
+strategy, the user has to place it in _./engine/strategy_ directory.
 
 ### Compiling GUI
 
@@ -135,6 +145,8 @@ Both scripts allow passing a parameter `package name` (e.g. green-cloud-engine.j
 name of the _.jar_ package (strategy) that is to be run. If the `package name` is specified, the engine will select
 the package from _./engine/strategy_ that corresponds to the provided name. The user does not have to specify
 the name of the package. In such case, the engine selects a default package with name _green-cloud-engine.jar._
+A given strategy will use the configuration files placed in _./engine/src/main/resources_ (see 
+[Configuration Instruction](config/CONFIG_INSTRUCTION.md))
 
 ### Running GUI
 
