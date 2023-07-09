@@ -62,6 +62,14 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
+	public void updateJobsFinishedInCloudCountByValue(int value) {
+		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
+				.data(value)
+				.type("INCREMENT_FINISHED_JOBS_CLOUD")
+				.build());
+	}
+
+	@Override
 	public void updateClientsCountByValue(final int value) {
 		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
 				.data(value)
@@ -74,6 +82,14 @@ public class GuiControllerImpl implements GuiController {
 		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
 				.data(value)
 				.type("UPDATE_CURRENT_ACTIVE_JOBS")
+				.build());
+	}
+
+	@Override
+	public void updateActiveInCloudJobsCountByValue(int value) {
+		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
+				.data(value)
+				.type("UPDATE_CURRENT_ACTIVE_JOBS_CLOUD")
 				.build());
 	}
 

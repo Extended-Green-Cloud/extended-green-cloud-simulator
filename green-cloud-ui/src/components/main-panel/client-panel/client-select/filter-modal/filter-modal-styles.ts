@@ -17,8 +17,7 @@ export const styles: Styles = {
       height: 'fit-content'
    },
    modalHeader: {
-      color: 'var(--white)',
-      backgroundColor: 'var(--green-3)',
+      color: 'var(--gray-3)',
       border: 'none',
       borderRadius: '100px',
       paddingTop: '5px',

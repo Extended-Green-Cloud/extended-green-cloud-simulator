@@ -45,6 +45,13 @@ public interface GuiController extends Runnable, Serializable {
 	void updateFinishedJobsCountByValue(final int value);
 
 	/**
+	 * Method updates the number of jobs finished jobs in cloud by given value
+	 *
+	 * @param value value to be added to the number of jobs finished in cloud
+	 */
+	void updateJobsFinishedInCloudCountByValue(final int value);
+
+	/**
 	 * Method updates the clients number by given value
 	 *
 	 * @param value value to be added to the clients number
@@ -57,6 +64,13 @@ public interface GuiController extends Runnable, Serializable {
 	 * @param value value to be added to the active jobs number
 	 */
 	void updateActiveJobsCountByValue(final int value);
+
+	/**
+	 * Method updates the number of jobs active in cloud
+	 *
+	 * @param value value to be added to the number of jobs active in cloud
+	 */
+	void updateActiveInCloudJobsCountByValue(final int value);
 
 	/**
 	 * Method updates the all jobs number by given value

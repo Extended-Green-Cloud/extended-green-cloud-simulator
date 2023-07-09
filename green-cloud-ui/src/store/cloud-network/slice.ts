@@ -6,8 +6,10 @@ import { resetServerState } from './api'
 const INITIAL_STATE: CloudNetworkStore = {
    currClientsNo: 0,
    currActiveJobsNo: 0,
+   currActiveJobsInCloudNo: 0,
    currPlannedJobsNo: 0,
    finishedJobsNo: 0,
+   finishedJobsInCloudNo: 0,
    failedJobsNo: 0,
    isNetworkSocketConnected: null,
    isAdaptationSocketConnected: null,

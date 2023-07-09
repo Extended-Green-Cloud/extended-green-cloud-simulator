@@ -56,3 +56,5 @@
 /engine/src/main/resources/scenarios/*
 /engine/strategy/logs
 /engine/strategy/*.txt
+/engine/strategy/scenarios/*
+/engine/strategy/properties/*
