@@ -17,13 +17,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.behaviours.listener.ListenForAMSError;
 import com.greencloud.application.domain.agent.ServerData;
-import com.greencloud.application.domain.job.ImmutableJobWithPrice;
+import com.greencloud.application.domain.job.ImmutableJobWithComponentSuccess;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobWithPrice;
+import com.greencloud.application.domain.job.JobWithComponentSuccess;
 import com.greencloud.commons.domain.job.ClientJob;
 import com.greencloud.commons.message.MessageBuilder;
 
@@ -51,19 +49,18 @@ public class InitiateNewJobOffer extends ProposeInitiator {
 	 * Method creates the behaviour
 	 *
 	 * @param agent            agent creating a behaviour
-	 * @param availablePower   current available power for given network segment
 	 * @param serverOffer      job execution offer proposed by the server
 	 * @param serverMessage    proposal message received from selected server
 	 * @param schedulerMessage CFP received from scheduler
 	 * @return InitiateMakingNewJobOffer
 	 */
-	public static InitiateNewJobOffer create(final AbstractAgent agent, final double availablePower,
-			final ServerData serverOffer, final ACLMessage serverMessage, final ACLMessage schedulerMessage) {
-		final JobWithPrice pricedJob =
-				new ImmutableJobWithPrice(serverOffer.getJobId(), serverOffer.getServicePrice(), availablePower);
+	public static InitiateNewJobOffer create(final CloudNetworkAgent agent, final ServerData serverOffer,
+			final ACLMessage serverMessage, final ACLMessage schedulerMessage) {
+		final JobWithComponentSuccess jobWithSuccess =
+				new ImmutableJobWithComponentSuccess(serverOffer.getJobId(), agent.manage().getSuccessRatio());
 		final ACLMessage proposal = MessageBuilder.builder()
 				.copy(schedulerMessage.createReply())
-				.withObjectContent(pricedJob)
+				.withObjectContent(jobWithSuccess)
 				.withPerformative(PROPOSE)
 				.build();
 		return new InitiateNewJobOffer(agent, proposal, serverMessage);

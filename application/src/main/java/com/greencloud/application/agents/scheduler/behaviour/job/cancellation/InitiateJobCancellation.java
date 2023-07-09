@@ -66,7 +66,7 @@ public class InitiateJobCancellation extends AchieveREInitiator {
 		cancelledParts.stream()
 				.map(jobPart -> getJobById(jobPart, mySchedulerAgent.getClientJobs()))
 				.filter(Objects::nonNull)
-				.forEach(job -> mySchedulerAgent.manage().handleJobCleanUp(job));
+				.forEach(job -> mySchedulerAgent.manage().handleJobCleanUp(job, true));
 	}
 
 	/**

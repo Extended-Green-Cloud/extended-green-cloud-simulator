@@ -5,6 +5,7 @@ import static com.greencloud.application.agents.client.behaviour.jobannouncement
 import static com.greencloud.application.messages.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.DELAYED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.FAILED_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.FINISH_IN_CLOUD_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
@@ -13,6 +14,7 @@ import static com.greencloud.application.messages.constants.MessageConversationC
 import static com.greencloud.application.messages.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.SPLIT_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_IN_CLOUD_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -86,7 +88,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	}
 
 	@VisibleForTesting
-	protected AbstractJobUpdateHandler getUpdateHandler(final ACLMessage message, final ClientJobUpdateEnum updateEnum) {
+	protected AbstractJobUpdateHandler getUpdateHandler(final ACLMessage message,
+			final ClientJobUpdateEnum updateEnum) {
 		return switch (message.getConversationId()) {
 			case SCHEDULED_JOB_ID,
 					PROCESSING_JOB_ID,
@@ -94,8 +97,9 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 					BACK_UP_POWER_JOB_ID,
 					GREEN_POWER_JOB_ID,
 					ON_HOLD_JOB_ID -> new HandleGenericJobStatusUpdate(message, myClientAgent, updateEnum);
-			case STARTED_JOB_ID -> new HandleJobStartUpdate(message, myClientAgent, updateEnum);
-			case FINISH_JOB_ID -> new HandleJobFinishUpdate(message, myClientAgent, updateEnum);
+			case STARTED_JOB_ID, STARTED_IN_CLOUD_JOB_ID ->
+					new HandleJobStartUpdate(message, myClientAgent, updateEnum);
+			case FINISH_JOB_ID, FINISH_IN_CLOUD_JOB_ID -> new HandleJobFinishUpdate(message, myClientAgent, updateEnum);
 			case FAILED_JOB_ID -> new HandleJobFailedUpdate(message, myClientAgent, updateEnum);
 			case POSTPONED_JOB_ID -> new HandlePostponeJobUpdate(message, myClientAgent, updateEnum);
 			case SPLIT_JOB_ID -> new HandleJobSplitUpdate(message, myClientAgent, updateEnum);

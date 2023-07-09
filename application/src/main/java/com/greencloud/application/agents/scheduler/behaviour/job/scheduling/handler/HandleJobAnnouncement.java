@@ -3,6 +3,7 @@ package com.greencloud.application.agents.scheduler.behaviour.job.scheduling.han
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.ANNOUNCE_JOB_CNA_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.JOB_ADJUST_TIME_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.JOB_EXECUTION_AFTER_DEADLINE_LOG;
+import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.JOB_EXECUTION_IN_CLOUD_LOG;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.logs.JobSchedulingHandlerLog.NO_AVAILABLE_CNA_LOG;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_PROCESSING_DEADLINE_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_PROCESSING_TIME_ADJUSTMENT;
@@ -17,6 +18,7 @@ import static com.greencloud.application.utils.JobUtils.getJobName;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.replaceStatusToActive;
+import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ACCEPTED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.CREATED;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Objects.nonNull;
@@ -30,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
+import com.greencloud.application.agents.scheduler.behaviour.job.execution.handler.HandleJobStartInCloud;
 import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.initiator.InitiateCNALookup;
 import com.greencloud.commons.domain.job.ClientJob;
 
@@ -88,6 +91,18 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 			replaceStatusToActive(myScheduler.getClientJobs(), adjustedJob);
 			myScheduler.send(clientMessage);
 			myScheduler.addBehaviour(InitiateCNALookup.create(myScheduler, adjustedJob));
+		} else if (myScheduler.manage().canJobBeFullyExecutedBeforeDeadline(jobToExecute)) {
+			logger.info(JOB_EXECUTION_IN_CLOUD_LOG, jobToExecute.getJobId());
+			myScheduler.getClientJobs().replace(jobToExecute, ACCEPTED);
+			myScheduler.getGuiController().updateAllJobsCountByValue(1);
+			myScheduler.addBehaviour(HandleJobStartInCloud.createFor(myScheduler, jobToExecute));
+		} else {
+			logger.info(JOB_EXECUTION_AFTER_DEADLINE_LOG, jobToExecute.getJobId());
+			myScheduler.getClientJobs().remove(jobToExecute);
+			myScheduler.manage()
+					.sendStatusMessageToClient(prepareJobStatusMessageForClient(jobToExecute, FAILED_JOB_ID),
+							jobToExecute.getJobId());
+
 		}
 	}
 
@@ -100,10 +115,6 @@ public class HandleJobAnnouncement extends TickerBehaviour {
 			return job;
 		}
 		if (newAdjustedEnd.isAfter(job.getDeadline().minusMillis(JOB_PROCESSING_DEADLINE_ADJUSTMENT))) {
-			logger.info(JOB_EXECUTION_AFTER_DEADLINE_LOG, job.getJobId());
-			myScheduler.getClientJobs().remove(job);
-			myScheduler.manage()
-					.sendStatusMessageToClient(prepareJobStatusMessageForClient(job, FAILED_JOB_ID), job.getJobId());
 			return null;
 		}
 

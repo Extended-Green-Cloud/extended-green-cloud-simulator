@@ -1,5 +1,6 @@
 package com.greencloud.application.agents.scheduler;
 
+import static com.google.common.collect.Multimaps.synchronizedMultimap;
 import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.ADAPTATION_MANAGEMENT;
 import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.STATE_MANAGEMENT;
 import static com.greencloud.commons.agent.AgentType.SCHEDULER;
@@ -35,6 +36,8 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected List<AID> availableCloudNetworks;
 	protected Multimap<String, ClientJob> jobParts;
 	protected Set<String> failedJobs;
+	protected Set<String> jobsExecutedInCloud;
+	protected ConcurrentMap<String, Integer> jobPostpones;
 
 	protected int deadlinePriority;
 	protected int powerPriority;
@@ -48,11 +51,13 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected AbstractSchedulerAgent() {
 		super();
 
-		this.jobParts = ArrayListMultimap.create();
+		this.jobParts = synchronizedMultimap(ArrayListMultimap.create());
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
 		this.failedJobs = new HashSet<>();
+		this.jobsExecutedInCloud = new HashSet<>();
+		this.jobPostpones = new ConcurrentHashMap<>();
 		this.agentType = SCHEDULER;
 	}
 
@@ -96,6 +101,10 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		return failedJobs;
 	}
 
+	public Set<String> getJobsExecutedInCloud() {
+		return jobsExecutedInCloud;
+	}
+
 	public int getJobSplitThreshold() {
 		return jobSplitThreshold;
 	}
@@ -118,6 +127,10 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 
 	public void setPowerPriority(int powerPriority) {
 		this.powerPriority = powerPriority;
+	}
+
+	public ConcurrentMap<String, Integer> getJobPostpones() {
+		return jobPostpones;
 	}
 
 	@VisibleForTesting

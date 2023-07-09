@@ -7,7 +7,6 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static com.greencloud.application.messages.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static com.greencloud.application.messages.factory.ReplyMessageFactory.prepareRefuseReply;
-import static com.greencloud.application.utils.PowerUtils.getCurrentPowerInUse;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Vector;
@@ -50,7 +49,8 @@ public class InitiateNewJobExecutorLookup extends AbstractCFPInitiator<ServerDat
 	 */
 	public static InitiateNewJobExecutorLookup create(final CloudNetworkAgent agent, final ACLMessage schedulerMessage,
 			final ClientJob job) {
-		final ACLMessage cfp = prepareCallForProposal(job, agent.manage().getOwnedActiveServers(), CNA_JOB_CFP_PROTOCOL);
+		final ACLMessage cfp = prepareCallForProposal(job, agent.manage().getOwnedActiveServers(),
+				CNA_JOB_CFP_PROTOCOL);
 		return new InitiateNewJobExecutorLookup(agent, cfp, schedulerMessage, job);
 	}
 
@@ -95,12 +95,9 @@ public class InitiateNewJobExecutorLookup extends AbstractCFPInitiator<ServerDat
 	protected void handleSelectedOffer(final ServerData serverData) {
 		logger.info(CHOSEN_SERVER_FOR_JOB_LOG, job.getJobId(), bestProposal.getSender().getName());
 
-		final double availablePower = myCloudNetworkAgent.getMaximumCapacity() -
-				getCurrentPowerInUse(myCloudNetworkAgent.getNetworkJobs());
-
 		myCloudNetworkAgent.getServerForJobMap().put(job.getJobId(), bestProposal.getSender());
-		myCloudNetworkAgent.addBehaviour(InitiateNewJobOffer.create(myCloudNetworkAgent, availablePower,
-				serverData, bestProposal, originalMessage));
+		myCloudNetworkAgent.addBehaviour(
+				InitiateNewJobOffer.create(myCloudNetworkAgent, serverData, bestProposal, originalMessage));
 	}
 
 	private void handleRejectedJob() {

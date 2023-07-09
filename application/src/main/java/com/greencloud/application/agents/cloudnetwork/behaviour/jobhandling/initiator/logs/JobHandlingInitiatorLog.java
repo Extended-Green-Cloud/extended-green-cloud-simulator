@@ -27,6 +27,7 @@ public class JobHandlingInitiatorLog {
 
 	// JOB CANCELLING LOG MESSAGES
 	public static final String CANCEL_JOB_IN_CNA = "Cancelling job part {}!";
+	public static final String CANCEL_JOB_IN_CNA_NOT_FOUND = "Job {} for cancellation was not found in CNA!";
 	public static final String CANCEL_JOB_ALL_RESPONSES =
 			"All responses from Servers received. Remaining jobs that were not cancelled: {}!";
 

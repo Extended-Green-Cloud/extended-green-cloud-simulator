@@ -113,14 +113,20 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 		final CloudNetworkAgentNode cloudNetworkAgentNode = (CloudNetworkAgentNode) cloudNetworkAgent.getAgentNode();
 
 		if (nonNull(cloudNetworkAgentNode)) {
-			final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
-					jobCounters.get(FAILED).getCount());
 			cloudNetworkAgentNode.updateClientNumber(getScheduledJobs());
 			cloudNetworkAgentNode.updateJobsCount(getJobInProgressCount());
 			cloudNetworkAgentNode.updateTraffic(getCurrentPowerInUse(cloudNetworkAgent.getNetworkJobs()));
-			cloudNetworkAgentNode.updateCurrentJobSuccessRatio(successRatio);
+			cloudNetworkAgentNode.updateCurrentJobSuccessRatio(getSuccessRatio());
 		}
 		saveMonitoringData();
+	}
+
+	/**
+	 * Method returns current success ratio of given network region
+	 * @return job execution success ratio
+	 */
+	public double getSuccessRatio() {
+		return getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(), jobCounters.get(FAILED).getCount());
 	}
 
 	private void saveMonitoringData() {

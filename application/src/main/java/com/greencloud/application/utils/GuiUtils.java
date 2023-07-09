@@ -5,7 +5,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.slf4j.Logger;
 
 import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.gui.agents.AbstractAgentNode;
 import com.gui.controller.GuiController;
 
@@ -55,7 +54,7 @@ public class GuiUtils {
 	 *
 	 * @param agent agent updating the GUI
 	 */
-	public static void announceFinishedJob(final CloudNetworkAgent agent) {
+	public static void announceFinishedJob(final AbstractAgent agent) {
 		agent.getGuiController().updateActiveJobsCountByValue(-1);
 		agent.getGuiController().updateAllJobsCountByValue(-1);
 	}

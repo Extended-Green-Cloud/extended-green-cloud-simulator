@@ -2,16 +2,18 @@ package com.greencloud.application.agents.scheduler.managment;
 
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_CANCELLATION_LOG;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
-import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
+import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_START_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToClientJobRealTime;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
+import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.PRE_EXECUTION;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.CREATED;
 import static java.time.Duration.between;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -30,8 +32,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.AbstractStateManagement;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
-import com.greencloud.application.behaviours.listener.ListenForAMSError;
-import com.greencloud.application.domain.job.JobWithPrice;
+import com.greencloud.application.domain.job.JobWithComponentSuccess;
 import com.greencloud.commons.domain.job.ClientJob;
 import com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum;
 import com.gui.agents.SchedulerAgentNode;
@@ -56,6 +57,15 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	}
 
 	/**
+	 * Method used in updating GUI associated with scheduler
+	 */
+	@Override
+	public void updateGUI() {
+		schedulerAgent.getGuiController()
+				.updateActiveInCloudJobsCountByValue(schedulerAgent.getJobsExecutedInCloud().size());
+	}
+
+	/**
 	 * Method computes the priority for the given job
 	 *
 	 * @param clientJob job of interest
@@ -68,12 +78,12 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 
 	/**
 	 * Method sends the message and handles the communication with client
+	 *
 	 * @param message message that is to be sent
 	 */
 	public void sendStatusMessageToClient(final ACLMessage message, final String jobId) {
 		schedulerAgent.send(message);
 	}
-
 
 	/**
 	 * Method postpones the job execution by substituting the previous instance with the one
@@ -144,13 +154,9 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public BiFunction<ACLMessage, ACLMessage, Integer> offerComparator() {
 		return (offer1, offer2) -> {
-			final Comparator<JobWithPrice> comparator = (cna1, cna2) -> {
-				final int powerDifference = (int) (cna1.getAvailablePower() - cna2.getAvailablePower());
-				final int priceDifference = (int) (cna1.getPriceForJob() - cna2.getPriceForJob());
-
-				return MAX_TRAFFIC_DIFFERENCE.isValidIntValue(powerDifference) ? priceDifference : powerDifference;
-			};
-			return compareReceivedOffers(offer1, offer2, JobWithPrice.class, comparator);
+			final Comparator<JobWithComponentSuccess> comparator = (cna1, cna2) ->
+					(int) (cna1.getSuccessRatio() - cna2.getSuccessRatio());
+			return compareReceivedOffers(offer1, offer2, JobWithComponentSuccess.class, comparator);
 		};
 	}
 
@@ -159,13 +165,20 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 * It removes the job from client list, CNA map and also, if a job is a job part, then it also removes it from
 	 * job part map.
 	 *
-	 * @param job job to be removed
+	 * @param job     job to be removed
+	 * @param isInCNA flag indicating if the job was executed by CNA
 	 */
-	public void handleJobCleanUp(final ClientJob job) {
+	public void handleJobCleanUp(final ClientJob job, final boolean isInCNA) {
 		final String originalJobId = job.getJobId().split("#")[0];
 
 		schedulerAgent.getClientJobs().remove(job);
-		schedulerAgent.getCnaForJobMap().remove(job.getJobId());
+		schedulerAgent.getJobPostpones().remove(job.getJobId());
+
+		if (isInCNA) {
+			schedulerAgent.getCnaForJobMap().remove(job.getJobId());
+		} else {
+			schedulerAgent.getJobsExecutedInCloud().remove(job.getJobId());
+		}
 
 		final Collection<ClientJob> jobParts = schedulerAgent.getJobParts().get(originalJobId);
 		jobParts.stream()
@@ -184,13 +197,39 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 		var originalJobId = job.getJobId().split("#")[0];
 
 		schedulerAgent.getClientJobs().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey().getJobId()));
+		schedulerAgent.getJobPostpones().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey()));
 		schedulerAgent.getCnaForJobMap().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey()));
+		schedulerAgent.getJobsExecutedInCloud().removeIf(jobsToRemove::contains);
 		schedulerAgent.getJobParts().entries().removeIf(entry -> entry.getKey().equals(originalJobId)
 				&& jobsToRemove.contains(entry.getValue().getJobId()));
 
 		if (schedulerAgent.getClientJobs().keySet().stream().anyMatch(isJobIdEqual(job))) {
 			initiateJobCancellation(originalJobId);
 		}
+	}
+
+	/**
+	 * Method evaluates if postponing a job will make it reach the deadline
+	 *
+	 * @param job - job that is to be postponed
+	 * @return boolean indicating if postponing will exceed the deadline
+	 */
+	public boolean isJobAfterDeadline(final ClientJob job) {
+		final Instant endAfterPostpone = postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT);
+		return endAfterPostpone.isAfter(job.getDeadline());
+	}
+
+	/**
+	 * Method verifies if, starting from now, the job can be fully executed
+	 *
+	 * @param job job to be executed
+	 * @return boolean indicating if job can be fully executed
+	 */
+	public boolean canJobBeFullyExecutedBeforeDeadline(final ClientJob job) {
+		final long jobDuration = MILLIS.between(job.getStartTime(), job.getEndTime());
+		final Instant jobExpectedFinishTime = getCurrentTime().plusMillis(jobDuration + JOB_START_ADJUSTMENT);
+
+		return !jobExpectedFinishTime.isAfter(job.getDeadline());
 	}
 
 	private Predicate<ClientJob> isJobIdEqual(final ClientJob job) {
@@ -218,11 +257,6 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 		logger.info(JOB_CANCELLATION_LOG);
 		schedulerAgent.getFailedJobs().add(originalJobId);
 		schedulerAgent.addBehaviour(InitiateJobCancellation.create(schedulerAgent, originalJobId));
-	}
-
-	private boolean isJobAfterDeadline(final ClientJob job) {
-		final Instant endAfterPostpone = postponeTime(job.getEndTime(), JOB_RETRY_MINUTES_ADJUSTMENT);
-		return endAfterPostpone.isAfter(job.getDeadline());
 	}
 
 	private double getDeadlinePercentage() {

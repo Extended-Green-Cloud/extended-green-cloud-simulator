@@ -18,6 +18,8 @@ public class JobSchedulingListenerLog {
 			"Received update regarding job {} state. Passing the information to client.";
 	public static final String JOB_FAILED_RETRY_LOG =
 			"Execution of the job {} has failed. Retrying to execute the job";
+	public static final String JOB_FAILED_IN_CLOUD_LOG =
+			"Execution of the job {} has failed. Executing job in cloud";
 	public static final String JOB_CANCELLATION_LOG =
 			"Announcing job cancellation after failed execution for a job part!";
 }

@@ -2,10 +2,12 @@ package com.greencloud.application.messages.factory;
 
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.FAILED_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.FINISH_IN_CLOUD_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.POSTPONED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.SPLIT_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_IN_CLOUD_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.CANCEL_JOB_PROTOCOL;
@@ -203,6 +205,35 @@ public class JobStatusMessageFactory {
 		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
 		return prepareJobStatusMessage(new ImmutableJobStatusUpdate(jobInstanceId, getCurrentTime()), STARTED_JOB_ID,
 				receivers);
+	}
+
+	/**
+	 * Method prepares the information message about the job execution finish in cloud which is to be sent
+	 * to the Client
+	 *
+	 * @param job job of interest
+	 * @return INFORM ACLMessage
+	 */
+	public static ACLMessage prepareJobFinishInCloudMessage(final ClientJob job) {
+		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
+		clientAID.addAddresses(job.getClientAddress());
+		return prepareJobStatusMessage(new ImmutableJobStatusUpdate(jobInstanceId, getCurrentTime()),
+				FINISH_IN_CLOUD_JOB_ID, clientAID);
+	}
+
+	/**
+	 * Method prepares the information message stating that the job execution has started in cloud
+	 *
+	 * @param job job of interest
+	 * @return INFORM ACLMessage
+	 */
+	public static ACLMessage prepareJobStartedInCloudMessage(final ClientJob job) {
+		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
+		clientAID.addAddresses(job.getClientAddress());
+		return prepareJobStatusMessage(new ImmutableJobStatusUpdate(jobInstanceId, getCurrentTime()),
+				STARTED_IN_CLOUD_JOB_ID, clientAID);
 	}
 
 	/**

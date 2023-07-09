@@ -109,7 +109,7 @@ class ListenForJobUpdateUnitTest {
 		listenForJobUpdate.action();
 
 		// then
-		verify(schedulerStateManagement).handleJobCleanUp(clientJob);
+		verify(schedulerStateManagement).handleJobCleanUp(clientJob, true);
 		verify(schedulerAgent, times(4)).send(messageArgumentCaptor.capture());
 		var sentMessage = messageArgumentCaptor.getValue();
 		assertThat(sentMessage.getConversationId()).isEqualTo(FINISH_JOB_ID);
