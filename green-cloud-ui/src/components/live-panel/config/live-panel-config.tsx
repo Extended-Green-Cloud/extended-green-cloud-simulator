@@ -22,6 +22,7 @@ import {
    getClientJobExecutionTimeChart,
    getClientJobProportionChart,
    getJobCompletationChart,
+   getJobExecutionTypeChart,
    getManagingGoalContributionChart,
    getManagingGoalQualitiesChart,
    getSystemClientsChart,
@@ -43,6 +44,7 @@ export const CHARTS = {
    systemTraffic: getSystemTrafficChart,
    systemClients: getSystemClientsChart,
    systemJobExecution: getSystemJobExecutionChart,
+   systemJobExecutionTypeRatio: getJobExecutionTypeChart,
    systemTrafficDistribution: getSystemTrafficDistributionChart,
    agentClients: getAgentClientsChart,
    agentTraffic: getAgentTrafficChart,
@@ -111,6 +113,7 @@ export const CHART_MODALS: LiveChartDashboard = {
       name: 'System statistics reports',
       charts: [
          CHARTS.systemClients,
+         CHARTS.systemJobExecutionTypeRatio,
          CHARTS.systemJobExecution,
          CHARTS.systemJobFinishSuccess,
          CHARTS.systemTraffic,
