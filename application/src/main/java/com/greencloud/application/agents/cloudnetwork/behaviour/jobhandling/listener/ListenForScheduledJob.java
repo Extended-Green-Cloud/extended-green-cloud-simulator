@@ -56,7 +56,7 @@ public class ListenForScheduledJob extends CyclicBehaviour {
 				final ClientJob job = readMessageContent(message, ClientJob.class);
 
 				MDC.put(MDC_JOB_ID, job.getJobId());
-				
+
 				if (myCloudNetworkAgent.manage().getOwnedActiveServers().isEmpty()) {
 					logger.info(NEW_JOB_NO_SERVERS_LOG);
 					myAgent.send(prepareRefuseReply(message));
@@ -66,7 +66,9 @@ public class ListenForScheduledJob extends CyclicBehaviour {
 				logger.info(SEND_CFP_NEW_LOG, job.getJobId());
 
 				myCloudNetworkAgent.getNetworkJobs().put(job, PROCESSING);
-				myAgent.addBehaviour(InitiateNewJobExecutorLookup.create(myCloudNetworkAgent, message, job));
+				myAgent.addBehaviour(InitiateNewJobExecutorLookup.create(myCloudNetworkAgent, message, job,
+						myCloudNetworkAgent.getContainerIndex().get(), 0));
+				myCloudNetworkAgent.incrementContainerIndex();
 			});
 		} else {
 			block();

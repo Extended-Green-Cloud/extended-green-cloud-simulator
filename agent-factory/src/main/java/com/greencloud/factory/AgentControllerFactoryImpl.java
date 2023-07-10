@@ -190,12 +190,14 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	private AgentController createServerController(final ServerAgentArgs serverAgent, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
+		final String containerId = nonNull(serverAgent.getContainerId()) ? serverAgent.getContainerId() : "Default";
 		return containerController.createNewAgent(serverAgent.getName(),
 				"com.greencloud.application.agents.server.ServerAgent",
 				new Object[] { serverAgent.getOwnerCloudNetwork(),
 						serverAgent.getPrice(),
 						serverAgent.getMaximumCapacity(),
 						serverAgent.getJobProcessingLimit(),
+						containerId,
 						isInformer,
 						managingAgent });
 	}

@@ -65,6 +65,17 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 	}
 
 	/**
+	 * Method retrieves list of owned servers that are active and belong to given container group
+	 *
+	 * @return list of server AIDs
+	 */
+	public List<AID> getActiveServersForContainer(final String containerName) {
+		return cloudNetworkAgent.getServerContainers().get(containerName).stream()
+				.filter(server -> getOwnedActiveServers().contains(server))
+				.toList();
+	}
+
+	/**
 	 * Method returns comparator that enables to evaluate which Server proposal is better
 	 *
 	 * @return method comparator returns:
@@ -79,7 +90,7 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 
 			final Comparator<ServerData> comparator = (server1Data, server2Data) -> {
 				final int powerDifference =
-						(server1Data.getAvailablePower() * weight2) - (server2Data.getAvailablePower() * weight1);
+						(server2Data.getAvailablePower() * weight2) - (server1Data.getAvailablePower() * weight1);
 				final double priceDifference =
 						((server1Data.getServicePrice() * 1 / weight1) - (server2Data.getServicePrice() * 1 / weight2));
 
@@ -123,6 +134,7 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 
 	/**
 	 * Method returns current success ratio of given network region
+	 *
 	 * @return job execution success ratio
 	 */
 	public double getSuccessRatio() {

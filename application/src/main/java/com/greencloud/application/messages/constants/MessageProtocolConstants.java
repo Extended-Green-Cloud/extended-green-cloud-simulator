@@ -8,10 +8,12 @@ public class MessageProtocolConstants {
 	/**
 	 * Service protocols
 	 *
-	 * <p> ASK_FOR_POWER_PROTOCOL - protocol used in messages sent by the Cloud Network Agents asking owned Servers for
-	 * 								their maximum capacity information </p>
+	 * <p> ASK_FOR_POWER_PROTOCOL 		- protocol used in messages sent by the Cloud Network Agents asking owned Servers for
+	 * 									  their maximum capacity information </p>
+	 * <p> ASK_FOR_CONTAINER_PROTOCOL	- protocol used in messages sent to servers to obtain their container allocation </p>
 	 */
 	public static final String ASK_FOR_POWER_PROTOCOL= "ASK_FOR_POWER_PROTOCOL";
+	public static final String ASK_FOR_CONTAINER_PROTOCOL= "ASK_FOR_CONTAINER_PROTOCOL";
 
 	/**
 	 * Agent connections protocols

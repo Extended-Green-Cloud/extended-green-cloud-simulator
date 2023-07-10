@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
 import com.greencloud.application.agents.server.behaviour.df.listener.ListenForCloudNetworkCapacityCheckRequest;
+import com.greencloud.application.agents.server.behaviour.df.listener.ListenForCloudNetworkContainerRequest;
 import com.greencloud.application.agents.server.behaviour.df.listener.ListenForGreenSourceServiceUpdate;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForManualJobFinish;
@@ -62,10 +63,11 @@ public class ServerAgent extends AbstractServerAgent {
 				this.currentMaximumCapacity = parseInt(args[2].toString());
 				this.initialMaximumCapacity = parseInt(args[2].toString());
 				this.jobProcessingLimit = parseInt(args[3].toString());
+				this.allocatedContainer = args.length == 7 ? args[4].toString() : "Default";
 
 				// Additional argument indicates if the ServerAgent is going to be moved to another container
 				// In such case, its service should be registered after moving
-				if (args.length != 6 || !parseBoolean(args[4].toString())) {
+				if (args.length != 8 || !parseBoolean(args[5].toString())) {
 					register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
 							this.getOwnerCloudNetworkAgent().getName());
 				}
@@ -103,7 +105,8 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForServerJobCancellation(),
 				new ListenForCloudNetworkCapacityCheckRequest(this),
 				new ListenForGreenSourceServiceUpdate(this),
-				new ListenForAdaptationAction(this)
+				new ListenForAdaptationAction(this),
+				new ListenForCloudNetworkContainerRequest(this)
 		);
 	}
 

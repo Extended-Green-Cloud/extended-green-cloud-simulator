@@ -145,7 +145,14 @@ Both scripts allow passing a parameter `package name` (e.g. green-cloud-engine.j
 name of the _.jar_ package (strategy) that is to be run. If the `package name` is specified, the engine will select
 the package from _./engine/strategy_ that corresponds to the provided name. The user does not have to specify
 the name of the package. In such case, the engine selects a default package with name _green-cloud-engine.jar._
-A given strategy will use the configuration files placed in _./engine/src/main/resources_ (see 
+
+The user can also replace the configuration files with which a given strategy was created by specifying _COPY_ flag:
+
+```bash
+source ./run-modules/run-backend.sh SINGLE/MULTI COPY <package name>
+```
+
+In such a case, a given strategy will use the configuration files placed in _./engine/src/main/resources_ (see 
 [Configuration Instruction](config/CONFIG_INSTRUCTION.md))
 
 ### Running GUI

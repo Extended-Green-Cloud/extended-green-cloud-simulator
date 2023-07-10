@@ -25,7 +25,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.job.execution.handler.HandleJobStartInCloud;
 import com.greencloud.application.behaviours.initiator.AbstractCFPInitiator;
-import com.greencloud.application.domain.job.JobWithComponentSuccess;
+import com.greencloud.application.domain.job.JobWithPrice;
 import com.greencloud.commons.domain.job.ClientJob;
 
 import jade.lang.acl.ACLMessage;
@@ -33,7 +33,7 @@ import jade.lang.acl.ACLMessage;
 /**
  * Behaviour looks for the Cloud Network that will handle the job execution
  */
-public class InitiateCNALookup extends AbstractCFPInitiator<JobWithComponentSuccess> {
+public class InitiateCNALookup extends AbstractCFPInitiator<JobWithPrice> {
 
 	private static final Logger logger = getLogger(InitiateCNALookup.class);
 	private final SchedulerAgent myScheduler;
@@ -41,7 +41,7 @@ public class InitiateCNALookup extends AbstractCFPInitiator<JobWithComponentSucc
 
 	public InitiateCNALookup(final SchedulerAgent agent, final ACLMessage cfp, final ClientJob job) {
 		super(agent, cfp, null, mapToJobInstanceId(job), agent.manage().offerComparator(),
-				JobWithComponentSuccess.class);
+				JobWithPrice.class);
 
 		this.myScheduler = agent;
 		this.job = job;
@@ -83,7 +83,7 @@ public class InitiateCNALookup extends AbstractCFPInitiator<JobWithComponentSucc
 	 * Method responds with accept proposal to selected CNA and updates job status
 	 */
 	@Override
-	protected void handleSelectedOffer(final JobWithComponentSuccess chosenOfferData) {
+	protected void handleSelectedOffer(final JobWithPrice chosenOfferData) {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		logger.info(SEND_ACCEPT_TO_CLOUD_LOG, bestProposal.getSender().getName());
 

@@ -34,6 +34,7 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 	protected boolean isDisabled;
 	protected double pricePerHour;
 	protected int jobProcessingLimit;
+	protected String allocatedContainer;
 
 	AbstractServerAgent() {
 		super();
@@ -120,5 +121,9 @@ public abstract class AbstractServerAgent extends AbstractAgent {
 
 	public boolean canTakeIntoProcessing() {
 		return currentlyProcessing.get() < jobProcessingLimit && !isDisabled;
+	}
+
+	public String getAllocatedContainer() {
+		return allocatedContainer;
 	}
 }

@@ -3,6 +3,7 @@ package com.greencloud.application.agents.scheduler.managment;
 import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_CANCELLATION_LOG;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_START_ADJUSTMENT;
+import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
 import static com.greencloud.application.mapper.JobMapper.mapToClientJobRealTime;
@@ -32,7 +33,7 @@ import org.slf4j.MDC;
 import com.greencloud.application.agents.AbstractStateManagement;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
 import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
-import com.greencloud.application.domain.job.JobWithComponentSuccess;
+import com.greencloud.application.domain.job.JobWithPrice;
 import com.greencloud.commons.domain.job.ClientJob;
 import com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum;
 import com.gui.agents.SchedulerAgentNode;
@@ -154,9 +155,13 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public BiFunction<ACLMessage, ACLMessage, Integer> offerComparator() {
 		return (offer1, offer2) -> {
-			final Comparator<JobWithComponentSuccess> comparator = (cna1, cna2) ->
-					(int) (cna1.getSuccessRatio() - cna2.getSuccessRatio());
-			return compareReceivedOffers(offer1, offer2, JobWithComponentSuccess.class, comparator);
+			final Comparator<JobWithPrice> comparator = (cna1, cna2) -> {
+				final int powerDifference = (int) (cna1.getAvailablePower() - cna2.getAvailablePower());
+				final int priceDifference = (int) (cna1.getPriceForJob() - cna2.getPriceForJob());
+
+				return MAX_TRAFFIC_DIFFERENCE.isValidIntValue(powerDifference) ? priceDifference : powerDifference;
+			};
+			return compareReceivedOffers(offer1, offer2, JobWithPrice.class, comparator);
 		};
 	}
 
