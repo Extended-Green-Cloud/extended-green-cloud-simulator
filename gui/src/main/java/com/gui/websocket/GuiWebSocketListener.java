@@ -71,7 +71,7 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 
 	private PowerShortageMessage readPowerShortage(String message) {
 		try {
-			return mapper.readValue(message, PowerShortageMessage.class);
+			return MAPPER.readValue(message, PowerShortageMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

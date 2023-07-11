@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
 import com.greencloud.application.agents.cloudnetwork.behaviour.df.initiator.InitiateCapacityUpdate;
+import com.greencloud.application.agents.cloudnetwork.behaviour.df.initiator.InitiateServerContainerAssignment;
 import com.greencloud.application.behaviours.df.AbstractSubscriptionInitiator;
 
 import jade.core.AID;
@@ -54,6 +55,8 @@ public class SubscribeServerService extends AbstractSubscriptionInitiator {
 		myCloudNetworkAgent.getOwnedServers().putAll(addedAgents);
 		myCloudNetworkAgent.addBehaviour(InitiateCapacityUpdate.create(myCloudNetworkAgent, addedAgents.keySet(),
 				INCREMENT_CAPACITY));
+		myCloudNetworkAgent.addBehaviour(
+				InitiateServerContainerAssignment.create(myCloudNetworkAgent, addedAgents.keySet()));
 	}
 
 	@Override

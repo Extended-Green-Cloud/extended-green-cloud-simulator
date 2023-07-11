@@ -24,4 +24,8 @@ public class ServerDFListenerLog {
 	public static final String RECEIVED_POWER_INFORMATION_REQUEST_LOG =
 			"Cloud Network Agent {} asked server for maximum capacity information.";
 
+	// LISTEN FOR CLOUD NETWORK CONTAINER INFORMATION REQUEST
+	public static final String RECEIVED_CONTAINER_INFORMATION_REQUEST_LOG =
+			"Cloud Network Agent {} asked server for its container allocation.";
+
 }

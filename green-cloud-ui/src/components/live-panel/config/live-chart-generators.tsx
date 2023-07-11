@@ -26,6 +26,7 @@ import {
    GreenToOnHoldLiveChart,
    JobCompletedLiveChart,
    JobExecutionLiveChart,
+   JobExecutionTypeChart,
    QueueCapacityLiveChart,
    SchedulerPriorityLiveChart,
    SuccessRatioChart,
@@ -33,7 +34,7 @@ import {
    TrafficLiveChart
 } from '../live-charts'
 import { useSelector } from 'react-redux'
-import { RootState, selectAdaptationGoals, selectChosenNetworkAgent, selectClients } from '@store'
+import { RootState, selectAdaptationGoals, selectChosenNetworkAgent, selectNetworkStatistics } from '@store'
 import { GoalContributionLiveChart, QualityPropertiesLiveChart } from '../live-charts/managing-system-charts'
 
 const getJobCompletationChart: LiveChartGenerator = (reports, _) => {
@@ -49,6 +50,13 @@ const getSystemTrafficChart: LiveChartGenerator = (reports, _) => {
 const getSystemClientsChart: LiveChartGenerator = (reports, _) => {
    const { clientsReport } = reports as ReportsStore
    return <ClientsNumberLiveChart {...{ title: 'Number of clients over time', clientsReport }} />
+}
+
+const getJobExecutionTypeChart: LiveChartGenerator = (reports, _) => {
+   const { finishedJobsInCloudNo, finishedJobsNo } = useSelector((state: RootState) => selectNetworkStatistics(state))
+   const jobsExecutedInCloud = (finishedJobsNo !== 0 ? finishedJobsInCloudNo / finishedJobsNo : 0) * 100
+   const jobsExecutedWithGreen = finishedJobsNo !== 0 ? 100 - jobsExecutedInCloud : 0
+   return <JobExecutionTypeChart {...{ jobsExecutedInCloud, jobsExecutedWithGreen }} />
 }
 
 const getSystemJobExecutionChart: LiveChartGenerator = (reports, _) => {
@@ -230,6 +238,7 @@ export {
    getManagingGoalQualitiesChart,
    getagentBackUpUsageChart,
    getManagingGoalContributionChart,
+   getJobExecutionTypeChart,
    getClientJobExecutionTimeChart,
    getClientJobProportionChart,
    getClientJobExecutionPercentageChart

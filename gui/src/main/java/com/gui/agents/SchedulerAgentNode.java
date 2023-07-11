@@ -53,7 +53,8 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 	 * @param updatedJobQueue current job queue
 	 */
 	public void updateScheduledJobQueue(final LinkedList<ClientJob> updatedJobQueue) {
-		getAgentsWebSocket().send(ImmutableUpdateJobQueueMessage.builder().data(updatedJobQueue).build());
+		getAgentsWebSocket().send(ImmutableUpdateJobQueueMessage.builder()
+				.data(updatedJobQueue).build());
 	}
 
 	/**

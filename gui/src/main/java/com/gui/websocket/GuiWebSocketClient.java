@@ -12,12 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.gui.message.ImmutableReportSystemStartTimeMessage;
 
 public class GuiWebSocketClient extends WebSocketClient {
 
-	protected static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
+	protected static final ObjectMapper MAPPER = new ObjectMapper()
+			.registerModule(new GuavaModule())
 			.registerModule(new JavaTimeModule());
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketClient.class);
 
@@ -28,7 +30,7 @@ public class GuiWebSocketClient extends WebSocketClient {
 	public void send(Object message) {
 		try {
 			if (super.isOpen()) {
-				super.send(mapper.writeValueAsString(message));
+				super.send(MAPPER.writeValueAsString(message));
 			}
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);

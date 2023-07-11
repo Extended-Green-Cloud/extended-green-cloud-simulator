@@ -43,7 +43,7 @@ public class InitiateCapacityUpdate extends AchieveREInitiator {
 	}
 
 	/**
-	 * Method creates AskServerForPowerInformation behaviour
+	 * Method creates InitiateCapacityUpdate behaviour
 	 *
 	 * @param cloudNetworkAgent agent executing the behaviour
 	 * @param serversToAsk      servers that are to be asked for power

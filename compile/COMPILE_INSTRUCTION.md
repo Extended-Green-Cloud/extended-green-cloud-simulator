@@ -148,6 +148,15 @@ the name of the package. In such case, the engine selects a default package with
 A given strategy will use the configuration files placed in _./engine/src/main/resources_ (see 
 [Configuration Instruction](config/CONFIG_INSTRUCTION.md))
 
+The user can also replace the configuration files with which a given strategy was created by specifying _COPY_ flag:
+
+```bash
+source ./run-modules/run-backend.sh SINGLE/MULTI COPY <package name>
+```
+
+In such a case, a given strategy will use the configuration files placed in _./engine/src/main/resources_ (see 
+[Configuration Instruction](config/CONFIG_INSTRUCTION.md))
+
 ### Running GUI
 
 To run GUI use (GUI will be started on http://localhost:3000/):

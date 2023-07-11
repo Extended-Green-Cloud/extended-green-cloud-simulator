@@ -65,6 +65,17 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 	}
 
 	/**
+	 * Method retrieves list of owned servers that are active and belong to given container group
+	 *
+	 * @return list of server AIDs
+	 */
+	public List<AID> getActiveServersForContainer(final String containerName) {
+		return cloudNetworkAgent.getServerContainers().get(containerName).stream()
+				.filter(server -> getOwnedActiveServers().contains(server))
+				.toList();
+	}
+
+	/**
 	 * Method returns comparator that enables to evaluate which Server proposal is better
 	 *
 	 * @return method comparator returns:

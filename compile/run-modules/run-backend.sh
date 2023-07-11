@@ -15,9 +15,20 @@ cd "${PARENT_DIR}/green-cloud/engine/strategy" || exit
 
 PACKAGE_NAME="green-cloud-engine.jar"
 
-if [ ! -z "$2" ]
+if [ ! -z "$3" ]
 then
-  PACKAGE_NAME=$2
+  PACKAGE_NAME=$3
+fi
+
+# COPY CONFIGURATION TO JAR
+
+if [ "$2" == "COPY" ]
+then
+cp -R ../src/main/resources/scenarios .
+cp -R ../src/main/resources/properties .
+
+jar -uvf "${PACKAGE_NAME}" -C properties ./properties
+jar -uvf "${PACKAGE_NAME}" -C scenarios ./scenarios
 fi
 
 # COPY CONFIGURATION TO JAR
