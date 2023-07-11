@@ -19,11 +19,13 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 	protected ClientJobExecution jobExecution;
 	protected boolean announced;
 	protected boolean split;
+	protected boolean isInCloud;
 
 	protected AbstractClientAgent() {
 		super();
 		this.jobParts = new ConcurrentHashMap<>();
 		this.agentType = CLIENT;
+		this.isInCloud = false;
 	}
 
 	public ClientManagement manage() {
@@ -54,4 +56,11 @@ public abstract class AbstractClientAgent extends AbstractAgent {
 		split = true;
 	}
 
+	public boolean isInCloud() {
+		return isInCloud;
+	}
+
+	public void setInCloud(boolean inCloud) {
+		isInCloud = inCloud;
+	}
 }

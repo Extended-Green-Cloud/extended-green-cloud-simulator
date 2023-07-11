@@ -62,7 +62,6 @@ public class HandleJobFinishInCloud extends WakerBehaviour {
 
 			mySchedulerAgent.send(prepareJobFinishInCloudMessage(jobToExecute));
 			mySchedulerAgent.manage().handleJobCleanUp(jobToExecute, false);
-			mySchedulerAgent.getGuiController().updateJobsFinishedInCloudCountByValue(1);
 			announceFinishedJob(mySchedulerAgent);
 			mySchedulerAgent.manage().updateGUI();
 		}

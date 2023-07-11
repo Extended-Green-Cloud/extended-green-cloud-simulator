@@ -2,11 +2,15 @@
 	<managingAgent>
 		<name>ManagingSystem</name>
 		<systemQualityThreshold>0.7</systemQualityThreshold>
+		<disabledActions>
+			<item>ENABLE_SERVER</item>
+			<item>DISABLE_SERVER</item>
+		</disabledActions>
 	</managingAgent>
 	<schedulerAgent>
 		<name>Scheduler</name>
 		<deadlineWeight>1</deadlineWeight>
-		<powerWeight>1</powerWeight>
+		<powerWeight>3</powerWeight>
 		<maximumQueueSize>10000000</maximumQueueSize>
 		<jobSplitThreshold>20</jobSplitThreshold>
 		<splittingFactor>3</splittingFactor>

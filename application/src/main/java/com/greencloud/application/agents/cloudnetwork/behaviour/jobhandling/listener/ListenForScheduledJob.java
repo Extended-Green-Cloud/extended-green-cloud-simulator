@@ -64,11 +64,8 @@ public class ListenForScheduledJob extends CyclicBehaviour {
 				}
 
 				logger.info(SEND_CFP_NEW_LOG, job.getJobId());
-
 				myCloudNetworkAgent.getNetworkJobs().put(job, PROCESSING);
-				myAgent.addBehaviour(InitiateNewJobExecutorLookup.create(myCloudNetworkAgent, message, job,
-						myCloudNetworkAgent.getContainerIndex().get(), 0));
-				myCloudNetworkAgent.incrementContainerIndex();
+				myAgent.addBehaviour(InitiateNewJobExecutorLookup.create(myCloudNetworkAgent, message, job));
 			});
 		} else {
 			block();

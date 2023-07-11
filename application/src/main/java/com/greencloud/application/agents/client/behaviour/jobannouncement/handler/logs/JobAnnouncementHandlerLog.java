@@ -11,12 +11,12 @@ public class JobAnnouncementHandlerLog {
 	// HANDLE JOB FINISH LOG MESSAGE
 	public static final String CLIENT_JOB_FINISHED_LOG = "Job finished! Agent shutdown initiated!";
 	public static final String ALL_PARTS_FINISHED_LOG = "All job parts finished! Agent shutdown initiated.";
-	public static final String CLIENT_JOB_FINISH_ON_TIME_LOG = "The execution of my job finished on time! :)";
+	public static final String CLIENT_JOB_FINISH_ON_TIME_LOG = "The execution of my job {} finished on time! :)";
 	public static final String CLIENT_JOB_FINISH_DELAY_LOG =
-			"The execution of my job finished with a delay equal to {}! :(";
+			"The execution of my job {} finished with a delay equal to {}! :(";
 	public static final String CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_DELAY_LOG =
-			"The execution of my job finished (with delay {} min) before deadline";
-	public static final String CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG = "The execution of my job finished!";
+			"The execution of my job {} finished (with delay {} min) before deadline";
+	public static final String CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG = "The execution of my job {} finished!";
 
 	// HANDLE JOB START LOG MESSAGES
 	public static final String ALL_PARTS_STARTED_LOG = "All job parts started!";

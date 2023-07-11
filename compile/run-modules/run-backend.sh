@@ -17,7 +17,7 @@ PACKAGE_NAME="green-cloud-engine.jar"
 
 if [ ! -z "$3" ]
 then
-  PACKAGE_NAME=$3
+    PACKAGE_NAME=$3
 fi
 
 # COPY CONFIGURATION TO JAR
@@ -27,17 +27,13 @@ then
 cp -R ../src/main/resources/scenarios .
 cp -R ../src/main/resources/properties .
 
-jar -uvf "${PACKAGE_NAME}" -C properties ./properties
-jar -uvf "${PACKAGE_NAME}" -C scenarios ./scenarios
+jar -uvf "${PACKAGE_NAME}" -C properties .
+jar -uvf "${PACKAGE_NAME}" -C scenarios .
+elif [ ! -z "$2" ] && [ ! -z "$3" ]
+then
+    PACKAGE_NAME=$2
 fi
 
-# COPY CONFIGURATION TO JAR
-
-cp -R ../src/main/resources/scenarios ./scenarios
-cp -R ../src/main/resources/properties ./properties
-
-jar -uvf "${PACKAGE_NAME}" -C properties ./properties
-jar -uvf "${PACKAGE_NAME}" -C scenarios ./scenarios
 
 if [ "$1" == "SINGLE" ]
 then

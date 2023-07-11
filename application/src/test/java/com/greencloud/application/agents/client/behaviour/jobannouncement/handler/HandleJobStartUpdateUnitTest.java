@@ -4,6 +4,7 @@ import static com.greencloud.application.agents.client.fixtures.Fixtures.buildJo
 import static com.greencloud.application.agents.client.fixtures.Fixtures.setUpClient;
 import static com.greencloud.application.agents.client.fixtures.Fixtures.setUpClientMultipleJobParts;
 import static com.greencloud.application.agents.client.domain.enums.ClientJobUpdateEnum.STARTED_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_IN_CLOUD_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.CREATED;
 import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.IN_PROGRESS;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -55,6 +56,7 @@ class HandleJobStartUpdateUnitTest {
 		var message = MessageBuilder.builder()
 				.withPerformative(INFORM)
 				.withObjectContent(JOB_STATUS)
+				.withConversationId(STARTED_IN_CLOUD_JOB_ID)
 				.build();
 
 		mockClientAgent = setUpClient();

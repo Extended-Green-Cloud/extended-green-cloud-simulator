@@ -4,9 +4,10 @@ import static com.greencloud.application.agents.client.behaviour.jobannouncement
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_START_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_START_ON_TIME_LOG;
 import static com.greencloud.application.agents.client.constants.ClientAgentConstants.MAX_TIME_DIFFERENCE;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_IN_CLOUD_JOB_ID;
 import static com.greencloud.application.utils.MessagingUtils.readMessageContent;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -44,7 +45,11 @@ public class HandleJobStartUpdate extends AbstractJobUpdateHandler {
 		final JobClientStatusEnum jobStatus = updateEnum.getJobStatus();
 		final JobStatusUpdate jobUpdate = readMessageContent(message, JobStatusUpdate.class);
 		measureTimeToRetrieveTheMessage(jobUpdate);
-		
+
+		if (message.getConversationId().equals(STARTED_IN_CLOUD_JOB_ID)) {
+			myClient.setInCloud(true);
+		}
+
 		if (!myClient.isSplit()) {
 			updateInformationOfJobStatusUpdate(jobUpdate);
 			checkIfJobStartedOnTime(jobUpdate.getChangeTime(), myClient.getJobExecution().getJobSimulatedStart());
