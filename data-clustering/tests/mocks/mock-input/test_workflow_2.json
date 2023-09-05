@@ -1,0 +1,109 @@
+{
+    "metadata": {
+        "uid": "test_workflow_2",
+        "labels": {
+            "order-id": "test_order_id",
+            "order-item-id": "2",
+            "processor-name": "test_processor_name_2"
+        }
+    },
+    "spec": {
+        "templates": [
+            {
+                "name": "step_2"
+            },
+            {
+                "name": "dag",
+                "dag": {
+                    "tasks": [
+                        {
+                            "name": "step_2",
+                            "retryStrategy": {
+                                "limit": 5
+                            }
+                        },
+                        {
+                            "name": "step_3",
+                            "retryStrategy": {
+                                "limit": 2
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "step_3"
+            }
+        ],
+        "volumeClaimTemplates": [
+            {
+                "spec": {
+                    "resources": {
+                        "requests": {
+                            "storage": "20Gi"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "status": {
+        "phase": "Succeeded",
+        "progress": "3/3",
+        "message": "",
+        "nodes": {
+            "step_2": {
+                "templateName": "step_2",
+                "type": "Pod",
+                "startedAt": "2023-08-08T10:00:00Z",
+                "finishedAt": "2023-08-08T10:00:40Z",
+                "phase": "Failed",
+                "resourcesDuration": {
+                    "cpu": 50,
+                    "memory": 60,
+                    "ephemeral-storage": 70
+                }
+            },
+            "step_2_retry": {
+                "templateName": "step_2",
+                "type": "Retry",
+                "startedAt": "2023-08-08T10:00:00Z",
+                "finishedAt": "2023-08-08T10:00:00Z",
+                "phase": "Failed"
+            },
+            "step_3": {
+                "templateName": "step_3",
+                "type": "Pod",
+                "hostNodeName": "test_host_2",
+                "startedAt": "2023-08-08T10:00:00Z",
+                "finishedAt": "2023-08-08T10:00:00ZZ",
+                "phase": "Error",
+                "resourcesDuration": {
+                    "cpu": 20,
+                    "memory": 20,
+                    "ephemeral-storage": 20
+                }
+            },
+            "step_3_retry": {
+                "templateName": "step_3",
+                "type": "Retry",
+                "startedAt": "2023-08-08T10:00:00Z",
+                "finishedAt": "2023-08-08T10:00:00Z",
+                "phase": "Error"
+            }
+        },
+        "outputs": {
+            "parameters": [
+                {
+                    "name": "final_state",
+                    "value": "{\"status\": 0, \"message\": \"Critical error\"}"
+                }
+            ]
+        },
+        "resourcesDuration": {
+            "cpu": 200,
+            "ephemeral-storage": 30,
+            "memory": 80
+        }
+    }
+}

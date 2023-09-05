@@ -1,0 +1,14 @@
+matplotlib
+scikit-learn
+seaborn
+pandas
+plotly
+ipykernel
+nbformat 
+python-dotenv
+tabulate
+yellowbrick
+umap-learn
+hdbscan
+kaleido
+scikit-fuzzy

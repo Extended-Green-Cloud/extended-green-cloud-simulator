@@ -1,0 +1,8 @@
+/src/data/cluster_result.csv
+/src/data/results
+/src/data/synthetic
+/src/data/input
+/tests/data/results
+/tests/data/input
+.env
+*__pycache__
