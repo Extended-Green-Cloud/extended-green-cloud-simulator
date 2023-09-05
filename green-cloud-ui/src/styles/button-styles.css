@@ -16,6 +16,10 @@
    outline: none;
 }
 
+.predefined-width-button {
+   width: 140px;
+}
+
 /* SMALL DARK GRAY BUTTON STYLE */
 
 .small-gray-button {

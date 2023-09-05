@@ -1,7 +1,6 @@
 package com.greencloud.commons.args.agent.client;
 
-import static com.greencloud.commons.args.agent.client.ClientTimeType.SIMULATION;
-import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
+import static java.time.Instant.now;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -13,6 +12,7 @@ import org.immutables.value.Value.Immutable;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.args.job.JobArgs;
 
 /**
  * Arguments of Client Agent
@@ -21,6 +21,8 @@ import com.greencloud.commons.args.agent.AgentArgs;
 @JsonDeserialize(as = ImmutableClientAgentArgs.class)
 @Immutable
 public interface ClientAgentArgs extends AgentArgs {
+
+	int INITIAL_SEC = 3;
 
 	/**
 	 * @return unique job identifier
@@ -33,48 +35,32 @@ public interface ClientAgentArgs extends AgentArgs {
 	ClientTimeType getTimeType();
 
 	/**
-	 * @return number of hours/simulation seconds after which the job execution should start (from Client creation)
+	 * @return job sent by the client
 	 */
-	String getStart();
+	JobArgs getJob();
 
 	/**
-	 * @return number of hours/simulation seconds after which the job execution should finish (from Client creation)
-	 */
-	String getEnd();
-
-	/**
-	 * @return number of hours/simulation seconds after which the job execution has to end (from Client creation)
-	 */
-	String getDeadline();
-
-	/**
-	 * @return power required for the job
-	 */
-	String getPower();
-
-	/**
-	 * Method converts the number of hours/seconds to formatted time string
+	 * Method creates formatted deadline date
 	 *
-	 * @param value number of hours/seconds
 	 * @return formatted time string
 	 */
-	default String formatClientTime(final String value) {
-		return getTimeType().equals(SIMULATION)
-				? formatToDateFromSeconds(value)
-				: formatToDateFromHours(value);
-	}
-
-	private String formatToDateFromHours(final String value) {
-		final Instant date = Instant.now().plus(Long.parseLong(value), ChronoUnit.HOURS);
+	default String formatClientDeadline() {
+		final Instant deadline = now().plusSeconds(INITIAL_SEC + getJob().getDeadline() + getJob().getDuration());
+		final Instant date = getJob().getDeadline().equals(0L) ?
+				deadline.plus(730, ChronoUnit.HOURS) :
+				deadline;
 		final String dateFormat = "dd/MM/yyyy HH:mm";
 		return DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId.of("UTC")).format(date);
 	}
 
-	private String formatToDateFromSeconds(final String value) {
-		final double hours = Double.parseDouble(value) * ((double) 1 / SECONDS_PER_HOUR);
-		final long milliseconds = (long) (3600 * hours * 1000);
-
-		final Instant date = Instant.now().plus(milliseconds, ChronoUnit.MILLIS);
+	/**
+	 * Method creates from current time by adding given number of seconds
+	 *
+	 * @param seconds number of seconds
+	 * @return formatted time string
+	 */
+	default String formatClientTime(final long seconds) {
+		final Instant date = now().plusSeconds(INITIAL_SEC + seconds);
 		final String dateFormat = "dd/MM/yyyy HH:mm";
 		return DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId.of("UTC")).format(date);
 	}

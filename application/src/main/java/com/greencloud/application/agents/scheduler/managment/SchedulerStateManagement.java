@@ -1,14 +1,11 @@
 package com.greencloud.application.agents.scheduler.managment;
 
-import static com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.logs.JobSchedulingListenerLog.JOB_CANCELLATION_LOG;
 import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.JOB_RETRY_MINUTES_ADJUSTMENT;
-import static com.greencloud.application.agents.scheduler.constants.SchedulerAgentConstants.MAX_TRAFFIC_DIFFERENCE;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.FULL_JOBS_QUEUE_LOG;
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.JOB_TIME_ADJUSTED_LOG;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.mapper.JobMapper.mapToClientJobRealTime;
 import static com.greencloud.application.mapper.JobMapper.mapToJobWithNewTime;
 import static com.greencloud.application.utils.TimeUtils.postponeTime;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.PRE_EXECUTION;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.CREATED;
 import static java.time.Duration.between;
@@ -16,7 +13,6 @@ import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,10 +25,10 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.AbstractStateManagement;
 import com.greencloud.application.agents.scheduler.SchedulerAgent;
-import com.greencloud.application.agents.scheduler.behaviour.job.cancellation.InitiateJobCancellation;
-import com.greencloud.application.behaviours.listener.ListenForAMSError;
 import com.greencloud.application.domain.job.JobWithPrice;
 import com.greencloud.commons.domain.job.ClientJob;
+import com.greencloud.commons.domain.job.ImmutableScheduledJobIdentity;
+import com.greencloud.commons.domain.job.ScheduledJobIdentity;
 import com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum;
 import com.gui.agents.SchedulerAgentNode;
 
@@ -63,17 +59,17 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public double getJobPriority(final ClientJob clientJob) {
 		final double timeToDeadline = between(clientJob.getEndTime(), clientJob.getDeadline()).toMillis();
-		return getDeadlinePercentage() * timeToDeadline + getPowerPercentage() * clientJob.getPower();
+		return getDeadlinePercentage() * timeToDeadline + getCPUPriority() * clientJob.getEstimatedResources().getCpu();
 	}
 
 	/**
 	 * Method sends the message and handles the communication with client
+	 *
 	 * @param message message that is to be sent
 	 */
-	public void sendStatusMessageToClient(final ACLMessage message, final String jobId) {
+	public void sendStatusMessageToClient(final ACLMessage message) {
 		schedulerAgent.send(message);
 	}
-
 
 	/**
 	 * Method postpones the job execution by substituting the previous instance with the one
@@ -104,9 +100,12 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public void updateJobQueueGUI() {
 		var queueCopy = new LinkedList<>(schedulerAgent.getJobsToBeExecuted());
-		var mappedQueue = new LinkedList<ClientJob>();
+		var mappedQueue = new LinkedList<ScheduledJobIdentity>();
 
-		queueCopy.iterator().forEachRemaining(el -> mappedQueue.add(mapToClientJobRealTime(el)));
+		queueCopy.iterator().forEachRemaining(el -> mappedQueue.add(ImmutableScheduledJobIdentity.builder()
+				.jobId(el.getJobId())
+				.clientName(el.getClientIdentifier())
+				.build()));
 		((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateScheduledJobQueue(mappedQueue);
 	}
 
@@ -115,7 +114,7 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public void updateWeightsGUI() {
 		if (nonNull(schedulerAgent.getAgentNode())) {
-			((SchedulerAgentNode) schedulerAgent.getAgentNode()).updatePowerPriority(getPowerPercentage());
+			((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateCPUPriority(getCPUPriority());
 			((SchedulerAgentNode) schedulerAgent.getAgentNode()).updateDeadlinePriority(getDeadlinePercentage());
 		}
 	}
@@ -144,34 +143,21 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public BiFunction<ACLMessage, ACLMessage, Integer> offerComparator() {
 		return (offer1, offer2) -> {
-			final Comparator<JobWithPrice> comparator = (cna1, cna2) -> {
-				final int powerDifference = (int) (cna1.getAvailablePower() - cna2.getAvailablePower());
-				final int priceDifference = (int) (cna1.getPriceForJob() - cna2.getPriceForJob());
-
-				return MAX_TRAFFIC_DIFFERENCE.isValidIntValue(powerDifference) ? priceDifference : powerDifference;
-			};
+			final Comparator<JobWithPrice> comparator = (cna1, cna2) ->
+					(int) (cna1.getPriceForJob() - cna2.getPriceForJob());
 			return compareReceivedOffers(offer1, offer2, JobWithPrice.class, comparator);
 		};
 	}
 
 	/**
 	 * Method performs clean up that removes the given job from Scheduler.
-	 * It removes the job from client list, CNA map and also, if a job is a job part, then it also removes it from
-	 * job part map.
+	 * It removes the job from client list and CNA map.
 	 *
 	 * @param job job to be removed
 	 */
 	public void handleJobCleanUp(final ClientJob job) {
-		final String originalJobId = job.getJobId().split("#")[0];
-
 		schedulerAgent.getClientJobs().remove(job);
 		schedulerAgent.getCnaForJobMap().remove(job.getJobId());
-
-		final Collection<ClientJob> jobParts = schedulerAgent.getJobParts().get(originalJobId);
-		jobParts.stream()
-				.filter(jobPart -> jobPart.getJobId().equals(job.getJobId()))
-				.findFirst()
-				.ifPresent(jobPart -> schedulerAgent.getJobParts().remove(originalJobId, jobPart));
 	}
 
 	/**
@@ -181,43 +167,18 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	 */
 	public void jobFailureCleanUp(final ClientJob job) {
 		final List<String> jobsToRemove = getJobsToRemove(job);
-		var originalJobId = job.getJobId().split("#")[0];
-
 		schedulerAgent.getClientJobs().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey().getJobId()));
 		schedulerAgent.getCnaForJobMap().entrySet().removeIf(entry -> jobsToRemove.contains(entry.getKey()));
-		schedulerAgent.getJobParts().entries().removeIf(entry -> entry.getKey().equals(originalJobId)
-				&& jobsToRemove.contains(entry.getValue().getJobId()));
-
-		if (schedulerAgent.getClientJobs().keySet().stream().anyMatch(isJobIdEqual(job))) {
-			initiateJobCancellation(originalJobId);
-		}
-	}
-
-	private Predicate<ClientJob> isJobIdEqual(final ClientJob job) {
-		return jobPart -> job.getJobId().split("#")[0].equals(jobPart.getJobId().split("#")[0]);
 	}
 
 	private List<String> getJobsToRemove(final ClientJob job) {
 		final Predicate<Map.Entry<ClientJob, JobExecutionStatusEnum>> shouldRemoveJob =
-				jobEntry -> jobEntry.getKey().equals(job) || (isJobIdEqual(job).test(jobEntry.getKey())
-						&& PRE_EXECUTION.getStatuses().contains(jobEntry.getValue()));
+				jobEntry -> jobEntry.getKey().equals(job) && PRE_EXECUTION.getStatuses().contains(jobEntry.getValue());
 
 		return schedulerAgent.getClientJobs().entrySet().stream()
 				.filter(shouldRemoveJob)
 				.map(entry -> entry.getKey().getJobId())
 				.toList();
-	}
-
-	private void initiateJobCancellation(String originalJobId) {
-		if (schedulerAgent.getFailedJobs().contains(originalJobId)) {
-			// do nothing, job cancellation already initiated for that job
-			return;
-		}
-
-		MDC.put(MDC_JOB_ID, originalJobId);
-		logger.info(JOB_CANCELLATION_LOG);
-		schedulerAgent.getFailedJobs().add(originalJobId);
-		schedulerAgent.addBehaviour(InitiateJobCancellation.create(schedulerAgent, originalJobId));
 	}
 
 	private boolean isJobAfterDeadline(final ClientJob job) {
@@ -226,12 +187,12 @@ public class SchedulerStateManagement extends AbstractStateManagement {
 	}
 
 	private double getDeadlinePercentage() {
-		return (double) schedulerAgent.getDeadlinePriority() / (schedulerAgent.getPowerPriority()
+		return (double) schedulerAgent.getDeadlinePriority() / (schedulerAgent.getCPUPriority()
 				+ schedulerAgent.getDeadlinePriority());
 	}
 
-	private double getPowerPercentage() {
-		return (double) schedulerAgent.getPowerPriority() / (schedulerAgent.getPowerPriority()
+	private double getCPUPriority() {
+		return (double) schedulerAgent.getCPUPriority() / (schedulerAgent.getCPUPriority()
 				+ schedulerAgent.getDeadlinePriority());
 	}
 }

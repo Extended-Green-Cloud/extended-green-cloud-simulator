@@ -3,6 +3,10 @@ package runner.configuration;
 import static java.io.File.separator;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
+import static runner.configuration.ResourceRequirementConfiguration.readJobsRequirements;
+import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_EVENTS;
+import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE;
 import static runner.constants.EngineConstants.PROPERTIES_DIR;
 
 import java.io.IOException;
@@ -12,6 +16,7 @@ import java.util.Properties;
 import com.greencloud.commons.exception.InvalidPropertiesException;
 
 import runner.EngineRunner;
+import runner.configuration.enums.ClientGeneratorTypeEnum;
 
 /**
  * Constants used to set up the scenario run in the system
@@ -20,7 +25,13 @@ import runner.EngineRunner;
 public class ScenarioConfiguration extends AbstractConfiguration {
 
 	private static final String SCENARIOS_DIR = "scenarios";
+	private static final String SAMPLE_DIR = "samples";
 	private static final String SCENARIO_PROPERTIES_FILE = "scenario.properties";
+
+	/**
+	 * Type of workload generation
+	 */
+	public static ClientGeneratorTypeEnum generatorType;
 
 	/**
 	 * Path to the file containing scenario structure
@@ -33,43 +44,20 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 	public static Optional<String> eventFilePath;
 
 	/**
+	 * Optional path to the file containing jobs sample
+	 */
+	public static Optional<String> jobsSampleFilePath;
+
+	/**
 	 * Number of clients run by default at the given scenario
 	 */
 	public static long clientNumber;
 
 	/**
-	 * Maximum power required for client job execution
+	 * Number of different job types
 	 */
-	public static int maxJobPower;
+	public static int jobTypesNumber;
 
-	/**
-	 * Minimum power required for client job execution
-	 */
-	public static int minJobPower;
-
-	/**
-	 * Minimum time after which the client job is to be started
-	 * (in real-time seconds)
-	 */
-	public static int minStartTime;
-
-	/**
-	 * Maximum time after which the client job is to be started
-	 * (in real-time seconds)
-	 */
-	public static int maxStartTime;
-
-	/**
-	 * Maximum time after which the client job is to be finished
-	 * (in real-time seconds)
-	 */
-	public static int maxEndTime;
-
-	/**
-	 * Maximum client's job execution deadline time
-	 * (in real-time seconds)
-	 */
-	public static int maxDeadline;
 
 	/**
 	 * Method reads the properties set for the given scenario execution
@@ -80,22 +68,22 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 			final String pathToScenarioProps = buildResourceFilePath(PROPERTIES_DIR, SCENARIO_PROPERTIES_FILE);
 			props.load(EngineRunner.class.getClassLoader().getResourceAsStream(pathToScenarioProps));
 
+			generatorType = ClientGeneratorTypeEnum.valueOf(props.getProperty("scenario.generator"));
+
 			final boolean useSubDirectory = parseBoolean(props.getProperty("scenario.usesubdirectory"));
-			final boolean useEvents = parseBoolean(props.getProperty("scenario.runEvents"));
 
 			final String scenarioPath = useSubDirectory ? retrieveScenarioSubDirectory(props) : SCENARIOS_DIR;
 
 			scenarioFilePath = buildResourceFilePath(scenarioPath, props.getProperty("scenario.structure"));
-			eventFilePath = useEvents
+			eventFilePath = generatorType.equals(FROM_EVENTS)
 					? Optional.of(buildResourceFilePath(scenarioPath, props.getProperty("scenario.events")))
 					: Optional.empty();
-			clientNumber = parseInt(props.getProperty("scenario.clients.number"));
-			minJobPower = parseInt(props.getProperty("scenario.clients.minpower"));
-			maxJobPower = parseInt(props.getProperty("scenario.clients.maxpower"));
-			minStartTime = parseInt(props.getProperty("scenario.clients.minstarttime"));
-			maxStartTime = parseInt(props.getProperty("scenario.clients.maxstarttime"));
-			maxEndTime = parseInt(props.getProperty("scenario.clients.maxendtime"));
-			maxDeadline = parseInt(props.getProperty("scenario.clients.maxdeadline"));
+			jobsSampleFilePath = generatorType.equals(FROM_SAMPLE)
+					? Optional.of(buildResourceFilePath(SAMPLE_DIR, props.getProperty("scenario.jobssample")))
+					: Optional.empty();
+			clientNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("scenario.clients.number"), "0"));
+			jobTypesNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("scenario.jobs.typesnumber"), "0"));
+			readJobsRequirements(props);
 
 		} catch (final IOException e) {
 			throw new InvalidPropertiesException("Could not read properties file:", e);

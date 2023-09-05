@@ -1,12 +1,15 @@
 package runner.service;
 
 import static com.greencloud.commons.args.event.EventTypeEnum.NEW_CLIENT_EVENT;
+import static java.lang.String.format;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.constants.EngineConstants.POWER_SHORTAGE_EVENT_DELAY;
+import static runner.utils.FileReader.readFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -16,13 +19,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
 import com.greencloud.commons.args.event.EventArgs;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
 import com.greencloud.commons.args.event.powershortage.PowerShortageEventArgs;
 import com.greencloud.commons.exception.InvalidScenarioEventStructure;
+import com.greencloud.commons.exception.InvalidScenarioException;
 import com.greencloud.commons.scenario.ScenarioEventsArgs;
 import com.greencloud.factory.AgentControllerFactory;
+import com.greencloud.factory.AgentFactory;
+import com.greencloud.factory.AgentFactoryImpl;
 import com.gui.event.domain.PowerShortageEvent;
 
 import jade.wrapper.AgentController;
@@ -32,9 +39,11 @@ import jade.wrapper.AgentController;
  */
 public class ScenarioEventService {
 
+	protected static final XmlMapper xmlMapper = new XmlMapper();
 	private static final Logger logger = LoggerFactory.getLogger(ScenarioEventService.class);
 
 	private final AbstractScenarioService scenarioService;
+	private final AgentFactory agentFactory;
 
 	/**
 	 * Default constructor
@@ -43,6 +52,7 @@ public class ScenarioEventService {
 	 */
 	public ScenarioEventService(final AbstractScenarioService abstractScenarioService) {
 		this.scenarioService = abstractScenarioService;
+		this.agentFactory = new AgentFactoryImpl();
 	}
 
 	/**
@@ -50,10 +60,19 @@ public class ScenarioEventService {
 	 */
 	public void runScenarioEvents() {
 		if (eventFilePath.isPresent()) {
-			final File scenarioEventsFile = scenarioService.readFile(eventFilePath.get());
-			final ScenarioEventsArgs scenarioEvents = scenarioService.parseScenarioEvents(scenarioEventsFile);
+			final File scenarioEventsFile = readFile(eventFilePath.get());
+			final ScenarioEventsArgs scenarioEvents = parseScenarioEvents(scenarioEventsFile);
 			validateScenarioStructure(scenarioEvents);
 			scheduleScenarioEvents(scenarioEvents.getEventArgs());
+		}
+	}
+
+	private ScenarioEventsArgs parseScenarioEvents(final File scenarioEventsFile) {
+		try {
+			return xmlMapper.readValue(scenarioEventsFile, ScenarioEventsArgs.class);
+		} catch (IOException e) {
+			throw new InvalidScenarioException(
+					format("Failed to parse scenario events file \"%s\"", scenarioEventsFile), e);
 		}
 	}
 
@@ -98,7 +117,7 @@ public class ScenarioEventService {
 	private void runNewClientEvent(final EventArgs event) {
 		final AgentControllerFactory factory = scenarioService.factory;
 		final NewClientEventArgs newClientEvent = (NewClientEventArgs) event;
-		final ClientAgentArgs clientAgentArgs = scenarioService.agentFactory.createClientAgent(newClientEvent);
+		final ClientAgentArgs clientAgentArgs = agentFactory.createClientAgent(newClientEvent);
 
 		final AgentController agentController = factory.createAgentController(clientAgentArgs, null);
 		factory.runAgentController(agentController, 0);
@@ -107,8 +126,7 @@ public class ScenarioEventService {
 	private void triggerPowerShortage(final EventArgs event) {
 		final PowerShortageEventArgs powerShortageArgs = (PowerShortageEventArgs) event;
 		final Instant eventOccurrence = Instant.now().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
-		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence,
-				powerShortageArgs.getNewMaximumCapacity(), powerShortageArgs.isFinished(),
+		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence, powerShortageArgs.isFinished(),
 				powerShortageArgs.getCause());
 		scenarioService.guiController.triggerPowerShortageEvent(eventData, powerShortageArgs.getAgentName());
 	}

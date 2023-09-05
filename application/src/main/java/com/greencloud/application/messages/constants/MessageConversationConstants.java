@@ -20,7 +20,6 @@ public class MessageConversationConstants {
 	 * <p> ON_HOLD_JOB_ID			   - the job has been put on hold </p>
 	 * <p> FINISH_JOB_ID			   - the job execution has finished </p>
 	 * <p> FAILED_JOB_ID			   - the job execution has failed </p>
-	 * <p> SPLIT_JOB_ID				   - the job has been split </p>
 	 */
 	public static final String SCHEDULED_JOB_ID = "SCHEDULED_JOB_ID";
 	public static final String RE_SCHEDULED_JOB_ID = "RE_SCHEDULED_JOB_ID";
@@ -34,5 +33,4 @@ public class MessageConversationConstants {
 	public static final String ON_HOLD_JOB_ID = "ON_HOLD_JOB_ID";
 	public static final String FINISH_JOB_ID = "FINISH_JOB_ID";
 	public static final String FAILED_JOB_ID = "FAILED_JOB_ID";
-	public static final String SPLIT_JOB_ID = "SPLIT_JOB_ID";
 }

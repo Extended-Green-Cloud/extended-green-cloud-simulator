@@ -11,22 +11,25 @@ import static java.util.Objects.nonNull;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.greencloud.application.agents.greenenergy.management.GreenPowerManagement;
 import com.greencloud.application.domain.weather.MonitoringData;
 import com.greencloud.application.utils.domain.JobWithTime;
 import com.greencloud.application.utils.domain.SubJobList;
 import com.greencloud.commons.domain.job.PowerJob;
+import com.greencloud.commons.domain.job.ServerJob;
+import com.greencloud.commons.domain.resources.HardwareResources;
+import com.greencloud.commons.domain.resources.ImmutableHardwareResources;
 
 /**
  * Service used to perform operations using more complex algorithms
@@ -36,37 +39,60 @@ public class AlgorithmUtils {
 	private static final long MILLIS_IN_MIN = 60000L;
 
 	/**
-	 * Method computes the maximum power which will be used by the jobs during given time-stamp
+	 * Method computes the maximum resource usage during given time-stamp
 	 *
 	 * @param jobList   list of the jobs of interest
 	 * @param startTime start time of the interval
 	 * @param endTime   end time of the interval
 	 */
-	public static <T extends PowerJob> int getMaximumUsedPowerDuringTimeStamp(
+	public static <T extends PowerJob> HardwareResources getMaximumUsedResourcesDuringTimeStamp(
 			final Set<T> jobList,
 			final Instant startTime,
 			final Instant endTime) {
 		final List<JobWithTime<T>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
 
+		if (jobsWithTimeMap.isEmpty()) {
+			return ImmutableHardwareResources.builder().cpu(0D).memory(0D).storage(0D).build();
+		}
+
 		final List<T> openIntervalJobs = new ArrayList<>();
-		final List<Integer> powerInIntervals = new ArrayList<>();
-		final AtomicInteger lastIntervalPower = new AtomicInteger(0);
+
+		final List<Double> cpuUsageInInterval = new ArrayList<>();
+		final List<Double> memoryUsageInInterval = new ArrayList<>();
+		final List<Double> storageUsageInInterval = new ArrayList<>();
+
+		final AtomicDouble lastIntervalCpu = new AtomicDouble(0D);
+		final AtomicDouble lastIntervalMemory = new AtomicDouble(0D);
+		final AtomicDouble lastIntervalStorage = new AtomicDouble(0D);
 
 		jobsWithTimeMap.forEach(jobWithTime -> {
+			final HardwareResources resources = (jobWithTime.job).getEstimatedResources();
 			if (jobWithTime.timeType.equals(START_TIME)) {
 				openIntervalJobs.add(jobWithTime.job);
-				lastIntervalPower.updateAndGet(power -> power + (jobWithTime.job).getPower());
+
+				lastIntervalCpu.updateAndGet(cpu -> cpu + resources.getCpu());
+				lastIntervalMemory.updateAndGet(memory -> memory + resources.getMemory());
+				lastIntervalStorage.updateAndGet(storage -> storage + resources.getStorage());
 			} else {
 				openIntervalJobs.remove(jobWithTime.job);
-				powerInIntervals.add(lastIntervalPower.get());
-				lastIntervalPower.set(
-						openIntervalJobs.isEmpty() ? 0 : lastIntervalPower.get() - (jobWithTime.job).getPower());
+
+				cpuUsageInInterval.add(lastIntervalCpu.get());
+				memoryUsageInInterval.add(lastIntervalMemory.get());
+				storageUsageInInterval.add(lastIntervalStorage.get());
+
+				lastIntervalCpu.set(openIntervalJobs.isEmpty() ? 0 : lastIntervalCpu.get() - resources.getCpu());
+				lastIntervalMemory.set(
+						openIntervalJobs.isEmpty() ? 0 : lastIntervalMemory.get() - resources.getMemory());
+				lastIntervalStorage.set(
+						openIntervalJobs.isEmpty() ? 0 : lastIntervalStorage.get() - resources.getStorage());
 			}
 		});
 
-		return powerInIntervals.stream()
-				.max(Comparator.comparingInt(Integer::intValue))
-				.orElse(0);
+		final double maxCpu = Collections.max(cpuUsageInInterval, Double::compareTo);
+		final double maxMemory = Collections.max(memoryUsageInInterval, Double::compareTo);
+		final double maxStorage = Collections.max(storageUsageInInterval, Double::compareTo);
+
+		return ImmutableHardwareResources.builder().cpu(maxCpu).memory(maxMemory).storage(maxStorage).build();
 	}
 
 	/**
@@ -85,39 +111,38 @@ public class AlgorithmUtils {
 	 * @param greenPowerManagement manager that will compute available capacity
 	 * @param monitoringData       weather data necessary to compute available capacity
 	 */
-	public static <T extends PowerJob> double getMinimalAvailablePowerDuringTimeStamp(
-			final Set<T> jobList,
+	public static double getMinimalAvailableEnergyDuringTimeStamp(
+			final Set<ServerJob> jobList,
 			final Instant startTime,
 			final Instant endTime,
 			final long intervalLength,
 			final GreenPowerManagement greenPowerManagement,
 			final double maximumCapacity,
 			final MonitoringData monitoringData) {
-		final List<JobWithTime<T>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
+		final List<JobWithTime<ServerJob>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
 
-		final Deque<Map.Entry<Instant, Integer>> powerInIntervals = jobsWithTimeMap.isEmpty() ?
-				new ArrayDeque<>() :
-				getPowerForJobIntervals(jobsWithTimeMap.subList(0, jobsWithTimeMap.size() - 1));
+		final Deque<Map.Entry<Instant, Double>> powerInIntervals = jobsWithTimeMap.isEmpty() ? new ArrayDeque<>() :
+				getEnergyForJobIntervals(jobsWithTimeMap.subList(0, jobsWithTimeMap.size() - 1));
 		final Set<Instant> subIntervals = divideIntoSubIntervals(startTime, endTime, intervalLength * MILLIS_IN_MIN);
 
-		final AtomicReference<Double> minimumAvailablePower = new AtomicReference<>(maximumCapacity);
-		final AtomicReference<Map.Entry<Instant, Integer>> lastOpenedPowerInterval = new AtomicReference<>(null);
+		final AtomicReference<Double> minimumAvailableEnergy = new AtomicReference<>(maximumCapacity);
+		final AtomicReference<Map.Entry<Instant, Double>> lastOpenedPowerInterval = new AtomicReference<>(null);
 
 		subIntervals.forEach(time -> {
 			while (!powerInIntervals.isEmpty() && !powerInIntervals.peekFirst().getKey().isAfter(time)) {
 				lastOpenedPowerInterval.set(powerInIntervals.removeFirst());
 			}
-			final double availableCapacity = greenPowerManagement.getAvailableGreenPower(monitoringData, time);
+			final double availableCapacity = greenPowerManagement.getAvailableGreenEnergy(monitoringData, time);
 			final double powerInUse = nonNull(lastOpenedPowerInterval.get()) ?
 					lastOpenedPowerInterval.get().getValue() : 0;
 			final double availablePower = availableCapacity - powerInUse;
 
-			if (availablePower >= 0 && availablePower < minimumAvailablePower.get()) {
-				minimumAvailablePower.set(availablePower);
+			if (availablePower >= 0 && availablePower < minimumAvailableEnergy.get()) {
+				minimumAvailableEnergy.set(availablePower);
 			}
 		});
 
-		return minimumAvailablePower.get();
+		return minimumAvailableEnergy.get();
 	}
 
 	/**
@@ -127,24 +152,25 @@ public class AlgorithmUtils {
 	 * @param finalPower power bound
 	 * @return list of jobs withing power bound
 	 */
-	public static <T extends PowerJob> List<T> findJobsWithinPower(final List<T> jobs, final double finalPower) {
+	public static List<ServerJob> findJobsWithinPower(final List<ServerJob> jobs, final double finalPower) {
 		if (finalPower == 0) {
 			return emptyList();
 		}
-		final AtomicReference<SubJobList<T>> result = new AtomicReference<>(new SubJobList<>());
-		final Set<SubJobList<T>> sums = new HashSet<>();
+		final AtomicReference<SubJobList<ServerJob>> result = new AtomicReference<>(new SubJobList<>());
+		final Set<SubJobList<ServerJob>> sums = new HashSet<>();
 
 		sums.add(result.get());
 		jobs.forEach(job -> {
-			final Set<SubJobList<T>> newSums = new HashSet<>();
+			final Set<SubJobList<ServerJob>> newSums = new HashSet<>();
 			sums.forEach(sum -> {
-				final List<T> newSubList = new ArrayList<>(sum.subList);
+				final List<ServerJob> newSubList = new ArrayList<>(sum.subList);
 				newSubList.add(job);
-				final SubJobList<T> newSum = new SubJobList<>(sum.size + job.getPower(), newSubList);
+				final SubJobList<ServerJob> newSum = new SubJobList<>(
+						sum.energySum + job.getEstimatedEnergy(), newSubList);
 
-				if (newSum.size <= finalPower) {
+				if (newSum.energySum <= finalPower) {
 					newSums.add(newSum);
-					if (newSum.size > result.get().size) {
+					if (newSum.energySum > result.get().energySum) {
 						result.set(newSum);
 					}
 				}
@@ -208,16 +234,17 @@ public class AlgorithmUtils {
 		return new KendallsCorrelation().correlation(timeValues, valueArray);
 	}
 
-	private static <T extends PowerJob> Deque<Map.Entry<Instant, Integer>> getPowerForJobIntervals(
-			final List<? extends JobWithTime<T>> jobsWithTimeMap) {
-		final Deque<Map.Entry<Instant, Integer>> powerInIntervals = new ArrayDeque<>();
-		final AtomicInteger lastIntervalPower = new AtomicInteger(0);
+	private static Deque<Map.Entry<Instant, Double>> getEnergyForJobIntervals(
+			final List<JobWithTime<ServerJob>> jobsWithTimeMap) {
+		final Deque<Map.Entry<Instant, Double>> powerInIntervals = new ArrayDeque<>();
+		final AtomicDouble lastIntervalPower = new AtomicDouble(0D);
 
 		jobsWithTimeMap.forEach(jobWithTime -> {
+			final double energy = jobWithTime.job.getEstimatedEnergy();
 			if (jobWithTime.timeType.equals(START_TIME)) {
-				lastIntervalPower.updateAndGet(power -> power + (jobWithTime.job).getPower());
+				lastIntervalPower.updateAndGet(power -> power + energy);
 			} else {
-				lastIntervalPower.updateAndGet(power -> power - (jobWithTime.job).getPower());
+				lastIntervalPower.updateAndGet(power -> power - energy);
 			}
 			powerInIntervals.removeIf(entry -> entry.getKey().equals(jobWithTime.time));
 			powerInIntervals.addLast(Map.entry(jobWithTime.time, lastIntervalPower.get()));

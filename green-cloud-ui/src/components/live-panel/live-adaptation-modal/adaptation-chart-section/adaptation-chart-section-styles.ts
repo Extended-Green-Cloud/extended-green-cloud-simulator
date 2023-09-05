@@ -14,7 +14,7 @@ export const styles: Styles = {
       columnGap: '10px'
    },
    chartWrapper: {
-      height: '250px',
+      height: '17vw',
       width: '100%',
       borderRadius: 20,
       minHeight: 0,

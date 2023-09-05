@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.ListenForServerPowerInformation;
 import com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.ListenForServerReSupplyRequest;
-import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForGreenEnergyJobCancellation;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForPowerSupplyRequest;
 import com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.ListenForPowerSupplyStatus;
 import com.greencloud.application.agents.greenenergy.behaviour.sensor.SenseGreenSourceEvent;
@@ -56,12 +55,10 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 			this.ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 
 			try {
-				final int maxCapacity = parseInt(args[2].toString());
 				final double latitude = parseDouble(args[4].toString());
 				final double longitude = parseDouble(args[5].toString());
 
-				this.initialMaximumCapacity = maxCapacity;
-				this.currentMaximumCapacity = maxCapacity;
+				this.maximumGeneratorCapacity = parseInt(args[2].toString());
 				this.pricePerPowerUnit = parseDouble(args[3].toString());
 				this.weatherPredictionError = parseDouble(args[7].toString());
 				this.location = new ImmutableLocation(latitude, longitude);
@@ -103,7 +100,6 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				new ListenForServerPowerInformation(this),
 				new ListenForServerReSupplyRequest(this),
 				new RequestWeatherPeriodically(this),
-				new ListenForGreenEnergyJobCancellation(),
 				new ReportWeatherShortages(this)
 		);
 	}

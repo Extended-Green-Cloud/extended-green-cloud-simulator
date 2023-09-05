@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.agents.server.behaviour.adaptation.handler.HandleServerDisabling;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.commons.domain.job.ClientJob;
 import com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum;
@@ -25,7 +24,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
- * Behaviour listens for power message informing that the power supply has finished manually
+ * Behaviour listens for energy supply message informing that the energy supply has finished manually
  */
 public class ListenForManualJobFinish extends CyclicBehaviour {
 
@@ -44,7 +43,7 @@ public class ListenForManualJobFinish extends CyclicBehaviour {
 
 	/**
 	 * Method listens for the messages informing that the job execution was finished manually as
-	 * the message about job finish did not come to Green Source on time
+	 * the message about job finish did not come to Green Source on time.
 	 */
 	@Override
 	public void action() {
@@ -62,8 +61,10 @@ public class ListenForManualJobFinish extends CyclicBehaviour {
 					if (statusEnum.equals(IN_PROGRESS)) {
 						MDC.put(MDC_JOB_ID, job.getJobId());
 						logger.debug(SUPPLY_FINISHED_MANUALLY_LOG, clientName, clientName);
-						myServerAgent.manage().finishJobExecution(job, true);
-					} else{
+						final boolean informCNA = myServerAgent.getServerJobs().keySet().stream()
+								.filter(clientJob -> clientJob.getJobId().equals(job.getJobId())).count() == 1;
+						myServerAgent.manage().finishJobExecution(job, informCNA);
+					} else {
 						myServerAgent.getServerJobs().remove(job);
 						myServerAgent.manage().updateGUI();
 					}

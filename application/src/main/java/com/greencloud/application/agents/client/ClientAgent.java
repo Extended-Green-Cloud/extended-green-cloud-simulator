@@ -8,7 +8,6 @@ import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTimeMinusError;
 import static com.greencloud.application.yellowpages.YellowPagesService.prepareDF;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
-import static java.lang.Integer.parseInt;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
@@ -26,6 +25,11 @@ import com.greencloud.application.agents.client.behaviour.jobannouncement.listen
 import com.greencloud.application.agents.client.domain.ClientJobExecution;
 import com.greencloud.application.agents.client.management.ClientManagement;
 import com.greencloud.application.exception.IncorrectTaskDateException;
+import com.greencloud.commons.args.job.JobArgs;
+import com.greencloud.commons.domain.job.ImmutableJobStep;
+import com.greencloud.commons.domain.job.JobStep;
+import com.greencloud.commons.domain.resources.HardwareResources;
+import com.greencloud.commons.domain.resources.ImmutableHardwareResources;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.ParallelBehaviour;
@@ -68,9 +72,9 @@ public class ClientAgent extends AbstractClientAgent {
 				final Instant startTime = convertToInstantTime(arguments[2].toString());
 				final Instant endTime = convertToInstantTime(arguments[3].toString());
 				final Instant deadline = convertToInstantTime(arguments[4].toString());
-				final int power = parseInt(arguments[5].toString());
+				final JobArgs jobArguments = (JobArgs) arguments[5];
 				final String jobId = arguments[6].toString();
-				initializeJob(startTime, endTime, deadline, power, jobId);
+				initializeJob(startTime, endTime, deadline, jobArguments, jobId);
 
 			} catch (IncorrectTaskDateException e) {
 				logger.error(e.getMessage());
@@ -116,27 +120,48 @@ public class ClientAgent extends AbstractClientAgent {
 		logClientSetUp();
 	}
 
-	private void initializeJob(final Instant startTime, final Instant endTime, final Instant deadline, final int power,
-			final String jobId) {
+	private void initializeJob(final Instant startTime, final Instant endTime, final Instant deadline,
+			final JobArgs jobArguments, final String jobId) {
 		final Instant currentTime = getCurrentTime();
 		final long expectedJobStart = convertToSimulationTime(SECONDS.between(currentTime, startTime));
 		final long expectedJobEnd = convertToSimulationTime(SECONDS.between(currentTime, endTime));
 		final long expectedJobDeadline = convertToSimulationTime(SECONDS.between(currentTime, deadline));
+
+		final HardwareResources jobEstimatedResources = ImmutableHardwareResources.builder()
+				.cpu((double) jobArguments.getCpu() / (jobArguments.getDuration() * 1000))
+				.memory((double) jobArguments.getMemory() / (jobArguments.getDuration() * 1000))
+				.storage((double) jobArguments.getStorage())
+				.build();
+
+		final List<JobStep> jobSteps = jobArguments.getJobSteps().stream()
+				.map(step -> ImmutableJobStep.builder()
+						.cpu(step.getCpu())
+						.memory(step.getMemory())
+						.duration(step.getDuration())
+						.name(step.getName())
+						.build())
+				.map(JobStep.class::cast)
+				.toList();
 
 		jobExecution = new ClientJobExecution(
 				getAID(),
 				currentTime.plus(expectedJobStart, MILLIS),
 				currentTime.plus(expectedJobEnd, MILLIS),
 				currentTime.plus(expectedJobDeadline, MILLIS),
-				power,
-				jobId
+				jobEstimatedResources,
+				jobSteps,
+				jobId,
+				jobArguments.processType()
 		);
 	}
 
 	private void logClientSetUp() {
 		MDC.put(MDC_JOB_ID, jobExecution.getJob().getJobId());
-		logger.info("[{}] Job simulation time: from {} to {} (deadline: {})", getName(),
+		logger.info("[{}] Job simulation time: from {} to {} (deadline: {}). Job type: {}. Required resources: {}",
+				getName(),
 				jobExecution.getJobSimulatedStart(), jobExecution.getJobSimulatedEnd(),
-				jobExecution.getJobSimulatedDeadline());
+				jobExecution.getJobSimulatedDeadline(),
+				jobExecution.getJobType(),
+				jobExecution.getJob().getEstimatedResources());
 	}
 }

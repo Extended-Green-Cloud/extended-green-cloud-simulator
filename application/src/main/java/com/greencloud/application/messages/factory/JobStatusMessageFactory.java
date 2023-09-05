@@ -5,16 +5,13 @@ import static com.greencloud.application.messages.constants.MessageConversationC
 import static com.greencloud.application.messages.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.POSTPONED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
-import static com.greencloud.application.messages.constants.MessageConversationConstants.SPLIT_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.CANCEL_JOB_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static jade.core.AID.ISGUID;
-import static jade.lang.acl.ACLMessage.CANCEL;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 
@@ -25,7 +22,6 @@ import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.job.ImmutableJobStatusUpdate;
 import com.greencloud.application.domain.job.ImmutableJobTimeFrames;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
-import com.greencloud.application.domain.job.JobParts;
 import com.greencloud.application.domain.job.JobStatusUpdate;
 import com.greencloud.application.domain.job.JobTimeFrames;
 import com.greencloud.commons.domain.job.ClientJob;
@@ -52,22 +48,6 @@ public class JobStatusMessageFactory {
 				.withMessageProtocol(ANNOUNCED_JOB_PROTOCOL)
 				.withReceivers(scheduler)
 				.withObjectContent(job)
-				.build();
-	}
-
-	/**
-	 * Method prepares the message requesting from the underlying agents the job cancellation
-	 *
-	 * @param jobId     identifier of original job
-	 * @param receivers receivers of the message
-	 * @return CANCEL ACLMessage
-	 */
-	public static ACLMessage prepareJobCancellationMessage(final String jobId, final AID... receivers) {
-		return MessageBuilder.builder()
-				.withPerformative(CANCEL)
-				.withMessageProtocol(CANCEL_JOB_PROTOCOL)
-				.withStringContent(jobId)
-				.withReceivers(receivers)
 				.build();
 	}
 
@@ -113,19 +93,6 @@ public class JobStatusMessageFactory {
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
 		return prepareJobStatusMessage(jobStatusUpdate, conversationId, clientAID);
-	}
-
-	/**
-	 * Method prepares the information message about the job split sent to client with split jobs as message content
-	 *
-	 * @param job      client's job
-	 * @param splitJob jobs created after split
-	 * @return INFORM ACLMessage
-	 */
-	public static ACLMessage prepareSplitJobMessageForClient(final ClientJob job, final JobParts splitJob) {
-		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
-		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(splitJob, SPLIT_JOB_ID, clientAID);
 	}
 
 	/**

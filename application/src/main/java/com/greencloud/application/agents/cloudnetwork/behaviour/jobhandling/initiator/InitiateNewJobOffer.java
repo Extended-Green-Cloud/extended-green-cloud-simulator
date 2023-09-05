@@ -19,7 +19,6 @@ import org.slf4j.MDC;
 
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.behaviours.listener.ListenForAMSError;
 import com.greencloud.application.domain.agent.ServerData;
 import com.greencloud.application.domain.job.ImmutableJobWithPrice;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
@@ -51,16 +50,14 @@ public class InitiateNewJobOffer extends ProposeInitiator {
 	 * Method creates the behaviour
 	 *
 	 * @param agent            agent creating a behaviour
-	 * @param availablePower   current available power for given network segment
 	 * @param serverOffer      job execution offer proposed by the server
 	 * @param serverMessage    proposal message received from selected server
 	 * @param schedulerMessage CFP received from scheduler
 	 * @return InitiateMakingNewJobOffer
 	 */
-	public static InitiateNewJobOffer create(final AbstractAgent agent, final double availablePower,
-			final ServerData serverOffer, final ACLMessage serverMessage, final ACLMessage schedulerMessage) {
-		final JobWithPrice pricedJob =
-				new ImmutableJobWithPrice(serverOffer.getJobId(), serverOffer.getServicePrice(), availablePower);
+	public static InitiateNewJobOffer create(final AbstractAgent agent, final ServerData serverOffer,
+			final ACLMessage serverMessage, final ACLMessage schedulerMessage) {
+		final JobWithPrice pricedJob = new ImmutableJobWithPrice(serverOffer.getJobId(), serverOffer.getServicePrice());
 		final ACLMessage proposal = MessageBuilder.builder()
 				.copy(schedulerMessage.createReply())
 				.withObjectContent(pricedJob)

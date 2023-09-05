@@ -1,8 +1,8 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.templates;
 
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ALERT_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
@@ -19,9 +19,9 @@ import jade.lang.acl.MessageTemplate;
 public class PowerShortageSourceMessageTemplates {
 
 	public static final MessageTemplate SERVER_POWER_SHORTAGE_INFORMATION_TEMPLATE = and(MatchPerformative(INFORM),
-			or(MatchProtocol(SERVER_POWER_SHORTAGE_ALERT_PROTOCOL),
-					or(MatchProtocol(POWER_SHORTAGE_FINISH_ALERT_PROTOCOL),
-							MatchProtocol(SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL))));
+			or(MatchProtocol(INTERNAL_SERVER_ERROR_ALERT_PROTOCOL),
+					or(MatchProtocol(NETWORK_ERROR_FINISH_ALERT_PROTOCOL),
+							MatchProtocol(INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL))));
 
 	public static final MessageTemplate SERVER_RE_SUPPLY_REQUEST_TEMPLATE =
 			and(MatchPerformative(REQUEST), MatchProtocol(SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL));

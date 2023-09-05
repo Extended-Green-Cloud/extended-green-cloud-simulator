@@ -6,14 +6,14 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.domain.job.ClientJob;
+import com.greencloud.commons.domain.job.ScheduledJobIdentity;
 import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableUpdateJobQueueMessage.class)
 @JsonDeserialize(as = ImmutableUpdateJobQueueMessage.class)
 @Value.Immutable
 public interface UpdateJobQueueMessage extends Message {
-	LinkedList<ClientJob> getData();
+	LinkedList<ScheduledJobIdentity> getData();
 
 	default String getType() {
 		return "UPDATE_JOB_QUEUE";

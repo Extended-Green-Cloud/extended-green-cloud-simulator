@@ -13,7 +13,6 @@ interface Props {
    changeSelectedClient: (client: SingleValue<DropdownOption>) => void
    clients: ClientAgentStatus[]
    jobStatusMap: DropdownOption[]
-   splitFilter: boolean | null
 }
 
 /**
@@ -23,16 +22,11 @@ interface Props {
  * @param {func}[changeSelectedClient] - function used to update currently selected client
  * @param {ClientAgent[]}[clients] - all clients
  * @param {SelectOption[]}[jobStatusMap] - map of relevant job statuses
- * @param {boolean | null}[splitFilter] - boolean used in filtering dropwdown based on job split
  * @returns JSX Element
  */
-const ClientDropdown = ({ selectedClient, changeSelectedClient, clients, jobStatusMap, splitFilter }: Props) => {
+const ClientDropdown = ({ selectedClient, changeSelectedClient, clients, jobStatusMap }: Props) => {
    const filteredClientsForJobs = () =>
-      clients.filter(
-         (client) =>
-            jobStatusMap.find((job) => job.value === client.status.toString())?.isSelected &&
-            (splitFilter === null || client.isSplit === splitFilter)
-      )
+      clients.filter((client) => jobStatusMap.find((job) => job.value === client.status.toString())?.isSelected)
 
    const aggregateOptions = (prev: GroupedOption[], curr: ClientAgentStatus) => {
       const currJob = curr.status.toString()
@@ -56,7 +50,7 @@ const ClientDropdown = ({ selectedClient, changeSelectedClient, clients, jobStat
          filteredClientsForJobs()
             .reduce((prev, curr) => aggregateOptions(prev, curr), [] as GroupedOption[])
             .sort((a, b) => sortClients(a, b)),
-      [clients, jobStatusMap, splitFilter]
+      [clients, jobStatusMap]
    )
 
    const handleOnChange = (value: SingleValue<DropdownOption> | MultiValue<DropdownOption>) =>

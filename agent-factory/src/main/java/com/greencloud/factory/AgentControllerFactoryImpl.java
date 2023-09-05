@@ -150,9 +150,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
 	private AgentController createClientController(final ClientAgentArgs clientAgent)
 			throws StaleProxyException {
-		final String startDate = clientAgent.formatClientTime(clientAgent.getStart());
-		final String endDate = clientAgent.formatClientTime(clientAgent.getEnd());
-		final String deadline = clientAgent.formatClientTime(clientAgent.getDeadline());
+		final String startDate = clientAgent.formatClientTime(0);
+		final String endDate = clientAgent.formatClientTime(clientAgent.getJob().getDuration());
+		final String deadline = clientAgent.formatClientDeadline();
 
 		return containerController.createNewAgent(clientAgent.getName(),
 				"com.greencloud.application.agents.client.ClientAgent",
@@ -161,7 +161,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						startDate,
 						endDate,
 						deadline,
-						clientAgent.getPower(),
+						clientAgent.getJob(),
 						clientAgent.getJobId() });
 	}
 
@@ -171,10 +171,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		return containerController.createNewAgent(schedulerAgent.getName(),
 				"com.greencloud.application.agents.scheduler.SchedulerAgent",
 				new Object[] { schedulerAgent.getDeadlineWeight(),
-						schedulerAgent.getPowerWeight(),
+						schedulerAgent.getCpuWeight(),
 						schedulerAgent.getMaximumQueueSize(),
-						schedulerAgent.getJobSplitThreshold(),
-						schedulerAgent.getSplittingFactor(),
 						isInformer,
 						managingAgent });
 	}
@@ -194,8 +192,10 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				"com.greencloud.application.agents.server.ServerAgent",
 				new Object[] { serverAgent.getOwnerCloudNetwork(),
 						serverAgent.getPrice(),
-						serverAgent.getMaximumCapacity(),
+						serverAgent.getMaxPower(),
+						serverAgent.getIdlePower(),
 						serverAgent.getJobProcessingLimit(),
+						serverAgent.getResources(),
 						isInformer,
 						managingAgent });
 	}

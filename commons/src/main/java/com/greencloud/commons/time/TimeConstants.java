@@ -6,5 +6,5 @@ package com.greencloud.commons.time;
  */
 public class TimeConstants {
 
-	public static final int SECONDS_PER_HOUR = 5;
+	public static final int SECONDS_PER_HOUR = 30;
 }

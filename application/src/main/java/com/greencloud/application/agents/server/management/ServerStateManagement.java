@@ -9,15 +9,11 @@ import static com.greencloud.application.agents.server.management.logs.ServerMan
 import static com.greencloud.application.agents.server.management.logs.ServerManagementLog.SUPPLY_JOB_WITH_BACK_UP;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.messages.factory.JobStatusMessageFactory.prepareJobFinishMessage;
-import static com.greencloud.application.utils.AlgorithmUtils.getMaximumUsedPowerDuringTimeStamp;
 import static com.greencloud.application.utils.JobUtils.getJobById;
 import static com.greencloud.application.utils.JobUtils.getJobCount;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
-import static com.greencloud.application.utils.PowerUtils.getBackUpPowerInUse;
-import static com.greencloud.application.utils.PowerUtils.getCurrentPowerInUse;
-import static com.greencloud.application.utils.PowerUtils.getPowerPercent;
 import static com.greencloud.application.utils.TimeUtils.differenceInHours;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
@@ -28,13 +24,13 @@ import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FIN
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.STARTED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.EXECUTING_ON_BACK_UP;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.EXECUTING_ON_HOLD_SOURCE;
-import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
+import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ON_HOLD_SOURCE_SHORTAGE;
 import static java.lang.Math.signum;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -72,6 +68,7 @@ import com.greencloud.commons.domain.job.PowerJob;
 import com.greencloud.commons.domain.job.enums.JobExecutionResultEnum;
 import com.greencloud.commons.domain.job.enums.JobExecutionStateEnum;
 import com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum;
+import com.greencloud.commons.domain.resources.HardwareResources;
 import com.gui.agents.ServerAgentNode;
 
 import jade.core.AID;
@@ -99,7 +96,7 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 	 */
 	public BiFunction<ACLMessage, ACLMessage, Integer> offerComparator() {
 		return (BiFunction<ACLMessage, ACLMessage, Integer> & Serializable) (offer1, offer2) -> {
-			if(serverAgent.getWeightsForGreenSourcesMap().containsKey(offer1.getSender()) &&
+			if (serverAgent.getWeightsForGreenSourcesMap().containsKey(offer1.getSender()) &&
 					serverAgent.getWeightsForGreenSourcesMap().containsKey(offer2.getSender())) {
 				final int weight1 = serverAgent.getWeightsForGreenSourcesMap().get(offer1.getSender());
 				final int weight2 = serverAgent.getWeightsForGreenSourcesMap().get(offer2.getSender());
@@ -108,7 +105,7 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 					double powerDifference =
 							gs1Data.getAvailablePowerInTime() * weight2 - gs2Data.getAvailablePowerInTime() * weight1;
 					double errorDifference = (gs1Data.getPowerPredictionError() - gs2Data.getPowerPredictionError());
-					int priceDifference = (int) (gs1Data.getPricePerPowerUnit() - gs2Data.getPricePerPowerUnit());
+					int priceDifference = (int) (gs1Data.getPriceForEnergySupply() - gs2Data.getPriceForEnergySupply());
 
 					return (int) (errorDifference != 0 ? signum(errorDifference) :
 							MAX_AVAILABLE_POWER_DIFFERENCE.isValidValue((long) powerDifference) ?
@@ -131,69 +128,35 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 		final ClientJob job = getJobById(greenSourceData.getJobId(), serverAgent.getServerJobs());
 
 		if (nonNull(job)) {
-			final double powerCost = job.getPower() * greenSourceData.getPricePerPowerUnit();
 			final double computingCost =
 					differenceInHours(job.getStartTime(), job.getEndTime()) * serverAgent.getPricePerHour();
-			return powerCost + computingCost;
+			return greenSourceData.getPriceForEnergySupply() + computingCost;
 		} else {
 			throw new JobNotFoundException();
 		}
 	}
 
 	/**
-	 * Method computes the available capacity (of given type) for the specified time frame.
-	 *
-	 * @param startDate    starting date
-	 * @param endDate      end date
-	 * @param jobToExclude (optional) job which will be excluded from the power calculation
-	 * @param statusSet    set of statuses of jobs that are taken into account while calculating in use power (optional)
-	 * @return available power
-	 */
-	public synchronized int getAvailableCapacity(final Instant startDate, final Instant endDate,
-			final JobInstanceIdentifier jobToExclude, final Set<JobExecutionStatusEnum> statusSet) {
-		final Set<JobExecutionStatusEnum> statuses = isNull(statusSet) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusSet;
-		final Set<ClientJob> jobsOfInterest = serverAgent.getServerJobs().keySet().stream()
-				.filter(job -> isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
-				.filter(job -> statuses.contains(serverAgent.getServerJobs().get(job)))
-				.collect(toSet());
-		final int maxUsedPower = getMaximumUsedPowerDuringTimeStamp(jobsOfInterest, startDate, endDate);
-		return serverAgent.getCurrentMaximumCapacity() - maxUsedPower;
-	}
-
-	/**
-	 * Method computes the available capacity (of given type) for the specified job.
-	 *
-	 * @param job          job which time frames are taken into account
-	 * @param jobToExclude (optional) job which will be excluded from the power calculation
-	 * @param statusSet    set of statuses of jobs that are taken into account while calculating in use power (optional)
-	 * @return available power
-	 */
-	public synchronized int getAvailableCapacity(final ClientJob job, final JobInstanceIdentifier jobToExclude,
-			final Set<JobExecutionStatusEnum> statusSet) {
-		return getAvailableCapacity(job.getStartTime(), job.getEndTime(), jobToExclude, statusSet);
-	}
-
-	/**
-	 * Method creates new instances for given server job that will be affected by the power shortage and executes
+	 * Method creates new instances for given server job that will be affected by the internal server error and executes
 	 * the post job division handler.
 	 *
 	 * @param job                job that is to be divided into instances
-	 * @param powerShortageStart time when the power shortage will start
+	 * @param powerShortageStart time when the server failure will start
 	 * @return Pair consisting of previous job instance and job instance for transfer (if there is only job instance
 	 * * for transfer then previous job instance element is null)
 	 */
-	public JobDivided<ClientJob> divideJobForPowerShortage(final ClientJob job, final Instant powerShortageStart) {
+	public JobDivided<ClientJob> divideJobForTransfer(final ClientJob job, final Instant powerShortageStart) {
 		return super.divideJobForPowerShortage(job, powerShortageStart, serverAgent.getServerJobs());
 	}
 
 	/**
-	 * Method substitutes existing job instance with new instances associated with power shortage transfer
+	 * Method substitutes existing job instance with new instances associated with internal server error job transfer
 	 *
 	 * @param jobTransfer job transfer information
 	 * @param originalJob original job that is to be divided
 	 * @return Pair of new job instances
 	 */
-	public JobDivided<ClientJob> divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
+	public JobDivided<ClientJob> divideJobForTransfer(final JobPowerShortageTransfer jobTransfer,
 			final ClientJob originalJob) {
 		return super.divideJobForPowerShortage(jobTransfer, originalJob, serverAgent.getServerJobs());
 	}
@@ -224,22 +187,20 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 	 * Method sends an update of the state of the server in the database
 	 */
 	public void writeStateToDatabase() {
-		final double powerInUse = getCurrentPowerInUse(serverAgent.getServerJobs());
-		final double backPowerInUse = getBackUpPowerInUse(serverAgent.getServerJobs());
-		final int maxCapacity = serverAgent.getCurrentMaximumCapacity();
-
-		final double trafficOverall = getPowerPercent(powerInUse, maxCapacity);
-		final double backUpPowerOverall = getPowerPercent(backPowerInUse, maxCapacity);
+		final double greenPowerUsage = serverAgent.resources().getCPUUsage(null);
+		final double backPowerUsage = serverAgent.resources().getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
+		final int jobsNo = serverAgent.getServerJobs().size() - getJobCount(serverAgent.getServerJobs(),
+				JOB_ON_HOLD_STATUSES);
+		final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
+				jobCounters.get(FAILED).getCount());
 
 		final ServerMonitoringData serverMonitoringData = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(maxCapacity)
-				.currentTraffic(trafficOverall)
-				.currentBackUpPowerUsage(backUpPowerOverall)
-				.availablePower(maxCapacity - powerInUse)
-				.serverJobs(serverAgent.getServerJobs().size() - getJobCount(serverAgent.getServerJobs(),
-						JOB_ON_HOLD_STATUSES))
-				.successRatio(
-						getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(), jobCounters.get(FAILED).getCount()))
+				.idlePowerConsumption(serverAgent.getIdlePowerConsumption())
+				.currentPowerConsumption(serverAgent.resources().getCurrentPowerConsumption())
+				.currentTraffic(greenPowerUsage)
+				.currentBackUpPowerTraffic(backPowerUsage)
+				.serverJobs(jobsNo)
+				.successRatio(successRatio)
 				.isDisabled(serverAgent.isDisabled())
 				.build();
 
@@ -342,15 +303,18 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 		if (nonNull(serverAgentNode)) {
 			final double successRatio =
 					getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(), jobCounters.get(FAILED).getCount());
-			final int powerInUse = getCurrentPowerInUse(serverAgent.getServerJobs());
+			final double backUpTraffic = serverAgent.resources().getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
+			final HardwareResources inUseResources = serverAgent.resources().getInUseResources();
+			final double powerConsumption = serverAgent.resources().getCurrentPowerConsumption();
+			final double powerConsumptionBackUp = serverAgent.resources().getCurrentPowerConsumptionBackUp();
 
-			serverAgentNode.updateMaximumCapacity(serverAgent.getCurrentMaximumCapacity(), powerInUse);
+			serverAgentNode.updateTraffic(serverAgent.resources().getCPUUsage(null));
+			serverAgentNode.updateBackUpTraffic(backUpTraffic);
+			serverAgentNode.updateResources(inUseResources, powerConsumption, powerConsumptionBackUp);
 			serverAgentNode.updateJobsCount(getJobCount(serverAgent.getServerJobs()));
+			serverAgentNode.updateJobsOnHoldCount(getJobCount(serverAgent.getServerJobs(), JOB_ON_HOLD_STATUSES));
 			serverAgentNode.updateClientNumber(getJobCount(serverAgent.getServerJobs(), ACCEPTED_JOB_STATUSES));
 			serverAgentNode.updateIsActive(getIsActiveState());
-			serverAgentNode.updateTraffic(powerInUse);
-			serverAgentNode.updateBackUpTraffic(getBackUpPowerInUse(serverAgent.getServerJobs()));
-			serverAgentNode.updateJobsOnHoldCount(getJobCount(serverAgent.getServerJobs(), JOB_ON_HOLD_STATUSES));
 			serverAgentNode.updateCurrentJobSuccessRatio(successRatio);
 			writeStateToDatabase();
 		}
@@ -395,13 +359,13 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 				.forEach(jobEntry -> {
 					final ClientJob job = jobEntry.getKey();
 
-					if (getAvailableCapacity(job.getStartTime(), job.getEndTime(), mapToJobInstanceId(job),
-							EXECUTING_ON_BACK_UP.getStatuses()) >= job.getPower()) {
+					if (serverAgent.resources()
+							.getAvailableResources(job.getStartTime(), job.getEndTime(), mapToJobInstanceId(job),
+									EXECUTING_ON_BACK_UP.getStatuses()).areSufficient(job.getEstimatedResources())) {
 						final boolean hasStarted = jobEntry.getValue().equals(ON_HOLD_SOURCE_SHORTAGE);
 
 						MDC.put(MDC_JOB_ID, job.getJobId());
 						logger.info(SUPPLY_JOB_WITH_BACK_UP, job.getJobId());
-
 						serverAgent.getServerJobs().replace(job, EXECUTING_ON_BACK_UP.getStatus(hasStarted));
 						updateGUI();
 					}
@@ -409,7 +373,7 @@ public class ServerStateManagement extends AbstractStateManagement implements Se
 	}
 
 	private boolean getIsActiveState() {
-		return getCurrentPowerInUse(serverAgent.getServerJobs()) > 0
-				|| getBackUpPowerInUse(serverAgent.getServerJobs()) > 0;
+		return serverAgent.resources().getCPUUsage(null) > 0
+				|| serverAgent.resources().getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY)) > 0;
 	}
 }

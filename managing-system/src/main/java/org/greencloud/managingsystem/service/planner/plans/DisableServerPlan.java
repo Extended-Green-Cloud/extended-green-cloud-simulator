@@ -59,7 +59,7 @@ public class DisableServerPlan extends AbstractPlan {
 		idleServers.putAll(serverData.stream()
 				.filter(server -> canServerBeDisabled(serversWithTrafficInBounds).test(server))
 				.collect(toMap(AgentData::aid,
-						data -> ((ServerMonitoringData) data.monitoringData()).getCurrentMaximumCapacity())));
+						data -> ((ServerMonitoringData) data.monitoringData()).getIdlePowerConsumption())));
 
 		// consider servers which has not registered any data in database (i.e. did not accept any jobs)
 		idleServers.putAll(getServersNotInDatabase(serverData));
@@ -70,7 +70,7 @@ public class DisableServerPlan extends AbstractPlan {
 	/**
 	 * Method chooses the idle server to disable.
 	 * The server is chosen based on the following criteria:
-	 * 1. The server with the highest maximum capacity
+	 * 1. The server with the highest idle power consumption
 	 *
 	 * @return Constructed plan
 	 */
@@ -120,8 +120,7 @@ public class DisableServerPlan extends AbstractPlan {
 			return allServers.stream()
 					.filter(server -> server.getName().equals(serverAID.split("@")[0]))
 					.findFirst()
-					.map(ServerAgentArgs::getMaximumCapacity)
-					.map(Integer::parseInt)
+					.map(ServerAgentArgs::getIdlePower)
 					.orElseThrow();
 		};
 	}

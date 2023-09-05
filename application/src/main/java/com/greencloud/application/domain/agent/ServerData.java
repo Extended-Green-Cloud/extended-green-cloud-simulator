@@ -21,9 +21,9 @@ public interface ServerData {
 	double getServicePrice();
 
 	/**
-	 * @return power available in the server
+	 * @return power consumption in given server
 	 */
-	int getAvailablePower();
+	double getPowerConsumption();
 
 	/**
 	 * @return unique identifier of the given job of interest

@@ -58,6 +58,7 @@ export const LiveChartWrapper = ({ chart, title, data, additionalProps, disableT
             )}
          </div>
          <LiveChartGeneric {...{ chart, data, timeRestriction: selectedTime.value as number, additionalProps }} />
+         <></>
       </div>
    )
 }

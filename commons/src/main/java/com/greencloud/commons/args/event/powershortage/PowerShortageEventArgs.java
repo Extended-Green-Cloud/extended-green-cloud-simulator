@@ -25,11 +25,6 @@ public interface PowerShortageEventArgs extends EventArgs {
 	String getAgentName();
 
 	/**
-	 * @return new agent's maximum capacity during power shortage
-	 */
-	int getNewMaximumCapacity();
-
-	/**
 	 * @return flag informing if the event indicates power shortage start or finish
 	 */
 	boolean isFinished();
@@ -50,12 +45,6 @@ public interface PowerShortageEventArgs extends EventArgs {
 		if (!getType().equals(POWER_SHORTAGE_EVENT)) {
 			throw new InvalidScenarioEventStructure(
 					"Invalid event type. Acceptable event type is: POWER_SHORTAGE_EVENT");
-		}
-		if (getNewMaximumCapacity() < 0) {
-			throw new InvalidScenarioEventStructure(
-					String.format(
-							"Given maximum capacity: %d is invalid. The maximum capacity must be at least 0",
-							getNewMaximumCapacity()));
 		}
 	}
 }

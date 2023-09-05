@@ -1,21 +1,19 @@
 import React from 'react'
 
 import { LiveChartWrapper } from '@components'
-import { AdaptationGoal } from '@types'
 import LivePieChart from 'components/live-panel/live-chart-components/live-chart-types/live-pie-chart'
 import { getColorByName } from 'components/live-panel/config/live-panel-config'
-
-interface Props {
-   goals: AdaptationGoal[]
-}
+import { useSelector } from 'react-redux'
+import { RootState, selectAdaptationGoals } from '@store'
 
 /**
- * Live chart that displays the contirbution of goals in overall system quality
+ * Live chart that displays the contribution of goals in overall system quality
  *
  * @param {AdaptationGoal[]}[goals] - adaptation goals taken into account in the system
  * @returns JSX Element
  */
-export const GoalContributionLiveChart = ({ goals }: Props) => {
+export const GoalContributionLiveChart = () => {
+   const goals = useSelector((state: RootState) => selectAdaptationGoals(state))
    const generatePieData = () =>
       goals.map((goal) => ({
          name: goal.name,

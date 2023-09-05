@@ -21,9 +21,9 @@ public interface GreenSourceData {
 	double getAvailablePowerInTime();
 
 	/**
-	 * @return price for the 1kWh
+	 * @return price for supplying the energy for job execution
 	 */
-	double getPricePerPowerUnit();
+	double getPriceForEnergySupply();
 
 	/**
 	 * @return error associated with power calculations

@@ -29,11 +29,6 @@ public class HandlePostponeJobUpdate extends AbstractJobUpdateHandler {
 				JOB_RETRY_MINUTES_ADJUSTMENT);
 		final Instant postponedEnd = postponeTime(myClient.getJobExecution().getJobSimulatedEnd(),
 				JOB_RETRY_MINUTES_ADJUSTMENT);
-
-		if (!myClient.isSplit()) {
-			readjustJobTimeFrames(postponedStart, postponedEnd);
-		} else {
-			readjustJobPartTimeFrames(message.getContent(), postponedStart, postponedEnd);
-		}
+		readjustJobTimeFrames(postponedStart, postponedEnd);
 	}
 }

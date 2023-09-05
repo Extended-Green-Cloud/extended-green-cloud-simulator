@@ -6,8 +6,8 @@ import static java.util.Objects.isNull;
 import java.util.Optional;
 
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.agents.server.behaviour.powershortage.announcer.AnnounceServerPowerShortageFinish;
-import com.greencloud.application.agents.server.behaviour.powershortage.announcer.AnnounceServerPowerShortageStart;
+import com.greencloud.application.agents.server.behaviour.errorhandling.announcer.AnnounceInternalServerErrorFinish;
+import com.greencloud.application.agents.server.behaviour.errorhandling.announcer.AnnounceInternalServerErrorStart;
 import com.gui.agents.ServerAgentNode;
 import com.gui.event.domain.PowerShortageEvent;
 
@@ -45,9 +45,9 @@ public class SenseServerEvent extends TickerBehaviour {
 		final Optional<PowerShortageEvent> latestEvent = serverAgentNode.getEvent();
 		latestEvent.ifPresent(event -> {
 			if (event.isFinished()) {
-				myServerAgent.addBehaviour(new AnnounceServerPowerShortageFinish(myServerAgent));
+				myServerAgent.addBehaviour(new AnnounceInternalServerErrorFinish(myServerAgent));
 			} else {
-				myServerAgent.addBehaviour(new AnnounceServerPowerShortageStart(myServerAgent, event));
+				myServerAgent.addBehaviour(new AnnounceInternalServerErrorStart(myServerAgent, event));
 			}
 		});
 	}

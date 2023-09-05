@@ -24,6 +24,11 @@ enum EVENT_STATE {
 	INACTIVE = "INACTIVE",
 }
 
+enum ENERGY_TYPE {
+	SOLAR = "SOLAR",
+	WIND = "WIND",
+}
+
 enum EVENT_TYPE {
 	POWER_SHORTAGE_EVENT = "POWER_SHORTAGE_EVENT",
 	AGENT_CONNECTION_CHANGE = "AGENT_CONNECTION_CHANGE",
@@ -48,8 +53,6 @@ const INITIAL_POWER_SHORTAGE_STATE = {
 
 const INITIAL_NETWORK_AGENT_STATE = (data) => {
 	return {
-		initialMaximumCapacity: data.maximumCapacity,
-		currentMaximumCapacity: data.maximumCapacity,
 		traffic: 0,
 		numberOfExecutedJobs: 0,
 		numberOfJobsOnHold: 0,
@@ -63,6 +66,7 @@ export {
 	AGENT_TYPES,
 	EVENT_STATE,
 	EVENT_TYPE,
+	ENERGY_TYPE,
 	WELCOMING_MESSAGE,
 	ROUTE_TYPES,
 	INITIAL_POWER_SHORTAGE_STATE,

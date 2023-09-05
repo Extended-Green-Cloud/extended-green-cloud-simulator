@@ -6,16 +6,12 @@ import static com.greencloud.commons.agent.AgentType.SCHEDULER;
 import static java.util.Comparator.comparingDouble;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.scheduler.managment.SchedulerAdaptationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
@@ -33,14 +29,10 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected ConcurrentMap<ClientJob, JobExecutionStatusEnum> clientJobs;
 	protected ConcurrentMap<String, AID> cnaForJobMap;
 	protected List<AID> availableCloudNetworks;
-	protected Multimap<String, ClientJob> jobParts;
-	protected Set<String> failedJobs;
 
 	protected int deadlinePriority;
-	protected int powerPriority;
+	protected int cpuPriority;
 	protected int maximumQueueSize;
-	protected int jobSplitThreshold;
-	protected int splittingFactor;
 
 	/**
 	 * Default constructor.
@@ -48,11 +40,9 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 	protected AbstractSchedulerAgent() {
 		super();
 
-		this.jobParts = ArrayListMultimap.create();
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
-		this.failedJobs = new HashSet<>();
 		this.agentType = SCHEDULER;
 	}
 
@@ -88,22 +78,6 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		return availableCloudNetworks;
 	}
 
-	public Multimap<String, ClientJob> getJobParts() {
-		return jobParts;
-	}
-
-	public Set<String> getFailedJobs() {
-		return failedJobs;
-	}
-
-	public int getJobSplitThreshold() {
-		return jobSplitThreshold;
-	}
-
-	public int getSplittingFactor() {
-		return splittingFactor;
-	}
-
 	public int getDeadlinePriority() {
 		return deadlinePriority;
 	}
@@ -112,12 +86,12 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent {
 		this.deadlinePriority = deadlinePriority;
 	}
 
-	public int getPowerPriority() {
-		return powerPriority;
+	public int getCPUPriority() {
+		return cpuPriority;
 	}
 
-	public void setPowerPriority(int powerPriority) {
-		this.powerPriority = powerPriority;
+	public void setCPUPriority(int cpuPriority) {
+		this.cpuPriority = cpuPriority;
 	}
 
 	@VisibleForTesting

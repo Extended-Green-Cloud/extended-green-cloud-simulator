@@ -68,13 +68,13 @@ public class EnableServerPlan extends AbstractPlan {
 		// getting servers data
 		consideredServers = disabledServers.stream()
 				.collect(toMap(AgentData::aid,
-						data -> ((ServerMonitoringData) data.monitoringData()).getCurrentMaximumCapacity()));
+						data -> ((ServerMonitoringData) data.monitoringData()).getIdlePowerConsumption()));
 
 		return true;
 	}
 
 	/**
-	 * The plan select the server that has the highest capacity among available candidates
+	 * The plan select the server that has the lowest idle power consumption
 	 *
 	 * @return prepared adaptation plan
 	 */

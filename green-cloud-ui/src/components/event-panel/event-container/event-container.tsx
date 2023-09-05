@@ -1,7 +1,7 @@
 import { EVENT_MAP } from './event-container-config'
 import { styles } from './event-container-styles'
 
-import { Agent, AgentEvent, CommonNetworkAgentInterface, EventType, PowerShortageEventData } from '@types'
+import { Agent, AgentEvent, EventType, PowerShortageEventData } from '@types'
 import PowerShortageCard from 'components/event-panel/power-shortage-event/power-shortage-event'
 import Collapse from 'components/common/collapse/collapse'
 
@@ -37,8 +37,7 @@ const EventContainer = ({ selectedAgent, event, triggerPowerShortage }: Props) =
             case EventType.POWER_SHORTAGE_EVENT: {
                const label = eventEntry.labels[event.state].toUpperCase()
                const agentName = selectedAgent?.name
-               const maxCapacity = (selectedAgent as CommonNetworkAgentInterface).initialMaximumCapacity
-               return <PowerShortageCard {...{ event, label, agentName, maxCapacity, triggerPowerShortage }} />
+               return <PowerShortageCard {...{ event, label, agentName, triggerPowerShortage }} />
             }
          }
       }

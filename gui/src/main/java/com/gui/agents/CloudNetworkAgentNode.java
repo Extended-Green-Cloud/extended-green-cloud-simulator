@@ -14,17 +14,19 @@ import com.gui.message.ImmutableSetNumericValueMessage;
 public class CloudNetworkAgentNode extends AbstractNetworkAgentNode {
 
 	private final List<String> serverAgents;
+	private final double maxServersCpu;
 
 	/**
 	 * Cloud network node constructor
 	 *
-	 * @param name            name of the node
-	 * @param maximumCapacity maximum capacity of cloud network
-	 * @param serverAgents    list of server agents names
+	 * @param name         name of the node
+	 * @param maxCpu       maximal servers cpu
+	 * @param serverAgents list of server agents names
 	 */
-	public CloudNetworkAgentNode(String name, double maximumCapacity, List<String> serverAgents) {
-		super(name, maximumCapacity);
+	public CloudNetworkAgentNode(String name, final double maxCpu, List<String> serverAgents) {
+		super(name);
 		this.serverAgents = serverAgents;
+		this.maxServersCpu = maxCpu;
 	}
 
 	@Override
@@ -33,8 +35,8 @@ public class CloudNetworkAgentNode extends AbstractNetworkAgentNode {
 				.agentType("CLOUD_NETWORK")
 				.data(ImmutableCloudNetworkNodeArgs.builder()
 						.name(agentName)
+						.maxServersCpu(maxServersCpu)
 						.serverAgents(serverAgents)
-						.maximumCapacity(initialMaximumCapacity.get())
 						.build())
 				.build());
 	}

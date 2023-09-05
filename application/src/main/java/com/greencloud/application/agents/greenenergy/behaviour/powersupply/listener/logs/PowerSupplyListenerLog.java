@@ -8,6 +8,8 @@ public class PowerSupplyListenerLog {
 	// POWER SUPPLY REQUEST LOG MESSAGE
 	public static final String INCORRECT_WEATHER_DATA_FORMAT_LOG =
 			"I didn't understand the response with the weather data, sending refuse message to server";
+	public static final String NO_ENERGY_LOG =
+			"There is not enough energy to provide for job {}. Sending refuse message.";
 	public static final String WEATHER_UNAVAILABLE_FOR_JOB_LOG =
 			"Weather data not available, sending refuse message to server.";
 	public static final String TOO_BAD_WEATHER_LOG =
@@ -21,6 +23,5 @@ public class PowerSupplyListenerLog {
 	public static final String FINISH_POWER_SUPPLY_LOG = "Finish the execution of the job {}";
 	public static final String START_POWER_SUPPLY_LOG = "Started the execution of the job with id {}";
 
-	// JOB CANCELLING LOG MESSAGES
-	public static final String CANCEL_JOB_LOG = "Cancelling job part {}!";
+	public static final String JOB_NOT_FOUND = "Job {} was not found.";
 }

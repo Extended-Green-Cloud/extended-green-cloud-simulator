@@ -13,6 +13,7 @@ import static com.greencloud.application.messages.factory.ReplyMessageFactory.pr
 import static com.greencloud.application.messages.factory.ReplyMessageFactory.prepareReply;
 import static com.greencloud.application.utils.JobUtils.getJobByInstanceIdAndServer;
 import static com.greencloud.application.utils.MessagingUtils.readMessageContent;
+import static com.greencloud.application.utils.TimeUtils.differenceInHours;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.ACCEPTED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FAILED;
@@ -63,7 +64,9 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 	 */
 	public static InitiatePowerSupplyOffer create(final GreenEnergyAgent agent, final ServerJob job,
 			final double availablePower, final ACLMessage serverMessage, final MonitoringData data) {
-		final ACLMessage offer = prepareGreenEnergyPowerSupplyOffer(agent, availablePower,
+		final double energyCost = differenceInHours(job.getStartTime(), job.getEndTime())
+				* agent.getPricePerPowerUnit();
+		final ACLMessage offer = prepareGreenEnergyPowerSupplyOffer(energyCost, availablePower,
 				agent.power().computeCombinedPowerError(job),
 				job.getJobId(), serverMessage);
 
@@ -86,11 +89,11 @@ public class InitiatePowerSupplyOffer extends ProposeInitiator {
 
 		if (nonNull(job)) {
 			final Optional<Double> averageAvailablePower =
-					myGreenEnergyAgent.power().getAvailablePower(job, weather, true);
+					myGreenEnergyAgent.power().getAvailableEnergy(job, weather, true);
 			myGreenEnergyAgent.manage().incrementJobCounter(jobInstance, ACCEPTED);
 
 			MDC.put(MDC_JOB_ID, job.getJobId());
-			if (averageAvailablePower.isEmpty() || job.getPower() > averageAvailablePower.get()) {
+			if (averageAvailablePower.isEmpty() || job.getEstimatedEnergy() > averageAvailablePower.get()) {
 				sendPowerFailureMessage(job, jobWithProtocol, acceptProposal);
 			} else {
 				sendPowerConfirmationMessage(job, jobWithProtocol, acceptProposal);

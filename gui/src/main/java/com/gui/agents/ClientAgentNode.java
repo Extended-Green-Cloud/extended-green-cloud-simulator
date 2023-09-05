@@ -3,28 +3,23 @@ package com.gui.agents;
 import static com.gui.websocket.WebSocketConnections.getClientsWebSocket;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
-import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.domain.job.ClientJob;
+import com.greencloud.commons.args.agent.client.ClientNodeArgs;
 import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetClientJobDurationMapMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
 import com.gui.message.ImmutableSetClientJobTimeFrameMessage;
-import com.gui.message.ImmutableSplitJobMessage;
 import com.gui.message.ImmutableUpdateJobExecutionProportionMessage;
-import com.gui.message.domain.ImmutableJobStatus;
 import com.gui.message.domain.ImmutableJobTimeFrame;
-import com.gui.message.domain.ImmutableSplitJob;
 
 /**
  * Agent node class representing the client
  */
 public class ClientAgentNode extends AbstractAgentNode {
 
-	private ClientAgentArgs args;
+	private ClientNodeArgs args;
 
 	public ClientAgentNode() {
 		super();
@@ -35,7 +30,7 @@ public class ClientAgentNode extends AbstractAgentNode {
 	 *
 	 * @param args arguments provided for client agent creation
 	 */
-	public ClientAgentNode(ClientAgentArgs args) {
+	public ClientAgentNode(ClientNodeArgs args) {
 		super(args.getName());
 		this.args = args;
 	}
@@ -55,42 +50,7 @@ public class ClientAgentNode extends AbstractAgentNode {
 	 */
 	public void updateJobStatus(final JobClientStatusEnum clientJobStatusEnum) {
 		getClientsWebSocket().send(ImmutableSetClientJobStatusMessage.builder()
-				.data(ImmutableJobStatus.builder()
-						.status(clientJobStatusEnum.getStatus())
-						.splitJobId(null)
-						.build())
-				.agentName(agentName)
-				.build());
-	}
-
-	/**
-	 * Function to inform about a job split
-	 *
-	 * @param jobParts job parts created after the split
-	 */
-	public void informAboutSplitJob(List<ClientJob> jobParts) {
-		getClientsWebSocket().send(ImmutableSplitJobMessage.builder()
-				.addAllData(jobParts.stream().map(jobPart -> ImmutableSplitJob.builder()
-						.power(jobPart.getPower())
-						.start(jobPart.getStartTime())
-						.end(jobPart.getEndTime())
-						.splitJobId(jobPart.getJobId())
-						.build()).toList())
-				.jobId(args.getJobId())
-				.build());
-	}
-
-	/**
-	 * Function informs about the job status for a part of job
-	 *
-	 * @param clientJobStatusEnum new job status
-	 */
-	public void updateJobStatus(final JobClientStatusEnum clientJobStatusEnum, String jobPartId) {
-		getClientsWebSocket().send(ImmutableSetClientJobStatusMessage.builder()
-				.data(ImmutableJobStatus.builder()
-						.status(clientJobStatusEnum.getStatus())
-						.splitJobId(jobPartId)
-						.build())
+				.status(clientJobStatusEnum.getStatus())
 				.agentName(agentName)
 				.build());
 	}
@@ -106,23 +66,6 @@ public class ClientAgentNode extends AbstractAgentNode {
 				.data(ImmutableJobTimeFrame.builder()
 						.start(jobStart)
 						.end(jobEnd)
-						.build())
-				.agentName(agentName)
-				.build());
-	}
-
-	/**
-	 * Function informs about the job time frame change for a part of job
-	 *
-	 * @param jobStart new job start time
-	 * @param jobEnd   new job end time
-	 */
-	public void updateJobTimeFrame(final Instant jobStart, final Instant jobEnd, String jobPartId) {
-		getClientsWebSocket().send(ImmutableSetClientJobTimeFrameMessage.builder()
-				.data(ImmutableJobTimeFrame.builder()
-						.start(jobStart)
-						.end(jobEnd)
-						.splitJobId(jobPartId)
 						.build())
 				.agentName(agentName)
 				.build());

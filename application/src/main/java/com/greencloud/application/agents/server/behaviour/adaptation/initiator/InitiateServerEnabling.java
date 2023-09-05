@@ -7,7 +7,6 @@ import static com.greencloud.application.messages.factory.ReplyMessageFactory.pr
 import static com.greencloud.application.messages.factory.ReplyMessageFactory.prepareInformReply;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
@@ -68,7 +67,6 @@ public class InitiateServerEnabling extends AchieveREInitiator {
 		final ACLMessage confirmationMessage = MessageBuilder.builder()
 				.withPerformative(INFORM)
 				.withMessageProtocol(ENABLE_SERVER_PROTOCOL)
-				.withStringContent(valueOf(myServerAgent.getInitialMaximumCapacity()))
 				.withReceivers(myServerAgent.getOwnerCloudNetworkAgent())
 				.build();
 

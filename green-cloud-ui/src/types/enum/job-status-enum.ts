@@ -1,4 +1,5 @@
 export enum JobStatus {
+   SCHEDULED = 'SCHEDULED',
    CREATED = 'CREATED',
    PROCESSED = 'PROCESSED',
    IN_PROGRESS = 'IN PROGRESS',

@@ -9,8 +9,6 @@ import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.utils.JobUtils.calculateExpectedJobEndTime;
 import static com.greencloud.application.utils.JobUtils.getJobCount;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
-import static com.greencloud.application.utils.PowerUtils.getCurrentPowerInUse;
-import static com.greencloud.application.utils.PowerUtils.getPowerPercent;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.ACCEPTED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FAILED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FINISH;
@@ -104,11 +102,10 @@ public class GreenEnergyStateManagement extends AbstractStateManagement {
 	 *
 	 * @param jobTransfer job transfer information
 	 * @param originalJob original job that is to be divided
-	 * @return Pair of new job instances
 	 */
-	public JobDivided<ServerJob> divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
+	public void divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
 			final ServerJob originalJob) {
-		return super.divideJobForPowerShortage(jobTransfer, originalJob, greenEnergyAgent.getServerJobs());
+		super.divideJobForPowerShortage(jobTransfer, originalJob, greenEnergyAgent.getServerJobs());
 	}
 
 	@Override
@@ -147,14 +144,15 @@ public class GreenEnergyStateManagement extends AbstractStateManagement {
 		if (nonNull(greenEnergyAgentNode)) {
 			final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
 					jobCounters.get(FAILED).getCount());
-			final int powerInUse = getCurrentPowerInUse(greenEnergyAgent.getServerJobs());
+			final double energyInUse = greenEnergyAgent.power().getCurrentEnergyInUse();
+			final double traffic = energyInUse / greenEnergyAgent.getMaximumGeneratorCapacity();
+			final int jobsOnHold = getJobCount(greenEnergyAgent.getServerJobs(), JOB_ON_HOLD_STATUSES);
 
-			greenEnergyAgentNode.updateMaximumCapacity(greenEnergyAgent.getCurrentMaximumCapacity(), powerInUse);
 			greenEnergyAgentNode.updateJobsCount(getJobCount(greenEnergyAgent.getServerJobs()));
-			greenEnergyAgentNode.updateJobsOnHoldCount(
-					getJobCount(greenEnergyAgent.getServerJobs(), JOB_ON_HOLD_STATUSES));
+			greenEnergyAgentNode.updateJobsOnHoldCount(jobsOnHold);
+			greenEnergyAgentNode.updateTraffic(traffic);
+			greenEnergyAgentNode.updateEnergyInUse(energyInUse);
 			greenEnergyAgentNode.updateIsActive(getIsActiveState());
-			greenEnergyAgentNode.updateTraffic(powerInUse);
 			greenEnergyAgentNode.updateCurrentJobSuccessRatio(successRatio);
 			saveMonitoringData();
 		}
@@ -169,22 +167,21 @@ public class GreenEnergyStateManagement extends AbstractStateManagement {
 	}
 
 	private void saveMonitoringData() {
-		final double trafficOverall = getPowerPercent(getCurrentPowerInUse(greenEnergyAgent.getServerJobs()),
-				greenEnergyAgent.getCurrentMaximumCapacity());
 		final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
 				jobCounters.get(FAILED).getCount());
 
 		final GreenSourceMonitoringData greenSourceMonitoring = ImmutableGreenSourceMonitoringData.builder()
-				.currentTraffic(trafficOverall)
 				.weatherPredictionError(greenEnergyAgent.getWeatherPredictionError())
 				.successRatio(successRatio)
+				.currentTraffic(greenEnergyAgent.power().getCurrentEnergyInUse()
+						/ greenEnergyAgent.getMaximumGeneratorCapacity())
 				.isBeingDisconnected(greenEnergyAgent.adapt().getDisconnectionState().isBeingDisconnected())
 				.build();
 		greenEnergyAgent.writeMonitoringData(GREEN_SOURCE_MONITORING, greenSourceMonitoring);
 	}
 
 	private boolean getIsActiveState() {
-		return getCurrentPowerInUse(greenEnergyAgent.getServerJobs()) > 0
+		return greenEnergyAgent.power().getCurrentEnergyInUse() > 0
 				|| getJobCount(greenEnergyAgent.getServerJobs(), JOB_ON_HOLD_STATUSES) > 0;
 	}
 }

@@ -62,8 +62,18 @@ export function* watchGetClientState() {
  */
 export function* watchGetAgentState() {
    while (true) {
+      const selectedTab: MenuTab = yield select(selectSelectedTab)
       yield take(GET_AGENT_DATA)
-      yield call(getAgentData)
+
+      if (selectedTab === MenuTab.AGENTS) {
+         yield race({
+            fetch: call(getAgentData),
+            finish: take(cloudNetworkActions.closeServerConnection),
+            changeTab: take(navigatorActions.setSelectedTab)
+         })
+      } else {
+         yield call(getAgentData)
+      }
    }
 }
 

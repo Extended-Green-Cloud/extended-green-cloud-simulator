@@ -1,9 +1,10 @@
 import { AGENT_TYPES } from "../../constants";
 import { ReportEntry } from "../../types";
 import { ReportEventEntry } from "../../types/report-event-entry-type";
+import { Agent } from "./types";
 
 interface AgentsState {
-	agents: any[];
+	agents: Agent[];
 }
 
 interface AgentsReports {

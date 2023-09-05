@@ -22,7 +22,6 @@ interface Props {
 const ClientStatisticsSelect = ({ clients, selectedClient, setSelectedClient, updateClientData }: Props) => {
    const { selectorContainer, iconContainer } = styles
    const [jobStatusMap, setJobStatusMap] = useState<DropdownOption[]>(JOB_STATUS_MAP)
-   const [splitFilter, setSplitFilter] = useState<boolean | null>(null)
    const [isOpen, setIsOpen] = useState<boolean>(false)
 
    useEffect(() => {
@@ -36,18 +35,12 @@ const ClientStatisticsSelect = ({ clients, selectedClient, setSelectedClient, up
       updateClientData()
    }
 
-   const changeSplitFilter = (newValue: boolean | null) => {
-      setSelectedClient(null)
-      setSplitFilter(newValue)
-   }
-
    return (
       <div>
          <FilterModal
             {...{
                jobStatusMap,
                setJobStatusMap,
-               setSplitFilter: changeSplitFilter,
                isOpen,
                setIsOpen
             }}
@@ -61,8 +54,7 @@ const ClientStatisticsSelect = ({ clients, selectedClient, setSelectedClient, up
                   selectedClient,
                   clients,
                   jobStatusMap,
-                  changeSelectedClient,
-                  splitFilter
+                  changeSelectedClient
                }}
             />
          </div>

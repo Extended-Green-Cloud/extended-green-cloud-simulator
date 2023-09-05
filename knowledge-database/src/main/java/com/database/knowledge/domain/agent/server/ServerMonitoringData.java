@@ -15,14 +15,19 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface ServerMonitoringData extends NetworkComponentMonitoringData {
 
 	/**
-	 * @return maximum capacity of the server at the given moment
+	 * @return idle power consumption of given server
 	 */
-	int getCurrentMaximumCapacity();
+	int getIdlePowerConsumption();
 
 	/**
-	 * @return current back up power usage
+	 * @return current power consumption of given server
 	 */
-	double getCurrentBackUpPowerUsage();
+	double getCurrentPowerConsumption();
+
+	/**
+	 * @return current back up power CPU utilization
+	 */
+	double getCurrentBackUpPowerTraffic();
 
 	/**
 	 * @return number of jobs accepted by the server

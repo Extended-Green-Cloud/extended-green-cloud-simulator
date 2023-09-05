@@ -1,10 +1,8 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler;
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.handler.logs.PowerShortageSourceHandlerLog.POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.application.utils.PowerUtils.updateAgentMaximumCapacity;
 import static com.greencloud.application.utils.TimeUtils.alignStartTimeToCurrentTime;
-import static java.util.Objects.nonNull;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -28,30 +26,30 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 	private static final Logger logger = getLogger(HandleSourcePowerShortage.class);
 	private final GreenEnergyAgent myGreenEnergyAgent;
 	private final List<ServerJob> jobsToHalt;
-	private final Integer newMaximumCapacity;
+	private final boolean setError;
 
 	private HandleSourcePowerShortage(final Agent myAgent, final Date powerShortageStart,
-			final List<ServerJob> jobsToHalt, final Integer newMaximumCapacity) {
+			final List<ServerJob> jobsToHalt, final boolean setError) {
 		super(myAgent, powerShortageStart);
 
 		this.myGreenEnergyAgent = (GreenEnergyAgent) myAgent;
 		this.jobsToHalt = jobsToHalt;
-		this.newMaximumCapacity = newMaximumCapacity;
+		this.setError = setError;
 	}
 
 	/**
 	 * Method creates the behaviour
 	 *
-	 * @param jobsToHalt         list of jobs which state should change upon power shortage
-	 * @param shortageStartTime  time when the power shortage begin
-	 * @param newMaximumCapacity updated capacity
-	 * @param agent              agent executing the behaviour
+	 * @param jobsToHalt        list of jobs which state should change upon power shortage
+	 * @param shortageStartTime time when the power shortage begin
+	 * @param agent             agent executing the behaviour
+	 * @param setError          flag indicating if the error should be set for green source
 	 * @return HandleSourcePowerShortage
 	 */
 	public static HandleSourcePowerShortage createFor(final List<ServerJob> jobsToHalt, final Instant shortageStartTime,
-			final Integer newMaximumCapacity, final GreenEnergyAgent agent) {
+			final GreenEnergyAgent agent, final boolean setError) {
 		final Instant startTime = alignStartTimeToCurrentTime(shortageStartTime);
-		return new HandleSourcePowerShortage(agent, Date.from(startTime), jobsToHalt, newMaximumCapacity);
+		return new HandleSourcePowerShortage(agent, Date.from(startTime), jobsToHalt, setError);
 	}
 
 	/**
@@ -66,8 +64,8 @@ public class HandleSourcePowerShortage extends WakerBehaviour {
 				logger.info(POWER_SHORTAGE_HANDLING_PUT_ON_HOLD_LOG, jobToHalt.getJobId());
 			}
 		});
-		if (nonNull(newMaximumCapacity)) {
-			updateAgentMaximumCapacity(newMaximumCapacity, myGreenEnergyAgent);
+		if (setError) {
+			myGreenEnergyAgent.setHasError(true);
 		}
 	}
 }

@@ -30,7 +30,12 @@ public interface GreenEnergyNodeArgs extends AgentArgs {
 	/**
 	 * @return maximum capacity of the server
 	 */
-	String getMaximumCapacity();
+	Long getMaximumCapacity();
+
+	/**
+	 * @return price for energy
+	 */
+	Long getPricePerPower();
 
 	/**
 	 * @return type of energy source

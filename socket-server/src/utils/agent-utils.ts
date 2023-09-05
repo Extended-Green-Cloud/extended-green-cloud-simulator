@@ -1,19 +1,45 @@
-import { INITIAL_NETWORK_AGENT_STATE, INITIAL_POWER_SHORTAGE_STATE, JOB_STATUSES } from "../constants/constants";
+import { INITIAL_POWER_SHORTAGE_STATE, JOB_STATUSES } from "../constants/constants";
 import { AGENT_TYPES } from "../constants/constants";
-import {
-	AGENTS_REPORTS_STATE,
-	changeCloudNetworkCapacityEvent,
-	addGreenSourcesToServer,
-	addServersToCNA,
-	Client,
-} from "../module";
+import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
+import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
+import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
+import { ServerAgent } from "../module/agents/types/server-agent";
 
 const getAgentByName = (agents: any[], agentName: string) => {
 	return agents.find((agent) => agent.name === agentName);
 };
 
+const getAgentsByName = (agents: any[], agentNames: string[]) => {
+	return agents.filter((agent) => agentNames.includes(agent.name));
+};
+
 const getAgentNodeById = (nodes: any[], id: string) => {
 	return nodes.find((node) => node.id === id);
+};
+
+const addGreenSourcesToServer = (data) => {
+	AGENTS_STATE.agents
+		.filter(
+			(el) =>
+				el.type === AGENT_TYPES.SERVER &&
+				el.name === data.serverAgent &&
+				!(el as ServerAgent).greenEnergyAgents.includes(data.name)
+		)
+		.forEach((server: ServerAgent) => server.greenEnergyAgents.push(data.name));
+};
+
+const addServersToCNA = (data) => {
+	AGENTS_STATE.agents
+		.filter(
+			(el) =>
+				el.type === AGENT_TYPES.CLOUD_NETWORK &&
+				el.name === data.cloudNetworkAgent &&
+				!(el as CloudNetworkAgent).serverAgents.includes(data.name)
+		)
+		.forEach((cna: CloudNetworkAgent) => {
+			cna.maxCpuInServers += data.cpu;
+			cna.serverAgents.push(data.name);
+		});
 };
 
 const registerClient = (data): Client => {
@@ -26,21 +52,19 @@ const registerClient = (data): Client => {
 		name,
 		isActive: false,
 		adaptation: "inactive",
-		isSplit: false,
-		splitJobs: [],
 		durationMap: null,
 		job: jobData,
 		jobExecutionProportion: 0,
 	};
 };
 
-const registerScheduler = (data) => {
+const registerScheduler = (data): SchedulerAgent => {
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: data.name,
 		type: AGENT_TYPES.SCHEDULER,
 		reports: {
 			deadlinePriorityReport: [],
-			powerPriorityReport: [],
+			cpuPriorityReport: [],
 			clientRequestReport: [],
 			queueCapacityReport: [],
 			trafficReport: [],
@@ -57,13 +81,12 @@ const registerScheduler = (data) => {
 	};
 };
 
-const registerCloudNetwork = (data) => {
+const registerCloudNetwork = (data): CloudNetworkAgent => {
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: data.name,
 		type: AGENT_TYPES.CLOUD_NETWORK,
 		reports: {
 			clientsReport: [],
-			capacityReport: [],
 			trafficReport: [],
 			successRatioReport: [],
 		},
@@ -72,17 +95,61 @@ const registerCloudNetwork = (data) => {
 
 	return {
 		type: AGENT_TYPES.CLOUD_NETWORK,
-		traffic: 0,
-		totalNumberOfClients: 0,
-		totalNumberOfExecutedJobs: 0,
 		events: [],
 		isActive: false,
 		adaptation: "inactive",
+		totalNumberOfClients: 0,
+		totalNumberOfExecutedJobs: 0,
+		maxCpuInServers: data.maxServersCpu,
+		traffic: 0,
+		successRatio: 0,
 		...data,
 	};
 };
 
-const registerGreenEnergy = (data) => {
+const registerServer = (data): ServerAgent => {
+	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)];
+
+	AGENTS_REPORTS_STATE.agentsReports.push({
+		name: data.name,
+		type: AGENT_TYPES.SERVER,
+		reports: {
+			trafficReport: [],
+			cpuInUseReport: [],
+			memoryInUseReport: [],
+			storageInUseReport: [],
+			powerConsumptionReport: [],
+			backUpPowerConsumptionReport: [],
+			successRatioReport: [],
+		},
+		events: [],
+	});
+
+	addServersToCNA(data);
+	changeCloudNetworkCapacityEvent(data.cloudNetworkAgent, data.name, data.initialMaximumCapacity, true, true);
+
+	return {
+		type: AGENT_TYPES.SERVER,
+		totalNumberOfClients: 0,
+		events,
+		isActive: false,
+		adaptation: "inactive",
+		traffic: 0,
+		backUpTraffic: 0,
+		inUseCpu: 0,
+		inUseMemory: 0,
+		inUseStorage: 0,
+		powerConsumption: 0,
+		powerConsumptionBackUp: 0,
+		numberOfClients: 0,
+		numberOfExecutedJobs: 0,
+		numberOfJobsOnHold: 0,
+		successRatio: 0,
+		...data,
+	};
+};
+
+const registerGreenEnergy = (data): GreenEnergyAgent => {
 	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)];
 
 	AGENTS_REPORTS_STATE.agentsReports.push({
@@ -91,7 +158,7 @@ const registerGreenEnergy = (data) => {
 		reports: {
 			trafficReport: [],
 			availableGreenPowerReport: [],
-			capacityReport: [],
+			energyInUseReport: [],
 			jobsOnGreenPowerReport: [],
 			jobsOnHoldReport: [],
 			successRatioReport: [],
@@ -106,40 +173,13 @@ const registerGreenEnergy = (data) => {
 		events,
 		isActive: false,
 		adaptation: "inactive",
-		availableGreenEnergy: 0,
 		connectedServers: [data.serverAgent],
-		...INITIAL_NETWORK_AGENT_STATE(data),
-		...data,
-	};
-};
-
-const registerServer = (data) => {
-	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)];
-
-	AGENTS_REPORTS_STATE.agentsReports.push({
-		name: data.name,
-		type: AGENT_TYPES.SERVER,
-		reports: {
-			trafficReport: [],
-			capacityReport: [],
-			successRatioReport: [],
-			greenPowerUsageReport: [],
-			backUpPowerUsageReport: [],
-		},
-		events: [],
-	});
-
-	addServersToCNA(data);
-	changeCloudNetworkCapacityEvent(data.cloudNetworkAgent, data.name, data.initialMaximumCapacity, true, true);
-
-	return {
-		type: AGENT_TYPES.SERVER,
-		totalNumberOfClients: 0,
-		backUpTraffic: 0,
-		events,
-		isActive: false,
-		adaptation: "inactive",
-		...INITIAL_NETWORK_AGENT_STATE(data),
+		traffic: 0,
+		energyInUse: 0,
+		numberOfExecutedJobs: 0,
+		numberOfJobsOnHold: 0,
+		successRatio: 0,
+		availableGreenEnergy: 0,
 		...data,
 	};
 };
@@ -173,6 +213,7 @@ const registerAgent = (data, type) => {
 
 export {
 	getAgentByName,
+	getAgentsByName,
 	getAgentNodeById,
 	registerClient,
 	registerScheduler,

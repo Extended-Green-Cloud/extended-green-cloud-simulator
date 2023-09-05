@@ -9,7 +9,7 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
 import static com.greencloud.application.mapper.JobMapper.mapToPowerShortageJob;
 import static com.greencloud.application.messages.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
-import static com.greencloud.application.messages.factory.PowerShortageMessageFactory.preparePowerShortageTransferRequest;
+import static com.greencloud.application.messages.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FINISH;
@@ -61,7 +61,7 @@ public class InitiateServerJobTransfer extends AchieveREInitiator {
 				.divideJobForPowerShortage(originalJob, shortageStartTime);
 		final JobPowerShortageTransfer transfer = mapToPowerShortageJob(originalJob.getJobInstanceId(), newJobInstances,
 				shortageStartTime);
-		final ACLMessage transferMessage = preparePowerShortageTransferRequest(transfer, originalJob.getServer());
+		final ACLMessage transferMessage = prepareJobTransferRequest(transfer, originalJob.getServer());
 
 		return new InitiateServerJobTransfer(agent, transferMessage, newJobInstances.getSecondInstance());
 	}

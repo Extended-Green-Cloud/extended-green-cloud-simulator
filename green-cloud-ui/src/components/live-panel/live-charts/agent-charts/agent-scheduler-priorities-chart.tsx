@@ -5,7 +5,7 @@ import { LiveChartDataCategory, LiveChartEntry } from '@types'
 import LiveBarOverTimeChart from 'components/live-panel/live-chart-components/live-chart-types/live-bar-over-time-chart'
 
 interface Props {
-   powerPriorityReport: LiveChartEntry[]
+   cpuPriorityReport: LiveChartEntry[]
    deadlinePriorityReport: LiveChartEntry[]
    title: string
 }
@@ -13,14 +13,14 @@ interface Props {
 /**
  * Live chart that displays the priorities of the scheduler over time
  *
- * @param {LiveChartEntry}[powerPriorityReport] - report of scheduler power priority
+ * @param {LiveChartEntry}[cpuPriorityReport] - report of scheduler power priority
  * @param {LiveChartEntry}[deadlinePriorityReport] - report of scheduler deadline priority
  * @param {string}[title] - title of the report
  * @returns JSX Element
  */
-export const SchedulerPrioritiesLiveChart = ({ powerPriorityReport, deadlinePriorityReport, title }: Props) => {
+export const SchedulerPrioritiesLiveChart = ({ cpuPriorityReport, deadlinePriorityReport, title }: Props) => {
    const chartData: LiveChartDataCategory[] = [
-      { name: 'power priority', color: 'var(--green-1)', statistics: powerPriorityReport },
+      { name: 'power priority', color: 'var(--green-1)', statistics: cpuPriorityReport },
       { name: 'deadline priority', color: 'var(--green-2)', statistics: deadlinePriorityReport }
    ]
 

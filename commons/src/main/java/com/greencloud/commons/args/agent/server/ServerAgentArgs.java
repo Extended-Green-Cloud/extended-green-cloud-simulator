@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.greencloud.commons.args.agent.AgentArgs;
+import com.greencloud.commons.domain.resources.HardwareResources;
 
 /**
  * Arguments of the Server Agent
@@ -21,31 +22,29 @@ public interface ServerAgentArgs extends AgentArgs {
 	String getOwnerCloudNetwork();
 
 	/**
-	 * @return maximum server capacity
+	 * @return maximum server power consumption (i.e. when CPU load is 100%)
 	 */
-	String getMaximumCapacity();
+	Integer getMaxPower();
+
+	/**
+	 * @return idle power consumption
+	 */
+	Integer getIdlePower();
+
+	/**
+	 * @return amount of hardware resources owned by server
+	 */
+	HardwareResources getResources();
 
 	/**
 	 * @return limit of jobs that can be processed at the same time
 	 */
-	String getJobProcessingLimit();
+	Integer getJobProcessingLimit();
 
 	/**
 	 * @return price per 1-hour
 	 */
-	String getPrice();
-
-	/**
-	 * @return location's latitude
-	 */
-	@Nullable
-	String getLatitude();
-
-	/**
-	 * @return location's longitude
-	 */
-	@Nullable
-	String getLongitude();
+	Double getPrice();
 
 	@Nullable
 	String getContainerId();

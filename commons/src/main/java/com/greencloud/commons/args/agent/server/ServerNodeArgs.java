@@ -24,7 +24,32 @@ public interface ServerNodeArgs extends AgentArgs {
 	List<String> getGreenEnergyAgents();
 
 	/**
-	 * @return maximum server capacity
+	 * @return maximal power of given server
 	 */
-	Double getMaximumCapacity();
+	Long getMaxPower();
+
+	/**
+	 * @return idle power of given server
+	 */
+	Long getIdlePower();
+
+	/**
+	 * @return number of CPU cores of given server
+	 */
+	Long getCpu();
+
+	/**
+	 * @return memory of given server
+	 */
+	Long getMemory();
+
+	/**
+	 * @return storage of given server
+	 */
+	Long getStorage();
+
+	/**
+	 * @return price per power unit of given server
+	 */
+	Double getPrice();
 }

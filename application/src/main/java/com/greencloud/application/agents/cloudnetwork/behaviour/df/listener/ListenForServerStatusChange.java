@@ -7,10 +7,6 @@ import static com.greencloud.application.messages.constants.MessageProtocolConst
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.ENABLE_SERVER_PROTOCOL;
 import static com.greencloud.application.messages.factory.ReplyMessageFactory.prepareInformReply;
 import static com.greencloud.application.messages.factory.ReplyMessageFactory.prepareRefuseReply;
-import static com.greencloud.application.utils.PowerUtils.updateAgentMaximumCapacity;
-import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.ACLMessage.REQUEST;
-import static java.lang.Double.parseDouble;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Objects;
@@ -50,11 +46,7 @@ public class ListenForServerStatusChange extends CyclicBehaviour {
 		final ACLMessage msg = myCloudNetworkAgent.receive(SERVER_STATUS_CHANGE_TEMPLATE);
 
 		if (Objects.nonNull(msg)) {
-			switch (msg.getPerformative()) {
-				case REQUEST -> handleServerStatusChangeRequest(msg);
-				case INFORM -> handleServerStatusChangeCompletion(msg);
-				default -> block();
-			}
+			handleServerStatusChangeRequest(msg);
 		} else {
 			block();
 		}
@@ -73,13 +65,6 @@ public class ListenForServerStatusChange extends CyclicBehaviour {
 			logger.info(SERVER_FOR_STATUS_CHANGE_NOT_FOUND_LOG, action, serverWithStatusChange.getLocalName());
 			myCloudNetworkAgent.send(prepareRefuseReply(request));
 		}
-	}
-
-	private void handleServerStatusChangeCompletion(final ACLMessage msg) {
-		final double newNetworkCapacity = msg.getProtocol().equals(DISABLE_SERVER_PROTOCOL) ?
-				myCloudNetworkAgent.getMaximumCapacity() - parseDouble(msg.getContent()) :
-				myCloudNetworkAgent.getMaximumCapacity() + parseDouble(msg.getContent());
-		updateAgentMaximumCapacity(newNetworkCapacity, myCloudNetworkAgent);
 	}
 
 }

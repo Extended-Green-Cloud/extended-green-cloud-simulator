@@ -3,6 +3,7 @@ import React from 'react'
 interface Styles {
    clientStatistics: React.CSSProperties
    clientContent: React.CSSProperties
+   configurationWrapper: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -16,5 +17,8 @@ export const styles: Styles = {
       overflowX: 'hidden',
       overflowY: 'scroll',
       height: '100%'
+   },
+   configurationWrapper: {
+      marginBottom: '20px'
    }
 }

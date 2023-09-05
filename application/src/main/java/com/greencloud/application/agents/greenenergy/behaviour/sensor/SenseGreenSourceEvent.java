@@ -50,7 +50,7 @@ public class SenseGreenSourceEvent extends TickerBehaviour {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortageFinish(myGreenEnergyAgent));
 			} else {
 				myGreenEnergyAgent.addBehaviour(new AnnounceSourcePowerShortage(myGreenEnergyAgent, null,
-						event.getOccurrenceTime(), (double) event.getNewMaximumCapacity(), event.getCause()));
+						event.getOccurrenceTime(), 0D, event.getCause()));
 				myGreenEnergyAgent.manage().getShortagesAccumulator().getAndIncrement();
 			}
 		});

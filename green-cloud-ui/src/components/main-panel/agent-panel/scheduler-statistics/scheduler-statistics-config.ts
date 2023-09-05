@@ -4,8 +4,8 @@ export const SCHEDULER_CONFIGURATION = [
       label: 'Schedule priority with respect to deadline'
    },
    {
-      key: 'powerPriority',
-      label: 'Schedule priority with respect to job power'
+      key: 'cpuPriority',
+      label: 'Schedule priority with respect to job CPU usage'
    },
    { key: 'maxQueueSize', label: 'Maximum number of scheduled jobs' }
 ]

@@ -72,7 +72,7 @@ const getClientsState = () => {
 		clients: CLIENTS_STATE.clients.map((client) => ({
 			name: client.name,
 			status: client.status,
-			isSplit: client.isSplit,
+			processorName: client.job.processorName,
 		})),
 	};
 };

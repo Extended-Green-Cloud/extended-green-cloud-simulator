@@ -1,6 +1,7 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener;
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.FINISH_POWER_SUPPLY_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.JOB_NOT_FOUND;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.logs.PowerSupplyListenerLog.START_POWER_SUPPLY_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powersupply.listener.template.PowerSupplyMessageTemplates.POWER_SUPPLY_STATUS_TEMPLATE;
 import static com.greencloud.application.agents.greenenergy.constants.GreenEnergyAgentConstants.MAX_NUMBER_OF_SERVER_MESSAGES;
@@ -69,6 +70,9 @@ public class ListenForPowerSupplyStatus extends CyclicBehaviour {
 						case FINISH_JOB_ID -> handlePowerSupplyFinish(serverJob, jobInstanceId);
 						case STARTED_JOB_ID -> handlePowerSupplyStart(serverJob, jobInstanceId);
 					}
+				} else {
+					MDC.put(MDC_JOB_ID, jobStatusUpdate.getJobInstance().getJobId());
+					logger.info(JOB_NOT_FOUND, jobInstanceId.getJobInstanceId());
 				}
 			});
 		} else {

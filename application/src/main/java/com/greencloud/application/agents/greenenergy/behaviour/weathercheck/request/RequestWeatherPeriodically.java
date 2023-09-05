@@ -8,7 +8,6 @@ import static com.greencloud.application.agents.greenenergy.behaviour.weatherche
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.logs.WeatherCheckRequestLog.WEATHER_UNAVAILABLE_LOG;
 import static com.greencloud.application.agents.greenenergy.constants.GreenEnergyAgentConstants.PERIODIC_WEATHER_CHECK_TIMEOUT;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
-import static com.greencloud.application.utils.PowerUtils.getPowerPercent;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.WEATHER_CAUSE;
@@ -66,7 +65,7 @@ public class RequestWeatherPeriodically extends TickerBehaviour implements Seria
 			}
 			final Instant time = getCurrentTime();
 			final Instant realTime = convertToRealTime(time);
-			final double availablePower = myGreenEnergyAgent.power().getAvailablePower(realTime, data).orElse(-1.0);
+			final double availablePower = myGreenEnergyAgent.power().getAvailableEnergy(realTime, data).orElse(-1.0);
 
 			if (availablePower < 0 && !myGreenEnergyAgent.getServerJobs().isEmpty()) {
 				logger.info(POWER_DROP_LOG, time);
@@ -75,7 +74,7 @@ public class RequestWeatherPeriodically extends TickerBehaviour implements Seria
 			} else {
 				logger.info(NO_POWER_DROP_LOG, time);
 			}
-			reportAvailableEnergyData(myGreenEnergyAgent.power().getAvailableGreenPower(data, time));
+			reportAvailableEnergyData(myGreenEnergyAgent.power().getAvailableGreenEnergy(data, time));
 		};
 	}
 
@@ -83,13 +82,12 @@ public class RequestWeatherPeriodically extends TickerBehaviour implements Seria
 		return (Runnable & Serializable) () -> logger.info(WEATHER_UNAVAILABLE_LOG, getCurrentTime());
 	}
 
-	private void reportAvailableEnergyData(final double availablePower) {
-		final double currentMaximumCapacity = myGreenEnergyAgent.getCurrentMaximumCapacity();
-		final double energyPercentage = getPowerPercent(availablePower, currentMaximumCapacity);
+	private void reportAvailableEnergyData(final double availableEnergy) {
+		final double energyPercentage = myGreenEnergyAgent.power().getEnergyPercentage(availableEnergy);
 		myGreenEnergyAgent.writeMonitoringData(AVAILABLE_GREEN_ENERGY, new AvailableGreenEnergy(energyPercentage));
 
 		if (nonNull(myGreenEnergyAgent.getAgentNode())) {
-			((GreenEnergyAgentNode) myGreenEnergyAgent.getAgentNode()).updateGreenEnergyAmount(availablePower);
+			((GreenEnergyAgentNode) myGreenEnergyAgent.getAgentNode()).updateGreenEnergyAmount(availableEnergy);
 		}
 	}
 }

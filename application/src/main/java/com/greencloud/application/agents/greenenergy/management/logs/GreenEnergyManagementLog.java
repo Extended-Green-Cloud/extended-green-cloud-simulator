@@ -14,7 +14,7 @@ public class GreenEnergyManagementLog {
 			"New server job was accepted for execution. Number of accepted job instances is {}.";
 	public static final String POWER_JOB_FAILED_LOG =
 			"Server job execution failed. Number of total failed job instances is {}.";
-	public static final String AVERAGE_POWER_LOG = "Calculated available {} average power {} between {} and {}";
+	public static final String AVERAGE_POWER_LOG = "Calculated available {} average energy {} between {} and {}";
 	public static final String CURRENT_AVAILABLE_POWER_LOG = "Calculated available {} power {} at {}";
 
 	// POWER MANAGEMENT LOG MESSAGES

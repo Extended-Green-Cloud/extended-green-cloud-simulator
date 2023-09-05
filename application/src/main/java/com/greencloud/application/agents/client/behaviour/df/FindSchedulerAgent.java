@@ -1,7 +1,7 @@
 package com.greencloud.application.agents.client.behaviour.df;
 
+import static com.greencloud.application.agents.client.behaviour.df.logs.ClientDFLog.NO_SCHEDULER_FOUND_LOG;
 import static com.greencloud.application.agents.client.constants.ClientAgentConstants.SCHEDULER_AGENT;
-import static com.greencloud.application.agents.cloudnetwork.behaviour.df.subscribe.logs.CloudNetworkDFSubscribeLog.NO_SCHEDULER_FOUND_LOG;
 import static com.greencloud.application.utils.GuiUtils.announceNewClient;
 import static com.greencloud.application.yellowpages.YellowPagesService.search;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;

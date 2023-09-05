@@ -115,7 +115,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 
 	private Double getBackUpPowerForServer(final AgentData dataPerServer) {
 		final ServerMonitoringData data = (ServerMonitoringData) dataPerServer.monitoringData();
-		return data.getCurrentBackUpPowerUsage() / (data.getCurrentTraffic() + data.getCurrentBackUpPowerUsage());
+		return data.getCurrentBackUpPowerTraffic() / (data.getCurrentTraffic() + data.getCurrentBackUpPowerTraffic());
 
 	}
 }

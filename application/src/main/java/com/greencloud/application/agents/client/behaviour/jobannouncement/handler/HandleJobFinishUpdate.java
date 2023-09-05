@@ -1,6 +1,5 @@
 package com.greencloud.application.agents.client.behaviour.jobannouncement.handler;
 
-import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.ALL_PARTS_FINISHED_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_FINISHED_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_FINISH_DELAY_BEFORE_DEADLINE_LOG;
@@ -20,10 +19,8 @@ import org.slf4j.MDC;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.agents.client.domain.ClientJobExecution;
 import com.greencloud.application.agents.client.domain.enums.ClientJobUpdateEnum;
 import com.greencloud.application.domain.job.JobStatusUpdate;
-import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
 
 import jade.lang.acl.ACLMessage;
 
@@ -55,31 +52,12 @@ public class HandleJobFinishUpdate extends AbstractJobUpdateHandler {
 	 */
 	@Override
 	public void action() {
-		final JobClientStatusEnum jobStatus = updateEnum.getJobStatus();
 		final JobStatusUpdate jobUpdate = readMessageContent(message, JobStatusUpdate.class);
 		measureTimeToRetrieveTheMessage(jobUpdate);
-
-		if (!myClient.isSplit()) {
-			updateInformationOfJobStatusUpdate(jobUpdate);
-			checkIfJobFinishedOnTime(jobUpdate.getChangeTime(), myClient.getJobExecution().getJobSimulatedEnd(),
-					myClient.getJobExecution().getJobSimulatedDeadline());
-			shutdownAfterFinishedJob(myClient, CLIENT_JOB_FINISHED_LOG);
-			return;
-		}
-		updateInformationOfJobPartStatusUpdate(jobUpdate);
-
-		final String jobPartId = jobUpdate.getJobInstance().getJobId();
-		final ClientJobExecution jobPart = myClient.getJobParts().get(jobPartId);
-		checkIfJobFinishedOnTime(jobUpdate.getChangeTime(), jobPart.getJobSimulatedEnd(),
-				jobPart.getJobSimulatedDeadline());
-		myClient.manage().writeClientData(false);
-
-		if (myClient.manage().checkIfAllPartsMatchStatus(jobStatus)) {
-			MDC.put(MDC_JOB_ID, myClient.getJobExecution().getJob().getJobId());
-			checkIfJobFinishedOnTime(jobUpdate.getChangeTime(), myClient.getJobExecution().getJobSimulatedEnd(),
-					myClient.getJobExecution().getJobSimulatedDeadline());
-			shutdownAfterFinishedJob(myClient, ALL_PARTS_FINISHED_LOG);
-		}
+		updateInformationOfJobStatusUpdate(jobUpdate);
+		checkIfJobFinishedOnTime(jobUpdate.getChangeTime(), myClient.getJobExecution().getJobSimulatedEnd(),
+				myClient.getJobExecution().getJobSimulatedDeadline());
+		shutdownAfterFinishedJob(myClient, CLIENT_JOB_FINISHED_LOG);
 	}
 
 	@VisibleForTesting

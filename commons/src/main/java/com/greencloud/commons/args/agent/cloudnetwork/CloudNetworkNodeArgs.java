@@ -13,7 +13,7 @@ import com.greencloud.commons.args.agent.AgentArgs;
 @Value.Immutable
 public interface CloudNetworkNodeArgs extends AgentArgs {
 
-	Double getMaximumCapacity();
-
 	List<String> getServerAgents();
+
+	Double maxServersCpu();
 }

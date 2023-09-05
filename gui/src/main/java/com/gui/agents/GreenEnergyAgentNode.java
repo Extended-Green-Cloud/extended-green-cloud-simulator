@@ -23,10 +23,7 @@ import com.gui.message.domain.ImmutableServerConnection;
 public class GreenEnergyAgentNode extends AbstractNetworkAgentNode implements Serializable {
 
 	private Location location;
-	private String monitoringAgent;
-	private String serverAgent;
-	private String energyType;
-	private double weatherPredictionError;
+	private GreenEnergyAgentArgs greenEnergyAgentArgs;
 
 	public GreenEnergyAgentNode() {
 		super();
@@ -38,12 +35,9 @@ public class GreenEnergyAgentNode extends AbstractNetworkAgentNode implements Se
 	 * @param args arguments provided for green energy agent creation
 	 */
 	public GreenEnergyAgentNode(GreenEnergyAgentArgs args) {
-		super(args.getName(), parseDouble(args.getMaximumCapacity()));
+		super(args.getName());
 		this.location = new ImmutableLocation(parseDouble(args.getLatitude()), parseDouble(args.getLongitude()));
-		this.serverAgent = args.getOwnerSever();
-		this.monitoringAgent = args.getMonitoringAgent();
-		this.energyType = args.getEnergyType();
-		this.weatherPredictionError = Double.parseDouble(args.getWeatherPredictionError());
+		this.greenEnergyAgentArgs = args;
 	}
 
 	@Override
@@ -51,13 +45,14 @@ public class GreenEnergyAgentNode extends AbstractNetworkAgentNode implements Se
 		getAgentsWebSocket().send(ImmutableRegisterAgentMessage.builder()
 				.agentType("GREEN_ENERGY")
 				.data(ImmutableGreenEnergyNodeArgs.builder()
-						.maximumCapacity(String.valueOf(initialMaximumCapacity))
+						.monitoringAgent(greenEnergyAgentArgs.getMonitoringAgent())
+						.serverAgent(greenEnergyAgentArgs.getOwnerSever())
+						.maximumCapacity(greenEnergyAgentArgs.getMaximumCapacity())
 						.name(agentName)
 						.agentLocation(location)
-						.monitoringAgent(monitoringAgent)
-						.serverAgent(serverAgent)
-						.energyType(energyType)
-						.weatherPredictionError(weatherPredictionError * 100)
+						.energyType(greenEnergyAgentArgs.getEnergyType())
+						.pricePerPower(greenEnergyAgentArgs.getPricePerPowerUnit())
+						.weatherPredictionError(greenEnergyAgentArgs.getWeatherPredictionError() * 100)
 						.build())
 				.build());
 	}
@@ -72,6 +67,19 @@ public class GreenEnergyAgentNode extends AbstractNetworkAgentNode implements Se
 				.data(value * 100)
 				.agentName(agentName)
 				.type("SET_WEATHER_PREDICTION_ERROR")
+				.build());
+	}
+
+	/**
+	 * Function updates currently supplied energy amount
+	 *
+	 * @param energy currently supplied energy
+	 */
+	public void updateEnergyInUse(final double energy) {
+		getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
+				.data(energy)
+				.agentName(agentName)
+				.type("UPDATE_ENERGY_IN_USE")
 				.build());
 	}
 

@@ -1,7 +1,7 @@
 package com.greencloud.application.agents.scheduler.managment;
 
 import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.INCREASE_DEADLINE_WEIGHT_LOG;
-import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.INCREASE_POWER_WEIGHT_LOG;
+import static com.greencloud.application.agents.scheduler.managment.logs.SchedulerManagementLog.INCREASE_CPU_WEIGHT_LOG;
 import static com.greencloud.application.utils.AlgorithmUtils.nextFibonacci;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -42,10 +42,10 @@ public class SchedulerAdaptationManagement extends AbstractAgentManagement {
 	/**
 	 * Method increases the power weight to the next number in a Fibonacci sequence
 	 */
-	public boolean increasePowerWeight() {
-		final int oldPriority = schedulerAgent.getPowerPriority();
-		schedulerAgent.setPowerPriority(nextFibonacci(oldPriority));
-		logger.info(INCREASE_POWER_WEIGHT_LOG, oldPriority, schedulerAgent.getPowerPriority());
+	public boolean increaseCPUWeight() {
+		final int oldPriority = schedulerAgent.getCPUPriority();
+		schedulerAgent.setCPUPriority(nextFibonacci(oldPriority));
+		logger.info(INCREASE_CPU_WEIGHT_LOG, oldPriority, schedulerAgent.getCPUPriority());
 		schedulerAgent.manage().updateWeightsGUI();
 		return true;
 	}

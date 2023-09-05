@@ -54,3 +54,5 @@
 /rules-controller/target/
 /engine/src/main/resources/properties/*
 /engine/src/main/resources/scenarios/*
+/engine/strategy/logs/*
+/engine/src/main/resources/samples/syntheticData.json

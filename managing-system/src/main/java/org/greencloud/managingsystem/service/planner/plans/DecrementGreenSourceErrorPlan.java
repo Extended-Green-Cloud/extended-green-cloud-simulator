@@ -122,7 +122,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		}
 
 		final ToDoubleFunction<AgentData> getBackUpUsage =
-				data -> ((ServerMonitoringData) data.monitoringData()).getCurrentBackUpPowerUsage();
+				data -> ((ServerMonitoringData) data.monitoringData()).getCurrentBackUpPowerTraffic();
 		final Predicate<Map.Entry<String, Double>> isBackUpWithinThreshold = entry -> entry.getValue() > threshold;
 
 		return managingAgent.monitor().getAverageValuesForAgents(SERVER_MONITORING, aliveServers, getBackUpUsage)

@@ -10,15 +10,15 @@ import com.greencloud.commons.domain.job.PowerJob;
  */
 public class SubJobList<T extends PowerJob> {
 
-	public final int size;
+	public final double energySum;
 	public final List<T> subList;
 
 	public SubJobList() {
 		this(0, new ArrayList<>());
 	}
 
-	public SubJobList(int size, List<T> subList) {
-		this.size = size;
+	public SubJobList(double size, List<T> subList) {
+		this.energySum = size;
 		this.subList = subList;
 	}
 }

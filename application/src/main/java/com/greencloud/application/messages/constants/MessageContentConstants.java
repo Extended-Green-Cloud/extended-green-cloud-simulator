@@ -35,11 +35,4 @@ public class MessageContentConstants {
 	public static final String NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE = "NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE";
 	public static final String TRANSFER_SUCCESSFUL_MESSAGE = "TRANSFER_SUCCESSFUL_MESSAGE";
 	public static final String RE_SUPPLY_SUCCESSFUL_MESSAGE = "RE_SUPPLY_SUCCESSFUL_MESSAGE";
-
-	/**
-	 * Job cancellation content constants
-	 *
-	 * <p> COULD_NOT_CANCEL_MESSAGE - message content informing that cancellation was unsuccessful </p>
-	 */
-	public static final String COULD_NOT_CANCEL_MESSAGE = "COULD_NOT_CANCEL_MESSAGE";
 }

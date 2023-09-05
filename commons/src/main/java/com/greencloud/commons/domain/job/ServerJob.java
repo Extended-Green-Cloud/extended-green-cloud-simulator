@@ -21,4 +21,9 @@ public interface ServerJob extends PowerJob {
 	 * @return identifier of the server which sent the given job
 	 */
 	AID getServer();
+
+	/**
+	 * @return power required to execute a given job (value per single time unit)
+	 */
+	Double getEstimatedEnergy();
 }

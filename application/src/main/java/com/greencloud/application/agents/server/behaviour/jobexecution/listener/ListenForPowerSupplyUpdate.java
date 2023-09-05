@@ -15,7 +15,7 @@ import static com.greencloud.application.messages.constants.MessageProtocolConst
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
-import static com.greencloud.application.messages.factory.PowerShortageMessageFactory.prepareJobTransferUpdateMessageForCNA;
+import static com.greencloud.application.messages.factory.NetworkErrorMessageFactory.prepareJobTransferUpdateMessageForCNA;
 import static com.greencloud.application.utils.GuiUtils.announceBookedJob;
 import static com.greencloud.application.utils.JobUtils.getJobByInstanceId;
 import static com.greencloud.application.utils.JobUtils.isJobUnique;
@@ -43,7 +43,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
- * Behaviour listens for power supply update messages coming from Green Source
+ * Behaviour listens for energy supply update messages coming from Green Source
  */
 public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 
@@ -61,7 +61,7 @@ public class ListenForPowerSupplyUpdate extends CyclicBehaviour {
 	}
 
 	/**
-	 * Method listens for the messages coming from Green Source with updates regarding power supply state.
+	 * Method listens for the messages coming from Green Source with updates regarding energy supply state.
 	 * It considers both new jobs and job transfers.
 	 */
 	@Override

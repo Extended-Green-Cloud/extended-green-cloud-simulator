@@ -1,15 +1,16 @@
 import { styles } from './client-panel-styles'
-import { ClientAgent, ClientAgentStatus } from '@types'
+import { ClientAgent, ClientAgentStatus, JobStatus } from '@types'
 import SubtitleContainer from 'components/common/subtitle-container/subtitle-container'
 import { useEffect, useState } from 'react'
-import { CLIENT_STATISTICS } from './client-panel-config'
+import { CLIENT_STATISTIC_MAPS, ClientMapType, STATUS_COLOR } from './client-panel-config'
 import DetailsField from 'components/common/details-field/details-field'
 import Badge from 'components/common/badge/badge'
 import ClientStatisticsSelect from './client-select/client-select'
-import { Button, ModalButton } from 'components/common'
-import ClientSplitJobModal from './client-job-split-modal/client-job-split-modal'
+import { Button, Header } from 'components/common'
 import ClientJobDurationModal from './client-job-duration-modal/client-job-duration-modal'
-import { convertTimeToString } from 'utils/time-utils'
+import { convertSecondsToString, convertTimeToString } from 'utils/time-utils'
+import { getJobResourceVal } from 'utils/job-utils'
+import ClientJobStepModal from './client-job-step-modal/client-job-step-modal'
 
 const description = 'Select client from the list to diplay current job statistics'
 
@@ -26,9 +27,9 @@ interface Props {
  * @returns JSX Element
  */
 export const ClientPanel = ({ clients, selectedClient, setSelectedClient, updateClientData }: Props) => {
-   const [isOpen, setIsOpen] = useState(false)
    const [isDurationOpen, setIsDurationOpen] = useState(false)
-   const { clientContent, clientStatistics } = styles
+   const [isStepModalOpen, setIsStepModalOpen] = useState(false)
+   const { clientContent, clientStatistics, configurationWrapper } = styles
 
    useEffect(() => {
       if (clients.length === 0) {
@@ -36,9 +37,29 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
       }
    }, [clients])
 
-   const generateClientInfo = () => {
+   const durationButton = (
+      <Button
+         buttonClassName="small-gray-button predefined-width-button"
+         title="STATUS DURATION"
+         onClick={() => {
+            setIsDurationOpen(true)
+         }}
+      />
+   )
+
+   const stepsButton = (
+      <Button
+         buttonClassName="small-gray-button predefined-width-button"
+         title="JOB STEPS"
+         onClick={() => {
+            setIsStepModalOpen(true)
+         }}
+      />
+   )
+
+   const mapStatisticsType = (type: ClientMapType) => {
       if (selectedClient) {
-         return CLIENT_STATISTICS.map((field) => {
+         return CLIENT_STATISTIC_MAPS[type].map((field) => {
             const { key, label } = field
             const clientVal = {
                ...(selectedClient.job as any),
@@ -47,59 +68,22 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
                jobExecutionProportion: selectedClient.jobExecutionProportion as any
             }[key]
             const value = getClientValue(key, clientVal)
-            const property = ['status', 'durationMap'].includes(key) ? 'valueObject' : 'value'
+            const property = ['status', 'durationMap', 'steps'].includes(key) ? 'valueObject' : 'value'
 
             return <DetailsField {...{ label, [property]: value, key }} />
          })
       }
    }
 
-   const getClientValue = (key: string, clientVal: any) => {
-      if (key === 'status') {
-         return <Badge text={clientVal} />
-      }
-      if (key === 'durationMap') {
-         return (
-            <Button
-               buttonClassName="small-gray-button"
-               title="STATUS DURATION"
-               onClick={() => {
-                  setIsDurationOpen(true)
-               }}
-            />
-         )
-      }
-      if (key === 'start' || key === 'end') {
-         return typeof clientVal === 'number' ? convertTimeToString(clientVal) : clientVal
-      }
-      if (key === 'jobExecutionProportion') {
-         return `${Math.round(clientVal * 100)}%`
-      }
-      return clientVal
-   }
-
-   const getModalButton = (
-      <ModalButton
-         {...{
-            buttonClassName: 'small-green-button',
-            setIsOpen,
-            title: 'SPLIT JOBS'
-         }}
-      />
-   )
-
-   const getSplitJobModal = () => {
-      if (selectedClient?.isSplit) {
-         return (
-            <ClientSplitJobModal
-               {...{
-                  isOpen,
-                  setIsOpen,
-                  client: selectedClient
-               }}
-            />
-         )
-      }
+   const getClientValue = (key: string, value: any) => {
+      if (key === 'status') return <Badge text={value} color={STATUS_COLOR[value as JobStatus]} />
+      if (key === 'durationMap') return durationButton
+      if (key === 'steps') return stepsButton
+      if (key === 'start' || key === 'end') return typeof value === 'number' ? convertTimeToString(value) : value
+      if (key === 'jobExecutionProportion') return `${Math.round(value * 100)}%`
+      if (key === 'duration') return convertSecondsToString(value)
+      if (['cpu', 'memory', 'storage'].includes(key)) return getJobResourceVal(value)
+      return value
    }
 
    const getJobDurationModal = () => {
@@ -116,6 +100,30 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
       }
    }
 
+   const getStepModal = () => {
+      if (selectedClient && selectedClient.durationMap) {
+         return (
+            <ClientJobStepModal
+               {...{
+                  isOpen: isStepModalOpen,
+                  setIsOpen: setIsStepModalOpen,
+                  jobSteps: selectedClient.job.steps
+               }}
+            />
+         )
+      }
+   }
+
+   const generateClientsStatistics = () =>
+      (['HEADER', 'RESOURCES', 'TIMELINE', 'EXECUTION INFO'] as ClientMapType[]).map((type) => (
+         <div>
+            <div style={configurationWrapper}>
+               {type !== 'HEADER' && <Header {...{ text: type }} />}
+               {mapStatisticsType(type)}
+            </div>
+         </div>
+      ))
+
    return (
       <div style={clientContent}>
          <ClientStatisticsSelect {...{ clients, selectedClient, setSelectedClient, updateClientData }} />
@@ -123,14 +131,9 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
             <SubtitleContainer text={description} />
          ) : (
             <>
-               <div style={clientStatistics}>
-                  <DetailsField
-                     {...{ label: 'Client job parts', valueObject: selectedClient?.isSplit && getModalButton }}
-                  />
-                  {generateClientInfo()}
-               </div>
-               {getSplitJobModal()}
+               <div style={clientStatistics}>{generateClientsStatistics()}</div>
                {getJobDurationModal()}
+               {getStepModal()}
             </>
          )}
       </div>

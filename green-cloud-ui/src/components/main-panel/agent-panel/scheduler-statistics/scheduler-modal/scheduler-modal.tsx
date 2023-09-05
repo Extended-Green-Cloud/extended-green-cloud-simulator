@@ -2,7 +2,6 @@ import { ScheduledJob } from '@types'
 import { DetailsCard } from 'components/common'
 import Modal from 'components/common/modal/modal'
 import React from 'react'
-import { parseSplitJobId } from 'utils/string-utils'
 import { JOB_FIELD_CONFIG } from '../scheduler-statistics-config'
 import { styles } from './scheduler-modal-styles'
 
@@ -27,7 +26,7 @@ export const ScheduleModal = ({ isOpen, setIsOpen, jobs }: Props) => {
    const generateScheduledJobs = () => {
       const arrayCopy = [...(jobs ?? [])].reverse()
       return arrayCopy?.map((job) => {
-         const jobTitle = getJobTitle(job.jobId)
+         const jobTitle = `JOB ${job.jobId}`
          return (
             <DetailsCard
                {...{
@@ -38,11 +37,6 @@ export const ScheduleModal = ({ isOpen, setIsOpen, jobs }: Props) => {
             />
          )
       })
-   }
-
-   const getJobTitle = (jobId: string) => {
-      const isSplit = jobId.includes('#')
-      return ['JOB', isSplit ? parseSplitJobId(jobId) : jobId].join(' ')
    }
 
    return (

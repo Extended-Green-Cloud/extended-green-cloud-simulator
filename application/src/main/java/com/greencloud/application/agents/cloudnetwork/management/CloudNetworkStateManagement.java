@@ -7,8 +7,6 @@ import static com.greencloud.application.agents.cloudnetwork.management.logs.Clo
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_PROCESS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.management.logs.CloudNetworkManagementLog.COUNT_JOB_START_LOG;
 import static com.greencloud.application.utils.JobUtils.getJobSuccessRatio;
-import static com.greencloud.application.utils.PowerUtils.getCurrentPowerInUse;
-import static com.greencloud.application.utils.PowerUtils.getPowerPercent;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.ACCEPTED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FAILED;
 import static com.greencloud.commons.domain.job.enums.JobExecutionResultEnum.FINISH;
@@ -78,12 +76,14 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 			final int weight2 = cloudNetworkAgent.getWeightsForServersMap().get(offer2.getSender());
 
 			final Comparator<ServerData> comparator = (server1Data, server2Data) -> {
-				final int powerDifference =
-						(server1Data.getAvailablePower() * weight2) - (server2Data.getAvailablePower() * weight1);
+				final double powerConsumptionDiff =
+						(server1Data.getPowerConsumption() * weight2) - (server2Data.getPowerConsumption() * weight1);
 				final double priceDifference =
 						((server1Data.getServicePrice() * 1 / weight1) - (server2Data.getServicePrice() * 1 / weight2));
 
-				return MAX_POWER_DIFFERENCE.isValidIntValue(powerDifference) ? (int) priceDifference : powerDifference;
+				return MAX_POWER_DIFFERENCE.isValidIntValue((int) powerConsumptionDiff) ?
+						(int) priceDifference :
+						(int) powerConsumptionDiff;
 			};
 
 			return compareReceivedOffers(offer1, offer2, ServerData.class, comparator);
@@ -117,20 +117,16 @@ public class CloudNetworkStateManagement extends AbstractStateManagement {
 					jobCounters.get(FAILED).getCount());
 			cloudNetworkAgentNode.updateClientNumber(getScheduledJobs());
 			cloudNetworkAgentNode.updateJobsCount(getJobInProgressCount());
-			cloudNetworkAgentNode.updateTraffic(getCurrentPowerInUse(cloudNetworkAgent.getNetworkJobs()));
 			cloudNetworkAgentNode.updateCurrentJobSuccessRatio(successRatio);
 		}
 		saveMonitoringData();
 	}
 
 	private void saveMonitoringData() {
-		final int maxCapacity = (int) cloudNetworkAgent.getMaximumCapacity();
-		final int traffic = getCurrentPowerInUse(cloudNetworkAgent.getNetworkJobs());
+		final double successRatio = getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
+				jobCounters.get(FAILED).getCount());
 		final CloudNetworkMonitoringData cloudNetworkMonitoringData = ImmutableCloudNetworkMonitoringData.builder()
-				.currentTraffic(getPowerPercent(traffic, maxCapacity))
-				.availablePower((double) maxCapacity - traffic)
-				.successRatio(getJobSuccessRatio(jobCounters.get(ACCEPTED).getCount(),
-						jobCounters.get(FAILED).getCount()))
+				.successRatio(successRatio)
 				.build();
 		cloudNetworkAgent.writeMonitoringData(CLOUD_NETWORK_MONITORING, cloudNetworkMonitoringData);
 	}

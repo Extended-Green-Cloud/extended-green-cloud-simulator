@@ -4,6 +4,6 @@ import { CommonAgentInterface } from './common/common-agent'
 export interface SchedulerAgent extends CommonAgentInterface {
    scheduledJobs: ScheduledJob[]
    deadlinePriority: number
-   powerPriority: number
+   cpuPriority: number
    maxQueueSize: number
 }

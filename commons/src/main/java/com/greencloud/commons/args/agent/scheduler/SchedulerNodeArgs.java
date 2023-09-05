@@ -12,6 +12,6 @@ import com.greencloud.commons.args.agent.AgentArgs;
 public interface SchedulerNodeArgs extends AgentArgs {
 
 	Double getDeadlinePriority();
-	Double getPowerPriority();
+	Double getCpuPriority();
 	Integer getMaxQueueSize();
 }

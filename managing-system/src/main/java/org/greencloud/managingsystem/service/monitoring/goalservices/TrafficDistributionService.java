@@ -1,6 +1,5 @@
 package org.greencloud.managingsystem.service.monitoring.goalservices;
 
-import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.greencloud.commons.agent.AgentType.CNA;
@@ -20,12 +19,13 @@ import java.util.OptionalDouble;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -56,17 +56,19 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	@Override
 	public double computeCurrentGoalQuality(final int time) {
-		final List<Double> allQualities = new ArrayList<>();
-
-		//CNAs
 		final List<String> cnaAgents = findCNAs();
-		double cnaQualities = readCNAQuality(cnaAgents);
-		allQualities.add(cnaQualities);
 
 		//Servers
 		final List<List<String>> servers = findServers(cnaAgents);
-		final List<Double> serversQuality = readServerQuality(servers);
-		allQualities.addAll(serversQuality);
+		final List<Pair<Double, Double>> serverValues = readServerQuality(servers);
+		final List<Double> serverQualities = serverValues.stream().map(Pair::getRight).toList();
+		final List<Double> allQualities = new ArrayList<>(serverQualities);
+
+		//CNAs
+		final List<Double> regionPowerConsumption = serverValues.stream().map(Pair::getLeft).toList();
+		final double regionsQuality = regionPowerConsumption.stream().allMatch(val -> val <= 0) ? 0 :
+				computeCoefficient(regionPowerConsumption);
+		allQualities.add(regionsQuality);
 
 		// Worst quality
 		final OptionalDouble worstQuality = allQualities.stream()
@@ -92,20 +94,20 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return sd / mean.getAsDouble();
 	}
 
-	@VisibleForTesting
-	protected double computeGoalQualityForAgent(final List<AgentData> data, final List<String> consideredAgents) {
+	protected List<Double> computePowerConsumptionForAgents(final List<AgentData> data,
+			final List<String> consideredAgents) {
 		var groupedData = data.stream().collect(groupingBy(AgentData::aid));
 
-		final Stream<Double> availableCapacities = groupedData.values().stream()
+		final Stream<Double> powerConsumptions = groupedData.values().stream()
 				.map(agentData -> agentData.stream()
-						.mapToDouble(this::mapToAvailableCapacity)
+						.mapToDouble(this::mapToPowerConsumption)
 						.filter(Objects::nonNull)
 						.average().orElseThrow());
-		final Stream<Double> capacityForAgentsWithNoRecords = managingAgent.monitor()
+		final Stream<Double> consumptionForAgentsWithNoRecords = managingAgent.monitor()
 				.getAgentsNotPresentInTheDatabase(data, consideredAgents).stream()
 				.map(agent -> 0.0D);
 
-		return computeCoefficient(concat(availableCapacities, capacityForAgentsWithNoRecords).toList());
+		return concat(powerConsumptions, consumptionForAgentsWithNoRecords).toList();
 	}
 
 	private List<String> findCNAs() {
@@ -117,36 +119,29 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return groupServersByCNA(servers, cnaAgents);
 	}
 
-	private double readCNAQuality(final List<String> cnaAgents) {
-		final List<AgentData> cloudNetworkMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-				.readLatestNRowsMonitoringDataForDataTypeAndAID(CLOUD_NETWORK_MONITORING, cnaAgents, AGGREGATION_SIZE);
-
-		if (cloudNetworkMonitoringData.isEmpty()) {
-			return DATA_NOT_AVAILABLE_INDICATOR;
-		} else if (isTrafficZero(cloudNetworkMonitoringData)) {
-			return 0;
-		}
-		return computeGoalQualityForAgent(cloudNetworkMonitoringData, cnaAgents);
-	}
-
-	private List<Double> readServerQuality(List<List<String>> servers) {
+	private List<Pair<Double, Double>> readServerQuality(List<List<String>> servers) {
 		return servers.stream().map(serversList -> {
 			final List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
 					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE);
 
 			if (serverMonitoringData.isEmpty()) {
-				return (double) DATA_NOT_AVAILABLE_INDICATOR;
+				final double notAvailable = DATA_NOT_AVAILABLE_INDICATOR;
+				return Pair.of(notAvailable, notAvailable);
 			} else if (isTrafficZero(serverMonitoringData)) {
-				return 0.0;
+				return Pair.of(0D, 0D);
 			} else {
-				return computeGoalQualityForAgent(serverMonitoringData, serversList);
+				final List<Double> powerConsumption =
+						computePowerConsumptionForAgents(serverMonitoringData, serversList);
+				final double totalPowerConsumption = powerConsumption.stream().mapToDouble(Double::doubleValue).sum();
+				final double goalQuality = computeCoefficient(powerConsumption);
+				return Pair.of(totalPowerConsumption, goalQuality);
 			}
 		}).toList();
 	}
 
 	@VisibleForTesting
-	protected Double mapToAvailableCapacity(AgentData data) {
-		return ((NetworkComponentMonitoringData) data.monitoringData()).getAvailablePower();
+	protected Double mapToPowerConsumption(AgentData data) {
+		return ((ServerMonitoringData) data.monitoringData()).getCurrentPowerConsumption();
 	}
 
 	private List<List<String>> groupServersByCNA(List<String> aliveServers, List<String> cnaAgents) {
@@ -163,7 +158,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	private boolean isTrafficZero(List<AgentData> data) {
 		final Predicate<AgentData> isTrafficZero = agentData ->
-				((NetworkComponentMonitoringData) agentData.monitoringData()).getCurrentTraffic() == 0;
+				((ServerMonitoringData) agentData.monitoringData()).getCurrentPowerConsumption() == 0;
 		return data.stream()
 				.collect(groupingBy(AgentData::aid)).values().stream()
 				.map(dataSet -> dataSet.stream().max(comparing(AgentData::timestamp)).orElseThrow())

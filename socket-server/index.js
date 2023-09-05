@@ -11,11 +11,7 @@ const { handlePowerShortage, async } = require("./lib/module/agents/event-handle
 const { reportSimulationStatistics } = require("./lib/module/simulation/report-handler");
 const { parseData } = require("./lib/utils/parse-utils")
 const { logUserConnected, logNewMessage, logStateReset } = require("./lib/utils/logger-utils")
-const { resetSystemState, getSystemState, getReportsState, getAgentsState, getClientsState, getManagingState, getNetworkState, getClient, getGraphState, getAgent, getNetworkReportsState, getClientsReportsState, getAgentsReportsState, getManaginReportsState } = require("./lib/utils/state-utils");
-const { AGENTS_REPORTS_STATE } = require("./lib/module/agents/agents-state");
-const { CLIENTS_REPORTS_STATE } = require("./lib/module/clients/clients-state");
-const { NETWORK_REPORTS_STATE } = require("./lib/module/network/network-state");
-const { MANAGING_SYSTEM_REPORTS } = require("./lib/module/managing-system/managing-system-state");
+const { resetSystemState, getSystemState, getAgentsState, getClientsState, getManagingState, getNetworkState, getClient, getGraphState, getAgent, getNetworkReportsState, getClientsReportsState, getAgentsReportsState, getManaginReportsState } = require("./lib/utils/state-utils");
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))

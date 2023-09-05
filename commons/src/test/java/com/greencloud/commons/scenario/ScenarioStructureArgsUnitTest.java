@@ -186,21 +186,18 @@ class ScenarioStructureArgsUnitTest {
 		var mockServer1 = ImmutableServerAgentArgs.builder()
 				.name("test_server1")
 				.ownerCloudNetwork("test_cna1")
-				.maximumCapacity("100")
 				.jobProcessingLimit("2")
 				.price("100")
 				.build();
 		var mockServer2 = ImmutableServerAgentArgs.builder()
 				.name("test_server2")
 				.ownerCloudNetwork("test_cna1")
-				.maximumCapacity("300")
 				.jobProcessingLimit("10")
 				.price("50")
 				.build();
 		var mockServer3 = ImmutableServerAgentArgs.builder()
 				.name("test_server3")
 				.ownerCloudNetwork("test_cna2")
-				.maximumCapacity("150")
 				.jobProcessingLimit("2")
 				.price("200")
 				.build();
@@ -216,8 +213,6 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_scheduler")
 				.deadlineWeight(1)
 				.powerWeight(1)
-				.jobSplitThreshold(30)
-				.splittingFactor(3)
 				.maximumQueueSize(10000)
 				.build();
 

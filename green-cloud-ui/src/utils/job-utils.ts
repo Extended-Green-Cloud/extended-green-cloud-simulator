@@ -35,4 +35,18 @@ const getJobStatusDuration = (key: string, val: number) => {
    return hours > 0 ? `${hours} HOURS ${minReminderFixed} MINUTES` : `${minReminderFixed} MINUTES`
 }
 
-export { getJobStatusTimeInMin, getJobStatusDuration }
+/**
+ * Method formats the resource requirement by appending most relevant unit.
+ *
+ * @param {number}val value to be parsed
+ *
+ * @returns parsed value string
+ */
+const getJobResourceVal = (val: number) => {
+   if (val / 1000000000 >= 1) return `${(val / 1000000000).toFixed(1)}B`
+   if (val / 1000000 >= 1) return `${(val / 1000000).toFixed(1)}M`
+   if (val / 1000 >= 1) return `${(val / 1000).toFixed(1)}K`
+   return val.toFixed(0).toString()
+}
+
+export { getJobStatusTimeInMin, getJobStatusDuration, getJobResourceVal }

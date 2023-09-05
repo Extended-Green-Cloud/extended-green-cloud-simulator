@@ -7,6 +7,8 @@ import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
+import com.greencloud.commons.args.job.JobArgs;
+import com.greencloud.commons.domain.resources.HardwareResources;
 
 /**
  * Interface with a set methods that create extra agents with specified parameters
@@ -26,12 +28,18 @@ public interface AgentFactory {
 	 * Method creates new server agent args that can be used to initialize new agent
 	 *
 	 * @param ownerCNA           - required argument specifying owner CNA
-	 * @param maximumCapacity    - optional argument specifying server's maximum capacity
+	 * @param resources          - optional argument specifying server's resources
+	 * @param maxPower           - optional argument specifying maximal power consumption of the server
+	 * @param idlePower          - optional argument specifying idle power consumption of the server
 	 * @param price              - optional argument specifying server's price
 	 * @param jobProcessingLimit - optional argument specifying maximum number of jobs processed at the same time
 	 * @return newly created server agent args
 	 */
-	ServerAgentArgs createServerAgent(String ownerCNA, Integer maximumCapacity, Integer price,
+	ServerAgentArgs createServerAgent(String ownerCNA,
+			HardwareResources resources,
+			Integer maxPower,
+			Integer idlePower,
+			Integer price,
 			Integer jobProcessingLimit);
 
 	/**
@@ -78,20 +86,11 @@ public interface AgentFactory {
 	 *
 	 * @param name     client name
 	 * @param jobId    job identifier
-	 * @param power    job required power
-	 * @param start    job start time
-	 * @param end      job finish time
-	 * @param deadline job deadline
 	 * @param timeType type of time when the client should join cloud (i.e. in simulation time or in real time)
+	 * @param jobArgs  specification of the job sent by the client
 	 * @return newly created client agent args
 	 */
-	ClientAgentArgs createClientAgent(String name,
-			String jobId,
-			int power,
-			int start,
-			int end,
-			int deadline,
-			ClientTimeType timeType);
+	ClientAgentArgs createClientAgent(String name, String jobId, ClientTimeType timeType, JobArgs jobArgs);
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent

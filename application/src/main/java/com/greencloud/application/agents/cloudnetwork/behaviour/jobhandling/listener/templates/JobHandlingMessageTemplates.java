@@ -1,10 +1,8 @@
 package com.greencloud.application.agents.cloudnetwork.behaviour.jobhandling.listener.templates;
 
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.CANCEL_JOB_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.SCHEDULER_JOB_CFP_PROTOCOL;
-import static jade.lang.acl.ACLMessage.CANCEL;
 import static jade.lang.acl.ACLMessage.CFP;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
@@ -25,7 +23,4 @@ public class JobHandlingMessageTemplates {
 	public static final MessageTemplate JOB_STATUS_CHANGE_TEMPLATE = or(
 			and(MatchPerformative(INFORM), MatchProtocol(CHANGE_JOB_STATUS_PROTOCOL)),
 			and(MatchPerformative(FAILURE), MatchProtocol(FAILED_JOB_PROTOCOL)));
-
-	public static final MessageTemplate CANCEL_JOB_ANNOUNCEMENT_CNA_TEMPLATE = and(
-			MatchPerformative(CANCEL), MatchProtocol(CANCEL_JOB_PROTOCOL));
 }

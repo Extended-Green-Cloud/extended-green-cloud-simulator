@@ -6,7 +6,6 @@ import static com.greencloud.commons.agent.AgentType.CNA;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.cloudnetwork.management.CloudNetworkStateManagement;
 import com.greencloud.commons.domain.job.ClientJob;
@@ -23,8 +22,6 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 	protected ConcurrentMap<String, AID> serverForJobMap;
 	protected ConcurrentMap<AID, Boolean> ownedServers;
 	protected ConcurrentMap<AID, Integer> weightsForServersMap;
-
-	protected AtomicDouble maximumCapacity;
 	protected AID scheduler;
 
 	AbstractCloudNetworkAgent() {
@@ -63,13 +60,5 @@ public abstract class AbstractCloudNetworkAgent extends AbstractAgent {
 
 	public void setScheduler(final AID scheduler) {
 		this.scheduler = scheduler;
-	}
-
-	public double getMaximumCapacity() {
-		return maximumCapacity.get();
-	}
-
-	public void setMaximumCapacity(final double maximumCapacity) {
-		this.maximumCapacity.set(maximumCapacity);
 	}
 }

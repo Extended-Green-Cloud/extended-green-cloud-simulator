@@ -12,7 +12,6 @@ import static com.greencloud.application.messages.constants.MessageConversationC
 import static com.greencloud.application.messages.constants.MessageConversationConstants.PROCESSING_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.SCHEDULED_JOB_ID;
-import static com.greencloud.application.messages.constants.MessageConversationConstants.SPLIT_JOB_ID;
 import static com.greencloud.application.messages.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -28,7 +27,6 @@ import com.greencloud.application.agents.client.behaviour.jobannouncement.handle
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleGenericJobStatusUpdate;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleJobFailedUpdate;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleJobFinishUpdate;
-import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleJobSplitUpdate;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleJobStartUpdate;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandlePostponeJobUpdate;
 import com.greencloud.application.agents.client.behaviour.jobannouncement.handler.HandleRescheduleJobUpdate;
@@ -86,7 +84,8 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 	}
 
 	@VisibleForTesting
-	protected AbstractJobUpdateHandler getUpdateHandler(final ACLMessage message, final ClientJobUpdateEnum updateEnum) {
+	protected AbstractJobUpdateHandler getUpdateHandler(final ACLMessage message,
+			final ClientJobUpdateEnum updateEnum) {
 		return switch (message.getConversationId()) {
 			case SCHEDULED_JOB_ID,
 					PROCESSING_JOB_ID,
@@ -98,7 +97,6 @@ public class ListenForJobUpdate extends CyclicBehaviour {
 			case FINISH_JOB_ID -> new HandleJobFinishUpdate(message, myClientAgent, updateEnum);
 			case FAILED_JOB_ID -> new HandleJobFailedUpdate(message, myClientAgent, updateEnum);
 			case POSTPONED_JOB_ID -> new HandlePostponeJobUpdate(message, myClientAgent, updateEnum);
-			case SPLIT_JOB_ID -> new HandleJobSplitUpdate(message, myClientAgent, updateEnum);
 			case RE_SCHEDULED_JOB_ID -> new HandleRescheduleJobUpdate(message, myClientAgent, updateEnum);
 			default -> null;
 		};

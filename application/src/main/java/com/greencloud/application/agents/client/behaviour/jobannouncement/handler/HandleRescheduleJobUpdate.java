@@ -24,12 +24,6 @@ public class HandleRescheduleJobUpdate extends AbstractJobUpdateHandler {
 	@Override
 	public void action() {
 		final JobTimeFrames newTimeFrames = readMessageContent(message, JobTimeFrames.class);
-
-		if (!myClient.isSplit()) {
-			readjustJobTimeFrames(newTimeFrames.getNewJobStart(), newTimeFrames.getNewJobEnd());
-		} else {
-			readjustJobPartTimeFrames(newTimeFrames.getJobId(), newTimeFrames.getNewJobStart(),
-					newTimeFrames.getNewJobEnd());
-		}
+		readjustJobTimeFrames(newTimeFrames.getNewJobStart(), newTimeFrames.getNewJobEnd());
 	}
 }

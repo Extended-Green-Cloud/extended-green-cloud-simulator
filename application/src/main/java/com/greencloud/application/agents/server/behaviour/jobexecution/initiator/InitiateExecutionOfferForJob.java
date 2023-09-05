@@ -31,6 +31,7 @@ import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobStatusUpdate;
 import com.greencloud.application.domain.job.JobWithProtocol;
 import com.greencloud.commons.domain.job.ClientJob;
+import com.greencloud.commons.domain.resources.HardwareResources;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -72,8 +73,8 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 
 	/**
 	 * Method handles ACCEPT_PROPOSAL response received from the Cloud Network Agents.
-	 * It recomputes the available capacity to verify if job can be executed and if not - it responds with FAILURE,
-	 * or otherwise it communicates with selected Green Source to received confirmation regarding power supply.
+	 * It recomputes the available resources to verify if job can be executed and if not - it responds with FAILURE,
+	 * or otherwise it communicates with selected Green Source to received confirmation regarding energy supply.
 	 *
 	 * @param accept accept proposal message retrieved from the Cloud Network
 	 */
@@ -84,12 +85,13 @@ public class InitiateExecutionOfferForJob extends ProposeInitiator {
 		final ClientJob job = getJobByInstanceId(jobInstance.getJobInstanceId(), myServerAgent.getServerJobs());
 
 		if (nonNull(job)) {
-			final int availableCapacity = myServerAgent.manage().getAvailableCapacity(job, null, null);
+			final HardwareResources availableResources =
+					myServerAgent.resources().getAvailableResources(job, null, null);
 
 			myServerAgent.manage().incrementJobCounter(jobInstance, ACCEPTED);
 			myServerAgent.getServerJobs().replace(job, ACCEPTED_BY_SERVER);
 
-			if (job.getPower() > availableCapacity) {
+			if (!availableResources.areSufficient(job.getEstimatedResources())) {
 				passJobExecutionFailure(job, jobInstance, jobWithProtocol.getReplyProtocol(), accept);
 			} else {
 				acceptGreenSourceForJobExecution(jobInstance, jobWithProtocol.getReplyProtocol());

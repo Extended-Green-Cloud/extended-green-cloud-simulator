@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.scheduler.behaviour.df.SubscribeCloudNetworkService;
-import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.handler.HandleJobAnnouncement;
-import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.ListenForClientJob;
-import com.greencloud.application.agents.scheduler.behaviour.job.scheduling.listener.ListenForJobUpdate;
+import com.greencloud.application.agents.scheduler.behaviour.scheduling.handler.HandleJobAnnouncement;
+import com.greencloud.application.agents.scheduler.behaviour.scheduling.listener.ListenForClientJob;
+import com.greencloud.application.agents.scheduler.behaviour.scheduling.listener.ListenForJobUpdate;
 import com.greencloud.application.agents.scheduler.managment.SchedulerAdaptationManagement;
 import com.greencloud.application.agents.scheduler.managment.SchedulerStateManagement;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
@@ -36,13 +36,11 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		if (args.length == 7) {
+		if (args.length == 5) {
 			try {
 				this.deadlinePriority = parseInt(args[0].toString());
-				this.powerPriority = parseInt(args[1].toString());
+				this.cpuPriority = parseInt(args[1].toString());
 				this.maximumQueueSize = parseInt(args[2].toString());
-				this.jobSplitThreshold = parseInt(args[3].toString());
-				this.splittingFactor = parseInt(args[4].toString());
 
 				this.setUpPriorityQueue();
 				register(this, getDefaultDF(), SCHEDULER_SERVICE_TYPE, SCHEDULER_SERVICE_NAME);
@@ -74,7 +72,7 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 
 	@Override
 	protected void validateAgentArguments() {
-		if (!isFibonacci(powerPriority) || !isFibonacci(deadlinePriority)) {
+		if (!isFibonacci(cpuPriority) || !isFibonacci(deadlinePriority)) {
 			logger.info("Incorrect arguments: Weights must be in a Fibonacci sequence");
 			doDelete();
 		}
@@ -99,7 +97,7 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 			final AdaptationActionParameters actionParameters) {
 		return switch (adaptationActionEnum) {
 			case INCREASE_DEADLINE_PRIORITY -> adapt().increaseDeadlineWeight();
-			case INCREASE_POWER_PRIORITY -> adapt().increasePowerWeight();
+			case INCREASE_POWER_PRIORITY -> adapt().increaseCPUWeight();
 			default -> false;
 		};
 	}

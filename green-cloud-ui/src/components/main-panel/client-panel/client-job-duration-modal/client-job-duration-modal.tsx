@@ -25,20 +25,16 @@ const ClientJobDurationModal = ({ isOpen, setIsOpen, client }: Props) => {
    const header = 'JOB EXECUTION DURATION PER STATUS'
 
    const getStatusesDuration = () => {
-      return Object.entries(client.durationMap).map(([key, value]) => {
-         const trueValue = client.isSplit ? value / client.splitJobs.length : value
-
-         return (
-            <DetailsField
-               {...{
-                  key,
-                  label: key,
-                  valueObject: getJobStatusDuration(key, trueValue),
-                  fieldValueStyle: valueStyle
-               }}
-            />
-         )
-      })
+      return Object.entries(client.durationMap).map(([key, value]) => (
+         <DetailsField
+            {...{
+               key,
+               label: key,
+               valueObject: getJobStatusDuration(key, value),
+               fieldValueStyle: valueStyle
+            }}
+         />
+      ))
    }
 
    return (

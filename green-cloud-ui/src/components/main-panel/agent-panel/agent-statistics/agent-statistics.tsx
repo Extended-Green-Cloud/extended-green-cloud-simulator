@@ -2,15 +2,16 @@ import React from 'react'
 import './agent-statistics-config'
 import DetailsField from '../../../common/details-field/details-field'
 import {
+   BADGE_STATE_COLORS,
    getAgentFields,
    getStatisticsMapForAgent,
-   MAP_TYPE,
-   NETWORK_AGENTS,
-   PERCENTAGE_VALUES
+   MAPS_FOR_AGENT_TYPE,
+   PERCENTAGE_VALUES,
+   StateTypes
 } from './agent-statistics-config'
 import SubtitleContainer from '../../../common/subtitle-container/subtitle-container'
 
-import { Agent } from '@types'
+import { Agent, AgentType } from '@types'
 import Badge from 'components/common/badge/badge'
 import { styles } from './agent-statistics-styles'
 import { Header } from 'components/common'
@@ -28,7 +29,7 @@ const description = 'Click on an agent to display its statistics'
  * @returns JSX Element
  */
 const AgentStatisticsPanel = ({ selectedAgent }: Props) => {
-   const includeQualityMap = selectedAgent ? NETWORK_AGENTS.includes(selectedAgent.type) : false
+   const mapsForAgent = MAPS_FOR_AGENT_TYPE[selectedAgent?.type ?? AgentType.MONITORING]
    const { fieldWrapper } = styles
 
    const mapToStatistics = (agent: Agent, statisticsMap: any[]) => {
@@ -44,7 +45,7 @@ const AgentStatisticsPanel = ({ selectedAgent }: Props) => {
    }
 
    const formatAgentValue = (value: string | number, key: string) => {
-      if (key === 'isActive') return <Badge text={value as string} isActive={value === 'ACTIVE'} />
+      if (key === 'isActive') return <Badge text={value as string} color={BADGE_STATE_COLORS[value as StateTypes]} />
 
       return PERCENTAGE_VALUES.includes(key) && value
          ? [(value as number).toFixed(2), '%'].join('')
@@ -53,14 +54,13 @@ const AgentStatisticsPanel = ({ selectedAgent }: Props) => {
          : 0
    }
 
-   const generateDetailsFields = (type?: string) => {
+   const generateDetailsFields = (type: string) => {
       if (selectedAgent) {
          const map = getStatisticsMapForAgent(selectedAgent, type)
-         const header = type ? MAP_TYPE.QUALITY : MAP_TYPE.STATE
          return (
             <div>
                <div style={fieldWrapper}>
-                  <Header {...{ text: header }} />
+                  <Header {...{ text: type }} />
                   {mapToStatistics(selectedAgent, map)}
                </div>
             </div>
@@ -70,12 +70,7 @@ const AgentStatisticsPanel = ({ selectedAgent }: Props) => {
       }
    }
 
-   return (
-      <div>
-         {generateDetailsFields()}
-         {includeQualityMap && generateDetailsFields(MAP_TYPE.QUALITY)}
-      </div>
-   )
+   return <div>{mapsForAgent?.map((mapType) => generateDetailsFields(mapType))}</div>
 }
 
 export default AgentStatisticsPanel

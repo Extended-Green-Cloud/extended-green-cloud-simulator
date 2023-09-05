@@ -22,9 +22,9 @@ public class PowerShortageSourceAnnouncerLog {
 	public static final String POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG =
 			"Checking if the job {} can be put in progress";
 	public static final String POWER_SHORTAGE_SOURCE_JOB_ENDED_LOG =
-			"Job {} has ended before supplying it back with green power";
-	public static final String NO_POWER_LEAVE_ON_HOLD_LOG =
-			"There is not enough available power to put job back in progress. Leaving the job {} on hold";
+			"Job {} has ended before supplying it back with green energy";
+	public static final String NO_ENERGY_LEAVE_ON_HOLD_LOG =
+			"There is not enough available energy to put job back in progress. Leaving the job {} on hold";
 	public static final String CHANGE_JOB_STATUS_LOG = "Changing the status of the job {}";
 	public static final String WEATHER_UNAVAILABLE_JOB_LOG =
 			"The data for the job is not available. Leaving job {} on hold";

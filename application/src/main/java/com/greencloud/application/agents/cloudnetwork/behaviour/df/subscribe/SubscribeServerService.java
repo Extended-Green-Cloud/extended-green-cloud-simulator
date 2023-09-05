@@ -3,8 +3,6 @@ package com.greencloud.application.agents.cloudnetwork.behaviour.df.subscribe;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.df.subscribe.logs.CloudNetworkDFSubscribeLog.FOUND_NEW_SERVERS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.df.subscribe.logs.CloudNetworkDFSubscribeLog.FOUND_REMOVED_SERVERS_LOG;
 import static com.greencloud.application.agents.cloudnetwork.behaviour.df.subscribe.logs.CloudNetworkDFSubscribeLog.SUBSCRIBE_SERVER_SERVICE_LOG;
-import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkPowerUpdateEnum.DECREMENT_CAPACITY;
-import static com.greencloud.application.agents.cloudnetwork.domain.CloudNetworkPowerUpdateEnum.INCREMENT_CAPACITY;
 import static com.greencloud.application.yellowpages.YellowPagesService.prepareSubscription;
 import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -15,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 
 import com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent;
-import com.greencloud.application.agents.cloudnetwork.behaviour.df.initiator.InitiateCapacityUpdate;
 import com.greencloud.application.behaviours.df.AbstractSubscriptionInitiator;
 
 import jade.core.AID;
@@ -52,8 +49,6 @@ public class SubscribeServerService extends AbstractSubscriptionInitiator {
 		logger.info(FOUND_NEW_SERVERS_LOG, addedAgents.size());
 		initializeWeights(addedAgents.keySet());
 		myCloudNetworkAgent.getOwnedServers().putAll(addedAgents);
-		myCloudNetworkAgent.addBehaviour(InitiateCapacityUpdate.create(myCloudNetworkAgent, addedAgents.keySet(),
-				INCREMENT_CAPACITY));
 	}
 
 	@Override
@@ -61,8 +56,6 @@ public class SubscribeServerService extends AbstractSubscriptionInitiator {
 		logger.info(FOUND_REMOVED_SERVERS_LOG, removedAgents.size());
 		myCloudNetworkAgent.getOwnedServers().entrySet().removeIf(server -> removedAgents.containsKey(server.getKey()));
 		removedAgents.forEach(myCloudNetworkAgent.getWeightsForServersMap()::remove);
-		myCloudNetworkAgent.addBehaviour(
-				InitiateCapacityUpdate.create(myCloudNetworkAgent, removedAgents.keySet(), DECREMENT_CAPACITY));
 	}
 
 	private void initializeWeights(Set<AID> addedServers) {

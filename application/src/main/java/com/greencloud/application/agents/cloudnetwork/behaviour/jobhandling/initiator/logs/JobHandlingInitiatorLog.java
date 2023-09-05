@@ -25,9 +25,4 @@ public class JobHandlingInitiatorLog {
 	public static final String ACCEPT_SERVER_PROPOSAL_LOG = "Sending ACCEPT_PROPOSAL to Server Agent";
 	public static final String REJECT_SERVER_PROPOSAL_LOG = "Scheduler {} rejected the job proposal";
 
-	// JOB CANCELLING LOG MESSAGES
-	public static final String CANCEL_JOB_IN_CNA = "Cancelling job part {}!";
-	public static final String CANCEL_JOB_ALL_RESPONSES =
-			"All responses from Servers received. Remaining jobs that were not cancelled: {}!";
-
 }

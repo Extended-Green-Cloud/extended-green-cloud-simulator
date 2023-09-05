@@ -200,8 +200,4 @@ public final class EngineConfiguration extends AbstractConfiguration {
 		runJadeGUI = parseBoolean(ifNotBlankThenGetOrElse(props.getProperty("jade.rungui"), "true"));
 		runJadeSniffer = parseBoolean(ifNotBlankThenGetOrElse(props.getProperty("jade.runsniffer"), "false"));
 	}
-
-	private static String ifNotBlankThenGetOrElse(final String property, final String defaultVal) {
-		return isNullOrEmpty(property) ? defaultVal : property;
-	}
 }

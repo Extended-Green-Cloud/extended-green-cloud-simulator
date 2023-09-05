@@ -13,7 +13,6 @@ import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.Duration;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.ToLongFunction;
@@ -23,7 +22,6 @@ import com.database.knowledge.domain.agent.client.ImmutableClientJobExecutionDat
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.greencloud.application.agents.AbstractAgentManagement;
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.agents.client.domain.ClientJobExecution;
 import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
@@ -59,18 +57,6 @@ public class ClientManagement extends AbstractAgentManagement {
 	}
 
 	/**
-	 * Method verifies if all job parts have a given status
-	 *
-	 * @param status status to verify
-	 * @return boolean
-	 */
-	public boolean checkIfAllPartsMatchStatus(final JobClientStatusEnum status) {
-		return clientAgent.getJobParts().values().stream()
-				.map(ClientJobExecution::getJobStatus)
-				.allMatch(status::equals);
-	}
-
-	/**
 	 * Method writes current state of Client's job to the database
 	 *
 	 * @param isFinished flag indicating if the state is final
@@ -95,10 +81,7 @@ public class ClientManagement extends AbstractAgentManagement {
 	}
 
 	private void writeJobExecutionPercentage() {
-		final long jobInProgress = getJobStatusDurationMap().get(IN_PROGRESS);
-		final long executionTime = clientAgent.isSplit()
-				? jobInProgress / clientAgent.getJobParts().size()
-				: jobInProgress;
+		final long executionTime = getJobStatusDurationMap().get(IN_PROGRESS);
 		final long expectedExecution = Duration.between(clientAgent.getJobExecution().getJobSimulatedStart(),
 				clientAgent.getJobExecution().getJobSimulatedEnd()).toMillis();
 		final double executedPercentage = expectedExecution == 0 ? 0 : (double) executionTime / expectedExecution;
@@ -120,26 +103,15 @@ public class ClientManagement extends AbstractAgentManagement {
 	}
 
 	private Map<JobClientStatusEnum, Long> getJobStatusDurationMap() {
-		if (clientAgent.isSplit()) {
-			final Map<JobClientStatusEnum, Long> result = new EnumMap<>(JobClientStatusEnum.class);
-
-			clientAgent.getJobParts().values().stream()
-					.map(ClientJobExecution::getJobDurationMap)
-					.forEach(jobPartMap -> jobPartMap.forEach((key, value) -> result.merge(key, value, Long::sum)));
-
-			return result;
-		}
 		return clientAgent.getJobExecution().getJobDurationMap();
 	}
 
 	private boolean isOriginalStatusUpdated(final JobClientStatusEnum status) {
 		return switch (status) {
-			case SCHEDULED, FINISHED -> checkIfAllPartsMatchStatus(status);
+			case SCHEDULED, FINISHED -> clientAgent.getJobExecution().getJobStatus().equals(status);
 			case PROCESSED -> clientAgent.getJobExecution().getJobStatus().equals(SCHEDULED);
-			case DELAYED -> clientAgent.getJobExecution().getJobStatus().equals(PROCESSED);
+			case DELAYED, IN_PROGRESS -> clientAgent.getJobExecution().getJobStatus().equals(PROCESSED);
 			case ON_BACK_UP -> List.of(IN_PROGRESS, PROCESSED).contains(clientAgent.getJobExecution().getJobStatus());
-			case IN_PROGRESS -> checkIfAllPartsMatchStatus(IN_PROGRESS) ||
-					clientAgent.getJobExecution().getJobStatus().equals(PROCESSED);
 			case ON_HOLD -> true;
 			default -> false;
 		};

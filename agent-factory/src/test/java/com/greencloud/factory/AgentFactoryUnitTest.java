@@ -1,7 +1,8 @@
 package com.greencloud.factory;
 
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
-import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAXIMUM_CAPACITY;
+import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_IDLE_POWER;
+import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,13 +34,14 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateServerDefaultValues() {
-		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null);
+		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null, null, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
-		assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_SERVER_MAXIMUM_CAPACITY);
-		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE);
+		assertThat(result.getMaxPower()).isEqualTo(TEMPLATE_SERVER_MAX_POWER);
+		assertThat(result.getIdlePower()).isEqualTo(TEMPLATE_SERVER_IDLE_POWER);
+		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE.doubleValue());
 		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
-		assertThat(result.getJobProcessingLimit()).isEqualTo("20");
+		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
 	}
 
 	@Test
@@ -63,8 +65,8 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testGenerateCorrectNames() {
-		ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10);
-		ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null);
+		ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10, null, null);
+		ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null, null, null);
 		MonitoringAgentArgs result3 = factory.createMonitoringAgent();
 
 		Assertions.assertThat(result1.getName()).isEqualTo("ExtraServer1");
@@ -96,12 +98,12 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreatingServerCustomValues() {
-		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", 150, 25, 10);
+		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
-		assertThat(result.getMaximumCapacity()).isEqualTo("150");
-		assertThat(result.getPrice()).isEqualTo("25");
+		assertThat(result.getMaxPower()).isEqualTo(150);
+		assertThat(result.getIdlePower()).isEqualTo(25);
 		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
-		assertThat(result.getJobProcessingLimit()).isEqualTo("10");
+		assertThat(result.getPrice()).isEqualTo(10);
 	}
 }

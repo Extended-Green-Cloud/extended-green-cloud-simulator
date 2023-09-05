@@ -6,12 +6,13 @@ import java.util.List;
 
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.args.agent.client.ImmutableClientAgentArgs;
+import com.greencloud.commons.args.agent.client.ImmutableClientNodeArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
 import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
+import com.greencloud.commons.args.agent.server.ImmutableServerNodeArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractAgentNode;
@@ -52,10 +53,19 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 	}
 
 	private AbstractAgentNode createClientNode(final ClientAgentArgs clientArgs) {
-		return new ClientAgentNode(ImmutableClientAgentArgs.copyOf(clientArgs)
-				.withStart(clientArgs.formatClientTime(clientArgs.getStart()))
-				.withEnd(clientArgs.formatClientTime(clientArgs.getEnd()))
-				.withDeadline(clientArgs.formatClientTime(clientArgs.getDeadline())));
+		return new ClientAgentNode(ImmutableClientNodeArgs.builder()
+				.name(clientArgs.getName())
+				.jobId(clientArgs.getJobId())
+				.processorName(clientArgs.getJob().processType())
+				.cpu(clientArgs.getJob().getCpu())
+				.memory(clientArgs.getJob().getMemory())
+				.storage(clientArgs.getJob().getStorage())
+				.start(clientArgs.formatClientTime(0))
+				.end(clientArgs.formatClientTime(clientArgs.getJob().getDuration()))
+				.deadline(clientArgs.formatClientDeadline())
+				.duration(clientArgs.getJob().getDuration())
+				.steps(clientArgs.getJob().getJobSteps())
+				.build());
 	}
 
 	private AbstractAgentNode createCloudNetworkNode(final CloudNetworkArgs cloudNetworkArgs,
@@ -65,7 +75,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.toList();
 		final List<String> serverList = ownedServers.stream().map(ServerAgentArgs::getName).toList();
 
-		return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), getMaximumCapacity(ownedServers), serverList);
+		return new CloudNetworkAgentNode(cloudNetworkArgs.getName(), getMaxCpu(ownedServers), serverList);
 	}
 
 	private AbstractAgentNode createServerNode(final ServerAgentArgs serverAgentArgs,
@@ -76,9 +86,17 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.toList();
 		final List<String> greenSourceNames = ownedGreenSources.stream().map(GreenEnergyAgentArgs::getName)
 				.toList();
-		return new ServerAgentNode(serverAgentArgs.getName(),
-				Double.parseDouble(serverAgentArgs.getMaximumCapacity()), serverAgentArgs.getOwnerCloudNetwork(),
-				greenSourceNames);
+		return new ServerAgentNode(ImmutableServerNodeArgs.builder()
+				.name(serverAgentArgs.getName())
+				.cloudNetworkAgent(serverAgentArgs.getOwnerCloudNetwork())
+				.greenEnergyAgents(greenSourceNames)
+				.maxPower((long) serverAgentArgs.getMaxPower())
+				.idlePower((long) serverAgentArgs.getIdlePower())
+				.cpu(serverAgentArgs.getResources().getCpu().longValue())
+				.memory(serverAgentArgs.getResources().getMemory().longValue())
+				.storage(serverAgentArgs.getResources().getStorage().longValue())
+				.price(serverAgentArgs.getPrice())
+				.build());
 	}
 
 	private AbstractAgentNode createMonitoringNode(final MonitoringAgentArgs monitoringArgs,
@@ -93,8 +111,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return null;
 	}
 
-	private double getMaximumCapacity(List<ServerAgentArgs> ownedServers) {
-		return ownedServers.stream()
-				.mapToDouble(server -> Double.parseDouble(server.getMaximumCapacity())).sum();
+	private double getMaxCpu(List<ServerAgentArgs> ownedServers) {
+		return ownedServers.stream().mapToDouble(server -> server.getResources().getCpu()).sum();
 	}
 }

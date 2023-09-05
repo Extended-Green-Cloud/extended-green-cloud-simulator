@@ -9,9 +9,9 @@ import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHost;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.EngineConfiguration.newPlatform;
-import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
+import static runner.utils.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,13 +25,10 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.commons.args.agent.AgentArgs;
 import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
 import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.exception.JadeControllerException;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.greencloud.factory.AgentControllerFactoryImpl;
-import com.greencloud.factory.AgentNodeFactoryImpl;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -74,11 +71,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		}
 
 		if (nonNull(locationId) && locationId.contains(CLIENTS_CONTAINER_ID.getName())) {
-			if (eventFilePath.isPresent()) {
-				eventService.runScenarioEvents();
-			} else {
-				runClientAgents();
-			}
+			workloadGenerator.generateWorkloadForSimulation();
 		} else {
 			final List<AgentController> controllers = runCloudNetworkContainers(scenario);
 			if (controllers.isEmpty()) {

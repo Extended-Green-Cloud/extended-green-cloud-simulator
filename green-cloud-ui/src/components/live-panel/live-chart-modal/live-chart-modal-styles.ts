@@ -89,7 +89,7 @@ export const styles: Styles = {
       alignItems: 'center'
    },
    chartWrapper: {
-      height: '225px',
+      height: '17vw',
       width: '100%',
       borderRadius: 20,
       minHeight: 0,

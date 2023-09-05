@@ -3,8 +3,8 @@ package runner.service;
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
-import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
+import static runner.utils.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,12 +50,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 		}
 		updateSystemStartTime();
 		factory.runAgentControllers(AGENTS_TO_RUN, RUN_AGENT_DELAY);
-
-		if (eventFilePath.isEmpty()) {
-			runClientAgents();
-		} else {
-			eventService.runScenarioEvents();
-		}
+		workloadGenerator.generateWorkloadForSimulation();
 	}
 
 	private void createAgents(List<?> agentArgsList, ScenarioStructureArgs scenario) {

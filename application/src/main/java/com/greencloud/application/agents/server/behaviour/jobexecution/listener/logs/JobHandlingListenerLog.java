@@ -7,8 +7,8 @@ public class JobHandlingListenerLog {
 
 	// RECEIVING NEW JOB REQUEST LOG MESSAGES
 	public static final String SERVER_NEW_JOB_LOOK_FOR_SOURCE_LOG = "Sending call for proposal to Green Source Agents";
-	public static final String SERVER_NEW_JOB_LACK_OF_POWER_LOG =
-			"Not enough available power! Sending refuse message to Cloud Network Agent";
+	public static final String SERVER_NEW_JOB_LACK_OF_RESOURCES_LOG =
+			"Not enough available resources! Sending refuse message to Cloud Network Agent";
 	public static final String SERVER_NEW_NO_SOURCES_LOG =
 			"There are no green sources connected with given Server! Sending refuse message to Cloud Network Agent";
 
@@ -27,8 +27,4 @@ public class JobHandlingListenerLog {
 
 	// JOB START STATUS REQUEST LOG MESSAGES
 	public static final String JOB_START_STATUS_RECEIVED_REQUEST_LOG = "Received request to verify job start status {}";
-
-	// JOB CANCELLING LOG MESSAGES
-	public static final String CANCEL_JOB_IN_GREEN_SOURCES =
-			"Sending request to cancel {} job parts of job with id {} in underlying Green Sources!";
 }

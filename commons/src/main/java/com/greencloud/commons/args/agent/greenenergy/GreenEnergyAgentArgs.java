@@ -49,17 +49,17 @@ public interface GreenEnergyAgentArgs extends AgentArgs {
 	/**
 	 * @return price for 1kWh
 	 */
-	String getPricePerPowerUnit();
+	Long getPricePerPowerUnit();
 
 	/**
 	 * @return initial weather prediction error
 	 */
-	String getWeatherPredictionError();
+	Double getWeatherPredictionError();
 
 	/**
-	 * @return maximum capacity of the server
+	 * @return maximum generator capacity
 	 */
-	String getMaximumCapacity();
+	Long getMaximumCapacity();
 
 	/**
 	 * @return type of energy source

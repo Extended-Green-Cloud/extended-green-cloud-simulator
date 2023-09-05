@@ -4,12 +4,12 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_TRANSFER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_START_WEATHER_LOG;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_AGENT_NAME;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.AlgorithmUtils.findJobsWithinPower;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.PHYSICAL_CAUSE;
 import static com.greencloud.commons.args.event.powershortage.PowerShortageCause.WEATHER_CAUSE;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_AGENT_NAME;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -86,7 +86,8 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 			final List<ServerJob> jobsToTransfer = prepareJobTransfer(affectedJobs, jobsToKeep);
 
 			if (jobsToTransfer.isEmpty()) {
-				handlePowerShortageWithoutTransfer();
+				logger.info(POWER_SHORTAGE_SOURCE_START_NO_IMPACT_LOG);
+				initiatePowerShortageHandler(emptyList());
 				return;
 			}
 
@@ -108,16 +109,14 @@ public class AnnounceSourcePowerShortage extends OneShotBehaviour {
 	}
 
 	private void initiatePowerShortageHandler(final List<ServerJob> jobsToTransfer) {
-		final Integer maximumCapacity = cause.equals(PHYSICAL_CAUSE) ? maxAvailablePower.intValue() : null;
-		myGreenAgent.addBehaviour(HandleSourcePowerShortage.createFor(jobsToTransfer, shortageStartTime,
-				maximumCapacity, myGreenAgent));
+		myGreenAgent.addBehaviour(HandleSourcePowerShortage.createFor(jobsToTransfer, shortageStartTime, myGreenAgent,
+				cause.equals(PHYSICAL_CAUSE)));
 	}
 
 	private List<ServerJob> prepareJobTransfer(final List<ServerJob> affectedJobs, final List<ServerJob> jobsToKeep) {
-		final List<ServerJob> jobsToTransfer =
-				new ArrayList<>(affectedJobs.stream()
-						.filter(job -> !jobsToKeep.contains(job))
-						.toList());
+		final List<ServerJob> jobsToTransfer = new ArrayList<>(affectedJobs.stream()
+				.filter(job -> !jobsToKeep.contains(job))
+				.toList());
 
 		if (nonNull(serverJobToInclude)) {
 			jobsToTransfer.add(serverJobToInclude);

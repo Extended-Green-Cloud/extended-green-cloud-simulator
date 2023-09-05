@@ -5,7 +5,6 @@ import static com.greencloud.application.utils.JobUtils.getJobById;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static java.util.Objects.isNull;
 
-import com.greencloud.application.agents.greenenergy.GreenEnergyAgent;
 import com.greencloud.application.agents.server.ServerAgent;
 import com.greencloud.application.domain.agent.GreenSourceData;
 import com.greencloud.application.domain.agent.ImmutableGreenSourceData;
@@ -38,8 +37,8 @@ public class OfferMessageFactory {
 		if (isNull(job)) {
 			throw new JobNotFoundException();
 		}
-		final int availablePower = serverAgent.manage().getAvailableCapacity(job, null, null);
-		final ServerData jobOffer = new ImmutableServerData(servicePrice, availablePower, jobId);
+		final double powerConsumption = serverAgent.resources().getPowerConsumption(job.getStartTime(), job.getEndTime());
+		final ServerData jobOffer = new ImmutableServerData(servicePrice, powerConsumption, jobId);
 
 		return MessageBuilder.builder()
 				.copy(cnaMessage.createReply())
@@ -51,18 +50,18 @@ public class OfferMessageFactory {
 	/**
 	 * Method used in making the proposal message containing the offer made by the Green Energy Agent
 	 *
-	 * @param greenEnergyAgent      green energy which is making the power supply offer
+	 * @param costForJob            cost for execution of given job
 	 * @param averageAvailablePower power available during job execution
 	 * @param predictionError       error associated with power calculations
 	 * @param jobId                 unique identifier of the job of interest
 	 * @param message               reply message as which the power supply offer is to be sent
 	 * @return PROPOSE ACLMessage
 	 */
-	public static ACLMessage prepareGreenEnergyPowerSupplyOffer(final GreenEnergyAgent greenEnergyAgent,
+	public static ACLMessage prepareGreenEnergyPowerSupplyOffer(final double costForJob,
 			final double averageAvailablePower, final double predictionError, final String jobId,
 			final ACLMessage message) {
 		final GreenSourceData responseData = ImmutableGreenSourceData.builder()
-				.pricePerPowerUnit(greenEnergyAgent.getPricePerPowerUnit())
+				.priceForEnergySupply(costForJob)
 				.availablePowerInTime(averageAvailablePower)
 				.powerPredictionError(predictionError)
 				.jobId(jobId)

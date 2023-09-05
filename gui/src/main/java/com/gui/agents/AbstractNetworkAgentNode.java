@@ -4,18 +4,13 @@ import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 
 import java.io.Serializable;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.gui.message.ImmutableIsActiveMessage;
-import com.gui.message.ImmutableSetMaximumCapacityMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
-import com.gui.message.domain.ImmutableCapacity;
 
 /**
  * Class represents abstract generic agent node which is a part of cloud network
  */
 public abstract class AbstractNetworkAgentNode extends AbstractAgentNode implements Serializable {
-
-	protected AtomicDouble initialMaximumCapacity;
 
 	protected AbstractNetworkAgentNode() {
 	}
@@ -23,38 +18,20 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode impleme
 	/**
 	 * Network agent node constructor
 	 *
-	 * @param agentName       agent node name
-	 * @param maximumCapacity maximum capacity of network agent
+	 * @param agentName agent node name
 	 */
-	protected AbstractNetworkAgentNode(final String agentName, final double maximumCapacity) {
+	protected AbstractNetworkAgentNode(final String agentName) {
 		super(agentName);
-		this.initialMaximumCapacity = new AtomicDouble(maximumCapacity);
-	}
-
-	/**
-	 * Function updates the current maximum capacity to given value
-	 *
-	 * @param maxCapacity new maximum capacity
-	 * @param powerInUse  current power in use
-	 */
-	public void updateMaximumCapacity(final int maxCapacity, final int powerInUse) {
-		getAgentsWebSocket().send(ImmutableSetMaximumCapacityMessage.builder()
-				.agentName(agentName)
-				.data(ImmutableCapacity.builder()
-						.maximumCapacity(maxCapacity)
-						.powerInUse(powerInUse)
-						.build())
-				.build());
 	}
 
 	/**
 	 * Function updates the current traffic for given value
 	 *
-	 * @param powerInUse current power in use
+	 * @param traffic current traffic
 	 */
-	public void updateTraffic(final double powerInUse) {
+	public void updateTraffic(final double traffic) {
 		getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
-				.data(powerInUse)
+				.data(traffic)
 				.agentName(agentName)
 				.type("SET_TRAFFIC")
 				.build());

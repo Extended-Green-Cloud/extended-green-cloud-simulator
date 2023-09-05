@@ -7,7 +7,7 @@ import java.time.Instant;
 
 import com.greencloud.application.agents.AbstractAgentManagement;
 import com.greencloud.application.agents.server.ServerAgent;
-import com.greencloud.application.agents.server.behaviour.powershortage.initiator.InitiateJobTransferInCloudNetwork;
+import com.greencloud.application.agents.server.behaviour.errorhandling.initiator.InitiateJobTransferInCloudNetwork;
 import com.greencloud.application.domain.job.JobInstanceIdentifier;
 import com.greencloud.application.domain.job.JobPowerShortageTransfer;
 

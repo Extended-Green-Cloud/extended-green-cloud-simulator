@@ -20,7 +20,7 @@ import jade.lang.acl.MessageTemplate;
 public class PowerShortageCloudMessageTemplates {
 
 	public static final MessageTemplate SERVER_JOB_TRANSFER_REQUEST_TEMPLATE = and(MatchPerformative(REQUEST),
-			MatchProtocol(MessageProtocolConstants.POWER_SHORTAGE_ALERT_PROTOCOL));
+			MatchProtocol(MessageProtocolConstants.NETWORK_ERROR_ALERT_PROTOCOL));
 	public static final MessageTemplate SERVER_JOB_TRANSFER_CONFIRMATION_TEMPLATE = or(
 			and(MatchPerformative(INFORM), MatchProtocol(CONFIRMED_TRANSFER_PROTOCOL)),
 			and(MatchPerformative(FAILURE), MatchProtocol(FAILED_TRANSFER_PROTOCOL)));

@@ -12,11 +12,11 @@ export const styles: Styles = {
       width: '100%',
       marginTop: '10px',
       justifyContent: 'center',
-      height: '95%'
+      height: '100%'
    },
    indicatorWrapper: {
       margin: '0px 2px',
       width: '9.8vw',
-      height: '80%'
+      height: '90%'
    }
 }

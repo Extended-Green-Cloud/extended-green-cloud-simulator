@@ -36,11 +36,6 @@ public class HandleGenericJobStatusUpdate extends AbstractJobUpdateHandler {
 		if (serverUpdateStatuses.contains(message.getConversationId())) {
 			measureTimeToRetrieveTheMessage(jobUpdate);
 		}
-
-		if (!myClient.isSplit()) {
-			updateInformationOfJobStatusUpdate(jobUpdate);
-		} else {
-			updateInformationOfJobPartStatusUpdate(jobUpdate);
-		}
+		updateInformationOfJobStatusUpdate(jobUpdate);
 	}
 }

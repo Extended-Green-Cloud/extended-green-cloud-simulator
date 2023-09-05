@@ -38,9 +38,28 @@ export const convertMillisToString = (ms: number) => {
    const millis = Math.round(ms % 1000)
    seconds = Math.round(seconds % 60)
 
-   if (minutes === 0 && seconds === 0) return Math.round(ms) + 'ms'
-   if (minutes === 0) return seconds + 's ' + millis + 'ms'
-   return minutes + 'min ' + seconds + 's ' + millis + 'ms'
+   if (minutes === 0 && seconds === 0) return Math.round(ms) + ' ms'
+   if (minutes === 0 && millis !== 0) return seconds + ' s ' + millis + ' ms'
+   if (minutes === 0) return seconds + ' s'
+   if (millis !== 0) return minutes + ' min ' + seconds + ' s ' + millis + 'ms'
+   return minutes + ' min ' + seconds + ' s'
+}
+
+/**
+ * Method converts seconds to formatted time string
+ *
+ * @param {number}[seconds] - number of seconds
+ * @returns formatted string
+ */
+export const convertSecondsToString = (seconds: number) => {
+   const minutes = Math.floor(seconds / 60)
+   const hours = Math.floor(minutes / 60)
+   const days = Math.floor(hours / 24)
+
+   if (days > 0) return days + ' d'
+   if (hours > 0) return hours + ' h'
+   if (minutes > 0) return minutes + ' min'
+   return seconds
 }
 
 /**

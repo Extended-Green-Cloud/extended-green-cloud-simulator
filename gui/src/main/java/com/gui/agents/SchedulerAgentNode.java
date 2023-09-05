@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import com.greencloud.commons.args.agent.scheduler.ImmutableSchedulerNodeArgs;
 import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
-import com.greencloud.commons.domain.job.ClientJob;
+import com.greencloud.commons.domain.job.ScheduledJobIdentity;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateJobQueueMessage;
@@ -17,7 +17,7 @@ import com.gui.message.ImmutableUpdateJobQueueMessage;
 public class SchedulerAgentNode extends AbstractAgentNode {
 
 	final double deadlinePriorityWeight;
-	final double powerPriorityWeight;
+	final double cpuPriorityWeight;
 	final int maxQueueSize;
 
 	/**
@@ -29,8 +29,8 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 		super(args.getName());
 
 		this.deadlinePriorityWeight =
-				(double) args.getDeadlineWeight() / (args.getDeadlineWeight() + args.getPowerWeight());
-		this.powerPriorityWeight = (double) args.getPowerWeight() / (args.getPowerWeight() + args.getDeadlineWeight());
+				(double) args.getDeadlineWeight() / (args.getDeadlineWeight() + args.getCpuWeight());
+		this.cpuPriorityWeight = (double) args.getCpuWeight() / (args.getCpuWeight() + args.getDeadlineWeight());
 
 		this.maxQueueSize = args.getMaximumQueueSize();
 	}
@@ -41,7 +41,7 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 				.data(ImmutableSchedulerNodeArgs.builder()
 						.name(agentName)
 						.deadlinePriority(deadlinePriorityWeight)
-						.powerPriority(powerPriorityWeight)
+						.cpuPriority(cpuPriorityWeight)
 						.maxQueueSize(maxQueueSize)
 						.build())
 				.build());
@@ -52,7 +52,7 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 	 *
 	 * @param updatedJobQueue current job queue
 	 */
-	public void updateScheduledJobQueue(final LinkedList<ClientJob> updatedJobQueue) {
+	public void updateScheduledJobQueue(final LinkedList<ScheduledJobIdentity> updatedJobQueue) {
 		getAgentsWebSocket().send(ImmutableUpdateJobQueueMessage.builder().data(updatedJobQueue).build());
 	}
 
@@ -70,15 +70,15 @@ public class SchedulerAgentNode extends AbstractAgentNode {
 	}
 
 	/**
-	 * Method updates the power priority in the scheduler agent
+	 * Method updates the CPU priority in the scheduler agent
 	 *
 	 * @param value value being new power priority (eg. 0.2 as for 20%)
 	 */
-	public void updatePowerPriority(final double value) {
+	public void updateCPUPriority(final double value) {
 		getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
 				.data(value)
 				.agentName(agentName)
-				.type("UPDATE_SCHEDULER_POWER_PRIORITY")
+				.type("UPDATE_SCHEDULER_CPU_PRIORITY")
 				.build());
 	}
 }

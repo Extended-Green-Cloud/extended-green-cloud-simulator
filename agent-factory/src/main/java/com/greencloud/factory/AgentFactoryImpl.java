@@ -1,21 +1,21 @@
 package com.greencloud.factory;
 
-import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
 import static com.greencloud.commons.args.agent.client.ClientTimeType.SIMULATION;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LATITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LONGITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_PRICE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_TYPE;
+import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_IDLE_POWER;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_JOB_LIMIT;
-import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAXIMUM_CAPACITY;
+import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
-import static java.lang.String.format;
+import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
 import static java.lang.String.valueOf;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.time.temporal.ValueRange;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
@@ -29,6 +29,8 @@ import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
 import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
 import com.greencloud.commons.args.agent.server.ServerAgentArgs;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
+import com.greencloud.commons.args.job.JobArgs;
+import com.greencloud.commons.domain.resources.HardwareResources;
 
 public class AgentFactoryImpl implements AgentFactory {
 
@@ -48,21 +50,31 @@ public class AgentFactoryImpl implements AgentFactory {
 
 	@Override
 	public ServerAgentArgs createDefaultServerAgent(String ownerCNA) {
-		return createServerAgent(ownerCNA, null, null, null);
+		return createServerAgent(ownerCNA, null, null, null, null, null);
 	}
 
 	@Override
-	public ServerAgentArgs createServerAgent(String ownerCNA, Integer maximumCapacity, Integer price,
+	public ServerAgentArgs createServerAgent(String ownerCNA,
+			HardwareResources resources,
+			Integer maxPower,
+			Integer idlePower,
+			Integer price,
 			Integer jobProcessingLimit) {
 
 		if (isNull(ownerCNA)) {
-			throw new IllegalArgumentException("ownerCna should not be null");
+			throw new IllegalArgumentException("Owner CNA should be specified.");
 		}
-		if (Objects.nonNull(maximumCapacity) && maximumCapacity < 0) {
-			throw new IllegalArgumentException("maximumCapacity is invalid");
+		if (nonNull(resources) && (resources.getStorage() < 0 || resources.getMemory() < 0 || resources.getCpu() < 0)) {
+			throw new IllegalArgumentException("Hardware resources cannot be smaller than 0.");
 		}
-		if (Objects.nonNull(price) && price < 0) {
-			throw new IllegalArgumentException("price is invalid");
+		if (nonNull(maxPower) && (maxPower < 0)) {
+			throw new IllegalArgumentException("Maximum power consumption of the server cannot be smaller than 0.");
+		}
+		if (nonNull(idlePower) && (idlePower < 0)) {
+			throw new IllegalArgumentException("Idle power consumption of the server cannot be smaller than 0.");
+		}
+		if (nonNull(price) && price < 0) {
+			throw new IllegalArgumentException("Price per power unit cannot be smaller than 0.");
 		}
 
 		String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
@@ -70,11 +82,11 @@ public class AgentFactoryImpl implements AgentFactory {
 		return ImmutableServerAgentArgs.builder()
 				.name(serverAgentName)
 				.ownerCloudNetwork(ownerCNA)
-				.maximumCapacity(
-						isNull(maximumCapacity) ? TEMPLATE_SERVER_MAXIMUM_CAPACITY : maximumCapacity.toString())
-				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price.toString())
-				.jobProcessingLimit(
-						isNull(jobProcessingLimit) ? TEMPLATE_SERVER_JOB_LIMIT : jobProcessingLimit.toString())
+				.maxPower(isNull(maxPower) ? TEMPLATE_SERVER_MAX_POWER : maxPower)
+				.idlePower(isNull(idlePower) ? TEMPLATE_SERVER_IDLE_POWER : idlePower)
+				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
+				.resources(isNull(resources) ? TEMPLATE_SERVER_RESOURCES : resources)
+				.jobProcessingLimit(isNull(jobProcessingLimit) ? TEMPLATE_SERVER_JOB_LIMIT : jobProcessingLimit)
 				.build();
 	}
 
@@ -97,33 +109,30 @@ public class AgentFactoryImpl implements AgentFactory {
 		if (isNull(monitoringAgentName) || isNull(ownerServerName)) {
 			throw new IllegalArgumentException("monitoringAgentName and ownerServerName should not be null");
 		}
-		if (Objects.nonNull(maximumCapacity) && maximumCapacity < 0) {
+		if (nonNull(maximumCapacity) && maximumCapacity < 0) {
 			throw new IllegalArgumentException("maximumCapacity is invalid");
 		}
-		if (Objects.nonNull(pricePerPowerUnit) && pricePerPowerUnit < 0) {
+		if (nonNull(pricePerPowerUnit) && pricePerPowerUnit < 0) {
 			throw new IllegalArgumentException("pricePerPowerUnit is invalid");
 		}
-		if (Objects.nonNull(latitude) && ValueRange.of(-90, 90).isValidIntValue(latitude)) {
+		if (nonNull(latitude) && ValueRange.of(-90, 90).isValidIntValue(latitude)) {
 			throw new IllegalArgumentException("latitude is invalid");
 		}
-		if (Objects.nonNull(longitude) && ValueRange.of(-180, 180).isValidIntValue(longitude)) {
+		if (nonNull(longitude) && ValueRange.of(-180, 180).isValidIntValue(longitude)) {
 			throw new IllegalArgumentException("longitude is invalid");
 		}
 
 		String greenEnergyAgentName = "ExtraGreenEnergy" + greenEnergyAgentsCreated.incrementAndGet();
 		return ImmutableGreenEnergyAgentArgs.builder()
 				.name(greenEnergyAgentName)
-				.weatherPredictionError("0.02")
+				.weatherPredictionError(0.02)
 				.monitoringAgent(monitoringAgentName)
 				.ownerSever(ownerServerName)
 				.latitude(isNull(latitude) ? TEMPLATE_GREEN_ENERGY_LATITUDE : latitude.toString())
 				.longitude(isNull(longitude) ? TEMPLATE_GREEN_ENERGY_LONGITUDE : longitude.toString())
-				.maximumCapacity(isNull(maximumCapacity) ?
-						TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY :
-						maximumCapacity.toString())
-				.weatherPredictionError(isNull(weatherPredictionError) ? "0.0" : weatherPredictionError.toString())
-				.pricePerPowerUnit(
-						isNull(pricePerPowerUnit) ? TEMPLATE_GREEN_ENERGY_PRICE : pricePerPowerUnit.toString())
+				.maximumCapacity(isNull(maximumCapacity) ? TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY : maximumCapacity)
+				.weatherPredictionError(isNull(weatherPredictionError) ? 0.0 : weatherPredictionError)
+				.pricePerPowerUnit(isNull(pricePerPowerUnit) ? TEMPLATE_GREEN_ENERGY_PRICE : pricePerPowerUnit)
 				.energyType(isNull(energyType) ? TEMPLATE_GREEN_ENERGY_TYPE : energyType.name())
 				.build();
 	}
@@ -139,19 +148,13 @@ public class AgentFactoryImpl implements AgentFactory {
 	@Override
 	public ClientAgentArgs createClientAgent(final String name,
 			final String jobId,
-			final int power,
-			final int start,
-			final int end,
-			final int deadline,
-			final ClientTimeType timeType) {
+			final ClientTimeType timeType,
+			final JobArgs clientJob) {
 		return ImmutableClientAgentArgs.builder()
 				.name(name)
 				.jobId(jobId)
-				.power(String.valueOf(power))
-				.start(String.valueOf(start))
-				.end(String.valueOf(end))
-				.deadline(String.valueOf(deadline))
 				.timeType(timeType)
+				.job(clientJob)
 				.build();
 	}
 
@@ -160,10 +163,7 @@ public class AgentFactoryImpl implements AgentFactory {
 		return ImmutableClientAgentArgs.builder()
 				.name(clientEventArgs.getName())
 				.jobId(valueOf(clientEventArgs.getJobId()))
-				.power(String.valueOf(clientEventArgs.getPower()))
-				.start(String.valueOf(clientEventArgs.getStart()))
-				.end(String.valueOf(clientEventArgs.getEnd()))
-				.deadline(String.valueOf(clientEventArgs.getDeadline()))
+				.job(clientEventArgs.getJob())
 				.timeType(SIMULATION)
 				.build();
 	}

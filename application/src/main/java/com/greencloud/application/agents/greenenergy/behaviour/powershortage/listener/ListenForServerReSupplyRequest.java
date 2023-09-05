@@ -89,11 +89,13 @@ public class ListenForServerReSupplyRequest extends CyclicBehaviour {
 
 	private BiConsumer<MonitoringData, Exception> getResponseHandler(final ServerJob job, final ACLMessage request) {
 		return (data, e) -> {
-			final double availablePower = myGreenEnergyAgent.power().getAvailablePower(job, data, false).orElse(0D);
+			final double availableEnergy = myGreenEnergyAgent.power().getAvailableEnergy(job, data, false)
+					.orElse(0D);
+			final double energyForJob = job.getEstimatedEnergy();
 
 			MDC.put(MDC_JOB_ID, job.getJobId());
-			if (job.getPower() > availablePower) {
-				logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, job.getPower(), availablePower, job.getJobId());
+			if (energyForJob > availableEnergy) {
+				logger.info(RE_SUPPLY_FAILURE_NO_POWER_JOB_LOG, energyForJob, availableEnergy, job.getJobId());
 				myGreenEnergyAgent.send(prepareStringReply(request, NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE, REFUSE));
 			} else {
 				if (myGreenEnergyAgent.getServerJobs().containsKey(job)) {

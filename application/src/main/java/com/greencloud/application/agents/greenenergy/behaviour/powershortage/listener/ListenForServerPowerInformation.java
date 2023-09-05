@@ -8,9 +8,9 @@ import static com.greencloud.application.agents.greenenergy.behaviour.powershort
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.logs.PowerShortageSourceListenerLog.SERVER_POWER_SHORTAGE_START_NOT_FOUND_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.listener.templates.PowerShortageSourceMessageTemplates.SERVER_POWER_SHORTAGE_INFORMATION_TEMPLATE;
 import static com.greencloud.application.agents.greenenergy.constants.GreenEnergyAgentConstants.MAX_NUMBER_OF_SERVER_MESSAGES;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ALERT_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ALERT_PROTOCOL;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL;
 import static com.greencloud.application.utils.JobUtils.getJobByInstanceIdAndServer;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
 import static com.greencloud.application.utils.MessagingUtils.readMessageContent;
@@ -70,12 +70,12 @@ public class ListenForServerPowerInformation extends CyclicBehaviour {
 		if (nonNull(messages)) {
 			messages.forEach(msg -> {
 				switch (msg.getProtocol()) {
-					case SERVER_POWER_SHORTAGE_ALERT_PROTOCOL -> handleServerPowerShortageStart(msg);
-					case POWER_SHORTAGE_FINISH_ALERT_PROTOCOL -> handlePowerSupplyUpdate(msg,
+					case INTERNAL_SERVER_ERROR_ALERT_PROTOCOL -> handleServerPowerShortageStart(msg);
+					case NETWORK_ERROR_FINISH_ALERT_PROTOCOL -> handlePowerSupplyUpdate(msg,
 							SERVER_POWER_SHORTAGE_FINISH_NOT_FOUND_LOG,
 							SERVER_POWER_SHORTAGE_FINISH_CHANGE_LOG,
 							EXECUTING_ON_GREEN);
-					case SERVER_POWER_SHORTAGE_ON_HOLD_PROTOCOL -> handlePowerSupplyUpdate(msg,
+					case INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL -> handlePowerSupplyUpdate(msg,
 							SERVER_POWER_SHORTAGE_FAILURE_NOT_FOUND_LOG,
 							SERVER_POWER_SHORTAGE_FAILURE_PUT_ON_HOLD_LOG,
 							EXECUTING_ON_HOLD);

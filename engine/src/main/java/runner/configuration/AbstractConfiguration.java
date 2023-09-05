@@ -1,5 +1,6 @@
 package runner.configuration;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.io.File.separator;
 
 import runner.EngineRunner;
@@ -30,5 +31,9 @@ public class AbstractConfiguration {
 			return String.join("/", pathElements);
 		}
 		return String.join(separator, pathElements);
+	}
+
+	protected static String ifNotBlankThenGetOrElse(final String property, final String defaultVal) {
+		return isNullOrEmpty(property) ? defaultVal : property;
 	}
 }

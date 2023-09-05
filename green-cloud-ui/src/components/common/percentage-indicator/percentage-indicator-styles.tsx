@@ -15,9 +15,8 @@ export const styles: Styles = {
       alignItems: 'center',
       justifyContent: 'space-around',
       width: '80%',
-      height: '98%',
-      maxHeight: '300px',
-      padding: '15px 10px 10px 10px',
+      height: '95%',
+      padding: '15px 10px 10px 15px',
       minWidth: 'fit-content',
       boxShadow: 'var(--event-shadow)',
       borderRadius: 20,
@@ -32,7 +31,7 @@ export const styles: Styles = {
       width: '100%'
    },
    percentageIndicatorContainer: {
-      width: '10vw',
+      width: '9vw',
       display: 'flex',
       flexShrink: 0,
       paddingBottom: '10px'

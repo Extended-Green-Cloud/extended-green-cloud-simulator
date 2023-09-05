@@ -9,10 +9,8 @@ import java.time.Instant;
 
 import com.database.knowledge.domain.agent.client.ImmutableClientStatisticsData;
 import com.greencloud.application.agents.client.ClientAgent;
-import com.greencloud.application.agents.client.domain.ClientJobExecution;
 import com.greencloud.application.agents.client.domain.enums.ClientJobUpdateEnum;
 import com.greencloud.application.domain.job.JobStatusUpdate;
-import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
 import com.gui.agents.ClientAgentNode;
 
 import jade.core.behaviours.OneShotBehaviour;
@@ -78,20 +76,6 @@ public abstract class AbstractJobUpdateHandler extends OneShotBehaviour {
 	}
 
 	/**
-	 * Method updates information after job part status update
-	 *
-	 * @param jobUpdate data of job part update
-	 */
-	protected void updateInformationOfJobPartStatusUpdate(final JobStatusUpdate jobUpdate) {
-		final String jobPartId = jobUpdate.getJobInstance().getJobId();
-		final JobClientStatusEnum jobStatus = updateEnum.getJobStatus();
-
-		((ClientAgentNode) myClient.getAgentNode()).updateJobStatus(jobStatus, jobPartId);
-		myClient.getJobParts().get(jobPartId).updateJobStatusDuration(jobStatus, jobUpdate.getChangeTime());
-		myClient.manage().updateOriginalJobStatus(jobStatus);
-	}
-
-	/**
 	 * Method updates time frames of client job (for original job, not job part)
 	 *
 	 * @param newStart new job start time
@@ -104,24 +88,5 @@ public abstract class AbstractJobUpdateHandler extends OneShotBehaviour {
 		((ClientAgentNode) myClient.getAgentNode()).updateJobTimeFrame(
 				convertToRealTime(myClient.getJobExecution().getJobSimulatedStart()),
 				convertToRealTime(myClient.getJobExecution().getJobSimulatedEnd()));
-	}
-
-	/**
-	 * Method updates time frames of client job part
-	 *
-	 * @param jobPartId id of given job part
-	 * @param newStart  new job start time
-	 * @param newEnd    new job end time
-	 */
-	protected void readjustJobPartTimeFrames(final String jobPartId, final Instant newStart, final Instant newEnd) {
-		final ClientJobExecution jobPart = myClient.getJobParts().get(jobPartId);
-
-		jobPart.setJobSimulatedStart(newStart);
-		jobPart.setJobSimulatedEnd(newEnd);
-
-		((ClientAgentNode) myClient.getAgentNode()).updateJobTimeFrame(
-				convertToRealTime(jobPart.getJobSimulatedStart()),
-				convertToRealTime(jobPart.getJobSimulatedEnd()),
-				jobPartId);
 	}
 }

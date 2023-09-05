@@ -1,19 +1,19 @@
 package com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer;
 
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.CHANGE_JOB_STATUS_LOG;
-import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.NO_POWER_LEAVE_ON_HOLD_LOG;
+import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.NO_ENERGY_LEAVE_ON_HOLD_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_FINISH_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_FINISH_NO_JOBS_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_JOB_ENDED_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.POWER_SHORTAGE_SOURCE_VERIFY_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.powershortage.announcer.logs.PowerShortageSourceAnnouncerLog.WEATHER_UNAVAILABLE_JOB_LOG;
 import static com.greencloud.application.agents.greenenergy.behaviour.weathercheck.request.RequestWeatherData.createWeatherRequest;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.mapper.JobMapper.mapToJobInstanceId;
+import static com.greencloud.application.messages.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
 import static com.greencloud.application.messages.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.POWER_SHORTAGE_FINISH_ALERT_PROTOCOL;
-import static com.greencloud.application.messages.factory.PowerShortageMessageFactory.prepareJobPowerShortageInformation;
+import static com.greencloud.application.messages.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static com.greencloud.application.utils.JobUtils.isJobStarted;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static java.lang.String.join;
 import static java.util.Objects.nonNull;
@@ -76,7 +76,7 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 				}
 			});
 		}
-		myGreenAgent.setCurrentMaximumCapacity(myGreenAgent.getInitialMaximumCapacity());
+		myGreenAgent.setHasError(false);
 	}
 
 	private Behaviour prepareVerificationBehaviour(final ServerJob affectedJob) {
@@ -94,9 +94,9 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 				return;
 			}
 
-			final Optional<Double> availablePower = myGreenAgent.power().getAvailablePower(job, data, false);
-			if (availablePower.isEmpty() || job.getPower() > availablePower.get()) {
-				logger.info(NO_POWER_LEAVE_ON_HOLD_LOG, job.getJobId());
+			final Optional<Double> availableEnergy = myGreenAgent.power().getAvailableEnergy(job, data, false);
+			if (availableEnergy.isEmpty() || job.getEstimatedEnergy() > availableEnergy.get()) {
+				logger.info(NO_ENERGY_LEAVE_ON_HOLD_LOG, job.getJobId());
 			} else {
 				logger.info(CHANGE_JOB_STATUS_LOG, job.getJobId());
 				final boolean isJobStarted = isJobStarted(job, myGreenAgent.getServerJobs());
@@ -104,8 +104,8 @@ public class AnnounceSourcePowerShortageFinish extends OneShotBehaviour {
 
 				myGreenAgent.getServerJobs().replace(job, newStatus);
 				myGreenAgent.manage().updateGUI();
-				myGreenAgent.send(prepareJobPowerShortageInformation(mapToJobInstanceId(job),
-						POWER_SHORTAGE_FINISH_ALERT_PROTOCOL, job.getServer()));
+				myGreenAgent.send(prepareNetworkFailureInformation(mapToJobInstanceId(job),
+						NETWORK_ERROR_FINISH_ALERT_PROTOCOL, job.getServer()));
 			}
 		};
 	}

@@ -6,7 +6,6 @@ package com.greencloud.application.agents.greenenergy.behaviour.powershortage.in
 public class PowerShortageSourceInitiatorLog {
 
 	// POWER SHORTAGE IN GREEN SOURCE TRANSFER REQUEST LOG MESSAGES
-	public static final String SOURCE_JOB_TRANSFER_PROCESSING_LOG = "Server {} is working on the job {} transfer.";
 	public static final String SOURCE_JOB_TRANSFER_REFUSE_NOT_FOUND_LOG =
 			"The job {} does not exist anymore. Finishing the job.";
 	public static final String SOURCE_JOB_TRANSFER_REFUSE_LOG =

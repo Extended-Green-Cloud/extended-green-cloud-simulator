@@ -15,7 +15,7 @@ public interface EnableServerMessage extends Message {
 
 	String getCna();
 
-	double getCapacity();
+	double getCpu();
 
 	default String getType() {
 		return "ENABLE_SERVER";

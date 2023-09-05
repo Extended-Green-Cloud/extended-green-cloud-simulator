@@ -15,7 +15,7 @@ public interface DisableServerMessage extends Message {
 
 	String getCna();
 
-	double getCapacity();
+	double getCpu();
 
 	default String getType() {
 		return "DISABLE_SERVER";

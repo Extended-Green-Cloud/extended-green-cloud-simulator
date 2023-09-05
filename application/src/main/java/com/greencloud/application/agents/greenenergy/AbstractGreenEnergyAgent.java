@@ -9,7 +9,6 @@ import static java.util.Objects.nonNull;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.application.agents.AbstractAgent;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyAdaptationManagement;
 import com.greencloud.application.agents.greenenergy.management.GreenEnergyStateManagement;
@@ -34,8 +33,9 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 
 	protected double pricePerPowerUnit;
 	protected double weatherPredictionError;
-	protected int initialMaximumCapacity;
-	protected int currentMaximumCapacity;
+	protected int maximumGeneratorCapacity;
+
+	protected boolean hasError;
 
 	AbstractGreenEnergyAgent() {
 		super();
@@ -100,20 +100,19 @@ public abstract class AbstractGreenEnergyAgent extends AbstractAgent {
 		return energyType;
 	}
 
-	public int getInitialMaximumCapacity() {
-		return initialMaximumCapacity;
+	public int getMaximumGeneratorCapacity() {
+		return maximumGeneratorCapacity;
 	}
 
-	@VisibleForTesting
-	public void setInitialMaximumCapacity(int initialMaximumCapacity) {
-		this.initialMaximumCapacity = initialMaximumCapacity;
+	public void setMaximumGeneratorCapacity(final int maximumGeneratorCapacity) {
+		this.maximumGeneratorCapacity = maximumGeneratorCapacity;
 	}
 
-	public int getCurrentMaximumCapacity() {
-		return currentMaximumCapacity;
+	public boolean isHasError() {
+		return hasError;
 	}
 
-	public void setCurrentMaximumCapacity(int currentMaximumCapacity) {
-		this.currentMaximumCapacity = currentMaximumCapacity;
+	public void setHasError(final boolean hasError) {
+		this.hasError = hasError;
 	}
 }

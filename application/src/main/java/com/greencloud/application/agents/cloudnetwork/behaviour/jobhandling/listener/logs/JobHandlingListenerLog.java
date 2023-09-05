@@ -27,8 +27,4 @@ public class JobHandlingListenerLog {
 			"Sending information that the job {} execution has finished";
 	public static final String SEND_JOB_FAILED_STATUS_LOG =
 			"Sending information that the job {} execution has failed";
-
-	// JOB CANCELLING LOG MESSAGES
-	public static final String CANCEL_JOB_IN_SERVERS =
-			"Sending request to cancel {} job parts of job with id {} in underlying Servers!";
 }

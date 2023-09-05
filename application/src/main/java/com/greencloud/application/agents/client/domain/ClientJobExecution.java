@@ -6,12 +6,15 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
-import com.greencloud.commons.time.Timer;
 import com.greencloud.commons.domain.job.ClientJob;
 import com.greencloud.commons.domain.job.ImmutableClientJob;
+import com.greencloud.commons.domain.job.JobStep;
 import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
+import com.greencloud.commons.domain.resources.HardwareResources;
+import com.greencloud.commons.time.Timer;
 
 import jade.core.AID;
 
@@ -21,6 +24,7 @@ import jade.core.AID;
 public class ClientJobExecution {
 
 	protected final Timer timer = new Timer();
+	protected String jobType;
 	protected ClientJob job;
 	protected Instant jobSimulatedStart;
 	protected Instant jobSimulatedEnd;
@@ -44,37 +48,41 @@ public class ClientJobExecution {
 	 * @param jobStatus            current job status
 	 */
 	public ClientJobExecution(final ClientJob job, final Instant jobSimulatedStart, final Instant jobSimulatedEnd,
-			final Instant jobSimulatedDeadline, final JobClientStatusEnum jobStatus) {
+			final Instant jobSimulatedDeadline, final JobClientStatusEnum jobStatus, final String jobType) {
 		this();
 		this.job = job;
 		this.jobSimulatedStart = jobSimulatedStart;
 		this.jobSimulatedEnd = jobSimulatedEnd;
 		this.jobSimulatedDeadline = jobSimulatedDeadline;
 		this.jobStatus = jobStatus;
+		this.jobType = jobType;
 	}
 
 	/**
 	 * Class constructor
 	 *
-	 * @param clientAID identifier of the client
-	 * @param start     job execution start time (converted to simulation time)
-	 * @param end       job execution end time (converted to simulation time)
-	 * @param deadline  job execution deadline (converted to simulation time)
-	 * @param power     power needed for job execution
-	 * @param jobId     job identifier
+	 * @param clientAID       identifier of the client
+	 * @param start           job execution start time (converted to simulation time)
+	 * @param end             job execution end time (converted to simulation time)
+	 * @param deadline        job execution deadline (converted to simulation time)
+	 * @param jobRequirements requirements of the job sent by the client
+	 * @param jobSteps list of job steps
+	 * @param jobId           job identifier
 	 */
 	public ClientJobExecution(final AID clientAID, final Instant start, final Instant end,
-			final Instant deadline, final int power, final String jobId) {
+			final Instant deadline, final HardwareResources jobRequirements, final List<JobStep> jobSteps,
+			final String jobId, final String jobType) {
 		this(ImmutableClientJob.builder()
 						.jobId(jobId)
 						.startTime(start)
 						.endTime(end)
 						.deadline(deadline)
-						.power(power)
+						.estimatedResources(jobRequirements)
 						.clientIdentifier(clientAID.getName())
+						.jobSteps(jobSteps)
 						.clientAddress(clientAID.getAddressesArray()[0])
 						.build(),
-				start, end, deadline, CREATED);
+				start, end, deadline, CREATED, jobType);
 	}
 
 	public ClientJob getJob() {
@@ -115,6 +123,10 @@ public class ClientJobExecution {
 
 	public Map<JobClientStatusEnum, Long> getJobDurationMap() {
 		return jobDurationMap;
+	}
+
+	public String getJobType() {
+		return jobType;
 	}
 
 	public void setJobDurationMap(

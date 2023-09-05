@@ -8,14 +8,15 @@ import static com.greencloud.application.agents.greenenergy.constants.GreenEnerg
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.AVERAGE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.CURRENT_AVAILABLE_POWER_LOG;
 import static com.greencloud.application.agents.greenenergy.management.logs.GreenEnergyManagementLog.SOLAR_FARM_SHUTDOWN_LOG;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.application.utils.AlgorithmUtils.computeIncorrectMaximumValProbability;
-import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailablePowerDuringTimeStamp;
+import static com.greencloud.application.utils.AlgorithmUtils.getMinimalAvailableEnergyDuringTimeStamp;
 import static com.greencloud.application.utils.TimeUtils.convertToRealTime;
 import static com.greencloud.application.utils.TimeUtils.getSunTimes;
 import static com.greencloud.application.utils.TimeUtils.isWithinTimeStamp;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
+import static com.greencloud.commons.domain.job.enums.JobExecutionStatusEnum.IN_PROGRESS;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.String.format;
@@ -65,19 +66,19 @@ public class GreenPowerManagement extends AbstractAgentManagement {
 	}
 
 	/**
-	 * Computes power available in the Green Source at the given moment
+	 * Computes energy available in the Green Source at the given moment
 	 *
 	 * @param time    time of the check (in real time)
 	 * @param weather monitoring data with weather for requested timetable
-	 * @return average available power as decimal or empty optional if power not available
+	 * @return average available energy as decimal or empty optional if power not available
 	 */
-	public synchronized Optional<Double> getAvailablePower(final Instant time, final MonitoringData weather) {
+	public synchronized Optional<Double> getAvailableEnergy(final Instant time, final MonitoringData weather) {
 		final double inUseCapacity = greenEnergyAgent.getServerJobs().entrySet().stream()
 				.filter(job -> ACTIVE_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(job.getKey(), time))
 				.map(Map.Entry::getKey)
-				.mapToInt(ServerJob::getPower)
+				.mapToDouble(ServerJob::getEstimatedEnergy)
 				.sum();
-		final Double availablePower = getAvailableGreenPower(weather, time) - inUseCapacity;
+		final Double availablePower = getAvailableGreenEnergy(weather, time) - inUseCapacity;
 		final String power = format("%.2f", availablePower);
 		logger.info(CURRENT_AVAILABLE_POWER_LOG, greenEnergyAgent.getEnergyType(), power, time);
 
@@ -85,30 +86,28 @@ public class GreenPowerManagement extends AbstractAgentManagement {
 	}
 
 	/**
-	 * Function computes available power, based on retrieved monitoring data and time
+	 * Function computes available energy, based on retrieved monitoring data and time
 	 *
 	 * @param monitoringData - weather information
 	 * @param dateTime       - time when the power will be used
 	 * @return power in Watts
 	 */
-	public double getAvailableGreenPower(final MonitoringData monitoringData, final Instant dateTime) {
+	public double getAvailableGreenEnergy(final MonitoringData monitoringData, final Instant dateTime) {
 		final WeatherData weather = monitoringData.getDataForTimestamp(dateTime)
 				.orElse(getNearestWeather(monitoringData, dateTime));
-		final double availablePower = getPowerForSourceType(weather, dateTime.atZone(UTC));
-		final double maxCapacity = greenEnergyAgent.getCurrentMaximumCapacity();
-
-		return min(availablePower, maxCapacity);
+		final double availableEnergy = getEnergyForSourceType(weather, dateTime.atZone(UTC));
+		return min(availableEnergy, greenEnergyAgent.getMaximumGeneratorCapacity());
 	}
 
 	/**
-	 * Method computes power that is available during computation of the given job
+	 * Method computes energy that is available during computation of the given job
 	 *
 	 * @param serverJob job of interest
 	 * @param weather   monitoring data with weather for requested job time frames
 	 * @param isNewJob  flag indicating whether job of interest is a new job or already added job
-	 * @return available power as decimal or empty optional if power is not available
+	 * @return available energy as decimal or empty optional if energy is not available
 	 */
-	public synchronized Optional<Double> getAvailablePower(final ServerJob serverJob, final MonitoringData weather,
+	public synchronized Optional<Double> getAvailableEnergy(final ServerJob serverJob, final MonitoringData weather,
 			final boolean isNewJob) {
 		final Set<JobExecutionStatusEnum> jobStatuses = isNewJob ? ACCEPTED_JOB_STATUSES : ACTIVE_JOB_STATUSES;
 		final Set<ServerJob> serverJobsOfInterest = greenEnergyAgent.getServerJobs().entrySet().stream()
@@ -120,21 +119,20 @@ public class GreenPowerManagement extends AbstractAgentManagement {
 		final Instant realJobStartTime = convertToRealTime(serverJob.getStartTime());
 		final Instant realJobEndTime = convertToRealTime(serverJob.getEndTime());
 
-		final double availablePower =
-				getMinimalAvailablePowerDuringTimeStamp(
+		final double availableEnergy =
+				getMinimalAvailableEnergyDuringTimeStamp(
 						serverJobsOfInterest,
 						realJobStartTime,
 						realJobEndTime,
 						INTERVAL_LENGTH_MIN,
 						this,
-						greenEnergyAgent.getCurrentMaximumCapacity(),
+						greenEnergyAgent.getMaximumGeneratorCapacity(),
 						weather);
-		final String power = format("%.2f", availablePower);
+		final String power = format("%.2f", availableEnergy);
 
 		MDC.put(MDC_JOB_ID, serverJob.getJobId());
 		logger.info(AVERAGE_POWER_LOG, greenEnergyAgent.getEnergyType(), power, realJobStartTime, realJobEndTime);
-
-		return Optional.of(availablePower).filter(powerVal -> powerVal > 0.0);
+		return Optional.of(availableEnergy).filter(powerVal -> powerVal > 0.0);
 	}
 
 	/**
@@ -153,19 +151,53 @@ public class GreenPowerManagement extends AbstractAgentManagement {
 		return min(1, availablePowerError + greenEnergyAgent.getWeatherPredictionError());
 	}
 
-	private double getPowerForSourceType(final WeatherData weather, final ZonedDateTime dateTime) {
+	/**
+	 * Method computes the current energy usage percentage (with respect to maximal generator capacity).
+	 *
+	 * @return energy percentage
+	 */
+	public double getCurrentEnergyPercentage() {
+		return greenEnergyAgent.getMaximumGeneratorCapacity() == 0 ? 0 :
+				getCurrentEnergyInUse() / (double) greenEnergyAgent.getMaximumGeneratorCapacity();
+	}
+
+	/**
+	 * Method computes the energy usage percentage (with respect to maximal generator capacity).
+	 *
+	 * @param availableEnergy amount of available energy
+	 * @return energy percentage
+	 */
+	public double getEnergyPercentage(final double availableEnergy) {
+		return greenEnergyAgent.getMaximumGeneratorCapacity() == 0 ? 0 :
+				availableEnergy / (double) greenEnergyAgent.getMaximumGeneratorCapacity();
+	}
+
+	/**
+	 * Method computes currently used amount of energy.
+	 *
+	 * @return energy in use
+	 */
+	public double getCurrentEnergyInUse() {
+		return greenEnergyAgent.getServerJobs().entrySet()
+				.stream()
+				.filter(job -> job.getValue().equals(IN_PROGRESS))
+				.mapToDouble(job -> job.getKey().getEstimatedEnergy())
+				.sum();
+	}
+
+	private double getEnergyForSourceType(final WeatherData weather, final ZonedDateTime dateTime) {
 		return switch (greenEnergyAgent.getEnergyType()) {
-			case SOLAR -> getSolarPower(weather, dateTime, greenEnergyAgent.getLocation());
-			case WIND -> getWindPower(weather);
+			case SOLAR -> getSolarEnergy(weather, dateTime, greenEnergyAgent.getLocation());
+			case WIND -> getWindEnergy(weather);
 		};
 	}
 
-	private double getWindPower(WeatherData weather) {
-		return greenEnergyAgent.getCurrentMaximumCapacity() * pow((weather.getWindSpeed() + 5 - CUT_ON_WIND_SPEED)
+	private double getWindEnergy(WeatherData weather) {
+		return greenEnergyAgent.getMaximumGeneratorCapacity() * pow((weather.getWindSpeed() + 5 - CUT_ON_WIND_SPEED)
 				/ (RATED_WIND_SPEED - CUT_ON_WIND_SPEED), 2) * TEST_MULTIPLIER;
 	}
 
-	private double getSolarPower(WeatherData weather, ZonedDateTime dateTime, Location location) {
+	private double getSolarEnergy(WeatherData weather, ZonedDateTime dateTime, Location location) {
 		final SunTimes sunTimes = getSunTimes(dateTime, location);
 		final LocalTime dayTime = dateTime.toLocalTime();
 
@@ -175,7 +207,7 @@ public class GreenPowerManagement extends AbstractAgentManagement {
 			return 0;
 		}
 
-		return greenEnergyAgent.getCurrentMaximumCapacity() * min(weather.getCloudCover() / 100 + 0.1, 1)
+		return greenEnergyAgent.getMaximumGeneratorCapacity() * min(weather.getCloudCover() / 100 + 0.1, 1)
 				* TEST_MULTIPLIER;
 	}
 

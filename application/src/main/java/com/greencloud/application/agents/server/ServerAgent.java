@@ -5,6 +5,7 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ENABLE_SERVER;
 import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.ADAPTATION_MANAGEMENT;
 import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.COMMUNICATION_MANAGEMENT;
+import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.RESOURCE_MANAGEMENT;
 import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.STATE_MANAGEMENT;
 import static com.greencloud.application.yellowpages.YellowPagesService.deregister;
 import static com.greencloud.application.yellowpages.YellowPagesService.register;
@@ -23,21 +24,21 @@ import org.slf4j.Logger;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.greencloud.application.agents.server.behaviour.df.SubscribeGreenSourceService;
-import com.greencloud.application.agents.server.behaviour.df.listener.ListenForCloudNetworkCapacityCheckRequest;
 import com.greencloud.application.agents.server.behaviour.df.listener.ListenForGreenSourceServiceUpdate;
+import com.greencloud.application.agents.server.behaviour.errorhandling.handler.HandleSourcePowerShortageJobs;
+import com.greencloud.application.agents.server.behaviour.errorhandling.listener.ListenForSourceJobTransferRequest;
+import com.greencloud.application.agents.server.behaviour.errorhandling.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForJobStartCheckRequest;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForManualJobFinish;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForNewJob;
 import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForPowerSupplyUpdate;
-import com.greencloud.application.agents.server.behaviour.jobexecution.listener.ListenForServerJobCancellation;
-import com.greencloud.application.agents.server.behaviour.powershortage.handler.HandleSourcePowerShortageJobs;
-import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourceJobTransferRequest;
-import com.greencloud.application.agents.server.behaviour.powershortage.listener.ListenForSourcePowerShortageFinish;
 import com.greencloud.application.agents.server.behaviour.sensor.SenseServerEvent;
 import com.greencloud.application.agents.server.management.ServerAdaptationManagement;
 import com.greencloud.application.agents.server.management.ServerCommunicationManagement;
+import com.greencloud.application.agents.server.management.ServerResourceManagement;
 import com.greencloud.application.agents.server.management.ServerStateManagement;
 import com.greencloud.application.behaviours.ListenForAdaptationAction;
+import com.greencloud.commons.domain.resources.HardwareResources;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
 import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
 
@@ -54,18 +55,19 @@ public class ServerAgent extends AbstractServerAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		if (args.length >= 6) {
+		if (args.length >= 8) {
 			this.ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 
 			try {
 				this.pricePerHour = parseDouble(args[1].toString());
-				this.currentMaximumCapacity = parseInt(args[2].toString());
-				this.initialMaximumCapacity = parseInt(args[2].toString());
-				this.jobProcessingLimit = parseInt(args[3].toString());
+				this.maxPowerConsumption = parseInt(args[2].toString());
+				this.idlePowerConsumption = parseInt(args[3].toString());
+				this.jobProcessingLimit = parseInt(args[4].toString());
+				this.resources = (HardwareResources) (args[5]);
 
 				// Additional argument indicates if the ServerAgent is going to be moved to another container
 				// In such case, its service should be registered after moving
-				if (args.length != 6 || !parseBoolean(args[4].toString())) {
+				if (args.length != 8 || !parseBoolean(args[6].toString())) {
 					register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
 							this.getOwnerCloudNetworkAgent().getName());
 				}
@@ -85,6 +87,7 @@ public class ServerAgent extends AbstractServerAgent {
 		this.agentManagementServices = new EnumMap<>(
 				Map.of(STATE_MANAGEMENT, new ServerStateManagement(this),
 						ADAPTATION_MANAGEMENT, new ServerAdaptationManagement(this),
+						RESOURCE_MANAGEMENT, new ServerResourceManagement(this),
 						COMMUNICATION_MANAGEMENT, new ServerCommunicationManagement(this)));
 	}
 
@@ -100,8 +103,6 @@ public class ServerAgent extends AbstractServerAgent {
 				new ListenForSourcePowerShortageFinish(),
 				new HandleSourcePowerShortageJobs(this),
 				new ListenForManualJobFinish(),
-				new ListenForServerJobCancellation(),
-				new ListenForCloudNetworkCapacityCheckRequest(this),
 				new ListenForGreenSourceServiceUpdate(this),
 				new ListenForAdaptationAction(this)
 		);

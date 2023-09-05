@@ -2,15 +2,16 @@ package com.gui.agents;
 
 import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 
-import java.util.List;
 import java.util.Optional;
 
-import com.greencloud.commons.args.agent.server.ImmutableServerNodeArgs;
+import com.greencloud.commons.args.agent.server.ServerNodeArgs;
+import com.greencloud.commons.domain.resources.HardwareResources;
 import com.gui.event.domain.PowerShortageEvent;
 import com.gui.message.ImmutableDisableServerMessage;
 import com.gui.message.ImmutableEnableServerMessage;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.message.ImmutableUpdateResourcesMessage;
 
 import jade.util.leap.Serializable;
 
@@ -19,8 +20,7 @@ import jade.util.leap.Serializable;
  */
 public class ServerAgentNode extends AbstractNetworkAgentNode implements Serializable {
 
-	private String cloudNetworkAgent;
-	private List<String> greenEnergyAgents;
+	private ServerNodeArgs serverNodeArgs;
 
 	public ServerAgentNode() {
 		super();
@@ -29,31 +29,18 @@ public class ServerAgentNode extends AbstractNetworkAgentNode implements Seriali
 	/**
 	 * Server node constructor
 	 *
-	 * @param name              node name
-	 * @param maximumCapacity   maximum server capacity
-	 * @param cloudNetworkAgent name of the owner cloud network
-	 * @param greenEnergyAgents names of owned green sources
+	 * @param serverNodeArgs aarguments of given server node
 	 */
-	public ServerAgentNode(
-			String name,
-			double maximumCapacity,
-			String cloudNetworkAgent,
-			List<String> greenEnergyAgents) {
-		super(name, maximumCapacity);
-		this.cloudNetworkAgent = cloudNetworkAgent;
-		this.greenEnergyAgents = greenEnergyAgents;
+	public ServerAgentNode(ServerNodeArgs serverNodeArgs) {
+		super(serverNodeArgs.getName());
+		this.serverNodeArgs = serverNodeArgs;
 	}
 
 	@Override
 	public void addToGraph() {
 		getAgentsWebSocket().send(ImmutableRegisterAgentMessage.builder()
 				.agentType("SERVER")
-				.data(ImmutableServerNodeArgs.builder()
-						.name(agentName)
-						.maximumCapacity(initialMaximumCapacity.get())
-						.cloudNetworkAgent(cloudNetworkAgent)
-						.greenEnergyAgents(greenEnergyAgents)
-						.build())
+				.data(serverNodeArgs)
 				.build());
 	}
 
@@ -67,6 +54,23 @@ public class ServerAgentNode extends AbstractNetworkAgentNode implements Seriali
 				.data(backUpPowerInUse)
 				.agentName(agentName)
 				.type("SET_SERVER_BACK_UP_TRAFFIC")
+				.build());
+	}
+
+	/**
+	 * Function updates current in-use resources
+	 *
+	 * @param resources              currently utilized resources
+	 * @param powerConsumption       current power consumption
+	 * @param powerConsumptionBackUp current back-up power consumption
+	 */
+	public void updateResources(final HardwareResources resources, final double powerConsumption,
+			final double powerConsumptionBackUp) {
+		getAgentsWebSocket().send(ImmutableUpdateResourcesMessage.builder()
+				.resources(resources)
+				.powerConsumption(powerConsumption)
+				.powerConsumptionBackUp(powerConsumptionBackUp)
+				.agentName(agentName)
 				.build());
 	}
 
@@ -88,9 +92,9 @@ public class ServerAgentNode extends AbstractNetworkAgentNode implements Seriali
 	 */
 	public void disableServer() {
 		getAgentsWebSocket().send(ImmutableDisableServerMessage.builder()
-				.cna(cloudNetworkAgent)
+				.cna(serverNodeArgs.getCloudNetworkAgent())
 				.server(agentName)
-				.capacity(initialMaximumCapacity.get())
+				.cpu(serverNodeArgs.getCpu())
 				.build());
 	}
 
@@ -99,9 +103,9 @@ public class ServerAgentNode extends AbstractNetworkAgentNode implements Seriali
 	 */
 	public void enableServer() {
 		getAgentsWebSocket().send(ImmutableEnableServerMessage.builder()
-				.cna(cloudNetworkAgent)
+				.cna(serverNodeArgs.getCloudNetworkAgent())
 				.server(agentName)
-				.capacity(initialMaximumCapacity.get())
+				.cpu(serverNodeArgs.getCpu())
 				.build());
 	}
 

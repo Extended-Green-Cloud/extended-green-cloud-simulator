@@ -1,6 +1,5 @@
 package com.greencloud.application.agents.client.domain.enums;
 
-import static com.greencloud.application.agents.client.behaviour.jobannouncement.handler.logs.JobAnnouncementHandlerLog.CLIENT_JOB_SPLIT_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_BACK_UP_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_DELAY_LOG;
 import static com.greencloud.application.agents.client.behaviour.jobannouncement.listener.logs.JobAnnouncementListenerLog.CLIENT_JOB_FAILED_LOG;
@@ -38,7 +37,6 @@ public enum ClientJobUpdateEnum {
 	FINISH_JOB_ID(FINISHED, null),
 	FAILED_JOB_ID(FAILED, CLIENT_JOB_FAILED_LOG),
 	POSTPONED_JOB_ID(null, CLIENT_JOB_POSTPONE_LOG),
-	SPLIT_JOB_ID(null, CLIENT_JOB_SPLIT_LOG),
 	RE_SCHEDULED_JOB_ID(null, CLIENT_JOB_RESCHEDULED_LOG);
 
 	private final JobClientStatusEnum jobStatus;

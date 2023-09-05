@@ -23,6 +23,9 @@ interface Props {
 const ValueIndicator = ({ title, value, icon, color, wrapperStyle }: Props) => {
    const Icon = icon
    const { wrapper, container, titleStyle, valueStyle, iconStyle } = styles
+   const width = icon ? '50%' : '80%'
+
+   const styleValue = { ...valueStyle, width }
    const styleIcon = color ? { ...iconStyle, color } : iconStyle
    const styleWrapper = wrapperStyle ? { ...wrapper, ...wrapperStyle } : wrapper
 
@@ -30,7 +33,7 @@ const ValueIndicator = ({ title, value, icon, color, wrapperStyle }: Props) => {
       <div style={styleWrapper}>
          <div style={titleStyle}>{title.toUpperCase()}</div>
          <div style={container}>
-            <div style={valueStyle}>{value}</div>
+            <div style={styleValue}>{value}</div>
             {Icon && <Icon {...styleIcon} />}
          </div>
       </div>
