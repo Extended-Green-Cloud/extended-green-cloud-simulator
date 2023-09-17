@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.monitoring.behaviour.templates;
+package org.greencloud.agentsystem.agents.monitoring.behaviour.templates;
 
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;

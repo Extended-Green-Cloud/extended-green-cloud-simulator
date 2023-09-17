@@ -1,4 +1,4 @@
-package com.greencloud.application.agents.monitoring.management.logs;
+package org.greencloud.agentsystem.agents.monitoring.management.logs;
 
 /**
  * Class contains all constants dedicated to logging messages in Monitoring management services

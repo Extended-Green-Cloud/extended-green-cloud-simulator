@@ -155,7 +155,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		final String deadline = clientAgent.formatClientDeadline();
 
 		return containerController.createNewAgent(clientAgent.getName(),
-				"com.greencloud.application.agents.client.ClientAgent",
+				"org.greencloud.agentsystem.agents.client.ClientAgent",
 				new Object[] { mainDFAddress,
 						mainHostPlatformId,
 						startDate,
@@ -169,7 +169,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(schedulerAgent.getName(),
-				"com.greencloud.application.agents.scheduler.SchedulerAgent",
+				"org.greencloud.agentsystem.agents.scheduler.SchedulerAgent",
 				new Object[] { schedulerAgent.getDeadlineWeight(),
 						schedulerAgent.getCpuWeight(),
 						schedulerAgent.getMaximumQueueSize(),
@@ -181,7 +181,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(cloudNetworkAgent.getName(),
-				"com.greencloud.application.agents.cloudnetwork.CloudNetworkAgent",
+				"org.greencloud.agentsystem.agents.cloudnetwork.CloudNetworkAgent",
 				new Object[] { mainDFAddress, mainHostPlatformId, isInformer, managingAgent });
 	}
 
@@ -189,7 +189,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(serverAgent.getName(),
-				"com.greencloud.application.agents.server.ServerAgent",
+				"org.greencloud.agentsystem.agents.server.ServerAgent",
 				new Object[] { serverAgent.getOwnerCloudNetwork(),
 						serverAgent.getPrice(),
 						serverAgent.getMaxPower(),
@@ -204,7 +204,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(greenEnergyAgent.getName(),
-				"com.greencloud.application.agents.greenenergy.GreenEnergyAgent",
+				"org.greencloud.agentsystem.agents.greenenergy.GreenEnergyAgent",
 				new Object[] { greenEnergyAgent.getMonitoringAgent(),
 						greenEnergyAgent.getOwnerSever(),
 						greenEnergyAgent.getMaximumCapacity(),
@@ -221,7 +221,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),
-				"com.greencloud.application.agents.monitoring.MonitoringAgent",
+				"org.greencloud.agentsystem.agents.monitoring.MonitoringAgent",
 				new Object[] { monitoringAgent.getBadStubProbability(), isInformer, managingAgent });
 	}
 }

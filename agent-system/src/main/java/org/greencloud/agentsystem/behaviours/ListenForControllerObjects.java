@@ -1,10 +1,10 @@
-package com.greencloud.application.behaviours;
+package org.greencloud.agentsystem.behaviours;
 
-import static com.greencloud.application.utils.GuiUtils.connectAgentObject;
+import static org.greencloud.agentsystem.utils.AgentConnector.connectAgentObject;
 
 import java.util.List;
 
-import com.greencloud.application.agents.AbstractAgent;
+import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
@@ -13,9 +13,9 @@ import jade.core.behaviours.ParallelBehaviour;
 /**
  * Generic behaviour responsible for retrieving the GUI controller for a given agent
  */
-public class ReceiveGUIController extends CyclicBehaviour {
+public class ListenForControllerObjects extends CyclicBehaviour {
 
-	private final AbstractAgent abstractAgent;
+	private final AbstractAgent<?, ?> abstractAgent;
 	private final List<Behaviour> initialBehaviours;
 	private int objectCounter;
 
@@ -25,7 +25,7 @@ public class ReceiveGUIController extends CyclicBehaviour {
 	 * @param agent             agent executing the behaviour
 	 * @param initialBehaviours initial behaviour for given agent
 	 */
-	public ReceiveGUIController(final AbstractAgent agent, final List<Behaviour> initialBehaviours) {
+	public ListenForControllerObjects(final AbstractAgent<?, ?> agent, final List<Behaviour> initialBehaviours) {
 		super(agent);
 		this.abstractAgent = agent;
 		this.initialBehaviours = initialBehaviours;

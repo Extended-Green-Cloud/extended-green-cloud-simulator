@@ -1,10 +1,10 @@
-package com.greencloud.application.agents.monitoring.domain;
+package org.greencloud.agentsystem.agents.monitoring.domain;
 
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static com.greencloud.commons.time.TimeUtils.getCurrentTime;
 
-import com.greencloud.application.domain.weather.ImmutableMonitoringData;
-import com.greencloud.application.domain.weather.ImmutableWeatherData;
-import com.greencloud.application.domain.weather.MonitoringData;
+import com.greencloud.commons.domain.weather.ImmutableMonitoringData;
+import com.greencloud.commons.domain.weather.ImmutableWeatherData;
+import com.greencloud.commons.domain.weather.MonitoringData;
 
 /**
  * Class stores all predefined constants for Monitoring Agent
@@ -17,7 +17,6 @@ import com.greencloud.application.domain.weather.MonitoringData;
  */
 public class MonitoringAgentConstants {
 
-	public static final double BAD_STUB_PROBABILITY = 0.02;
 	public static final MonitoringData STUB_DATA =
 			ImmutableMonitoringData.builder()
 					.addWeatherData(ImmutableWeatherData.builder()

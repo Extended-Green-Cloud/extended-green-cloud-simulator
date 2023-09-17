@@ -1,15 +1,14 @@
-package com.greencloud.application.agents.monitoring.behaviour;
+package org.greencloud.agentsystem.agents.monitoring.behaviour;
 
-import static com.greencloud.application.agents.monitoring.behaviour.logs.WeatherServingLog.SERVE_FORECAST_LOG;
-import static com.greencloud.application.agents.monitoring.behaviour.templates.WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE;
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_DATA;
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.MAX_NUMBER_OF_WEATHER_REQUESTS;
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.WEATHER_REQUESTS_IN_BATCH;
-import static com.greencloud.application.messages.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
-import static com.greencloud.application.messages.factory.PowerCheckMessageFactory.prepareWeatherDataResponse;
-import static com.greencloud.application.utils.MessagingUtils.readMessageContent;
+import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_DATA;
+import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.MAX_NUMBER_OF_WEATHER_REQUESTS;
+import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
+import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.WEATHER_REQUESTS_IN_BATCH;
+import static com.greencloud.commons.message.WeatherCheckMessageFactory.prepareWeatherDataResponse;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_AGENT_NAME;
+import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
+import static com.greencloud.commons.message.MessageReader.readMessageContent;
+import static com.greencloud.commons.message.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
 import static java.lang.Math.max;
 import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -19,13 +18,15 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.collections4.ListUtils;
+import org.greencloud.agentsystem.agents.monitoring.behaviour.logs.WeatherServingLog;
+import org.greencloud.agentsystem.agents.monitoring.behaviour.templates.WeatherServingMessageTemplates;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import com.greencloud.application.agents.monitoring.MonitoringAgent;
-import com.greencloud.application.domain.agent.GreenSourceForecastData;
-import com.greencloud.application.domain.agent.GreenSourceWeatherData;
-import com.greencloud.application.domain.weather.MonitoringData;
+import org.greencloud.agentsystem.agents.monitoring.MonitoringAgent;
+import com.greencloud.commons.domain.agent.GreenSourceForecastData;
+import com.greencloud.commons.domain.agent.GreenSourceWeatherData;
+import com.greencloud.commons.domain.weather.MonitoringData;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -54,14 +55,12 @@ public class ServeForecastWeather extends CyclicBehaviour implements Serializabl
 	 */
 	@Override
 	public void action() {
-		final List<ACLMessage> messages = monitoringAgent.receive(SERVE_FORECAST_TEMPLATE,
+		final List<ACLMessage> messages = monitoringAgent.receive(WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE,
 				MAX_NUMBER_OF_WEATHER_REQUESTS);
 
 		if (nonNull(messages)) {
 			ListUtils.partition(messages, WEATHER_REQUESTS_IN_BATCH).stream().parallel()
 					.forEach(list -> list.forEach(msg -> {
-						MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
-						logger.info(SERVE_FORECAST_LOG);
 						final boolean isPeriodicCheck = msg.getConversationId().equals(PERIODIC_WEATHER_CHECK_PROTOCOL);
 						final MonitoringData data = isPeriodicCheck ?
 								getWeatherDataForPeriodicCheck(msg) :
@@ -76,20 +75,31 @@ public class ServeForecastWeather extends CyclicBehaviour implements Serializabl
 
 	private MonitoringData getWeatherForecast(final ACLMessage message) {
 		final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
-		return monitoringAgent.isOfflineMode() ? STUB_DATA : monitoringAgent.manageWeather().getForecast(requestData);
+
+		MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
+		MDC.put(MDC_JOB_ID,requestData.getJobId());
+		logger.info(WeatherServingLog.SERVE_FORECAST_FOR_JOB_LOG, requestData.getJobId());
+
+		return monitoringAgent.getProperties().isOfflineMode() ?
+				STUB_DATA :
+				monitoringAgent.weather().getForecast(requestData);
 	}
 
 	private MonitoringData getWeatherDataForPeriodicCheck(final ACLMessage message) {
 		final GreenSourceWeatherData requestData = readMessageContent(message, GreenSourceWeatherData.class);
+
+		MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
+		logger.info(WeatherServingLog.SERVE_FORECAST_LOG);
+
 		final double badWeatherPredictionProbability =
-				max(monitoringAgent.getBadStubProbability() - requestData.getPredictionError(), 0);
+				max(monitoringAgent.getProperties().getBadStubProbability() - requestData.getPredictionError(), 0);
 
 		if ((double) STUB_DATA_RANDOM.nextInt(100) / 100 < badWeatherPredictionProbability) {
 			return BAD_STUB_DATA;
 		} else {
-			return monitoringAgent.isOfflineMode() ?
+			return monitoringAgent.getProperties().isOfflineMode() ?
 					STUB_DATA :
-					monitoringAgent.manageWeather().getWeather(requestData);
+					monitoringAgent.weather().getWeather(requestData);
 		}
 	}
 

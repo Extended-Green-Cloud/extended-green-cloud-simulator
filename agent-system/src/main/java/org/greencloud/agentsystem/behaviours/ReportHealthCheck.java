@@ -1,9 +1,11 @@
-package com.greencloud.application.behaviours;
+package org.greencloud.agentsystem.behaviours;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
+import static java.util.Objects.nonNull;
+
+import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import com.database.knowledge.domain.agent.HealthCheck;
-import com.greencloud.application.agents.AbstractAgent;
 
 import jade.core.behaviours.TickerBehaviour;
 
@@ -18,14 +20,14 @@ public class ReportHealthCheck extends TickerBehaviour {
 	 * according to that metric
 	 */
 	private static final long HEALTH_CHECK_PERIOD = 250;
-	private final AbstractAgent myAbstractAgent;
+	private final AbstractAgent<?, ?> myAbstractAgent;
 
 	/**
 	 * Behaviour constructor
 	 *
 	 * @param agent agent executing the behaviour
 	 */
-	public ReportHealthCheck(final AbstractAgent agent) {
+	public ReportHealthCheck(final AbstractAgent<?, ?> agent) {
 		super(agent, HEALTH_CHECK_PERIOD);
 		myAbstractAgent = agent;
 	}
@@ -35,6 +37,9 @@ public class ReportHealthCheck extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		myAbstractAgent.writeMonitoringData(HEALTH_CHECK, new HealthCheck(true, myAbstractAgent.getAgentType()));
+		if (nonNull(myAbstractAgent.getAgentNode())) {
+			myAbstractAgent.getAgentNode().getDatabaseClient().writeMonitoringData(myAbstractAgent.getName(),
+					HEALTH_CHECK, new HealthCheck(true, myAbstractAgent.getProperties().getAgentType()));
+		}
 	}
 }

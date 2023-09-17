@@ -1,0 +1,18 @@
+package org.greencloud.agentsystem.agents.greenenergy;
+
+import org.greencloud.agentsystem.agents.AbstractAgent;
+
+import com.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import com.gui.agents.GreenEnergyNode;
+
+/**
+ * Abstract agent class storing data of the Green Source Energy Agent
+ */
+public abstract class AbstractGreenEnergyAgent extends AbstractAgent<GreenEnergyNode, GreenEnergyAgentProps> {
+
+	AbstractGreenEnergyAgent() {
+		super();
+		this.properties = new GreenEnergyAgentProps(getName());
+	}
+
+}

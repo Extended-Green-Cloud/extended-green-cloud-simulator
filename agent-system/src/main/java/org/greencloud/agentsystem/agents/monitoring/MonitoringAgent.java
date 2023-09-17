@@ -1,7 +1,5 @@
-package com.greencloud.application.agents.monitoring;
+package org.greencloud.agentsystem.agents.monitoring;
 
-import static com.greencloud.application.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_PROBABILITY;
-import static com.greencloud.application.domain.agent.enums.AgentManagementEnum.WEATHER_MANAGEMENT;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.util.Collections.singletonList;
@@ -9,15 +7,14 @@ import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.InputStream;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
+import org.greencloud.agentsystem.agents.monitoring.behaviour.ServeForecastWeather;
+import org.greencloud.agentsystem.agents.monitoring.management.MonitoringWeatherManagement;
 import org.slf4j.Logger;
 
-import com.greencloud.application.agents.monitoring.behaviour.ServeForecastWeather;
-import com.greencloud.application.agents.monitoring.management.MonitoringWeatherManagement;
+import com.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
 
 import jade.core.behaviours.Behaviour;
 
@@ -30,22 +27,12 @@ public class MonitoringAgent extends AbstractMonitoringAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
+		this.properties = new MonitoringAgentProps(getName());
+
 		if (args.length > 2 && nonNull(args[0])) {
-			this.badStubProbability = parseDouble(String.valueOf(args[0]));
-		} else {
-			this.badStubProbability = BAD_STUB_PROBABILITY;
+			this.properties.setBadStubProbability(parseDouble(String.valueOf(args[0])));
 		}
 		readOfflineMode();
-	}
-
-	/**
-	 * Abstract method used to initialize agent management services
-	 */
-	@Override
-	protected void initializeAgentManagements() {
-		this.agentManagementServices = new EnumMap<>(Map.of(
-				WEATHER_MANAGEMENT, new MonitoringWeatherManagement()
-		));
 	}
 
 	@Override
@@ -53,15 +40,20 @@ public class MonitoringAgent extends AbstractMonitoringAgent {
 		return singletonList(new ServeForecastWeather(this));
 	}
 
+	@Override
+	protected void afterMove() {
+		super.afterMove();
+		this.weatherManagement = new MonitoringWeatherManagement();
+	}
+
 	private void readOfflineMode() {
 		final Properties properties = new Properties();
 
 		try (final InputStream res = getClass().getClassLoader().getResourceAsStream("config.properties")) {
 			properties.load(res);
-			this.offlineMode = parseBoolean(properties.getProperty("offline.mode"));
+			this.properties.setOfflineMode(parseBoolean(properties.getProperty("offline.mode")));
 		} catch (Exception exception) {
 			logger.warn("Could not load properties file {}. Setting offline mode to false.", exception.toString());
-			this.offlineMode = false;
 		}
 	}
 }

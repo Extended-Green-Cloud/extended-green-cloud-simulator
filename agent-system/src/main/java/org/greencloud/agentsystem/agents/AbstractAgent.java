@@ -1,31 +1,35 @@
-package com.greencloud.application.agents;
+package org.greencloud.agentsystem.agents;
 
-import static com.greencloud.application.messages.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
-import static com.greencloud.commons.agent.AgentType.CLIENT;
-import static com.greencloud.commons.agent.AgentType.MANAGING;
+import static com.greencloud.commons.message.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
+import static com.greencloud.commons.args.agent.AgentType.CLIENT;
+import static com.greencloud.commons.args.agent.AgentType.MANAGING;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_AGENT_NAME;
 import static com.greencloud.commons.constants.LoggingConstant.MDC_CLIENT_NAME;
+import static com.greencloud.commons.domain.strategy.FactType.ADAPTATION_PARAMS;
+import static com.greencloud.commons.domain.strategy.FactType.ADAPTATION_TYPE;
+import static com.greencloud.commons.domain.strategy.FactType.MESSAGE;
+import static com.greencloud.commons.domain.strategy.FactType.RESULT;
+import static com.greencloud.commons.domain.strategy.FactType.RULE_TYPE;
+import static com.greencloud.commons.domain.strategy.RuleType.ADAPTATION_REQUEST_RULE;
+import static com.greencloud.commons.domain.strategy.RuleType.INITIALIZE_BEHAVIOURS_RULE;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
-import org.jeasy.rules.api.Facts;
+import org.greencloud.rulescontroller.RulesController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.agent.DataType;
-import com.database.knowledge.domain.agent.MonitoringData;
-import com.greencloud.application.behaviours.ReceiveGUIController;
-import com.greencloud.application.domain.agent.enums.AgentManagementEnum;
-import com.greencloud.commons.agent.AgentType;
+import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
+import com.greencloud.commons.args.agent.AgentNodeProps;
+import com.greencloud.commons.args.agent.AgentProps;
+import com.greencloud.commons.domain.strategy.facts.StrategyFacts;
 import com.greencloud.commons.exception.JadeContainerException;
 import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
-import com.gui.agents.AbstractAgentNode;
+import com.gui.agents.AbstractNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
@@ -34,26 +38,27 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.ControllerException;
-import rules.RulesController;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Abstract class representing agent which has the connection with GUI controller
  */
-public abstract class AbstractAgent extends Agent {
+@SuppressWarnings("unchecked")
+@Getter
+@Setter
+public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends AgentProps> extends Agent {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractAgent.class);
 
-	protected AgentType agentType;
-	protected AID parentDFAddress;
-	protected GuiController guiController;
-	protected AbstractAgentNode agentNode;
-	protected RulesController rulesController;
-	protected transient Map<AgentManagementEnum, AbstractAgentManagement> agentManagementServices;
+	protected T agentNode;
+	protected E properties;
 	protected ParallelBehaviour mainBehaviour;
+	protected GuiController guiController;
+	protected RulesController<E, T> rulesController;
 
 	protected AbstractAgent() {
 		setEnabledO2ACommunication(true, 3);
-		this.agentManagementServices = new EnumMap<>(AgentManagementEnum.class);
 	}
 
 	/**
@@ -71,12 +76,6 @@ public abstract class AbstractAgent extends Agent {
 	}
 
 	/**
-	 * Abstract method used to initialize agent management services
-	 */
-	protected void initializeAgentManagements() {
-	}
-
-	/**
 	 * Abstract method that is used to prepare starting behaviours for given agent
 	 */
 	protected List<Behaviour> prepareStartingBehaviours() {
@@ -87,7 +86,16 @@ public abstract class AbstractAgent extends Agent {
 	 * Abstract method responsible for running starting behaviours
 	 */
 	protected void runStartingBehaviours() {
-		addBehaviour(new ReceiveGUIController(this, prepareStartingBehaviours()));
+		addBehaviour(new ListenForControllerObjects(this, prepareStartingBehaviours()));
+	}
+
+	/**
+	 * Abstract method responsible for running initial custom behaviours prepared only for selected strategy
+	 */
+	protected void runInitialBehavioursForStrategy() {
+		final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+		facts.put(RULE_TYPE, INITIALIZE_BEHAVIOURS_RULE);
+		rulesController.fire(facts);
 	}
 
 	/**
@@ -99,8 +107,17 @@ public abstract class AbstractAgent extends Agent {
 	 */
 	public boolean executeAction(final AdaptationActionEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters) {
-		// this method must be overwritten in agent types that will be a target to adaptation
-		throw new UnsupportedOperationException();
+		if (nonNull(rulesController)) {
+			final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
+			facts.put(ADAPTATION_PARAMS, actionParameters);
+			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
+			rulesController.fire(facts);
+			return facts.get(RESULT);
+		} else {
+			logger.info("Cannot execute adaptation - rules controller has not been initialized.");
+			return false;
+		}
 	}
 
 	/**
@@ -114,22 +131,30 @@ public abstract class AbstractAgent extends Agent {
 	public void executeAction(final AdaptationActionEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters,
 			final ACLMessage adaptationMessage) {
-		// this method can be overwritten in agent types that will be a target to adaptation
-		throw new UnsupportedOperationException();
+		if (nonNull(rulesController)) {
+			final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+			facts.put(MESSAGE, adaptationMessage);
+			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
+			facts.put(ADAPTATION_PARAMS, actionParameters);
+			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
+			rulesController.fire(facts);
+		} else {
+			logger.info("Cannot execute adaptation - rules controller has not been initialized.");
+		}
 	}
 
 	/**
 	 * Method used to select rule based on given fact
+	 *
 	 * @param facts set of facts based on which given rule is triggered
 	 */
-	public void fireOnFacts(final Facts facts)
-	{
+	public void fireOnFacts(final StrategyFacts facts) {
 		rulesController.fire(facts);
 	}
 
 	@Override
 	public void clean(boolean ok) {
-		if (!ok && nonNull(getAgentNode()) && !agentType.equals(CLIENT)) {
+		if (!ok && nonNull(getAgentNode()) && !properties.getAgentType().equals(CLIENT)) {
 			getAgentNode().removeAgentNodeFromGraph();
 		}
 		super.clean(ok);
@@ -138,7 +163,7 @@ public abstract class AbstractAgent extends Agent {
 	@Override
 	protected void setup() {
 		logger.info("Setting up Agent {}", getName());
-		if (agentType.equals(CLIENT)) {
+		if (properties.getAgentType().equals(CLIENT)) {
 			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
 		} else {
 			MDC.put(MDC_AGENT_NAME, super.getLocalName());
@@ -148,10 +173,9 @@ public abstract class AbstractAgent extends Agent {
 		initializeAgent(arguments);
 		validateAgentArguments();
 		runStartingBehaviours();
-		initializeAgentManagements();
 
 		// checking if the managing agent should be informed about agent creation
-		if (arguments.length > 0 && !List.of(CLIENT, MANAGING).contains(agentType)
+		if (arguments.length > 0 && !List.of(CLIENT, MANAGING).contains(properties.getAgentType())
 				&& (boolean) arguments[arguments.length - 2]) {
 			try {
 				final AID managingAgent = (AID) arguments[arguments.length - 1];
@@ -165,7 +189,7 @@ public abstract class AbstractAgent extends Agent {
 
 	@Override
 	protected void takeDown() {
-		if (agentType.equals(CLIENT)) {
+		if (properties.getAgentType().equals(CLIENT)) {
 			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
 		} else {
 			MDC.put(MDC_AGENT_NAME, super.getLocalName());
@@ -173,12 +197,6 @@ public abstract class AbstractAgent extends Agent {
 
 		logger.info("I'm finished. Bye!");
 		super.takeDown();
-	}
-
-	@Override
-	protected void afterMove() {
-		super.afterMove();
-		initializeAgentManagements();
 	}
 
 	@Override
@@ -190,49 +208,11 @@ public abstract class AbstractAgent extends Agent {
 		}
 	}
 
-	public AgentType getAgentType() {
-		return agentType;
-	}
-
-	public AID getParentDFAddress() {
-		return parentDFAddress;
-	}
-
-	public AbstractAgentNode getAgentNode() {
-		return agentNode;
-	}
-
-	public void setAgentNode(AbstractAgentNode agentNode) {
-		this.agentNode = agentNode;
-	}
-
-	public GuiController getGuiController() {
-		return guiController;
-	}
-
-	public void setGuiController(GuiController guiController) {
-		this.guiController = guiController;
-	}
-
-	public void setRulesController(RulesController rulesController) {
+	public void setRulesController(RulesController<E, T> rulesController) {
 		this.rulesController = rulesController;
-		rulesController.setAgent(this);
-	}
-
-	public void setMainBehaviour(ParallelBehaviour mainBehaviour) {
-		this.mainBehaviour = mainBehaviour;
-	}
-
-	public void writeMonitoringData(DataType dataType, MonitoringData monitoringData) {
-		if (nonNull(agentNode)) {
-			agentNode.getDatabaseClient().writeMonitoringData(this.getAID().getName(), dataType, monitoringData);
-		}
-	}
-
-	/**
-	 * Method used primarily in testing
-	 */
-	public void addAgentManagement(final AbstractAgentManagement management, final AgentManagementEnum type) {
-		agentManagementServices.put(type, management);
+		properties.setAgentName(getName());
+		properties.setAgentNode((AgentNodeProps<AgentProps>) agentNode);
+		rulesController.setAgent(this, properties, agentNode);
+		runInitialBehavioursForStrategy();
 	}
 }
