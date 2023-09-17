@@ -1,5 +1,6 @@
 package com.greencloud.factory;
 
+import static com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_IDLE_POWER;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
@@ -15,10 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
+import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import com.greencloud.commons.args.agent.server.factory.ServerArgs;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -34,7 +35,7 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateServerDefaultValues() {
-		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, null, null, null, null);
+		ServerArgs result = factory.createServerAgent("OwnerCna1", null, null, null, null, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(TEMPLATE_SERVER_MAX_POWER);
@@ -46,7 +47,7 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateGreenSourceDefaultValues() {
-		GreenEnergyAgentArgs result = factory.createGreenEnergyAgent("monitoring1",
+		GreenEnergyArgs result = factory.createGreenEnergyAgent("monitoring1",
 				"server1",
 				null,
 				null,
@@ -59,15 +60,15 @@ class AgentFactoryUnitTest {
 		assertThat(result.getMaximumCapacity()).isEqualTo(TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY);
 		assertThat(result.getLatitude()).isEqualTo("50");
 		assertThat(result.getLongitude()).isEqualTo("20");
-		assertThat(result.getPricePerPowerUnit()).isEqualTo("10");
-		assertThat(result.getEnergyType()).isEqualTo("WIND");
+		assertThat(result.getPricePerPowerUnit()).isEqualTo(10L);
+		assertThat(result.getEnergyType()).isEqualTo(WIND);
 	}
 
 	@Test
 	void testGenerateCorrectNames() {
-		ServerAgentArgs result1 = factory.createServerAgent("1", null, null, 10, null, null);
-		ServerAgentArgs result2 = factory.createServerAgent("1", null, null, null, null, null);
-		MonitoringAgentArgs result3 = factory.createMonitoringAgent();
+		ServerArgs result1 = factory.createServerAgent("1", null, null, 10, null, null);
+		ServerArgs result2 = factory.createServerAgent("1", null, null, null, null, null);
+		MonitoringArgs result3 = factory.createMonitoringAgent();
 
 		Assertions.assertThat(result1.getName()).isEqualTo("ExtraServer1");
 		Assertions.assertThat(result2.getName()).isEqualTo("ExtraServer2");
@@ -91,14 +92,14 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreatingMonitoringAgent() {
-		MonitoringAgentArgs result = factory.createMonitoringAgent();
+		MonitoringArgs result = factory.createMonitoringAgent();
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraMonitoring1");
 	}
 
 	@Test
 	void testCreatingServerCustomValues() {
-		ServerAgentArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10, null);
+		ServerArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(150);

@@ -10,27 +10,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.greencloud.rulescontroller.RulesController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.scheduler.SchedulerAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.args.agent.client.factory.ClientArgs;
+import com.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import com.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
+import com.greencloud.commons.args.agent.server.factory.ServerArgs;
 import com.greencloud.commons.exception.JadeControllerException;
 import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.AbstractAgentNode;
+import com.gui.agents.AbstractNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import rules.RulesController;
 
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
@@ -80,27 +80,27 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
 	private AgentController createController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
 			Boolean isInformer, AID managingAgent) {
-		final AbstractAgentNode agentNode = agentNodeFactory.createAgentNode(agentArgs, scenario);
+		final AbstractNode<?, ?> agentNode = agentNodeFactory.createAgentNode(agentArgs, scenario);
 		var agentController = (AgentController) null;
 
 		try {
 			logger.info("Created {} agent.", agentArgs.getName());
-			if (agentArgs instanceof ClientAgentArgs clientAgent) {
+			if (agentArgs instanceof ClientArgs clientAgent) {
 				agentController = createClientController(clientAgent);
-			} else if (agentArgs instanceof ServerAgentArgs serverAgent) {
+			} else if (agentArgs instanceof ServerArgs serverAgent) {
 				agentController = createServerController(serverAgent, isInformer, managingAgent);
 			} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
 				agentController = createCloudNetworkController(cloudNetworkAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof GreenEnergyAgentArgs greenEnergyAgent) {
+			} else if (agentArgs instanceof GreenEnergyArgs greenEnergyAgent) {
 				agentController = createGreenSourceController(greenEnergyAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof MonitoringAgentArgs monitoringAgent) {
+			} else if (agentArgs instanceof MonitoringArgs monitoringAgent) {
 				agentController = createMonitoringController(monitoringAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof SchedulerAgentArgs schedulerAgent) {
+			} else if (agentArgs instanceof SchedulerArgs schedulerAgent) {
 				agentController = createSchedulerController(schedulerAgent, isInformer, managingAgent);
 			}
 
 			if (nonNull(agentController)) {
-				final RulesController rulesController = new RulesController();
+				final RulesController<?, ?> rulesController = new RulesController<>();
 				agentNode.setDatabaseClient(timescaleDatabase);
 				guiController.addAgentNodeToGraph(agentNode);
 				agentController.putO2AObject(guiController, ASYNC);
@@ -148,7 +148,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		}
 	}
 
-	private AgentController createClientController(final ClientAgentArgs clientAgent)
+	private AgentController createClientController(final ClientArgs clientAgent)
 			throws StaleProxyException {
 		final String startDate = clientAgent.formatClientTime(0);
 		final String endDate = clientAgent.formatClientTime(clientAgent.getJob().getDuration());
@@ -165,7 +165,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						clientAgent.getJobId() });
 	}
 
-	private AgentController createSchedulerController(final SchedulerAgentArgs schedulerAgent, Boolean isInformer,
+	private AgentController createSchedulerController(final SchedulerArgs schedulerAgent, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(schedulerAgent.getName(),
@@ -185,7 +185,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				new Object[] { mainDFAddress, mainHostPlatformId, isInformer, managingAgent });
 	}
 
-	private AgentController createServerController(final ServerAgentArgs serverAgent, Boolean isInformer,
+	private AgentController createServerController(final ServerArgs serverAgent, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(serverAgent.getName(),
@@ -200,7 +200,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						managingAgent });
 	}
 
-	private AgentController createGreenSourceController(final GreenEnergyAgentArgs greenEnergyAgent, Boolean isInformer,
+	private AgentController createGreenSourceController(final GreenEnergyArgs greenEnergyAgent, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(greenEnergyAgent.getName(),
@@ -217,7 +217,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						managingAgent });
 	}
 
-	private AgentController createMonitoringController(final MonitoringAgentArgs monitoringAgent, Boolean isInformer,
+	private AgentController createMonitoringController(final MonitoringArgs monitoringAgent, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),

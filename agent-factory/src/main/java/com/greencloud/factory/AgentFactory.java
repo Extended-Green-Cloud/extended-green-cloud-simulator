@@ -1,11 +1,11 @@
 package com.greencloud.factory;
 
-import com.greencloud.commons.agent.greenenergy.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.args.agent.client.ClientTimeType;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
+import com.greencloud.commons.args.agent.client.factory.ClientArgs;
+import com.greencloud.commons.args.agent.client.factory.enums.ClientTimeType;
+import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
+import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import com.greencloud.commons.args.agent.server.factory.ServerArgs;
 import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
 import com.greencloud.commons.args.job.JobArgs;
 import com.greencloud.commons.domain.resources.HardwareResources;
@@ -22,7 +22,7 @@ public interface AgentFactory {
 	 * @param ownerCNA - required argument specifying owner CNA
 	 * @return newly created server agent args
 	 */
-	ServerAgentArgs createDefaultServerAgent(String ownerCNA);
+	ServerArgs createDefaultServerAgent(String ownerCNA);
 
 	/**
 	 * Method creates new server agent args that can be used to initialize new agent
@@ -35,7 +35,7 @@ public interface AgentFactory {
 	 * @param jobProcessingLimit - optional argument specifying maximum number of jobs processed at the same time
 	 * @return newly created server agent args
 	 */
-	ServerAgentArgs createServerAgent(String ownerCNA,
+	ServerArgs createServerAgent(String ownerCNA,
 			HardwareResources resources,
 			Integer maxPower,
 			Integer idlePower,
@@ -50,7 +50,7 @@ public interface AgentFactory {
 	 * @param ownerServerName     required argument specifying owner server name
 	 * @return newly green energy agent args
 	 */
-	GreenEnergyAgentArgs createDefaultGreenEnergyAgent(String monitoringAgentName, String ownerServerName);
+	GreenEnergyArgs createDefaultGreenEnergyAgent(String monitoringAgentName, String ownerServerName);
 
 	/**
 	 * Method creates new green energy agent args that can be used to initialize new agent
@@ -65,7 +65,7 @@ public interface AgentFactory {
 	 * @param energyType             optional argument specifying energy type
 	 * @return newly green energy agent args
 	 */
-	GreenEnergyAgentArgs createGreenEnergyAgent(String monitoringAgentName,
+	GreenEnergyArgs createGreenEnergyAgent(String monitoringAgentName,
 			String ownerServerName,
 			Integer latitude,
 			Integer longitude,
@@ -79,7 +79,7 @@ public interface AgentFactory {
 	 *
 	 * @return newly created monitoring agent args
 	 */
-	MonitoringAgentArgs createMonitoringAgent();
+	MonitoringArgs createMonitoringAgent();
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent
@@ -90,7 +90,7 @@ public interface AgentFactory {
 	 * @param jobArgs  specification of the job sent by the client
 	 * @return newly created client agent args
 	 */
-	ClientAgentArgs createClientAgent(String name, String jobId, ClientTimeType timeType, JobArgs jobArgs);
+	ClientArgs createClientAgent(String name, String jobId, ClientTimeType timeType, JobArgs jobArgs);
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent
@@ -98,6 +98,6 @@ public interface AgentFactory {
 	 * @param clientEventArgs arguments to generate new client
 	 * @return newly created client agent args
 	 */
-	ClientAgentArgs createClientAgent(NewClientEventArgs clientEventArgs);
+	ClientArgs createClientAgent(NewClientEventArgs clientEventArgs);
 
 }

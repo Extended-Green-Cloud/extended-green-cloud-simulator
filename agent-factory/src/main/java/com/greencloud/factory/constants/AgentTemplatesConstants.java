@@ -1,5 +1,8 @@
 package com.greencloud.factory.constants;
 
+import static com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum.WIND;
+
+import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
 import com.greencloud.commons.domain.resources.HardwareResources;
 import com.greencloud.commons.domain.resources.ImmutableHardwareResources;
 
@@ -19,5 +22,5 @@ public class AgentTemplatesConstants {
     public static final String TEMPLATE_GREEN_ENERGY_LONGITUDE = "20";
     public static final Long TEMPLATE_GREEN_ENERGY_PRICE = 10L;
     public static final Long TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY = 200L;
-    public static final String TEMPLATE_GREEN_ENERGY_TYPE = "WIND";
+    public static final GreenEnergySourceTypeEnum TEMPLATE_GREEN_ENERGY_TYPE = WIND;
 }
