@@ -1,7 +1,9 @@
-package com.gui.event.domain;
+package com.gui.event;
 
 import java.io.Serializable;
 import java.time.Instant;
+
+import com.gui.event.domain.EventTypeEnum;
 
 /**
  * Class represents the abstract event which may occur in the environment
@@ -27,5 +29,9 @@ public abstract class AbstractEvent implements Serializable {
 	 */
 	public Instant getOccurrenceTime() {
 		return occurrenceTime;
+	}
+
+	public EventTypeEnum getEventTypeEnum() {
+		return eventTypeEnum;
 	}
 }

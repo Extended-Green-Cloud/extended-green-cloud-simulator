@@ -1,6 +1,6 @@
 package com.gui.websocket;
 
-import static com.greencloud.commons.time.TimeConstants.SECONDS_PER_HOUR;
+import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
 
 import java.net.URI;
 import java.time.Instant;

@@ -4,7 +4,7 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.HardwareResources;
 import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableUpdateResourcesMessage.class)

@@ -6,7 +6,7 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.domain.job.enums.JobClientStatusEnum;
+import org.greencloud.commons.enums.job.JobClientStatusEnum;
 import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableSetClientJobDurationMapMessage.class)

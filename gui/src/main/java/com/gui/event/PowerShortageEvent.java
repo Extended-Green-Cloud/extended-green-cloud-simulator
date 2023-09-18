@@ -1,10 +1,10 @@
-package com.gui.event.domain;
+package com.gui.event;
 
 import static com.gui.event.domain.EventTypeEnum.POWER_SHORTAGE_EVENT;
 
 import java.time.Instant;
 
-import com.greencloud.commons.args.event.powershortage.PowerShortageCause;
+import org.greencloud.commons.enums.event.PowerShortageCauseEnum;
 import com.gui.message.PowerShortageMessage;
 
 /**
@@ -13,7 +13,7 @@ import com.gui.message.PowerShortageMessage;
 public class PowerShortageEvent extends AbstractEvent {
 
 	private final boolean finished;
-	private final PowerShortageCause cause;
+	private final PowerShortageCauseEnum cause;
 
 	/**
 	 * Default event constructor
@@ -22,7 +22,7 @@ public class PowerShortageEvent extends AbstractEvent {
 	 * @param finished           flag indicating whether the event informs of the power shortage finish or start
 	 * @param cause              the main cause of the power shortage
 	 */
-	public PowerShortageEvent(Instant occurrenceTime, boolean finished, final PowerShortageCause cause) {
+	public PowerShortageEvent(Instant occurrenceTime, boolean finished, final PowerShortageCauseEnum cause) {
 		super(POWER_SHORTAGE_EVENT, occurrenceTime);
 		this.finished = finished;
 		this.cause = cause;
@@ -31,7 +31,7 @@ public class PowerShortageEvent extends AbstractEvent {
 	public PowerShortageEvent(PowerShortageMessage powerShortageMessage) {
 		super(POWER_SHORTAGE_EVENT, powerShortageMessage.getData().getOccurrenceTime());
 		this.finished = powerShortageMessage.getData().isFinished();
-		this.cause = PowerShortageCause.PHYSICAL_CAUSE;
+		this.cause = PowerShortageCauseEnum.PHYSICAL_CAUSE;
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class PowerShortageEvent extends AbstractEvent {
 	/**
 	 * @return cause of the power shortage
 	 */
-	public PowerShortageCause getCause() {
+	public PowerShortageCauseEnum getCause() {
 		return cause;
 	}
 }

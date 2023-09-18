@@ -2,6 +2,8 @@ package com.gui.message.domain;
 
 import java.time.Instant;
 
+import javax.annotation.Nullable;
+
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -14,5 +16,6 @@ public interface EventData {
 
 	Instant getOccurrenceTime();
 
-	boolean isFinished();
+	@Nullable
+	Boolean isFinished();
 }

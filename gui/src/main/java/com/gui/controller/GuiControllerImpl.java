@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.AbstractAgentNode;
-import com.gui.event.domain.PowerShortageEvent;
-import com.gui.message.ImmutableUpdateSingleValueMessage;
+import com.gui.agents.AbstractNode;
+import com.gui.event.PowerShortageEvent;
 import com.gui.websocket.WebSocketConnections;
 import com.gui.websocket.enums.SocketTypeEnum;
 
@@ -38,51 +37,11 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void addAgentNodeToGraph(final AbstractAgentNode agent) {
+	public void addAgentNodeToGraph(final AbstractNode agent) {
 		if (Objects.nonNull(agent)) {
 			getEventSocket().addAgentNode(agent);
 			agent.addToGraph();
 		}
-	}
-
-	@Override
-	public void updateFailedJobsCountByValue(final int value) {
-		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
-				.data(value)
-				.type("INCREMENT_FAILED_JOBS")
-				.build());
-	}
-
-	@Override
-	public void updateFinishedJobsCountByValue(final int value) {
-		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
-				.data(value)
-				.type("INCREMENT_FINISHED_JOBS")
-				.build());
-	}
-
-	@Override
-	public void updateClientsCountByValue(final int value) {
-		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
-				.data(value)
-				.type("UPDATE_CURRENT_CLIENTS")
-				.build());
-	}
-
-	@Override
-	public void updateActiveJobsCountByValue(final int value) {
-		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
-				.data(value)
-				.type("UPDATE_CURRENT_ACTIVE_JOBS")
-				.build());
-	}
-
-	@Override
-	public void updateAllJobsCountByValue(final int value) {
-		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
-				.data(value)
-				.type("UPDATE_CURRENT_PLANNED_JOBS")
-				.build());
 	}
 
 	@Override

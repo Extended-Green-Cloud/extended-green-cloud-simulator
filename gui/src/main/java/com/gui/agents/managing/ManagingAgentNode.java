@@ -1,6 +1,7 @@
-package com.gui.agents;
+package com.gui.agents.managing;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
+import static org.greencloud.commons.args.agent.AgentType.MANAGING;
 import static com.gui.websocket.WebSocketConnections.getManagingSystemSocket;
 
 import java.time.Instant;
@@ -12,7 +13,10 @@ import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+
+import com.gui.agents.AbstractNode;
 import com.gui.message.ImmutableIncrementCounterMessage;
 import com.gui.message.ImmutableLogAdaptationActionMessage;
 import com.gui.message.ImmutableRegisterManagingAgentMessage;
@@ -25,7 +29,7 @@ import com.gui.message.domain.ImmutableGoalQuality;
 /**
  * Agent node class representing the managing agent
  */
-public class ManagingAgentNode extends AbstractAgentNode {
+public class ManagingAgentNode extends AbstractNode<ManagingAgentArgs, AgentProps> {
 
 	/**
 	 * Managing agent node constructor
@@ -33,7 +37,12 @@ public class ManagingAgentNode extends AbstractAgentNode {
 	 * @param args arguments provided for managing agent creation
 	 */
 	public ManagingAgentNode(ManagingAgentArgs args) {
-		super(args.getName());
+		super(args, MANAGING);
+	}
+
+	@Override
+	public void addToGraph() {
+		// managing agent should not be added to the graph
 	}
 
 	/**
@@ -115,5 +124,15 @@ public class ManagingAgentNode extends AbstractAgentNode {
 			case RECONFIGURE -> "INCREMENT_WEAK_ADAPTATIONS";
 			case ADD_COMPONENT, REMOVE_COMPONENT -> "INCREMENT_STRONG_ADAPTATIONS";
 		};
+	}
+
+	@Override
+	public void updateGUI(final AgentProps props) {
+		// no updates to GUI
+	}
+
+	@Override
+	public void saveMonitoringData(final AgentProps props) {
+		// managing agent does not report data
 	}
 }

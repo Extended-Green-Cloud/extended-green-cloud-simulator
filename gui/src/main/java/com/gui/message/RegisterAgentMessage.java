@@ -4,7 +4,7 @@ import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
 import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableRegisterAgentMessage.class)

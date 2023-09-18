@@ -4,24 +4,31 @@ import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 
 import java.io.Serializable;
 
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.AgentType;
+
+import com.gui.agents.cloudnetwork.CloudNetworkNode;
 import com.gui.message.ImmutableIsActiveMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
 
 /**
  * Class represents abstract generic agent node which is a part of cloud network
  */
-public abstract class AbstractNetworkAgentNode extends AbstractAgentNode implements Serializable {
+public abstract class AbstractNetworkNode<T extends AgentArgs, E extends AgentProps> extends AbstractNode<T, E>
+		implements Serializable {
 
-	protected AbstractNetworkAgentNode() {
+	protected AbstractNetworkNode() {
 	}
 
 	/**
 	 * Network agent node constructor
 	 *
-	 * @param agentName agent node name
+	 * @param nodeArgs arguments used to create agent node
+	 * @param nodeType type of agent node
 	 */
-	protected AbstractNetworkAgentNode(final String agentName) {
-		super(agentName);
+	protected AbstractNetworkNode(final T nodeArgs, final AgentType nodeType) {
+		super(nodeArgs, nodeType);
 	}
 
 	/**
@@ -43,7 +50,7 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode impleme
 	 * @param isActive information if the network node is active
 	 */
 	public void updateIsActive(final boolean isActive) {
-		if (!(this instanceof CloudNetworkAgentNode)) {
+		if (!(this instanceof CloudNetworkNode)) {
 			getAgentsWebSocket().send(ImmutableIsActiveMessage.builder()
 					.data(isActive)
 					.agentName(agentName)
@@ -70,7 +77,7 @@ public abstract class AbstractNetworkAgentNode extends AbstractAgentNode impleme
 	 * @param value number of jobs that are on hold
 	 */
 	public void updateJobsOnHoldCount(final int value) {
-		if (!(this instanceof CloudNetworkAgentNode)) {
+		if (!(this instanceof CloudNetworkNode)) {
 			getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
 					.data(value)
 					.agentName(agentName)
