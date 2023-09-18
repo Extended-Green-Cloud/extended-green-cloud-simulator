@@ -35,7 +35,7 @@ public class StrategyConstructor {
 	public static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy constructStrategyForType(
 			final StrategyType type, final RulesController<E, T> controller) {
 		return switch (type) {
-			case DEFAULT_STRATEGY -> new DefaultStrategy<>(controller);
+			case DEFAULT_STRATEGY -> new DefaultStrategy(controller);
 			case WEATHER_DROP_STRATEGY -> constructModifiedStrategyForType(WEATHER_DROP_STRATEGY, controller);
 		};
 	}
@@ -49,7 +49,7 @@ public class StrategyConstructor {
 	 */
 	public static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy constructModifiedStrategyForType(
 			final StrategyType typeModifier, final RulesController<E, T> controller) {
-		final Strategy baseStrategy = new DefaultStrategy<>(controller);
+		final Strategy baseStrategy = new DefaultStrategy(controller);
 
 		final Strategy modifications = getStrategyModification(typeModifier, controller);
 		final List<RuleType> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
@@ -76,7 +76,7 @@ public class StrategyConstructor {
 	private static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy getStrategyModification(
 			final StrategyType typeModifier, final RulesController<E, T> controller) {
 		return switch (typeModifier) {
-			case WEATHER_DROP_STRATEGY -> new WeatherDropStrategy<>(controller);
+			case WEATHER_DROP_STRATEGY -> new WeatherDropStrategy(controller);
 			default -> throw new InvalidParameterException("Incorrect strategy type!");
 		};
 	}
