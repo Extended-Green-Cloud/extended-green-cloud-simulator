@@ -2,7 +2,7 @@ package org.greencloud.agentsystem.agents.cloudnetwork;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
-import com.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import com.gui.agents.CloudNetworkNode;
 
 /**

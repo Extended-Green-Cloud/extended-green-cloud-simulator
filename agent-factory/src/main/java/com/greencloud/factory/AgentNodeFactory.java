@@ -1,7 +1,7 @@
 package com.greencloud.factory;
 
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractNode;
 
 /**

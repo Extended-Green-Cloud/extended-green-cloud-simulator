@@ -1,14 +1,14 @@
 package com.greencloud.factory;
 
-import com.greencloud.commons.args.agent.client.factory.ClientArgs;
-import com.greencloud.commons.args.agent.client.factory.enums.ClientTimeType;
-import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import com.greencloud.commons.args.agent.server.factory.ServerArgs;
-import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
-import com.greencloud.commons.args.job.JobArgs;
-import com.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.event.NewClientEventArgs;
+import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.domain.resources.HardwareResources;
 
 /**
  * Interface with a set methods that create extra agents with specified parameters
@@ -90,7 +90,7 @@ public interface AgentFactory {
 	 * @param jobArgs  specification of the job sent by the client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(String name, String jobId, ClientTimeType timeType, JobArgs jobArgs);
+	ClientArgs createClientAgent(String name, String jobId, ClientTimeTypeEnum timeType, JobArgs jobArgs);
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent

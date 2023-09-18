@@ -1,9 +1,9 @@
 package org.greencloud.agentsystem.agents.greenenergy;
 
-import static com.greencloud.commons.yellowpages.YellowPagesService.deregister;
-import static com.greencloud.commons.yellowpages.YellowPagesService.register;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.GS_SERVICE_NAME;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.GS_SERVICE_TYPE;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_NAME;
+import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -11,10 +11,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 
-import com.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.domain.location.ImmutableLocation;
-import com.greencloud.commons.domain.location.Location;
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.domain.location.ImmutableLocation;
+import org.greencloud.commons.domain.location.Location;
 
 import jade.core.AID;
 

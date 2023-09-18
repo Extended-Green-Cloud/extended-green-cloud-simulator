@@ -1,9 +1,9 @@
 package org.greencloud.agentsystem.agents.client;
 
-import static com.greencloud.commons.constants.LoggingConstant.MDC_JOB_ID;
-import static com.greencloud.commons.time.TimeUtils.convertToInstantTime;
-import static com.greencloud.commons.time.TimeUtils.getCurrentTimeMinusError;
-import static com.greencloud.commons.yellowpages.YellowPagesService.prepareDF;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToInstantTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTimeMinusError;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareDF;
 import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -15,9 +15,9 @@ import org.greencloud.agentsystem.utils.AgentConnector;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import com.greencloud.commons.exception.IncorrectTaskDateException;
-import com.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import com.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.exception.IncorrectTaskDateException;
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.args.job.JobArgs;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.ParallelBehaviour;

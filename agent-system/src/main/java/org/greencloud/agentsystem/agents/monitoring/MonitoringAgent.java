@@ -14,7 +14,7 @@ import org.greencloud.agentsystem.agents.monitoring.behaviour.ServeForecastWeath
 import org.greencloud.agentsystem.agents.monitoring.management.MonitoringWeatherManagement;
 import org.slf4j.Logger;
 
-import com.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
+import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
 
 import jade.core.behaviours.Behaviour;
 

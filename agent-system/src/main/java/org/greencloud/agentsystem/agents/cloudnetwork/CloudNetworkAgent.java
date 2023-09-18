@@ -1,10 +1,10 @@
 package org.greencloud.agentsystem.agents.cloudnetwork;
 
-import static com.greencloud.commons.yellowpages.YellowPagesService.deregister;
-import static com.greencloud.commons.yellowpages.YellowPagesService.prepareDF;
-import static com.greencloud.commons.yellowpages.YellowPagesService.register;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.CNA_SERVICE_NAME;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareDF;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.greencloud.commons.constants.DFServiceConstants.CNA_SERVICE_NAME;
+import static org.greencloud.commons.constants.DFServiceConstants.CNA_SERVICE_TYPE;
 import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 

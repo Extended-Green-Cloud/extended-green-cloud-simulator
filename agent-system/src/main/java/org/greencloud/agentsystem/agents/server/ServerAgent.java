@@ -1,9 +1,9 @@
 package org.greencloud.agentsystem.agents.server;
 
-import static com.greencloud.commons.yellowpages.YellowPagesService.deregister;
-import static com.greencloud.commons.yellowpages.YellowPagesService.register;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.SA_SERVICE_NAME;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_NAME;
+import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
@@ -11,8 +11,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 
-import com.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import com.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.resources.HardwareResources;
 
 import jade.core.AID;
 

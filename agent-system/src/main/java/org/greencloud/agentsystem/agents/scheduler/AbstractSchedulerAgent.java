@@ -1,17 +1,17 @@
 package org.greencloud.agentsystem.agents.scheduler;
 
-import static com.greencloud.commons.domain.strategy.FactType.JOB;
-import static com.greencloud.commons.domain.strategy.FactType.RESULT;
-import static com.greencloud.commons.domain.strategy.FactType.RULE_TYPE;
-import static com.greencloud.commons.domain.strategy.RuleType.COMPUTE_JOB_PRIORITY_RULE;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_JOB_PRIORITY_RULE;
 
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
-import com.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import com.greencloud.commons.domain.job.ClientJob;
-import com.greencloud.commons.domain.strategy.facts.StrategyFacts;
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.SchedulerNode;
 
 /**

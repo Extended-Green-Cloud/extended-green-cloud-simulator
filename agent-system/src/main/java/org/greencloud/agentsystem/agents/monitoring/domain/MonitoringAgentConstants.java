@@ -1,10 +1,10 @@
 package org.greencloud.agentsystem.agents.monitoring.domain;
 
-import static com.greencloud.commons.time.TimeUtils.getCurrentTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
-import com.greencloud.commons.domain.weather.ImmutableMonitoringData;
-import com.greencloud.commons.domain.weather.ImmutableWeatherData;
-import com.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.domain.weather.ImmutableMonitoringData;
+import org.greencloud.commons.domain.weather.ImmutableWeatherData;
+import org.greencloud.commons.domain.weather.MonitoringData;
 
 /**
  * Class stores all predefined constants for Monitoring Agent

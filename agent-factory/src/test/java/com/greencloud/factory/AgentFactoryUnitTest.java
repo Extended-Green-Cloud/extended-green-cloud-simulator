@@ -1,6 +1,6 @@
 package com.greencloud.factory;
 
-import static com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum.WIND;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_IDLE_POWER;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
@@ -16,10 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import com.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

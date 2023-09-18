@@ -2,7 +2,7 @@ package org.greencloud.agentsystem.agents.client;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
-import com.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import com.gui.agents.ClientNode;
 
 /**

@@ -1,17 +1,17 @@
 package org.greencloud.agentsystem.agents;
 
-import static com.greencloud.commons.message.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
-import static com.greencloud.commons.args.agent.AgentType.CLIENT;
-import static com.greencloud.commons.args.agent.AgentType.MANAGING;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_AGENT_NAME;
-import static com.greencloud.commons.constants.LoggingConstant.MDC_CLIENT_NAME;
-import static com.greencloud.commons.domain.strategy.FactType.ADAPTATION_PARAMS;
-import static com.greencloud.commons.domain.strategy.FactType.ADAPTATION_TYPE;
-import static com.greencloud.commons.domain.strategy.FactType.MESSAGE;
-import static com.greencloud.commons.domain.strategy.FactType.RESULT;
-import static com.greencloud.commons.domain.strategy.FactType.RULE_TYPE;
-import static com.greencloud.commons.domain.strategy.RuleType.ADAPTATION_REQUEST_RULE;
-import static com.greencloud.commons.domain.strategy.RuleType.INITIALIZE_BEHAVIOURS_RULE;
+import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
+import static org.greencloud.commons.args.agent.AgentType.CLIENT;
+import static org.greencloud.commons.args.agent.AgentType.MANAGING;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_AGENT_NAME;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_CLIENT_NAME;
+import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_PARAMS;
+import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
+import static org.greencloud.commons.enums.rules.RuleType.INITIALIZE_BEHAVIOURS_RULE;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
@@ -24,11 +24,11 @@ import org.slf4j.MDC;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
-import com.greencloud.commons.args.agent.AgentNodeProps;
-import com.greencloud.commons.args.agent.AgentProps;
-import com.greencloud.commons.domain.strategy.facts.StrategyFacts;
-import com.greencloud.commons.exception.JadeContainerException;
-import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import org.greencloud.commons.args.agent.AgentNodeProps;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.exception.JadeContainerException;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 import com.gui.agents.AbstractNode;
 import com.gui.controller.GuiController;
 

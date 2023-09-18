@@ -3,8 +3,8 @@ package com.greencloud.factory;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 
 import jade.core.AID;
 import jade.wrapper.AgentController;

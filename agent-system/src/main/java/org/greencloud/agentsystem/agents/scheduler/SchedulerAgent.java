@@ -1,16 +1,16 @@
 package org.greencloud.agentsystem.agents.scheduler;
 
-import static com.greencloud.commons.utils.CommonUtils.isFibonacci;
-import static com.greencloud.commons.yellowpages.YellowPagesService.deregister;
-import static com.greencloud.commons.yellowpages.YellowPagesService.register;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_NAME;
-import static com.greencloud.commons.yellowpages.domain.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
+import static org.greencloud.commons.utils.math.MathOperations.isFibonacci;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_NAME;
+import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static java.lang.Integer.parseInt;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 
-import com.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 
 /**
  * Agent representing the Scheduler that orchestrate the job announcement in Cloud Network

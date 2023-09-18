@@ -15,15 +15,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.client.factory.ClientArgs;
-import com.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import com.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
-import com.greencloud.commons.args.agent.server.factory.ServerArgs;
-import com.greencloud.commons.exception.JadeControllerException;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.exception.JadeControllerException;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractNode;
 import com.gui.controller.GuiController;
 

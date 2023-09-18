@@ -1,6 +1,6 @@
 package com.greencloud.factory;
 
-import static com.greencloud.commons.args.agent.client.factory.enums.ClientTimeType.SIMULATION;
+import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.SIMULATION;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LATITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LONGITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
@@ -18,19 +18,19 @@ import static java.util.Objects.nonNull;
 import java.time.temporal.ValueRange;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.greencloud.commons.args.agent.client.factory.ClientArgs;
-import com.greencloud.commons.args.agent.client.factory.ImmutableClientArgs;
-import com.greencloud.commons.args.agent.client.factory.enums.ClientTimeType;
-import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import com.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
-import com.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
-import com.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import com.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
-import com.greencloud.commons.args.agent.server.factory.ServerArgs;
-import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
-import com.greencloud.commons.args.job.JobArgs;
-import com.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.args.agent.client.factory.ImmutableClientArgs;
+import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.event.NewClientEventArgs;
+import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.domain.resources.HardwareResources;
 
 public class AgentFactoryImpl implements AgentFactory {
 
@@ -149,7 +149,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	@Override
 	public ClientArgs createClientAgent(final String name,
 			final String jobId,
-			final ClientTimeType timeType,
+			final ClientTimeTypeEnum timeType,
 			final JobArgs clientJob) {
 		return ImmutableClientArgs.builder()
 				.name(name)

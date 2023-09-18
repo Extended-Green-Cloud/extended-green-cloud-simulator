@@ -2,7 +2,7 @@ package org.greencloud.agentsystem.agents.server;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
-import com.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import com.gui.agents.ServerNode;
 
 /**

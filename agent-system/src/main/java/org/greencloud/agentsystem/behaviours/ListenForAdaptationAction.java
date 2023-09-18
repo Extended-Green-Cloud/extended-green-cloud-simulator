@@ -2,17 +2,17 @@ package org.greencloud.agentsystem.behaviours;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getActionParametersClass;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static com.greencloud.commons.managingsystem.executor.ExecutorMessageProtocols.EXECUTE_ACTION_REQUEST;
-import static com.greencloud.commons.message.MessageReader.readMessageContent;
-import static com.greencloud.commons.message.factory.ReplyMessageFactory.prepareFailureReply;
-import static com.greencloud.commons.message.factory.ReplyMessageFactory.prepareInformReply;
+import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
+import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.EXECUTE_ACTION_REQUEST;
+import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
+import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
 import static java.util.Objects.nonNull;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.behaviours.CyclicBehaviour;
 

@@ -1,10 +1,10 @@
 package com.greencloud.factory.constants;
 
-import static com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum.WIND;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 
-import com.greencloud.commons.args.agent.greenenergy.agent.enums.GreenEnergySourceTypeEnum;
-import com.greencloud.commons.domain.resources.HardwareResources;
-import com.greencloud.commons.domain.resources.ImmutableHardwareResources;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
 
 public class AgentTemplatesConstants {
 

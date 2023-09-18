@@ -1,7 +1,7 @@
 package org.greencloud.agentsystem.agents.monitoring.management;
 
-import static com.greencloud.commons.time.TimeUtils.convertToRealTime;
-import static com.greencloud.commons.time.TimeUtils.getCurrentTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.weatherapi.mapper.WeatherMapper.mapToWeatherData;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -14,12 +14,12 @@ import org.greencloud.weatherapi.api.OpenWeatherMapApi;
 import org.greencloud.weatherapi.cache.WeatherCache;
 import org.slf4j.Logger;
 
-import com.greencloud.commons.domain.agent.GreenSourceForecastData;
-import com.greencloud.commons.domain.agent.GreenSourceWeatherData;
-import com.greencloud.commons.domain.location.Location;
-import com.greencloud.commons.domain.weather.ImmutableMonitoringData;
-import com.greencloud.commons.domain.weather.MonitoringData;
-import com.greencloud.commons.domain.weather.WeatherData;
+import org.greencloud.commons.domain.agent.GreenSourceForecastData;
+import org.greencloud.commons.domain.agent.GreenSourceWeatherData;
+import org.greencloud.commons.domain.location.Location;
+import org.greencloud.commons.domain.weather.ImmutableMonitoringData;
+import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.domain.weather.WeatherData;
 
 /**
  * Set of methods used in weather management

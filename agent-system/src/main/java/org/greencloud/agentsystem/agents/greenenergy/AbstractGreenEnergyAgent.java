@@ -2,7 +2,7 @@ package org.greencloud.agentsystem.agents.greenenergy;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
-import com.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import com.gui.agents.GreenEnergyNode;
 
 /**
