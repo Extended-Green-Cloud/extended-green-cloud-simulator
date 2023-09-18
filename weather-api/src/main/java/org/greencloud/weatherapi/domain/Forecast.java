@@ -1,4 +1,4 @@
-package com.greencloud.application.weather.domain;
+package org.greencloud.weatherapi.domain;
 
 import java.util.List;
 

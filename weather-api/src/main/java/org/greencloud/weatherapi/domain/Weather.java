@@ -1,23 +1,23 @@
-package com.greencloud.application.weather.domain;
+package org.greencloud.weatherapi.domain;
 
 import org.immutables.value.Value.Immutable;
-import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(as = ImmutableWind.class)
-@JsonDeserialize(as = ImmutableWind.class)
+@JsonSerialize(as = ImmutableWeather.class)
+@JsonDeserialize(as = ImmutableWeather.class)
 @JsonInclude(Include.NON_NULL)
 @Immutable
-public interface Wind {
+public interface Weather {
 
-	Double getSpeed();
+	Long getId();
 
-	Double getDeg();
+	String getMain();
 
-	@Nullable
-	Double getGust();
+	String getDescription();
+
+	String getIcon();
 }

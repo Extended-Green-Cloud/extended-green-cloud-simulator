@@ -1,4 +1,4 @@
-package com.greencloud.application.weather.cache;
+package org.greencloud.weatherapi.cache;
 
 import static java.time.Duration.between;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -13,11 +13,10 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import org.greencloud.weatherapi.domain.AbstractWeather;
+import org.greencloud.weatherapi.domain.CurrentWeather;
+import org.greencloud.weatherapi.domain.Forecast;
 import org.slf4j.Logger;
-
-import com.greencloud.application.weather.domain.AbstractWeather;
-import com.greencloud.application.weather.domain.CurrentWeather;
-import com.greencloud.application.weather.domain.Forecast;
 
 /**
  * Class represents table of forecast's data mapped to specific time intervals

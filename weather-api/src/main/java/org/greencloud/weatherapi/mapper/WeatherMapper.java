@@ -1,10 +1,11 @@
-package com.greencloud.application.mapper;
+package org.greencloud.weatherapi.mapper;
 
 import java.time.Instant;
 
-import com.greencloud.application.domain.weather.ImmutableWeatherData;
-import com.greencloud.application.domain.weather.WeatherData;
-import com.greencloud.application.weather.domain.AbstractWeather;
+import org.greencloud.weatherapi.domain.AbstractWeather;
+
+import org.greencloud.commons.domain.weather.ImmutableWeatherData;
+import org.greencloud.commons.domain.weather.WeatherData;
 
 /**
  * Class provides set of methods mapping weather object classes

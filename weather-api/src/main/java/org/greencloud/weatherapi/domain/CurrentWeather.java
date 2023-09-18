@@ -1,4 +1,4 @@
-package com.greencloud.application.weather.domain;
+package org.greencloud.weatherapi.domain;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,16 +13,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(as = ImmutableFutureWeather.class)
-@JsonDeserialize(as = ImmutableFutureWeather.class)
+@JsonSerialize(as = ImmutableCurrentWeather.class)
+@JsonDeserialize(as = ImmutableCurrentWeather.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 @Immutable
-public interface FutureWeather extends AbstractWeather {
+public interface CurrentWeather extends AbstractWeather {
+
+	Coord getCoord();
 
 	List<Weather> getWeather();
 
 	Double getVisibility();
+
+	Long getTimezone();
 
 	/**
 	 * @return {@link Instant} timestamp for when the weather is valid

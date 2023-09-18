@@ -1,4 +1,4 @@
-package com.greencloud.application.weather.domain;
+package org.greencloud.weatherapi.domain;
 
 import org.immutables.value.Value.Immutable;
 import org.jetbrains.annotations.Nullable;

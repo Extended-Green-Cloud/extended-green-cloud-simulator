@@ -1,5 +1,6 @@
-package com.greencloud.application.weather.api;
+package org.greencloud.weatherapi.api;
 
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -9,13 +10,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.greencloud.weatherapi.domain.CurrentWeather;
+import org.greencloud.weatherapi.domain.Forecast;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greencloud.application.mapper.JsonMapper;
-import com.greencloud.application.weather.domain.CurrentWeather;
-import com.greencloud.application.weather.domain.Forecast;
-import com.greencloud.commons.domain.location.Location;
+import org.greencloud.commons.domain.location.Location;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,7 +32,7 @@ public class OpenWeatherMapApi {
 			"https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s&units=metric";
 	private static final String FORECAST_URL =
 			"https://api.openweathermap.org/data/2.5/forecast?lat=%s&lon=%s&appid=%s&units=metric";
-	private static final ObjectMapper MAPPER = JsonMapper.getMapper();
+	private static final ObjectMapper MAPPER = getMapper();
 
 	private final String apiKey;
 	private final OkHttpClient client;
@@ -43,7 +43,7 @@ public class OpenWeatherMapApi {
 	public OpenWeatherMapApi() {
 		final Properties properties = new Properties();
 
-		try (final InputStream res = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+		try (final InputStream res = getClass().getClassLoader().getResourceAsStream("api.properties")) {
 			properties.load(res);
 		} catch (FileNotFoundException fileNotFoundException) {
 			logger.error("Could not find the properties file", fileNotFoundException);
