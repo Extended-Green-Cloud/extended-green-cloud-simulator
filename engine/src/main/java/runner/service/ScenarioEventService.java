@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.commons.args.event.EventTypeEnum.NEW_CLIENT_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -20,17 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.args.event.EventArgs;
-import com.greencloud.commons.args.event.newclient.NewClientEventArgs;
-import com.greencloud.commons.args.event.powershortage.PowerShortageEventArgs;
-import com.greencloud.commons.exception.InvalidScenarioEventStructure;
-import com.greencloud.commons.exception.InvalidScenarioException;
-import com.greencloud.commons.scenario.ScenarioEventsArgs;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.args.event.EventArgs;
+import org.greencloud.commons.args.event.NewClientEventArgs;
+import org.greencloud.commons.args.event.PowerShortageEventArgs;
+import org.greencloud.commons.exception.InvalidScenarioEventStructure;
+import org.greencloud.commons.exception.InvalidScenarioException;
+import org.greencloud.commons.args.scenario.ScenarioEventsArgs;
 import com.greencloud.factory.AgentControllerFactory;
 import com.greencloud.factory.AgentFactory;
 import com.greencloud.factory.AgentFactoryImpl;
-import com.gui.event.domain.PowerShortageEvent;
+import com.gui.event.PowerShortageEvent;
 
 import jade.wrapper.AgentController;
 
@@ -117,7 +117,7 @@ public class ScenarioEventService {
 	private void runNewClientEvent(final EventArgs event) {
 		final AgentControllerFactory factory = scenarioService.factory;
 		final NewClientEventArgs newClientEvent = (NewClientEventArgs) event;
-		final ClientAgentArgs clientAgentArgs = agentFactory.createClientAgent(newClientEvent);
+		final ClientArgs clientAgentArgs = agentFactory.createClientAgent(newClientEvent);
 
 		final AgentController agentController = factory.createAgentController(clientAgentArgs, null);
 		factory.runAgentController(agentController, 0);

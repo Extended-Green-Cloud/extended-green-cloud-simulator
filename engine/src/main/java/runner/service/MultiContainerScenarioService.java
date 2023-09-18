@@ -22,12 +22,12 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.greencloud.factory.AgentControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
@@ -116,8 +116,8 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 				.toList();
 	}
 
-	private List<ServerAgentArgs> selectServersForContainer(final List<CloudNetworkArgs> cloudNetworkArgs) {
-		final List<ServerAgentArgs> serverAgentsArgs = scenario.getServerAgentsArgs();
+	private List<ServerArgs> selectServersForContainer(final List<CloudNetworkArgs> cloudNetworkArgs) {
+		final List<ServerArgs> serverAgentsArgs = scenario.getServerAgentsArgs();
 
 		return serverAgentsArgs.stream()
 				.filter(serverArgs -> cloudNetworkArgs.stream().map(AgentArgs::getName).toList()
@@ -126,8 +126,8 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 				.toList();
 	}
 
-	private List<GreenEnergyAgentArgs> selectGreenSourcesForContainer(final List<ServerAgentArgs> serverAgentArgs) {
-		final List<GreenEnergyAgentArgs> greenEnergyAgentArgs = scenario.getGreenEnergyAgentsArgs();
+	private List<GreenEnergyArgs> selectGreenSourcesForContainer(final List<ServerArgs> serverAgentArgs) {
+		final List<GreenEnergyArgs> greenEnergyAgentArgs = scenario.getGreenEnergyAgentsArgs();
 
 		return greenEnergyAgentArgs.stream()
 				.filter(sourceArgs ->
@@ -135,12 +135,12 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 				.toList();
 	}
 
-	private List<MonitoringAgentArgs> selectMonitoringForContainer(
-			final List<GreenEnergyAgentArgs> greenEnergyAgentArgs) {
-		final List<MonitoringAgentArgs> monitoringAgentArgs = scenario.getMonitoringAgentsArgs();
+	private List<MonitoringArgs> selectMonitoringForContainer(
+			final List<GreenEnergyArgs> greenEnergyAgentArgs) {
+		final List<MonitoringArgs> monitoringAgentArgs = scenario.getMonitoringAgentsArgs();
 
 		return monitoringAgentArgs.stream()
-				.filter(monitorArgs -> greenEnergyAgentArgs.stream().map(GreenEnergyAgentArgs::getMonitoringAgent)
+				.filter(monitorArgs -> greenEnergyAgentArgs.stream().map(GreenEnergyArgs::getMonitoringAgent)
 						.toList()
 						.contains(monitorArgs.getName()))
 				.toList();

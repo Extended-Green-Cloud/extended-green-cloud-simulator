@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.commons.args.agent.client.ClientTimeType.REAL_TIME;
+import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.REAL_TIME;
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_CLIENT_AGENT_DELAY;
 import static java.lang.Math.floorDiv;
 import static java.lang.String.format;
@@ -30,11 +30,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.greencloud.commons.args.agent.client.ClientAgentArgs;
-import com.greencloud.commons.args.job.ImmutableJobArgs;
-import com.greencloud.commons.args.job.ImmutableJobStepArgs;
-import com.greencloud.commons.args.job.JobArgs;
-import com.greencloud.commons.exception.InvalidScenarioException;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.args.job.ImmutableJobArgs;
+import org.greencloud.commons.args.job.ImmutableJobStepArgs;
+import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.exception.InvalidScenarioException;
 import com.greencloud.factory.AgentFactory;
 import com.greencloud.factory.AgentFactoryImpl;
 
@@ -108,7 +108,7 @@ public class ScenarioWorkloadGenerationService {
 			final String clientName = format("Client%d", jobId);
 			final JobArgs job = clientJobs.isEmpty() ? generateRandomJob() : clientJobs.get((int) idx - 1);
 
-			final ClientAgentArgs clientArgs = agentFactory.createClientAgent(
+			final ClientArgs clientArgs = agentFactory.createClientAgent(
 					clientName, valueOf(jobId), REAL_TIME, job);
 			final AgentController agentController = scenarioService.factory.createAgentController(clientArgs,
 					scenarioService.scenario);

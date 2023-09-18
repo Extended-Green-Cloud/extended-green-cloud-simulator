@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.application.utils.TimeUtils.setSystemStartTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
 import static jade.core.Runtime.instance;
 import static jade.wrapper.AgentController.ASYNC;
 import static java.lang.String.format;
@@ -31,11 +31,11 @@ import java.util.concurrent.Executors;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.greencloud.commons.args.agent.managing.ManagingAgentArgs;
-import com.greencloud.commons.exception.InvalidScenarioException;
-import com.greencloud.commons.exception.JadeContainerException;
-import com.greencloud.commons.exception.JadeControllerException;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.exception.InvalidScenarioException;
+import org.greencloud.commons.exception.JadeContainerException;
+import org.greencloud.commons.exception.JadeControllerException;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.greencloud.factory.AgentControllerFactory;
 import com.greencloud.factory.AgentNodeFactoryImpl;
 import com.gui.controller.GuiController;
@@ -47,7 +47,7 @@ import jade.core.Runtime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import rules.RulesController;
+import org.greencloud.rulescontroller.RulesController;
 
 /**
  * Abstract class serving as common base to Single and Multi Scenario Services.

@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.greencloud.commons.exception.InvalidScenarioException;
+import org.greencloud.commons.exception.InvalidScenarioException;
 
 /**
  * Class with method that allow to parse the indicated file

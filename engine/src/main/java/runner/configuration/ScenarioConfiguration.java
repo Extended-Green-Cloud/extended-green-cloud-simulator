@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
 
-import com.greencloud.commons.exception.InvalidPropertiesException;
+import org.greencloud.commons.exception.InvalidPropertiesException;
 
 import runner.EngineRunner;
 import runner.configuration.enums.ClientGeneratorTypeEnum;

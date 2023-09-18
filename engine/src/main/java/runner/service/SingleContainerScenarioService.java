@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.greencloud.factory.AgentControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
