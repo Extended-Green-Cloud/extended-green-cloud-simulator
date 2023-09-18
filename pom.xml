@@ -12,13 +12,14 @@
 
 	<modules>
 		<module>engine</module>
-		<module>application</module>
+		<module>agent-system</module>
 		<module>gui</module>
 		<module>commons</module>
+		<module>rules-controller</module>
 		<module>knowledge-database</module>
 		<module>managing-system</module>
 		<module>agent-factory</module>
-		<module>rules-controller</module>
+		<module>weather-api</module>
 	</modules>
 
 	<properties>
@@ -45,17 +46,22 @@
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
-				<version>2.7</version>
+				<version>3.0.0-alpha1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-core</artifactId>
-				<version>2.7</version>
+				<version>3.0.0-alpha1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-slf4j-impl</artifactId>
-				<version>2.7</version>
+				<version>3.0.0-alpha1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.30</version>
 			</dependency>
 			<!-- Jackson -->
 			<dependency>
@@ -121,10 +127,15 @@
 						<configuration>
 							<overWrite>true</overWrite>
 							<fileSets>
-								<!-- Copying configuration of application module -->
+								<!-- Copying configuration of weather-api module -->
 								<fileSet>
-									<sourceFile>config/application/config.properties</sourceFile>
-									<destinationFile>application/src/main/resources/config.properties</destinationFile>
+									<sourceFile>config/weather-api/config.properties</sourceFile>
+									<destinationFile>weather-api/src/main/resources/config.properties</destinationFile>
+								</fileSet>
+								<!-- Copying configuration of agent-system module -->
+								<fileSet>
+									<sourceFile>config/agent-system/config.properties</sourceFile>
+									<destinationFile>agent-system/src/main/resources/config.properties</destinationFile>
 								</fileSet>
 								<!-- Copying configuration of green-cloud-ui module -->
 								<fileSet>
