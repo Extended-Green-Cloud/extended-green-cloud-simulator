@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.agent;
 
-import static com.greencloud.commons.agent.AgentType.MANAGING;
+import static org.greencloud.commons.args.agent.AgentType.MANAGING;
 
 import java.util.List;
 import java.util.Map;
@@ -12,8 +12,10 @@ import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.greencloud.application.agents.AbstractAgent;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.agentsystem.agents.AbstractAgent;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -22,7 +24,7 @@ import jade.wrapper.ContainerController;
 /**
  * Abstract agent class storing data of the Managing Agent
  */
-public abstract class AbstractManagingAgent extends AbstractAgent {
+public abstract class AbstractManagingAgent extends AbstractAgent<ManagingAgentNode, AgentProps> {
 
 	protected ScenarioStructureArgs greenCloudStructure;
 	protected ContainerController greenCloudController;
@@ -42,7 +44,7 @@ public abstract class AbstractManagingAgent extends AbstractAgent {
 	 */
 	protected AbstractManagingAgent() {
 		super();
-		agentType = MANAGING;
+		this.properties = new AgentProps(MANAGING, getName());
 	}
 
 	public ScenarioStructureArgs getGreenCloudStructure() {

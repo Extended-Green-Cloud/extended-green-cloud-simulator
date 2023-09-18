@@ -4,11 +4,12 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
-import static com.greencloud.commons.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.time.Instant.now;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +45,9 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -150,41 +152,41 @@ class DisconnectGreenSourcePlanUnitTest {
 	@Test
 	@DisplayName("Test is plan executable for no green sources with connected servers")
 	void isPlanExecutableNotEnoughConnectedServers() {
-		var mockGS1 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS1 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server2")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS2 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS2 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring2")
 				.ownerSever("test_server2")
 				.connectedServers(new ArrayList<>(List.of("test_server1")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS3 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS3 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server2")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
 		doReturn(List.of(mockGS1, mockGS2, mockGS3)).when(mockStructure).getGreenEnergyAgentsArgs();
 
@@ -217,41 +219,41 @@ class DisconnectGreenSourcePlanUnitTest {
 	@Test
 	@DisplayName("Test is plan executable for no servers valid for disconnection")
 	void isPlanExecutableNoServersValidForDisconnection() {
-		var mockGS1 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS1 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server2", "test_server1")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS2 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS2 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring2")
 				.ownerSever("test_server2")
 				.connectedServers(new ArrayList<>(List.of("test_server3", "test_server5")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS3 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS3 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server4")
 				.connectedServers(new ArrayList<>(List.of("test_server4")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
 		doReturn(List.of(mockGS1, mockGS2, mockGS3)).when(mockStructure).getGreenEnergyAgentsArgs();
 
@@ -343,11 +345,11 @@ class DisconnectGreenSourcePlanUnitTest {
 	private List<AgentData> prepareAliveGreenSourcesData() {
 		return List.of(
 				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(true, GREEN_SOURCE)),
+						new HealthCheck(true, GREEN_ENERGY)),
 				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(true, GREEN_SOURCE)),
+						new HealthCheck(true, GREEN_ENERGY)),
 				new AgentData(now(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(true, GREEN_SOURCE))
+						new HealthCheck(true, GREEN_ENERGY))
 		);
 	}
 
@@ -367,50 +369,50 @@ class DisconnectGreenSourcePlanUnitTest {
 	private List<AgentData> prepareNotAliveGreenSourcesData() {
 		return List.of(
 				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(false, GREEN_SOURCE)),
+						new HealthCheck(false, GREEN_ENERGY)),
 				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(false, GREEN_SOURCE)),
+						new HealthCheck(false, GREEN_ENERGY)),
 				new AgentData(now(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
-						new HealthCheck(false, GREEN_SOURCE))
+						new HealthCheck(false, GREEN_ENERGY))
 		);
 	}
 
 	private void prepareNetworkStructure() {
-		var mockGS1 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS1 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server1", "test_server2")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS2 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS2 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server3")
 				.connectedServers(new ArrayList<>(List.of("test_server2", "test_server3")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS3 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS3 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server3")
 				.connectedServers(new ArrayList<>(List.of("test_server3")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
 
 		doReturn(List.of(mockGS1, mockGS2, mockGS3)).when(mockStructure).getGreenEnergyAgentsArgs();
@@ -459,27 +461,18 @@ class DisconnectGreenSourcePlanUnitTest {
 	void prepareMockServerData() {
 		var data1 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.7)
-				.currentMaximumCapacity(100)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.4)
-				.currentMaximumCapacity(100)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.8)
-				.currentMaximumCapacity(100)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.1)
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)

@@ -23,14 +23,14 @@ import java.util.Map;
 
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidAdaptationActionException;
-import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
-import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
-import com.greencloud.commons.managingsystem.planner.DisableServerActionParameters;
-import com.greencloud.commons.managingsystem.planner.EnableServerActionParameters;
-import com.greencloud.commons.managingsystem.planner.IncreaseDeadlinePriorityParameters;
-import com.greencloud.commons.managingsystem.planner.IncreaseJobDivisionPriorityParameters;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
+import org.greencloud.commons.args.adaptation.singleagent.DisableServerActionParameters;
+import org.greencloud.commons.args.adaptation.singleagent.EnableServerActionParameters;
+import org.greencloud.commons.args.adaptation.singleagent.IncreaseDeadlinePriorityParameters;
+import org.greencloud.commons.args.adaptation.singleagent.IncreaseJobDivisionPriorityParameters;
 
 /**
  * Definitions provider for each of the adaptation actions. Used internally by the Timescale Database when initializing

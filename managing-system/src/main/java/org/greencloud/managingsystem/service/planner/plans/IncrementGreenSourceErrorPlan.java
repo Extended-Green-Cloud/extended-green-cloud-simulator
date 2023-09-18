@@ -3,11 +3,11 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
@@ -28,7 +29,6 @@ import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
 
 import jade.core.AID;
 
@@ -61,7 +61,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 				managingAgent.getAgentNode().getDatabaseClient()
 						.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
 		final Map<String, Double> greenSourceErrorMap =
-				getGreenSourcesWithErrors(greenSourceData, managingAgent.monitor().getAliveAgents(GREEN_SOURCE));
+				getGreenSourcesWithErrors(greenSourceData, managingAgent.monitor().getAliveAgents(GREEN_ENERGY));
 
 		if (greenSourceErrorMap.isEmpty()) {
 			return false;

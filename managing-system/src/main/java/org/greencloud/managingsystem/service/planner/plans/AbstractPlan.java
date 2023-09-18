@@ -7,7 +7,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.AID;
 

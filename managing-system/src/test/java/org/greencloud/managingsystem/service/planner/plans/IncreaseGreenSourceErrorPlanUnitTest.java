@@ -31,9 +31,9 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
+import com.gui.agents.managing.ManagingAgentNode;
 
 class IncreaseGreenSourceErrorPlanUnitTest {
 
@@ -197,9 +197,9 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 	}
 
 	private void mockHealthCheckData() {
-		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_SOURCE);
-		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_SOURCE);
+		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_ENERGY);
+		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_ENERGY);
+		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_ENERGY);
 
 		var mockData = List.of(
 				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),

@@ -4,7 +4,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.managingsystem.planner.SystemAdaptationActionParameters;
+import org.greencloud.commons.args.adaptation.system.SystemAdaptationActionParameters;
 import com.greencloud.factory.AgentFactory;
 import com.greencloud.factory.AgentFactoryImpl;
 

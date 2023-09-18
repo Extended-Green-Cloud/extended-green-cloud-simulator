@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import java.util.AbstractMap;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -37,13 +38,12 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.managingsystem.planner.AddGreenSourceActionParameters;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -73,23 +73,17 @@ class AddGreenSourcePlanUnitTest {
 		monitoringService = spy(new MonitoringService(managingAgent));
 
 		addGreenSourcePlan = new AddGreenSourcePlan(managingAgent, MINIMIZE_USED_BACKUP_POWER);
-		ServerAgentArgs server1AgentArgs = ImmutableServerAgentArgs.builder()
-				.jobProcessingLimit("200")
+		ServerArgs server1AgentArgs = ImmutableServerArgs.builder()
+				.jobProcessingLimit(200)
 				.name("Server1")
-				.latitude("latitude")
-				.longitude("longitude")
-				.maximumCapacity("200")
 				.ownerCloudNetwork("CNA1")
-				.price("5.0")
+				.price(5.0)
 				.build();
-		ServerAgentArgs server2AgentArgs = ImmutableServerAgentArgs.builder()
-				.jobProcessingLimit("200")
+		ServerArgs server2AgentArgs = ImmutableServerArgs.builder()
+				.jobProcessingLimit(200)
 				.name("Server2")
-				.latitude("latitude")
-				.longitude("longitude")
-				.maximumCapacity("200")
 				.ownerCloudNetwork("CNA1")
-				.price("5.0")
+				.price(5.0)
 				.build();
 		greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
 				List.of(server1AgentArgs, server2AgentArgs), emptyList(), emptyList());
@@ -145,26 +139,20 @@ class AddGreenSourcePlanUnitTest {
 				.matches(plan -> plan.getActionParameters() instanceof AddGreenSourceActionParameters);
 		var params = (AddGreenSourceActionParameters) addGreenSourcePlan.getActionParameters();
 		assertThat(params)
-				.matches(p -> ((GreenEnergyAgentArgs) p.getAgentsArguments().get(1)).getOwnerSever().equals("Server2"));
+				.matches(p -> ((GreenEnergyArgs) p.getAgentsArguments().get(1)).getOwnerSever().equals("Server2"));
 	}
 
 	private List<AgentData> generateTestDataForTrafficValue(Integer backUpPowerValue1, Integer backUpPowerValue2) {
 		return of(
 				new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
-						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
-						.availablePower(30D)
-						.currentBackUpPowerUsage(backUpPowerValue1)
 						.isDisabled(false)
 						.serverJobs(10)
 						.build()),
 				new AgentData(now(), serverName, SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
-						.currentMaximumCapacity(100)
 						.currentTraffic(CURRENT_TRAFFIC)
-						.availablePower(30D)
-						.currentBackUpPowerUsage(backUpPowerValue2)
 						.serverJobs(10)
 						.isDisabled(false)
 						.build()));

@@ -21,8 +21,8 @@ import org.mockito.Mock;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.agent.AgentType;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.AgentType;
+import com.gui.agents.managing.ManagingAgentNode;
 
 class IncreaseJobDivisionPowerPriorityPlanTest {
 

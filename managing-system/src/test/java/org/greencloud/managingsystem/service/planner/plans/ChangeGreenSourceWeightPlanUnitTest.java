@@ -4,12 +4,13 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_G
 import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.google.common.collect.ImmutableList.of;
-import static com.greencloud.application.yellowpages.YellowPagesService.search;
-import static com.greencloud.application.yellowpages.domain.DFServiceConstants.SA_SERVICE_TYPE;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.search;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.commons.utils.yellowpages.YellowPagesRegister;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.AfterEach;
@@ -39,13 +43,10 @@ import org.mockito.quality.Strictness;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.application.yellowpages.YellowPagesService;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 
@@ -61,30 +62,30 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	private TimescaleDatabase timescaleDatabase;
 	@Mock
 	private MonitoringService mockMonitoring;
-	private MockedStatic<YellowPagesService> yellowPagesService;
+	private MockedStatic<YellowPagesRegister> yellowPagesService;
 
 	private ChangeGreenSourceWeightPlan changeGreenSourceWeightPlan;
 	private ScenarioStructureArgs greenCloudStructure;
 
 	@BeforeEach
 	void init() {
-		yellowPagesService = mockStatic(YellowPagesService.class);
+		yellowPagesService = mockStatic(YellowPagesRegister.class);
 		mockMonitoring = spy(new MonitoringService(managingAgent));
 		yellowPagesService.when(() -> search(eq(managingAgent), any(), eq(SA_SERVICE_TYPE)))
 				.thenReturn(Set.of(new AID("Server1", AID.ISGUID)));
 		changeGreenSourceWeightPlan = new ChangeGreenSourceWeightPlan(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
-		GreenEnergyAgentArgs greenEnergyAgentArgs1 = ImmutableGreenEnergyAgentArgs.builder()
-				.weatherPredictionError("0.2")
-				.energyType("WIND")
+		GreenEnergyArgs greenEnergyAgentArgs1 = ImmutableGreenEnergyArgs.builder()
+				.weatherPredictionError(0.2)
+				.energyType(WIND)
 				.latitude("50")
 				.longitude("50")
-				.maximumCapacity("100")
+				.maximumCapacity(100L)
 				.name("Wind1")
-				.pricePerPowerUnit("5")
+				.pricePerPowerUnit(5L)
 				.ownerSever("Server1")
 				.monitoringAgent("MonitoringAgent1")
 				.build();
-		GreenEnergyAgentArgs greenEnergyAgentArgs2 = ImmutableGreenEnergyAgentArgs.builder()
+		GreenEnergyArgs greenEnergyAgentArgs2 = ImmutableGreenEnergyArgs.builder()
 				.from(greenEnergyAgentArgs1)
 				.name("Wind2")
 				.build();
@@ -112,7 +113,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	void shouldCorrectlyTestIfPlanIsExecutable(List<AgentData> shortages, boolean expectedResult) {
 		// given
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SHORTAGES))).thenReturn(shortages);
-		when(mockMonitoring.getAliveAgents(GREEN_SOURCE)).thenReturn(List.of("Wind1", "Wind2"));
+		when(mockMonitoring.getAliveAgents(GREEN_ENERGY)).thenReturn(List.of("Wind1", "Wind2"));
 		// when
 		var result = changeGreenSourceWeightPlan.isPlanExecutable();
 
@@ -133,7 +134,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 		// given
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SHORTAGES)))
 				.thenReturn(of(generateTestData("Wind1")));
-		when(mockMonitoring.getAliveAgents(GREEN_SOURCE)).thenReturn(List.of("Wind1", "Wind2"));
+		when(mockMonitoring.getAliveAgents(GREEN_ENERGY)).thenReturn(List.of("Wind1", "Wind2"));
 		var firstResult = changeGreenSourceWeightPlan.isPlanExecutable();
 
 		// when
@@ -147,7 +148,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	@Test
 	void shouldReturnTrueIfNewShortagesHappened() {
 		// given
-		when(mockMonitoring.getAliveAgents(GREEN_SOURCE)).thenReturn(List.of("Wind1", "Wind2"));
+		when(mockMonitoring.getAliveAgents(GREEN_ENERGY)).thenReturn(List.of("Wind1", "Wind2"));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SHORTAGES)))
 				.thenReturn(of(generateTestData("Wind1")));
 		var firstResult = changeGreenSourceWeightPlan.isPlanExecutable();
@@ -165,7 +166,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	@Test
 	void shouldCorrectlyBuildAdaptationPlan() {
 		// given
-		when(mockMonitoring.getAliveAgents(GREEN_SOURCE)).thenReturn(List.of("Wind1"));
+		when(mockMonitoring.getAliveAgents(GREEN_ENERGY)).thenReturn(List.of("Wind1"));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SHORTAGES)))
 				.thenReturn(of(generateTestData("Wind1")));
 		var isPlanExecutable = changeGreenSourceWeightPlan.isPlanExecutable();

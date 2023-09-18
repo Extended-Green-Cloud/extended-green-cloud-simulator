@@ -1,9 +1,9 @@
 package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FINISHED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.ON_BACK_UP;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.List.of;
@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.ManagingAgentNode;
+import com.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 class BackUpPowerUsageServiceUnitTest {

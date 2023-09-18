@@ -22,11 +22,11 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.managingsystem.planner.AddServerActionParameters;
+import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -80,7 +80,7 @@ public class AddServerPlan extends SystemPlan {
 	public AbstractPlan constructAdaptationPlan() {
 		final Map<String, Double> cloudNetworkAgentsTraffic = managingAgent.getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
-				.collect(groupingBy(ServerAgentArgs::getOwnerCloudNetwork,
+				.collect(groupingBy(ServerArgs::getOwnerCloudNetwork,
 						flatMapping(this::getServerTrafficByName, averagingDouble(Double::doubleValue))));
 
 		if (cloudNetworkAgentsTraffic.isEmpty()) {
@@ -102,9 +102,9 @@ public class AddServerPlan extends SystemPlan {
 		}
 
 		final String cloudNetworkLocation = defaultIfNull(cloudNetwork.getLocationId(), targetCloudNetworkAgent);
-		final ServerAgentArgs extraServerArguments = agentFactory.createDefaultServerAgent(targetCloudNetworkAgent);
-		final MonitoringAgentArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
-		final GreenEnergyAgentArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
+		final ServerArgs extraServerArguments = agentFactory.createDefaultServerAgent(targetCloudNetworkAgent);
+		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
+		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), extraServerArguments.getName());
 		final Map.Entry<Location, AID> targetLocation = managingAgent.move().findTargetLocation(cloudNetworkLocation);
 
@@ -124,7 +124,7 @@ public class AddServerPlan extends SystemPlan {
 				.readLastMonitoringDataForDataTypes(List.of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
 	}
 
-	private Stream<Double> getServerTrafficByName(final ServerAgentArgs serverArgs) {
+	private Stream<Double> getServerTrafficByName(final ServerArgs serverArgs) {
 		final ToDoubleFunction<AgentData> getServerTraffic = data ->
 				((ServerMonitoringData) data.monitoringData()).getCurrentTraffic();
 

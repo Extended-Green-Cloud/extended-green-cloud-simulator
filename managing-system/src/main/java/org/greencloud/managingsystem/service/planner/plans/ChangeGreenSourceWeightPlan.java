@@ -2,7 +2,7 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
 import static java.util.Collections.min;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.of;
@@ -19,8 +19,8 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.collect.Maps;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceWeights;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
 
 import jade.core.AID;
 
@@ -94,7 +94,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 		actionParameters = new ChangeGreenSourceWeights(targetGreenSource.getKey());
 		var targetServer = managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 				.filter(args -> targetGreenSource.getKey().contains(args.getName()))
-				.map(GreenEnergyAgentArgs::getOwnerSever)
+				.map(GreenEnergyArgs::getOwnerSever)
 				.findFirst()
 				.orElse(null);
 
@@ -122,7 +122,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 				.filter(filterAliveGreenEnergyAgents())
 				.toList();
 		final Map<String, Integer> allAgentsWithShortages = managingAgent.monitor()
-				.concatLatestAgentDataWithNotRegistered(agentsWithShortages, GREEN_SOURCE,
+				.concatLatestAgentDataWithNotRegistered(agentsWithShortages, GREEN_ENERGY,
 						data -> ((Shortages) data.monitoringData()).shortages(), 0);
 
 		return allAgentsWithShortages.entrySet().stream()
@@ -131,7 +131,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 	}
 
 	private Predicate<AgentData> filterAliveGreenEnergyAgents() {
-		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_SOURCE);
+		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_ENERGY);
 		return data -> aliveGreenSources.stream().anyMatch(greenSource -> data.aid().contains(greenSource));
 	}
 

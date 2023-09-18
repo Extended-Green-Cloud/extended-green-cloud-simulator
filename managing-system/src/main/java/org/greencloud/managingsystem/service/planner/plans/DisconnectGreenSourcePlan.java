@@ -3,8 +3,6 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
-import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingDouble;
@@ -12,6 +10,8 @@ import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.concat;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -22,6 +22,9 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
@@ -29,9 +32,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ImmutableChangeGreenSourceConnectionParameters;
 
 import jade.core.AID;
 
@@ -63,7 +63,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 		final Map<String, List<String>> greenSourcesWithConnectedServers = managingAgent.getGreenCloudStructure()
 				.getGreenEnergyAgentsArgs().stream()
 				.filter(greenSource -> greenSource.getConnectedServers().size() > 1)
-				.collect(toMap(AgentArgs::getName, GreenEnergyAgentArgs::getConnectedServers));
+				.collect(toMap(AgentArgs::getName, GreenEnergyArgs::getConnectedServers));
 
 		// verify if there are Green Sources connected to more than 1 server
 		if (greenSourcesWithConnectedServers.isEmpty()) {
@@ -152,7 +152,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 	@VisibleForTesting
 	protected Map<String, List<String>> getGreenSourcesForDisconnection(final Map<String, List<String>> greenSources) {
 		final List<String> consideredGreenSources = managingAgent.monitor()
-				.getAliveAgentsIntersection(GREEN_SOURCE, greenSources.keySet().stream().toList());
+				.getAliveAgentsIntersection(GREEN_ENERGY, greenSources.keySet().stream().toList());
 
 		if (consideredGreenSources.isEmpty()) {
 			return emptyMap();

@@ -3,10 +3,11 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
-import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
@@ -33,11 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
-
-import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.ImmutableGreenEnergyAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ChangeGreenSourceConnectionParameters;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -331,7 +331,7 @@ class ConnectGreenSourcePlanUnitTest {
 				ImmutableCloudNetworkArgs.builder().name("test_cna1").build(),
 				ImmutableCloudNetworkArgs.builder().name("test_cna2").build())
 		).when(mockStructure).getCloudNetworkAgentsArgs();
-		doReturn(aliveAgents).when(mockMonitoring).getAliveAgents(GREEN_SOURCE);
+		doReturn(aliveAgents).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
 
 		doReturn(List.of("test_gs1", "test_gs2", "test_gs3")).when(mockStructure)
 				.getGreenSourcesForCloudNetwork("test_cna1");
@@ -418,77 +418,77 @@ class ConnectGreenSourcePlanUnitTest {
 	}
 
 	private void prepareNetworkStructure() {
-		var mockGS1 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS1 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server1")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS2 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS2 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server1")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS3 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS3 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server2")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS4 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS4 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs4")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server3")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS5 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS5 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs5")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server3")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
-		var mockGS6 = ImmutableGreenEnergyAgentArgs.builder()
+		var mockGS6 = ImmutableGreenEnergyArgs.builder()
 				.name("test_gs6")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server4")))
 				.latitude("50")
 				.longitude("30")
-				.pricePerPowerUnit("10")
-				.weatherPredictionError("0.02")
-				.maximumCapacity("150")
-				.energyType("SOLAR")
+				.pricePerPowerUnit(10L)
+				.weatherPredictionError(0.02)
+				.maximumCapacity(150L)
+				.energyType(SOLAR)
 				.build();
 
 		doReturn(List.of(mockGS1, mockGS2, mockGS3, mockGS4, mockGS5, mockGS6)).when(mockStructure)

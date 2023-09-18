@@ -9,11 +9,11 @@ import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.CREATED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FAILED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FINISHED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.PROCESSED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.singletonList;
@@ -428,7 +428,7 @@ class TimescaleDatabaseIntegrationTest {
 				.as("Resulted data for server should have correct field values")
 				.isInstanceOfSatisfying(ServerMonitoringData.class, data -> {
 					assertThat(data.getSuccessRatio()).isEqualTo(0.8);
-					assertThat(data.getCurrentBackUpPowerUsage()).isEqualTo(0.7);
+					assertThat(data.getCurrentBackUpPowerTraffic()).isEqualTo(0.7);
 				});
 	}
 
@@ -494,37 +494,25 @@ class TimescaleDatabaseIntegrationTest {
 	void shouldCorrectlyReadLatestNRowsMonitoringDataForDataTypeAndAID() {
 		final ServerMonitoringData data1 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.5)
-				.currentBackUpPowerUsage(0.4)
-				.currentMaximumCapacity(30)
 				.currentTraffic(0.1)
-				.availablePower(20D)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.6)
-				.currentBackUpPowerUsage(0.5)
-				.currentMaximumCapacity(30)
 				.currentTraffic(0.1)
-				.availablePower(20D)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
-				.currentBackUpPowerUsage(0.6)
-				.currentMaximumCapacity(30)
 				.currentTraffic(0.1)
-				.availablePower(20D)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.8)
-				.currentBackUpPowerUsage(0.7)
-				.currentMaximumCapacity(30)
 				.currentTraffic(0.1)
-				.availablePower(20D)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
@@ -591,11 +579,7 @@ class TimescaleDatabaseIntegrationTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 10L, IN_PROGRESS, 25L))
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(100)
-				.currentTraffic(0.7)
-				.availablePower(30D)
 				.successRatio(0.8)
-				.currentBackUpPowerUsage(0.7)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();

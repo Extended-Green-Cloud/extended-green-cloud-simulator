@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.ManagingAgentNode;
+import com.gui.agents.managing.ManagingAgentNode;
 
 class DisableAdaptationActionsDatabaseTest {
 	@Mock

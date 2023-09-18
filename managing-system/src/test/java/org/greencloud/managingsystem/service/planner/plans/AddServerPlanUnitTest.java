@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.AbstractMap;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,11 +32,10 @@ import org.mockito.quality.Strictness;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.managingsystem.planner.AddServerActionParameters;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -59,14 +59,11 @@ class AddServerPlanUnitTest {
 	void init() {
 		mobilityService = spy(new MobilityService(managingAgent));
 		addServerPlan = new AddServerPlan(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
-		ServerAgentArgs serverAgentArgs = ImmutableServerAgentArgs.builder()
-				.jobProcessingLimit("200")
+		ServerArgs serverAgentArgs = ImmutableServerArgs.builder()
+				.jobProcessingLimit(200)
 				.name("Server1")
-				.latitude("latitude")
-				.longitude("longitude")
-				.maximumCapacity("200")
 				.ownerCloudNetwork("CNA1")
-				.price("5.0")
+				.price(5.0)
 				.build();
 		greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(), List.of(serverAgentArgs), emptyList(),
 				emptyList());
@@ -118,10 +115,7 @@ class AddServerPlanUnitTest {
 	private List<AgentData> generateTestDataForTrafficValue(Double trafficValue) {
 		return of(new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 				.successRatio(1.0)
-				.currentMaximumCapacity(200)
-				.availablePower(30D)
 				.currentTraffic(trafficValue)
-				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build()));

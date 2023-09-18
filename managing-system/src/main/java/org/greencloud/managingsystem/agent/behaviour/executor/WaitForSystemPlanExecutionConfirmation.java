@@ -1,8 +1,9 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
-import static com.greencloud.application.utils.TimeUtils.convertMillisecondsToTimeString;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
-import static com.greencloud.commons.message.constants.CommonMessageProtocols.CONFIRM_SYSTEM_PLAN_MESSAGE;
+
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONFIRM_SYSTEM_PLAN_MESSAGE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertMillisecondsToTimeString;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
@@ -24,8 +25,7 @@ import org.slf4j.Logger;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.time.Timer;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.domain.timer.Timer;
 
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -90,7 +90,7 @@ public class WaitForSystemPlanExecutionConfirmation extends MsgReceiver {
 			myManagingAgent.addBehaviour(createForSystemAction(myManagingAgent, actionToBeExecuted, initialGoalQualities,
 					plan.enablePlanAction(), executionDuration));
 
-			((ManagingAgentNode) myManagingAgent.getAgentNode()).logNewAdaptation(actionToBeExecuted.getAction(),
+			myManagingAgent.getAgentNode().logNewAdaptation(actionToBeExecuted.getAction(),
 					getCurrentTime(), empty());
 		} else {
 			logger.info(ACTION_SYSTEM_FAILED_LOG, plan.getAdaptationActionEnum());

@@ -2,11 +2,11 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.CREATED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FAILED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FINISHED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.PROCESSED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
@@ -40,7 +40,7 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.ManagingAgentNode;
+import com.gui.agents.managing.ManagingAgentNode;
 
 class JobSuccessRatioServiceUnitTest {
 
@@ -146,30 +146,21 @@ class JobSuccessRatioServiceUnitTest {
 
 	private List<AgentData> prepareComponentData() {
 		final ServerMonitoringData data1 = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(100)
 				.serverJobs(10)
 				.currentTraffic(0.7)
-				.availablePower(30D)
 				.successRatio(0.9)
-				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(100)
 				.serverJobs(10)
 				.currentTraffic(0.7)
-				.availablePower(30D)
 				.successRatio(0.75)
-				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
-				.currentMaximumCapacity(100)
 				.serverJobs(10)
 				.currentTraffic(0.7)
-				.availablePower(30D)
 				.successRatio(0D)
-				.currentBackUpPowerUsage(0.4)
 				.isDisabled(false)
 				.build();
 		return List.of(

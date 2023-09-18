@@ -12,7 +12,7 @@ import org.greencloud.agentsystem.agents.AbstractAgent;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import com.gui.agents.SchedulerNode;
+import com.gui.agents.scheduler.SchedulerNode;
 
 /**
  * Abstract agent class storing the data regarding Scheduler Agent

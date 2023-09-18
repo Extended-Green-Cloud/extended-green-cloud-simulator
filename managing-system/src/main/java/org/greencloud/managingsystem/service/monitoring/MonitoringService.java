@@ -2,8 +2,8 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.agent.AgentType.SCHEDULER;
-import static com.greencloud.commons.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.AgentType.SCHEDULER;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.averagingDouble;
@@ -43,8 +43,7 @@ import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidGoalIdentifierException;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.agent.AgentType;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.agent.AgentType;
 
 /**
  * Service containing methods connected with monitoring the quality of the system
@@ -71,7 +70,7 @@ public class MonitoringService extends AbstractManagingService {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			logger.info(READ_ADAPTATION_GOALS_LOG);
 			managingAgent.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
-			((ManagingAgentNode) managingAgent.getAgentNode()).registerManagingAgent(
+			managingAgent.getAgentNode().registerManagingAgent(
 					managingAgent.getAdaptationGoalList());
 		}
 	}
@@ -172,7 +171,7 @@ public class MonitoringService extends AbstractManagingService {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getLastMeasuredGoalQualities().entrySet().stream()
 					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
-			((ManagingAgentNode) managingAgent.getAgentNode()).updateQualityIndicators(computeSystemIndicator(),
+			managingAgent.getAgentNode().updateQualityIndicators(computeSystemIndicator(),
 					qualityMap);
 		}
 	}

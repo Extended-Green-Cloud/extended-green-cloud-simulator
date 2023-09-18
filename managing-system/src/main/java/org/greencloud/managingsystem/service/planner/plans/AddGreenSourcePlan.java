@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
-import static com.greencloud.commons.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingDouble;
@@ -17,11 +17,11 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.args.agent.cloudnetwork.CloudNetworkArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.managingsystem.planner.AddGreenSourceActionParameters;
+import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -67,7 +67,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 			return null;
 		}
 
-		final ServerAgentArgs targetServerArgs = managingAgent.getGreenCloudStructure()
+		final ServerArgs targetServerArgs = managingAgent.getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
 				.filter(serverAgentArgs -> targetServer.contains(serverAgentArgs.getName()))
 				.findFirst()
@@ -90,8 +90,8 @@ public class AddGreenSourcePlan extends SystemPlan {
 
 		final String cloudNetworkLocation = defaultIfNull(cloudNetwork.getLocationId(),
 				targetServerArgs.getOwnerCloudNetwork());
-		final MonitoringAgentArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
-		final GreenEnergyAgentArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
+		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
+		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), targetServerArgs.getName());
 		final Map.Entry<Location, AID> targetLocation = managingAgent.move()
 				.findTargetLocation(cloudNetworkLocation);

@@ -5,11 +5,11 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 import static java.util.Objects.nonNull;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableIncreaseJobDivisionPriorityParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.managingsystem.planner.ImmutableIncreaseJobDivisionPriorityParameters;
 
 import jade.core.AID;
 

@@ -1,5 +1,6 @@
 package org.greencloud.managingsystem.service.analyzer;
 
+import static org.greencloud.commons.utils.math.MathOperations.computeKendallTau;
 import static java.lang.Math.sqrt;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.AGGREGATION_SIZE;
@@ -29,7 +30,6 @@ import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.application.utils.AlgorithmUtils;
 
 /**
  * Service containing methods analyzing the current state of the system
@@ -132,7 +132,7 @@ public class AnalyzerService extends AbstractManagingService {
 			return 0;
 		}
 
-		final double tau = AlgorithmUtils.computeKendallTau(qualityInstants, qualityValues);
+		final double tau = computeKendallTau(qualityInstants, qualityValues);
 		final int N = qualityInstants.size();
 		final double zScore = (3 * tau * sqrt(N * (double) (N - 1))) / (sqrt(2 * (double) (2 * N + 5)));
 		final double probability = new NormalDistribution().cumulativeProbability(zScore);

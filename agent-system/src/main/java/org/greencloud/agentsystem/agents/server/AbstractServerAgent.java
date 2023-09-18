@@ -3,7 +3,7 @@ package org.greencloud.agentsystem.agents.server;
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import com.gui.agents.ServerNode;
+import com.gui.agents.server.ServerNode;
 
 /**
  * Abstract agent class storing data of the Server Agent

@@ -26,11 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AMSData;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.greenenergy.GreenEnergyAgentArgs;
-import com.greencloud.commons.args.agent.monitoring.MonitoringAgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.exception.MapperException;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.exception.MapperException;
 
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
@@ -62,13 +62,13 @@ public class MobilityService extends AbstractManagingService {
 	 */
 	public void addAgentsToStructure(final List<AgentArgs> agentArgs) {
 		for (AgentArgs args : agentArgs) {
-			if (args instanceof ServerAgentArgs serverAgentArgs) {
+			if (args instanceof ServerArgs serverAgentArgs) {
 				managingAgent.getGreenCloudStructure().getServerAgentsArgs().add(serverAgentArgs);
 			}
-			if (args instanceof GreenEnergyAgentArgs greenEnergyAgentArgs) {
+			if (args instanceof GreenEnergyArgs greenEnergyAgentArgs) {
 				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().add(greenEnergyAgentArgs);
 			}
-			if (args instanceof MonitoringAgentArgs monitoringAgentArgs) {
+			if (args instanceof MonitoringArgs monitoringAgentArgs) {
 				managingAgent.getGreenCloudStructure().getMonitoringAgentsArgs().add(monitoringAgentArgs);
 			}
 		}

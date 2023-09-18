@@ -21,10 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
-import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
-import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.ManagingAgentNode;
+import com.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class ConnectGreenSourcePlanDatabaseTest {

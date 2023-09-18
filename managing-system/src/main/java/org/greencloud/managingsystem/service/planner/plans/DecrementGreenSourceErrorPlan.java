@@ -5,7 +5,6 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -17,6 +16,7 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
 
@@ -30,6 +30,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsPowerShortages;
@@ -40,7 +41,6 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.managingsystem.planner.ImmutableAdjustGreenSourceErrorParameters;
 
 import jade.core.AID;
 
@@ -135,7 +135,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 	@VisibleForTesting
 	protected Map<AgentsBackUpPower, List<AgentsPowerShortages>> getGreenSourcesPerServers(
 			final List<AgentsBackUpPower> servers) {
-		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_SOURCE);
+		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_ENERGY);
 
 		if (aliveGreenSources.isEmpty()) {
 			return emptyMap();

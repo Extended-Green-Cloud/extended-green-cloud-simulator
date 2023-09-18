@@ -3,10 +3,9 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
-import static com.greencloud.commons.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -21,6 +20,7 @@ import static org.mockito.Mockito.spy;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
@@ -36,10 +36,9 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.commons.args.agent.cloudnetwork.ImmutableCloudNetworkArgs;
-import com.greencloud.commons.managingsystem.planner.AdjustGreenSourceErrorParameters;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 
@@ -78,7 +77,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, GREEN_SOURCES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
 		doReturn(prepareGreenSourceMonitoringData()).when(mockDatabase)
 				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
-		doReturn(GREEN_SOURCES).when(mockMonitoring).getAliveAgents(GREEN_SOURCE);
+		doReturn(GREEN_SOURCES).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
 
 		prepareNetworkStructure();
 	}
@@ -238,7 +237,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		doReturn(prepareServerMonitoringData()).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"),
 						MONITOR_SYSTEM_DATA_TIME_PERIOD);
-		doReturn(emptyList()).when(mockMonitoring).getAliveAgents(GREEN_SOURCE);
+		doReturn(emptyList()).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
 
 		// when
 		var result = decrementGreenSourceErrorPlan.isPlanExecutable();
@@ -396,36 +395,24 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		var data1 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.8)
-				.currentMaximumCapacity(100)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.7)
-				.currentMaximumCapacity(100)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.8)
-				.currentMaximumCapacity(100)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();
 		var data4 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
-				.availablePower(30D)
-				.currentBackUpPowerUsage(0.1)
-				.currentMaximumCapacity(100)
 				.isDisabled(false)
 				.serverJobs(10)
 				.build();

@@ -17,7 +17,7 @@ import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 
 import jade.content.lang.sl.SLCodec;
 import jade.core.behaviours.Behaviour;

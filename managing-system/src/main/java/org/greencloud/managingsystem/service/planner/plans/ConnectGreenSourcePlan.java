@@ -4,12 +4,12 @@ import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_
 import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
 import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.agent.AgentType.GREEN_SOURCE;
 import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
@@ -27,8 +29,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.managingsystem.planner.ImmutableChangeGreenSourceConnectionParameters;
 
 import jade.core.AID;
 
@@ -133,7 +133,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 
 	@VisibleForTesting
 	protected Map<String, Set<AgentsGreenPower>> getAvailableGreenSourcesMap() {
-		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_SOURCE);
+		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_ENERGY);
 
 		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs().stream()
 				.collect(toMap(AgentArgs::getName, cna -> getGreenSourcesForCNA(cna.getName(), aliveGreenSources)))

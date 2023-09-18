@@ -5,17 +5,15 @@ import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.greencloud.application.yellowpages.YellowPagesService.search;
-import static com.greencloud.application.yellowpages.domain.DFServiceConstants.CNA_SERVICE_TYPE;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.FINISHED;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.IN_PROGRESS;
-import static com.greencloud.commons.domain.job.enums.JobClientStatusEnum.ON_BACK_UP;
-import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static jade.core.AID.ISGUID;
 import static java.util.Collections.emptyList;
+import static org.greencloud.commons.constants.DFServiceConstants.CNA_SERVICE_TYPE;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.search;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -32,6 +30,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.utils.yellowpages.YellowPagesRegister;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult;
@@ -55,12 +57,8 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.application.yellowpages.YellowPagesService;
-import com.greencloud.commons.agent.AgentType;
-import com.greencloud.commons.args.agent.server.ImmutableServerAgentArgs;
-import com.greencloud.commons.scenario.ScenarioStructureArgs;
 import com.greencloud.factory.AgentControllerFactory;
-import com.gui.agents.ManagingAgentNode;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -86,7 +84,7 @@ class ExecutorServiceDatabaseTest {
 	TimescaleDatabase database;
 	MonitoringService monitoringService;
 	ExecutorService executorService;
-	MockedStatic<YellowPagesService> yellowPagesService;
+	MockedStatic<YellowPagesRegister> yellowPagesService;
 
 	@BeforeEach
 	void init() {
@@ -97,7 +95,7 @@ class ExecutorServiceDatabaseTest {
 		agentFactory = mock(AgentControllerFactory.class);
 		monitoringService = spy(new MonitoringService(managingAgent));
 		executorService = spy(new ExecutorService(managingAgent, agentFactory));
-		yellowPagesService = mockStatic(YellowPagesService.class);
+		yellowPagesService = mockStatic(YellowPagesRegister.class);
 
 		when(managingAgent.monitor()).thenReturn(monitoringService);
 		when(managingAgent.getAgentNode()).thenReturn(abstractAgentNode);
@@ -154,14 +152,11 @@ class ExecutorServiceDatabaseTest {
 	}
 
 	private void initializeData() {
-		var serverAgentArgs = ImmutableServerAgentArgs.builder()
-				.jobProcessingLimit("200")
+		var serverAgentArgs = ImmutableServerArgs.builder()
+				.jobProcessingLimit(200)
 				.name("Server1")
-				.latitude("latitude")
-				.longitude("longitude")
-				.maximumCapacity("200")
 				.ownerCloudNetwork("CNA1")
-				.price("5.0")
+				.price(5.0)
 				.build();
 		var greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
 				List.of(serverAgentArgs), emptyList(), emptyList());
@@ -170,10 +165,8 @@ class ExecutorServiceDatabaseTest {
 				.jobStatusDurationMap(Map.of(ON_BACK_UP, 10L, IN_PROGRESS, 20L))
 				.isFinished(true)
 				.build();
-		var cnaHealthData = new HealthCheck(true, AgentType.CNA);
+		var cnaHealthData = new HealthCheck(true, AgentType.CLOUD_NETWORK);
 		var cnaTrafficData = ImmutableCloudNetworkMonitoringData.builder()
-				.currentTraffic(0.7)
-				.availablePower(30D)
 				.successRatio(0.8)
 				.build();
 

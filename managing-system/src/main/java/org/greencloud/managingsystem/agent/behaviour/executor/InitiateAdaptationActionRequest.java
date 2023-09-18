@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
-import static com.greencloud.application.utils.TimeUtils.convertMillisecondsToTimeString;
-import static com.greencloud.application.utils.TimeUtils.getCurrentTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertMillisecondsToTimeString;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult.createForAgentAction;
 import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.ACTION_FAILED_LOG;
 import static org.greencloud.managingsystem.agent.behaviour.executor.logs.ManagingExecutorLog.COMPLETED_ACTION_LOG;
@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.time.Timer;
-import com.gui.agents.ManagingAgentNode;
+import org.greencloud.commons.domain.timer.Timer;
+import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -61,7 +61,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 
 		this.targetAgent = (AID) message.getAllReceiver().next();
 		this.myManagingAgent = (ManagingAgent) agent;
-		this.managingAgentNode = (ManagingAgentNode) myManagingAgent.getAgentNode();
+		this.managingAgentNode = myManagingAgent.getAgentNode();
 		this.initialGoalQualities = initialGoalQualities;
 		this.postActionHandler = postActionHandler;
 		this.enablePlanAction = enablePlanAction;

@@ -3,7 +3,7 @@ package org.greencloud.agentsystem.agents.greenenergy;
 import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import com.gui.agents.GreenEnergyNode;
+import com.gui.agents.greenenergy.GreenEnergyNode;
 
 /**
  * Abstract agent class storing data of the Green Source Energy Agent

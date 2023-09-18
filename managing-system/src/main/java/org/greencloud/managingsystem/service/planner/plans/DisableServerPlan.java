@@ -2,10 +2,10 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.greencloud.commons.agent.AgentType.SERVER;
 import static java.util.Collections.max;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
+import org.greencloud.commons.args.adaptation.singleagent.ImmutableDisableServerActionParameters;
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.args.agent.AgentArgs;
-import com.greencloud.commons.args.agent.server.ServerAgentArgs;
-import com.greencloud.commons.managingsystem.planner.ImmutableDisableServerActionParameters;
 
 import jade.core.AID;
 
@@ -115,12 +115,12 @@ public class DisableServerPlan extends AbstractPlan {
 
 	private ToIntFunction<String> getServerMaxCapacity() {
 		return serverAID -> {
-			final List<ServerAgentArgs> allServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs();
+			final List<ServerArgs> allServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs();
 
 			return allServers.stream()
 					.filter(server -> server.getName().equals(serverAID.split("@")[0]))
 					.findFirst()
-					.map(ServerAgentArgs::getIdlePower)
+					.map(ServerArgs::getIdlePower)
 					.orElseThrow();
 		};
 	}

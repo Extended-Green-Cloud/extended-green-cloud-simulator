@@ -6,8 +6,7 @@ import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_R
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 
-import com.database.knowledge.domain.goal.GoalEnum;
-import com.greencloud.commons.managingsystem.planner.AdaptationActionParameters;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.AID;
 

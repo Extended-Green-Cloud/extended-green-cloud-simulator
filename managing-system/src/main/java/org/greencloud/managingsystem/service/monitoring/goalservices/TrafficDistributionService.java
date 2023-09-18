@@ -2,8 +2,8 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.greencloud.commons.agent.AgentType.CNA;
-import static com.greencloud.commons.constants.CommonConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.commons.args.agent.AgentType.CLOUD_NETWORK;
+import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Stream.concat;
@@ -111,7 +111,7 @@ public class TrafficDistributionService extends AbstractGoalService {
 	}
 
 	private List<String> findCNAs() {
-		return managingAgent.monitor().getAliveAgents(CNA);
+		return managingAgent.monitor().getAliveAgents(CLOUD_NETWORK);
 	}
 
 	private List<List<String>> findServers(List<String> cnaAgents) {
