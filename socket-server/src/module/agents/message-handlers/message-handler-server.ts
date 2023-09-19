@@ -7,19 +7,6 @@ import { ServerAgent } from "../types/server-agent";
 
 const getNewTraffic = (maxCpu, cpuInUse) => (maxCpu === 0 ? 0 : (cpuInUse / maxCpu) * 100);
 
-const getNewCloudNetworkTraffic = (agent: CloudNetworkAgent, totalCpuInUse: number) => {
-	agent.isActive = totalCpuInUse > 0;
-	agent.traffic = getNewTraffic(agent.maxCpuInServers, totalCpuInUse);
-
-	const connection = GRAPH_STATE.connections.find((el) => el.data.source === agent.name);
-	const node = getAgentNodeById(GRAPH_STATE.nodes, agent.name);
-	node.state = getNodeState(agent);
-
-	if (connection) {
-		connection.state = agent.isActive ? "active" : "inactive";
-	}
-};
-
 const handleSetBackUpTraffic = (msg) => {
 	const agent: ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
 	const node = getAgentNodeById(GRAPH_STATE.nodes, msg.agentName);
@@ -44,11 +31,21 @@ const handleUpdateResources = (msg) => {
 		agent.powerConsumption = msg.powerConsumption;
 		agent.powerConsumptionBackUp = msg.powerConsumptionBackUp;
 	}
-	const cna = getAgentByName(AGENTS_STATE.agents, (agent as ServerAgent).cloudNetworkAgent);
+	const cna = getAgentByName(AGENTS_STATE.agents, (agent as ServerAgent).cloudNetworkAgent) as CloudNetworkAgent;
 	const totalCpuInUse = getAgentsByName(AGENTS_STATE.agents, cna.serverAgents).reduce((prev, server: ServerAgent) => {
 		return server.inUseCpu + prev;
 	}, 0);
-	getNewCloudNetworkTraffic(cna, totalCpuInUse);
+
+	cna.isActive = totalCpuInUse > 0;
+	cna.traffic = getNewTraffic(cna.maxCpuInServers, totalCpuInUse);
+
+	const connection = GRAPH_STATE.connections.find((el) => el.data.source === cna.name);
+	const node = getAgentNodeById(GRAPH_STATE.nodes, cna.name);
+	node.state = getNodeState(cna);
+
+	if (connection) {
+		connection.state = cna.isActive ? "active" : "inactive";
+	}
 };
 
 const handleServerDisabling = (msg) => changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, false, false);

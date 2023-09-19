@@ -1,3 +1,5 @@
 export * from './agent-event'
 export * from './power-shortage-event'
 export * from './power-shortage-event-data'
+export * from './weather-drop-event-data'
+export * from './weather-drop-event'

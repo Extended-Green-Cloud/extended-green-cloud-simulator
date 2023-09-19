@@ -1,4 +1,4 @@
-import { INITIAL_POWER_SHORTAGE_STATE, JOB_STATUSES } from "../constants/constants";
+import { INITIAL_POWER_SHORTAGE_STATE, INITIAL_WEATHER_DROP_STATE, JOB_STATUSES } from "../constants/constants";
 import { AGENT_TYPES } from "../constants/constants";
 import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
 import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
@@ -95,12 +95,12 @@ const registerCloudNetwork = (data): CloudNetworkAgent => {
 
 	return {
 		type: AGENT_TYPES.CLOUD_NETWORK,
-		events: [],
+		events: [structuredClone(INITIAL_WEATHER_DROP_STATE)],
 		isActive: false,
 		adaptation: "inactive",
 		totalNumberOfClients: 0,
 		totalNumberOfExecutedJobs: 0,
-		maxCpuInServers: data.maxServersCpu,
+		maxCpuInServers: data.maxServerCpu,
 		traffic: 0,
 		successRatio: 0,
 		...data,

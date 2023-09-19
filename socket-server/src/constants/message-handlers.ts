@@ -15,6 +15,8 @@ import {
 	handlePlannedJobs,
 	handleUpdateAdaptationAction,
 	handleUpdateJobExecutionProportion,
+	handleExecutedInCloudJobs,
+	handleIncrementFinishInCloudJobs,
 } from "../module";
 import {
 	handleUpdateDeadlinePriority,
@@ -40,6 +42,7 @@ import {
 
 export const MESSAGE_HANDLERS = {
 	INCREMENT_FINISHED_JOBS: handleIncrementFinishJobs,
+	INCREMENT_FINISHED_IN_CLOUD_JOBS: handleIncrementFinishInCloudJobs,
 	INCREMENT_FAILED_JOBS: handleIncrementFailedJobs,
 	INCREMENT_WEAK_ADAPTATIONS: handleIncrementWeakAdaptations,
 	INCREMENT_STRONG_ADAPTATIONS: handleIncrementStrongAdaptations,
@@ -51,6 +54,7 @@ export const MESSAGE_HANDLERS = {
 	UPDATE_CURRENT_CLIENTS: handleCurrentClientsNumber,
 	UPDATE_CURRENT_PLANNED_JOBS: handlePlannedJobs,
 	UPDATE_CURRENT_ACTIVE_JOBS: handleExecutedJobs,
+	UPDATE_CURRENT_IN_CLOUD_ACTIVE_JOBS: handleExecutedInCloudJobs,
 	SET_TRAFFIC: handleSetTraffic,
 	SET_IS_ACTIVE: handleSetActive,
 	SET_JOBS_COUNT: handleSetJobsCount,

@@ -2,14 +2,24 @@ import { JOB_STATUSES } from "../../constants/constants";
 import { CLIENTS_REPORTS_STATE, CLIENTS_STATE } from "./clients-state";
 
 const reportExecutedJob = (time: number) => {
-	const activeStatuses = [JOB_STATUSES.IN_PROGRESS, JOB_STATUSES.ON_BACK_UP, JOB_STATUSES.ON_HOLD];
+	const activeStatuses = [
+		JOB_STATUSES.IN_PROGRESS,
+		JOB_STATUSES.IN_PROGRESS_CLOUD,
+		JOB_STATUSES.ON_BACK_UP,
+		JOB_STATUSES.ON_HOLD,
+	];
 	const jobsNo = CLIENTS_STATE.clients.filter((client) => activeStatuses.includes(client.status)).length;
 
 	return { time, value: jobsNo };
 };
 
 const reportJobSizeData = (time: number) => {
-	const activeStatuses = [JOB_STATUSES.IN_PROGRESS, JOB_STATUSES.ON_BACK_UP, JOB_STATUSES.ON_HOLD];
+	const activeStatuses = [
+		JOB_STATUSES.IN_PROGRESS,
+		JOB_STATUSES.IN_PROGRESS_CLOUD,
+		JOB_STATUSES.ON_BACK_UP,
+		JOB_STATUSES.ON_HOLD,
+	];
 	const jobsCpu = CLIENTS_STATE.clients
 		.filter((client) => activeStatuses.includes(client.status))
 		.map((client) => client.job.cpu);

@@ -26,10 +26,15 @@ interface Props {
 export const TrafficDistributionLiveChart = ({ reports }: Props) => {
    const selectedAgent = useSelector((state: RootState) => selectChosenNetworkAgent(state))
    const connectedAgents =
-      selectedAgent?.type === AgentType.CLOUD_NETWORK
-         ? { type: 'Servers', agents: (selectedAgent as CloudNetworkAgent).serverAgents }
-         : { type: 'Green Sources', agents: (selectedAgent as ServerAgent).greenEnergyAgents }
-   const agentReports = reports.agentsReports.filter((report) => connectedAgents.agents.includes(report.name))
+      selectedAgent !== null
+         ? selectedAgent?.type === AgentType.CLOUD_NETWORK
+            ? { type: 'Servers', agents: (selectedAgent as CloudNetworkAgent).serverAgents }
+            : { type: 'Green Sources', agents: (selectedAgent as ServerAgent).greenEnergyAgents }
+         : { type: 'CNA', agents: [] }
+   const agentReports =
+      connectedAgents.agents.length > 0
+         ? reports.agentsReports.filter((report) => connectedAgents.agents.includes(report.name))
+         : reports.agentsReports.filter((report) => report.name.includes('CNA'))
 
    const getChartData = (): LiveChartDataCategory[] => {
       const cnaTraffics = agentReports
@@ -50,7 +55,7 @@ export const TrafficDistributionLiveChart = ({ reports }: Props) => {
    return (
       <LiveChartWrapper
          {...{
-            title: `${selectedAgent?.name} traffic distribution per ${connectedAgents.type}`,
+            title: `${selectedAgent?.name ?? 'CNA'} traffic distribution per ${connectedAgents.type}`,
             chart: LiveBarChart,
             data: getChartData(),
             additionalProps: {

@@ -12,7 +12,7 @@ import { convertSecondsToString, convertTimeToString } from 'utils/time-utils'
 import { getJobResourceVal } from 'utils/job-utils'
 import ClientJobStepModal from './client-job-step-modal/client-job-step-modal'
 
-const description = 'Select client from the list to diplay current job statistics'
+const description = 'Select client from the list to display current job statistics'
 
 interface Props {
    clients: ClientAgentStatus[]

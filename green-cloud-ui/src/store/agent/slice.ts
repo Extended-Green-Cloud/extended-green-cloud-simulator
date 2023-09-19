@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Agent, AgentStore, PowerShortageEventData } from '@types'
+import { Agent, AgentStore, PowerShortageEventData, WeatherDropEventData } from '@types'
 import { getAgentByName } from './api/get-agent-by-name'
-import { triggerPowerShortage } from './api/trigger-power-shortage'
+import { triggerPowerShortage, triggerWeatherDrop } from './api/trigger-events'
 
 const INITIAL_STATE: AgentStore = {
    agents: [],
@@ -21,6 +21,13 @@ export const agentSlice = createSlice({
 
          if (getAgentByName(state.agents, agentName)) {
             triggerPowerShortage(agentName, newMaximumCapacity)
+         }
+      },
+      triggerWeatherDrop(state, action: PayloadAction<WeatherDropEventData>) {
+         const { agentName, duration } = action.payload
+
+         if (getAgentByName(state.agents, agentName)) {
+            triggerWeatherDrop(agentName, duration)
          }
       },
       setAgents(state, action: PayloadAction<Agent[]>) {

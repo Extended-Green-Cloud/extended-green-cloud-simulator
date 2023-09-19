@@ -1,4 +1,3 @@
-import { JOB_STATUSES } from "../../constants/constants";
 import { getAgentByName } from "../../utils/agent-utils";
 import { CLIENTS_STATE, Client } from "./clients-state";
 
@@ -7,9 +6,6 @@ const handleSetClientJobStatus = (msg) => {
 	const jobStatus = msg.status;
 
 	if (agent) {
-		if (jobStatus === JOB_STATUSES.FAILED) {
-			agent.status = jobStatus;
-		}
 		agent.status = jobStatus;
 	}
 };

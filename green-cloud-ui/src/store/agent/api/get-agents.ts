@@ -26,3 +26,21 @@ export function* fetchAgentsState() {
       }
    }
 }
+
+/**
+ * Method retrieves agents from backend
+ *
+ */
+export function* fetchOnceAgentsState() {
+   try {
+      const { data } = yield call(() =>
+         axios.get(process.env.REACT_APP_WEB_SOCKET_AGENTS_FRONTEND_URL + '/agents', {
+            timeout: 2000
+         })
+      )
+      yield put(agentsActions.setAgents(data.agents))
+      yield put(cloudNetworkActions.openServerConnection(MenuTab.AGENTS))
+   } catch (err: any) {
+      handleConnectionError(err, 'Agents', MenuTab.AGENTS)
+   }
+}

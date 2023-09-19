@@ -22,6 +22,8 @@ export type NetworkReports = {
    clientsReport: LiveChartEntry[]
    finishJobsReport: LiveChartEntry[]
    failJobsReport: LiveChartEntry[]
+   executedInServersReport: LiveChartEntry[]
+   executedInCloudReport: LiveChartEntry[]
 }
 
 export type ManagingSystemReports = {

@@ -14,10 +14,11 @@ interface Props {
    reportLength: number
 }
 
-const STATUESES_OF_INTEREST = [
+const STATUSES_OF_INTEREST = [
    JobStatus.CREATED,
    JobStatus.DELAYED,
    JobStatus.IN_PROGRESS,
+   JobStatus.IN_PROGRESS_CLOUD,
    JobStatus.ON_BACK_UP,
    JobStatus.ON_HOLD,
    JobStatus.PROCESSED
@@ -36,7 +37,7 @@ export const JobAverageStatusTimeChart = ({ aggregatedValues, reportLength }: Pr
          status: entry[0],
          value: reportLength === 0 ? 0 : getJobStatusTimeInMin(entry[0], entry[1] / reportLength)
       }))
-      .filter((entry) => STATUESES_OF_INTEREST.includes(entry.status))
+      .filter((entry) => STATUSES_OF_INTEREST.includes(entry.status))
 
    const chartData: LiveChartDataCategory[] = jobStatusReport.map((report, idx) => ({
       name: report.status.replaceAll('_', ' ').toLowerCase(),

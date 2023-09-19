@@ -12,7 +12,7 @@ interface Props {
 }
 const buttonWaitLabel = 'Wait before next event triggering'
 /**
- * Component represents fields comnnected with the trigger power shortage event for given agent
+ * Component represents fields connected with the trigger power shortage event for given agent
  *
  * @param {AgentEvent}[event] - power shortage event
  * @param {string}[label] - label describing event card

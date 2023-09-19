@@ -16,6 +16,8 @@ const INITIAL_STATE: ReportsStore = {
    finishJobsReport: [],
    failJobsReport: [],
    executedJobsReport: [],
+   executedInServersReport: [],
+   executedInCloudReport: [],
    systemTrafficReport: [],
    clientsReport: [],
    avgCpuReport: [],

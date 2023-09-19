@@ -1,9 +1,10 @@
-import { MenuTab } from '@types'
+import { AgentNode, MenuTab } from '@types'
 import axios from 'axios'
-import { call, delay, put } from 'redux-saga/effects'
+import { call, delay, put, select } from 'redux-saga/effects'
+import { fetchOnceAgentsState } from 'store/agent'
 import { cloudNetworkActions } from 'store/cloud-network'
 import { handleConnectionError } from 'store/common'
-import { graphActions } from 'store/graph'
+import { graphActions, selectNetworkNodes } from 'store/graph'
 
 /**
  * Method retrieves graph data from backend
@@ -17,6 +18,13 @@ export function* fetchGraphState() {
                timeout: 2000
             })
          )
+
+         const nodes: AgentNode[] = yield select(selectNetworkNodes)
+
+         if (nodes.length !== data.nodes.length) {
+            yield call(fetchOnceAgentsState)
+         }
+
          yield put(graphActions.setGraphData(data))
          yield put(cloudNetworkActions.openServerConnection(MenuTab.AGENTS))
 

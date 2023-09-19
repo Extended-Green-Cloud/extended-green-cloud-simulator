@@ -1,12 +1,13 @@
 import { styles } from './event-panel-styles'
 
 import EventContainer from './event-container/event-container'
-import { Agent, PowerShortageEventData } from '@types'
+import { Agent, PowerShortageEventData, WeatherDropEventData } from '@types'
 import { DetailsField, Modal } from 'components/common'
 
 interface Props {
    selectedAgent?: Agent | null
    triggerPowerShortage: (data: PowerShortageEventData) => void
+   triggerWeatherDrop: (data: WeatherDropEventData) => void
    isOpen: boolean
    setIsOpen: (state: boolean) => void
 }
@@ -18,15 +19,16 @@ const modalHeader = 'TRIGGER AGENT EVENT'
  *
  * @param {boolean}[isOpen] - flag indicating if the modal is open
  * @param {func}[setIsOpen] - function changing the state of the modal
+ * @param {func}[triggerWeatherDrop] - action responsible for weather drop event
  * @returns JSX Element
  */
-export const EventPanel = ({ selectedAgent, triggerPowerShortage, isOpen, setIsOpen }: Props) => {
+export const EventPanel = ({ selectedAgent, triggerPowerShortage, triggerWeatherDrop, isOpen, setIsOpen }: Props) => {
    const { modalContainer, singleEventParentContainer, headerContainer } = styles
 
    const mapToEventFields = () => {
       return selectedAgent?.events.map((event) => {
          const key = [selectedAgent.name, event.type].join('_')
-         return <EventContainer {...{ selectedAgent, event, key, triggerPowerShortage }} />
+         return <EventContainer {...{ selectedAgent, event, key, triggerPowerShortage, triggerWeatherDrop }} />
       })
    }
 
