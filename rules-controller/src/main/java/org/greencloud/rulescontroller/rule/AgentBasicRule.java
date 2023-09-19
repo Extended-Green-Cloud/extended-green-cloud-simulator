@@ -1,17 +1,31 @@
 package org.greencloud.rulescontroller.rule;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.rulescontroller.mvel.MVELObjectType.getObjectForType;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.BASIC;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.tomcat.util.buf.StringUtils;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.enums.rules.RuleStepType;
+import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rest.domain.RuleRest;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.core.BasicRule;
+import org.mvel2.MVEL;
+import org.slf4j.Logger;
 
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.enums.rules.RuleType;
-import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.AbstractNode;
 
 import jade.core.Agent;
@@ -21,17 +35,58 @@ import lombok.Getter;
  * Abstract class defining structure of a rule used in given system strategy
  */
 @Getter
-public abstract class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> extends BasicRule
+@SuppressWarnings("unchecked")
+public class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> extends BasicRule
 		implements AgentRule {
 
-	protected boolean isRuleStep;
+	private static final Logger logger = getLogger(AgentBasicRule.class);
+
 	protected RulesController<T, E> controller;
 	protected T agentProps;
 	protected E agentNode;
 	protected Agent agent;
+	protected AgentType agentType;
 	protected RuleType ruleType;
 	protected RuleType subRuleType;
 	protected RuleStepType stepType;
+	protected boolean isRuleStep;
+
+	protected Map<String, Object> initialParameters;
+
+	protected String imports;
+	protected Serializable executeExpression;
+	protected Serializable evaluateExpression;
+
+	/**
+	 * Constructor
+	 *
+	 * @param ruleRest rest representation of agent rule
+	 */
+	public AgentBasicRule(final RuleRest ruleRest) {
+		super();
+		this.isRuleStep = nonNull(ruleRest.getStepType());
+		this.name = ruleRest.getName();
+		this.description = ruleRest.getDescription();
+		this.ruleType = ruleRest.getType();
+		this.subRuleType = ruleRest.getSubType();
+		this.initialParameters = new HashMap<>();
+		this.priority = ofNullable(ruleRest.getPriority()).orElse(super.priority);
+		this.agentType = ruleRest.getAgentType();
+
+		if (nonNull(ruleRest.getInitialParams())) {
+			ruleRest.getInitialParams().forEach((key, value) -> initialParameters.put(key, getObjectForType(value)));
+		}
+
+		imports = StringUtils.join(ruleRest.getImports(), ' ');
+		imports = imports + " import org.slf4j.MDC;";
+		imports = imports + " import org.greencloud.commons.constants.LoggingConstants;";
+		if (nonNull(ruleRest.getExecute())) {
+			this.executeExpression = MVEL.compileExpression(imports + " " + ruleRest.getExecute());
+		}
+		if (nonNull(ruleRest.getEvaluate())) {
+			this.evaluateExpression = MVEL.compileExpression(imports + " " + ruleRest.getEvaluate());
+		}
+	}
 
 	/**
 	 * Constructor
@@ -64,6 +119,26 @@ public abstract class AgentBasicRule<T extends AgentProps, E extends AbstractNod
 		this.priority = priority;
 	}
 
+	/**
+	 * Method connects agent rule with controller
+	 *
+	 * @param rulesController rules controller connected to the agent
+	 */
+	@Override
+	public void connectToController(final RulesController<?, ?> rulesController) {
+		this.agent = rulesController.getAgent();
+		this.agentProps = (T) rulesController.getAgentProps();
+		this.agentNode = (E) rulesController.getAgentNode();
+		this.controller = (RulesController<T, E>) rulesController;
+
+		initialParameters.put("agent", agent);
+		initialParameters.put("agentProps", agentProps);
+		initialParameters.put("agentNode", agentNode);
+		initialParameters.put("controller", controller);
+		initialParameters.put("logger", logger);
+		initialParameters.put("facts", null);
+	}
+
 	@Override
 	public AgentRuleType getAgentRuleType() {
 		return BASIC;
@@ -76,11 +151,21 @@ public abstract class AgentBasicRule<T extends AgentProps, E extends AbstractNod
 
 	@Override
 	public boolean evaluate(final Facts facts) {
-		return evaluateRule((StrategyFacts) facts);
+		if (isNull(evaluateExpression)) {
+			return evaluateRule((StrategyFacts) facts);
+		} else {
+			initialParameters.replace("facts", facts);
+			return (boolean) MVEL.executeExpression(evaluateExpression, initialParameters);
+		}
 	}
 
 	@Override
 	public void execute(final Facts facts) throws Exception {
-		executeRule((StrategyFacts) facts);
+		if (isNull(executeExpression)) {
+			executeRule((StrategyFacts) facts);
+		} else {
+			initialParameters.replace("facts", facts);
+			MVEL.executeExpression(executeExpression, initialParameters);
+		}
 	}
 }

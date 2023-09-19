@@ -1,11 +1,10 @@
 package org.greencloud.commons.domain.strategy;
 
+import org.greencloud.commons.domain.ImmutableConfig;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
-import org.greencloud.commons.enums.strategy.StrategyType;
 
 /**
  * Object stores the data used in updating system strategy
@@ -17,5 +16,6 @@ import org.greencloud.commons.enums.strategy.StrategyType;
 public interface StrategyUpdate {
 
 	int getStrategyIdx();
-	StrategyType getStrategyType();
+
+	String getStrategyType();
 }

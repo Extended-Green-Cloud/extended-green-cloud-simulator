@@ -2,7 +2,6 @@ package com.gui.websocket;
 
 import static org.greencloud.commons.args.agent.AgentType.SCHEDULER;
 
-import java.io.InvalidClassException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;

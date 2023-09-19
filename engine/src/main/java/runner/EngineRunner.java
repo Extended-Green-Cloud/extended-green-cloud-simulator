@@ -1,5 +1,6 @@
 package runner;
 
+import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.readSystemProperties;
 import static runner.configuration.ScenarioConfiguration.readScenarioProperties;
 import static runner.constants.EngineConstants.GUI_SETUP_MILLISECONDS_DELAY;
@@ -27,6 +28,7 @@ public class EngineRunner {
 
 		// wait for GUI to set up
 		Thread.sleep(GUI_SETUP_MILLISECONDS_DELAY);
+		startRulesControllerRest();
 		runSingleContainerService();
 	}
 

@@ -29,13 +29,13 @@ import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import com.gui.agents.AbstractNode;
-import com.gui.agents.ClientNode;
-import com.gui.agents.CloudNetworkNode;
-import com.gui.agents.GreenEnergyNode;
-import com.gui.agents.ManagingAgentNode;
-import com.gui.agents.MonitoringNode;
-import com.gui.agents.SchedulerNode;
-import com.gui.agents.ServerNode;
+import com.gui.agents.client.ClientNode;
+import com.gui.agents.cloudnetwork.CloudNetworkNode;
+import com.gui.agents.greenenergy.GreenEnergyNode;
+import com.gui.agents.managing.ManagingAgentNode;
+import com.gui.agents.monitoring.MonitoringNode;
+import com.gui.agents.scheduler.SchedulerNode;
+import com.gui.agents.server.ServerNode;
 
 public class AgentNodeFactoryImpl implements AgentNodeFactory {
 

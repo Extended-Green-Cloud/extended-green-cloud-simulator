@@ -35,6 +35,12 @@
 			<artifactId>agent-factory</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<!-- Rules -->
+		<dependency>
+			<groupId>org.greencloud.rulescontroller</groupId>
+			<artifactId>rules-controller</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<!-- Agents -->
 		<dependency>
 			<groupId>org.greencloud.agentsystem</groupId>

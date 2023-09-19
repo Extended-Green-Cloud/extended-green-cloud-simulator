@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.commons.enums.rules.RuleType;
@@ -156,6 +157,11 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 		}
 
 		@Override
+		public AgentType getAgentType() {
+			return AgentCombinedRule.this.getAgentType();
+		}
+
+		@Override
 		public AgentRuleType getAgentRuleType() {
 			return BASIC;
 		}
@@ -236,6 +242,11 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 		@Override
 		public RuleStepType getStepType() {
 			return null;
+		}
+
+		@Override
+		public AgentType getAgentType() {
+			return AgentCombinedRule.this.getAgentType();
 		}
 
 		@Override

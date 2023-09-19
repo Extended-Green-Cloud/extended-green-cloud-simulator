@@ -8,7 +8,6 @@ import java.util.Collection;
 
 import org.greencloud.commons.domain.strategy.ImmutableStrategyUpdate;
 import org.greencloud.commons.domain.strategy.StrategyUpdate;
-import org.greencloud.commons.enums.strategy.StrategyType;
 import org.greencloud.commons.utils.messaging.MessageBuilder;
 import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
 
@@ -30,7 +29,7 @@ public class StrategyAdaptationMessageFactory {
 	 * @return reply ACLMessage
 	 */
 	public static ACLMessage prepareStrategyAdaptationRequest(final int currentStrategyIdx, final int newStrategyIdx,
-			final StrategyType strategyType, final Collection<AID> receivers) {
+			final String strategyType, final Collection<AID> receivers) {
 		final StrategyUpdate updateData = new ImmutableStrategyUpdate(newStrategyIdx, strategyType);
 		return MessageBuilder.builder(currentStrategyIdx)
 				.withMessageProtocol(MessageProtocolConstants.CHANGE_STRATEGY_PROTOCOL)

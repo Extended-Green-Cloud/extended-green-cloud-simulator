@@ -1,26 +1,35 @@
 package org.greencloud.rulescontroller.rule.template;
 
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.TRIGGER_TIME;
 import static org.greencloud.commons.enums.rules.RuleStepType.SCHEDULED_EXECUTE_ACTION_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.SCHEDULED_SELECT_TIME_STEP;
-import static java.lang.String.format;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.SCHEDULED;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rest.domain.ScheduledRuleRest;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
+import org.mvel2.MVEL;
 
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.AbstractNode;
 
-public abstract class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, T>>
+public class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, T>>
 		extends AgentBasicRule<T, E> {
+
+	private Serializable expressionSpecifyTime;
+	private Serializable expressionHandleActionTrigger;
+	private Serializable expressionEvaluateBeforeTrigger;
 
 	/**
 	 * Constructor
@@ -29,6 +38,26 @@ public abstract class AgentScheduledRule<T extends AgentProps, E extends Abstrac
 	 */
 	protected AgentScheduledRule(final RulesController<T, E> controller) {
 		super(controller);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param ruleRest rest representation of agent rule
+	 */
+	public AgentScheduledRule(final ScheduledRuleRest ruleRest) {
+		super(ruleRest);
+		if (nonNull(ruleRest.getEvaluateBeforeTrigger())) {
+			this.expressionEvaluateBeforeTrigger = MVEL.compileExpression(
+					imports + " " + ruleRest.getEvaluateBeforeTrigger());
+		}
+		if (nonNull(ruleRest.getSpecifyTime())) {
+			this.expressionSpecifyTime = MVEL.compileExpression(imports + " " + ruleRest.getSpecifyTime());
+		}
+		if (nonNull(ruleRest.getHandleActionTrigger())) {
+			this.expressionHandleActionTrigger = MVEL.compileExpression(
+					imports + " " + ruleRest.getHandleActionTrigger());
+		}
 	}
 
 	@Override
@@ -44,7 +73,9 @@ public abstract class AgentScheduledRule<T extends AgentProps, E extends Abstrac
 	/**
 	 * Method specify time at which behaviour is to be executed
 	 */
-	protected abstract Date specifyTime(final StrategyFacts facts);
+	protected Date specifyTime(final StrategyFacts facts) {
+		return null;
+	}
 
 	/**
 	 * Method evaluates if the action should have effects
@@ -56,7 +87,8 @@ public abstract class AgentScheduledRule<T extends AgentProps, E extends Abstrac
 	/**
 	 * Method executed when specific time of behaviour execution is reached
 	 */
-	protected abstract void handleActionTrigger(final StrategyFacts facts);
+	protected void handleActionTrigger(final StrategyFacts facts) {
+	}
 
 	// RULE EXECUTED WHEN EXECUTION TIME IS TO BE SELECTED
 	class SpecifyExecutionTimeRule extends AgentBasicRule<T, E> {
@@ -68,7 +100,12 @@ public abstract class AgentScheduledRule<T extends AgentProps, E extends Abstrac
 
 		@Override
 		public void executeRule(final StrategyFacts facts) {
-			final Date period = specifyTime(facts);
+			if (nonNull(AgentScheduledRule.this.initialParameters)) {
+				AgentScheduledRule.this.initialParameters.replace("facts", facts);
+			}
+			final Date period = isNull(expressionSpecifyTime) ?
+					specifyTime(facts) :
+					(Date) MVEL.executeExpression(expressionSpecifyTime, AgentScheduledRule.this.initialParameters);
 			facts.put(TRIGGER_TIME, period);
 		}
 
@@ -90,12 +127,25 @@ public abstract class AgentScheduledRule<T extends AgentProps, E extends Abstrac
 
 		@Override
 		public boolean evaluateRule(final StrategyFacts facts) {
-			return evaluateBeforeTrigger(facts);
+			if (nonNull(AgentScheduledRule.this.initialParameters)) {
+				AgentScheduledRule.this.initialParameters.replace("facts", facts);
+			}
+			return isNull(expressionEvaluateBeforeTrigger) ?
+					evaluateBeforeTrigger(facts) :
+					(boolean) MVEL.executeExpression(expressionEvaluateBeforeTrigger,
+							AgentScheduledRule.this.initialParameters);
 		}
 
 		@Override
 		public void executeRule(final StrategyFacts facts) {
-			handleActionTrigger(facts);
+			if (nonNull(AgentScheduledRule.this.initialParameters)) {
+				AgentScheduledRule.this.initialParameters.replace("facts", facts);
+			}
+			if (isNull(expressionHandleActionTrigger)) {
+				handleActionTrigger(facts);
+			} else {
+				MVEL.executeExpression(expressionHandleActionTrigger, AgentScheduledRule.this.initialParameters);
+			}
 		}
 
 		@Override

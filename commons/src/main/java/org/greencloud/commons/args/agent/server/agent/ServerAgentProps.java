@@ -12,7 +12,6 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
-import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
@@ -31,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
+import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.time.TimeConverter;
 import org.slf4j.Logger;
 
@@ -220,7 +220,7 @@ public class ServerAgentProps extends AgentProps {
 			final JobInstanceIdentifier jobToExclude, final Set<JobExecutionStatusEnum> statusSet) {
 		final Set<JobExecutionStatusEnum> statuses = isNull(statusSet) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusSet;
 		final Set<ClientJob> jobs = serverJobs.keySet().stream()
-				.filter(job -> isNull(jobToExclude) || !mapToJobInstanceId(job).equals(jobToExclude))
+				.filter(job -> isNull(jobToExclude) || !JobMapper.mapClientJobToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverJobs.get(job)))
 				.collect(toSet());
 

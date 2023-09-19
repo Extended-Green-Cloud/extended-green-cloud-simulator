@@ -87,6 +87,16 @@ public class SchedulerNode extends AbstractNode<SchedulerNodeArgs, SchedulerAgen
 	}
 
 	/**
+	 * Function updates the number of jobs planned in the system
+	 */
+	public void removePlannedJob() {
+		getCloudNetworkSocket().send(ImmutableUpdateSingleValueMessage.builder()
+				.data(-1)
+				.type("UPDATE_CURRENT_PLANNED_JOBS")
+				.build());
+	}
+
+	/**
 	 * Function adds new started job
 	 */
 	public void addStartedInCloudJob() {

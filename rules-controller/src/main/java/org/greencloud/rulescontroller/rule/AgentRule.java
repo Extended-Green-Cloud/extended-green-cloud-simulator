@@ -5,6 +5,8 @@ import static java.util.Collections.singletonList;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.jeasy.rules.api.Rule;
 
@@ -21,6 +23,7 @@ public interface AgentRule extends Rule {
 	String RULE_DESCRIPTION = "default rule definition";
 	RuleType TYPE = BASIC_RULE;
 
+	AgentType getAgentType();
 	AgentRuleType getAgentRuleType();
 	RuleType getRuleType();
 	RuleType getSubRuleType();
@@ -63,5 +66,12 @@ public interface AgentRule extends Rule {
 	 */
 	default AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(TYPE, RULE_NAME, RULE_DESCRIPTION);
+	}
+
+	/**
+	 * Method connects agent rule with controller
+	 * @param rulesController rules controller connected to the agent
+	 */
+	default void connectToController(final RulesController<?, ?> rulesController) {
 	}
 }

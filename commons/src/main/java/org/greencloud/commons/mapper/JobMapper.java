@@ -30,7 +30,7 @@ public class JobMapper {
 	 * @param job ClientJob object
 	 * @return JobInstanceIdentifier
 	 */
-	public static JobInstanceIdentifier mapToJobInstanceId(final ClientJob job) {
+	public static JobInstanceIdentifier mapClientJobToJobInstanceId(final ClientJob job) {
 		return new ImmutableJobInstanceIdentifier(job.getJobId(), job.getJobInstanceId(), job.getStartTime());
 	}
 

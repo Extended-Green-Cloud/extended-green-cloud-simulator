@@ -16,6 +16,8 @@ import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.mvel.MVELRuleMapper;
+import org.greencloud.rulescontroller.rest.domain.StrategyRest;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
@@ -35,12 +37,41 @@ import lombok.Getter;
  */
 @Getter
 @SuppressWarnings("unchecked")
-public abstract class Strategy {
+public class Strategy {
 
 	protected final RulesEngine rulesEngine;
-	protected final RulesController<?, ?> rulesController;
 	private final String name;
+	protected RulesController<?, ?> rulesController;
 	private List<AgentRule> agentRules;
+
+	/**
+	 * Constructor
+	 *
+	 * @param strategyRest JSON Rest object from which strategy is to be created
+	 */
+	public Strategy(final StrategyRest strategyRest) {
+		this.rulesEngine = new DefaultRulesEngine();
+		this.name = strategyRest.getName();
+		this.agentRules = strategyRest.getRules().stream()
+				.map(MVELRuleMapper::getRuleForType)
+				.map(AgentRule.class::cast)
+				.toList();
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param strategy   strategy template from strategy map
+	 * @param controller controller which runs given strategy
+	 */
+	public Strategy(final Strategy strategy, final RulesController<?, ?> controller) {
+		this.rulesEngine = new DefaultRulesEngine();
+		this.rulesController = controller;
+		this.name = strategy.getName();
+		this.agentRules = strategy.getAgentRules().stream()
+				.filter(rule -> rule.getAgentType().equals(controller.getAgentProps().getAgentType())).toList();
+		agentRules.forEach(agentRule -> agentRule.connectToController(controller));
+	}
 
 	/**
 	 * Constructor

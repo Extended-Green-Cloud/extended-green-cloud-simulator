@@ -1,6 +1,9 @@
 package org.greencloud.commons.utils.job;
 
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
@@ -207,6 +210,21 @@ public class JobUtils {
 	public static Date calculateExpectedJobEndTime(final PowerJob job) {
 		final Instant endDate = TimeScheduler.alignStartTimeToCurrentTime(job.getEndTime());
 		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+	}
+
+	/**
+	 * Method returns message conversationId based on job status
+	 *
+	 * @param currentStatus job status
+	 * @return conversationId
+	 */
+	public static String getMessageConversationId(final JobExecutionStatusEnum currentStatus) {
+		return switch (currentStatus) {
+			case ACCEPTED -> GREEN_POWER_JOB_ID;
+			case ON_HOLD_SOURCE_SHORTAGE_PLANNED, ON_HOLD_PLANNED, ON_HOLD_TRANSFER_PLANNED -> ON_HOLD_JOB_ID;
+			case IN_PROGRESS_BACKUP_ENERGY_PLANNED -> BACK_UP_POWER_JOB_ID;
+			default -> null;
+		};
 	}
 
 }

@@ -1,6 +1,5 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.FAILURE;
@@ -12,6 +11,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithTimeFrames;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.messaging.constants.MessageConversationConstants;
 import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
@@ -38,7 +38,7 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final ClientJob job, final String conversationId,
 			final Integer strategy) {
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(mapToJobInstanceId(job), getCurrentTime());
+		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job), getCurrentTime());
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
 		return prepareJobStatusMessage(jobStatusUpdate, conversationId, strategy, clientAID);
@@ -175,7 +175,7 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStartedMessage(final ClientJob job, final Integer strategy,
 			final AID... receivers) {
-		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
 		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.STARTED_JOB_ID,
 				strategy, receivers);
 	}
@@ -190,7 +190,7 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobFinishMessage(final ClientJob job, final Integer strategy,
 			final AID... receivers) {
-		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
 		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.FINISH_JOB_ID,
 				strategy, receivers);
 	}

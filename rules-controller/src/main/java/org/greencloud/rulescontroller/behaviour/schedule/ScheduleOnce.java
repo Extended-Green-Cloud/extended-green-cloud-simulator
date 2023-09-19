@@ -7,6 +7,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.TRIGGER_TIME;
 import static org.greencloud.commons.enums.rules.RuleStepType.SCHEDULED_EXECUTE_ACTION_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.SCHEDULED_SELECT_TIME_STEP;
+import static org.greencloud.rulescontroller.strategy.StrategySelector.selectStrategyIndex;
 
 import java.util.function.ToIntFunction;
 
@@ -14,6 +15,7 @@ import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.strategy.StrategySelector;
 import org.jeasy.rules.api.Facts;
 
 import jade.core.Agent;
@@ -52,13 +54,13 @@ public class ScheduleOnce extends WakerBehaviour {
 	 * @return ScheduleOnce
 	 */
 	public static ScheduleOnce create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
-			final RulesController<?, ?> controller, final ToIntFunction<Facts> selectStrategy) {
+			final RulesController<?, ?> controller, final StrategySelector selector) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, SCHEDULED_SELECT_TIME_STEP);
 		controller.fire(methodFacts);
 
-		return new ScheduleOnce(agent, methodFacts, controller, selectStrategy);
+		return new ScheduleOnce(agent, methodFacts, controller, selectStrategyIndex(selector, controller));
 	}
 
 	/**

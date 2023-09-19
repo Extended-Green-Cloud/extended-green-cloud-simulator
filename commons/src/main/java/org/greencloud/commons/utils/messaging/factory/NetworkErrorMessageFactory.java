@@ -1,11 +1,11 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
@@ -47,7 +47,7 @@ public class NetworkErrorMessageFactory {
 			final Integer strategy) {
 		return MessageBuilder.builder(strategy)
 				.withPerformative(REQUEST)
-				.withObjectContent(mapToJobInstanceId(job))
+				.withObjectContent(JobMapper.mapClientJobToJobInstanceId(job))
 				.withMessageProtocol(MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL)
 				.withReceivers(receiver)
 				.build();

@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.strategy.StrategyType;
 import org.greencloud.rulescontroller.strategy.Strategy;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -72,7 +71,7 @@ public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>>
 		this.agent = agent;
 		this.agentProps = agentProps;
 		this.agentNode = agentNode;
-		this.strategies.put(latestStrategy.get(), constructStrategyForType(DEFAULT_STRATEGY, this));
+		this.strategies.put(latestStrategy.get(), constructStrategyForType(DEFAULT_STRATEGY.toString(), this));
 	}
 
 	/**
@@ -81,7 +80,7 @@ public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>>
 	 * @param type type of strategy that is to be added
 	 * @param idx  index of the added strategy
 	 */
-	public void addNewStrategy(final StrategyType type, final int idx) {
+	public void addNewStrategy(final String type, final int idx) {
 		this.strategies.put(idx, constructStrategyForType(type, this));
 		this.latestStrategy.set(idx);
 	}

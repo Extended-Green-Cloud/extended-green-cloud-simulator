@@ -1,21 +1,21 @@
 package org.greencloud.rulescontroller.strategy;
 
-import static org.greencloud.commons.enums.strategy.StrategyType.WEATHER_DROP_STRATEGY;
+import static java.util.Objects.nonNull;
+import static org.greencloud.rulescontroller.rest.StrategyRestApi.getAvailableStrategies;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.COMBINED;
+import static org.slf4j.LoggerFactory.getLogger;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.enums.rules.RuleType;
-import org.greencloud.commons.enums.strategy.StrategyType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-import org.greencloud.rulescontroller.strategies.defaultstrategy.DefaultStrategy;
-import org.greencloud.rulescontroller.strategies.weatherdropstrategy.WeatherDropStrategy;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.DefaultStrategy;
+import org.slf4j.Logger;
 
 import com.gui.agents.AbstractNode;
 
@@ -25,6 +25,8 @@ import com.gui.agents.AbstractNode;
 @SuppressWarnings("unchecked")
 public class StrategyConstructor {
 
+	private static final Logger logger = getLogger(StrategyConstructor.class);
+
 	/**
 	 * Method constructs strategy for given type
 	 *
@@ -33,10 +35,10 @@ public class StrategyConstructor {
 	 * @return Strategy
 	 */
 	public static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy constructStrategyForType(
-			final StrategyType type, final RulesController<E, T> controller) {
+			final String type, final RulesController<E, T> controller) {
 		return switch (type) {
-			case DEFAULT_STRATEGY -> new DefaultStrategy(controller);
-			case WEATHER_DROP_STRATEGY -> constructModifiedStrategyForType(WEATHER_DROP_STRATEGY, controller);
+			case "DEFAULT_STRATEGY" -> new DefaultStrategy(controller);
+			default -> constructModifiedStrategyForType(type, controller);
 		};
 	}
 
@@ -48,37 +50,43 @@ public class StrategyConstructor {
 	 * @return Strategy
 	 */
 	public static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy constructModifiedStrategyForType(
-			final StrategyType typeModifier, final RulesController<E, T> controller) {
+			final String typeModifier, final RulesController<E, T> controller) {
 		final Strategy baseStrategy = new DefaultStrategy(controller);
 
 		final Strategy modifications = getStrategyModification(typeModifier, controller);
-		final List<RuleType> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
-				.map(AgentRule::getRuleType)
-				.toList());
 
-		if (!modificationsTypes.isEmpty()) {
-			final List<AgentRule> modifiableRules = baseStrategy.getAgentRules().stream()
-					.filter(agentRule -> modificationsTypes.contains(agentRule.getRuleType()))
-					.toList();
+		if(nonNull(modifications)) {
+			final List<RuleType> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
+					.map(AgentRule::getRuleType)
+					.toList());
 
-			final List<AgentRule> usedModifications =
-					performModificationOfCombinedRules(modifiableRules, modifications, modificationsTypes);
-			final List<AgentRule> remainingModifications = modifications.getAgentRules().stream()
-					.filter(modification -> !usedModifications.contains(modification)).toList();
+			if (!modificationsTypes.isEmpty()) {
+				final List<AgentRule> modifiableRules = baseStrategy.getAgentRules().stream()
+						.filter(agentRule -> modificationsTypes.contains(agentRule.getRuleType()))
+						.toList();
 
-			baseStrategy.getAgentRules().removeIf(agentRule -> modificationsTypes.contains(agentRule.getRuleType()));
-			baseStrategy.getAgentRules().addAll(remainingModifications);
+				final List<AgentRule> usedModifications =
+						performModificationOfCombinedRules(modifiableRules, modifications, modificationsTypes);
+				final List<AgentRule> remainingModifications = modifications.getAgentRules().stream()
+						.filter(modification -> !usedModifications.contains(modification)).toList();
+
+				baseStrategy.getAgentRules()
+						.removeIf(agentRule -> modificationsTypes.contains(agentRule.getRuleType()));
+				baseStrategy.getAgentRules().addAll(remainingModifications);
+			}
 		}
-
 		return baseStrategy;
 	}
 
 	private static <E extends AgentProps, T extends AbstractNode<?, E>> Strategy getStrategyModification(
-			final StrategyType typeModifier, final RulesController<E, T> controller) {
-		return switch (typeModifier) {
-			case WEATHER_DROP_STRATEGY -> new WeatherDropStrategy(controller);
-			default -> throw new InvalidParameterException("Incorrect strategy type!");
-		};
+			final String typeModifier, final RulesController<E, T> controller) {
+		if (getAvailableStrategies().containsKey(typeModifier)) {
+			final Strategy strategyTemplate = getAvailableStrategies().get(typeModifier);
+			return new Strategy(strategyTemplate, controller);
+		} else {
+			logger.info("Strategy {} not found!", typeModifier);
+			return null;
+		}
 	}
 
 	private static List<AgentRule> performModificationOfCombinedRules(final List<AgentRule> originalRules,
