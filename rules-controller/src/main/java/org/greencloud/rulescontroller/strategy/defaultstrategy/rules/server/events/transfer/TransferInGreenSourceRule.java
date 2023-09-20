@@ -84,7 +84,7 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(TRANSFER_JOB_IN_GS_RULE,
 				"transfer job to another Green Source",
-				"rule performs transfer request of job to another Green Source");
+				"rule initiates a transfer request of job to another Green Source");
 	}
 
 	@Override
