@@ -2,7 +2,7 @@ package com.gui.agents;
 
 import java.io.Serializable;
 
-public interface AbstractNodeInterface extends Serializable {
+public interface EGCSNodeInterface extends Serializable {
 
 	/**
 	 * Method retrieves the agent name

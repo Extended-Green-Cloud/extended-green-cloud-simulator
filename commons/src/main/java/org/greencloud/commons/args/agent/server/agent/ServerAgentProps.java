@@ -1,5 +1,10 @@
 package org.greencloud.commons.args.agent.server.agent;
 
+import static java.util.Collections.singleton;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_ACCEPTED_LOG;
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_FINISH_LOG;
@@ -13,11 +18,6 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_B
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
-import static java.util.Collections.singleton;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -28,20 +28,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.commons.domain.resources.HardwareResources;
 import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
+import org.greencloud.commons.enums.job.JobExecutionResultEnum;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.time.TimeConverter;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.counter.JobCounter;
-import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.enums.job.JobExecutionResultEnum;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 
 import jade.core.AID;
 import lombok.Getter;
@@ -53,7 +52,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-public class ServerAgentProps extends AgentProps {
+public class ServerAgentProps extends EGCSAgentProps {
 
 	private static final Logger logger = getLogger(ServerAgentProps.class);
 

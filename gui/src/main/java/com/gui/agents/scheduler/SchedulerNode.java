@@ -13,7 +13,7 @@ import org.greencloud.commons.args.agent.scheduler.node.SchedulerNodeArgs;
 import org.greencloud.commons.domain.job.instance.ImmutableJobInstanceScheduler;
 import org.greencloud.commons.domain.job.instance.JobInstanceScheduler;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateJobQueueMessage;
@@ -22,7 +22,7 @@ import com.gui.message.ImmutableUpdateSingleValueMessage;
 /**
  * Agent node class representing the scheduler agent
  */
-public class SchedulerNode extends AbstractNode<SchedulerNodeArgs, SchedulerAgentProps> {
+public class SchedulerNode extends EGCSNode<SchedulerNodeArgs, SchedulerAgentProps> {
 
 	/**
 	 * Scheduler node constructor

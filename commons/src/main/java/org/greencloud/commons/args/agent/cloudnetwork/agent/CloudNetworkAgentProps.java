@@ -16,13 +16,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.slf4j.Logger;
 
 import jade.core.AID;
 import lombok.Getter;
@@ -33,7 +32,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CloudNetworkAgentProps extends AgentProps {
+public class CloudNetworkAgentProps extends EGCSAgentProps {
 
 	private static final Logger logger = getLogger(CloudNetworkAgentProps.class);
 

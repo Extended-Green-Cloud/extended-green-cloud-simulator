@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.agents;
 
+import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_CLOUD_STRATEGY;
 import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
 import static org.greencloud.commons.args.agent.AgentType.CLIENT;
 import static org.greencloud.commons.args.agent.AgentType.MANAGING;
@@ -29,7 +30,7 @@ import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
@@ -47,7 +48,7 @@ import lombok.Setter;
 @SuppressWarnings("unchecked")
 @Getter
 @Setter
-public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends AgentProps> extends Agent {
+public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentProps> extends Agent {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractAgent.class);
 
@@ -154,7 +155,7 @@ public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends Agen
 
 	@Override
 	public void clean(boolean ok) {
-		if (!ok && nonNull(getAgentNode()) && !properties.getAgentType().equals(CLIENT)) {
+		if (!ok && nonNull(getAgentNode()) && !properties.getAgentType().equals(CLIENT.name())) {
 			getAgentNode().removeAgentNodeFromGraph();
 		}
 		super.clean(ok);
@@ -163,7 +164,7 @@ public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends Agen
 	@Override
 	protected void setup() {
 		logger.info("Setting up Agent {}", getName());
-		if (properties.getAgentType().equals(CLIENT)) {
+		if (properties.getAgentType().equals(CLIENT.name())) {
 			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
 		} else {
 			MDC.put(MDC_AGENT_NAME, super.getLocalName());
@@ -175,7 +176,7 @@ public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends Agen
 		runStartingBehaviours();
 
 		// checking if the managing agent should be informed about agent creation
-		if (arguments.length > 0 && !List.of(CLIENT, MANAGING).contains(properties.getAgentType())
+		if (arguments.length > 0 && !List.of(CLIENT.name(), MANAGING.name()).contains(properties.getAgentType())
 				&& (boolean) arguments[arguments.length - 2]) {
 			try {
 				final AID managingAgent = (AID) arguments[arguments.length - 1];
@@ -189,7 +190,7 @@ public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends Agen
 
 	@Override
 	protected void takeDown() {
-		if (properties.getAgentType().equals(CLIENT)) {
+		if (properties.getAgentType().equals(CLIENT.name())) {
 			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
 		} else {
 			MDC.put(MDC_AGENT_NAME, super.getLocalName());
@@ -212,7 +213,7 @@ public abstract class AbstractAgent<T extends AbstractNode<?, E>, E extends Agen
 		this.rulesController = rulesController;
 		properties.setAgentName(getName());
 		properties.setAgentNode((AgentNodeProps<AgentProps>) agentNode);
-		rulesController.setAgent(this, properties, agentNode);
+		rulesController.setAgent(this, properties, agentNode, DEFAULT_CLOUD_STRATEGY.name());
 		runInitialBehavioursForStrategy();
 	}
 }

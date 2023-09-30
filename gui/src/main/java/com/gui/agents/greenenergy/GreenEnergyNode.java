@@ -18,7 +18,7 @@ import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonit
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
 
-import com.gui.agents.AbstractNetworkNode;
+import com.gui.agents.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateServerConnectionMessage;
@@ -27,7 +27,7 @@ import com.gui.message.domain.ImmutableServerConnection;
 /**
  * Agent node class representing the green energy source
  */
-public class GreenEnergyNode extends AbstractNetworkNode<GreenEnergyNodeArgs, GreenEnergyAgentProps>
+public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenEnergyAgentProps>
 		implements Serializable {
 
 	public GreenEnergyNode() {

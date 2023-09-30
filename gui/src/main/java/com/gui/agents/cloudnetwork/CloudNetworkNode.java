@@ -18,7 +18,7 @@ import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMon
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.args.agent.cloudnetwork.node.CloudNetworkNodeArgs;
 
-import com.gui.agents.AbstractNetworkNode;
+import com.gui.agents.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateSingleValueMessage;
@@ -26,7 +26,7 @@ import com.gui.message.ImmutableUpdateSingleValueMessage;
 /**
  * Agent node class representing the cloud network
  */
-public class CloudNetworkNode extends AbstractNetworkNode<CloudNetworkNodeArgs, CloudNetworkAgentProps> {
+public class CloudNetworkNode extends EGCSNetworkNode<CloudNetworkNodeArgs, CloudNetworkAgentProps> {
 
 	/**
 	 * Cloud network node constructor

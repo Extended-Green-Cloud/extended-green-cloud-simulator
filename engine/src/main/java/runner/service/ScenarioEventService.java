@@ -1,9 +1,9 @@
 package runner.service;
 
-import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
 import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.constants.EngineConstants.POWER_SHORTAGE_EVENT_DELAY;
 import static runner.utils.FileReader.readFile;
@@ -16,17 +16,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.event.EventArgs;
 import org.greencloud.commons.args.event.NewClientEventArgs;
 import org.greencloud.commons.args.event.PowerShortageEventArgs;
+import org.greencloud.commons.args.scenario.ScenarioEventsArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
 import org.greencloud.commons.exception.InvalidScenarioException;
-import org.greencloud.commons.args.scenario.ScenarioEventsArgs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.greencloud.factory.AgentControllerFactory;
 import com.greencloud.factory.AgentFactory;
 import com.greencloud.factory.AgentFactoryImpl;
@@ -119,7 +120,8 @@ public class ScenarioEventService {
 		final NewClientEventArgs newClientEvent = (NewClientEventArgs) event;
 		final ClientArgs clientAgentArgs = agentFactory.createClientAgent(newClientEvent);
 
-		final AgentController agentController = factory.createAgentController(clientAgentArgs, null);
+		final AgentController agentController = factory.createAgentController(clientAgentArgs,
+				(ScenarioStructureArgs) null);
 		factory.runAgentController(agentController, 0);
 	}
 

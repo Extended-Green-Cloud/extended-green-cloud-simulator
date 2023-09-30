@@ -32,7 +32,7 @@ import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.enums.job.JobClientStatusEnum;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.message.ImmutableSetClientJobDurationMapMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
 import com.gui.message.ImmutableSetClientJobTimeFrameMessage;
@@ -43,7 +43,7 @@ import com.gui.message.domain.ImmutableJobTimeFrame;
 /**
  * Agent node class representing the client
  */
-public class ClientNode extends AbstractNode<ClientNodeArgs, ClientAgentProps> {
+public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 
 	private static final List<JobClientStatusEnum> SIMULATION_STATUSES = List.of(SCHEDULED, PROCESSED, CREATED);
 

@@ -4,6 +4,7 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static java.util.Objects.nonNull;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
+import org.greencloud.commons.args.agent.AgentType;
 
 import com.database.knowledge.domain.agent.HealthCheck;
 
@@ -39,7 +40,8 @@ public class ReportHealthCheck extends TickerBehaviour {
 	protected void onTick() {
 		if (nonNull(myAbstractAgent.getAgentNode())) {
 			myAbstractAgent.getAgentNode().getDatabaseClient().writeMonitoringData(myAbstractAgent.getName(),
-					HEALTH_CHECK, new HealthCheck(true, myAbstractAgent.getProperties().getAgentType()));
+					HEALTH_CHECK,
+					new HealthCheck(true, AgentType.valueOf(myAbstractAgent.getProperties().getAgentType())));
 		}
 	}
 }

@@ -5,7 +5,6 @@ import static java.util.Optional.ofNullable;
 import java.net.URI;
 import java.util.Map;
 
-import com.database.knowledge.timescale.TimescaleDatabase;
 import com.gui.websocket.enums.SocketTypeEnum;
 
 /**
@@ -30,27 +29,26 @@ public class WebSocketConnections {
 	 *
 	 * @param singleUrl websocket url
 	 */
-	public static void initialize(final String singleUrl, final TimescaleDatabase database) {
+	public static void initialize(final String singleUrl) {
 		AGENTS_WEB_SOCKET = initializeSocket(AGENTS_WEB_SOCKET, singleUrl);
 		CLIENTS_WEB_SOCKET = initializeSocket(CLIENTS_WEB_SOCKET, singleUrl);
 		MANAGING_SYSTEM_SOCKET = initializeSocket(MANAGING_SYSTEM_SOCKET, singleUrl);
 		CLOUD_NETWORK_SOCKET = initializeSocket(CLOUD_NETWORK_SOCKET, singleUrl);
-		EVENT_SOCKET = initializeListener(EVENT_SOCKET, singleUrl, database);
+		EVENT_SOCKET = initializeListener(EVENT_SOCKET, singleUrl);
 	}
 
 	/**
 	 * Method initializes the connection to websockets
 	 *
 	 * @param hostUrls - addresses of all web socket hosts
-	 * @param database - database used by the socket listener
 	 */
-	public static void initialize(final Map<SocketTypeEnum, String> hostUrls, final TimescaleDatabase database) {
+	public static void initialize(final Map<SocketTypeEnum, String> hostUrls) {
 		AGENTS_WEB_SOCKET = initializeSocket(AGENTS_WEB_SOCKET, hostUrls.get(SocketTypeEnum.AGENTS_WEB_SOCKET));
 		CLIENTS_WEB_SOCKET = initializeSocket(CLIENTS_WEB_SOCKET, hostUrls.get(SocketTypeEnum.CLIENTS_WEB_SOCKET));
 		MANAGING_SYSTEM_SOCKET = initializeSocket(MANAGING_SYSTEM_SOCKET,
 				hostUrls.get(SocketTypeEnum.MANAGING_SYSTEM_WEB_SOCKET));
 		CLOUD_NETWORK_SOCKET = initializeSocket(CLOUD_NETWORK_SOCKET, hostUrls.get(SocketTypeEnum.NETWORK_WEB_SOCKET));
-		EVENT_SOCKET = initializeListener(EVENT_SOCKET, hostUrls.get(SocketTypeEnum.EVENTS_WEB_SOCKET), database);
+		EVENT_SOCKET = initializeListener(EVENT_SOCKET, hostUrls.get(SocketTypeEnum.EVENTS_WEB_SOCKET));
 	}
 
 	/**
@@ -88,8 +86,7 @@ public class WebSocketConnections {
 		return ofNullable(socket).orElse(new GuiWebSocketClient(URI.create(url)));
 	}
 
-	private static GuiWebSocketListener initializeListener(final GuiWebSocketListener listener, final String url,
-			final TimescaleDatabase database) {
-		return ofNullable(listener).orElse(new GuiWebSocketListener(URI.create(url + "powerShortage"), database));
+	private static GuiWebSocketListener initializeListener(final GuiWebSocketListener listener, final String url) {
+		return ofNullable(listener).orElse(new GuiWebSocketListener(URI.create(url + "powerShortage")));
 	}
 }

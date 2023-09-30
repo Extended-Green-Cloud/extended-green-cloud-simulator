@@ -1,27 +1,27 @@
 package org.greencloud.commons.args.agent.client.agent;
 
-import static org.greencloud.commons.args.agent.AgentType.CLIENT;
-import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.args.agent.AgentType.CLIENT;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
-import org.greencloud.commons.domain.jobstep.ImmutableJobStep;
-import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
-import org.greencloud.commons.enums.job.JobClientStatusEnum;
-import org.greencloud.commons.utils.time.TimeConverter;
-import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
+import org.greencloud.commons.domain.jobstep.ImmutableJobStep;
 import org.greencloud.commons.domain.jobstep.JobStep;
 import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
 import org.greencloud.commons.domain.timer.Timer;
+import org.greencloud.commons.enums.job.JobClientStatusEnum;
+import org.greencloud.commons.utils.time.TimeConverter;
 
 import jade.core.AID;
 import lombok.Getter;
@@ -32,7 +32,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ClientAgentProps extends AgentProps {
+public class ClientAgentProps extends EGCSAgentProps {
 
 	protected final Timer jobExecutionTimer = new Timer();
 	protected boolean isAnnounced;

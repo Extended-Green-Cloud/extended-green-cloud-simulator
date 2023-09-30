@@ -1,7 +1,7 @@
 package org.greencloud.commons.args.agent.monitoring.agent;
 
-import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MonitoringAgentProps extends AgentProps {
+public class MonitoringAgentProps extends EGCSAgentProps {
 
 	public static final double BAD_STUB_PROBABILITY = 0.02;
 

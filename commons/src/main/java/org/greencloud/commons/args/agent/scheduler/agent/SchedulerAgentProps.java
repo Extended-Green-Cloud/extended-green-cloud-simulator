@@ -1,8 +1,7 @@
 package org.greencloud.commons.args.agent.scheduler.agent;
 
-import static org.greencloud.commons.mapper.JobMapper.mapToJobWithNewTime;
-import static java.lang.String.valueOf;
 import static java.util.Comparator.comparingDouble;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobWithNewTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -13,15 +12,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.ToDoubleFunction;
 
-import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.constants.LoggingConstants;
+import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.time.TimeScheduler;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.domain.job.basic.ClientJob;
 
 import jade.core.AID;
 import lombok.Getter;
@@ -32,7 +30,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SchedulerAgentProps extends AgentProps {
+public class SchedulerAgentProps extends EGCSAgentProps {
 
 	private static final Logger logger = getLogger(SchedulerAgentProps.class);
 

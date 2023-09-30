@@ -24,17 +24,16 @@ import lombok.Getter;
  * Class represents abstract generic agent node
  */
 @Getter
-public abstract class AbstractNode<T extends AgentArgs, E extends AgentProps>
-		implements AbstractNodeInterface, AgentNodeProps<E> {
+public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extends AgentNode<E>
+		implements EGCSNodeInterface, AgentNodeProps<E> {
 
 	protected final Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 	protected TimescaleDatabase databaseClient;
-	protected String agentName;
 	protected T nodeArgs;
-	protected AgentType agentType;
 
 
-	protected AbstractNode() {
+	protected EGCSNode() {
+		super();
 	}
 
 	/**
@@ -43,16 +42,15 @@ public abstract class AbstractNode<T extends AgentArgs, E extends AgentProps>
 	 * @param nodeArgs  arguments used to create agent node
 	 * @param agentType type of agent node
 	 */
-	protected AbstractNode(T nodeArgs, AgentType agentType) {
-		this.agentName = nodeArgs.getName();
+	protected EGCSNode(T nodeArgs, AgentType agentType) {
+		super(nodeArgs.getName(), agentType.name());
 		this.nodeArgs = nodeArgs;
-		this.agentType = agentType;
 	}
 
 	@Override
 	public void addToGraph() {
 		getClientsWebSocket().send(ImmutableRegisterAgentMessage.builder()
-				.agentType(agentType.name())
+				.agentType(agentType)
 				.data(nodeArgs)
 				.build());
 	}
@@ -86,7 +84,7 @@ public abstract class AbstractNode<T extends AgentArgs, E extends AgentProps>
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		AbstractNode<T, E> agentNode = (AbstractNode<T, E>) o;
+		EGCSNode<T, E> agentNode = (EGCSNode<T, E>) o;
 		return agentName.equals(agentNode.agentName);
 	}
 

@@ -1,16 +1,15 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "moduleResolution": "node",
-        "allowJs": true,
-        "noEmit": true,
-        "strict": false,
-        "esModuleInterop": true,
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        "isolatedModules": false,
-      },
-      "include": [
-        "./src"
-      ]
+  "compilerOptions": {
+    "target": "esnext",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "noEmit": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "declaration": true,
+    "isolatedModules": false,
+  },
+  "include": [
+    "./src"
+  ]
 }

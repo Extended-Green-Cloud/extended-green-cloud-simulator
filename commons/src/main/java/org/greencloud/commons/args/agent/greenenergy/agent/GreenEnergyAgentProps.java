@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
 import org.greencloud.commons.constants.LoggingConstants;
 import org.greencloud.commons.domain.facts.StrategyFacts;
@@ -58,7 +58,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GreenEnergyAgentProps extends AgentProps {
+public class GreenEnergyAgentProps extends EGCSAgentProps {
 
 	private static final Logger logger = getLogger(GreenEnergyAgentProps.class);
 	private final AtomicInteger shortagesAccumulator;

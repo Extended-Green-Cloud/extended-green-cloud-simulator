@@ -3,7 +3,7 @@ package com.gui.controller;
 import java.io.Serializable;
 import java.time.Instant;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.event.PowerShortageEvent;
 
 /**
@@ -21,7 +21,7 @@ public interface GuiController extends Runnable, Serializable {
 	 *
 	 * @param agent node of the specified agent
 	 */
-	void addAgentNodeToGraph(final AbstractNode agent);
+	void addAgentNodeToGraph(final EGCSNode agent);
 
 	/**
 	 * Method reports to the socket server time when the system was started

@@ -15,10 +15,10 @@ import com.gui.message.ImmutableSetNumericValueMessage;
 /**
  * Class represents abstract generic agent node which is a part of cloud network
  */
-public abstract class AbstractNetworkNode<T extends AgentArgs, E extends AgentProps> extends AbstractNode<T, E>
+public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps> extends EGCSNode<T, E>
 		implements Serializable {
 
-	protected AbstractNetworkNode() {
+	protected EGCSNetworkNode() {
 	}
 
 	/**
@@ -27,7 +27,7 @@ public abstract class AbstractNetworkNode<T extends AgentArgs, E extends AgentPr
 	 * @param nodeArgs arguments used to create agent node
 	 * @param nodeType type of agent node
 	 */
-	protected AbstractNetworkNode(final T nodeArgs, final AgentType nodeType) {
+	protected EGCSNetworkNode(final T nodeArgs, final AgentType nodeType) {
 		super(nodeArgs, nodeType);
 	}
 

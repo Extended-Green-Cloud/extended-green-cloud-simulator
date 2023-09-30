@@ -78,7 +78,7 @@ public abstract class AbstractScenarioService {
 		this.workloadGenerator = new ScenarioWorkloadGenerationService(this);
 		this.jadeRuntime = instance();
 		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
-		this.guiController = new GuiControllerImpl(websocketAddresses, timescaleDatabase);
+		this.guiController = new GuiControllerImpl(websocketAddresses);
 
 		if (mainHost) {
 			timescaleDatabase.initDatabase();

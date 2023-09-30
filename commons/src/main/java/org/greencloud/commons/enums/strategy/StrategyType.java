@@ -5,5 +5,5 @@ package org.greencloud.commons.enums.strategy;
  * In order to define new strategy, add new type to the enum.
  */
 public enum StrategyType {
-	DEFAULT_STRATEGY, WEATHER_DROP_STRATEGY
+	DEFAULT_STRATEGY, DEFAULT_CLOUD_STRATEGY, WEATHER_DROP_STRATEGY
 }

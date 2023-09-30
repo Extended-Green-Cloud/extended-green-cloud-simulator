@@ -10,16 +10,15 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
-import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.event.PowerShortageEvent;
 import com.gui.websocket.WebSocketConnections;
 import com.gui.websocket.enums.SocketTypeEnum;
 
 public class GuiControllerImpl implements GuiController {
 
-	public GuiControllerImpl(final Map<SocketTypeEnum, String> hostUris, final TimescaleDatabase databaseClient) {
-		WebSocketConnections.initialize(hostUris, databaseClient);
+	public GuiControllerImpl(final Map<SocketTypeEnum, String> hostUris) {
+		WebSocketConnections.initialize(hostUris);
 	}
 
 	@Override
@@ -37,7 +36,7 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void addAgentNodeToGraph(final AbstractNode agent) {
+	public void addAgentNodeToGraph(final EGCSNode agent) {
 		if (Objects.nonNull(agent)) {
 			getEventSocket().addAgentNode(agent);
 			agent.addToGraph();

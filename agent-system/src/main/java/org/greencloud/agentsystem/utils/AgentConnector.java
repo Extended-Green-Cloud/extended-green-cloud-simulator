@@ -5,7 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.greencloud.agentsystem.agents.AbstractAgent;
 import org.slf4j.Logger;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.controller.GuiController;
 
 import org.greencloud.rulescontroller.RulesController;
@@ -28,7 +28,7 @@ public class AgentConnector {
 	public static void connectAgentObject(AbstractAgent abstractAgent, Integer objectCounter, Object currentObject) {
 		if (currentObject instanceof GuiController guiController) {
 			abstractAgent.setGuiController(guiController);
-		} else if (currentObject instanceof AbstractNode node) {
+		} else if (currentObject instanceof EGCSNode node) {
 			abstractAgent.setAgentNode(node);
 		} else if (currentObject instanceof RulesController rulesController) {
 			abstractAgent.setRulesController(rulesController);

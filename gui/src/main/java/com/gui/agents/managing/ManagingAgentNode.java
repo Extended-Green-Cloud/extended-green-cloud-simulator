@@ -16,7 +16,7 @@ import com.database.knowledge.domain.goal.AdaptationGoal;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.message.ImmutableIncrementCounterMessage;
 import com.gui.message.ImmutableLogAdaptationActionMessage;
 import com.gui.message.ImmutableRegisterManagingAgentMessage;
@@ -29,7 +29,7 @@ import com.gui.message.domain.ImmutableGoalQuality;
 /**
  * Agent node class representing the managing agent
  */
-public class ManagingAgentNode extends AbstractNode<ManagingAgentArgs, AgentProps> {
+public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 
 	/**
 	 * Managing agent node constructor

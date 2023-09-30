@@ -24,7 +24,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.domain.resources.HardwareResources;
 
-import com.gui.agents.AbstractNetworkNode;
+import com.gui.agents.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableDisableServerMessage;
 import com.gui.message.ImmutableEnableServerMessage;
@@ -37,7 +37,7 @@ import jade.util.leap.Serializable;
 /**
  * Agent node class representing the server
  */
-public class ServerNode extends AbstractNetworkNode<ServerNodeArgs, ServerAgentProps> implements Serializable {
+public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps> implements Serializable {
 
 	public ServerNode() {
 		super();
