@@ -20,6 +20,7 @@
 		<module>managing-system</module>
 		<module>agent-factory</module>
 		<module>weather-api</module>
+		<module>articles</module>
 	</modules>
 
 	<properties>
