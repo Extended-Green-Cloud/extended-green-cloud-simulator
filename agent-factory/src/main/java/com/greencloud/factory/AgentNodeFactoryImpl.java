@@ -28,7 +28,7 @@ import org.greencloud.commons.args.agent.server.node.ServerNodeArgs;
 import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 import com.gui.agents.client.ClientNode;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 import com.gui.agents.greenenergy.GreenEnergyNode;
@@ -40,7 +40,7 @@ import com.gui.agents.server.ServerNode;
 public class AgentNodeFactoryImpl implements AgentNodeFactory {
 
 	@Override
-	public AbstractNode<?, ?> createAgentNode(final AgentArgs agentArgs, final ScenarioStructureArgs scenarioArgs) {
+	public EGCSNode<?, ?> createAgentNode(final AgentArgs agentArgs, final ScenarioStructureArgs scenarioArgs) {
 		if (agentArgs instanceof ClientArgs clientArgs) {
 			return createClientNode(clientArgs);
 		}

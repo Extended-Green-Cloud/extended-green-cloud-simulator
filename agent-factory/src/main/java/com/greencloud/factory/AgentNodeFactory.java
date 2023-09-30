@@ -2,7 +2,7 @@ package com.greencloud.factory;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.AbstractNode;
+import com.gui.agents.EGCSNode;
 
 /**
  * Factory used to create agent nodes
@@ -15,5 +15,5 @@ public interface AgentNodeFactory {
 	 * @param agentArgs    current agent arguments
 	 * @param scenarioArgs scenario arguments
 	 */
-	AbstractNode<?, ?> createAgentNode(final AgentArgs agentArgs, final ScenarioStructureArgs scenarioArgs);
+	EGCSNode<?, ?> createAgentNode(final AgentArgs agentArgs, final ScenarioStructureArgs scenarioArgs);
 }

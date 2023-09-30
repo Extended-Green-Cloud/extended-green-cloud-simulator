@@ -26,6 +26,15 @@ public interface AgentControllerFactory {
 	/**
 	 * Method creates the agent controllers
 	 *
+	 * @param agentArgs agent arguments
+	 * @param className name of the class from which the agent is to be created
+	 * @return AgentController that can be started
+	 */
+	AgentController createAgentController(AgentArgs agentArgs, final String className);
+
+	/**
+	 * Method creates the agent controllers
+	 *
 	 * @param agentArgs     agent arguments
 	 * @param scenario      which has to be passed to managing agent
 	 * @param isInformer    flag indicating if the created controller should send starting information to managing agent

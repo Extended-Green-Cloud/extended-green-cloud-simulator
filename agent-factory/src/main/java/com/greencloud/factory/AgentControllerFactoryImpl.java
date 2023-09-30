@@ -2,19 +2,17 @@ package com.greencloud.factory;
 
 import static com.greencloud.factory.constants.AgentControllerConstants.GRAPH_INITIALIZATION_DELAY;
 import static jade.wrapper.AgentController.ASYNC;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.greencloud.rulescontroller.RulesController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
@@ -22,9 +20,14 @@ import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.exception.JadeControllerException;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.AbstractNode;
+import org.greencloud.commons.exception.JadeControllerException;
+import org.greencloud.rulescontroller.RulesController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.database.knowledge.timescale.TimescaleDatabase;
+import com.gui.agents.EGCSNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
@@ -35,13 +38,16 @@ import jade.wrapper.StaleProxyException;
 public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(AgentControllerFactoryImpl.class);
-
-	private final AgentNodeFactory agentNodeFactory;
 	private final ContainerController containerController;
-	private final TimescaleDatabase timescaleDatabase;
-	private final GuiController guiController;
-	private final String mainDFAddress;
-	private final String mainHostPlatformId;
+	private AgentNodeFactory agentNodeFactory;
+	private TimescaleDatabase timescaleDatabase;
+	private GuiController guiController;
+	private String mainDFAddress;
+	private String mainHostPlatformId;
+
+	public AgentControllerFactoryImpl(final ContainerController containerController) {
+		this.containerController = containerController;
+	}
 
 	public AgentControllerFactoryImpl(final ContainerController containerController,
 			final TimescaleDatabase timescaleDatabase,
@@ -78,9 +84,25 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		return createController(agentArgs, scenario, isInformer, managingAgent);
 	}
 
+	@Override
+	public AgentController createAgentController(final AgentArgs agentArgs, final String className) {
+		final RulesController<?, ?> rulesController = new RulesController<>();
+
+		try {
+			final List<Object> argumentsToPass = new ArrayList<>(singletonList((Object) rulesController));
+			final Object[] agentArguments = agentArgs.getObjectArray();
+			argumentsToPass.addAll(Arrays.asList(agentArguments));
+
+			return containerController.createNewAgent(agentArgs.getName(), className, argumentsToPass.toArray());
+		} catch (StaleProxyException e) {
+			Thread.currentThread().interrupt();
+			throw new JadeControllerException("Failed to run custom agent controller", e);
+		}
+	}
+
 	private AgentController createController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
 			Boolean isInformer, AID managingAgent) {
-		final AbstractNode<?, ?> agentNode = agentNodeFactory.createAgentNode(agentArgs, scenario);
+		final EGCSNode<?, ?> agentNode = agentNodeFactory.createAgentNode(agentArgs, scenario);
 		var agentController = (AgentController) null;
 
 		try {
