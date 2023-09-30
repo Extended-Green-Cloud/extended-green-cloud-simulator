@@ -1,5 +1,8 @@
 package org.greencloud.rulescontroller.rule.template;
 
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.CFP_BEST_MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.CFP_CREATE_MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.CFP_NEW_PROPOSAL;
@@ -12,28 +15,40 @@ import static org.greencloud.commons.enums.rules.RuleStepType.CFP_HANDLE_NO_AVAI
 import static org.greencloud.commons.enums.rules.RuleStepType.CFP_HANDLE_NO_RESPONSES_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.CFP_HANDLE_REJECT_PROPOSAL_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.CFP_HANDLE_SELECTED_PROPOSAL_STEP;
-import static java.lang.String.format;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.CFP;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rest.domain.CallForProposalRuleRest;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
+import org.mvel2.MVEL;
 
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
 import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract class defining structure of a rule which handles default Call For Proposal initiator behaviour
  */
-public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<?, T>> extends AgentBasicRule<T, E> {
+public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
+
+	private List<AgentRule> stepRules;
+
+	private Serializable expressionCreateCFP;
+	private Serializable expressionCompareProposals;
+	private Serializable expressionHandleRejectProposal;
+	private Serializable expressionHandleNoResponses;
+	private Serializable expressionHandleNoProposals;
+	private Serializable expressionHandleProposals;
 
 	/**
 	 * Constructor
@@ -42,18 +57,64 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 	 */
 	protected AgentCFPRule(final RulesController<T, E> controller) {
 		super(controller);
+		initializeSteps();
 	}
 
-	@Override
-	public List<AgentRule> getRules() {
-		return List.of(
+	/**
+	 * Constructor
+	 *
+	 * @param ruleRest rest representation of agent rule
+	 */
+	public AgentCFPRule(final CallForProposalRuleRest ruleRest) {
+		super(ruleRest);
+		if (nonNull(ruleRest.getCreateCFP())) {
+			this.expressionCreateCFP = MVEL.compileExpression(
+					imports + " " + ruleRest.getCreateCFP());
+		}
+		if (nonNull(ruleRest.getCompareProposals())) {
+			this.expressionCompareProposals = MVEL.compileExpression(
+					imports + " " + ruleRest.getCompareProposals());
+		}
+		if (nonNull(ruleRest.getHandleRejectProposal())) {
+			this.expressionHandleRejectProposal = MVEL.compileExpression(
+					imports + " " + ruleRest.getHandleRejectProposal());
+		}
+		if (nonNull(ruleRest.getHandleNoResponses())) {
+			this.expressionHandleNoResponses = MVEL.compileExpression(
+					imports + " " + ruleRest.getHandleNoResponses());
+		}
+		if (nonNull(ruleRest.getHandleNoProposals())) {
+			this.expressionHandleNoProposals = MVEL.compileExpression(
+					imports + " " + ruleRest.getHandleNoProposals());
+		}
+		if (nonNull(ruleRest.getHandleProposals())) {
+			this.expressionHandleProposals = MVEL.compileExpression(
+					imports + " " + ruleRest.getHandleProposals());
+		}
+		initializeSteps();
+	}
+
+	public void initializeSteps() {
+		stepRules = new ArrayList<>(List.of(
 				new CreateCFPRule(),
 				new CompareCFPMessageRule(),
 				new HandleRejectProposalRule(),
 				new HandleNoProposalsRule(),
 				new HandleNoResponsesRule(),
 				new HandleProposalsRule()
-		);
+		));
+	}
+
+	@Override
+	public List<AgentRule> getRules() {
+		return stepRules;
+	}
+
+
+	@Override
+	public void connectToController(final RulesController<?, ?> rulesController) {
+		super.connectToController(rulesController);
+		stepRules.forEach(rule -> rule.connectToController(rulesController));
 	}
 
 	@Override
@@ -64,33 +125,43 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 	/**
 	 * Method executed when CFP message is to be created
 	 */
-	protected abstract ACLMessage createCFPMessage(final StrategyFacts facts);
+	protected ACLMessage createCFPMessage(final StrategyFacts facts) {
+		return null;
+	}
 
 	/**
 	 * Method executed when new proposal is retrieved, and it is to be compared with existing best proposal
 	 */
-	protected abstract int compareProposals(final ACLMessage bestProposal, final ACLMessage newProposal);
+	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+			final ACLMessage newProposal) {
+		return 0;
+	}
 
 	/**
 	 * Method executed when a proposal is to be rejected
 	 */
-	protected abstract void handleRejectProposal(final ACLMessage proposalToReject, final StrategyFacts facts);
+	protected void handleRejectProposal(final ACLMessage proposalToReject, final StrategyFacts facts) {
+
+	}
 
 	/**
 	 * Method executed when agent received 0 responses
 	 */
-	protected abstract void handleNoResponses(final StrategyFacts facts);
+	protected void handleNoResponses(final StrategyFacts facts) {
+	}
 
 	/**
 	 * Method executed when agent received 0 proposals
 	 */
-	protected abstract void handleNoProposals(final StrategyFacts facts);
+	protected void handleNoProposals(final StrategyFacts facts) {
+	}
 
 	/**
 	 * Method executed when agent received some proposals
 	 */
-	protected abstract void handleProposals(final ACLMessage bestProposal, final Collection<ACLMessage> allProposals,
-			final StrategyFacts facts);
+	protected void handleProposals(final ACLMessage bestProposal, final Collection<ACLMessage> allProposals,
+			final StrategyFacts facts) {
+	}
 
 	// RULE EXECUTED WHEN CFP MESSAGE IS TO BE CREATED
 	class CreateCFPRule extends AgentBasicRule<T, E> {
@@ -102,7 +173,12 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 
 		@Override
 		public void executeRule(final StrategyFacts facts) {
-			final ACLMessage cfp = createCFPMessage(facts);
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			final ACLMessage cfp = isNull(expressionCreateCFP) ? createCFPMessage(facts)
+					: (ACLMessage) MVEL.executeExpression(expressionCreateCFP, AgentCFPRule.this.initialParameters);
 			facts.put(CFP_CREATE_MESSAGE, cfp);
 		}
 
@@ -126,8 +202,22 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 		public void executeRule(final StrategyFacts facts) {
 			final ACLMessage bestProposal = facts.get(CFP_BEST_MESSAGE);
 			final ACLMessage newProposal = facts.get(CFP_NEW_PROPOSAL);
-			final int result = compareProposals(bestProposal, newProposal);
 
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			int result = 0;
+
+			if (isNull(expressionCompareProposals)) {
+				result = compareProposals(facts, bestProposal, newProposal);
+			} else {
+				AgentCFPRule.this.initialParameters.put("bestProposal", bestProposal);
+				AgentCFPRule.this.initialParameters.put("newProposal", newProposal);
+				result = (int) MVEL.executeExpression(expressionCompareProposals, AgentCFPRule.this.initialParameters);
+				AgentCFPRule.this.initialParameters.remove("bestProposal");
+				AgentCFPRule.this.initialParameters.remove("newProposal");
+			}
 			facts.put(CFP_RESULT, result);
 		}
 
@@ -150,7 +240,17 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 		@Override
 		public void executeRule(final StrategyFacts facts) {
 			final ACLMessage proposalToReject = facts.get(CFP_REJECT_MESSAGE);
-			handleRejectProposal(proposalToReject, facts);
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			if (isNull(expressionHandleRejectProposal)) {
+				handleRejectProposal(proposalToReject, facts);
+			} else {
+				AgentCFPRule.this.initialParameters.put("proposalToReject", proposalToReject);
+				MVEL.executeExpression(expressionHandleRejectProposal, AgentCFPRule.this.initialParameters);
+				AgentCFPRule.this.initialParameters.remove("proposalToReject");
+			}
 		}
 
 		@Override
@@ -171,7 +271,15 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 
 		@Override
 		public void executeRule(final StrategyFacts facts) {
-			handleNoResponses(facts);
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			if (isNull(expressionHandleNoResponses)) {
+				handleNoResponses(facts);
+			} else {
+				MVEL.executeExpression(expressionHandleNoResponses, AgentCFPRule.this.initialParameters);
+			}
 		}
 
 		@Override
@@ -192,7 +300,15 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 
 		@Override
 		public void executeRule(final StrategyFacts facts) {
-			handleNoProposals(facts);
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			if (isNull(expressionHandleNoProposals)) {
+				handleNoProposals(facts);
+			} else {
+				MVEL.executeExpression(expressionHandleNoProposals, AgentCFPRule.this.initialParameters);
+			}
 		}
 
 		@Override
@@ -215,7 +331,19 @@ public abstract class AgentCFPRule<T extends AgentProps, E extends AbstractNode<
 		public void executeRule(final StrategyFacts facts) {
 			final ACLMessage bestProposal = facts.get(CFP_BEST_MESSAGE);
 			final Collection<ACLMessage> allProposals = facts.get(CFP_RECEIVED_PROPOSALS);
-			handleProposals(bestProposal, allProposals, facts);
+			if (nonNull(AgentCFPRule.this.initialParameters)) {
+				AgentCFPRule.this.initialParameters.replace("facts", facts);
+			}
+
+			if (isNull(expressionHandleProposals)) {
+				handleProposals(bestProposal, allProposals, facts);
+			} else {
+				AgentCFPRule.this.initialParameters.put("bestProposal", bestProposal);
+				AgentCFPRule.this.initialParameters.put("allProposals", allProposals);
+				MVEL.executeExpression(expressionHandleProposals, AgentCFPRule.this.initialParameters);
+				AgentCFPRule.this.initialParameters.remove("bestProposal");
+				AgentCFPRule.this.initialParameters.remove("allProposals");
+			}
 		}
 
 		@Override

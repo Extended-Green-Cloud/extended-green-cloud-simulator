@@ -5,7 +5,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
-import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_STRATEGY;
+import static org.greencloud.rulescontroller.strategy.StrategyConstructor.constructStrategy;
 import static org.greencloud.rulescontroller.strategy.StrategyConstructor.constructStrategyForType;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -19,7 +19,7 @@ import org.greencloud.rulescontroller.strategy.Strategy;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
 import jade.core.Agent;
 import lombok.Getter;
@@ -28,7 +28,7 @@ import lombok.Getter;
  * Class provides functionalities that handle agent behaviours via strategies
  */
 @Getter
-public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>> {
+public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 
 	private static final Logger logger = getLogger(RulesController.class);
 
@@ -38,6 +38,7 @@ public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>>
 	protected AtomicInteger latestStrategy;
 	protected AtomicInteger latestAdaptedStrategy;
 	protected ConcurrentMap<Integer, Strategy> strategies;
+	protected String baseStrategy;
 
 	public RulesController() {
 		latestStrategy = new AtomicInteger(0);
@@ -67,11 +68,23 @@ public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>>
 	 * @param agentProps agent properties
 	 * @param agentNode  GUI agent node
 	 */
-	public void setAgent(Agent agent, T agentProps, E agentNode) {
+	public void setAgent(Agent agent, T agentProps, E agentNode, String baseStrategy) {
 		this.agent = agent;
 		this.agentProps = agentProps;
 		this.agentNode = agentNode;
-		this.strategies.put(latestStrategy.get(), constructStrategyForType(DEFAULT_STRATEGY.toString(), this));
+		this.baseStrategy = baseStrategy;
+		this.strategies.put(latestStrategy.get(), constructStrategy(baseStrategy, this));
+	}
+
+	/**
+	 * Method adds new agent's strategy
+	 *
+	 * @param type type of strategy that is to be added
+	 * @param idx  index of the added strategy
+	 */
+	public void addModifiedStrategy(final String type, final int idx) {
+		this.strategies.put(idx, constructStrategyForType(baseStrategy, type, this));
+		this.latestStrategy.set(idx);
 	}
 
 	/**
@@ -81,20 +94,20 @@ public class RulesController<T extends AgentProps, E extends AbstractNode<?, T>>
 	 * @param idx  index of the added strategy
 	 */
 	public void addNewStrategy(final String type, final int idx) {
-		this.strategies.put(idx, constructStrategyForType(type, this));
+		this.strategies.put(idx, constructStrategy(type, this));
 		this.latestStrategy.set(idx);
 	}
 
 	/**
 	 * Method verifies if the strategy is to be removed from the controller
 	 *
-	 * @param strategyForJob map containing strategies assigned to jobs
-	 * @param strategyIdx    index of the strategy removed along with the job
+	 * @param strategyForObject map containing strategies assigned to given objects
+	 * @param strategyIdx    index of the strategy removed along with the object
 	 * @return flag indicating if the strategy was removed
 	 */
-	public boolean removeStrategy(final ConcurrentMap<String, Integer> strategyForJob, final int strategyIdx) {
+	public boolean removeStrategy(final ConcurrentMap<String, Integer> strategyForObject, final int strategyIdx) {
 		if (strategyIdx != latestStrategy.get()
-				&& strategyForJob.values().stream().noneMatch(val -> val == strategyIdx)) {
+				&& strategyForObject.values().stream().noneMatch(val -> val == strategyIdx)) {
 
 			MDC.put(MDC_STRATEGY_ID, valueOf(strategyIdx));
 			logger.info("Removing strategy {} from the map.", strategyIdx);

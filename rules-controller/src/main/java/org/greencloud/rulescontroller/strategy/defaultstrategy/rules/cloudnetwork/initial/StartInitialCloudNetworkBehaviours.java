@@ -40,12 +40,12 @@ public class StartInitialCloudNetworkBehaviours extends AgentBehaviourRule<Cloud
 						SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE, controller),
 				SchedulePeriodically.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SENSE_EVENTS_RULE, controller),
-				new SearchForAgents(agent, new StrategyFacts(controller.getLatestStrategy().get()),
+				SearchForAgents.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SEARCH_OWNER_AGENT_RULE, controller),
-				new ListenForMessages(agent, JOB_STATUS_RECEIVER_RULE, controller),
-				new ListenForMessages(agent, NEW_JOB_RECEIVER_RULE, controller, true),
-				new ListenForMessages(agent, SERVER_STATUS_CHANGE_RULE, controller, true),
-				new ListenForMessages(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller)
+				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
+				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller, true),
+				ListenForMessages.create(agent, SERVER_STATUS_CHANGE_RULE, controller, true),
+				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller)
 		);
 	}
 }

@@ -33,6 +33,6 @@ public class UpdateStrategyInSchedulerForWeatherDropRule
 	@Override
 	public void executeRule(final StrategyFacts facts) {
 		logger.info("Updating Scheduler strategy to {}!", WEATHER_DROP_STRATEGY.name());
-		controller.addNewStrategy(WEATHER_DROP_STRATEGY.name(), controller.getLatestStrategy().get() + 1);
+		controller.addModifiedStrategy(WEATHER_DROP_STRATEGY.name(), controller.getLatestStrategy().get() + 1);
 	}
 }

@@ -1,12 +1,15 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.errorhandling.transferring;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
+import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENTS;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_CONFIRMATION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_TRANSFER_REQUEST_RULE;
 import static org.greencloud.commons.utils.messaging.MessageComparator.compareMessages;
@@ -17,15 +20,17 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareAcceptJobOfferReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
-import static jade.lang.acl.ACLMessage.FAILURE;
-import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.temporal.ValueRange;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.agent.ServerData;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForSingleMessage;
@@ -34,11 +39,6 @@ import org.greencloud.rulescontroller.rule.template.AgentCFPRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.agent.ServerData;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
@@ -67,7 +67,8 @@ public class LookForServerForJobTransferRule extends AgentCFPRule<CloudNetworkAg
 	}
 
 	@Override
-	protected int compareProposals(final ACLMessage bestProposal, final ACLMessage newProposal) {
+	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+			final ACLMessage newProposal) {
 		final int weight1 = agentProps.getWeightsForServersMap().get(bestProposal.getSender());
 		final int weight2 = agentProps.getWeightsForServersMap().get(newProposal.getSender());
 
@@ -83,7 +84,8 @@ public class LookForServerForJobTransferRule extends AgentCFPRule<CloudNetworkAg
 
 	@Override
 	protected void handleRejectProposal(final ACLMessage proposalToReject, final StrategyFacts facts) {
-		agent.send(prepareReply(proposalToReject, JobMapper.mapClientJobToJobInstanceId(facts.get(JOB)), REJECT_PROPOSAL));
+		agent.send(
+				prepareReply(proposalToReject, JobMapper.mapClientJobToJobInstanceId(facts.get(JOB)), REJECT_PROPOSAL));
 	}
 
 	@Override

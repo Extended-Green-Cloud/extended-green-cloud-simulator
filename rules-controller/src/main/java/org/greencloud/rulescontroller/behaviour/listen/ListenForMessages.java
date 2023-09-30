@@ -38,7 +38,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param ruleType   type of the rule that handles message retrieval execution
 	 * @param controller rules controller
 	 */
-	public ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller) {
+	protected ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller) {
 		super(agent);
 		this.ruleType = ruleType;
 		this.controller = controller;
@@ -53,10 +53,35 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param controller              rules controller
 	 * @param omitStrategyFromMessage flag which ignores the strategy passed in the message content
 	 */
-	public ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller,
+	protected ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller,
 			final boolean omitStrategyFromMessage) {
 		this(agent, ruleType, controller);
 		this.omitStrategyFromMessage = omitStrategyFromMessage;
+	}
+
+	/**
+	 * Behaviour creator
+	 *
+	 * @param agent      agent executing the behaviour
+	 * @param ruleType   type of the rule that handles message retrieval execution
+	 * @param controller rules controller
+	 */
+	public static ListenForMessages create(final Agent agent, final RuleType ruleType,
+			final RulesController<?, ?> controller) {
+		return new ListenForMessages(agent, ruleType, controller);
+	}
+
+	/**
+	 * Behaviour creator
+	 *
+	 * @param agent                   agent executing the behaviour
+	 * @param ruleType                type of the rule that handles message retrieval execution
+	 * @param controller              rules controller
+	 * @param omitStrategyFromMessage flag which ignores the strategy passed in the message content
+	 */
+	public static ListenForMessages create(final Agent agent, final RuleType ruleType,
+			final RulesController<?, ?> controller, final boolean omitStrategyFromMessage) {
+		return new ListenForMessages(agent, ruleType, controller, omitStrategyFromMessage);
 	}
 
 	/**

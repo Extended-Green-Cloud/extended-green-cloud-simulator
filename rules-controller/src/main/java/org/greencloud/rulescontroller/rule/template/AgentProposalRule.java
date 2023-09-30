@@ -12,6 +12,7 @@ import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_HANDLE_RE
 import static org.greencloud.rulescontroller.rule.AgentRuleType.PROPOSAL;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
@@ -24,16 +25,16 @@ import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
 import jade.lang.acl.ACLMessage;
 
 /**
  * Abstract class defining structure of a rule which handles default Proposal initiator behaviour
  */
-public class AgentProposalRule<T extends AgentProps, E extends AbstractNode<?, T>>
-		extends AgentBasicRule<T, E> {
+public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
+	private List<AgentRule> stepRules;
 	private Serializable expressionCreateProposal;
 	private Serializable expressionHandleAcceptProposal;
 	private Serializable expressionHandleRejectProposal;
@@ -45,6 +46,7 @@ public class AgentProposalRule<T extends AgentProps, E extends AbstractNode<?, T
 	 */
 	protected AgentProposalRule(final RulesController<T, E> controller) {
 		super(controller);
+		initializeSteps();
 	}
 
 	/**
@@ -66,6 +68,23 @@ public class AgentProposalRule<T extends AgentProps, E extends AbstractNode<?, T
 			this.expressionHandleRejectProposal = MVEL.compileExpression(
 					imports + " " + ruleRest.getHandleRejectProposal());
 		}
+		initializeSteps();
+	}
+
+	public void initializeSteps() {
+		stepRules = new ArrayList<>(List.of(new CreateProposalMessageRule(), new HandleAcceptProposalRule(),
+				new HandleRejectProposalRule()));
+	}
+
+	@Override
+	public List<AgentRule> getRules() {
+		return stepRules;
+	}
+
+	@Override
+	public void connectToController(final RulesController<?, ?> rulesController) {
+		super.connectToController(rulesController);
+		stepRules.forEach(rule -> rule.connectToController(rulesController));
 	}
 
 	@Override
@@ -73,10 +92,6 @@ public class AgentProposalRule<T extends AgentProps, E extends AbstractNode<?, T
 		return PROPOSAL;
 	}
 
-	@Override
-	public List<AgentRule> getRules() {
-		return List.of(new CreateProposalMessageRule(), new HandleAcceptProposalRule(), new HandleRejectProposalRule());
-	}
 
 	/**
 	 * Method executed when proposal message is to be created

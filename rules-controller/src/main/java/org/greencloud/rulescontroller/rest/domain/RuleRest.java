@@ -26,12 +26,22 @@ import lombok.Setter;
 		visible = true)
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = RuleRest.class, name = "BASIC"),
+		@JsonSubTypes.Type(value = RuleRest.class, name = "CHAIN"),
 		@JsonSubTypes.Type(value = ScheduledRuleRest.class, name = "SCHEDULED"),
-		@JsonSubTypes.Type(value = ProposalRuleRest.class, name = "PROPOSAL")
+		@JsonSubTypes.Type(value = PeriodicRuleRest.class, name = "PERIODIC"),
+		@JsonSubTypes.Type(value = ProposalRuleRest.class, name = "PROPOSAL"),
+		@JsonSubTypes.Type(value = BehaviourRuleRest.class, name = "BEHAVIOUR"),
+		@JsonSubTypes.Type(value = CallForProposalRuleRest.class, name = "CFP"),
+		@JsonSubTypes.Type(value = MessageListenerRuleRest.class, name = "LISTENER"),
+		@JsonSubTypes.Type(value = SingleMessageListenerRuleRest.class, name = "LISTENER_SINGLE"),
+		@JsonSubTypes.Type(value = RequestRuleRest.class, name = "REQUEST"),
+		@JsonSubTypes.Type(value = SearchRuleRest.class, name = "SEARCH"),
+		@JsonSubTypes.Type(value = SubscriptionRuleRest.class, name = "SUBSCRIPTION"),
+		@JsonSubTypes.Type(value = CombinedRuleRest.class, name = "COMBINED")
 })
 public class RuleRest implements Serializable {
 
-	AgentType agentType;
+	String agentType;
 	RuleType type;
 	RuleType subType;
 	RuleStepType stepType;

@@ -69,7 +69,8 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<CloudNetworkA
 	}
 
 	@Override
-	protected int compareProposals(final ACLMessage bestProposal, final ACLMessage newProposal) {
+	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+			final ACLMessage newProposal) {
 		final int weight1 = agentProps.getWeightsForServersMap().get(bestProposal.getSender());
 		final int weight2 = agentProps.getWeightsForServersMap().get(newProposal.getSender());
 

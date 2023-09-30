@@ -97,7 +97,8 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 	}
 
 	@Override
-	protected int compareProposals(final ACLMessage bestProposal, final ACLMessage newProposal) {
+	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+			final ACLMessage newProposal) {
 		if (!agentProps.getWeightsForGreenSourcesMap().containsKey(bestProposal.getSender()) ||
 				agentProps.getWeightsForGreenSourcesMap().containsKey(newProposal.getSender())) {
 			return 0;

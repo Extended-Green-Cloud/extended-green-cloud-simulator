@@ -40,8 +40,8 @@ public class PrepareInitialSchedulerBehavioursRule extends AgentBehaviourRule<Sc
 						POLL_NEXT_JOB_RULE, controller),
 				SchedulePeriodically.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SENSE_EVENTS_RULE, controller),
-				new ListenForMessages(agent, NEW_JOB_RECEIVER_RULE, controller),
-				new ListenForMessages(agent, JOB_STATUS_RECEIVER_RULE, controller, true)
+				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
+				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller, true)
 		);
 	}
 

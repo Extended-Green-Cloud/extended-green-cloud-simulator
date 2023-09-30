@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.strategy;
 
-import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 
@@ -8,12 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.mvel.MVELRuleMapper;
@@ -23,14 +18,8 @@ import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 
-import com.gui.agents.client.ClientNode;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
-import com.gui.agents.greenenergy.GreenEnergyNode;
-import com.gui.agents.monitoring.MonitoringNode;
-import com.gui.agents.scheduler.SchedulerNode;
-import com.gui.agents.server.ServerNode;
-
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class represents strategy of a given system part
@@ -40,9 +29,11 @@ import lombok.Getter;
 public class Strategy {
 
 	protected final RulesEngine rulesEngine;
-	private final String name;
+	@Setter
+	private String name;
 	protected RulesController<?, ?> rulesController;
-	private List<AgentRule> agentRules;
+	private final List<AgentRule> agentRules;
+	private boolean callInitializeRules;
 
 	/**
 	 * Constructor
@@ -53,9 +44,10 @@ public class Strategy {
 		this.rulesEngine = new DefaultRulesEngine();
 		this.name = strategyRest.getName();
 		this.agentRules = strategyRest.getRules().stream()
-				.map(MVELRuleMapper::getRuleForType)
+				.map(ruleRest -> MVELRuleMapper.getRuleForType(ruleRest, this))
 				.map(AgentRule.class::cast)
 				.toList();
+		this.callInitializeRules = false;
 	}
 
 	/**
@@ -68,23 +60,26 @@ public class Strategy {
 		this.rulesEngine = new DefaultRulesEngine();
 		this.rulesController = controller;
 		this.name = strategy.getName();
-		this.agentRules = strategy.getAgentRules().stream()
-				.filter(rule -> rule.getAgentType().equals(controller.getAgentProps().getAgentType())).toList();
-		agentRules.forEach(agentRule -> agentRule.connectToController(controller));
+
+		if (!strategy.callInitializeRules) {
+			this.agentRules = strategy.getAgentRules().stream()
+					.filter(rule -> rule.getAgentType().equals(controller.getAgentProps().getAgentType())).toList();
+			agentRules.forEach(agentRule -> agentRule.connectToController(controller));
+		} else {
+			this.agentRules = strategy.initializeRules(controller);
+		}
 	}
 
 	/**
 	 * Constructor
 	 *
 	 * @param name       name of the strategy
-	 * @param controller controller which runs given strategy
 	 */
-	protected Strategy(final String name, final RulesController<?, ?> controller) {
+	protected Strategy(final String name) {
 		this.rulesEngine = new DefaultRulesEngine();
 		this.agentRules = new ArrayList<>();
 		this.name = name;
-		this.rulesController = controller;
-		initializeRules(rulesController);
+		this.callInitializeRules = true;
 	}
 
 	/**
@@ -109,62 +104,13 @@ public class Strategy {
 	}
 
 	/**
-	 * Method initialize rules applicable for Client Agent
+	 * Method that can be optionally overridden to initialize rules
+	 *
+	 * @param rulesController controller which runs given strategy
+	 * @return list of agent rules
 	 */
-	protected List<AgentRule> getClientRules(RulesController<ClientAgentProps, ClientNode> rulesController) {
-		return emptyList();
-	}
-
-	/**
-	 * Method initialize rules applicable for Scheduler Agent
-	 */
-	protected List<AgentRule> getSchedulerRules(RulesController<SchedulerAgentProps, SchedulerNode> rulesController) {
-		return emptyList();
-	}
-
-	/**
-	 * Method initialize rules applicable for Cloud Network Agent
-	 */
-	protected List<AgentRule> getCNARules(RulesController<CloudNetworkAgentProps, CloudNetworkNode> rulesController) {
-		return emptyList();
-	}
-
-	/**
-	 * Method initialize rules applicable for Server Agent
-	 */
-	protected List<AgentRule> getServerRules(RulesController<ServerAgentProps, ServerNode> rulesController) {
-		return emptyList();
-	}
-
-	/**
-	 * Method initialize rules applicable for Green Energy Agent
-	 */
-	protected List<AgentRule> getGreenEnergyRules(
-			RulesController<GreenEnergyAgentProps, GreenEnergyNode> rulesController) {
-		return emptyList();
-	}
-
-	/**
-	 * Method initialize rules applicable for Monitoring Agent
-	 */
-	protected List<AgentRule> getMonitoringRules(
-			RulesController<MonitoringAgentProps, MonitoringNode> rulesController) {
-		return emptyList();
-	}
-
-	private void initializeRules(RulesController<?, ?> rulesController) {
-		agentRules = new ArrayList<>(switch (rulesController.getAgentProps().getAgentType()) {
-			case SCHEDULER -> getSchedulerRules((RulesController<SchedulerAgentProps, SchedulerNode>) rulesController);
-			case CLIENT -> getClientRules((RulesController<ClientAgentProps, ClientNode>) rulesController);
-			case CLOUD_NETWORK ->
-					getCNARules((RulesController<CloudNetworkAgentProps, CloudNetworkNode>) rulesController);
-			case SERVER -> getServerRules((RulesController<ServerAgentProps, ServerNode>) rulesController);
-			case GREEN_ENERGY ->
-					getGreenEnergyRules((RulesController<GreenEnergyAgentProps, GreenEnergyNode>) rulesController);
-			case MONITORING ->
-					getMonitoringRules((RulesController<MonitoringAgentProps, MonitoringNode>) rulesController);
-			default -> new ArrayList<AgentRule>();
-		});
+	protected List<AgentRule> initializeRules(RulesController<?, ?> rulesController) {
+		return new ArrayList<>();
 	}
 
 }

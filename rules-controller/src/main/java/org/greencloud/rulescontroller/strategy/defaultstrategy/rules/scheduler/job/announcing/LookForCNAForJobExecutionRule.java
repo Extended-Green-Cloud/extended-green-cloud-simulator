@@ -1,26 +1,30 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.scheduler.job.announcing;
 
+import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
+import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_HANDLE_FAILURE_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
 import static org.greencloud.commons.utils.messaging.MessageComparator.compareMessages;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SCHEDULER_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
-import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
-import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.JobWithPrice;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -29,10 +33,6 @@ import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.extended.JobWithPrice;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.scheduler.SchedulerNode;
 
 import jade.lang.acl.ACLMessage;
@@ -59,7 +59,8 @@ public class LookForCNAForJobExecutionRule extends AgentCFPRule<SchedulerAgentPr
 	}
 
 	@Override
-	protected int compareProposals(final ACLMessage bestProposal, final ACLMessage newProposal) {
+	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+			final ACLMessage newProposal) {
 		final Comparator<JobWithPrice> comparator = (msg1, msg2) ->
 				(int) (msg1.getPriceForJob() - msg2.getPriceForJob());
 		return compareMessages(bestProposal, newProposal, JobWithPrice.class, comparator);
@@ -67,7 +68,8 @@ public class LookForCNAForJobExecutionRule extends AgentCFPRule<SchedulerAgentPr
 
 	@Override
 	protected void handleRejectProposal(final ACLMessage proposalToReject, final StrategyFacts facts) {
-		agent.send(prepareReply(proposalToReject, JobMapper.mapClientJobToJobInstanceId(facts.get(JOB)), REJECT_PROPOSAL));
+		agent.send(
+				prepareReply(proposalToReject, JobMapper.mapClientJobToJobInstanceId(facts.get(JOB)), REJECT_PROPOSAL));
 	}
 
 	@Override

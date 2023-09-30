@@ -29,9 +29,9 @@ public class StartInitialClientBehaviours extends AgentBehaviourRule<ClientAgent
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
 		return Set.of(
-				new SearchForAgents(agent, new StrategyFacts(controller.getLatestStrategy().get()),
+				SearchForAgents.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SEARCH_OWNED_AGENTS_RULE, controller),
-				new ListenForMessages(agent, JOB_STATUS_RECEIVER_RULE, controller, true)
+				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller, true)
 		);
 	}
 }

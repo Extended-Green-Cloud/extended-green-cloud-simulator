@@ -10,12 +10,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.mvel.MVELRuleMapper;
+import org.greencloud.rulescontroller.rest.domain.CombinedRuleRest;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
@@ -25,7 +26,7 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.support.composite.ActivationRuleGroup;
 import org.jeasy.rules.support.composite.UnitRuleGroup;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,8 +35,7 @@ import lombok.Setter;
  * Abstract class defining structure of a rule which combines multiple rules and defines how they should be handled
  */
 @Getter
-public abstract class AgentCombinedRule<T extends AgentProps, E extends AbstractNode<?, T>>
-		extends AgentBasicRule<T, E> {
+public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
 	protected final Strategy strategy;
 	protected final AgentCombinedRuleType combinationType;
@@ -84,6 +84,27 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 		this.rulesToCombine = new ArrayList<>(constructRules());
 	}
 
+	/**
+	 * Constructor
+	 *
+	 * @param ruleRest rest representation of agent rule
+	 * @param strategy currently executed strategy
+	 */
+	public AgentCombinedRule(final CombinedRuleRest ruleRest, final Strategy strategy) {
+		super(ruleRest);
+		this.combinationType = ruleRest.getCombinedRuleType();
+		this.strategy = strategy;
+		this.rulesToCombine = ruleRest.getRulesToCombine().stream()
+				.map(rule -> MVELRuleMapper.getRuleForType(rule, strategy))
+				.toList();
+	}
+
+	@Override
+	public void connectToController(final RulesController<?, ?> rulesController) {
+		super.connectToController(rulesController);
+		rulesToCombine.forEach(rule -> rule.connectToController(controller));
+	}
+
 	@Override
 	public AgentRuleType getAgentRuleType() {
 		return COMBINED;
@@ -114,7 +135,9 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 	/**
 	 * Method construct set of rules that are to be combined
 	 */
-	protected abstract List<AgentRule> constructRules();
+	protected List<AgentRule> constructRules() {
+		return new ArrayList<>();
+	}
 
 	private AgentExecuteFirstCombinedRule constructExecuteFirstGroup() {
 		final AgentExecuteFirstCombinedRule rulesGroup =
@@ -157,7 +180,7 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 		}
 
 		@Override
-		public AgentType getAgentType() {
+		public String getAgentType() {
 			return AgentCombinedRule.this.getAgentType();
 		}
 
@@ -245,7 +268,7 @@ public abstract class AgentCombinedRule<T extends AgentProps, E extends Abstract
 		}
 
 		@Override
-		public AgentType getAgentType() {
+		public String getAgentType() {
 			return AgentCombinedRule.this.getAgentType();
 		}
 

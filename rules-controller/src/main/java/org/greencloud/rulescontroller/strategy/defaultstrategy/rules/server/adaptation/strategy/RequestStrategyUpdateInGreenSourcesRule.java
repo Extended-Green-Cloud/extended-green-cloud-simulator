@@ -50,7 +50,7 @@ public class RequestStrategyUpdateInGreenSourcesRule extends AgentRequestRule<Se
 		final String strategyType = facts.get(STRATEGY_TYPE);
 		final int indexOfNewStrategy = parseInt(informs.stream().findFirst().orElseThrow().getOntology());
 
-		controller.addNewStrategy(strategyType, indexOfNewStrategy);
+		controller.addModifiedStrategy(strategyType, indexOfNewStrategy);
 		logger.info("System components are changing strategy to {}!", strategyType);
 
 		agent.send(prepareStrategyRequestReply(facts.get(MESSAGE), facts.get(NEXT_STRATEGY_IDX)));

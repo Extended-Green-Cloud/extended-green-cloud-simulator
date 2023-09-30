@@ -34,12 +34,25 @@ public class SearchForAgents extends OneShotBehaviour {
 	 * @param ruleType   type of the rule that handles search execution
 	 * @param controller rules controller
 	 */
-	public SearchForAgents(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	protected SearchForAgents(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
 			final RulesController<?, ?> controller) {
 		super(agent);
 		this.facts = FactsMapper.mapToStrategyFacts(facts);
 		this.facts.put(RULE_TYPE, ruleType);
 		this.controller = controller;
+	}
+
+	/**
+	 * Behaviour creator
+	 *
+	 * @param agent      agent executing the behaviour
+	 * @param facts      facts under which the search is to be performed
+	 * @param ruleType   type of the rule that handles search execution
+	 * @param controller rules controller
+	 */
+	public static SearchForAgents create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+			final RulesController<?, ?> controller) {
+		return new SearchForAgents(agent, facts, ruleType, controller);
 	}
 
 	/**

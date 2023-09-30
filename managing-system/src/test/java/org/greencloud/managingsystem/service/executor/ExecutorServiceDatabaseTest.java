@@ -146,7 +146,7 @@ class ExecutorServiceDatabaseTest {
 		executorService.executeAdaptationAction(adaptationPlan);
 
 		// then
-		verify(agentFactory, times(3)).createAgentController(any(), any());
+		verify(agentFactory, times(3)).createAgentController(any(), any(ScenarioStructureArgs.class));
 		verify(abstractAgentNode).logNewAdaptation(eq(ADD_SERVER), any(Instant.class), eq(Optional.empty()));
 		verify(managingAgent).addBehaviour(any(VerifyAdaptationActionResult.class));
 	}

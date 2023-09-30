@@ -1,10 +1,18 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy;
 
-import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_STRATEGY;
+import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_CLOUD_STRATEGY;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.rule.AgentRule;
+import org.greencloud.rulescontroller.strategy.Strategy;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.client.df.SearchForSchedulerByClientRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.client.initial.StartInitialClientBehaviours;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.client.job.announcing.AnnounceNewJobToSchedulerRule;
@@ -138,14 +146,6 @@ import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.proposing.ProposeInsufficientResourcesRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.proposing.ProposeToCNARule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.sensor.SenseExternalServerEventsRule;
-import org.greencloud.rulescontroller.rule.AgentRule;
-import org.greencloud.rulescontroller.strategy.Strategy;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 
 import com.gui.agents.client.ClientNode;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
@@ -156,13 +156,27 @@ import com.gui.agents.server.ServerNode;
 /**
  * Default strategy applied in the system
  */
-public class DefaultStrategy extends Strategy {
+@SuppressWarnings("unchecked")
+public class DefaultCloudStrategy extends Strategy {
 
-	public DefaultStrategy(final RulesController<?, ?> controller) {
-		super(DEFAULT_STRATEGY.name(), controller);
+	public DefaultCloudStrategy() {
+		super(DEFAULT_CLOUD_STRATEGY.name());
 	}
 
 	@Override
+	protected List<AgentRule> initializeRules(RulesController<?, ?> rulesController) {
+		return new ArrayList<>(switch (rulesController.getAgentProps().getAgentType()) {
+			case "SCHEDULER" -> getSchedulerRules((RulesController<SchedulerAgentProps, SchedulerNode>) rulesController);
+			case "CLIENT" -> getClientRules((RulesController<ClientAgentProps, ClientNode>) rulesController);
+			case "CLOUD_NETWORK" ->
+					getCNARules((RulesController<CloudNetworkAgentProps, CloudNetworkNode>) rulesController);
+			case "SERVER" -> getServerRules((RulesController<ServerAgentProps, ServerNode>) rulesController);
+			case "GREEN_ENERGY" ->
+					getGreenEnergyRules((RulesController<GreenEnergyAgentProps, GreenEnergyNode>) rulesController);
+			default -> new ArrayList<AgentRule>();
+		});
+	}
+
 	protected List<AgentRule> getClientRules(final RulesController<ClientAgentProps, ClientNode> rulesController) {
 		return List.of(
 				new SearchForSchedulerByClientRule(rulesController),
@@ -173,7 +187,6 @@ public class DefaultStrategy extends Strategy {
 		);
 	}
 
-	@Override
 	protected List<AgentRule> getSchedulerRules(RulesController<SchedulerAgentProps, SchedulerNode> rulesController) {
 		return List.of(
 				new ProcessLookForCNAForJobExecutionFailureRule(rulesController),
@@ -195,7 +208,6 @@ public class DefaultStrategy extends Strategy {
 		);
 	}
 
-	@Override
 	protected List<AgentRule> getCNARules(RulesController<CloudNetworkAgentProps, CloudNetworkNode> rulesController) {
 		return List.of(
 				new StartInitialCloudNetworkBehaviours(rulesController),
@@ -223,7 +235,6 @@ public class DefaultStrategy extends Strategy {
 		);
 	}
 
-	@Override
 	protected List<AgentRule> getServerRules(final RulesController<ServerAgentProps, ServerNode> rulesController) {
 		return List.of(
 				new SubscribeGreenSourceServiceRule(rulesController),
@@ -278,7 +289,6 @@ public class DefaultStrategy extends Strategy {
 		);
 	}
 
-	@Override
 	protected List<AgentRule> getGreenEnergyRules(
 			final RulesController<GreenEnergyAgentProps, GreenEnergyNode> rulesController) {
 		return List.of(

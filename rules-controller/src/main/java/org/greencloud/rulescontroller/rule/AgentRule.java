@@ -23,7 +23,7 @@ public interface AgentRule extends Rule {
 	String RULE_DESCRIPTION = "default rule definition";
 	RuleType TYPE = BASIC_RULE;
 
-	AgentType getAgentType();
+	String getAgentType();
 	AgentRuleType getAgentRuleType();
 	RuleType getRuleType();
 	RuleType getSubRuleType();

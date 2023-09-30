@@ -46,7 +46,7 @@ public class ProcessServersStrategyUpdateRequestRule extends AgentBasicRule<Gree
 		logger.info("Server asked Green Source to update its strategy to {}! Updating strategy to index: {}.",
 				strategyType, newStrategyIdx);
 
-		controller.addNewStrategy(strategyType, newStrategyIdx);
+		controller.addModifiedStrategy(strategyType, newStrategyIdx);
 		agent.send(prepareStrategyRequestReply(facts.get(MESSAGE), newStrategyIdx));
 	}
 }

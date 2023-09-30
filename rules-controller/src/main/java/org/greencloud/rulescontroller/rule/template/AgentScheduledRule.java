@@ -9,6 +9,7 @@ import static org.greencloud.commons.enums.rules.RuleStepType.SCHEDULED_SELECT_T
 import static org.greencloud.rulescontroller.rule.AgentRuleType.SCHEDULED;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,11 +23,11 @@ import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
-public class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, T>>
-		extends AgentBasicRule<T, E> {
+public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
+	private List<AgentRule> stepRules;
 	private Serializable expressionSpecifyTime;
 	private Serializable expressionHandleActionTrigger;
 	private Serializable expressionEvaluateBeforeTrigger;
@@ -38,6 +39,7 @@ public class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, 
 	 */
 	protected AgentScheduledRule(final RulesController<T, E> controller) {
 		super(controller);
+		initializeSteps();
 	}
 
 	/**
@@ -58,6 +60,22 @@ public class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, 
 			this.expressionHandleActionTrigger = MVEL.compileExpression(
 					imports + " " + ruleRest.getHandleActionTrigger());
 		}
+		initializeSteps();
+	}
+
+	public void initializeSteps() {
+		stepRules = new ArrayList<>(List.of(new SpecifyExecutionTimeRule(), new HandleActionTriggerRule()));
+	}
+
+	@Override
+	public List<AgentRule> getRules() {
+		return stepRules;
+	}
+
+	@Override
+	public void connectToController(final RulesController<?, ?> rulesController) {
+		super.connectToController(rulesController);
+		stepRules.forEach(rule -> rule.connectToController(rulesController));
 	}
 
 	@Override
@@ -65,10 +83,6 @@ public class AgentScheduledRule<T extends AgentProps, E extends AbstractNode<?, 
 		return SCHEDULED;
 	}
 
-	@Override
-	public List<AgentRule> getRules() {
-		return List.of(new SpecifyExecutionTimeRule(), new HandleActionTriggerRule());
-	}
 
 	/**
 	 * Method specify time at which behaviour is to be executed

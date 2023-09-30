@@ -42,12 +42,12 @@ public class StartInitialGreenEnergyBehaviours extends AgentBehaviourRule<GreenE
 						SENSE_EVENTS_RULE, controller),
 				SchedulePeriodically.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SCHEDULE_CHECK_WEATHER_PERIODICALLY_RULE, controller),
-				new ListenForMessages(agent, LISTEN_FOR_SERVER_ERROR_RULE, controller),
-				new ListenForMessages(agent, LISTEN_FOR_SERVER_RE_SUPPLY_RULE, controller),
-				new ListenForMessages(agent, JOB_STATUS_RECEIVER_RULE, controller),
-				new ListenForMessages(agent, NEW_JOB_RECEIVER_RULE, controller),
-				new ListenForMessages(agent, LISTEN_FOR_STRATEGY_UPDATE_RULE, controller),
-				new ListenForMessages(agent, LISTEN_FOR_STRATEGY_REMOVAL_RULE, controller)
+				ListenForMessages.create(agent, LISTEN_FOR_SERVER_ERROR_RULE, controller),
+				ListenForMessages.create(agent, LISTEN_FOR_SERVER_RE_SUPPLY_RULE, controller),
+				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
+				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
+				ListenForMessages.create(agent, LISTEN_FOR_STRATEGY_UPDATE_RULE, controller),
+				ListenForMessages.create(agent, LISTEN_FOR_STRATEGY_REMOVAL_RULE, controller)
 		);
 	}
 }

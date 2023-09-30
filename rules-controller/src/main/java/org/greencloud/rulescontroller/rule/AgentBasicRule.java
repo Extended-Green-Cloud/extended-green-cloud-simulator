@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.apache.tomcat.util.buf.StringUtils;
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.commons.enums.rules.RuleType;
@@ -26,7 +25,7 @@ import org.jeasy.rules.core.BasicRule;
 import org.mvel2.MVEL;
 import org.slf4j.Logger;
 
-import com.gui.agents.AbstractNode;
+import com.gui.agents.AgentNode;
 
 import jade.core.Agent;
 import lombok.Getter;
@@ -36,8 +35,7 @@ import lombok.Getter;
  */
 @Getter
 @SuppressWarnings("unchecked")
-public class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> extends BasicRule
-		implements AgentRule {
+public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extends BasicRule implements AgentRule {
 
 	private static final Logger logger = getLogger(AgentBasicRule.class);
 
@@ -45,7 +43,7 @@ public class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> 
 	protected T agentProps;
 	protected E agentNode;
 	protected Agent agent;
-	protected AgentType agentType;
+	protected String agentType;
 	protected RuleType ruleType;
 	protected RuleType subRuleType;
 	protected RuleStepType stepType;
@@ -69,6 +67,7 @@ public class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> 
 		this.description = ruleRest.getDescription();
 		this.ruleType = ruleRest.getType();
 		this.subRuleType = ruleRest.getSubType();
+		this.stepType = ruleRest.getStepType();
 		this.initialParameters = new HashMap<>();
 		this.priority = ofNullable(ruleRest.getPriority()).orElse(super.priority);
 		this.agentType = ruleRest.getAgentType();
@@ -131,12 +130,14 @@ public class AgentBasicRule<T extends AgentProps, E extends AbstractNode<?, T>> 
 		this.agentNode = (E) rulesController.getAgentNode();
 		this.controller = (RulesController<T, E>) rulesController;
 
-		initialParameters.put("agent", agent);
-		initialParameters.put("agentProps", agentProps);
-		initialParameters.put("agentNode", agentNode);
-		initialParameters.put("controller", controller);
-		initialParameters.put("logger", logger);
-		initialParameters.put("facts", null);
+		if (nonNull(initialParameters)) {
+			initialParameters.put("agent", agent);
+			initialParameters.put("agentProps", agentProps);
+			initialParameters.put("agentNode", agentNode);
+			initialParameters.put("controller", controller);
+			initialParameters.put("logger", logger);
+			initialParameters.put("facts", null);
+		}
 	}
 
 	@Override

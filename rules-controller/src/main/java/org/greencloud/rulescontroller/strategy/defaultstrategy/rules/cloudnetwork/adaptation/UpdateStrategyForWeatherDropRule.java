@@ -48,7 +48,7 @@ public class UpdateStrategyForWeatherDropRule extends AgentRequestRule<CloudNetw
 			final StrategyFacts facts) {
 		final String strategyType = facts.get(STRATEGY_TYPE);
 		final int indexOfNewStrategy = parseInt(informs.stream().findFirst().orElseThrow().getOntology());
-		controller.addNewStrategy(facts.get(STRATEGY_TYPE), indexOfNewStrategy);
+		controller.addModifiedStrategy(facts.get(STRATEGY_TYPE), indexOfNewStrategy);
 		logger.info("System components are changing strategy to {}!", strategyType);
 	}
 
