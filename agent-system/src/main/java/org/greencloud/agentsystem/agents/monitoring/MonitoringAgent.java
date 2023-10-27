@@ -29,7 +29,7 @@ public class MonitoringAgent extends AbstractMonitoringAgent {
 	protected void initializeAgent(final Object[] args) {
 		this.properties = new MonitoringAgentProps(getName());
 
-		if (args.length > 2 && nonNull(args[0])) {
+		if (args.length > 3 && nonNull(args[0])) {
 			this.properties.setBadStubProbability(parseDouble(String.valueOf(args[0])));
 		}
 		readOfflineMode();

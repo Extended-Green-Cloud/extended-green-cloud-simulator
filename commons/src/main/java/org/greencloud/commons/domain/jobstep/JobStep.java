@@ -1,5 +1,8 @@
 package org.greencloud.commons.domain.jobstep;
 
+import java.util.Map;
+
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,14 +21,9 @@ public interface JobStep {
 	String getName();
 
 	/**
-	 * @return required amount of CPU (im millicores, for entire step)
+	 * @return required amount of resources used to process given job
 	 */
-	Long getCpu();
-
-	/**
-	 * @return required memory (in Mi, for entire step)
-	 */
-	Long getMemory();
+	Map<String, Resource> getRequiredResources();
 
 	/**
 	 * @return step execution duration (in seconds, for entire step)

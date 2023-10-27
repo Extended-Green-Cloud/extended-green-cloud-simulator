@@ -1,7 +1,6 @@
 package org.greencloud.rulescontroller.domain;
 
 import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.enums.rules.RuleType;
 
 /**
  * Class storing common properties which describe given rule
@@ -12,19 +11,19 @@ import org.greencloud.commons.enums.rules.RuleType;
  * @param ruleName        name of the rule
  * @param ruleDescription description of the rule
  */
-public record AgentRuleDescription(RuleType ruleType, RuleType subType, RuleStepType stepType, String ruleName,
+public record AgentRuleDescription(String ruleType, String subType, RuleStepType stepType, String ruleName,
 								   String ruleDescription) {
 
-	public AgentRuleDescription(final RuleType ruleType, final String ruleName, final String ruleDescription) {
+	public AgentRuleDescription(final String ruleType, final String ruleName, final String ruleDescription) {
 		this(ruleType, null, null, ruleName, ruleDescription);
 	}
 
-	public AgentRuleDescription(final RuleType ruleType, final RuleType subType, final String ruleName,
+	public AgentRuleDescription(final String ruleType, final String subType, final String ruleName,
 			final String ruleDescription) {
 		this(ruleType, subType, null, ruleName, ruleDescription);
 	}
 
-	public AgentRuleDescription(final RuleType ruleType, final RuleStepType stepType, final String ruleName,
+	public AgentRuleDescription(final String ruleType, final RuleStepType stepType, final String ruleName,
 			final String ruleDescription) {
 		this(ruleType, null, stepType, ruleName, ruleDescription);
 	}

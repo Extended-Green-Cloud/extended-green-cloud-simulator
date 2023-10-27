@@ -12,7 +12,6 @@ import static org.greencloud.rulescontroller.strategy.StrategySelector.selectStr
 import java.util.function.ToIntFunction;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.strategy.StrategySelector;
@@ -53,7 +52,7 @@ public class ScheduleOnce extends WakerBehaviour {
 	 * @param controller rules controller
 	 * @return ScheduleOnce
 	 */
-	public static ScheduleOnce create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static ScheduleOnce create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller, final StrategySelector selector) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

@@ -5,7 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.greencloud.agentsystem.agents.AbstractAgent;
 import org.slf4j.Logger;
 
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.controller.GuiController;
 
 import org.greencloud.rulescontroller.RulesController;

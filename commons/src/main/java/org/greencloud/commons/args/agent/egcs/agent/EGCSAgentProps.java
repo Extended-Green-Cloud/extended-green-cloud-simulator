@@ -1,4 +1,4 @@
-package org.greencloud.commons.args.agent;
+package org.greencloud.commons.args.agent.egcs.agent;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.constants.FactTypeConstants;
 import org.greencloud.commons.constants.LoggingConstants;
 import org.greencloud.commons.domain.facts.StrategyFacts;
@@ -140,7 +142,8 @@ public class EGCSAgentProps extends AgentProps {
 
 			final StrategyFacts newFacts = new StrategyFacts(facts.get(FactTypeConstants.STRATEGY_IDX));
 			newFacts.put(
-					FactTypeConstants.JOB_DIVIDED, new ImmutableJobDivided<>(notAffectedJobInstance, affectedJobInstance));
+					FactTypeConstants.JOB_DIVIDED,
+					new ImmutableJobDivided<>(notAffectedJobInstance, affectedJobInstance));
 			newFacts.put(FactTypeConstants.RULE_TYPE, RuleType.PROCESS_JOB_DIVISION_RULE);
 			return newFacts;
 		} else {
@@ -168,7 +171,7 @@ public class EGCSAgentProps extends AgentProps {
 		final JobInstanceIdentifier previousInstanceId = jobTransfer.getFirstJobInstanceId();
 
 		MDC.put(LoggingConstants.MDC_JOB_ID, newJobInstanceId.getJobId());
-		logger.info("Dividing jobs for original job: {}", originalJob);
+		logger.info("Dividing jobs for original job: {}", originalJob.getJobInstanceId());
 
 		if (isNull(previousInstanceId)) {
 			final T newJobInstance = mapToJobStartTimeAndInstanceId(originalJob, newJobInstanceId);
@@ -217,7 +220,8 @@ public class EGCSAgentProps extends AgentProps {
 
 		MDC.put(LoggingConstants.MDC_JOB_ID, nextJobInstance.getJobId());
 		logger.info("Current status: {}", currentJobStatus);
-		logger.info("Job before shortage: {} Job after shortage {}", prevJobInstance, nextJobInstance);
+		logger.info("Job before shortage: {} Job after shortage {}", prevJobInstance.getJobInstanceId(),
+				nextJobInstance.getJobInstanceId());
 
 		if (nonNull(strategyForJob)) {
 			final int strategyForRemovedJob = strategyForJob.remove(job.getJobInstanceId());

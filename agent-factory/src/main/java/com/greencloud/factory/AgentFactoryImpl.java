@@ -1,6 +1,5 @@
 package com.greencloud.factory;
 
-import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.SIMULATION;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LATITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LONGITUDE;
 import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
@@ -14,14 +13,14 @@ import static com.greencloud.factory.constants.AgentTemplatesConstants.TEMPLATE_
 import static java.lang.String.valueOf;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.SIMULATION;
 
 import java.time.temporal.ValueRange;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.client.factory.ImmutableClientArgs;
-import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
@@ -30,7 +29,9 @@ import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.event.NewClientEventArgs;
 import org.greencloud.commons.args.job.JobArgs;
-import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 
 public class AgentFactoryImpl implements AgentFactory {
 
@@ -54,37 +55,15 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public ServerArgs createServerAgent(String ownerCNA,
-			HardwareResources resources,
-			Integer maxPower,
-			Integer idlePower,
-			Integer price,
-			Integer jobProcessingLimit) {
-
-		if (isNull(ownerCNA)) {
-			throw new IllegalArgumentException("Owner CNA should be specified.");
-		}
-		if (nonNull(resources) && (resources.getStorage() < 0 || resources.getMemory() < 0 || resources.getCpu() < 0)) {
-			throw new IllegalArgumentException("Hardware resources cannot be smaller than 0.");
-		}
-		if (nonNull(maxPower) && (maxPower < 0)) {
-			throw new IllegalArgumentException("Maximum power consumption of the server cannot be smaller than 0.");
-		}
-		if (nonNull(idlePower) && (idlePower < 0)) {
-			throw new IllegalArgumentException("Idle power consumption of the server cannot be smaller than 0.");
-		}
-		if (nonNull(price) && price < 0) {
-			throw new IllegalArgumentException("Price per power unit cannot be smaller than 0.");
-		}
-
-		String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
-
+	public ServerArgs createServerAgent(final String ownerCNA, final Map<String, Resource> resources,
+			final Integer maxPower, final Integer idlePower, final Double price, final Integer jobProcessingLimit) {
+		final String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
 		return ImmutableServerArgs.builder()
 				.name(serverAgentName)
 				.ownerCloudNetwork(ownerCNA)
 				.maxPower(isNull(maxPower) ? TEMPLATE_SERVER_MAX_POWER : maxPower)
 				.idlePower(isNull(idlePower) ? TEMPLATE_SERVER_IDLE_POWER : idlePower)
-				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : (double) price)
+				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
 				.resources(isNull(resources) ? TEMPLATE_SERVER_RESOURCES : resources)
 				.jobProcessingLimit(isNull(jobProcessingLimit) ? TEMPLATE_SERVER_JOB_LIMIT : jobProcessingLimit)
 				.build();
@@ -96,21 +75,16 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public GreenEnergyArgs createGreenEnergyAgent(
-			String monitoringAgentName,
-			String ownerServerName,
-			Integer latitude,
-			Integer longitude,
-			Integer maximumCapacity,
-			Integer pricePerPowerUnit,
-			Double weatherPredictionError,
-			GreenEnergySourceTypeEnum energyType) {
+	public GreenEnergyArgs createGreenEnergyAgent(final String monitoringAgentName, final String ownerServerName,
+			final Integer latitude, final Integer longitude, final Integer maximumCapacity,
+			final Integer pricePerPowerUnit, final Double weatherPredictionError,
+			final GreenEnergySourceTypeEnum energyType) {
 
 		if (isNull(monitoringAgentName) || isNull(ownerServerName)) {
-			throw new IllegalArgumentException("monitoringAgentName and ownerServerName should not be null");
+			throw new IllegalArgumentException("Name of monitoring agent and owner server must be specified");
 		}
 		if (nonNull(maximumCapacity) && maximumCapacity < 0) {
-			throw new IllegalArgumentException("maximumCapacity is invalid");
+			throw new IllegalArgumentException("Maximum capacity value must bre greater than zero");
 		}
 		if (nonNull(pricePerPowerUnit) && pricePerPowerUnit < 0) {
 			throw new IllegalArgumentException("pricePerPowerUnit is invalid");

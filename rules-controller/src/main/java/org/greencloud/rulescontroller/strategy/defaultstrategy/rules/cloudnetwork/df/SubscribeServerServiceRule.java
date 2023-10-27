@@ -1,20 +1,21 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df;
 
-import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareSubscription;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
+import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE;
+import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareRequestForResourceInformationMessage;
+import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareSubscription;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentSubscriptionRule;
 import org.slf4j.Logger;
 
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
@@ -51,7 +52,10 @@ public class SubscribeServerServiceRule extends AgentSubscriptionRule<CloudNetwo
 	protected void handleAddedAgents(final Map<AID, Boolean> addedAgents) {
 		logger.info("Found {} new servers in the network!", addedAgents.size());
 		initializeWeights(addedAgents.keySet());
+		addedAgents.replaceAll((key, val) -> false);
 		agentProps.getOwnedServers().putAll(addedAgents);
+		addedAgents.forEach((server, state) -> agent.send(
+				prepareRequestForResourceInformationMessage(server, controller.getLatestStrategy().get())));
 	}
 
 	private void initializeWeights(Set<AID> addedServers) {

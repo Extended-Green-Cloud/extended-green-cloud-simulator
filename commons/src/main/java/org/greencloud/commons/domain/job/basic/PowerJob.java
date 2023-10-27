@@ -3,18 +3,19 @@ package org.greencloud.commons.domain.job.basic;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import org.greencloud.commons.domain.ImmutableConfig;
+import org.greencloud.commons.domain.jobstep.JobStep;
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 import org.immutables.value.internal.$processor$.meta.$CriteriaMirrors;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
-import org.greencloud.commons.domain.jobstep.JobStep;
-import org.greencloud.commons.domain.resources.HardwareResources;
 
 /**
  * Object storing the data describing job that is to be executed in Cloud
@@ -61,10 +62,10 @@ public interface PowerJob extends Serializable {
 	Instant getDeadline();
 
 	/**
-	 * @return estimated amount of resources used to process given job
+	 * @return required amount of resources used to process given job
 	 * (resource requirements are defined per single unit of time - per seconds)
 	 */
-	HardwareResources getEstimatedResources();
+	Map<String, Resource> getRequiredResources();
 
 	/**
 	 * @return method returns list of job steps

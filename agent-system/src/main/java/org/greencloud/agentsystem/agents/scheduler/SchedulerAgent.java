@@ -21,7 +21,7 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		if (args.length == 5) {
+		if (args.length == 6) {
 			try {
 				final int deadlinePriority = parseInt(args[0].toString());
 				final int cpuPriority = parseInt(args[1].toString());

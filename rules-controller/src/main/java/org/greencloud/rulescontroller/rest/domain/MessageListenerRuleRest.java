@@ -2,8 +2,6 @@ package org.greencloud.rulescontroller.rest.domain;
 
 import java.io.Serializable;
 
-import org.greencloud.commons.enums.rules.RuleType;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Getter;
@@ -17,6 +15,6 @@ public class MessageListenerRuleRest extends RuleRest implements Serializable {
 	String className;
 	String messageTemplate;
 	int batchSize;
-	RuleType actionHandler;
+	String actionHandler;
 	String selectStrategyIdx;
 }

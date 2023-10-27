@@ -10,6 +10,8 @@ import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS
 
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateSubscription;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
@@ -17,8 +19,6 @@ import org.greencloud.rulescontroller.behaviour.schedule.SchedulePeriodically;
 import org.greencloud.rulescontroller.behaviour.search.SearchForAgents;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
 
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.behaviours.Behaviour;
@@ -43,6 +43,7 @@ public class StartInitialCloudNetworkBehaviours extends AgentBehaviourRule<Cloud
 				SearchForAgents.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SEARCH_OWNER_AGENT_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
+				ListenForMessages.create(agent, "SERVER_RESOURCE_INFORMATION_RULE", controller, true),
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller, true),
 				ListenForMessages.create(agent, SERVER_STATUS_CHANGE_RULE, controller, true),
 				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller)

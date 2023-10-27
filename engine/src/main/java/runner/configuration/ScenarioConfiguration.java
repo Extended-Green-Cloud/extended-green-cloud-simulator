@@ -39,6 +39,11 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 	public static String scenarioFilePath;
 
 	/**
+	 * Path to the file containing initial knowledge of the system
+	 */
+	public static String knowledgeFilePath;
+
+	/**
 	 * Optional path to the file containing scenario events
 	 */
 	public static Optional<String> eventFilePath;
@@ -75,6 +80,7 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 			final String scenarioPath = useSubDirectory ? retrieveScenarioSubDirectory(props) : SCENARIOS_DIR;
 
 			scenarioFilePath = buildResourceFilePath(scenarioPath, props.getProperty("scenario.structure"));
+			knowledgeFilePath = buildResourceFilePath(scenarioPath, props.getProperty("scenario.knowledge"));
 			eventFilePath = generatorType.equals(FROM_EVENTS)
 					? Optional.of(buildResourceFilePath(scenarioPath, props.getProperty("scenario.events")))
 					: Optional.empty();

@@ -21,7 +21,6 @@ import static org.greencloud.commons.utils.messaging.MessageReader.readForPerfor
 import java.util.Vector;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -55,7 +54,7 @@ public class InitiateCallForProposal extends ContractNetInitiator {
 	 * @param controller rules controller
 	 * @return InitiateCallForProposal
 	 */
-	public static InitiateCallForProposal create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static InitiateCallForProposal create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

@@ -10,7 +10,6 @@ import static org.greencloud.commons.enums.rules.RuleStepType.SEARCH_HANDLE_RESU
 import java.util.Set;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -34,7 +33,7 @@ public class SearchForAgents extends OneShotBehaviour {
 	 * @param ruleType   type of the rule that handles search execution
 	 * @param controller rules controller
 	 */
-	protected SearchForAgents(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	protected SearchForAgents(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		super(agent);
 		this.facts = FactsMapper.mapToStrategyFacts(facts);
@@ -50,7 +49,7 @@ public class SearchForAgents extends OneShotBehaviour {
 	 * @param ruleType   type of the rule that handles search execution
 	 * @param controller rules controller
 	 */
-	public static SearchForAgents create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static SearchForAgents create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		return new SearchForAgents(agent, facts, ruleType, controller);
 	}

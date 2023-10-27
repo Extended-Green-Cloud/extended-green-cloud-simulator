@@ -3,7 +3,7 @@ package com.gui.controller;
 import java.io.Serializable;
 import java.time.Instant;
 
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.event.PowerShortageEvent;
 
 /**

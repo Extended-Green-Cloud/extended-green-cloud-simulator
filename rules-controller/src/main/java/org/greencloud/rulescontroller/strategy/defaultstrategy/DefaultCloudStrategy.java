@@ -21,8 +21,10 @@ import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.client.job.
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.adaptation.UpdateStrategyForWeatherDropRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.SearchForSchedulerRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.SubscribeServerServiceRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.listening.ListenForServerResourceInformationRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.listening.ListenForServerStatusChangeRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.listening.ProcessServerStatusChangeCombinedRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.df.listening.processing.ProcessServerResourceInformationRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.errorhandling.listening.ListenForTransferConfirmationRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.errorhandling.listening.ListenForTransferRequestRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.cloudnetwork.errorhandling.listening.ProcessTransferRequestCombinedRule;
@@ -108,8 +110,10 @@ import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.adap
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.adaptation.strategy.ProcessStrategyUpdateRequestRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.adaptation.strategy.RequestStrategyUpdateInGreenSourcesRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.df.SubscribeGreenSourceServiceRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.df.listening.ListenForCNAResourceInformationRequestRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.df.listening.ListenForGreenSourceServiceUpdateRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.df.listening.ProcessGreenSourceServiceUpdateCombinedRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.df.listening.processing.ProcessCNAResourceInformationRequestRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.dividejob.ProcessJobDivisionRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.dividejob.ProcessJobNewInstanceCreationRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.dividejob.ProcessJobSubstitutionRule;
@@ -127,6 +131,7 @@ import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.even
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.transfer.TransferInCloudNetworkForGreenSourceRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.transfer.TransferInCloudNetworkRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.transfer.TransferInGreenSourceRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.initial.InitializeResourceKnowledge;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.initial.StartInitialServerBehaviours;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.announcing.LookForGreenSourceForJobExecutionRule;
 import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.execution.HandleJobFinishRule;
@@ -210,6 +215,8 @@ public class DefaultCloudStrategy extends Strategy {
 
 	protected List<AgentRule> getCNARules(RulesController<CloudNetworkAgentProps, CloudNetworkNode> rulesController) {
 		return List.of(
+				new ListenForServerResourceInformationRule(rulesController, this),
+				new ProcessServerResourceInformationRule(rulesController),
 				new StartInitialCloudNetworkBehaviours(rulesController),
 				new LookForServerForJobExecutionRule(rulesController),
 				new ProposeToSchedulerRule(rulesController),
@@ -237,6 +244,9 @@ public class DefaultCloudStrategy extends Strategy {
 
 	protected List<AgentRule> getServerRules(final RulesController<ServerAgentProps, ServerNode> rulesController) {
 		return List.of(
+				new InitializeResourceKnowledge(rulesController),
+				new ListenForCNAResourceInformationRequestRule(rulesController, this),
+				new ProcessCNAResourceInformationRequestRule(rulesController),
 				new SubscribeGreenSourceServiceRule(rulesController),
 				new StartInitialServerBehaviours(rulesController),
 				new ListenForGreenSourceServiceUpdateRule(rulesController, this),

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -27,7 +26,7 @@ import jade.lang.acl.ACLMessage;
  */
 public class ListenForMessages extends CyclicBehaviour {
 
-	private final RuleType ruleType;
+	private final String ruleType;
 	protected RulesController<?, ?> controller;
 	protected boolean omitStrategyFromMessage;
 
@@ -38,7 +37,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param ruleType   type of the rule that handles message retrieval execution
 	 * @param controller rules controller
 	 */
-	protected ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller) {
+	protected ListenForMessages(final Agent agent, final String ruleType, final RulesController<?, ?> controller) {
 		super(agent);
 		this.ruleType = ruleType;
 		this.controller = controller;
@@ -53,7 +52,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param controller              rules controller
 	 * @param omitStrategyFromMessage flag which ignores the strategy passed in the message content
 	 */
-	protected ListenForMessages(final Agent agent, final RuleType ruleType, final RulesController<?, ?> controller,
+	protected ListenForMessages(final Agent agent, final String ruleType, final RulesController<?, ?> controller,
 			final boolean omitStrategyFromMessage) {
 		this(agent, ruleType, controller);
 		this.omitStrategyFromMessage = omitStrategyFromMessage;
@@ -66,7 +65,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param ruleType   type of the rule that handles message retrieval execution
 	 * @param controller rules controller
 	 */
-	public static ListenForMessages create(final Agent agent, final RuleType ruleType,
+	public static ListenForMessages create(final Agent agent, final String ruleType,
 			final RulesController<?, ?> controller) {
 		return new ListenForMessages(agent, ruleType, controller);
 	}
@@ -79,7 +78,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	 * @param controller              rules controller
 	 * @param omitStrategyFromMessage flag which ignores the strategy passed in the message content
 	 */
-	public static ListenForMessages create(final Agent agent, final RuleType ruleType,
+	public static ListenForMessages create(final Agent agent, final String ruleType,
 			final RulesController<?, ?> controller, final boolean omitStrategyFromMessage) {
 		return new ListenForMessages(agent, ruleType, controller, omitStrategyFromMessage);
 	}

@@ -1,17 +1,24 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RESOURCES;
 import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLE_NEW_JOB_RULE;
-import static java.lang.String.valueOf;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Map;
+
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateCallForProposal;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -19,10 +26,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 
 public class ProcessCNANewJobSuccessfullyRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
@@ -43,8 +46,8 @@ public class ProcessCNANewJobSuccessfullyRule extends AgentBasicRule<ServerAgent
 	@Override
 	public boolean evaluateRule(final StrategyFacts facts) {
 		final ClientJob job = facts.get(JOB);
-		final HardwareResources resources = facts.get(RESOURCES);
-		return resources.areSufficient(job.getEstimatedResources())
+		final Map<String, Resource> resources = facts.get(RESOURCES);
+		return areSufficient(resources, job.getRequiredResources())
 				&& !agentProps.isHasError()
 				&& !agentProps.getServerJobs().containsKey(job)
 				&& agentProps.canTakeIntoProcessing()

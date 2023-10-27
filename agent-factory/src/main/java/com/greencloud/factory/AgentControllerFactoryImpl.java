@@ -9,6 +9,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
@@ -44,6 +45,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	private GuiController guiController;
 	private String mainDFAddress;
 	private String mainHostPlatformId;
+	private Map<String, Map<String, Object>> systemKnowledge;
 
 	public AgentControllerFactoryImpl(final ContainerController containerController) {
 		this.containerController = containerController;
@@ -58,19 +60,22 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 		this.guiController = guiController;
 		this.mainDFAddress = null;
 		this.mainHostPlatformId = null;
+		this.systemKnowledge = null;
 	}
 
 	public AgentControllerFactoryImpl(final ContainerController containerController,
 			final TimescaleDatabase timescaleDatabase,
 			final GuiController guiController,
 			final String mainDFAddress,
-			final String mainHostPlatformId) {
+			final String mainHostPlatformId,
+			final Map<String, Map<String, Object>> systemKnowledge) {
 		this.agentNodeFactory = new AgentNodeFactoryImpl();
 		this.containerController = containerController;
 		this.timescaleDatabase = timescaleDatabase;
 		this.guiController = guiController;
 		this.mainDFAddress = mainDFAddress;
 		this.mainHostPlatformId = mainHostPlatformId;
+		this.systemKnowledge = systemKnowledge;
 	}
 
 	@Override
@@ -184,7 +189,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						endDate,
 						deadline,
 						clientAgent.getJob(),
-						clientAgent.getJobId() });
+						clientAgent.getJobId(),
+						systemKnowledge });
 	}
 
 	private AgentController createSchedulerController(final SchedulerArgs schedulerAgent, Boolean isInformer,
@@ -195,8 +201,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				new Object[] { schedulerAgent.getDeadlineWeight(),
 						schedulerAgent.getCpuWeight(),
 						schedulerAgent.getMaximumQueueSize(),
+						systemKnowledge,
 						isInformer,
-						managingAgent });
+						managingAgent});
 	}
 
 	private AgentController createCloudNetworkController(final CloudNetworkArgs cloudNetworkAgent, Boolean isInformer,
@@ -204,7 +211,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(cloudNetworkAgent.getName(),
 				"org.greencloud.agentsystem.agents.cloudnetwork.CloudNetworkAgent",
-				new Object[] { mainDFAddress, mainHostPlatformId, isInformer, managingAgent });
+				new Object[] { mainDFAddress, mainHostPlatformId, systemKnowledge, isInformer, managingAgent });
 	}
 
 	private AgentController createServerController(final ServerArgs serverAgent, Boolean isInformer,
@@ -218,8 +225,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						serverAgent.getIdlePower(),
 						serverAgent.getJobProcessingLimit(),
 						serverAgent.getResources(),
+						systemKnowledge,
 						isInformer,
-						managingAgent });
+						managingAgent});
 	}
 
 	private AgentController createGreenSourceController(final GreenEnergyArgs greenEnergyAgent, Boolean isInformer,
@@ -235,8 +243,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						greenEnergyAgent.getLongitude(),
 						greenEnergyAgent.getEnergyType(),
 						greenEnergyAgent.getWeatherPredictionError(),
+						systemKnowledge,
 						isInformer,
-						managingAgent });
+						managingAgent});
 	}
 
 	private AgentController createMonitoringController(final MonitoringArgs monitoringAgent, Boolean isInformer,
@@ -244,6 +253,6 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),
 				"org.greencloud.agentsystem.agents.monitoring.MonitoringAgent",
-				new Object[] { monitoringAgent.getBadStubProbability(), isInformer, managingAgent });
+				new Object[] { monitoringAgent.getBadStubProbability(), systemKnowledge, isInformer, managingAgent });
 	}
 }

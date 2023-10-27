@@ -7,7 +7,6 @@ import static org.greencloud.commons.enums.rules.RuleStepType.PERIODIC_EXECUTE_A
 import static org.greencloud.commons.enums.rules.RuleStepType.PERIODIC_SELECT_PERIOD_STEP;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -19,7 +18,7 @@ import jade.core.behaviours.TickerBehaviour;
  */
 public class SchedulePeriodically extends TickerBehaviour {
 
-	private final RuleType ruleType;
+	private final String ruleType;
 	protected RulesController<?, ?> controller;
 
 	protected SchedulePeriodically(final Agent agent, final StrategyFacts facts,
@@ -39,7 +38,7 @@ public class SchedulePeriodically extends TickerBehaviour {
 	 * @param controller rules controller
 	 * @return SchedulePeriodically
 	 */
-	public static SchedulePeriodically create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static SchedulePeriodically create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

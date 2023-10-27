@@ -1,14 +1,15 @@
 package org.greencloud.commons.utils.resources;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.max;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
 import static org.greencloud.commons.utils.resources.domain.JobWithTime.TimeType.START_TIME;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -17,16 +18,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
-import org.greencloud.commons.domain.weather.MonitoringData;
-
-import com.google.common.util.concurrent.AtomicDouble;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.basic.ServerJob;
-import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.utils.resources.domain.JobWithTime;
 import org.greencloud.commons.utils.resources.domain.SubJobList;
+
+import com.google.common.util.concurrent.AtomicDouble;
 
 /**
  * Class with algorithms used to compute resource utilization
@@ -40,54 +40,46 @@ public class ResourcesUtilization {
 	 * @param startTime start time of the interval
 	 * @param endTime   end time of the interval
 	 */
-	public static <T extends PowerJob> HardwareResources getMaximumUsedResourcesDuringTimeStamp(
+	public static <T extends PowerJob> Map<String, Resource> getMaximumUsedResourcesDuringTimeStamp(
 			final Set<T> jobList,
+			final Map<String, Resource> initialResources,
 			final Instant startTime,
 			final Instant endTime) {
 		final List<JobWithTime<T>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
-
-		if (jobsWithTimeMap.isEmpty()) {
-			return ImmutableHardwareResources.builder().cpu(0D).memory(0D).storage(0D).build();
-		}
+		final Set<String> resourceKeys = initialResources.keySet();
 
 		final List<T> openIntervalJobs = new ArrayList<>();
+		final Map<String, Resource> lastResourceMap = initialResources.entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
+		final Map<String, List<Resource>> resourceUsageInInterval = resourceKeys.stream()
+				.collect(toMap(key -> key, key -> new ArrayList<>()));
 
-		final List<Double> cpuUsageInInterval = new ArrayList<>();
-		final List<Double> memoryUsageInInterval = new ArrayList<>();
-		final List<Double> storageUsageInInterval = new ArrayList<>();
-
-		final AtomicDouble lastIntervalCpu = new AtomicDouble(0D);
-		final AtomicDouble lastIntervalMemory = new AtomicDouble(0D);
-		final AtomicDouble lastIntervalStorage = new AtomicDouble(0D);
+		if (jobsWithTimeMap.isEmpty()) {
+			return lastResourceMap;
+		}
 
 		jobsWithTimeMap.forEach(jobWithTime -> {
-			final HardwareResources resources = (jobWithTime.job).getEstimatedResources();
+			final Map<String, Resource> resources = (jobWithTime.job).getRequiredResources();
 			if (jobWithTime.timeType.equals(START_TIME)) {
 				openIntervalJobs.add(jobWithTime.job);
 
-				lastIntervalCpu.updateAndGet(cpu -> cpu + resources.getCpu());
-				lastIntervalMemory.updateAndGet(memory -> memory + resources.getMemory());
-				lastIntervalStorage.updateAndGet(storage -> storage + resources.getStorage());
+				resources.forEach((key, resource) ->
+						lastResourceMap.computeIfPresent(key, (k, prevVal) -> prevVal.addResource(resource)));
 			} else {
 				openIntervalJobs.remove(jobWithTime.job);
 
-				cpuUsageInInterval.add(lastIntervalCpu.get());
-				memoryUsageInInterval.add(lastIntervalMemory.get());
-				storageUsageInInterval.add(lastIntervalStorage.get());
-
-				lastIntervalCpu.set(openIntervalJobs.isEmpty() ? 0 : lastIntervalCpu.get() - resources.getCpu());
-				lastIntervalMemory.set(
-						openIntervalJobs.isEmpty() ? 0 : lastIntervalMemory.get() - resources.getMemory());
-				lastIntervalStorage.set(
-						openIntervalJobs.isEmpty() ? 0 : lastIntervalStorage.get() - resources.getStorage());
+				resourceKeys.forEach(key -> {
+					resourceUsageInInterval.get(key).add(lastResourceMap.get(key));
+					lastResourceMap.computeIfPresent(key,
+							(k, currResource) -> openIntervalJobs.isEmpty() ?
+									initialResources.get(key).getEmptyResource() :
+									currResource.reserveResource(resources.get(k)));
+				});
 			}
 		});
 
-		final double maxCpu = Collections.max(cpuUsageInInterval, Double::compareTo);
-		final double maxMemory = Collections.max(memoryUsageInInterval, Double::compareTo);
-		final double maxStorage = Collections.max(storageUsageInInterval, Double::compareTo);
-
-		return ImmutableHardwareResources.builder().cpu(maxCpu).memory(maxMemory).storage(maxStorage).build();
+		return resourceKeys.stream().collect(toMap(key -> key, key -> max(resourceUsageInInterval.get(key),
+				(resource1, resource2) -> initialResources.get(key).compareResource(resource1, resource2))));
 	}
 
 	/**
@@ -244,5 +236,38 @@ public class ResourcesUtilization {
 			return job1.timeType.equals(START_TIME) ? 1 : -1;
 		}
 		return comparingTimeResult;
+	}
+
+	/**
+	 * Method subtracts from the resources, the resources given as an argument.
+	 *
+	 * @param initialResources    initial amounts of resources
+	 * @param resourcesToSubtract resources that are to be subtracted
+	 * @return difference between resources
+	 */
+	public static Map<String, Resource> computeResourceDifference(final Map<String, Resource> initialResources,
+			final Map<String, Resource> resourcesToSubtract) {
+		return initialResources.entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> {
+					if (resourcesToSubtract.containsKey(entry.getKey())) {
+						return entry.getValue().reserveResource(resourcesToSubtract.get(entry.getKey()));
+					}
+					return entry.getValue();
+				}));
+	}
+
+	/**
+	 * Method returns information if the resource amount is sufficient with regard to given required amount.
+	 *
+	 * @param resources         owned resources
+	 * @param requiredResources required amount of resource
+	 * @return boolean indicating if resource amount is sufficient
+	 */
+	public static boolean areSufficient(final Map<String, Resource> resources,
+			final Map<String, Resource> requiredResources) {
+		return resources.entrySet().stream()
+				.allMatch(entry -> (!requiredResources.containsKey(entry.getKey()) ||
+						entry.getValue().isSufficient(requiredResources)) &&
+						resources.keySet().containsAll(requiredResources.keySet()));
 	}
 }

@@ -2,6 +2,7 @@ package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.scheduler.
 
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_JOB_PRIORITY_RULE;
 import static java.time.Duration.between;
 
@@ -27,7 +28,7 @@ public class ComputeJobPriorityRule extends AgentBasicRule<SchedulerAgentProps, 
 
 		final double timeToDeadline = between(job.getEndTime(), job.getDeadline()).toMillis();
 		final double result = agentProps.getDeadlinePercentage() * timeToDeadline
-				+ agentProps.getCPUPercentage() * job.getEstimatedResources().getCpu();
+				+ agentProps.getCPUPercentage() * job.getRequiredResources().get(CPU).getAmountInCommonUnit();
 
 		facts.put(RESULT, result);
 	}

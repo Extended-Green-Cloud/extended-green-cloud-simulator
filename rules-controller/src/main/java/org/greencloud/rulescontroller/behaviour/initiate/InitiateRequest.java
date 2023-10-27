@@ -20,7 +20,6 @@ import static org.greencloud.commons.utils.messaging.MessageReader.readForPerfor
 import java.util.Vector;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -49,7 +48,7 @@ public class InitiateRequest extends AchieveREInitiator {
 	 * @param controller rules controller
 	 * @return InitiateRequest
 	 */
-	public static InitiateRequest create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static InitiateRequest create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

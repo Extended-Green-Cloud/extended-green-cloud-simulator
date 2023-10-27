@@ -44,8 +44,8 @@ public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extend
 	protected E agentNode;
 	protected Agent agent;
 	protected String agentType;
-	protected RuleType ruleType;
-	protected RuleType subRuleType;
+	protected String ruleType;
+	protected String subRuleType;
 	protected RuleStepType stepType;
 	protected boolean isRuleStep;
 

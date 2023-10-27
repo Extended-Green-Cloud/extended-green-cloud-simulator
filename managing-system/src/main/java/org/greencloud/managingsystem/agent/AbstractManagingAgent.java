@@ -5,7 +5,7 @@ import static org.greencloud.commons.args.agent.AgentType.MANAGING;
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.mobility.MobilityService;

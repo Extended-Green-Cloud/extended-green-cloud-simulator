@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.MessageListenerRuleRest;
@@ -48,13 +47,12 @@ import lombok.Getter;
 @Getter
 public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
-	private List<AgentRule> stepRules;
 	final Strategy strategy;
 	final Class<?> contentType;
 	final MessageTemplate messageTemplate;
 	final int batchSize;
-	final RuleType handlerRuleType;
-
+	final String handlerRuleType;
+	private List<AgentRule> stepRules;
 	private Serializable expressionSelectStrategyIdx;
 
 	/**
@@ -69,7 +67,7 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	 */
 	protected AgentMessageListenerRule(final RulesController<T, E> controller,
 			final Strategy strategy, final Class<?> contentType, final MessageTemplate template, final int batchSize,
-			final RuleType handlerRuleType) {
+			final String handlerRuleType) {
 		super(controller);
 		this.contentType = contentType;
 		this.messageTemplate = template;
@@ -89,7 +87,7 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	 * @param handlerRuleType rule run when the messages are present
 	 */
 	protected AgentMessageListenerRule(final RulesController<T, E> controller, final Strategy strategy,
-			final MessageTemplate template, final int batchSize, final RuleType handlerRuleType) {
+			final MessageTemplate template, final int batchSize, final String handlerRuleType) {
 		super(controller);
 		this.contentType = null;
 		this.messageTemplate = template;

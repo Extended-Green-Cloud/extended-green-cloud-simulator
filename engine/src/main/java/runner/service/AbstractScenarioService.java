@@ -1,11 +1,12 @@
 package runner.service;
 
-import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
 import static jade.core.Runtime.instance;
 import static jade.wrapper.AgentController.ASYNC;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.databaseHostIp;
 import static runner.configuration.EngineConfiguration.jadeInterPort;
@@ -25,17 +26,20 @@ import static runner.constants.EngineConstants.MTP_MULTI_MESSAGE;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.database.knowledge.timescale.TimescaleDatabase;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.InvalidScenarioException;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.exception.JadeControllerException;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.rulescontroller.RulesController;
+
+import com.database.knowledge.timescale.TimescaleDatabase;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.greencloud.factory.AgentControllerFactory;
 import com.greencloud.factory.AgentNodeFactoryImpl;
 import com.gui.controller.GuiController;
@@ -47,7 +51,6 @@ import jade.core.Runtime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-import org.greencloud.rulescontroller.RulesController;
 
 /**
  * Abstract class serving as common base to Single and Multi Scenario Services.
@@ -56,7 +59,6 @@ import org.greencloud.rulescontroller.RulesController;
  */
 public abstract class AbstractScenarioService {
 
-	protected static final XmlMapper xmlMapper = new XmlMapper();
 	protected static final ExecutorService executorService = Executors.newCachedThreadPool();
 	protected final GuiController guiController;
 	protected final TimescaleDatabase timescaleDatabase;
@@ -66,6 +68,7 @@ public abstract class AbstractScenarioService {
 
 	protected AgentControllerFactory factory;
 	protected ScenarioStructureArgs scenario;
+	protected Map<String, Map<String, Object>> systemKnowledge;
 	protected ScenarioWorkloadGenerationService workloadGenerator;
 
 	/**
@@ -95,10 +98,21 @@ public abstract class AbstractScenarioService {
 
 	protected ScenarioStructureArgs parseScenarioStructure(final File scenarioStructureFile) {
 		try {
-			return xmlMapper.readValue(scenarioStructureFile, ScenarioStructureArgs.class);
+			return getMapper().readValue(scenarioStructureFile, ScenarioStructureArgs.class);
 		} catch (IOException e) {
 			throw new InvalidScenarioException(
 					format("Failed to parse scenario structure file \"%s\"", scenarioStructureFile), e);
+		}
+	}
+
+	protected Map<String, Map<String, Object>> parseKnowledgeStructure(final File knowledgeFile) {
+		try {
+			final TypeReference<Map<String, Map<String, Object>>> typeRef = new TypeReference<>() {
+			};
+			return getMapper().readValue(knowledgeFile, typeRef);
+		} catch (IOException e) {
+			throw new InvalidScenarioException(
+					format("Failed to parse knowledge file \"%s\"", knowledgeFile), e);
 		}
 	}
 

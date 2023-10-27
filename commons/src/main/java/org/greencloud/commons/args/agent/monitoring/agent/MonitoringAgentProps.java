@@ -1,7 +1,7 @@
 package org.greencloud.commons.args.agent.monitoring.agent;
 
 import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 
 import lombok.Getter;
 import lombok.Setter;

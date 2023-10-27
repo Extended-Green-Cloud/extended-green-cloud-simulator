@@ -1,12 +1,19 @@
 package org.greencloud.commons.args.agent.server.factory;
 
+import static java.util.Objects.isNull;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
+
+import java.security.InvalidParameterException;
+import java.util.Map;
+
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.domain.resources.Resource;
+import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.domain.resources.HardwareResources;
 
 /**
  * Arguments used to build Server Agent
@@ -34,7 +41,7 @@ public interface ServerArgs extends AgentArgs {
 	/**
 	 * @return amount of hardware resources owned by server
 	 */
-	HardwareResources getResources();
+	Map<String, Resource> getResources();
 
 	/**
 	 * @return limit of jobs that can be processed at the same time
@@ -48,5 +55,30 @@ public interface ServerArgs extends AgentArgs {
 
 	@Nullable
 	String getContainerId();
+
+	@Value.Check
+	default void check() {
+		if (isNull(getOwnerCloudNetwork())) {
+			throw new InvalidParameterException("Owner CNA should be specified.");
+		}
+		if (isNull(getResources())) {
+			throw new InvalidParameterException("Hardware resources must be specified.");
+		}
+		if (isNull(getMaxPower()) && getMaxPower() >= 0) {
+			throw new InvalidParameterException("Maximum power consumption of the server cannot be smaller than 0.");
+		}
+		if (isNull(getIdlePower()) && getIdlePower() >= 0) {
+			throw new InvalidParameterException("Idle power consumption of the server cannot be smaller than 0.");
+		}
+		if (isNull(getPrice()) && getPrice() >= 0) {
+			throw new InvalidParameterException("Price per power unit cannot be smaller than 0.");
+		}
+		if (!getResources().containsKey(CPU)) {
+			throw new InvalidParameterException("Each server must have CPU value specified.");
+		}
+		if (isNull(getJobProcessingLimit()) && getJobProcessingLimit() > 0) {
+			throw new InvalidParameterException("Job processing limit must be greater than 0.");
+		}
+	}
 
 }

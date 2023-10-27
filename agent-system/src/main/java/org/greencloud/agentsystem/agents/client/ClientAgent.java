@@ -1,10 +1,10 @@
 package org.greencloud.agentsystem.agents.client;
 
+import static java.util.Collections.emptyList;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToInstantTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTimeMinusError;
 import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareDF;
-import static java.util.Collections.emptyList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -12,12 +12,11 @@ import java.util.List;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
 import org.greencloud.agentsystem.utils.AgentConnector;
-import org.slf4j.Logger;
-import org.slf4j.MDC;
-
-import org.greencloud.commons.exception.IncorrectTaskDateException;
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.exception.IncorrectTaskDateException;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.ParallelBehaviour;
@@ -28,6 +27,12 @@ import jade.core.behaviours.ParallelBehaviour;
 public class ClientAgent extends AbstractClientAgent {
 
 	private static final Logger logger = getLogger(ClientAgent.class);
+
+	private static void connectClient(AbstractAgent<?, ?> abstractAgent) {
+		AgentConnector.connectAgentObject(abstractAgent, 0, abstractAgent.getO2AObject());
+		AgentConnector.connectAgentObject(abstractAgent, 1, abstractAgent.getO2AObject());
+		AgentConnector.connectAgentObject(abstractAgent, 2, abstractAgent.getO2AObject());
+	}
 
 	@Override
 	public void validateAgentArguments() {
@@ -52,7 +57,7 @@ public class ClientAgent extends AbstractClientAgent {
 
 	@Override
 	public void initializeAgent(final Object[] arguments) {
-		if (arguments.length == 7) {
+		if (arguments.length == 8) {
 			try {
 				final Instant start = convertToInstantTime(arguments[2].toString());
 				final Instant end = convertToInstantTime(arguments[3].toString());
@@ -96,20 +101,12 @@ public class ClientAgent extends AbstractClientAgent {
 		logClientSetUp();
 	}
 
-
-	private static void connectClient(AbstractAgent<?,?> abstractAgent) {
-		AgentConnector.connectAgentObject(abstractAgent, 0, abstractAgent.getO2AObject());
-		AgentConnector.connectAgentObject(abstractAgent, 1, abstractAgent.getO2AObject());
-		AgentConnector.connectAgentObject(abstractAgent, 2, abstractAgent.getO2AObject());
-	}
-
 	private void logClientSetUp() {
 		MDC.put(MDC_JOB_ID, properties.getJob().getJobId());
-		logger.info("[{}] Job simulation time: from {} to {} (deadline: {}). Job type: {}. Required resources: {}",
+		logger.info("[{}] Job simulation time: from {} to {} (deadline: {}). Job type: {}",
 				getName(),
 				properties.getJobSimulatedStart(), properties.getJobSimulatedEnd(),
 				properties.getJobSimulatedDeadline(),
-				properties.getJobType(),
-				properties.getJob().getEstimatedResources());
+				properties.getJobType());
 	}
 }

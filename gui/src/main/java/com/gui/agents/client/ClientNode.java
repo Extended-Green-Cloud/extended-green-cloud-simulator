@@ -32,7 +32,7 @@ import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.enums.job.JobClientStatusEnum;
 
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.message.ImmutableSetClientJobDurationMapMessage;
 import com.gui.message.ImmutableSetClientJobStatusMessage;
 import com.gui.message.ImmutableSetClientJobTimeFrameMessage;

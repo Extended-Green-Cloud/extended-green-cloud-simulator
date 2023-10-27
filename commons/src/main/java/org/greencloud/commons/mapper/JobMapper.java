@@ -1,10 +1,22 @@
 package org.greencloud.commons.mapper;
 
 import static java.util.Objects.isNull;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.FROM_GI_TO_BYTE_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.FROM_MI_TO_BYTE_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.TO_GI_FROM_BYTE_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.TO_MI_FROM_BYTE_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.MEMORY;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
 
 import java.time.Instant;
 
 import org.apache.commons.math3.util.Pair;
+import org.greencloud.commons.args.job.ImmutableJobArgs;
+import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.args.job.SyntheticJobArgs;
+import org.greencloud.commons.args.job.SyntheticJobStepArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.EnergyJob;
 import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
@@ -17,6 +29,11 @@ import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.ImmutableJobPowerShortageTransfer;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.commons.domain.jobstep.ImmutableJobStep;
+import org.greencloud.commons.domain.jobstep.JobStep;
+import org.greencloud.commons.domain.resources.ImmutableResource;
+import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.utils.time.TimeConverter;
 
 import jade.core.AID;
@@ -55,7 +72,7 @@ public class JobMapper {
 				.jobInstanceId(job.getJobInstanceId())
 				.clientIdentifier(job.getClientIdentifier())
 				.clientAddress(job.getClientAddress())
-				.estimatedResources(job.getEstimatedResources())
+				.requiredResources(job.getRequiredResources())
 				.startTime(startTime)
 				.endTime(endTime)
 				.deadline(job.getDeadline())
@@ -74,7 +91,7 @@ public class JobMapper {
 				.clientAddress(job.getClientAddress())
 				.jobId(job.getJobId())
 				.jobInstanceId(job.getJobInstanceId())
-				.estimatedResources(job.getEstimatedResources())
+				.requiredResources(job.getRequiredResources())
 				.startTime(startTime)
 				.endTime(job.getEndTime())
 				.deadline(job.getDeadline())
@@ -91,7 +108,7 @@ public class JobMapper {
 		return ImmutableEnergyJob.builder()
 				.jobId(job.getJobId())
 				.jobInstanceId(job.getJobInstanceId())
-				.estimatedResources(job.getEstimatedResources())
+				.requiredResources(job.getRequiredResources())
 				.energy(energy)
 				.jobSteps(job.getJobSteps())
 				.startTime(job.getStartTime())
@@ -112,7 +129,7 @@ public class JobMapper {
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(startTime)
 						.endTime(clientJob.getEndTime())
 						.deadline(clientJob.getDeadline())
@@ -122,7 +139,7 @@ public class JobMapper {
 						.server(((ServerJob) job).getServer())
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(startTime)
 						.endTime(job.getEndTime())
 						.deadline(job.getDeadline())
@@ -142,7 +159,7 @@ public class JobMapper {
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(clientJob.getStartTime())
 						.endTime(endTime)
 						.deadline(clientJob.getDeadline())
@@ -152,7 +169,7 @@ public class JobMapper {
 						.server(((ServerJob) job).getServer())
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(job.getStartTime())
 						.endTime(endTime)
 						.deadline(job.getDeadline())
@@ -174,7 +191,7 @@ public class JobMapper {
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
 						.jobInstanceId(jobInstance.getJobInstanceId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(jobInstance.getStartTime())
 						.endTime(clientJob.getEndTime())
 						.deadline(clientJob.getDeadline())
@@ -185,7 +202,7 @@ public class JobMapper {
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
 						.jobInstanceId(jobInstance.getJobInstanceId())
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(jobInstance.getStartTime())
 						.endTime(job.getEndTime())
 						.deadline(job.getDeadline())
@@ -208,7 +225,7 @@ public class JobMapper {
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
 						.jobInstanceId(jobInstanceId)
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(clientJob.getStartTime())
 						.endTime(endTime)
 						.deadline(clientJob.getDeadline())
@@ -219,7 +236,7 @@ public class JobMapper {
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
 						.jobInstanceId(jobInstanceId)
-						.estimatedResources(job.getEstimatedResources())
+						.requiredResources(job.getRequiredResources())
 						.startTime(job.getStartTime())
 						.endTime(endTime)
 						.deadline(job.getDeadline())
@@ -236,7 +253,7 @@ public class JobMapper {
 				.server(serverJob.getServer())
 				.jobId(serverJob.getJobId())
 				.jobInstanceId(serverJob.getJobInstanceId())
-				.estimatedResources(serverJob.getEstimatedResources())
+				.requiredResources(serverJob.getRequiredResources())
 				.estimatedEnergy(serverJob.getEstimatedEnergy())
 				.startTime(TimeConverter.convertToRealTime(serverJob.getStartTime()))
 				.endTime(TimeConverter.convertToRealTime(serverJob.getEndTime()))
@@ -283,11 +300,89 @@ public class JobMapper {
 				.estimatedEnergy(energyJob.getEnergy())
 				.jobId(energyJob.getJobId())
 				.jobInstanceId(energyJob.getJobInstanceId())
-				.estimatedResources(energyJob.getEstimatedResources())
+				.requiredResources(energyJob.getRequiredResources())
 				.startTime(energyJob.getStartTime())
 				.endTime(energyJob.getEndTime())
 				.deadline(energyJob.getDeadline())
 				.jobSteps(energyJob.getJobSteps())
+				.build();
+	}
+
+	/**
+	 * @param syntheticJobArgs argo job parsed from synthetic workflows
+	 * @return job arguments
+	 */
+	public static JobArgs mapSyntheticArgoJobToJob(final SyntheticJobArgs syntheticJobArgs) {
+		final Double cpuInCores = (double) (syntheticJobArgs.getResources().get(CPU)) / syntheticJobArgs.getDuration();
+		final Double memoryInMi =
+				(double) (syntheticJobArgs.getResources().get(MEMORY) * 100) / syntheticJobArgs.getDuration();
+		final Double storageInGi = (double) syntheticJobArgs.getResources().get(STORAGE);
+
+		final Resource cpuResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(cpuInCores)
+						.unit("cores")
+						.build())
+				.build();
+		final Resource memoryResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(memoryInMi)
+						.unit("Mi")
+						.toCommonUnitConverter(FROM_MI_TO_BYTE_CONVERTER)
+						.fromCommonUnitConverter(TO_MI_FROM_BYTE_CONVERTER)
+						.build())
+				.build();
+		final Resource storageResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(storageInGi)
+						.unit("Gi")
+						.toCommonUnitConverter(FROM_GI_TO_BYTE_CONVERTER)
+						.fromCommonUnitConverter(TO_GI_FROM_BYTE_CONVERTER)
+						.build())
+				.build();
+
+		return ImmutableJobArgs.builder()
+				.duration(syntheticJobArgs.getDuration())
+				.deadline(syntheticJobArgs.getDeadline())
+				.processType(syntheticJobArgs.processType())
+				.putResources(CPU, cpuResource)
+				.putResources(MEMORY, memoryResource)
+				.putResources(STORAGE, storageResource)
+				.jobSteps(syntheticJobArgs.getJobSteps().stream()
+						.map(JobMapper::mapSyntheticArgoJobStepToJobStep).toList())
+				.build();
+	}
+
+	/**
+	 * @param syntheticJobStepArgs argo job step parsed from synthetic workflows
+	 * @return job arguments
+	 */
+	public static JobStep mapSyntheticArgoJobStepToJobStep(final SyntheticJobStepArgs syntheticJobStepArgs) {
+		final Double cpuInCores = syntheticJobStepArgs.getDuration() == 0 ? 0 :
+				(double) (syntheticJobStepArgs.getResources().get(CPU)) / syntheticJobStepArgs.getDuration();
+		final Double memoryInMi = syntheticJobStepArgs.getDuration() == 0 ? 0 :
+				(double) (syntheticJobStepArgs.getResources().get(MEMORY) * 100) / syntheticJobStepArgs.getDuration();
+
+		final Resource cpuResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(cpuInCores)
+						.unit("cores")
+						.build())
+				.build();
+		final Resource memoryResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(memoryInMi)
+						.unit("Mi")
+						.toCommonUnitConverter(FROM_MI_TO_BYTE_CONVERTER)
+						.fromCommonUnitConverter(TO_MI_FROM_BYTE_CONVERTER)
+						.build())
+				.build();
+
+		return ImmutableJobStep.builder()
+				.name(syntheticJobStepArgs.getName())
+				.putRequiredResources(CPU, cpuResource)
+				.putRequiredResources(MEMORY, memoryResource)
+				.duration(syntheticJobStepArgs.getDuration())
 				.build();
 	}
 }

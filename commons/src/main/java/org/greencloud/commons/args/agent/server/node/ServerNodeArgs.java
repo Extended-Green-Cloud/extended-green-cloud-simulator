@@ -1,7 +1,9 @@
 package org.greencloud.commons.args.agent.server.node;
 
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -37,19 +39,14 @@ public interface ServerNodeArgs extends AgentArgs {
 	Long getIdlePower();
 
 	/**
-	 * @return number of CPU cores of given server
+	 * @return resources of given server
 	 */
-	Long getCpu();
+	Map<String, Resource> getResources();
 
 	/**
-	 * @return memory of given server
+	 * @return resources when they are all fully occupied
 	 */
-	Long getMemory();
-
-	/**
-	 * @return storage of given server
-	 */
-	Long getStorage();
+	Map<String, Resource> getEmptyResources();
 
 	/**
 	 * @return price per power unit of given server

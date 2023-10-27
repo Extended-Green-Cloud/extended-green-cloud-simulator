@@ -1,10 +1,12 @@
 package com.gui.message;
 
+import java.util.Map;
+
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.resources.HardwareResources;
 import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableUpdateResourcesMessage.class)
@@ -12,7 +14,7 @@ import com.gui.message.domain.Message;
 @Value.Immutable
 public interface UpdateResourcesMessage extends Message {
 
-	HardwareResources getResources();
+	Map<String, Resource> getResources();
 
 	Double getPowerConsumption();
 

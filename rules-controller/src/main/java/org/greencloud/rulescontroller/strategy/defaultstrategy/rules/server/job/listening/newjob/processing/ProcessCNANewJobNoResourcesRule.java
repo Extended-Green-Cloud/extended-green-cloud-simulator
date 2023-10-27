@@ -6,17 +6,20 @@ import static org.greencloud.commons.constants.FactTypeConstants.RESOURCES;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLE_NO_RESOURCES_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Map;
+
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
@@ -39,8 +42,8 @@ public class ProcessCNANewJobNoResourcesRule extends AgentBasicRule<ServerAgentP
 	@Override
 	public boolean evaluateRule(final StrategyFacts facts) {
 		final ClientJob job = facts.get(JOB);
-		final HardwareResources resources = facts.get(RESOURCES);
-		return !resources.areSufficient(job.getEstimatedResources())
+		final Map<String, Resource> resources = facts.get(RESOURCES);
+		return !areSufficient(resources, job.getRequiredResources())
 				|| !agentProps.canTakeIntoProcessing()
 				|| agentProps.getOwnedGreenSources().isEmpty()
 				|| agentProps.isHasError();

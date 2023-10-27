@@ -1,13 +1,15 @@
 package org.greencloud.commons.args.agent.client.node;
 
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.domain.jobstep.JobStep;
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.job.JobStepArgs;
 
 /**
  * Arguments used to construct GUI node of Client Agent
@@ -28,19 +30,9 @@ public interface ClientNodeArgs extends AgentArgs {
 	String getProcessorName();
 
 	/**
-	 * @return estimated CPU for the job execution
+	 * @return estimated resources for the job execution
 	 */
-	Long getCpu();
-
-	/**
-	 * @return estimated memory for the job execution
-	 */
-	Long getMemory();
-
-	/**
-	 * @return estimated storage for the job execution
-	 */
-	Long getStorage();
+	Map<String, Resource> getResources();
 
 	/**
 	 * @return estimated job start date
@@ -65,6 +57,6 @@ public interface ClientNodeArgs extends AgentArgs {
 	/**
 	 * @return list of job steps
 	 */
-	List<JobStepArgs> getSteps();
+	List<JobStep> getSteps();
 
 }

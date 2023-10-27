@@ -7,7 +7,7 @@ import java.io.Serializable;
 import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
 import org.greencloud.commons.args.agent.monitoring.node.MonitoringNodeArgs;
 
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 
 /**
  * Agent node class representing the monitoring agent

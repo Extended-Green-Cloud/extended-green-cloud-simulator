@@ -8,6 +8,7 @@ import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.and;
 import static jade.lang.acl.MessageTemplate.or;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.REGISTER_SERVER_RESOURCES_PROTOCOL;
 
 import jade.lang.acl.MessageTemplate;
 
@@ -48,6 +49,10 @@ public class MessageTemplatesConstants {
 			or(MatchProtocol(MessageProtocolConstants.DISABLE_SERVER_PROTOCOL), MatchProtocol(
 					MessageProtocolConstants.ENABLE_SERVER_PROTOCOL))
 	);
+	public static final MessageTemplate LISTEN_FOR_SERVER_RESOURCE_INFORMATION_TEMPLATE = and(
+			MatchPerformative(INFORM),
+			MatchProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
+	);
 	public static final MessageTemplate LISTEN_FOR_SERVER_JOB_STATUS_UPDATE_TEMPLATE = or(
 			and(MatchPerformative(INFORM), MatchProtocol(MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL)),
 			and(MatchPerformative(FAILURE), MatchProtocol(MessageProtocolConstants.FAILED_JOB_PROTOCOL)));
@@ -68,6 +73,8 @@ public class MessageTemplatesConstants {
 	 */
 	public static final MessageTemplate LISTEN_FOR_CNA_NEW_JOB_TEMPLATE = and(
 			MatchPerformative(CFP), MatchProtocol(MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL));
+	public static final MessageTemplate LISTEN_FOR_CNA_RESOURCE_REQUEST_TEMPLATE = and(
+			MatchPerformative(REQUEST), MatchProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL));
 	public static final MessageTemplate LISTEN_FOR_GREEN_SOURCE_UPDATE_TEMPLATE = and(MatchPerformative(REQUEST),
 			or(or(MatchProtocol(MessageProtocolConstants.DEACTIVATE_GREEN_SOURCE_PROTOCOL), MatchProtocol(
 							MessageProtocolConstants.DISCONNECT_GREEN_SOURCE_PROTOCOL)),

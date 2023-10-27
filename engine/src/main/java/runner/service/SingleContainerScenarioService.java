@@ -1,8 +1,10 @@
 package runner.service;
 
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
+import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
+import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
 import static runner.utils.FileReader.readFile;
 
@@ -32,14 +34,18 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 	public SingleContainerScenarioService()
 			throws StaleProxyException, ExecutionException, InterruptedException {
 		super();
+		final File scenarioStructureFile = readFile(scenarioFilePath);
+		final File initialKnowledgeFile = readFile(knowledgeFilePath);
+		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
+		scenario = parseScenarioStructure(scenarioStructureFile);
+
 		this.factory = new AgentControllerFactoryImpl(mainContainer, timescaleDatabase, guiController, mainDFAddress,
-				mainHostPlatformId);
+				mainHostPlatformId, systemKnowledge);
 	}
 
 	@Override
 	public void run() {
-		final File scenarioStructureFile = readFile(scenarioFilePath);
-		scenario = parseScenarioStructure(scenarioStructureFile);
+		startRulesControllerRest();
 		if (Objects.nonNull(scenario.getAgentsArgs())) {
 			AGENTS_TO_RUN.add(prepareManagingController(scenario.getManagingAgentArgs()));
 			createAgents(List.of(scenario.getSchedulerAgentArgs()), scenario);

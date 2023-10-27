@@ -13,7 +13,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.constants.LoggingConstants;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;

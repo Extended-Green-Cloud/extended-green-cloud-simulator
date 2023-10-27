@@ -11,7 +11,6 @@ import static org.greencloud.commons.enums.rules.RuleStepType.SINGLE_MESSAGE_REA
 import static org.greencloud.commons.enums.rules.RuleStepType.SINGLE_MESSAGE_READER_HANDLE_MESSAGE_STEP;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -45,7 +44,7 @@ public class ListenForSingleMessage extends MsgReceiver {
 	 * @param controller rules controller
 	 * @return ListenForSingleMessage
 	 */
-	public static ListenForSingleMessage create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static ListenForSingleMessage create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

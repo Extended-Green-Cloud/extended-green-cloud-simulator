@@ -10,7 +10,6 @@ import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_HANDLE_AC
 import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_HANDLE_REJECT_STEP;
 
 import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -42,7 +41,7 @@ public class InitiateProposal extends ProposeInitiator {
 	 * @param controller rules controller
 	 * @return InitiateProposal
 	 */
-	public static InitiateProposal create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static InitiateProposal create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

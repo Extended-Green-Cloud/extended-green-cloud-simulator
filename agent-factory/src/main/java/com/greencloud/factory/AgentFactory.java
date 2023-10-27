@@ -1,14 +1,16 @@
 package com.greencloud.factory;
 
+import java.util.Map;
+
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
-import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.event.NewClientEventArgs;
 import org.greencloud.commons.args.job.JobArgs;
-import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 
 /**
  * Interface with a set methods that create extra agents with specified parameters
@@ -36,10 +38,10 @@ public interface AgentFactory {
 	 * @return newly created server agent args
 	 */
 	ServerArgs createServerAgent(String ownerCNA,
-			HardwareResources resources,
+			Map<String, Resource> resources,
 			Integer maxPower,
 			Integer idlePower,
-			Integer price,
+			Double price,
 			Integer jobProcessingLimit);
 
 	/**

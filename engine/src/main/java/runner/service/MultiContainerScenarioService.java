@@ -3,12 +3,14 @@ package runner.service;
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.locationId;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHost;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.EngineConfiguration.newPlatform;
+import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.utils.FileReader.readFile;
@@ -50,8 +52,13 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 			throws StaleProxyException, ExecutionException, InterruptedException {
 		super();
 		final ContainerController container = mainHost ? mainContainer : agentContainer;
+		final File scenarioFile = readFile(scenarioFilePath);
+		final File initialKnowledgeFile = readFile(knowledgeFilePath);
+		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
+		scenario = parseScenarioStructure(scenarioFile);
+
 		this.factory = new AgentControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
-				mainHostPlatformId);
+				mainHostPlatformId, systemKnowledge);
 	}
 
 	/**
@@ -61,8 +68,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	 */
 	@Override
 	public void run() {
-		final File scenarioFile = readFile(scenarioFilePath);
-		scenario = parseScenarioStructure(scenarioFile);
+		startRulesControllerRest();
 		updateSystemStartTime();
 
 		if (mainHost) {

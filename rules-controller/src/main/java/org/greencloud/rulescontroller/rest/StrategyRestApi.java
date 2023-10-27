@@ -28,6 +28,7 @@ public class StrategyRestApi {
 		SpringApplicationBuilder builder = new SpringApplicationBuilder(StrategyRestApi.class);
 		builder.headless(false);
 		builder.run();
+
 		availableStrategies = new HashMap<>();
 		availableStrategies.put(DEFAULT_CLOUD_STRATEGY.name(), new DefaultCloudStrategy());
 	}
@@ -39,6 +40,7 @@ public class StrategyRestApi {
 		SpringApplicationBuilder builder = new SpringApplicationBuilder(StrategyRestApi.class);
 		builder.headless(false);
 		builder.run();
+
 		availableStrategies = new HashMap<>();
 		availableStrategies.put(DEFAULT_STRATEGY.name(), strategy);
 	}

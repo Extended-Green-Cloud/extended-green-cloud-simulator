@@ -1,5 +1,6 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.initial;
 
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_AFFECTED_JOBS_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.GREEN_SOURCE_STATUS_CHANGE_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_MANUAL_FINISH_RULE;
@@ -15,14 +16,14 @@ import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS
 
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateSubscription;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
 import org.greencloud.rulescontroller.behaviour.schedule.SchedulePeriodically;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 
 import jade.core.behaviours.Behaviour;
@@ -38,6 +39,10 @@ public class StartInitialServerBehaviours extends AgentBehaviourRule<ServerAgent
 	 */
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
+		final StrategyFacts facts = new StrategyFacts(controller.getLatestStrategy().get());
+		facts.put(RULE_TYPE, "INITIALIZE_SERVER_RESOURCE_KNOWLEDGE");
+		controller.fire(facts);
+
 		return Set.of(
 				InitiateSubscription.create(agent, new StrategyFacts(controller.getLatestStrategy().get()),
 						SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE, controller),
@@ -45,6 +50,7 @@ public class StartInitialServerBehaviours extends AgentBehaviourRule<ServerAgent
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_CHECK_RULE, controller),
+				ListenForMessages.create(agent, "CNA_RESOURCE_REQUEST_RULE", controller, true),
 				ListenForMessages.create(agent, JOB_MANUAL_FINISH_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_POWER_SHORTAGE_FINISH_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller),

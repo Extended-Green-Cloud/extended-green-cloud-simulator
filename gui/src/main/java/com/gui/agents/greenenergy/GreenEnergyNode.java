@@ -18,7 +18,7 @@ import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonit
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
 
-import com.gui.agents.EGCSNetworkNode;
+import com.gui.agents.egcs.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableSetNumericValueMessage;
 import com.gui.message.ImmutableUpdateServerConnectionMessage;

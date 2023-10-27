@@ -27,7 +27,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		if (args.length >= 10) {
+		if (args.length >= 11) {
 			final AID monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			final AID ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 
@@ -45,7 +45,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
 				// Additional argument indicates if the GreenSourceAgent is going to be moved to another container
 				// In such case, its service should be registered after moving
-				if (args.length != 10 || !parseBoolean(args[8].toString())) {
+				if (args.length != 11 || !parseBoolean(args[8].toString())) {
 					register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerServer.getName());
 				}
 

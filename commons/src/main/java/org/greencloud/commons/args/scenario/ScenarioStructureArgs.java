@@ -9,33 +9,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.jetbrains.annotations.Nullable;
-
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Arguments of the structure of Cloud Network in given scenario
  */
 public class ScenarioStructureArgs implements Serializable {
 
-	@JacksonXmlElementWrapper(localName = "managingAgent")
 	private ManagingAgentArgs managingAgentArgs;
-	@JacksonXmlElementWrapper(localName = "schedulerAgent")
 	private SchedulerArgs schedulerAgentArgs;
-	@JacksonXmlElementWrapper(localName = "cloudNetworkAgentsArgs")
 	private List<CloudNetworkArgs> cloudNetworkAgentsArgs;
-	@JacksonXmlElementWrapper(localName = "serverAgentsArgs")
 	private List<ServerArgs> serverAgentsArgs;
-	@JacksonXmlElementWrapper(localName = "monitoringAgentsArgs")
 	private List<MonitoringArgs> monitoringAgentsArgs;
-	@JacksonXmlElementWrapper(localName = "greenEnergyAgentsArgs")
 	private List<GreenEnergyArgs> greenEnergyAgentsArgs;
 
 	public ScenarioStructureArgs() {

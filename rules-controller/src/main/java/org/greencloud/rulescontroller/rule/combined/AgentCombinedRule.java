@@ -12,7 +12,6 @@ import java.util.function.Predicate;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.mvel.MVELRuleMapper;
@@ -123,7 +122,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	 *
 	 * @return nested rules
 	 */
-	public List<RuleType> getNestedRules() {
+	public List<String> getNestedRules() {
 		return rulesToCombine.stream().map(AgentRule::getSubRuleType).toList();
 	}
 
@@ -195,12 +194,12 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public RuleType getRuleType() {
+		public String getRuleType() {
 			return AgentCombinedRule.this.ruleType;
 		}
 
 		@Override
-		public RuleType getSubRuleType() {
+		public String getSubRuleType() {
 			return AgentCombinedRule.this.subRuleType;
 		}
 
@@ -253,12 +252,12 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public RuleType getRuleType() {
+		public String getRuleType() {
 			return AgentCombinedRule.this.ruleType;
 		}
 
 		@Override
-		public RuleType getSubRuleType() {
+		public String getSubRuleType() {
 			return AgentCombinedRule.this.subRuleType;
 		}
 

@@ -52,7 +52,7 @@ public class InitiateSubscription extends SubscriptionInitiator {
 	 * @param controller rules controller
 	 * @return InitiateSubscription
 	 */
-	public static InitiateSubscription create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
+	public static InitiateSubscription create(final Agent agent, final StrategyFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);

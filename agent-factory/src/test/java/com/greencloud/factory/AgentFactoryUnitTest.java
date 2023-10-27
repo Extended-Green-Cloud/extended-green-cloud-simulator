@@ -99,7 +99,7 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreatingServerCustomValues() {
-		ServerArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10, null);
+		ServerArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10D, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(150);

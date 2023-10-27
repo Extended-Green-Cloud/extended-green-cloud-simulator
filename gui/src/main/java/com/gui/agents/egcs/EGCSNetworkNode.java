@@ -1,4 +1,4 @@
-package com.gui.agents;
+package com.gui.agents.egcs;
 
 import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 

@@ -4,6 +4,9 @@ import static java.util.Objects.nonNull;
 import static org.greencloud.commons.args.agent.AgentType.BASIC;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 
 import lombok.Getter;
@@ -21,6 +24,7 @@ public class AgentProps {
 	protected String agentName;
 	protected AgentNodeProps<AgentProps> agentNode;
 	protected String agentType;
+	protected Map<String, Map<String, Object>> systemKnowledge;
 
 	/**
 	 * Default constructor that sets the type of the agent
@@ -30,6 +34,7 @@ public class AgentProps {
 	public AgentProps(final String agentName) {
 		this.agentType = BASIC.name();
 		this.agentName = agentName;
+		this.systemKnowledge = new HashMap<>();
 	}
 
 	/**
@@ -40,6 +45,7 @@ public class AgentProps {
 	public AgentProps(final AgentType agentType, final String agentName) {
 		this.agentType = agentType.name();
 		this.agentName = agentName;
+		this.systemKnowledge = new HashMap<>();
 	}
 
 	/**
@@ -50,6 +56,7 @@ public class AgentProps {
 	public AgentProps(final String agentType, final String agentName) {
 		this.agentType = agentType;
 		this.agentName = agentName;
+		this.systemKnowledge = new HashMap<>();
 	}
 
 	/**
@@ -68,5 +75,10 @@ public class AgentProps {
 		if (nonNull(agentNode)) {
 			agentNode.saveMonitoringData(this);
 		}
+	}
+
+	public void setSystemKnowledge(
+			final Map<String, Map<String, Object>> systemKnowledge) {
+		this.systemKnowledge = new HashMap<>(systemKnowledge);
 	}
 }

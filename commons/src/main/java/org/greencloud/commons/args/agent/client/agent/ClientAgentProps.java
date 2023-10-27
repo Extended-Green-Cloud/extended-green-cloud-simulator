@@ -8,17 +8,12 @@ import static org.greencloud.commons.args.agent.AgentType.CLIENT;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
-import org.greencloud.commons.domain.jobstep.ImmutableJobStep;
-import org.greencloud.commons.domain.jobstep.JobStep;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
 import org.greencloud.commons.domain.timer.Timer;
 import org.greencloud.commons.enums.job.JobClientStatusEnum;
 import org.greencloud.commons.utils.time.TimeConverter;
@@ -84,8 +79,8 @@ public class ClientAgentProps extends EGCSAgentProps {
 				.startTime(simulatedJobStart)
 				.endTime(simulatedJobEnd)
 				.deadline(simulatedJobDeadline)
-				.estimatedResources(parseHardwareResources(jobArgs))
-				.jobSteps(parseJobSteps(jobArgs))
+				.requiredResources(jobArgs.getResources())
+				.jobSteps(jobArgs.getJobSteps())
 				.build();
 
 		this.jobType = jobArgs.processType();
@@ -98,26 +93,6 @@ public class ClientAgentProps extends EGCSAgentProps {
 	private static Instant parseJobTimeFrame(final Instant jobRealTime, final Instant currentTime) {
 		final long timeDifference = TimeConverter.convertToSimulationTime(SECONDS.between(currentTime, jobRealTime));
 		return currentTime.plus(timeDifference, MILLIS);
-	}
-
-	private static List<JobStep> parseJobSteps(final JobArgs jobArgs) {
-		return jobArgs.getJobSteps().stream()
-				.map(step -> ImmutableJobStep.builder()
-						.cpu(step.getCpu())
-						.memory(step.getMemory())
-						.duration(step.getDuration())
-						.name(step.getName())
-						.build())
-				.map(JobStep.class::cast)
-				.toList();
-	}
-
-	private static HardwareResources parseHardwareResources(final JobArgs jobArgs) {
-		return ImmutableHardwareResources.builder()
-				.cpu((double) jobArgs.getCpu() / jobArgs.getDuration())
-				.memory((double) (jobArgs.getMemory() * 100) / (1000 * jobArgs.getDuration()))
-				.storage((double) jobArgs.getStorage())
-				.build();
 	}
 
 	/**

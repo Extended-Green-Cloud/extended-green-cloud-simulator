@@ -2,7 +2,7 @@ package com.greencloud.factory;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 
 /**
  * Factory used to create agent nodes

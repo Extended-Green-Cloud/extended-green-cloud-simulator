@@ -7,13 +7,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.immutables.value.Value.Immutable;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
-import org.greencloud.commons.args.job.JobArgs;
 
 /**
  * Arguments used to build Client Agent

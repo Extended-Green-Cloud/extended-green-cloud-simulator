@@ -7,19 +7,19 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDL
 import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType.EXECUTE_FIRST;
 
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoGreenSourcesRule;
-import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoResourcesRule;
-import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobSuccessfullyRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoGreenSourcesRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoResourcesRule;
+import org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.listening.newjob.processing.ProcessCNANewJobSuccessfullyRule;
 
 import com.gui.agents.server.ServerNode;
 
@@ -51,7 +51,7 @@ public class ProcessCNANewJobCombinedRule extends AgentCombinedRule<ServerAgentP
 	@Override
 	public void executeRule(final StrategyFacts facts) {
 		final ClientJob job = facts.get(MESSAGE_CONTENT);
-		final HardwareResources resources = agentProps.getAvailableResources(job, null, null);
+		final Map<String, Resource> resources = agentProps.getAvailableResources(job, null, null);
 
 		facts.put(JOB, job);
 		facts.put(RESOURCES, resources);

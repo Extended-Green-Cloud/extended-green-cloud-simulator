@@ -1,15 +1,22 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.transfer;
 
+import static jade.lang.acl.ACLMessage.INFORM;
+import static jade.lang.acl.ACLMessage.REFUSE;
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_BACK_UP;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD_SOURCE;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
-import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_CNA_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
+import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
@@ -21,15 +28,17 @@ import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFac
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
-import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
-import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.ACLMessage.REFUSE;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Map;
+
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.enums.job.JobExecutionStateEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -38,12 +47,6 @@ import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.enums.job.JobExecutionStateEnum;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 
 import jade.core.AID;
@@ -157,8 +160,8 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 
 	private void updateServerStateUponJobOnHold(final ClientJob job, final JobInstanceIdentifier jobToTransfer, final
 	Facts facts) {
-		final HardwareResources availableResources = agentProps.getAvailableResources(job, jobToTransfer, null);
-		final boolean hasResources = availableResources.areSufficient(job.getEstimatedResources());
+		final Map<String, Resource> availableResources = agentProps.getAvailableResources(job, jobToTransfer, null);
+		final boolean hasResources = areSufficient(availableResources, job.getRequiredResources());
 		final boolean hasStarted = isJobStarted(job, agentProps.getServerJobs());
 
 		final JobExecutionStateEnum state = hasResources ? EXECUTING_ON_BACK_UP : EXECUTING_ON_HOLD_SOURCE;
@@ -174,7 +177,8 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 		agentProps.getServerJobs().replace(job, state.getStatus(hasStarted));
 
 		if (hasStarted) {
-			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), conversationId, agentProps,
+			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), conversationId,
+					agentProps,
 					facts.get(STRATEGY_IDX)));
 		}
 		agentProps.updateGUI();

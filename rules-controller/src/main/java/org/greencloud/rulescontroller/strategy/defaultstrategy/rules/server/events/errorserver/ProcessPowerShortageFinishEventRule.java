@@ -1,22 +1,29 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.events.errorserver;
 
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
+import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
-import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
-import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
-import static java.lang.String.valueOf;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -25,11 +32,6 @@ import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 import com.gui.event.PowerShortageEvent;
 
@@ -78,11 +80,11 @@ public class ProcessPowerShortageFinishEventRule extends AgentBasicRule<ServerAg
 
 	private void handlePowerShortageFinish(final ClientJob job, final Facts facts) {
 		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(job);
-		final HardwareResources availableResources = agentProps.getAvailableResources(job, jobInstance, null);
+		final Map<String, Resource> availableResources = agentProps.getAvailableResources(job, jobInstance, null);
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_STRATEGY_ID, valueOf((int) facts.get(STRATEGY_IDX)));
-		if (!availableResources.areSufficient(job.getEstimatedResources())) {
+		if (!areSufficient(availableResources, job.getRequiredResources())) {
 			logger.info("There are not enough resources to continue the job processing! Leaving job {} on hold",
 					job.getJobId());
 		} else {

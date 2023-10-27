@@ -10,6 +10,7 @@ import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPro
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_FINISH_LOG;
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_PROCESS_LOG;
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_START_LOG;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
@@ -17,25 +18,28 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.resources.ImmutableHardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
@@ -65,7 +69,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	protected AID ownerCloudNetworkAgent;
 
 	@Accessors(fluent = true)
-	protected HardwareResources resources;
+	protected Map<String, Resource> resources;
 	protected Integer maxPowerConsumption;
 	protected Integer idlePowerConsumption;
 	protected double pricePerHour;
@@ -89,12 +93,13 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @param pricePerHour           price of job execution calculated for an hour
 	 * @param jobProcessingLimit     limit of job requests that a server can process in at once
 	 */
-	public ServerAgentProps(final String agentName, final AID ownerCloudNetworkAgent, final HardwareResources resources,
+	public ServerAgentProps(final String agentName, final AID ownerCloudNetworkAgent,
+			final Map<String, Resource> resources,
 			final Integer maxPowerConsumption, final Integer idlePowerConsumption, final double pricePerHour,
 			final int jobProcessingLimit) {
 		this(agentName);
 		this.ownerCloudNetworkAgent = ownerCloudNetworkAgent;
-		this.resources = resources;
+		this.resources = new HashMap<>(resources);
 		this.maxPowerConsumption = maxPowerConsumption;
 		this.idlePowerConsumption = idlePowerConsumption;
 		this.pricePerHour = pricePerHour;
@@ -153,9 +158,9 @@ public class ServerAgentProps extends EGCSAgentProps {
 		final double cpuInUse = serverJobs.entrySet().stream()
 				.filter(job -> (nonNull(statusSet) && statusSet.contains(job.getValue()))
 						|| (isNull(statusSet) && job.getValue().equals(IN_PROGRESS)))
-				.mapToDouble(job -> job.getKey().getEstimatedResources().getCpu())
+				.mapToDouble(job -> job.getKey().getRequiredResources().get(CPU).getAmount())
 				.sum();
-		return cpuInUse / resources.getCpu();
+		return cpuInUse / resources.get(CPU).getAmountInCommonUnit();
 	}
 
 	/**
@@ -185,7 +190,9 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @return energy required to process the job
 	 */
 	public double estimateEnergyForJob(final ClientJob job) {
-		final double cpuUsage = job.getEstimatedResources().getCpu() / resources.getCpu();
+		final double cpuUsage =
+				job.getRequiredResources().get(CPU).getAmountInCommonUnit() / resources.get(CPU)
+						.getAmountInCommonUnit();
 		final double powerConsumption = computePowerConsumption(cpuUsage);
 
 		return powerConsumption * TimeConverter.convertToHourDuration(job.getStartTime(), job.getEndTime());
@@ -199,9 +206,10 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @return estimated maximal power consumption
 	 */
 	public synchronized double getPowerConsumption(final Instant startDate, final Instant endDate) {
-		final HardwareResources resourceUtilization = getAvailableResources(startDate, endDate, null, null);
-		final double cpuInUse = resources.getCpu() - resourceUtilization.getCpu();
-		final double cpuUtilization = cpuInUse / resources.getCpu();
+		final Map<String, Resource> resourceUtilization = getAvailableResources(startDate, endDate, null, null);
+		final double cpuInUse =
+				resources.get(CPU).getAmountInCommonUnit() - resourceUtilization.get(CPU).getAmountInCommonUnit();
+		final double cpuUtilization = cpuInUse / resources.get(CPU).getAmountInCommonUnit();
 
 		return computePowerConsumption(cpuUtilization);
 	}
@@ -215,7 +223,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @param statusSet    (optional) set of statuses of jobs that are taken into account while calculating in use resources
 	 * @return available resources
 	 */
-	public synchronized HardwareResources getAvailableResources(final Instant startDate, final Instant endDate,
+	public synchronized Map<String, Resource> getAvailableResources(final Instant startDate, final Instant endDate,
 			final JobInstanceIdentifier jobToExclude, final Set<JobExecutionStatusEnum> statusSet) {
 		final Set<JobExecutionStatusEnum> statuses = isNull(statusSet) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusSet;
 		final Set<ClientJob> jobs = serverJobs.keySet().stream()
@@ -223,8 +231,9 @@ public class ServerAgentProps extends EGCSAgentProps {
 				.filter(job -> statuses.contains(serverJobs.get(job)))
 				.collect(toSet());
 
-		final HardwareResources maxResources = getMaximumUsedResourcesDuringTimeStamp(jobs, startDate, endDate);
-		return resources.computeResourceDifference(maxResources);
+		final Map<String, Resource> maxResources =
+				getMaximumUsedResourcesDuringTimeStamp(jobs, resources, startDate, endDate);
+		return computeResourceDifference(resources, maxResources);
 	}
 
 	/**
@@ -235,7 +244,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @param statusSet    (optional) set of statuses of jobs that are taken into account while calculating in use resources
 	 * @return available resources
 	 */
-	public synchronized HardwareResources getAvailableResources(final ClientJob job,
+	public synchronized Map<String, Resource> getAvailableResources(final ClientJob job,
 			final JobInstanceIdentifier jobToExclude,
 			final Set<JobExecutionStatusEnum> statusSet) {
 		return getAvailableResources(job.getStartTime(), job.getEndTime(), jobToExclude, statusSet);
@@ -258,19 +267,20 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 *
 	 * @return resources utilization
 	 */
-	public synchronized HardwareResources getInUseResources() {
+	public synchronized Map<String, Resource> getInUseResources() {
 		final List<ClientJob> activeJobs = serverJobs.entrySet().stream()
 				.filter(job -> List.of(IN_PROGRESS_BACKUP_ENERGY, IN_PROGRESS).contains(job.getValue()))
 				.map(Map.Entry::getKey)
 				.map(ClientJob.class::cast)
 				.toList();
-		final double inUseCpu = activeJobs.stream().mapToDouble(job -> job.getEstimatedResources().getCpu()).sum();
-		final double inUseMemory = activeJobs.stream().mapToDouble(job -> job.getEstimatedResources().getMemory())
-				.sum();
-		final double inUseStorage = activeJobs.stream().mapToDouble(job -> job.getEstimatedResources().getStorage())
-				.sum();
-
-		return ImmutableHardwareResources.builder().cpu(inUseCpu).memory(inUseMemory).storage(inUseStorage).build();
+		final AtomicReference<String> key = new AtomicReference<>();
+		return activeJobs.stream().map(PowerJob::getRequiredResources)
+				.flatMap(resourceMap -> resourceMap.entrySet().stream())
+				.filter(resourceEntry -> resources.containsKey(resourceEntry.getKey()))
+				.collect(toMap(entry -> {
+					key.set(entry.getKey());
+					return entry.getKey();
+				}, Map.Entry::getValue, (job1, job2) -> resources.get(key.get()).addResource(job1, job2)));
 	}
 
 	/**

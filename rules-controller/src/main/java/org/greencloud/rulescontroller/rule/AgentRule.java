@@ -1,18 +1,15 @@
 package org.greencloud.rulescontroller.rule;
 
-import static org.greencloud.commons.enums.rules.RuleType.BASIC_RULE;
 import static java.util.Collections.singletonList;
+import static org.greencloud.commons.enums.rules.RuleType.BASIC_RULE;
 
 import java.util.List;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.jeasy.rules.api.Rule;
-
-import org.greencloud.commons.enums.rules.RuleType;
-import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 
 /**
  * Interface representing common agent rule (is implemented by all types of agent rules
@@ -21,12 +18,15 @@ public interface AgentRule extends Rule {
 
 	String RULE_NAME = "basic agent rule";
 	String RULE_DESCRIPTION = "default rule definition";
-	RuleType TYPE = BASIC_RULE;
+	String TYPE = BASIC_RULE;
 
 	String getAgentType();
+
 	AgentRuleType getAgentRuleType();
-	RuleType getRuleType();
-	RuleType getSubRuleType();
+
+	String getRuleType();
+
+	String getSubRuleType();
 
 	RuleStepType getStepType();
 
@@ -70,6 +70,7 @@ public interface AgentRule extends Rule {
 
 	/**
 	 * Method connects agent rule with controller
+	 *
 	 * @param rulesController rules controller connected to the agent
 	 */
 	default void connectToController(final RulesController<?, ?> rulesController) {

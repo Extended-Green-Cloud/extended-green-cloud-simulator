@@ -1,9 +1,8 @@
 package org.greencloud.rulescontroller.strategy.defaultstrategy.rules.server.job.proposing;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
-import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER;
+import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.INPUT_DATA;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
@@ -12,32 +11,36 @@ import static org.greencloud.commons.constants.FactTypeConstants.ORIGINAL_MESSAG
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
+import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER;
 import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_PRICE_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.INSUFFICIENT_RESOURCES_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.factory.OfferMessageFactory.prepareServerJobOffer;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareAcceptJobOfferReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Map;
+
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.agent.GreenSourceData;
+import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.JobWithProtocol;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentProposalRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.agent.GreenSourceData;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.job.extended.JobWithProtocol;
-import org.greencloud.commons.domain.resources.HardwareResources;
-import org.greencloud.commons.domain.facts.StrategyFacts;
 import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
@@ -77,12 +80,12 @@ public class ProposeToCNARule extends AgentProposalRule<ServerAgentProps, Server
 		final ClientJob job = getJobByInstanceId(jobInstance.getJobInstanceId(), agentProps.getServerJobs());
 
 		if (nonNull(job)) {
-			final HardwareResources availableResources = agentProps.getAvailableResources(job, null, null);
+			final Map<String, Resource> availableResources = agentProps.getAvailableResources(job, null, null);
 
 			agentProps.incrementJobCounter(jobInstance, ACCEPTED);
 			agentProps.getServerJobs().replace(job, ACCEPTED_BY_SERVER);
 
-			if (!availableResources.areSufficient(job.getEstimatedResources())) {
+			if (!areSufficient(availableResources, job.getRequiredResources())) {
 				final StrategyFacts tempFacts = new StrategyFacts(facts.get(STRATEGY_IDX));
 				tempFacts.put(JOB, job);
 				tempFacts.put(MESSAGE_TYPE, jobWithProtocol.getReplyProtocol());

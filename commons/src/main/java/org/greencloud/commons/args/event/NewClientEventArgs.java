@@ -2,14 +2,13 @@ package org.greencloud.commons.args.event;
 
 import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
 
+import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import org.greencloud.commons.args.job.JobArgs;
 
 /**
  * Interface containing properties of scenario event that generates new client in Cloud Network

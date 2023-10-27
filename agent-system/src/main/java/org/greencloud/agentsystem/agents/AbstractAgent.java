@@ -17,7 +17,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.rulescontroller.RulesController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,7 @@ import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.controller.GuiController;
 
 import jade.core.AID;
@@ -174,6 +176,10 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 		initializeAgent(arguments);
 		validateAgentArguments();
 		runStartingBehaviours();
+
+		if (arguments.length >= 3 && !List.of(CLIENT.name(), MANAGING.name()).contains(properties.getAgentType())) {
+			properties.setSystemKnowledge((Map<String, Map<String, Object>>) arguments[arguments.length - 3]);
+		}
 
 		// checking if the managing agent should be informed about agent creation
 		if (arguments.length > 0 && !List.of(CLIENT.name(), MANAGING.name()).contains(properties.getAgentType())

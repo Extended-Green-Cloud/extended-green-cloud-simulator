@@ -36,7 +36,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 	protected void initializeAgent(final Object[] args) {
 		disabledByDefaultActions = new ArrayList<>();
 
-		if (args.length >= 3) {
+		if (args.length >= 4) {
 			try {
 				this.systemQualityThreshold = parseDouble(args[0].toString());
 				this.greenCloudStructure = (ScenarioStructureArgs) args[1];

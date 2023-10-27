@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 import com.gui.agents.scheduler.SchedulerNode;
 import com.gui.agents.server.ServerNode;

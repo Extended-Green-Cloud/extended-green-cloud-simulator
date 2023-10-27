@@ -34,12 +34,14 @@ import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFac
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareAcceptJobOfferReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.time.temporal.ValueRange;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -50,7 +52,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStateEnum;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.commons.mapper.JobMapper;
@@ -208,10 +210,10 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 
 	private Triple<JobExecutionStateEnum, String, String> getFieldsForJobState(final ClientJob job,
 			final JobDivided<ClientJob> newJobInstances, final JobInstanceIdentifier jobInstance) {
-		final HardwareResources availableResources = agentProps.getAvailableResources(
+		final Map<String, Resource> availableResources = agentProps.getAvailableResources(
 				newJobInstances.getSecondInstance(), jobInstance, null);
 
-		return !availableResources.areSufficient(job.getEstimatedResources()) ?
+		return !areSufficient(availableResources, job.getRequiredResources()) ?
 				new ImmutableTriple<>(EXECUTING_ON_HOLD_SOURCE,
 						"There is not enough resources to process the job {} with back up power. Putting job on hold",
 						ON_HOLD_JOB_ID) :

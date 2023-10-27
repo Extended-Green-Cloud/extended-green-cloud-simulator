@@ -3,12 +3,12 @@ package org.greencloud.commons.args.event;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.greencloud.commons.enums.event.EventTypeEnum;
 
 /**
  * Generic interface containing common properties for defining scenario events

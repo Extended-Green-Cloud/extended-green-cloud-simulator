@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
-import com.gui.agents.EGCSNode;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.event.PowerShortageEvent;
 import com.gui.websocket.WebSocketConnections;
 import com.gui.websocket.enums.SocketTypeEnum;

@@ -17,19 +17,21 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.temporal.ValueRange;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;
 import org.greencloud.commons.domain.facts.StrategyFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.EnergyJob;
-import org.greencloud.commons.domain.resources.HardwareResources;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.rulescontroller.RulesController;
@@ -125,11 +127,11 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 	protected void handleProposals(final ACLMessage bestProposal, final Collection<ACLMessage> allProposals,
 			final StrategyFacts facts) {
 		final ClientJob job = facts.get(JOB);
-		final HardwareResources serverResources = agentProps.getAvailableResources(job, null, null);
+		final Map<String, Resource> serverResources = agentProps.getAvailableResources(job, null, null);
 
 		agentProps.stoppedJobProcessing();
 
-		if (!serverResources.areSufficient(job.getEstimatedResources())) {
+		if (!areSufficient(serverResources, job.getRequiredResources())) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_STRATEGY_ID, valueOf((int) facts.get(STRATEGY_IDX)));
 			logger.info("Not enough resources - sending refuse message to Cloud Network Agent");

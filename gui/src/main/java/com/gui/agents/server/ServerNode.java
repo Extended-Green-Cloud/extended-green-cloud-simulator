@@ -1,7 +1,11 @@
 package com.gui.agents.server;
 
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
+import static com.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
+import static java.util.Collections.singleton;
 import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
@@ -9,22 +13,20 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRES
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES;
 import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.job.JobUtils.getJobSuccessRatio;
-import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
-import static com.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
-import static java.util.Collections.singleton;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
-import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.args.agent.server.node.ServerNodeArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.resources.HardwareResources;
 
-import com.gui.agents.EGCSNetworkNode;
+import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+import com.gui.agents.egcs.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableDisableServerMessage;
 import com.gui.message.ImmutableEnableServerMessage;
@@ -72,7 +74,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	 * @param powerConsumption       current power consumption
 	 * @param powerConsumptionBackUp current back-up power consumption
 	 */
-	public void updateResources(final HardwareResources resources, final double powerConsumption,
+	public void updateResources(final Map<String, Resource> resources, final double powerConsumption,
 			final double powerConsumptionBackUp) {
 		getAgentsWebSocket().send(ImmutableUpdateResourcesMessage.builder()
 				.resources(resources)
@@ -102,7 +104,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 		getAgentsWebSocket().send(ImmutableDisableServerMessage.builder()
 				.cna(nodeArgs.getCloudNetworkAgent())
 				.server(agentName)
-				.cpu(nodeArgs.getCpu())
+				.cpu(nodeArgs.getResources().get(CPU).getAmount())
 				.build());
 	}
 
@@ -114,7 +116,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.cna(nodeArgs.getCloudNetworkAgent())
 				.cna(nodeArgs.getCloudNetworkAgent())
 				.server(agentName)
-				.cpu(nodeArgs.getCpu())
+				.cpu(nodeArgs.getResources().get(CPU).getAmount())
 				.build());
 	}
 
@@ -137,7 +139,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 		final double successRatio = getJobSuccessRatio(props.getJobCounters().get(ACCEPTED).getCount(),
 				props.getJobCounters().get(FAILED).getCount());
 		final double backUpTraffic = props.getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
-		final HardwareResources inUseResources = props.getInUseResources();
+		final Map<String, Resource> inUseResources = props.getInUseResources();
 		final double powerConsumption = props.getCurrentPowerConsumption();
 		final double powerConsumptionBackUp = props.getCurrentPowerConsumptionBackUp();
 		final ConcurrentMap<ClientJob, JobExecutionStatusEnum> jobs = props.getServerJobs();

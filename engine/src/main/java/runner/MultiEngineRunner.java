@@ -1,6 +1,5 @@
 package runner;
 
-import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.localHostIp;
 import static runner.configuration.EngineConfiguration.readSystemProperties;
 import static runner.configuration.ScenarioConfiguration.readScenarioProperties;
@@ -32,7 +31,6 @@ public class MultiEngineRunner {
 
 		// wait for GUI to set up
 		Thread.sleep(GUI_SETUP_MILLISECONDS_DELAY);
-		startRulesControllerRest();
 		runMultiContainerService();
 	}
 

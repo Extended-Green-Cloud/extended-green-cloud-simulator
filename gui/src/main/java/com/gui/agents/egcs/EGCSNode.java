@@ -1,4 +1,4 @@
-package com.gui.agents;
+package com.gui.agents.egcs;
 
 import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static com.gui.websocket.WebSocketConnections.getClientsWebSocket;
@@ -14,6 +14,8 @@ import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.AgentNodeProps;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
+
+import com.gui.agents.AgentNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableRegisterAgentMessage;
 import com.gui.message.ImmutableRemoveAgentMessage;

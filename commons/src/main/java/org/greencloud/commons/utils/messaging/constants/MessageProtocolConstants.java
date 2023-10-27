@@ -46,15 +46,16 @@ public class MessageProtocolConstants {
 	/**
 	 * Agent connections protocols
 	 *
-	 * <p> CONNECT_GREEN_SOURCE_PROTOCOL 	- protocol used in messages sent by the Green Source informing Server that
+	 * <p> CONNECT_GREEN_SOURCE_PROTOCOL 	  - protocol used in messages sent by the Green Source informing Server that
 	 * it can be added to its connections </p>
-	 * <p> DEACTIVATE_GREEN_SOURCE_PROTOCOL	- protocol used in messages sent by the Green Source informing Server that
+	 * <p> DEACTIVATE_GREEN_SOURCE_PROTOCOL	  - protocol used in messages sent by the Green Source informing Server that
 	 * it should deactivate given green source </p>
-	 * <p> DISCONNECT_GREEN_SOURCE_PROTOCOL	- protocol used in messages sent by the Green Source informing Server that
+	 * <p> DISCONNECT_GREEN_SOURCE_PROTOCOL	  - protocol used in messages sent by the Green Source informing Server that
 	 * it remove given green source connection </p>
-	 * <p> DISABLE_SERVER_PROTOCOL	  		- protocol used in messages sent by the Server informing CNA that
+	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing CNA that
 	 * the given Server is disabled </p>
-	 * <p> DISABLE_SERVER_PROTOCOL	  		- protocol used in messages sent by the Server informing CNA that
+	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing CNA that
+	 * <p> REGISTER_SERVER_RESOURCES_PROTOCOL - protocol sends information about resources of given Server to CNA</p>
 	 * the given Server is enabled </p>
 	 */
 	public static final String CONNECT_GREEN_SOURCE_PROTOCOL = "CONNECT_GREEN_SOURCE_PROTOCOL";
@@ -62,6 +63,7 @@ public class MessageProtocolConstants {
 	public static final String DISCONNECT_GREEN_SOURCE_PROTOCOL = "DISCONNECT_GREEN_SOURCE_PROTOCOL";
 	public static final String DISABLE_SERVER_PROTOCOL = "DISABLE_SERVER_PROTOCOL";
 	public static final String ENABLE_SERVER_PROTOCOL = "ENABLE_SERVER_PROTOCOL";
+	public static final String REGISTER_SERVER_RESOURCES_PROTOCOL = "REGISTER_SERVER_RESOURCES_PROTOCOL";
 
 	/**
 	 * Error protocols

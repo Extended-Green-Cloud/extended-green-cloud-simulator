@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
@@ -79,7 +78,7 @@ public class StrategyConstructor {
 		final Strategy modifications = getStrategyTemplate(typeModifier, controller);
 
 		if (nonNull(modifications) && nonNull(baseStrategy)) {
-			final List<RuleType> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
+			final List<String> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
 					.map(AgentRule::getRuleType)
 					.toList());
 			baseStrategy.setName(modifications.getName());
@@ -118,7 +117,7 @@ public class StrategyConstructor {
 	}
 
 	private static List<AgentRule> performModificationOfCombinedRules(final List<AgentRule> originalRules,
-			final Strategy modifications, final List<RuleType> modificationsTypes) {
+			final Strategy modifications, final List<String> modificationsTypes) {
 		return originalRules.stream()
 				.filter(agentRule -> agentRule.getAgentRuleType().equals(COMBINED))
 				.map(AgentCombinedRule.class::cast)
@@ -128,7 +127,7 @@ public class StrategyConstructor {
 	}
 
 	private static List<AgentRule> performModificationOfStepBasedRules(final List<AgentRule> originalRules,
-			final Strategy modifications, final List<RuleType> modificationsTypes) {
+			final Strategy modifications, final List<String> modificationsTypes) {
 		return originalRules.stream()
 				.filter(agentRule -> stepBasedRules.contains(agentRule.getAgentRuleType()))
 				.map(AgentBasicRule.class::cast)
@@ -139,7 +138,7 @@ public class StrategyConstructor {
 
 	private static <E extends AgentProps, T extends AgentNode<E>> List<AgentRule> modifyStepBasedRule(
 			final AgentBasicRule<E, T> stepBasedRule, final Strategy modifications,
-			final List<RuleType> modificationsTypes) {
+			final List<String> modificationsTypes) {
 
 		final List<RuleStepType> stepRules = stepBasedRule.getRules().stream().map(AgentRule::getStepType).toList();
 		final List<AgentRule> applicableModifications = modifications.getAgentRules().stream()
@@ -160,13 +159,13 @@ public class StrategyConstructor {
 
 	private static <E extends AgentProps, T extends AgentNode<E>> List<AgentRule> modifyCombinedRule(
 			final AgentCombinedRule<E, T> combinedRule, final Strategy modifications,
-			final List<RuleType> modificationsTypes) {
+			final List<String> modificationsTypes) {
 
-		final List<RuleType> subRules = combinedRule.getNestedRules();
+		final List<String> subRules = combinedRule.getNestedRules();
 		final List<AgentRule> applicableModifications = modifications.getAgentRules().stream()
 				.filter(rule -> subRules.contains(rule.getSubRuleType()))
 				.toList();
-		final List<RuleType> consideredTypes = applicableModifications.stream().map(AgentRule::getSubRuleType)
+		final List<String> consideredTypes = applicableModifications.stream().map(AgentRule::getSubRuleType)
 				.toList();
 		consideredTypes.forEach(type -> modificationsTypes.remove(combinedRule.getRuleType()));
 
