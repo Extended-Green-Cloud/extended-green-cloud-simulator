@@ -36,7 +36,7 @@ public class SchedulerAgentProps extends EGCSAgentProps {
 
 	protected PriorityBlockingQueue<ClientJob> jobsToBeExecuted;
 	protected ConcurrentMap<ClientJob, JobExecutionStatusEnum> clientJobs;
-	protected ConcurrentMap<String, Integer> strategyForJob;
+	protected ConcurrentMap<String, Integer> ruleSetForJob;
 	protected ConcurrentMap<String, AID> cnaForJobMap;
 	protected List<AID> availableCloudNetworks;
 	protected int deadlinePriority;
@@ -65,30 +65,30 @@ public class SchedulerAgentProps extends EGCSAgentProps {
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.cnaForJobMap = new ConcurrentHashMap<>();
 		this.availableCloudNetworks = new ArrayList<>();
-		this.strategyForJob = new ConcurrentHashMap<>();
+		this.ruleSetForJob = new ConcurrentHashMap<>();
 	}
 
 	/**
 	 * Method adds new client job
 	 *
-	 * @param job      job that is to be added
-	 * @param strategy strategy with which the job is to be handled
-	 * @param status   status of the job
+	 * @param job     job that is to be added
+	 * @param ruleSet rule set with which the job is to be handled
+	 * @param status  status of the job
 	 */
-	public void addJob(final ClientJob job, final Integer strategy, final JobExecutionStatusEnum status) {
+	public void addJob(final ClientJob job, final Integer ruleSet, final JobExecutionStatusEnum status) {
 		clientJobs.put(job, status);
-		strategyForJob.put(job.getJobId(), strategy);
+		ruleSetForJob.put(job.getJobId(), ruleSet);
 	}
 
 	/**
 	 * Method removes client job
 	 *
 	 * @param job job that is to be removed
-	 * @return boolean indicating if strategy should be removed from cotnroller
+	 * @return boolean indicating if rule set should be removed from controller
 	 */
 	public int removeJob(final ClientJob job) {
 		clientJobs.remove(job);
-		return strategyForJob.remove(job.getJobId());
+		return ruleSetForJob.remove(job.getJobId());
 	}
 
 	/**

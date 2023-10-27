@@ -24,12 +24,12 @@ public class MessageTemplatesConstants {
 			MatchProtocol(MessageProtocolConstants.EXECUTE_ACTION_PROTOCOL));
 
 	/**
-	 * STRATEGY TEMPLATES
+	 * RULE SET TEMPLATES
 	 */
-	public static final MessageTemplate LISTEN_FOR_STRATEGY_UPDATE_REQUEST = and(
-			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.CHANGE_STRATEGY_PROTOCOL));
-	public static final MessageTemplate LISTEN_FOR_STRATEGY_REMOVAL_REQUEST = and(
-			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.REMOVE_STRATEGY_PROTOCOL));
+	public static final MessageTemplate LISTEN_FOR_RULE_SET_UPDATE_REQUEST = and(
+			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.CHANGE_RULE_SET_PROTOCOL));
+	public static final MessageTemplate LISTEN_FOR_RULE_SET_REMOVAL_REQUEST = and(
+			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.REMOVE_RULE_SET_PROTOCOL));
 
 	/**
 	 * SCHEDULER TEMPLATES

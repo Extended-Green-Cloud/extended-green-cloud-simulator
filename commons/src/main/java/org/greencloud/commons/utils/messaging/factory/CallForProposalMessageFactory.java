@@ -23,8 +23,8 @@ public class CallForProposalMessageFactory {
 	 * @return call for proposal ACLMessage
 	 */
 	public static ACLMessage prepareCallForProposal(final Object content, final Collection<AID> receiverList,
-			final String protocol, final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final String protocol, final Integer ruleSetIdx) {
+		return MessageBuilder.builder(ruleSetIdx)
 				.withPerformative(CFP)
 				.withMessageProtocol(protocol)
 				.withObjectContent(content)

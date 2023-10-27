@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.SingleMessageListenerRuleRest;
@@ -105,27 +105,27 @@ public class AgentSingleMessageListenerRule<T extends AgentProps, E extends Agen
 	/**
 	 * Method construct template used to retrieve the message
 	 */
-	protected MessageTemplate constructMessageTemplate(final StrategyFacts facts) {
+	protected MessageTemplate constructMessageTemplate(final RuleSetFacts facts) {
 		return null;
 	}
 
 	/**
 	 * Method specifies the time after which the message will not be processed
 	 */
-	protected long specifyExpirationTime(final StrategyFacts facts) {
+	protected long specifyExpirationTime(final RuleSetFacts facts) {
 		return 0;
 	}
 
 	/**
 	 * Method defines handler used to process received message
 	 */
-	protected void handleMessageProcessing(final ACLMessage message, final StrategyFacts facts) {
+	protected void handleMessageProcessing(final ACLMessage message, final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method handles case when message was not received on time
 	 */
-	protected void handleMessageNotReceived(final StrategyFacts facts) {
+	protected void handleMessageNotReceived(final RuleSetFacts facts) {
 
 	}
 
@@ -138,7 +138,7 @@ public class AgentSingleMessageListenerRule<T extends AgentProps, E extends Agen
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentSingleMessageListenerRule.this.initialParameters)) {
 				AgentSingleMessageListenerRule.this.initialParameters.replace("facts", facts);
 			}
@@ -174,12 +174,12 @@ public class AgentSingleMessageListenerRule<T extends AgentProps, E extends Agen
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			return ((Optional<?>) facts.get(RECEIVED_MESSAGE)).isPresent();
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final Optional<ACLMessage> receivedMessage = facts.get(RECEIVED_MESSAGE);
 			if (nonNull(AgentSingleMessageListenerRule.this.initialParameters)) {
 				AgentSingleMessageListenerRule.this.initialParameters.replace("facts", facts);

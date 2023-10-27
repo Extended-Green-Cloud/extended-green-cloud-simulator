@@ -1,6 +1,6 @@
 package org.greencloud.agentsystem.agents;
 
-import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_CLOUD_STRATEGY;
+import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_CLOUD_RULE_SET;
 import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
 import static org.greencloud.commons.args.agent.AgentType.CLIENT;
 import static org.greencloud.commons.args.agent.AgentType.MANAGING;
@@ -19,7 +19,6 @@ import static java.util.Objects.nonNull;
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.rulescontroller.RulesController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ import com.database.knowledge.domain.action.AdaptationActionEnum;
 import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
 import org.greencloud.commons.args.agent.AgentNodeProps;
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 import com.gui.agents.egcs.EGCSNode;
@@ -93,10 +92,10 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	}
 
 	/**
-	 * Abstract method responsible for running initial custom behaviours prepared only for selected strategy
+	 * Abstract method responsible for running initial custom behaviours prepared only for selected rule set
 	 */
-	protected void runInitialBehavioursForStrategy() {
-		final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+	protected void runInitialBehavioursForRuleSet() {
+		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
 		facts.put(RULE_TYPE, INITIALIZE_BEHAVIOURS_RULE);
 		rulesController.fire(facts);
 	}
@@ -111,7 +110,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	public boolean executeAction(final AdaptationActionEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters) {
 		if (nonNull(rulesController)) {
-			final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
 			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
 			facts.put(ADAPTATION_PARAMS, actionParameters);
 			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
@@ -135,7 +134,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 			final AdaptationActionParameters actionParameters,
 			final ACLMessage adaptationMessage) {
 		if (nonNull(rulesController)) {
-			final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
 			facts.put(MESSAGE, adaptationMessage);
 			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
 			facts.put(ADAPTATION_PARAMS, actionParameters);
@@ -151,7 +150,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	 *
 	 * @param facts set of facts based on which given rule is triggered
 	 */
-	public void fireOnFacts(final StrategyFacts facts) {
+	public void fireOnFacts(final RuleSetFacts facts) {
 		rulesController.fire(facts);
 	}
 
@@ -219,7 +218,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 		this.rulesController = rulesController;
 		properties.setAgentName(getName());
 		properties.setAgentNode((AgentNodeProps<AgentProps>) agentNode);
-		rulesController.setAgent(this, properties, agentNode, DEFAULT_CLOUD_STRATEGY.name());
-		runInitialBehavioursForStrategy();
+		rulesController.setAgent(this, properties, agentNode, DEFAULT_CLOUD_RULE_SET);
+		runInitialBehavioursForRuleSet();
 	}
 }

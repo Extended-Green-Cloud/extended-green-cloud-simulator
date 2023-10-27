@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.SubscriptionRuleRest;
@@ -97,7 +97,7 @@ public class AgentSubscriptionRule<T extends AgentProps, E extends AgentNode<T>>
 	/**
 	 * Method executed when subscription message is to be created
 	 */
-	protected ACLMessage createSubscriptionMessage(final StrategyFacts facts) {
+	protected ACLMessage createSubscriptionMessage(final RuleSetFacts facts) {
 		return null;
 	}
 
@@ -122,7 +122,7 @@ public class AgentSubscriptionRule<T extends AgentProps, E extends AgentNode<T>>
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentSubscriptionRule.this.initialParameters)) {
 				AgentSubscriptionRule.this.initialParameters.replace("facts", facts);
 			}
@@ -151,7 +151,7 @@ public class AgentSubscriptionRule<T extends AgentProps, E extends AgentNode<T>>
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final Map<AID, Boolean> addedAgents = facts.get(SUBSCRIPTION_ADDED_AGENTS);
 			final Map<AID, Boolean> removedAgents = facts.get(SUBSCRIPTION_REMOVED_AGENTS);
 			if (nonNull(AgentSubscriptionRule.this.initialParameters)) {

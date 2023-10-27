@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.CallForProposalRuleRest;
@@ -125,14 +125,14 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 	/**
 	 * Method executed when CFP message is to be created
 	 */
-	protected ACLMessage createCFPMessage(final StrategyFacts facts) {
+	protected ACLMessage createCFPMessage(final RuleSetFacts facts) {
 		return null;
 	}
 
 	/**
 	 * Method executed when new proposal is retrieved, and it is to be compared with existing best proposal
 	 */
-	protected int compareProposals(final StrategyFacts facts, final ACLMessage bestProposal,
+	protected int compareProposals(final RuleSetFacts facts, final ACLMessage bestProposal,
 			final ACLMessage newProposal) {
 		return 0;
 	}
@@ -140,27 +140,27 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 	/**
 	 * Method executed when a proposal is to be rejected
 	 */
-	protected void handleRejectProposal(final ACLMessage proposalToReject, final StrategyFacts facts) {
+	protected void handleRejectProposal(final ACLMessage proposalToReject, final RuleSetFacts facts) {
 
 	}
 
 	/**
 	 * Method executed when agent received 0 responses
 	 */
-	protected void handleNoResponses(final StrategyFacts facts) {
+	protected void handleNoResponses(final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when agent received 0 proposals
 	 */
-	protected void handleNoProposals(final StrategyFacts facts) {
+	protected void handleNoProposals(final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when agent received some proposals
 	 */
 	protected void handleProposals(final ACLMessage bestProposal, final Collection<ACLMessage> allProposals,
-			final StrategyFacts facts) {
+			final RuleSetFacts facts) {
 	}
 
 	// RULE EXECUTED WHEN CFP MESSAGE IS TO BE CREATED
@@ -172,7 +172,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentCFPRule.this.initialParameters)) {
 				AgentCFPRule.this.initialParameters.replace("facts", facts);
 			}
@@ -199,7 +199,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage bestProposal = facts.get(CFP_BEST_MESSAGE);
 			final ACLMessage newProposal = facts.get(CFP_NEW_PROPOSAL);
 
@@ -238,7 +238,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage proposalToReject = facts.get(CFP_REJECT_MESSAGE);
 			if (nonNull(AgentCFPRule.this.initialParameters)) {
 				AgentCFPRule.this.initialParameters.replace("facts", facts);
@@ -270,7 +270,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentCFPRule.this.initialParameters)) {
 				AgentCFPRule.this.initialParameters.replace("facts", facts);
 			}
@@ -299,7 +299,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentCFPRule.this.initialParameters)) {
 				AgentCFPRule.this.initialParameters.replace("facts", facts);
 			}
@@ -328,7 +328,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage bestProposal = facts.get(CFP_BEST_MESSAGE);
 			final Collection<ACLMessage> allProposals = facts.get(CFP_RECEIVED_PROPOSALS);
 			if (nonNull(AgentCFPRule.this.initialParameters)) {

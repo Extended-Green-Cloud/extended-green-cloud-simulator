@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.PeriodicRuleRest;
@@ -68,7 +68,7 @@ public class AgentPeriodicRule<T extends AgentProps, E extends AgentNode<T>> ext
 	/**
 	 * Method evaluates if the action should have effects
 	 */
-	protected boolean evaluateBeforeTrigger(final StrategyFacts facts) {
+	protected boolean evaluateBeforeTrigger(final RuleSetFacts facts) {
 		return true;
 	}
 
@@ -102,7 +102,7 @@ public class AgentPeriodicRule<T extends AgentProps, E extends AgentNode<T>> ext
 	/**
 	 * Method executed when time after which action is to be triggerred has passed
 	 */
-	protected void handleActionTrigger(final StrategyFacts facts) {
+	protected void handleActionTrigger(final RuleSetFacts facts) {
 
 	}
 
@@ -115,7 +115,7 @@ public class AgentPeriodicRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentPeriodicRule.this.initialParameters)) {
 				AgentPeriodicRule.this.initialParameters.replace("facts", facts);
 			}
@@ -143,7 +143,7 @@ public class AgentPeriodicRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentPeriodicRule.this.initialParameters)) {
 				AgentPeriodicRule.this.initialParameters.replace("facts", facts);
 			}
@@ -155,7 +155,7 @@ public class AgentPeriodicRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentPeriodicRule.this.initialParameters)) {
 				AgentPeriodicRule.this.initialParameters.replace("facts", facts);
 			}

@@ -5,7 +5,7 @@ import static org.greencloud.commons.enums.rules.RuleType.BASIC_RULE;
 
 import java.util.List;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -47,7 +47,7 @@ public interface AgentRule extends Rule {
 	 * @param facts facts used in evaluation
 	 * @return boolean indicating if conditions are met
 	 */
-	default boolean evaluateRule(StrategyFacts facts) {
+	default boolean evaluateRule(RuleSetFacts facts) {
 		return true;
 	}
 
@@ -56,7 +56,7 @@ public interface AgentRule extends Rule {
 	 *
 	 * @param facts facts used in evaluation
 	 */
-	default void executeRule(StrategyFacts facts) {
+	default void executeRule(RuleSetFacts facts) {
 	}
 
 	/**

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.SearchRuleRest;
@@ -93,20 +93,20 @@ public class AgentSearchRule<T extends AgentProps, E extends AgentNode<T>> exten
 	/**
 	 * Method searches for the agents in DF
 	 */
-	protected Set<AID> searchAgents(final StrategyFacts facts) {
+	protected Set<AID> searchAgents(final RuleSetFacts facts) {
 		return new HashSet<>();
 	}
 
 	/**
 	 * Method executed when DF retrieved no results
 	 */
-	protected void handleNoResults(final StrategyFacts facts) {
+	protected void handleNoResults(final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when DF retrieved results
 	 */
-	protected void handleResults(final Set<AID> dfResults, final StrategyFacts facts) {
+	protected void handleResults(final Set<AID> dfResults, final RuleSetFacts facts) {
 	}
 
 	// RULE EXECUTED WHEN DF IS TO BE SEARCHED
@@ -118,7 +118,7 @@ public class AgentSearchRule<T extends AgentProps, E extends AgentNode<T>> exten
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentSearchRule.this.initialParameters)) {
 				AgentSearchRule.this.initialParameters.replace("facts", facts);
 			}
@@ -146,7 +146,7 @@ public class AgentSearchRule<T extends AgentProps, E extends AgentNode<T>> exten
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentSearchRule.this.initialParameters)) {
 				AgentSearchRule.this.initialParameters.replace("facts", facts);
 			}
@@ -175,7 +175,7 @@ public class AgentSearchRule<T extends AgentProps, E extends AgentNode<T>> exten
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentSearchRule.this.initialParameters)) {
 				AgentSearchRule.this.initialParameters.replace("facts", facts);
 			}

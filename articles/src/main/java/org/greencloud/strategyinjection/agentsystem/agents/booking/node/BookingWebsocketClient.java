@@ -17,7 +17,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.rulescontroller.rest.domain.RuleRest;
-import org.greencloud.rulescontroller.rest.domain.StrategyRest;
+import org.greencloud.rulescontroller.rest.domain.RuleSetRest;
 import org.greencloud.strategyinjection.agentsystem.domain.ClientOrder;
 import org.greencloud.strategyinjection.agentsystem.domain.CuisineType;
 import org.greencloud.strategyinjection.agentsystem.domain.ImmutableClientOrder;
@@ -100,7 +100,7 @@ public class BookingWebsocketClient extends GuiWebSocketClient {
 		final RuleRest handleProposalsRule = createProposeHandlerRule(instructions);
 		final RuleRest compareProposalsRule = createComparatorRule(instructions);
 
-		final StrategyRest strategyRest = new StrategyRest();
+		final RuleSetRest strategyRest = new RuleSetRest();
 		strategyRest.setName(strategyName);
 		strategyRest.setRules(new ArrayList<>(List.of(handleProposalsRule, compareProposalsRule)));
 
@@ -108,18 +108,18 @@ public class BookingWebsocketClient extends GuiWebSocketClient {
 			final String json = getMapper().writeValueAsString(strategyRest);
 			final RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
 			final Request request = new Request.Builder()
-					.url("http://localhost:5000/strategy")
+					.url("http://localhost:5000/ruleSet")
 					.post(body)
 					.build();
 			final OkHttpClient client = new OkHttpClient();
 			final Call call = client.newCall(request);
 			final Response response = call.execute();
-			logger.info("Personalized client strategy was sent to server! Response: {}", response);
+			logger.info("Personalized client rule set was sent to server! Response: {}", response);
 
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		} catch (IOException e) {
-			throw new InvalidParameterException("Cloud not send strategy to REST!");
+			throw new InvalidParameterException("Cloud not send rule set to REST!");
 		}
 
 		return strategyName;
@@ -190,7 +190,7 @@ public class BookingWebsocketClient extends GuiWebSocketClient {
 				bestProposal = facts.get(FactTypeConstants.CFP_BEST_MESSAGE);
 				restaurantData = MessageReader.readMessageContent(bestProposal, Class.forName("org.greencloud.strategyinjection.agentsystem.domain.RestaurantData"));
 				if($instruction) {
-				agentNode.passRestaurantMessageToClient("$msgLiteral".replace("$strategy", controller.getStrategies().get((int) facts.get(FactTypeConstants.STRATEGY_IDX)).getName()).replace("$price", restaurantData.getPrice().toString()).replace("$additionalInfo", restaurantData.getRestaurantInformation().toString()));
+				agentNode.passRestaurantMessageToClient("$msgLiteral".replace("$strategy", controller.getRuleSets().get((int) facts.get(FactTypeConstants.STRATEGY_IDX)).getName()).replace("$price", restaurantData.getPrice().toString()).replace("$additionalInfo", restaurantData.getRestaurantInformation().toString()));
 				agentProps.getRestaurantForOrder().put(order.getOrderId(), bestProposal);}
 				else { agent.send(ReplyMessageFactory.prepareReply(bestProposal, ACLMessage.REJECT_PROPOSAL, ACLMessage.REJECT_PROPOSAL)); agentNode.passRestaurantMessageToClient("No restaurants that fulfill additional instructions were found!");}
 				""".replace("$instruction", instructions).replace("$msgLiteral", responseMsgLiteral));

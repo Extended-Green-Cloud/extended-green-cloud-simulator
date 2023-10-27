@@ -30,12 +30,12 @@ public class OfferMessageFactory {
 	 * @return PROPOSE ACLMessage
 	 */
 	public static ACLMessage prepareServerJobOffer(final ServerAgentProps agentProps, final double servicePrice,
-			final String jobId, final ACLMessage cnaMessage, final Integer strategy) {
+			final String jobId, final ACLMessage cnaMessage, final Integer ruleSet) {
 		final ClientJob job = requireNonNull(JobUtils.getJobById(jobId, agentProps.getServerJobs()));
 		final double powerConsumption = agentProps.getPowerConsumption(job.getStartTime(), job.getEndTime());
 		final ServerData jobOffer = new ImmutableServerData(servicePrice, powerConsumption, jobId);
 
-		return MessageBuilder.builder(strategy)
+		return MessageBuilder.builder(ruleSet)
 				.copy(cnaMessage.createReply())
 				.withPerformative(PROPOSE)
 				.withObjectContent(jobOffer)

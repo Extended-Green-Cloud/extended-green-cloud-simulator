@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.ScheduledRuleRest;
@@ -87,21 +87,21 @@ public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> ex
 	/**
 	 * Method specify time at which behaviour is to be executed
 	 */
-	protected Date specifyTime(final StrategyFacts facts) {
+	protected Date specifyTime(final RuleSetFacts facts) {
 		return null;
 	}
 
 	/**
 	 * Method evaluates if the action should have effects
 	 */
-	protected boolean evaluateBeforeTrigger(final StrategyFacts facts) {
+	protected boolean evaluateBeforeTrigger(final RuleSetFacts facts) {
 		return true;
 	}
 
 	/**
 	 * Method executed when specific time of behaviour execution is reached
 	 */
-	protected void handleActionTrigger(final StrategyFacts facts) {
+	protected void handleActionTrigger(final RuleSetFacts facts) {
 	}
 
 	// RULE EXECUTED WHEN EXECUTION TIME IS TO BE SELECTED
@@ -113,7 +113,7 @@ public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> ex
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentScheduledRule.this.initialParameters)) {
 				AgentScheduledRule.this.initialParameters.replace("facts", facts);
 			}
@@ -140,7 +140,7 @@ public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> ex
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentScheduledRule.this.initialParameters)) {
 				AgentScheduledRule.this.initialParameters.replace("facts", facts);
 			}
@@ -151,7 +151,7 @@ public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> ex
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentScheduledRule.this.initialParameters)) {
 				AgentScheduledRule.this.initialParameters.replace("facts", facts);
 			}

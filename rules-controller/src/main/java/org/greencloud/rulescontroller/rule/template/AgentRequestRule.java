@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.RequestRuleRest;
@@ -117,40 +117,40 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 	/**
 	 * Method executed when request message is to be created
 	 */
-	protected ACLMessage createRequestMessage(final StrategyFacts facts) {
+	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
 		return null;
 	}
 
 	/**
 	 * Method evaluates if the action should be executed upon any message received
 	 */
-	protected boolean evaluateBeforeForAll(final StrategyFacts facts) {
+	protected boolean evaluateBeforeForAll(final RuleSetFacts facts) {
 		return true;
 	}
 
 	/**
 	 * Method executed when INFORM message is to be handled
 	 */
-	protected void handleInform(final ACLMessage inform, final StrategyFacts facts) {
+	protected void handleInform(final ACLMessage inform, final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when REFUSE message is to be handled
 	 */
-	protected void handleRefuse(final ACLMessage refuse, final StrategyFacts facts) {
+	protected void handleRefuse(final ACLMessage refuse, final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when FAILURE message is to be handled
 	 */
-	protected void handleFailure(final ACLMessage failure, final StrategyFacts facts) {
+	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Optional method executed when ALL RESULT messages are to be handled
 	 */
 	protected void handleAllResults(final Collection<ACLMessage> informs, final Collection<ACLMessage> failures,
-			final StrategyFacts facts) {
+			final RuleSetFacts facts) {
 
 	}
 
@@ -163,7 +163,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
 			}
@@ -192,7 +192,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
 			}
@@ -204,7 +204,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage inform = facts.get(REQUEST_INFORM_MESSAGE);
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
@@ -236,7 +236,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
 			}
@@ -248,7 +248,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage refuse = facts.get(REQUEST_REFUSE_MESSAGE);
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
@@ -280,7 +280,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
 			}
@@ -292,7 +292,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage failure = facts.get(REQUEST_FAILURE_MESSAGE);
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
@@ -324,7 +324,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			if (nonNull(AgentRequestRule.this.initialParameters)) {
 				AgentRequestRule.this.initialParameters.replace("facts", facts);
 			}
@@ -336,7 +336,7 @@ public class AgentRequestRule<T extends AgentProps, E extends AgentNode<T>> exte
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final Collection<ACLMessage> informResults = facts.get(REQUEST_INFORM_RESULTS_MESSAGES);
 			final Collection<ACLMessage> failureResults = facts.get(REQUEST_FAILURE_RESULTS_MESSAGES);
 			if (nonNull(AgentRequestRule.this.initialParameters)) {

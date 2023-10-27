@@ -17,8 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.slf4j.Logger;
@@ -37,9 +39,11 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	private static final Logger logger = getLogger(CloudNetworkAgentProps.class);
 
 	protected ConcurrentMap<ClientJob, JobExecutionStatusEnum> networkJobs;
-	protected ConcurrentMap<String, Integer> strategyForJob;
+	protected ConcurrentMap<String, Integer> ruleSetForJob;
 	protected ConcurrentMap<String, AID> serverForJobMap;
 	protected ConcurrentMap<AID, Boolean> ownedServers;
+	protected ConcurrentMap<AID, ServerResources> ownedServerResources;
+	protected ConcurrentMap<String, Resource> aggregatedResources;
 	protected ConcurrentMap<AID, Integer> weightsForServersMap;
 	protected AID scheduler;
 
@@ -54,7 +58,9 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 		this.serverForJobMap = new ConcurrentHashMap<>();
 		this.networkJobs = new ConcurrentHashMap<>();
 		this.ownedServers = new ConcurrentHashMap<>();
-		this.strategyForJob = new ConcurrentHashMap<>();
+		this.ownedServerResources = new ConcurrentHashMap<>();
+		this.aggregatedResources = new ConcurrentHashMap<>();
+		this.ruleSetForJob = new ConcurrentHashMap<>();
 		this.weightsForServersMap = new ConcurrentHashMap<>();
 	}
 
@@ -73,13 +79,13 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	/**
 	 * Method adds new client job
 	 *
-	 * @param job      job that is to be added
-	 * @param strategy strategy with which the job is to be handled
-	 * @param status   status of the job
+	 * @param job     job that is to be added
+	 * @param ruleSet rule set with which the job is to be handled
+	 * @param status  status of the job
 	 */
-	public void addJob(final ClientJob job, final Integer strategy, final JobExecutionStatusEnum status) {
+	public void addJob(final ClientJob job, final Integer ruleSet, final JobExecutionStatusEnum status) {
 		networkJobs.put(job, status);
-		strategyForJob.put(job.getJobInstanceId(), strategy);
+		ruleSetForJob.put(job.getJobInstanceId(), ruleSet);
 	}
 
 	/**
@@ -89,7 +95,7 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	 */
 	public int removeJob(final ClientJob job) {
 		networkJobs.remove(job);
-		return strategyForJob.remove(job.getJobInstanceId());
+		return ruleSetForJob.remove(job.getJobInstanceId());
 	}
 
 	@Override

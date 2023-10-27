@@ -64,8 +64,8 @@ public class SchedulerAgent extends AbstractSchedulerAgent {
 	}
 
 	@Override
-	protected void runInitialBehavioursForStrategy() {
+	protected void runInitialBehavioursForRuleSet() {
 		properties.setUpPriorityQueue(getJobPriority());
-		super.runInitialBehavioursForStrategy();
+		super.runInitialBehavioursForRuleSet();
 	}
 }

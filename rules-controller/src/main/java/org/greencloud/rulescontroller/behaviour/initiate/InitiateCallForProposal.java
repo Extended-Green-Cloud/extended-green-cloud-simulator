@@ -20,7 +20,7 @@ import static org.greencloud.commons.utils.messaging.MessageReader.readForPerfor
 
 import java.util.Vector;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -34,10 +34,10 @@ import jade.proto.ContractNetInitiator;
 public class InitiateCallForProposal extends ContractNetInitiator {
 
 	protected ACLMessage bestProposal;
-	protected StrategyFacts facts;
+	protected RuleSetFacts facts;
 	protected RulesController<?, ?> controller;
 
-	protected InitiateCallForProposal(final Agent agent, final StrategyFacts facts,
+	protected InitiateCallForProposal(final Agent agent, final RuleSetFacts facts,
 			final RulesController<?, ?> controller) {
 		super(agent, facts.get(CFP_CREATE_MESSAGE));
 
@@ -54,9 +54,9 @@ public class InitiateCallForProposal extends ContractNetInitiator {
 	 * @param controller rules controller
 	 * @return InitiateCallForProposal
 	 */
-	public static InitiateCallForProposal create(final Agent agent, final StrategyFacts facts, final String ruleType,
+	public static InitiateCallForProposal create(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
-		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
+		final RuleSetFacts methodFacts = FactsMapper.mapToRuleSetFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, CFP_CREATE_STEP);
 		controller.fire(methodFacts);
@@ -104,7 +104,7 @@ public class InitiateCallForProposal extends ContractNetInitiator {
 	 * <p> 1) case when no responses were retrieved </p>
 	 * <p> 2) case when all agents refused to provide a given service </p>
 	 * <p> 3) case when there exists best proposal message </p>
-	 * <p> In order to handle the aforementioned cases the method uses specific rule steps and fires agent strategy. </p>
+	 * <p> In order to handle the aforementioned cases the method uses specific rule steps and fires agent rule set. </p>
 	 *
 	 * @param responses   retrieved responses
 	 * @param acceptances vector containing accept proposal message sent back to the chosen server (not used)
@@ -128,14 +128,14 @@ public class InitiateCallForProposal extends ContractNetInitiator {
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling all responses
 	 */
-	protected void postProcessAllResponses(final StrategyFacts facts) {
+	protected void postProcessAllResponses(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling single proposal message
 	 */
-	protected void postProcessProposal(final StrategyFacts facts) {
+	protected void postProcessProposal(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 

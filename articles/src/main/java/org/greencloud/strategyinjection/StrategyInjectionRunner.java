@@ -1,7 +1,7 @@
 package org.greencloud.strategyinjection;
 
 import static jade.core.Runtime.instance;
-import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
+import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ import org.greencloud.commons.args.agent.ImmutableAgentArgs;
 import org.greencloud.strategyinjection.agentsystem.agents.restaurant.args.ImmutableRestaurantAgentArgs;
 import org.greencloud.strategyinjection.agentsystem.agents.restaurant.args.RestaurantAgentArgs;
 import org.greencloud.strategyinjection.agentsystem.domain.CuisineType;
-import org.greencloud.strategyinjection.agentsystem.strategy.DefaultRestaurantStrategy;
+import org.greencloud.strategyinjection.agentsystem.ruleset.DefaultRestaurantRuleSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
 /**
- * Runner of the strategy injection testing system
+ * Runner of the rule set injection testing system
  */
 public class StrategyInjectionRunner {
 
@@ -41,12 +41,12 @@ public class StrategyInjectionRunner {
 
 	public static void main(String[] args)
 			throws ExecutionException, InterruptedException, StaleProxyException {
-		logger.info("Running example system that performs tests of strategy injection algorithms.");
+		logger.info("Running example system that performs tests of rule set injection algorithms.");
 
 		final ContainerController jadeController = runMainContainer();
 		final AgentControllerFactory factory = new AgentControllerFactoryImpl(jadeController);
 		final GuiWebSocketServer server = new GuiWebSocketServer();
-		startRulesControllerRest(new DefaultRestaurantStrategy());
+		startRulesControllerRest(new DefaultRestaurantRuleSet());
 		server.start();
 
 		final List<RestaurantAgentArgs> restaurants = getRestaurants();

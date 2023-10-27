@@ -9,7 +9,7 @@ import static org.greencloud.commons.enums.rules.RuleStepType.SEARCH_HANDLE_RESU
 
 import java.util.Set;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -22,7 +22,7 @@ import jade.core.behaviours.OneShotBehaviour;
  */
 public class SearchForAgents extends OneShotBehaviour {
 
-	private final StrategyFacts facts;
+	private final RuleSetFacts facts;
 	protected RulesController<?, ?> controller;
 
 	/**
@@ -33,10 +33,10 @@ public class SearchForAgents extends OneShotBehaviour {
 	 * @param ruleType   type of the rule that handles search execution
 	 * @param controller rules controller
 	 */
-	protected SearchForAgents(final Agent agent, final StrategyFacts facts, final String ruleType,
+	protected SearchForAgents(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		super(agent);
-		this.facts = FactsMapper.mapToStrategyFacts(facts);
+		this.facts = FactsMapper.mapToRuleSetFacts(facts);
 		this.facts.put(RULE_TYPE, ruleType);
 		this.controller = controller;
 	}
@@ -49,7 +49,7 @@ public class SearchForAgents extends OneShotBehaviour {
 	 * @param ruleType   type of the rule that handles search execution
 	 * @param controller rules controller
 	 */
-	public static SearchForAgents create(final Agent agent, final StrategyFacts facts, final String ruleType,
+	public static SearchForAgents create(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
 		return new SearchForAgents(agent, facts, ruleType, controller);
 	}
@@ -76,7 +76,7 @@ public class SearchForAgents extends OneShotBehaviour {
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions at the end of search execution
 	 */
-	protected void postProcessSearch(final StrategyFacts facts) {
+	protected void postProcessSearch(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 }

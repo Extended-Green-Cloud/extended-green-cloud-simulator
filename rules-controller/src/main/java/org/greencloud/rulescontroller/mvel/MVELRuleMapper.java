@@ -26,14 +26,14 @@ import org.greencloud.rulescontroller.rule.template.AgentScheduledRule;
 import org.greencloud.rulescontroller.rule.template.AgentSearchRule;
 import org.greencloud.rulescontroller.rule.template.AgentSingleMessageListenerRule;
 import org.greencloud.rulescontroller.rule.template.AgentSubscriptionRule;
-import org.greencloud.rulescontroller.strategy.Strategy;
+import org.greencloud.rulescontroller.ruleset.RuleSet;
 
 /**
  * Class containing methods to map rules obtained using MVEL expressions
  */
 public class MVELRuleMapper {
 
-	public static AgentRule getRuleForType(final RuleRest ruleRest, final Strategy strategy) {
+	public static AgentRule getRuleForType(final RuleRest ruleRest, final RuleSet ruleSet) {
 		return switch (ruleRest.getAgentRuleType()) {
 			case SCHEDULED -> new AgentScheduledRule<>((ScheduledRuleRest) ruleRest);
 			case PERIODIC -> new AgentPeriodicRule<>((PeriodicRuleRest) ruleRest);
@@ -44,9 +44,9 @@ public class MVELRuleMapper {
 			case CFP -> new AgentCFPRule<>((CallForProposalRuleRest) ruleRest);
 			case SUBSCRIPTION -> new AgentSubscriptionRule<>((SubscriptionRuleRest) ruleRest);
 			case LISTENER_SINGLE -> new AgentSingleMessageListenerRule<>((SingleMessageListenerRuleRest) ruleRest);
-			case COMBINED -> new AgentCombinedRule<>((CombinedRuleRest) ruleRest, strategy);
-			case CHAIN -> new AgentChainRule<>(ruleRest, strategy);
-			case LISTENER -> new AgentMessageListenerRule<>((MessageListenerRuleRest) ruleRest, strategy);
+			case COMBINED -> new AgentCombinedRule<>((CombinedRuleRest) ruleRest, ruleSet);
+			case CHAIN -> new AgentChainRule<>(ruleRest, ruleSet);
+			case LISTENER -> new AgentMessageListenerRule<>((MessageListenerRuleRest) ruleRest, ruleSet);
 			default -> new AgentBasicRule<>(ruleRest);
 		};
 	}

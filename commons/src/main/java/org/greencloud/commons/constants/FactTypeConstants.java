@@ -26,10 +26,10 @@ public class FactTypeConstants {
 	public static final String AGENTS = "agents";
 	public static final String AGENT = "agent";
 
-	// STRATEGY FACT
-	public static final String STRATEGY_IDX = "strategy-idx";
-	public static final String STRATEGY_TYPE = "strategy-type";
-	public static final String NEXT_STRATEGY_IDX = "next-strategy-type";
+	// RULE SET FACT
+	public static final String RULE_SET_IDX = "rule-set-idx";
+	public static final String RULE_SET_TYPE = "rule-set-type";
+	public static final String NEXT_RULE_SET_TYPE = "next-rule-set-type";
 
 	// JOB FACTS
 	public static final String JOB = "job";

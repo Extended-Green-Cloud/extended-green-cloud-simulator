@@ -9,7 +9,7 @@ import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_CREATE_ST
 import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_HANDLE_ACCEPT_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.PROPOSAL_HANDLE_REJECT_STEP;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -22,10 +22,10 @@ import jade.proto.ProposeInitiator;
  */
 public class InitiateProposal extends ProposeInitiator {
 
-	protected StrategyFacts facts;
+	protected RuleSetFacts facts;
 	protected RulesController<?, ?> controller;
 
-	protected InitiateProposal(final Agent agent, final StrategyFacts facts, final RulesController<?, ?> controller) {
+	protected InitiateProposal(final Agent agent, final RuleSetFacts facts, final RulesController<?, ?> controller) {
 		super(agent, facts.get(PROPOSAL_CREATE_MESSAGE));
 
 		this.controller = controller;
@@ -41,9 +41,9 @@ public class InitiateProposal extends ProposeInitiator {
 	 * @param controller rules controller
 	 * @return InitiateProposal
 	 */
-	public static InitiateProposal create(final Agent agent, final StrategyFacts facts, final String ruleType,
+	public static InitiateProposal create(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
-		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
+		final RuleSetFacts methodFacts = FactsMapper.mapToRuleSetFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, PROPOSAL_CREATE_STEP);
 		controller.fire(methodFacts);
@@ -76,14 +76,14 @@ public class InitiateProposal extends ProposeInitiator {
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling acceptance message
 	 */
-	protected void postProcessAcceptProposal(final StrategyFacts facts) {
+	protected void postProcessAcceptProposal(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling rejection message
 	 */
-	protected void postProcessRejectProposal(final StrategyFacts facts) {
+	protected void postProcessRejectProposal(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 

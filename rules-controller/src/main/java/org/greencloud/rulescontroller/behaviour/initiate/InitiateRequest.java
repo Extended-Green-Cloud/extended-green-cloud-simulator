@@ -19,7 +19,7 @@ import static org.greencloud.commons.utils.messaging.MessageReader.readForPerfor
 
 import java.util.Vector;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 
@@ -29,10 +29,10 @@ import jade.proto.AchieveREInitiator;
 
 public class InitiateRequest extends AchieveREInitiator {
 
-	protected StrategyFacts facts;
+	protected RuleSetFacts facts;
 	protected RulesController<?, ?> controller;
 
-	protected InitiateRequest(final Agent agent, final StrategyFacts facts, final RulesController<?, ?> controller) {
+	protected InitiateRequest(final Agent agent, final RuleSetFacts facts, final RulesController<?, ?> controller) {
 		super(agent, facts.get(REQUEST_CREATE_MESSAGE));
 
 		this.controller = controller;
@@ -48,9 +48,9 @@ public class InitiateRequest extends AchieveREInitiator {
 	 * @param controller rules controller
 	 * @return InitiateRequest
 	 */
-	public static InitiateRequest create(final Agent agent, final StrategyFacts facts, final String ruleType,
+	public static InitiateRequest create(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
-		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
+		final RuleSetFacts methodFacts = FactsMapper.mapToRuleSetFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, REQUEST_CREATE_STEP);
 		controller.fire(methodFacts);
@@ -103,21 +103,21 @@ public class InitiateRequest extends AchieveREInitiator {
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling inform message
 	 */
-	protected void postProcessInform(final StrategyFacts facts) {
+	protected void postProcessInform(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling refuse message
 	 */
-	protected void postProcessRefuse(final StrategyFacts facts) {
+	protected void postProcessRefuse(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 
 	/**
 	 * Method can be optionally overridden in order to perform facts-based actions after handling failure message
 	 */
-	protected void postProcessFailure(final StrategyFacts facts) {
+	protected void postProcessFailure(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 }

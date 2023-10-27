@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.ProposalRuleRest;
@@ -96,20 +96,20 @@ public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> ext
 	/**
 	 * Method executed when proposal message is to be created
 	 */
-	protected ACLMessage createProposalMessage(final StrategyFacts facts) {
+	protected ACLMessage createProposalMessage(final RuleSetFacts facts) {
 		return null;
 	}
 
 	/**
 	 * Method executed when ACCEPT_PROPOSAL message is to be handled
 	 */
-	protected void handleAcceptProposal(final ACLMessage accept, final StrategyFacts facts) {
+	protected void handleAcceptProposal(final ACLMessage accept, final RuleSetFacts facts) {
 	}
 
 	/**
 	 * Method executed when REJECT_PROPOSAL message is to be handled
 	 */
-	protected void handleRejectProposal(final ACLMessage reject, final StrategyFacts facts) {
+	protected void handleRejectProposal(final ACLMessage reject, final RuleSetFacts facts) {
 	}
 
 	// RULE EXECUTED WHEN PROPOSAL MESSAGE IS TO BE CREATED
@@ -121,7 +121,7 @@ public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			if (nonNull(AgentProposalRule.this.initialParameters)) {
 				AgentProposalRule.this.initialParameters.replace("facts", facts);
 			}
@@ -149,7 +149,7 @@ public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage acceptMessage = facts.get(PROPOSAL_ACCEPT_MESSAGE);
 			if (nonNull(AgentProposalRule.this.initialParameters)) {
 				AgentProposalRule.this.initialParameters.replace("facts", facts);
@@ -181,7 +181,7 @@ public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage rejectMessage = facts.get(PROPOSAL_REJECT_MESSAGE);
 			if (nonNull(AgentProposalRule.this.initialParameters)) {
 				AgentProposalRule.this.initialParameters.replace("facts", facts);

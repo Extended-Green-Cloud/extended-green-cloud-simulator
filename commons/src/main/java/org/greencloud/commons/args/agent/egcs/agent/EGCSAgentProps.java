@@ -23,7 +23,7 @@ import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.constants.FactTypeConstants;
 import org.greencloud.commons.constants.LoggingConstants;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
@@ -130,8 +130,8 @@ public class EGCSAgentProps extends AgentProps {
 	 * @return facts with Pair consisting of previous job instance and job instance for transfer (if there is only job instance
 	 * for transfer then previous job instance element is null)
 	 */
-	public <T extends PowerJob> StrategyFacts divideJobForPowerShortage(final T job, final Instant powerShortageStart,
-			final ConcurrentMap<T, JobExecutionStatusEnum> jobMap, final StrategyFacts facts,
+	public <T extends PowerJob> RuleSetFacts divideJobForPowerShortage(final T job, final Instant powerShortageStart,
+			final ConcurrentMap<T, JobExecutionStatusEnum> jobMap, final RuleSetFacts facts,
 			final ConcurrentMap<String, Integer> strategyForJob) {
 		if (powerShortageStart.isAfter(job.getStartTime())) {
 			final T affectedJobInstance = mapToNewJobInstanceStartTime(job, powerShortageStart);
@@ -140,7 +140,7 @@ public class EGCSAgentProps extends AgentProps {
 			handleJobDivisionInstanceSubstitution(job, affectedJobInstance, notAffectedJobInstance, jobMap,
 					strategyForJob);
 
-			final StrategyFacts newFacts = new StrategyFacts(facts.get(FactTypeConstants.STRATEGY_IDX));
+			final RuleSetFacts newFacts = new RuleSetFacts(facts.get(FactTypeConstants.RULE_SET_IDX));
 			newFacts.put(
 					FactTypeConstants.JOB_DIVIDED,
 					new ImmutableJobDivided<>(notAffectedJobInstance, affectedJobInstance));
@@ -150,7 +150,7 @@ public class EGCSAgentProps extends AgentProps {
 			jobMap.replace(job, EXECUTING_TRANSFER.getStatus(isJobStarted(job, jobMap)));
 			updateGUI();
 
-			final StrategyFacts newFacts = new StrategyFacts(facts.get(FactTypeConstants.STRATEGY_IDX));
+			final RuleSetFacts newFacts = new RuleSetFacts(facts.get(FactTypeConstants.RULE_SET_IDX));
 			newFacts.put(FactTypeConstants.JOB_DIVIDED, new ImmutableJobDivided<>(null, job));
 			return newFacts;
 		}
@@ -164,8 +164,8 @@ public class EGCSAgentProps extends AgentProps {
 	 * @param jobMap      map of jobs of interest
 	 * @return facts with Pair of new job instances
 	 */
-	public <T extends PowerJob> StrategyFacts divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
-			final T originalJob, final ConcurrentMap<T, JobExecutionStatusEnum> jobMap, final StrategyFacts facts,
+	public <T extends PowerJob> RuleSetFacts divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
+			final T originalJob, final ConcurrentMap<T, JobExecutionStatusEnum> jobMap, final RuleSetFacts facts,
 			final ConcurrentMap<String, Integer> strategyForJob) {
 		final JobInstanceIdentifier newJobInstanceId = jobTransfer.getSecondJobInstanceId();
 		final JobInstanceIdentifier previousInstanceId = jobTransfer.getFirstJobInstanceId();
@@ -184,7 +184,7 @@ public class EGCSAgentProps extends AgentProps {
 			jobMap.remove(originalJob);
 			jobMap.put(newJobInstance, newStatus);
 
-			final StrategyFacts newFacts = new StrategyFacts(facts.get(FactTypeConstants.STRATEGY_IDX));
+			final RuleSetFacts newFacts = new RuleSetFacts(facts.get(FactTypeConstants.RULE_SET_IDX));
 			newFacts.put(FactTypeConstants.JOB_DIVIDED, new ImmutableJobDivided<>(null, newJobInstance));
 			newFacts.put(FactTypeConstants.JOB_IS_STARTED, hasStarted);
 			newFacts.put(FactTypeConstants.JOB, newJobInstance);
@@ -199,7 +199,7 @@ public class EGCSAgentProps extends AgentProps {
 		handleJobDivisionInstanceSubstitution(originalJob, affectedInstance, nonAffectedInstance, jobMap,
 				strategyForJob);
 
-		final StrategyFacts newFacts = new StrategyFacts(facts.get(FactTypeConstants.STRATEGY_IDX));
+		final RuleSetFacts newFacts = new RuleSetFacts(facts.get(FactTypeConstants.RULE_SET_IDX));
 		newFacts.put(FactTypeConstants.JOB_DIVIDED, new ImmutableJobDivided<>(nonAffectedInstance, affectedInstance));
 		newFacts.put(FactTypeConstants.RULE_TYPE, RuleType.PROCESS_JOB_DIVISION_RULE);
 		return newFacts;
@@ -241,9 +241,9 @@ public class EGCSAgentProps extends AgentProps {
 	 * @param originalJob original job that is to be divided
 	 * @return division facts
 	 */
-	public <T extends PowerJob> StrategyFacts constructDivisionFacts(final JobPowerShortageTransfer jobTransfer,
+	public <T extends PowerJob> RuleSetFacts constructDivisionFacts(final JobPowerShortageTransfer jobTransfer,
 			final T originalJob, final Integer strategyIdx) {
-		final StrategyFacts divisionFacts = new StrategyFacts(strategyIdx);
+		final RuleSetFacts divisionFacts = new RuleSetFacts(strategyIdx);
 		divisionFacts.put(FactTypeConstants.JOBS, jobTransfer);
 		divisionFacts.put(FactTypeConstants.JOB, originalJob);
 		divisionFacts.put(FactTypeConstants.RULE_TYPE, RuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE);
@@ -257,9 +257,9 @@ public class EGCSAgentProps extends AgentProps {
 	 * @param powerShortageStart time when the server failure will start
 	 * @return division facts
 	 */
-	public <T extends PowerJob> StrategyFacts constructDivisionFacts(final T job, final Instant powerShortageStart,
+	public <T extends PowerJob> RuleSetFacts constructDivisionFacts(final T job, final Instant powerShortageStart,
 			final Integer strategyIdx) {
-		final StrategyFacts divisionFacts = new StrategyFacts(strategyIdx);
+		final RuleSetFacts divisionFacts = new RuleSetFacts(strategyIdx);
 		divisionFacts.put(FactTypeConstants.EVENT_TIME, powerShortageStart);
 		divisionFacts.put(FactTypeConstants.JOB, job);
 		divisionFacts.put(FactTypeConstants.RULE_TYPE, RuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE);

@@ -30,8 +30,8 @@ public class WeatherCheckMessageFactory {
 	 * @return REQUEST ACLMessage
 	 */
 	public static ACLMessage prepareWeatherCheckRequest(final GreenEnergyAgentProps props, final ServerJob job,
-			final String conversationId, final String protocol, final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final String conversationId, final String protocol, final Integer ruleSet) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(REQUEST)
 				.withObjectContent(createMessageContent(job, props))
 				.withReceivers(props.getMonitoringAgent())

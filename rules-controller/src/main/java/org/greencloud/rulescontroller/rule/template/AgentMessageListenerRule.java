@@ -8,13 +8,12 @@ import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGES;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.enums.rules.RuleStepType.MESSAGE_READER_PROCESS_CONTENT_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.MESSAGE_READER_READ_CONTENT_STEP;
 import static org.greencloud.commons.enums.rules.RuleStepType.MESSAGE_READER_READ_STEP;
-import static org.greencloud.commons.mapper.FactsMapper.mapToStrategyFacts;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.LISTENER;
 
@@ -23,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.MessageListenerRuleRest;
@@ -31,7 +31,7 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.greencloud.rulescontroller.rule.simple.AgentChainRule;
-import org.greencloud.rulescontroller.strategy.Strategy;
+import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.jeasy.rules.api.Facts;
 import org.mvel2.MVEL;
 
@@ -47,31 +47,31 @@ import lombok.Getter;
 @Getter
 public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
-	final Strategy strategy;
+	final RuleSet ruleSet;
 	final Class<?> contentType;
 	final MessageTemplate messageTemplate;
 	final int batchSize;
 	final String handlerRuleType;
 	private List<AgentRule> stepRules;
-	private Serializable expressionSelectStrategyIdx;
+	private Serializable expressionSelectRuleSetIdx;
 
 	/**
 	 * Constructor
 	 *
 	 * @param controller      rules controller connected to the agent
-	 * @param strategy        currently executed strategy
+	 * @param ruleSet         currently executed rule set
 	 * @param contentType     type of content read in the messages
 	 * @param template        template used to read messages
 	 * @param batchSize       number of messages read at once
 	 * @param handlerRuleType rule run when the messages are present
 	 */
 	protected AgentMessageListenerRule(final RulesController<T, E> controller,
-			final Strategy strategy, final Class<?> contentType, final MessageTemplate template, final int batchSize,
+			final RuleSet ruleSet, final Class<?> contentType, final MessageTemplate template, final int batchSize,
 			final String handlerRuleType) {
 		super(controller);
 		this.contentType = contentType;
 		this.messageTemplate = template;
-		this.strategy = strategy;
+		this.ruleSet = ruleSet;
 		this.batchSize = batchSize;
 		this.handlerRuleType = handlerRuleType;
 		initializeSteps();
@@ -81,17 +81,17 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	 * Constructor
 	 *
 	 * @param controller      rules controller connected to the agent
-	 * @param strategy        currently executed strategy
+	 * @param ruleSet         currently executed rule set
 	 * @param template        template used to read messages
 	 * @param batchSize       number of messages read at once
 	 * @param handlerRuleType rule run when the messages are present
 	 */
-	protected AgentMessageListenerRule(final RulesController<T, E> controller, final Strategy strategy,
+	protected AgentMessageListenerRule(final RulesController<T, E> controller, final RuleSet ruleSet,
 			final MessageTemplate template, final int batchSize, final String handlerRuleType) {
 		super(controller);
 		this.contentType = null;
 		this.messageTemplate = template;
-		this.strategy = strategy;
+		this.ruleSet = ruleSet;
 		this.batchSize = batchSize;
 		this.handlerRuleType = handlerRuleType;
 		initializeSteps();
@@ -101,22 +101,22 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	 * Constructor
 	 *
 	 * @param ruleRest rest representation of agent rule
-	 * @param strategy currently executed strategy
+	 * @param ruleSet  currently executed rule set
 	 */
-	public AgentMessageListenerRule(final MessageListenerRuleRest ruleRest, final Strategy strategy) {
+	public AgentMessageListenerRule(final MessageListenerRuleRest ruleRest, final RuleSet ruleSet) {
 		super(ruleRest);
 		try {
 			final Serializable msgTemplateExpression = MVEL.compileExpression(
 					imports + " " + ruleRest.getMessageTemplate());
 			this.messageTemplate = (MessageTemplate) MVEL.executeExpression(msgTemplateExpression);
 			this.contentType = Class.forName(ruleRest.getClassName());
-			this.strategy = strategy;
+			this.ruleSet = ruleSet;
 			this.batchSize = ruleRest.getBatchSize();
 			this.handlerRuleType = ruleRest.getActionHandler();
 
-			if (nonNull(ruleRest.getSelectStrategyIdx())) {
-				this.expressionSelectStrategyIdx = MVEL.compileExpression(
-						imports + " " + ruleRest.getSelectStrategyIdx());
+			if (nonNull(ruleRest.getSelectRuleSetIdx())) {
+				this.expressionSelectRuleSetIdx = MVEL.compileExpression(
+						imports + " " + ruleRest.getSelectRuleSetIdx());
 			}
 			initializeSteps();
 		} catch (ClassNotFoundException classNotFoundException) {
@@ -141,10 +141,10 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	}
 
 	/**
-	 * Method can be optionally overwritten in order to change strategy based on facts after reading message content
+	 * Method can be optionally overwritten in order to change rule set based on facts after reading message content
 	 */
-	protected int selectStrategyIdx(final StrategyFacts facts) {
-		return facts.get(STRATEGY_IDX);
+	protected int selectRuleSetIdx(final RuleSetFacts facts) {
+		return facts.get(RULE_SET_IDX);
 	}
 
 	class ReadMessagesRule extends AgentBasicRule<T, E> {
@@ -155,7 +155,7 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final List<ACLMessage> messages = agent.receive(messageTemplate, batchSize);
 			facts.put(MESSAGES, ofNullable(messages).orElse(emptyList()));
 		}
@@ -172,12 +172,12 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 	class ReadMessagesContentRule extends AgentChainRule<T, E> {
 
 		public ReadMessagesContentRule() {
-			super(AgentMessageListenerRule.this.controller, AgentMessageListenerRule.this.strategy);
+			super(AgentMessageListenerRule.this.controller, AgentMessageListenerRule.this.ruleSet);
 			this.isRuleStep = true;
 		}
 
 		@Override
-		public void executeRule(final StrategyFacts facts) {
+		public void executeRule(final RuleSetFacts facts) {
 			final ACLMessage message = facts.get(MESSAGE);
 
 			if (nonNull(contentType)) {
@@ -188,14 +188,14 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 				AgentMessageListenerRule.this.initialParameters.replace("facts", facts);
 			}
 
-			int strategyIdx = selectStrategyIdx(facts);
+			int ruleSetIdx = selectRuleSetIdx(facts);
 
-			if (nonNull(expressionSelectStrategyIdx)) {
-				strategyIdx = (int) MVEL.executeExpression(expressionSelectStrategyIdx,
+			if (nonNull(expressionSelectRuleSetIdx)) {
+				ruleSetIdx = (int) MVEL.executeExpression(expressionSelectRuleSetIdx,
 						AgentMessageListenerRule.this.initialParameters);
 			}
 
-			facts.put(STRATEGY_IDX, strategyIdx);
+			facts.put(RULE_SET_IDX, ruleSetIdx);
 			facts.put(MESSAGE_TYPE, ofNullable(message.getConversationId()).orElse(""));
 			facts.put(RULE_STEP, MESSAGE_READER_PROCESS_CONTENT_STEP);
 		}
@@ -217,13 +217,13 @@ public class AgentMessageListenerRule<T extends AgentProps, E extends AgentNode<
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			return true;
 		}
 
 		@Override
 		public void execute(final Facts facts) throws Exception {
-			final StrategyFacts triggerFacts = mapToStrategyFacts(facts);
+			final RuleSetFacts triggerFacts = FactsMapper.mapToRuleSetFacts(facts);
 			triggerFacts.put(RULE_TYPE, handlerRuleType);
 			controller.fire(triggerFacts);
 		}

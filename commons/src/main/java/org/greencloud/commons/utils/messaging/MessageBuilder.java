@@ -26,17 +26,17 @@ public class MessageBuilder {
 
 	private ACLMessage aclMessage;
 
-	private MessageBuilder(final Integer strategy) {
+	private MessageBuilder(final Integer ruleIdx) {
 		aclMessage = new ACLMessage();
-		aclMessage.setOntology(strategy.toString());
+		aclMessage.setOntology(ruleIdx.toString());
 	}
 
-	public static MessageBuilder builder(final Integer strategy) {
-		return new MessageBuilder(strategy);
+	public static MessageBuilder builder(final Integer ruleIdx) {
+		return new MessageBuilder(ruleIdx);
 	}
 
-	public static MessageBuilder builder(final String strategy) {
-		return new MessageBuilder(parseInt(strategy));
+	public static MessageBuilder builder(final String ruleIdx) {
+		return new MessageBuilder(parseInt(ruleIdx));
 	}
 
 	public MessageBuilder withMessageProtocol(final String messageProtocol) {

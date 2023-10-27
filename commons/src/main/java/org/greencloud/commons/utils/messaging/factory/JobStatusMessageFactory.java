@@ -37,11 +37,11 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final ClientJob job, final String conversationId,
-			final Integer strategy) {
+			final Integer ruleSet) {
 		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job), getCurrentTime());
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(jobStatusUpdate, conversationId, strategy, clientAID);
+		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, clientAID);
 	}
 
 	/**
@@ -54,10 +54,10 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final ClientJob job,
-			final JobWithStatus jobStatusUpdate, final String conversationId, final Integer strategy) {
+			final JobWithStatus jobStatusUpdate, final String conversationId, final Integer ruleSet) {
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(jobStatusUpdate, conversationId, strategy, clientAID);
+		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, clientAID);
 	}
 
 	/**
@@ -66,10 +66,10 @@ public class JobStatusMessageFactory {
 	 * @param job job of interest
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage preparePostponeJobMessageForClient(final ClientJob job, final Integer strategy) {
+	public static ACLMessage preparePostponeJobMessageForClient(final ClientJob job, final Integer ruleSet) {
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(job.getJobId(), MessageConversationConstants.POSTPONED_JOB_ID, strategy, clientAID);
+		return prepareJobStatusMessage(job.getJobId(), MessageConversationConstants.POSTPONED_JOB_ID, ruleSet, clientAID);
 	}
 
 	/**
@@ -78,12 +78,12 @@ public class JobStatusMessageFactory {
 	 * @param adjustedJob job with adjusted time frames
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobAdjustmentMessage(final ClientJob adjustedJob, final Integer strategy) {
+	public static ACLMessage prepareJobAdjustmentMessage(final ClientJob adjustedJob, final Integer ruleSet) {
 		final JobWithTimeFrames jobTimeFrames = new ImmutableJobWithTimeFrames(adjustedJob.getStartTime(),
 				adjustedJob.getEndTime(), adjustedJob.getJobId());
 		final AID clientAID = new AID(adjustedJob.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(adjustedJob.getClientAddress());
-		return prepareJobStatusMessage(jobTimeFrames, MessageConversationConstants.RE_SCHEDULED_JOB_ID, strategy, clientAID);
+		return prepareJobStatusMessage(jobTimeFrames, MessageConversationConstants.RE_SCHEDULED_JOB_ID, ruleSet, clientAID);
 	}
 
 	/**
@@ -95,8 +95,8 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessageForScheduler(final CloudNetworkAgentProps agentProps,
-			final JobWithStatus jobStatusUpdate, final String conversationId, final Integer strategy) {
-		return prepareJobStatusMessage(jobStatusUpdate, conversationId, strategy, agentProps.getScheduler());
+			final JobWithStatus jobStatusUpdate, final String conversationId, final Integer ruleSet) {
+		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, agentProps.getScheduler());
 	}
 
 	/**
@@ -108,19 +108,19 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessageForCNA(final JobInstanceIdentifier jobInstanceId,
-			final String conversationId, final ServerAgentProps agentProps, final Integer strategy) {
+			final String conversationId, final ServerAgentProps agentProps, final Integer ruleSet) {
 		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(jobInstanceId, getCurrentTime());
 		final AID cna = agentProps.getOwnerCloudNetworkAgent();
 
 		if (Objects.equals(conversationId, MessageConversationConstants.FAILED_JOB_ID)) {
-			return MessageBuilder.builder(strategy)
+			return MessageBuilder.builder(ruleSet)
 					.withPerformative(FAILURE)
 					.withMessageProtocol(MessageProtocolConstants.FAILED_JOB_PROTOCOL)
 					.withObjectContent(jobStatusUpdate)
 					.withReceivers(cna)
 					.build();
 		}
-		return prepareJobStatusMessage(jobStatusUpdate, conversationId, strategy, cna);
+		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, cna);
 	}
 
 	/**
@@ -131,8 +131,8 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobAnnouncementMessage(final AID scheduler, final ClientJob job,
-			final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final Integer ruleSet) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(INFORM)
 				.withMessageProtocol(MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL)
 				.withReceivers(scheduler)
@@ -149,8 +149,8 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobStatusMessage(final Object content, final String conversationId,
-			final Integer strategy, final AID... receivers) {
-		final MessageBuilder messageBasis = MessageBuilder.builder(strategy)
+			final Integer ruleSet, final AID... receivers) {
+		final MessageBuilder messageBasis = MessageBuilder.builder(ruleSet)
 				.withPerformative(INFORM)
 				.withMessageProtocol(MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL)
 				.withConversationId(conversationId)
@@ -173,11 +173,11 @@ public class JobStatusMessageFactory {
 	 * @param receivers list of AID addresses of the message receivers
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobStartedMessage(final ClientJob job, final Integer strategy,
+	public static ACLMessage prepareJobStartedMessage(final ClientJob job, final Integer ruleSet,
 			final AID... receivers) {
 		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
 		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.STARTED_JOB_ID,
-				strategy, receivers);
+				ruleSet, receivers);
 	}
 
 	/**
@@ -188,11 +188,11 @@ public class JobStatusMessageFactory {
 	 * @param receivers list of AID addresses of the message receivers
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobFinishMessage(final ClientJob job, final Integer strategy,
+	public static ACLMessage prepareJobFinishMessage(final ClientJob job, final Integer ruleSet,
 			final AID... receivers) {
 		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
 		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.FINISH_JOB_ID,
-				strategy, receivers);
+				ruleSet, receivers);
 	}
 
 	/**
@@ -203,8 +203,8 @@ public class JobStatusMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareManualFinishMessageForServer(final JobInstanceIdentifier jobInstanceId,
-			final AID serverAddress, final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final AID serverAddress, final Integer ruleSet) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(INFORM)
 				.withMessageProtocol(MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL)
 				.withObjectContent(jobInstanceId)

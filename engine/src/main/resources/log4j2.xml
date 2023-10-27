@@ -9,7 +9,7 @@
 		</Console>
 		<Console name="ConsoleWithJobId" target="SYSTEM_OUT">
 			<PatternLayout
-				pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][strategyId: %X{strategyId}] %m%n" />
+				pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][ruleSetId: %X{ruleSetId}] %m%n" />
 		</Console>
 
 		<Routing name="RoutingByAgent">
@@ -19,7 +19,7 @@
 					<RollingFile name="Rolling-default" fileName="logs/default.log"
 						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout
-							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][strategyId: %X{strategyId}]  %m%n" />
+							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][ruleSetId: %X{ruleSetId}]  %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -33,7 +33,7 @@
 					<RollingFile name="Rolling-${ctx:agentName}" fileName="logs/${ctx:agentName}.log"
 						filePattern="./logs/${date:yyyy-MM}/${ctx:agentName}-other-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout
-							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][strategyId: %X{strategyId}] %m%n" />
+							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][ruleSetId: %X{ruleSetId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -49,7 +49,7 @@
 					<RollingFile name="Rolling-default" fileName="logs/clients/default.log"
 						filePattern="./logs/clients/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
 						<PatternLayout
-							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][strategyId: %X{strategyId}] %m%n" />
+							pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][jobId: %X{jobId}][ruleSetId: %X{ruleSetId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -99,13 +99,13 @@
 				</Route>
 			</Routes>
 		</Routing>
-		<Routing name="RoutingByStrategyId">
-			<Routes pattern="$${ctx:strategyId}">
-				<!-- This route is chosen if ThreadContext has no value for key strategyId. -->
-				<Route key="$${ctx:strategyId}">
-					<RollingFile name="Rolling-default" fileName="logs/strategies/default.log"
+		<Routing name="RoutingByRuleSetId">
+			<Routes pattern="$${ctx:ruleSetId}">
+				<!-- This route is chosen if ThreadContext has no value for key ruleSetId. -->
+				<Route key="$${ctx:ruleSetId}">
+					<RollingFile name="Rolling-default" fileName="logs/rulesets/default.log"
 						filePattern="./logs/${date:yyyy-MM}/default-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][strategyId: %X{strategyId}] %m%n" />
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][ruleSetId: %X{ruleSetId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -116,10 +116,10 @@
 				<!-- This route is chosen if ThreadContext has a value for jobId
 					 The value dynamically determines the name of the log file. -->
 				<Route>
-					<RollingFile name="Rolling-${ctx:strategyId}"
-						fileName="logs/strategies/strategy${ctx:strategyId}.log"
-						filePattern="./logs/strategies/${date:yyyy-MM}/strategy$${ctx:strategyId}-other-%d{yyyy-MM-dd}-%i.log.gz">
-						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][strategyId: %X{strategyId}] %m%n" />
+					<RollingFile name="Rolling-${ctx:ruleSetId}"
+						fileName="logs/rulesets/ruleSet${ctx:ruleSetId}.log"
+						filePattern="./logs/rulesets/${date:yyyy-MM}/ruleSet$${ctx:ruleSetId}-other-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout pattern="%d{ABSOLUTE} %t %-5p [%c{1}:%L][ruleSetId: %X{ruleSetId}] %m%n" />
 						<Policies>
 							<TimeBasedTriggeringPolicy interval="6" modulate="true" />
 							<SizeBasedTriggeringPolicy size="10 MB" />
@@ -138,14 +138,14 @@
 			<AppenderRef ref="ConsoleWithJobId" />
 			<AppenderRef ref="RoutingByAgent" />
 			<AppenderRef ref="RoutingByJobId" />
-			<AppenderRef ref="RoutingByStrategyId" />
+			<AppenderRef ref="RoutingByRuleSetId" />
 			<AppenderRef ref="RoutingByClient" />
 		</Logger>
 		<Logger name="org.greencloud.rulescontroller" level="debug" additivity="false">
 			<AppenderRef ref="ConsoleWithJobId" />
 			<AppenderRef ref="RoutingByAgent" />
 			<AppenderRef ref="RoutingByJobId" />
-			<AppenderRef ref="RoutingByStrategyId" />
+			<AppenderRef ref="RoutingByRuleSetId" />
 			<AppenderRef ref="RoutingByClient" />
 		</Logger>
 
@@ -153,7 +153,7 @@
 			<AppenderRef ref="ConsoleWithJobId" />
 			<AppenderRef ref="RoutingByAgent" />
 			<AppenderRef ref="RoutingByJobId" />
-			<AppenderRef ref="RoutingByStrategyId" />
+			<AppenderRef ref="RoutingByRuleSetId" />
 			<AppenderRef ref="RoutingByClient" />
 		</Logger>
 		<Logger name="org.greencloud.managingsystem" level="debug" additivity="false">

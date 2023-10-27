@@ -14,9 +14,8 @@ import java.util.Map;
 
 import org.apache.tomcat.util.buf.StringUtils;
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
-import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.RuleRest;
@@ -31,7 +30,7 @@ import jade.core.Agent;
 import lombok.Getter;
 
 /**
- * Abstract class defining structure of a rule used in given system strategy
+ * Abstract class defining structure of a rule used in given system rule set
  */
 @Getter
 @SuppressWarnings("unchecked")
@@ -146,14 +145,14 @@ public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extend
 	}
 
 	@Override
-	public boolean evaluateRule(final StrategyFacts facts) {
+	public boolean evaluateRule(final RuleSetFacts facts) {
 		return ruleType.equals(facts.get(RULE_TYPE));
 	}
 
 	@Override
 	public boolean evaluate(final Facts facts) {
 		if (isNull(evaluateExpression)) {
-			return evaluateRule((StrategyFacts) facts);
+			return evaluateRule((RuleSetFacts) facts);
 		} else {
 			initialParameters.replace("facts", facts);
 			return (boolean) MVEL.executeExpression(evaluateExpression, initialParameters);
@@ -163,7 +162,7 @@ public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extend
 	@Override
 	public void execute(final Facts facts) throws Exception {
 		if (isNull(executeExpression)) {
-			executeRule((StrategyFacts) facts);
+			executeRule((RuleSetFacts) facts);
 		} else {
 			initialParameters.replace("facts", facts);
 			MVEL.executeExpression(executeExpression, initialParameters);

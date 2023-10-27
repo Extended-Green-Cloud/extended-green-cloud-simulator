@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -20,7 +20,7 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
-import org.greencloud.rulescontroller.strategy.Strategy;
+import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.support.composite.ActivationRuleGroup;
 import org.jeasy.rules.support.composite.UnitRuleGroup;
@@ -36,7 +36,7 @@ import lombok.Setter;
 @Getter
 public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
-	protected final Strategy strategy;
+	protected final RuleSet ruleSet;
 	protected final AgentCombinedRuleType combinationType;
 	protected final List<AgentRule> rulesToCombine;
 
@@ -49,7 +49,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	protected AgentCombinedRule(final RulesController<T, E> controller, final AgentCombinedRuleType combinationType) {
 		super(controller);
 		this.combinationType = combinationType;
-		this.strategy = null;
+		this.ruleSet = null;
 		this.rulesToCombine = new ArrayList<>(constructRules());
 	}
 
@@ -64,7 +64,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 			final int priority) {
 		super(controller, priority);
 		this.combinationType = combinationType;
-		this.strategy = null;
+		this.ruleSet = null;
 		this.rulesToCombine = new ArrayList<>(constructRules());
 	}
 
@@ -72,14 +72,14 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	 * Constructor
 	 *
 	 * @param controller      rules controller connected to the agent
-	 * @param strategy        currently executed strategy
+	 * @param ruleSet         currently executed rule set
 	 * @param combinationType way in which agent rules are to be combined
 	 */
-	protected AgentCombinedRule(final RulesController<T, E> controller, final Strategy strategy,
+	protected AgentCombinedRule(final RulesController<T, E> controller, final RuleSet ruleSet,
 			final AgentCombinedRuleType combinationType) {
 		super(controller);
 		this.combinationType = combinationType;
-		this.strategy = strategy;
+		this.ruleSet = ruleSet;
 		this.rulesToCombine = new ArrayList<>(constructRules());
 	}
 
@@ -87,14 +87,14 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	 * Constructor
 	 *
 	 * @param ruleRest rest representation of agent rule
-	 * @param strategy currently executed strategy
+	 * @param ruleSet  currently executed rule set
 	 */
-	public AgentCombinedRule(final CombinedRuleRest ruleRest, final Strategy strategy) {
+	public AgentCombinedRule(final CombinedRuleRest ruleRest, final RuleSet ruleSet) {
 		super(ruleRest);
 		this.combinationType = ruleRest.getCombinedRuleType();
-		this.strategy = strategy;
+		this.ruleSet = ruleSet;
 		this.rulesToCombine = ruleRest.getRulesToCombine().stream()
-				.map(rule -> MVELRuleMapper.getRuleForType(rule, strategy))
+				.map(rule -> MVELRuleMapper.getRuleForType(rule, ruleSet))
 				.toList();
 	}
 
@@ -127,7 +127,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	}
 
 	@Override
-	public boolean evaluateRule(final StrategyFacts facts) {
+	public boolean evaluateRule(final RuleSetFacts facts) {
 		return true;
 	}
 
@@ -155,11 +155,11 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	@Setter
 	class AgentExecuteAllCombinedRule extends UnitRuleGroup implements AgentRule {
 
-		private final Predicate<StrategyFacts> preEvaluated;
-		private final Consumer<StrategyFacts> preExecute;
+		private final Predicate<RuleSetFacts> preEvaluated;
+		private final Consumer<RuleSetFacts> preExecute;
 
 		public AgentExecuteAllCombinedRule(final String name, final String description,
-				final Predicate<StrategyFacts> preEvaluated, final Consumer<StrategyFacts> preExecute) {
+				final Predicate<RuleSetFacts> preEvaluated, final Consumer<RuleSetFacts> preExecute) {
 			super(name, description);
 			this.preEvaluated = preEvaluated;
 			this.preExecute = preExecute;
@@ -172,10 +172,10 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 
 		@Override
 		public boolean evaluate(final Facts facts) {
-			if (preEvaluated.test((StrategyFacts) facts)) {
-				preExecute.accept((StrategyFacts) facts);
+			if (preEvaluated.test((RuleSetFacts) facts)) {
+				preExecute.accept((RuleSetFacts) facts);
 			}
-			return preEvaluated.test((StrategyFacts) facts) && super.evaluate(facts);
+			return preEvaluated.test((RuleSetFacts) facts) && super.evaluate(facts);
 		}
 
 		@Override
@@ -189,7 +189,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			return this.evaluate(facts);
 		}
 
@@ -217,11 +217,11 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 	@Setter
 	class AgentExecuteFirstCombinedRule extends ActivationRuleGroup implements AgentRule {
 
-		private final Predicate<StrategyFacts> preEvaluated;
-		private final Consumer<StrategyFacts> preExecute;
+		private final Predicate<RuleSetFacts> preEvaluated;
+		private final Consumer<RuleSetFacts> preExecute;
 
 		public AgentExecuteFirstCombinedRule(final String name, final String description,
-				final Predicate<StrategyFacts> preEvaluated, final Consumer<StrategyFacts> preExecute) {
+				final Predicate<RuleSetFacts> preEvaluated, final Consumer<RuleSetFacts> preExecute) {
 			super(name, description);
 			this.preEvaluated = preEvaluated;
 			this.preExecute = preExecute;
@@ -234,8 +234,8 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 
 		@Override
 		public boolean evaluate(final Facts facts) {
-			if (preEvaluated.test((StrategyFacts) facts)) {
-				preExecute.accept((StrategyFacts) facts);
+			if (preEvaluated.test((RuleSetFacts) facts)) {
+				preExecute.accept((RuleSetFacts) facts);
 				return super.evaluate(facts);
 			}
 			return false;
@@ -247,7 +247,7 @@ public class AgentCombinedRule<T extends AgentProps, E extends AgentNode<T>> ext
 		}
 
 		@Override
-		public boolean evaluateRule(final StrategyFacts facts) {
+		public boolean evaluateRule(final RuleSetFacts facts) {
 			return this.evaluate(facts);
 		}
 

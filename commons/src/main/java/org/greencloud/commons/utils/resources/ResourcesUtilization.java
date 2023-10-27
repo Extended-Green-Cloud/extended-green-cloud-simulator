@@ -4,13 +4,16 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.max;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections4.SetUtils.union;
 import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
 import static org.greencloud.commons.utils.resources.domain.JobWithTime.TimeType.START_TIME;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,7 +24,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.resources.ImmutableResource;
+import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.domain.resources.ResourceCharacteristic;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.utils.resources.domain.JobWithTime;
 import org.greencloud.commons.utils.resources.domain.SubJobList;
@@ -269,5 +275,43 @@ public class ResourcesUtilization {
 				.allMatch(entry -> (!requiredResources.containsKey(entry.getKey()) ||
 						entry.getValue().isSufficient(requiredResources)) &&
 						resources.keySet().containsAll(requiredResources.keySet()));
+	}
+
+	/**
+	 * Method aggregates two sets of resources.
+	 *
+	 * @param resources1 first resources
+	 * @param resources2 second resources
+	 * @return aggregated resources
+	 */
+	public static Map<String, Resource> addResources(final Map<String, Resource> resources1,
+			final Map<String, Resource> resources2) {
+		final Set<String> resourceKeys = union(resources1.keySet(), resources2.keySet());
+		final Map<String, Resource> aggregatedResources = new HashMap<>();
+
+		resourceKeys.forEach(key -> {
+			if (resources1.containsKey(key) && resources2.containsKey(key)) {
+				aggregatedResources.putIfAbsent(key, resources1.get(key).addResource(resources2.get(key)));
+			} else if (!resources1.containsKey(key)) {
+				aggregatedResources.putIfAbsent(key, ImmutableResource.copyOf(resources2.get(key)));
+			} else {
+				aggregatedResources.putIfAbsent(key, ImmutableResource.copyOf(resources1.get(key)));
+			}
+		});
+
+		return aggregatedResources;
+	}
+
+	/**
+	 * Method returns default empty resource representation
+	 *
+	 * @param resource resource for which empty resource is to be constructed
+	 * @return resource representation when it is fully occupied
+	 */
+	public static Resource getDefaultEmptyResource(final Resource resource) {
+		final Map<String, ResourceCharacteristic> newCharacteristics = new HashMap<>(resource.getCharacteristics());
+		newCharacteristics.computeIfPresent(AMOUNT,
+				(k, val) -> ImmutableResourceCharacteristic.copyOf(val).withValue(0));
+		return ImmutableResource.copyOf(resource).withCharacteristics(newCharacteristics);
 	}
 }

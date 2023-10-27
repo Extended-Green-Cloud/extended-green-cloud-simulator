@@ -27,8 +27,8 @@ public class NetworkErrorMessageFactory {
 	 * @return REQUEST ACLMessage
 	 */
 	public static ACLMessage prepareJobTransferRequest(final JobPowerShortageTransfer powerShortageJob,
-			final AID receiver, final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final AID receiver, final Integer ruleSet) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(REQUEST)
 				.withObjectContent(powerShortageJob)
 				.withMessageProtocol(MessageProtocolConstants.NETWORK_ERROR_ALERT_PROTOCOL)
@@ -44,8 +44,8 @@ public class NetworkErrorMessageFactory {
 	 * @return REQUEST ACLMessage
 	 */
 	public static ACLMessage prepareGreenPowerSupplyRequest(final ClientJob job, final AID receiver,
-			final Integer strategy) {
-		return MessageBuilder.builder(strategy)
+			final Integer ruleSet) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(REQUEST)
 				.withObjectContent(JobMapper.mapClientJobToJobInstanceId(job))
 				.withMessageProtocol(MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL)
@@ -62,9 +62,9 @@ public class NetworkErrorMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareJobTransferUpdateMessageForCNA(final JobInstanceIdentifier jobInstanceId,
-			final String protocol, final AID cloudNetwork, final Integer strategy) {
+			final String protocol, final AID cloudNetwork, final Integer ruleSet) {
 		final int performative = protocol.equals(MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL) ? FAILURE : INFORM;
-		return MessageBuilder.builder(strategy)
+		return MessageBuilder.builder(ruleSet)
 				.withObjectContent(jobInstanceId)
 				.withPerformative(performative)
 				.withReceivers(cloudNetwork)
@@ -81,8 +81,8 @@ public class NetworkErrorMessageFactory {
 	 * @return INFORM ACLMessage
 	 */
 	public static ACLMessage prepareNetworkFailureInformation(final Object messageContent, final String protocol,
-			final Integer strategy, final AID... receivers) {
-		return MessageBuilder.builder(strategy)
+			final Integer ruleSet, final AID... receivers) {
+		return MessageBuilder.builder(ruleSet)
 				.withPerformative(INFORM)
 				.withMessageProtocol(protocol)
 				.withObjectContent(messageContent)

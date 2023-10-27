@@ -1,12 +1,12 @@
 package org.greencloud.rulescontroller;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_STRATEGY_ID;
-import static org.greencloud.rulescontroller.strategy.StrategyConstructor.constructStrategy;
-import static org.greencloud.rulescontroller.strategy.StrategyConstructor.constructStrategyForType;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructRuleSet;
+import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructRuleSetForType;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
-import org.greencloud.rulescontroller.strategy.Strategy;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -25,7 +25,7 @@ import jade.core.Agent;
 import lombok.Getter;
 
 /**
- * Class provides functionalities that handle agent behaviours via strategies
+ * Class provides functionalities that handle agent behaviours via rule sets
  */
 @Getter
 public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
@@ -35,28 +35,28 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	protected Agent agent;
 	protected E agentNode;
 	protected T agentProps;
-	protected AtomicInteger latestStrategy;
-	protected AtomicInteger latestAdaptedStrategy;
-	protected ConcurrentMap<Integer, Strategy> strategies;
-	protected String baseStrategy;
+	protected AtomicInteger latestRuleSet;
+	protected AtomicInteger latestAdaptedRuleSet;
+	protected ConcurrentMap<Integer, RuleSet> ruleSets;
+	protected String baseRuleSet;
 
 	public RulesController() {
-		latestStrategy = new AtomicInteger(0);
-		latestAdaptedStrategy = new AtomicInteger(0);
-		strategies = new ConcurrentHashMap<>();
+		latestRuleSet = new AtomicInteger(0);
+		latestAdaptedRuleSet = new AtomicInteger(0);
+		ruleSets = new ConcurrentHashMap<>();
 	}
 
 	/**
-	 * Method fires agent strategy for a set of facts
+	 * Method fires agent rule set for a set of facts
 	 *
 	 * @param facts set of facts based on which actions are going to be taken
 	 */
-	public void fire(final StrategyFacts facts) {
+	public void fire(final RuleSetFacts facts) {
 		try {
-			final Strategy strategy = strategies.get((int) facts.get(STRATEGY_IDX));
-			strategy.fireStrategy(facts);
+			final RuleSet ruleSet = ruleSets.get((int) facts.get(RULE_SET_IDX));
+			ruleSet.fireRuleSet(facts);
 		} catch (NullPointerException e) {
-			logger.warn("Couldn't find any strategy of given index! Rule type: {} Rule step: {}",
+			logger.warn("Couldn't find any rule set of given index! Rule type: {} Rule step: {}",
 					facts.get(RULE_TYPE), facts.get(RULE_STEP));
 		}
 	}
@@ -68,50 +68,50 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	 * @param agentProps agent properties
 	 * @param agentNode  GUI agent node
 	 */
-	public void setAgent(Agent agent, T agentProps, E agentNode, String baseStrategy) {
+	public void setAgent(Agent agent, T agentProps, E agentNode, String baseRuleSet) {
 		this.agent = agent;
 		this.agentProps = agentProps;
 		this.agentNode = agentNode;
-		this.baseStrategy = baseStrategy;
-		this.strategies.put(latestStrategy.get(), constructStrategy(baseStrategy, this));
+		this.baseRuleSet = baseRuleSet;
+		this.ruleSets.put(latestRuleSet.get(), constructRuleSet(baseRuleSet, this));
 	}
 
 	/**
-	 * Method adds new agent's strategy
+	 * Method adds new agent's rule set
 	 *
-	 * @param type type of strategy that is to be added
-	 * @param idx  index of the added strategy
+	 * @param type type of rule set that is to be added
+	 * @param idx  index of the added rule set
 	 */
-	public void addModifiedStrategy(final String type, final int idx) {
-		this.strategies.put(idx, constructStrategyForType(baseStrategy, type, this));
-		this.latestStrategy.set(idx);
+	public void addModifiedRuleSet(final String type, final int idx) {
+		this.ruleSets.put(idx, constructRuleSetForType(baseRuleSet, type, this));
+		this.latestRuleSet.set(idx);
 	}
 
 	/**
-	 * Method adds new agent's strategy
+	 * Method adds new agent's rule set
 	 *
-	 * @param type type of strategy that is to be added
-	 * @param idx  index of the added strategy
+	 * @param type type of rule set that is to be added
+	 * @param idx  index of the added ruleSet
 	 */
-	public void addNewStrategy(final String type, final int idx) {
-		this.strategies.put(idx, constructStrategy(type, this));
-		this.latestStrategy.set(idx);
+	public void addNewRuleSet(final String type, final int idx) {
+		this.ruleSets.put(idx, constructRuleSet(type, this));
+		this.latestRuleSet.set(idx);
 	}
 
 	/**
-	 * Method verifies if the strategy is to be removed from the controller
+	 * Method verifies if the rule set is to be removed from the controller
 	 *
-	 * @param strategyForObject map containing strategies assigned to given objects
-	 * @param strategyIdx    index of the strategy removed along with the object
-	 * @return flag indicating if the strategy was removed
+	 * @param ruleSetForObject map containing rule sets assigned to given objects
+	 * @param ruleSetIdx       index of the rule set removed along with the object
+	 * @return flag indicating if the rule set was removed
 	 */
-	public boolean removeStrategy(final ConcurrentMap<String, Integer> strategyForObject, final int strategyIdx) {
-		if (strategyIdx != latestStrategy.get()
-				&& strategyForObject.values().stream().noneMatch(val -> val == strategyIdx)) {
+	public boolean removeRuleSet(final ConcurrentMap<String, Integer> ruleSetForObject, final int ruleSetIdx) {
+		if (ruleSetIdx != latestRuleSet.get()
+				&& ruleSetForObject.values().stream().noneMatch(val -> val == ruleSetIdx)) {
 
-			MDC.put(MDC_STRATEGY_ID, valueOf(strategyIdx));
-			logger.info("Removing strategy {} from the map.", strategyIdx);
-			strategies.remove(strategyIdx);
+			MDC.put(MDC_RULE_SET_ID, valueOf(ruleSetIdx));
+			logger.info("Removing rule set {} from the map.", ruleSetIdx);
+			ruleSets.remove(ruleSetIdx);
 			return true;
 		}
 		return false;

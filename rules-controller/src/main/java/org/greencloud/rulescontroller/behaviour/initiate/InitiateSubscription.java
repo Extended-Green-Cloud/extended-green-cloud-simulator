@@ -2,9 +2,9 @@ package org.greencloud.rulescontroller.behaviour.initiate;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.STRATEGY_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.SUBSCRIPTION_ADDED_AGENTS;
 import static org.greencloud.commons.constants.FactTypeConstants.SUBSCRIPTION_CREATE_MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.SUBSCRIPTION_REMOVED_AGENTS;
@@ -15,7 +15,7 @@ import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.decod
 import java.util.Map;
 import java.util.function.ToIntFunction;
 
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleType;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.rulescontroller.RulesController;
@@ -31,16 +31,16 @@ import jade.proto.SubscriptionInitiator;
  */
 public class InitiateSubscription extends SubscriptionInitiator {
 
-	protected final ToIntFunction<Facts> selectStrategy;
-	final StrategyFacts facts;
+	protected final ToIntFunction<Facts> selectRuleSet;
+	final RuleSetFacts facts;
 	protected RulesController<?, ?> controller;
 
-	protected InitiateSubscription(final Agent agent, final StrategyFacts facts,
-			final RulesController<?, ?> controller, final ToIntFunction<Facts> selectStrategy) {
+	protected InitiateSubscription(final Agent agent, final RuleSetFacts facts,
+			final RulesController<?, ?> controller, final ToIntFunction<Facts> selectRuleSet) {
 		super(agent, facts.get(SUBSCRIPTION_CREATE_MESSAGE));
 		this.facts = facts;
 		this.controller = controller;
-		this.selectStrategy = isNull(selectStrategy) ? o -> controller.getLatestStrategy().get() : selectStrategy;
+		this.selectRuleSet = isNull(selectRuleSet) ? o -> controller.getLatestRuleSet().get() : selectRuleSet;
 	}
 
 	/**
@@ -52,9 +52,9 @@ public class InitiateSubscription extends SubscriptionInitiator {
 	 * @param controller rules controller
 	 * @return InitiateSubscription
 	 */
-	public static InitiateSubscription create(final Agent agent, final StrategyFacts facts, final String ruleType,
+	public static InitiateSubscription create(final Agent agent, final RuleSetFacts facts, final String ruleType,
 			final RulesController<?, ?> controller) {
-		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
+		final RuleSetFacts methodFacts = FactsMapper.mapToRuleSetFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, SUBSCRIPTION_CREATE_STEP);
 		controller.fire(methodFacts);
@@ -65,21 +65,21 @@ public class InitiateSubscription extends SubscriptionInitiator {
 	/**
 	 * Method creates behaviour
 	 *
-	 * @param agent          agent executing the behaviour
-	 * @param facts          facts under which the Subscription message is to be created
-	 * @param ruleType       type of the rule that handles Subscription execution
-	 * @param controller     rules controller
-	 * @param selectStrategy predicate specifying how the strategy of the given behaviour should be selected
+	 * @param agent         agent executing the behaviour
+	 * @param facts         facts under which the Subscription message is to be created
+	 * @param ruleType      type of the rule that handles Subscription execution
+	 * @param controller    rules controller
+	 * @param selectRuleSet predicate specifying how the rule set of the given behaviour should be selected
 	 * @return InitiateSubscription
 	 */
-	public static InitiateSubscription create(final Agent agent, final StrategyFacts facts, final RuleType ruleType,
-			final RulesController<?, ?> controller, final ToIntFunction<Facts> selectStrategy) {
-		final StrategyFacts methodFacts = FactsMapper.mapToStrategyFacts(facts);
+	public static InitiateSubscription create(final Agent agent, final RuleSetFacts facts, final RuleType ruleType,
+			final RulesController<?, ?> controller, final ToIntFunction<Facts> selectRuleSet) {
+		final RuleSetFacts methodFacts = FactsMapper.mapToRuleSetFacts(facts);
 		methodFacts.put(RULE_TYPE, ruleType);
 		methodFacts.put(RULE_STEP, SUBSCRIPTION_CREATE_STEP);
 		controller.fire(methodFacts);
 
-		return new InitiateSubscription(agent, methodFacts, controller, selectStrategy);
+		return new InitiateSubscription(agent, methodFacts, controller, selectRuleSet);
 	}
 
 	/**
@@ -107,8 +107,8 @@ public class InitiateSubscription extends SubscriptionInitiator {
 			facts.put(SUBSCRIPTION_ADDED_AGENTS, addedAgents);
 			facts.put(SUBSCRIPTION_REMOVED_AGENTS, removedAgents);
 
-			final int strategyIdx = selectStrategy.applyAsInt(facts);
-			facts.put(STRATEGY_IDX, strategyIdx);
+			final int ruleSetIdx = selectRuleSet.applyAsInt(facts);
+			facts.put(RULE_SET_IDX, ruleSetIdx);
 
 			controller.fire(facts);
 			postProcessSubscriptionResponse(facts);
@@ -119,7 +119,7 @@ public class InitiateSubscription extends SubscriptionInitiator {
 	 * Method can be optionally overridden in order to perform facts-based actions after handling subscription response
 	 * message
 	 */
-	protected void postProcessSubscriptionResponse(final StrategyFacts facts) {
+	protected void postProcessSubscriptionResponse(final RuleSetFacts facts) {
 		// to be overridden if necessary
 	}
 }

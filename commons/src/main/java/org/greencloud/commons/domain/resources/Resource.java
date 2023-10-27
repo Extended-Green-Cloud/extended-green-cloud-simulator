@@ -6,12 +6,14 @@ import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceAdditionConstants.ADD_BY_AMOUNT;
 import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TAKE_FROM_INITIAL_KNOWLEDGE;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.getDefaultEmptyResource;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.errorprone.annotations.Var;
 
 /**
  * Class describing a single hardware resource
@@ -29,6 +32,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableResource.class)
 @JsonDeserialize(as = ImmutableResource.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Value.Style(underrideHashCode = "hash")
 @Value.Immutable(prehash = true)
 public interface Resource {
 
@@ -41,12 +45,8 @@ public interface Resource {
 	 * @return resource representation when it is fully occupied
 	 */
 	@Value.Default
-	@Value.Auxiliary
 	default Resource getEmptyResource() {
-		final Map<String, ResourceCharacteristic> newCharacteristics = new HashMap<>(getCharacteristics());
-		newCharacteristics.computeIfPresent(AMOUNT,
-				(k, val) -> ImmutableResourceCharacteristic.copyOf(val).withValue(0));
-		return ImmutableResource.copyOf(this).withCharacteristics(newCharacteristics);
+		return getDefaultEmptyResource(this);
 	}
 
 	/**
@@ -193,8 +193,8 @@ public interface Resource {
 	default Resource addResourceAmounts(final Resource resource1, final Resource resource2) {
 		final Object commonCurrent = resource1.getCharacteristics().get(AMOUNT).convertToCommonUnit();
 		final Object commonOther = resource2.getCharacteristics().get(AMOUNT).convertToCommonUnit();
-		final Object newAmount = commonOther.getClass()
-				.cast(Double.parseDouble(commonCurrent.toString()) + Double.parseDouble(commonOther.toString()));
+		final Object newAmount =
+				Double.parseDouble(commonCurrent.toString()) + Double.parseDouble(commonOther.toString());
 		final Object convertedAmount = getCharacteristics().get(AMOUNT).convertFromCommonUnit(newAmount);
 		final ResourceCharacteristic newAmountChar =
 				ImmutableResourceCharacteristic.copyOf(getCharacteristics().get(AMOUNT)).withValue(convertedAmount);
@@ -212,7 +212,7 @@ public interface Resource {
 	 * @return resource after reserving required amounts
 	 */
 	default Resource reserveResource(final Resource resourceToReserve) {
-		if(isNull(resourceToReserve)) {
+		if (isNull(resourceToReserve)) {
 			return ImmutableResource.copyOf(this);
 		}
 
@@ -240,5 +240,14 @@ public interface Resource {
 				.getValue() instanceof Number)) {
 			throw new InvalidParameterException("The \"amount\" resource characteristic must be a number!");
 		}
+	}
+
+	default int hash() {
+		@Var int h = 5381;
+		h += (h << 5) + getCharacteristics().hashCode();
+		h += (h << 5) + Objects.hashCode(getSufficiencyValidator());
+		h += (h << 5) + Objects.hashCode(getResourceAddition());
+		h += (h << 5) + Objects.hashCode(getResourceComparator());
+		return h;
 	}
 }

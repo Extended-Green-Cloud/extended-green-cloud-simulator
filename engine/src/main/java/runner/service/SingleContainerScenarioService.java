@@ -1,7 +1,7 @@
 package runner.service;
 
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
-import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
+import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;

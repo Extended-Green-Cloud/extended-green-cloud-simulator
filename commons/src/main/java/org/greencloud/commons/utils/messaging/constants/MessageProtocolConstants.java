@@ -103,13 +103,13 @@ public class MessageProtocolConstants {
 	public static final String PERIODIC_WEATHER_CHECK_PROTOCOL = "PERIODIC_WEATHER_CHECK_PROTOCOL";
 
 	/**
-	 * Strategy adaptation protocols
+	 * Rule set adaptation protocols
 	 *
-	 * <p> CHANGE_STRATEGY_PROTOCOL           - protocol used in messages asking underlying agents to adapt new strategy
-	 * <p> REMOVE_STRATEGY_PROTOCOL           - protocol used in messages asking underlying agents to remove strategy
+	 * <p> CHANGE_RULE_SET_PROTOCOL           - protocol used in messages asking underlying agents to adapt new rule set
+	 * <p> REMOVE_RULE_SET_PROTOCOL           - protocol used in messages asking underlying agents to remove rule set
 	 */
-	public static final String CHANGE_STRATEGY_PROTOCOL = "CHANGE_STRATEGY_PROTOCOL";
-	public static final String REMOVE_STRATEGY_PROTOCOL = "REMOVE_STRATEGY_PROTOCOL";
+	public static final String CHANGE_RULE_SET_PROTOCOL = "CHANGE_RULE_SET_PROTOCOL";
+	public static final String REMOVE_RULE_SET_PROTOCOL = "REMOVE_RULE_SET_PROTOCOL";
 
 	/**
 	 * System adaptation protocols

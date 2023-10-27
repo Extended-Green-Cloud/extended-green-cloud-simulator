@@ -11,7 +11,7 @@ import org.greencloud.agentsystem.agents.AbstractAgent;
 
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import com.gui.agents.scheduler.SchedulerNode;
 
 /**
@@ -32,7 +32,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent<SchedulerNode
 	 */
 	public final ToDoubleFunction<ClientJob> getJobPriority() {
 		return clientJob -> {
-			final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
 			facts.put(RULE_TYPE, COMPUTE_JOB_PRIORITY_RULE);
 			facts.put(JOB, clientJob);
 			fireOnFacts(facts);

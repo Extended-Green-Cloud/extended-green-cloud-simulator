@@ -32,10 +32,10 @@ public interface PowerJob extends Serializable {
 	String getJobId();
 
 	/**
-	 * @return strategy with which the job is to be handled
+	 * @return rule set with which the job is to be handled
 	 */
 	@Nullable
-	Integer getStrategyId();
+	Integer getRuleSetId();
 
 	/**
 	 * @return unique job instance identifier

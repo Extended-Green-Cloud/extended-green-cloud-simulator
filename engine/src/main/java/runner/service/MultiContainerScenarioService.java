@@ -3,7 +3,7 @@ package runner.service;
 import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.greencloud.rulescontroller.rest.StrategyRestApi.startRulesControllerRest;
+import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.locationId;
 import static runner.configuration.EngineConfiguration.mainDFAddress;

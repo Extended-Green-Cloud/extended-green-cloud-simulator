@@ -2,10 +2,10 @@ package org.greencloud.strategyinjection.agentsystem.agents;
 
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.INITIALIZE_BEHAVIOURS_RULE;
-import static org.greencloud.commons.enums.strategy.StrategyType.DEFAULT_STRATEGY;
+import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_RULE_SET;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 
 import com.gui.agents.AgentNode;
@@ -22,10 +22,10 @@ public class AbstractAgent<T extends AgentNode<E>, E extends AgentProps> extends
 	protected T node;
 
 	/**
-	 * Method responsible for running initial custom behaviours prepared only for selected strategy
+	 * Method responsible for running initial custom behaviours prepared only for selected rule set
 	 */
 	public void runInitialBehavioursForStrategy() {
-		final StrategyFacts facts = new StrategyFacts(rulesController.getLatestStrategy().get());
+		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
 		facts.put(RULE_TYPE, INITIALIZE_BEHAVIOURS_RULE);
 		rulesController.fire(facts);
 	}
@@ -34,7 +34,7 @@ public class AbstractAgent<T extends AgentNode<E>, E extends AgentProps> extends
 	 * Method sets up the rules controller
 	 */
 	public void setRulesController() {
-		rulesController.setAgent(this, properties, node, DEFAULT_STRATEGY.name());
+		rulesController.setAgent(this, properties, node, DEFAULT_RULE_SET);
 		runInitialBehavioursForStrategy();
 	}
 }

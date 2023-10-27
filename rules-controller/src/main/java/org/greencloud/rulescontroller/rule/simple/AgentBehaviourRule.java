@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.BehaviourRuleRest;
@@ -25,7 +25,7 @@ import com.gui.agents.AgentNode;
 import jade.core.behaviours.Behaviour;
 
 /**
- * Abstract class defining structure of a rule which adds to the agent strategy-specific behaviours
+ * Abstract class defining structure of a rule which adds to the agent rule-set-specific behaviours
  */
 public class AgentBehaviourRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
@@ -62,7 +62,7 @@ public class AgentBehaviourRule<T extends AgentProps, E extends AgentNode<T>> ex
 	}
 
 	@Override
-	public void executeRule(final StrategyFacts facts) {
+	public void executeRule(final RuleSetFacts facts) {
 		if (nonNull(this.initialParameters)) {
 			this.initialParameters.replace("facts", facts);
 		}
@@ -83,7 +83,7 @@ public class AgentBehaviourRule<T extends AgentProps, E extends AgentNode<T>> ex
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(INITIALIZE_BEHAVIOURS_RULE,
 				"initialize agent behaviours",
-				"when strategy is selected and agent is set-up, it adds set of default behaviours");
+				"when rule set is selected and agent is set-up, it adds set of default behaviours");
 	}
 
 	@Override

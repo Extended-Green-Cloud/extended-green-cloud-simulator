@@ -29,7 +29,7 @@ import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
 import org.greencloud.commons.constants.LoggingConstants;
-import org.greencloud.commons.domain.facts.StrategyFacts;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
@@ -65,7 +65,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	private final AtomicInteger weatherShortagesCounter;
 	protected GreenSourceDisconnectionProps greenSourceDisconnection;
 	protected ConcurrentMap<ServerJob, JobExecutionStatusEnum> serverJobs;
-	protected ConcurrentMap<String, Integer> strategyForJob;
+	protected ConcurrentMap<String, Integer> ruleSetForJob;
 	protected Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected AID monitoringAgent;
@@ -82,7 +82,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		this.weatherShortagesCounter = new AtomicInteger(0);
 		this.hasError = false;
 		this.serverJobs = new ConcurrentHashMap<>();
-		this.strategyForJob = new ConcurrentHashMap<>();
+		this.ruleSetForJob = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -114,13 +114,13 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	/**
 	 * Method adds new client job
 	 *
-	 * @param job      job that is to be added
-	 * @param strategy strategy with which the job is to be handled
-	 * @param status   status of the job
+	 * @param job     job that is to be added
+	 * @param ruleSet rule set with which the job is to be handled
+	 * @param status  status of the job
 	 */
-	public void addJob(final ServerJob job, final Integer strategy, final JobExecutionStatusEnum status) {
+	public void addJob(final ServerJob job, final Integer ruleSet, final JobExecutionStatusEnum status) {
 		serverJobs.put(job, status);
-		strategyForJob.put(job.getJobInstanceId(), strategy);
+		ruleSetForJob.put(job.getJobInstanceId(), ruleSet);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 */
 	public int removeJob(final ServerJob job) {
 		serverJobs.remove(job);
-		return strategyForJob.remove(job.getJobInstanceId());
+		return ruleSetForJob.remove(job.getJobInstanceId());
 	}
 
 	/**
@@ -258,9 +258,9 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @return Pair consisting of previous job instance and job instance for transfer (if there is only job instance
 	 * * for transfer then previous job instance element is null)
 	 */
-	public StrategyFacts divideJobForPowerShortage(final ServerJob job, final Instant powerShortageStart,
-			final StrategyFacts facts) {
-		return super.divideJobForPowerShortage(job, powerShortageStart, serverJobs, facts, strategyForJob);
+	public RuleSetFacts divideJobForPowerShortage(final ServerJob job, final Instant powerShortageStart,
+			final RuleSetFacts facts) {
+		return super.divideJobForPowerShortage(job, powerShortageStart, serverJobs, facts, ruleSetForJob);
 	}
 
 	/**
@@ -269,9 +269,9 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @param jobTransfer job transfer information
 	 * @param originalJob original job that is to be divided
 	 */
-	public StrategyFacts divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
-			final ServerJob originalJob, final StrategyFacts facts) {
-		return super.divideJobForPowerShortage(jobTransfer, originalJob, serverJobs, facts, strategyForJob);
+	public RuleSetFacts divideJobForPowerShortage(final JobPowerShortageTransfer jobTransfer,
+			final ServerJob originalJob, final RuleSetFacts facts) {
+		return super.divideJobForPowerShortage(jobTransfer, originalJob, serverJobs, facts, ruleSetForJob);
 	}
 
 	@Override

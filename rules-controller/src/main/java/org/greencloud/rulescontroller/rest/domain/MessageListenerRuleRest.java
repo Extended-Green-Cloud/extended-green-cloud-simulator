@@ -16,5 +16,5 @@ public class MessageListenerRuleRest extends RuleRest implements Serializable {
 	String messageTemplate;
 	int batchSize;
 	String actionHandler;
-	String selectStrategyIdx;
+	String selectRuleSetIdx;
 }

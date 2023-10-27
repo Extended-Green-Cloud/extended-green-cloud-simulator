@@ -7,6 +7,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.ImmutableServerResources;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.utils.messaging.MessageBuilder;
@@ -41,15 +42,18 @@ public class AgentDiscoveryMessageFactory {
 	/**
 	 * Message send to CNA informing about resources of new Server
 	 *
-	 * @param serverResources resources of the Server
+	 * @param serverAgentProps properties of the given Server
 	 * @return inform ACLMessage
 	 */
-	public static ACLMessage prepareResourceInformationMessage(final Map<String, Resource> serverResources,
-			final AID cna, final int strategyIdx) {
-		return MessageBuilder.builder(strategyIdx)
+	public static ACLMessage prepareResourceInformationMessage(final ServerAgentProps serverAgentProps,
+			final AID cna, final int ruleSetIdx) {
+		return MessageBuilder.builder(ruleSetIdx)
 				.withPerformative(INFORM)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
-				.withObjectContent(ImmutableServerResources.builder().resources(serverResources).build())
+				.withObjectContent(ImmutableServerResources.builder()
+						.resources(serverAgentProps.resources())
+						.price(serverAgentProps.getPricePerHour())
+						.build())
 				.withReceivers(cna)
 				.build();
 	}
@@ -60,8 +64,8 @@ public class AgentDiscoveryMessageFactory {
 	 * @param server server asked about resources
 	 * @return inform ACLMessage
 	 */
-	public static ACLMessage prepareRequestForResourceInformationMessage(final AID server, final int strategyIdx) {
-		return MessageBuilder.builder(strategyIdx)
+	public static ACLMessage prepareRequestForResourceInformationMessage(final AID server, final int ruleSetIdx) {
+		return MessageBuilder.builder(ruleSetIdx)
 				.withPerformative(REQUEST)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withObjectContent(REGISTER_SERVER_RESOURCES_PROTOCOL)
