@@ -54,9 +54,9 @@ class AugmentWorkflows():
     '''
 
     def __init__(self,
-                 workflows: pd.DataFrame,
-                 labels: List[int],
-                 sample_size: int = 50) -> None:
+                 workflows: List[pd.DataFrame],
+                 labels: List[List[int]],
+                 sample_size: List[int]) -> None:
         '''
         Method initialize augmentation parameters.
 
@@ -64,9 +64,9 @@ class AugmentWorkflows():
         workflows - workflows based on which synthetic data is to be generated
         sample_size - size of the sample that is to be generated
         '''
-        self.workflows = workflows
-        self.sample_size = sample_size
-        self.labels = labels
+        self.workflows_set = workflows
+        self.sample_size_set = sample_size
+        self.labels_set = labels
         self.gmm_range = list(range(100, 150, 10))
 
     def run_and_save(self) -> None:
@@ -75,23 +75,24 @@ class AugmentWorkflows():
         '''
         final_synthetic_data = []
 
-        for label in self.labels:
-            workflows = filter_workflows_by_label(self.workflows, str(label))
-            processor_name = get_codes_of_feature(workflows, WORKFLOW_FEATURES.PROCESSOR_TYPE).iloc[0,0]
-            workflow_steps = get_codes_of_feature(workflows, WORKFLOW_FEATURES.WORKFLOW_STEPS_ENCODED).iloc[0,0].split('>')
+        for idx_workflows, workflows_in_clustering in enumerate(self.workflows_set):
+            for idx_label, label in enumerate(self.labels_set[idx_workflows]):
+                workflows = filter_workflows_by_label(workflows_in_clustering, str(label))
+                processor_name = workflows[WORKFLOW_FEATURES.PROCESSOR_TYPE].value_counts().index[0]
+                workflow_steps = workflows[WORKFLOW_FEATURES.WORKFLOW_STEPS].value_counts().index[0].split('>')
 
-            workflows_numeric = filter_by_numerical_features(workflows, workflow_steps)
+                workflows_numeric = filter_by_numerical_features(workflows, workflow_steps)
 
-            columns = list(workflows_numeric.columns)
-            workflows = workflows_numeric.to_numpy()
+                columns = list(workflows_numeric.columns)
+                workflows = workflows_numeric.to_numpy()
 
-            synthetic_workflows = generate_synthetic_sample(
-                workflows, self.sample_size, self.gmm_range)
-            synthetic_workflows_df = \
-                pd.DataFrame(synthetic_workflows, columns=columns)
-            synthetic_workflows_df[WORKFLOW_FEATURES.PROCESSOR_TYPE] = processor_name
-            
-            final_synthetic_data += convert_synthetic_workflows_to_dict(synthetic_workflows_df, workflow_steps)
+                synthetic_workflows = generate_synthetic_sample(
+                    workflows, self.sample_size_set[idx_workflows][idx_label], self.gmm_range)
+                synthetic_workflows_df = \
+                    pd.DataFrame(synthetic_workflows, columns=columns)
+                synthetic_workflows_df[WORKFLOW_FEATURES.PROCESSOR_TYPE] = processor_name
+                
+                final_synthetic_data += convert_synthetic_workflows_to_dict(synthetic_workflows_df, workflow_steps)
 
         with open(PathReader.SYNTHETIC_PATH(), "w") as file:
             json.dump(final_synthetic_data, file)

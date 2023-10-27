@@ -180,8 +180,8 @@ class TestClusteringModel(TestCase):
                 raise self.failureException(
                     f'Method should return {expected_df} but returned {clustering.data}') from e
 
-    @patch("src.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
-    @patch("src.clustering.Clustering.save_validation_metrics")
+    @patch("src.clustering.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
+    @patch("src.clustering.clustering.Clustering.save_validation_metrics")
     def test_print_validators_not_fuzzy(self, mock_saver, mock_printer):
         """ Test should call print clustering metrics method for correct validators"""
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
@@ -203,8 +203,8 @@ class TestClusteringModel(TestCase):
             MOCK_VALIDATOR_RESULTS, clustering.name)
 
     @patch('builtins.print')
-    @patch("src.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
-    @patch("src.clustering.Clustering.save_validation_metrics")
+    @patch("src.clustering.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
+    @patch("src.clustering.clustering.Clustering.save_validation_metrics")
     def test_print_validators_not_fuzzy(self, mock_saver, mock_printer, mock_builtin_print):
         """ Test should call print clustering metrics method for correct validators"""
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
@@ -234,13 +234,13 @@ class TestClusteringModel(TestCase):
             mock_saver.assert_called_once_with(
                 MOCK_VALIDATOR_RESULTS, clustering.name)
 
-    @patch("src.clustering.Clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
-    @patch("src.clustering.Clustering.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
-    @patch("src.clustering.Clustering.display_clustering_scatter_plot")
-    @patch("src.clustering.Clustering.display_data_frame_with_labels")
-    @patch("src.clustering.Clustering.display_cluster_statistics")
-    @patch("src.clustering.Clustering.display_histograms_per_feature_for_clusters")
-    @patch("src.clustering.Clustering.display_histograms_per_clusters")
+    @patch("src.clustering.clustering.Clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
+    @patch("src.clustering.clustering.Clustering.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
+    @patch("src.clustering.clustering.Clustering.display_clustering_scatter_plot")
+    @patch("src.clustering.clustering.Clustering.display_data_frame_with_labels")
+    @patch("src.clustering.clustering.Clustering.display_cluster_statistics")
+    @patch("src.clustering.clustering_visualization.display_histograms_per_feature_for_clusters")
+    @patch("src.clustering.clustering_visualization.display_histograms_per_clusters")
     def test_run_with_test(self,
                            mock_cluster_display,
                            mock_feature_display,
@@ -273,14 +273,14 @@ class TestClusteringModel(TestCase):
             mock_get_df_with_clusters.assert_not_called()
             mock_run_data_preprocessing.assert_not_called()
 
-    @patch("src.clustering.Clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
-    @patch("src.clustering.Clustering.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
-    @patch("src.clustering.Clustering.display_clustering_scatter_plot")
-    @patch("src.clustering.Clustering.display_data_frame_with_labels")
-    @patch("src.clustering.Clustering.Clustering.print_validators")
-    @patch("src.clustering.Clustering.display_cluster_statistics")
-    @patch("src.clustering.Clustering.display_histograms_per_feature_for_clusters")
-    @patch("src.clustering.Clustering.display_histograms_per_clusters")
+    @patch("src.clustering.clustering.Clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
+    @patch("src.clustering.clustering.Clustering.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
+    @patch("src.clustering.clustering.Clustering.display_clustering_scatter_plot")
+    @patch("src.clustering.clustering.Clustering.display_data_frame_with_labels")
+    @patch("src.clustering.clustering.Clustering.Clustering.print_validators")
+    @patch("src.clustering.clustering.Clustering.display_cluster_statistics")
+    @patch("src.clustering.clustering_visualization.display_histograms_per_feature_for_clusters")
+    @patch("src.clustering.clustering_visualization.display_histograms_per_clusters")
     def test_run_not_only_db_no_test(self,
                                      mock_cluster_display,
                                      mock_feature_display,

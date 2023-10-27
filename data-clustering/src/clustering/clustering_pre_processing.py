@@ -45,8 +45,37 @@ def filter_out_test_workflows(data: pd.DataFrame) -> pd.DataFrame:
 
     return new_data
 
+def filter_out_download_workflows(data: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Method filters out workflows of type 'download'
+
+    Parameters:
+    data - data frame
+
+    Returns: modified data frame
+    '''
+    new_data = data.copy()
+    new_data = new_data[(new_data[WORKFLOW_FEATURES.PROCESSOR_TYPE] != 'download')]
+
+    return new_data
+
+def take_only_download_workflows(data: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Method takes only workflows of type 'download'
+
+    Parameters:
+    data - data frame
+
+    Returns: modified data frame
+    '''
+    new_data = data.copy()
+    new_data = new_data[(new_data[WORKFLOW_FEATURES.PROCESSOR_TYPE] == 'download')]
+
+    return new_data
 
 class ClusteringPreProcessing(Enum):
     def ONLY_DB_RECORDS(data): return filter_out_undefined_workflows(data)
     def MERGE_STATUSES(data): return merge_argo_statuses(data)
     def FILTER_TEST_WORKFLOWS(data): return filter_out_test_workflows(data)
+    def FILTER_OUT_DOWNLOAD_WORKFLOWS(data): return filter_out_download_workflows(data)
+    def TAKE_ONLY_DOWNLOAD_WORKFLOWS(data): return take_only_download_workflows(data)

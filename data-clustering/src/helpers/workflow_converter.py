@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Tuple
 from src.models.Workflow import Workflow
 from src.helpers.feature_encoder import factorize_feature, encode_categorical_list, WORKFLOW_FEATURES
-from src.helpers.workflow_filter import WORKFLOW_NUMERIC_FEATURES
+from src.helpers.workflow_filter import WORKFLOW_NON_RESOURCE_FEATURES, WORKFLOW_RESOURCE_FEATURES
 
 WORKFLOWS_COLUMNS = [
     WORKFLOW_FEATURES.WORKFLOW_UID,
@@ -222,21 +222,33 @@ def convert_synthetic_workflows_to_dict(synthetic_workflows: pd.DataFrame, workf
     synthetic_workflows - data frame of synthetically generated workflows
     workflow_steps - list of workflow steps taken into account in conversion
     '''
-    step_features = ['cpu', 'memory', 'ephemeral_storage', 'duration']
+    step_resource_features = ['cpu', 'memory', 'ephemeral_storage']
+    step_remaining = ['duration']
     workflows_dicts = []
 
     for workflow in synthetic_workflows.to_dict('records'):
-        workflow_dict = {key: round(workflow[key]) for key in WORKFLOW_NUMERIC_FEATURES}
+        workflow_resources = {key: round(workflow[key]) for key in WORKFLOW_RESOURCE_FEATURES}
+        workflow_dict = {'resources': workflow_resources}
+
+        for key in WORKFLOW_NON_RESOURCE_FEATURES:
+         workflow_dict[key] = round(workflow[key]) 
+
         workflow_dict[WORKFLOW_FEATURES.PROCESSOR_TYPE] = workflow[WORKFLOW_FEATURES.PROCESSOR_TYPE]
         workflow_dict['deadline'] = workflow_dict['deadline'] + workflow_dict['duration'] if workflow_dict['deadline'] > 0 else 0
         workflow_dict['steps'] = []
         workflow_end_step = None
 
         for step in workflow_steps:
-            features = [f'{step}_{feature}' for feature in step_features]
-            step_dict = {key.split('_')[-1]: round(workflow[key]) if workflow[key] >= 0 else 0 for key in features}
-            step_dict['name'] = step
+            features = [f'{step}_{feature}' for feature in step_resource_features]
+            step_resources = {key.split('_')[-1]: round(workflow[key]) if workflow[key] >= 0 else 0 for key in features}
 
+            for key in step_remaining:
+                feature = f'{step}_{key}'
+                step_dict = {feature.split('_')[-1]: round(workflow[feature]) if workflow[feature] >= 0 else 0}
+            
+            step_dict["resources"] = step_resources
+            
+            step_dict['name'] = step
             if step == 'on-exit':
                 workflow_end_step = step_dict
             else:
@@ -245,7 +257,8 @@ def convert_synthetic_workflows_to_dict(synthetic_workflows: pd.DataFrame, workf
         if workflow_end_step:
            workflow_dict['steps'].append(workflow_end_step)
 
-        if(any(workflow_dict[prop] < 0 for prop in WORKFLOW_NUMERIC_FEATURES)):
+        if(any(workflow_dict[prop] < 0 for prop in WORKFLOW_NON_RESOURCE_FEATURES) or 
+           any(workflow_dict['resources'][prop] < 0 for prop in WORKFLOW_RESOURCE_FEATURES)):
             continue
         else:
             workflows_dicts.append(workflow_dict)

@@ -3,15 +3,18 @@ from enum import Enum
 from dotenv import load_dotenv
 
 WORKFLOWS_INPUT_FILE = 'input_workflows.csv'
+ORDERS_INPUT_FILE = 'input_orders.csv'
 WORKFLOWS_DATABASE_FILE = 'database.csv'
 
-ORDERS_INPUT_FILE = 'input_orders.csv'
+SYNTHETIC_SAMPLE_FILE = 'synthetic_workflows.json'
 
 RELATIVE_DATA_PATH = 'data'
 RELATIVE_TEST_DATA_PATH = path.join('tests', 'data')
 
 RESULTS_DIR = 'results'
 INPUT_DIR = 'input'
+SYNTHETIC_DIR = 'synthetic'
+
 EXPLORATORY_RESULTS_DIR = path.join(RESULTS_DIR, 'exploratory-results')
 CLUSTERING_RESULTS_DIR = path.join(RESULTS_DIR, 'clustering-results')
 
@@ -64,6 +67,23 @@ def get_file_path_to_database_data(is_test: bool = False) -> str:
     '''
     workflows_data_dir = get_file_path_to_argo_data(is_test)
     return path.join(workflows_data_dir, WORKFLOWS_DATABASE_FILE)
+
+
+def get_file_path_to_synthetic_data(is_test: bool = False) -> str:
+    '''
+    Method returns the full path to the file with synthetically generates workflow data.
+
+    Parameters:
+    is_test - flag indicating if the method should use test path
+
+    Returns: path to directory with synthetically generates workflows
+    '''
+
+    if not path.exists(get_data_file_path(SYNTHETIC_DIR, is_test)):
+        mkdir(get_data_file_path(SYNTHETIC_DIR, is_test))
+
+    relative_file_path = path.join(SYNTHETIC_DIR, SYNTHETIC_SAMPLE_FILE)
+    return get_data_file_path(relative_file_path, is_test)
 
 
 def get_file_path_to_input_data(is_test: bool = False, file_name: str = WORKFLOWS_INPUT_FILE) -> str:
@@ -143,3 +163,6 @@ class PathReader(Enum):
 
     def EXPLORATORY_PATH(
         file_name, is_test=False): return get_file_path_to_exploratory_results(file_name, is_test)
+
+    def SYNTHETIC_PATH(
+        is_test=False): return get_file_path_to_synthetic_data(is_test)
