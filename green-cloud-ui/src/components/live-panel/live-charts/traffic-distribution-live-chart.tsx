@@ -6,12 +6,13 @@ import {
    CloudNetworkAgent,
    CommonAgentReports,
    LiveChartDataCategory,
+   MenuTab,
    ReportsStore,
    ServerAgent
 } from '@types'
 import LiveBarChart from 'components/live-panel/live-chart-components/live-chart-types/live-bar-chart'
 import { useSelector } from 'react-redux'
-import { RootState, selectChosenNetworkAgent } from '@store'
+import { RootState, selectChosenNetworkAgent, selectSelectedTab } from '@store'
 
 interface Props {
    reports: ReportsStore
@@ -25,8 +26,9 @@ interface Props {
  */
 export const TrafficDistributionLiveChart = ({ reports }: Props) => {
    const selectedAgent = useSelector((state: RootState) => selectChosenNetworkAgent(state))
+   const selectedTab = useSelector((state: RootState) => selectSelectedTab(state))
    const connectedAgents =
-      selectedAgent !== null
+      selectedTab !== MenuTab.CLOUD_SUMMARY && selectedAgent !== null
          ? selectedAgent?.type === AgentType.CLOUD_NETWORK
             ? { type: 'Servers', agents: (selectedAgent as CloudNetworkAgent).serverAgents }
             : { type: 'Green Sources', agents: (selectedAgent as ServerAgent).greenEnergyAgents }
