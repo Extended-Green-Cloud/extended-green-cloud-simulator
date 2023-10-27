@@ -108,3 +108,4 @@ weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domai
 /engine/strategy/scenarios/*
 /engine/strategy/properties/*
 /articles/target/
+/weather-api.iml
