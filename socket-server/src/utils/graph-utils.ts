@@ -1,7 +1,8 @@
-import { AGENT_TYPES } from "../constants/constants";
+import { AGENT_TYPES, EVENT_TYPE, POWER_SHORTAGE_STATE } from "../constants/constants";
 import { AGENTS_STATE } from "../module";
 import { CloudNetworkAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
+import { PowerShortageEvent, SwitchOnOffEvent } from "../types";
 
 const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent) => {
 	if (cloudNetwork.traffic > 85) return "high";
@@ -11,6 +12,14 @@ const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent) => {
 };
 
 const getServerState = (server: ServerAgent) => {
+	const powerShortageEvent = server.events.find(
+		(event) => event.type === EVENT_TYPE.POWER_SHORTAGE_EVENT
+	) as PowerShortageEvent;
+	const disablingEvent = server.events.find(
+		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
+	) as SwitchOnOffEvent;
+
+	if (powerShortageEvent.state === POWER_SHORTAGE_STATE.INACTIVE || !disablingEvent.isServerOn) return "disabled";
 	if (server.numberOfJobsOnHold > 0) return "on_hold";
 	if (server.backUpTraffic > 0) return "back_up";
 

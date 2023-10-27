@@ -1,5 +1,5 @@
 import { agentsActions, AppDispatch, RootState, selectChosenNetworkAgent } from '@store'
-import { PowerShortageEventData, WeatherDropEventData } from '@types'
+import { PowerShortageEventData, SwitchOnOffEventData, WeatherDropEventData } from '@types'
 import { connect } from 'react-redux'
 import { EventPanel } from './event-panel'
 
@@ -12,7 +12,8 @@ const mapStateToProps = (state: RootState) => {
 const mapDispatchToProps = (dispatch: AppDispatch) => {
    return {
       triggerPowerShortage: (data: PowerShortageEventData) => dispatch(agentsActions.triggerPowerShortage(data)),
-      triggerWeatherDrop: (data: WeatherDropEventData) => dispatch(agentsActions.triggerWeatherDrop(data))
+      triggerWeatherDrop: (data: WeatherDropEventData) => dispatch(agentsActions.triggerWeatherDrop(data)),
+      switchServerState: (data: SwitchOnOffEventData) => dispatch(agentsActions.triggerSwitchOnOfServer(data))
    }
 }
 

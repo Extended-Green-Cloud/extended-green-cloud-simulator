@@ -1,7 +1,5 @@
-import { EventState, EventType } from 'types/enum'
+import { CommonAgentEvent } from './common-agent-event'
+import { PowerShortageEvent } from './power-shortage-event'
+import { SwitchOnOffEvent } from './switch-on-off-event'
 
-export interface AgentEvent {
-   disabled: boolean
-   state: EventState
-   type: EventType
-}
+export type AgentEvent = PowerShortageEvent | CommonAgentEvent | SwitchOnOffEvent

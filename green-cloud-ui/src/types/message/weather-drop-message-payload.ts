@@ -1,8 +1,5 @@
-import { EventType } from 'types/enum'
-import { WeatherDropEvent } from 'types/event'
+import { CommonEventMessagePayload } from './common-event-message-payload'
 
-export interface WeatherDropMessage {
-   agentName: string
-   type: EventType
-   data: WeatherDropEvent | null
+export interface WeatherDropMessage extends CommonEventMessagePayload {
+   data: { duration: number } | null
 }

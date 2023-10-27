@@ -4,7 +4,7 @@ import Modal from 'components/common/modal/modal'
 import React from 'react'
 import { styles } from './client-job-step-modal-styles'
 import MultiLevelDetailsField from 'components/common/multi-level-detils-field/multi-level-details-field'
-import { collectResourcesToMultiMap } from 'utils/resourc-utils'
+import { collectResourcesToMultiMap } from 'utils/resource-utils'
 import { CLIENT_STATISTICS_RESOURCES_MAPPER } from '../client-panel-config'
 import { convertSecondsToString } from '@utils'
 interface Props {

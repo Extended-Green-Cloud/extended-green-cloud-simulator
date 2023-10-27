@@ -1,5 +1,6 @@
 import { ResourceMap } from 'types/resources'
 import { CommonNetworkAgentInterface } from './common/common-network-agent'
+import { ServerState } from 'types/enum'
 
 export interface ServerAgent extends CommonNetworkAgentInterface {
    cloudNetworkAgent: string
@@ -14,4 +15,5 @@ export interface ServerAgent extends CommonNetworkAgentInterface {
    backUpTraffic: number
    totalNumberOfClients: number
    successRatio: number
+   state: ServerState
 }

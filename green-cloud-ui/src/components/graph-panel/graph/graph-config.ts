@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { iconPause, iconBattery, iconWeather, iconGearDark } from '@assets'
+import { iconPause, iconBattery, iconWeather, iconGearDark, iconShutDown } from '@assets'
 import React from 'react'
 import Cytoscape from 'cytoscape'
 
@@ -94,6 +94,14 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       style: {
          'border-color': '#8AE423',
          'background-image': iconBattery,
+         'background-fit': 'contain'
+      }
+   },
+   {
+      selector: "node[type = 'SERVER'][state = 'disabled']",
+      style: {
+         'border-color': '#8C8C8C',
+         'background-image': iconShutDown,
          'background-fit': 'contain'
       }
    },

@@ -36,7 +36,7 @@ const GraphPanel = ({ selectedAgent }: Props) => {
       ? notSelected
       : selectedAgent && selectedAgent?.events.length === 0
       ? noEventsText
-      : ''
+      : `Button opens menu allowing to trigger events on ${selectedAgent.name}`
 
    const header = (
       <div style={headerContainer}>

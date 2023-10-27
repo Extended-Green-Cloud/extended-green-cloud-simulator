@@ -1,16 +1,27 @@
 import { EVENT_MAP } from './event-container-config'
 import { styles } from './event-container-styles'
 
-import { Agent, AgentEvent, EventType, PowerShortageEventData, WeatherDropEventData } from '@types'
+import {
+   Agent,
+   AgentEvent,
+   EventType,
+   PowerShortageEvent,
+   PowerShortageEventData,
+   SwitchOnOffEvent,
+   SwitchOnOffEventData,
+   WeatherDropEventData
+} from '@types'
 import PowerShortageCard from 'components/event-panel/power-shortage-event/power-shortage-event'
 import Collapse from 'components/common/collapse/collapse'
-import WeatherDropEvent from '../weather-drop-event/weather-drop-event'
+import WeatherDropCard from '../weather-drop-event/weather-drop-event'
+import SwitchOnOffCard from '../switch-off-on-event/switch-off-on-event'
 
 interface Props {
    selectedAgent: Agent
    event: AgentEvent
    triggerPowerShortage: (data: PowerShortageEventData) => void
    triggerWeatherDrop: (data: WeatherDropEventData) => void
+   switchServerState: (data: SwitchOnOffEventData) => void
 }
 
 /**
@@ -22,7 +33,13 @@ interface Props {
  * @param {func}[triggerWeatherDrop] - action responsible for weather drop event
  * @returns JSX Element
  */
-const EventContainer = ({ selectedAgent, event, triggerPowerShortage, triggerWeatherDrop }: Props) => {
+const EventContainer = ({
+   selectedAgent,
+   event,
+   triggerPowerShortage,
+   triggerWeatherDrop,
+   switchServerState
+}: Props) => {
    const {
       singleEventContainer,
       collapseWrapper,
@@ -38,14 +55,22 @@ const EventContainer = ({ selectedAgent, event, triggerPowerShortage, triggerWea
       if (selectedAgent) {
          switch (event.type) {
             case EventType.POWER_SHORTAGE_EVENT: {
-               const label = eventEntry.labels[event.state].toUpperCase()
+               const powerShortageEvent = event as PowerShortageEvent
+               const label = eventEntry.labels[powerShortageEvent.state].toUpperCase()
                const agentName = selectedAgent?.name
-               return <PowerShortageCard {...{ event, label, agentName, triggerPowerShortage }} />
+               return <PowerShortageCard {...{ event: powerShortageEvent, label, agentName, triggerPowerShortage }} />
             }
             case EventType.WEATHER_DROP_EVENT: {
                const label = eventEntry.label
                const agentName = selectedAgent?.name
-               return <WeatherDropEvent {...{ event, label, agentName, triggerWeatherDrop }} />
+               return <WeatherDropCard {...{ event, label, agentName, triggerWeatherDrop }} />
+            }
+            case EventType.SWITCH_ON_OFF_EVENT: {
+               const switchServerStateEvent = event as SwitchOnOffEvent
+               const onOffState = switchServerStateEvent.isServerOn ? 'OFF' : 'ON'
+               const label = eventEntry.labels[onOffState].toUpperCase()
+               const agentName = selectedAgent?.name
+               return <SwitchOnOffCard {...{ event: switchServerStateEvent, label, agentName, switchServerState }} />
             }
          }
       }

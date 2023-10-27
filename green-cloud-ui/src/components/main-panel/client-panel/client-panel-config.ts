@@ -1,5 +1,5 @@
 import { DropdownOption, JobStatus } from '@types'
-import { mapIValueWithUnit } from 'utils/resourc-utils'
+import { mapIValueWithUnit } from 'utils/resource-utils'
 
 export const CLIENT_STATISTICS_HEADER = [
    { key: 'status', label: 'Job status' },

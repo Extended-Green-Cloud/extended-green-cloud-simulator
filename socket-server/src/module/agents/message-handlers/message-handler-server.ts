@@ -1,3 +1,5 @@
+import { EVENT_TYPE } from "../../../constants";
+import { SwitchOnOffEvent } from "../../../types";
 import { getAgentByName, getAgentNodeById, getAgentsByName, getNodeState, mapServerResources } from "../../../utils";
 import { GRAPH_STATE } from "../../graph";
 import { AGENTS_STATE } from "../agents-state";
@@ -46,7 +48,33 @@ const handleUpdateResources = (msg) => {
 	}
 };
 
-const handleServerDisabling = (msg) => changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, false, false);
-const handleServerEnabling = (msg) => changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, true, false);
+const handleServerDisabling = (msg) => {
+	const agent: ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.server);
+	const node = getAgentNodeById(GRAPH_STATE.nodes, msg.server);
+	const switchingEvent = agent.events.find(
+		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
+	) as SwitchOnOffEvent;
+
+	if (switchingEvent.disabled) {
+		switchingEvent.disabled = false;
+		switchingEvent.isServerOn = false;
+	}
+	node.state = getNodeState(agent);
+	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, false, false);
+};
+const handleServerEnabling = (msg) => {
+	const agent: ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.server);
+	const node = getAgentNodeById(GRAPH_STATE.nodes, msg.server);
+	const switchingEvent = agent.events.find(
+		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
+	) as SwitchOnOffEvent;
+
+	if (switchingEvent.disabled) {
+		switchingEvent.disabled = false;
+		switchingEvent.isServerOn = true;
+	}
+	node.state = getNodeState(agent);
+	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, true, false);
+};
 
 export { handleSetBackUpTraffic, handleUpdateResources, handleServerDisabling, handleServerEnabling };

@@ -1,37 +1,35 @@
-import { WeatherDropEventData } from '@types'
+import { SwitchOnOffEvent, SwitchOnOffEventData } from '@types'
 import { toast } from 'react-toastify'
 import { Button } from 'components/common'
-import { CommonAgentEvent } from 'types/event/common-agent-event'
 
 interface Props {
-   event: CommonAgentEvent
+   event: SwitchOnOffEvent
    label: string
    agentName: string
-   triggerWeatherDrop: (data: WeatherDropEventData) => void
+   switchServerState: (data: SwitchOnOffEventData) => void
 }
-const buttonWaitLabel = 'Wait before next event triggering'
+const buttonWaitLabel = "Wait until server's state will fully change"
+
 /**
- * Component represents fields connected with the trigger of weather drop event for given agent
+ * Component represents field that switches off or on the selected server
  *
- * @param {AgentEvent}[event] - weather drop event
+ * @param {AgentEvent}[event] - switch on/off event
  * @param {string}[label] - label describing event card
  * @param {string}[agentName] - name of the agent affected by weather drop
- * @param {func}[triggerWeatherDrop] - action responsible for weather drop event
+ * @param {func}[switchServerState] - action responsible for weather drop event
  *
  * @returns JSX Element
  */
-const WeatherDropCard = ({ event, label, agentName, triggerWeatherDrop }: Props) => {
+const SwitchOnOffCard = ({ event, label, agentName, switchServerState }: Props) => {
    const buttonLabel = event.disabled ? buttonWaitLabel : label
+   const isSwitchingOff = event.isServerOn ? 'off' : 'on'
 
    const buttonStyle = ['event-button', 'event-active-button'].join(' ')
 
    function handleWeatherDropTrigger() {
       toast.dismiss()
-      toast.warn(`ALERT! Weather conditions of Green Sources being under ${agentName} will worsen in 5s!`)
-      triggerWeatherDrop({
-         agentName,
-         duration: 30
-      })
+      toast.warn(`Switching server ${agentName} ${isSwitchingOff}!`)
+      switchServerState({ agentName })
    }
 
    return (
@@ -48,4 +46,4 @@ const WeatherDropCard = ({ event, label, agentName, triggerWeatherDrop }: Props)
    )
 }
 
-export default WeatherDropCard
+export default SwitchOnOffCard

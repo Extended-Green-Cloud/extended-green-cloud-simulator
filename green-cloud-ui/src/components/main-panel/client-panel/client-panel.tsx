@@ -15,7 +15,7 @@ import { Button, Header } from 'components/common'
 import ClientJobDurationModal from './client-job-duration-modal/client-job-duration-modal'
 import { convertSecondsToString, convertTimeToString } from 'utils/time-utils'
 import ClientJobStepModal from './client-job-step-modal/client-job-step-modal'
-import { collectResourcesToMultiMap } from 'utils/resourc-utils'
+import { collectResourcesToMultiMap } from 'utils/resource-utils'
 import MultiLevelDetailsField from 'components/common/multi-level-detils-field/multi-level-details-field'
 
 const description = 'Select client from the list to display current job statistics'

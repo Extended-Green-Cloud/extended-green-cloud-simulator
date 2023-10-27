@@ -1,10 +1,15 @@
-import { INITIAL_POWER_SHORTAGE_STATE, INITIAL_WEATHER_DROP_STATE, JOB_STATUSES } from "../constants/constants";
+import {
+	INITIAL_POWER_SHORTAGE_STATE,
+	INITIAL_SWITCH_ON_OFF_STATE,
+	INITIAL_WEATHER_DROP_STATE,
+	JOB_STATUSES,
+} from "../constants/constants";
 import { AGENT_TYPES } from "../constants/constants";
 import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
 import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
 import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
-import { Resource, ResourceCharacteristic, ResourceCharacteristics, ResourceMap } from "../types";
+import { Resource, ResourceMap } from "../types";
 
 const getAgentByName = (agents: any[], agentName: string) => {
 	return agents.find((agent) => agent.name === agentName);
@@ -128,7 +133,7 @@ const registerCloudNetwork = (data): CloudNetworkAgent => {
 
 const registerServer = (data): ServerAgent => {
 	const { emptyResources, resources, ...remainingData } = data;
-	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)];
+	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE), structuredClone(INITIAL_SWITCH_ON_OFF_STATE)];
 
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: remainingData.name,

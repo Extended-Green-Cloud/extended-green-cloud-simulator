@@ -2,13 +2,17 @@ import {
    Agent,
    AgentType,
    CloudNetworkAgent,
-   EventState,
+   PowerShortageEventState,
    GreenEnergyAgent,
    MonitoringAgent,
    MultiLevelDetails,
-   ServerAgent
+   ServerAgent,
+   EventType,
+   SwitchOnOffEvent
 } from '@types'
-import { collectResourcesToMultiMap, mapInUseValues } from 'utils/resourc-utils'
+import { getEventByType } from '@utils'
+import { PowerShortageEvent } from 'types/event/power-shortage-event'
+import { collectResourcesToMultiMap, mapInUseValues } from 'utils/resource-utils'
 
 const CLOUD_NETWORK_STATISTICS_STATE = [
    { key: 'connectedServers', label: 'Number of connected servers' },
@@ -90,12 +94,19 @@ const mapCloudNetworkAgentFields = (agent: CloudNetworkAgent) => {
 
 const mapServerAgentFields = (agent: ServerAgent) => {
    const { isActive, powerConsumption, resources, inUseResources, ...data } = agent
-   const activeLabel =
-      data.events[0].state === EventState.INACTIVE
-         ? StateTypes.BROKEN
-         : isActive
-         ? StateTypes.ACTIVE
-         : StateTypes.INACTIVE
+   const powerShortageEvent = getEventByType(EventType.POWER_SHORTAGE_EVENT, agent) as PowerShortageEvent
+   const switchOffServer = getEventByType(EventType.SWITCH_ON_OFF_EVENT, agent) as SwitchOnOffEvent
+
+   let activeLabel = StateTypes.INACTIVE
+
+   if (powerShortageEvent.state === PowerShortageEventState.INACTIVE) {
+      activeLabel = StateTypes.BROKEN
+   } else if (!switchOffServer.isServerOn) {
+      activeLabel = StateTypes.DISABLED
+   } else if (isActive) {
+      activeLabel = StateTypes.ACTIVE
+   }
+
    const currPowerConsumption = powerConsumption.toFixed(2)
    const resourceMap: MultiLevelDetails[] = collectResourcesToMultiMap(
       resources,
@@ -112,6 +123,7 @@ const mapServerAgentFields = (agent: ServerAgent) => {
 
 export enum StateTypes {
    BROKEN = 'BROKEN',
+   DISABLED = 'DISABLED',
    ACTIVE = 'ACTIVE',
    INACTIVE = 'INACTIVE'
 }
@@ -120,15 +132,17 @@ type BadgeColors = { [key in StateTypes]: string }
 export const BADGE_STATE_COLORS: BadgeColors = {
    [StateTypes.ACTIVE]: 'var(--green-1)',
    [StateTypes.INACTIVE]: 'var(--gray-2)',
-   [StateTypes.BROKEN]: 'var(--red-1)'
+   [StateTypes.BROKEN]: 'var(--red-1)',
+   [StateTypes.DISABLED]: 'var(--red-1)'
 }
 
 const mapGreenEnergyAgentFields = (agent: GreenEnergyAgent) => {
    const { isActive, agentLocation, ...data } = agent
    const { latitude, longitude } = agentLocation
    const energy = `${data.energyInUse.toFixed(2)} / ${data.availableGreenEnergy.toFixed(2)}`
+   const powerShortageEvent = getEventByType(EventType.POWER_SHORTAGE_EVENT, agent) as PowerShortageEvent
    const activeLabel =
-      data.events[0].state === EventState.INACTIVE
+      powerShortageEvent.state === PowerShortageEventState.INACTIVE
          ? StateTypes.BROKEN
          : isActive
          ? StateTypes.ACTIVE
