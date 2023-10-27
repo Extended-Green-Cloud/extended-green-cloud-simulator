@@ -1,4 +1,4 @@
-import { AgentStatisticReport, LiveIndicatorAvgGeneratorType, LiveIndicatorConfiguration, ReportsStore } from '@types'
+import { AgentStatisticReport, LiveIndicatorAvgGenerator, LiveIndicatorAvgGeneratorType, ReportsStore } from '@types'
 import Modal from 'components/common/modal/modal'
 import React from 'react'
 import { CHART_MODALS } from '../config/live-panel-config'
@@ -45,11 +45,12 @@ const LiveChartModal = ({ isOpen, setIsOpen, reports, agentReports, selectedTabI
    const hasAvgFields = systemReports.valueFields && systemReports.valueFields?.length > 0
    const chartStatisticsWidth = hasAvgFields ? '70%' : '100%'
 
-   const getIndicatorValue = (configuration: LiveIndicatorConfiguration) => {
-      const { type, value } = configuration
-
-      if (type === LiveIndicatorAvgGeneratorType.REPORT) return value(reports)
-      else return value(agentReports as AgentStatisticReport) ?? 0
+   const getIndicatorValue = (type: LiveIndicatorAvgGeneratorType, value?: LiveIndicatorAvgGenerator) => {
+      if (value) {
+         if (type === LiveIndicatorAvgGeneratorType.REPORT) return value(reports)
+         else return value(agentReports as AgentStatisticReport) ?? 0
+      }
+      return '-'
    }
 
    const getValueFields = () =>
@@ -61,7 +62,8 @@ const LiveChartModal = ({ isOpen, setIsOpen, reports, agentReports, selectedTabI
                {...{
                   key: configuration.title,
                   title: configuration.title,
-                  value: getIndicatorValue(configuration),
+                  value: getIndicatorValue(configuration.type, configuration.value),
+                  color: configuration?.color,
                   icon
                }}
             />

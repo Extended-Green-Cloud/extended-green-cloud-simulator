@@ -1,6 +1,7 @@
+import { ResourceMap } from 'types/resources'
+
 export interface JobStep {
    name: string
-   cpu: number
-   memory: number
    duration: number
+   requiredResources: ResourceMap
 }

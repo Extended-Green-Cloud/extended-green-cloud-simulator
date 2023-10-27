@@ -1,3 +1,4 @@
+import { ResourceMap } from 'types/resources'
 import { CommonNetworkAgentInterface } from './common/common-network-agent'
 
 export interface ServerAgent extends CommonNetworkAgentInterface {
@@ -5,13 +6,9 @@ export interface ServerAgent extends CommonNetworkAgentInterface {
    greenEnergyAgents: string[]
    maxPower: number
    idlePower: number
-   cpu: number
-   memory: number
-   storage: number
+   resources: ResourceMap
    price: number
-   inUseCpu: number
-   inUseMemory: number
-   inUseStorage: number
+   inUseResources: ResourceMap
    powerConsumption: number
    powerConsumptionBackUp: number
    backUpTraffic: number

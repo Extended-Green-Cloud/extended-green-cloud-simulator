@@ -1,4 +1,4 @@
-import { getAgentByName, getAgentNodeById, getAgentsByName, getNodeState } from "../../../utils";
+import { getAgentByName, getAgentNodeById, getAgentsByName, getNodeState, mapServerResources } from "../../../utils";
 import { GRAPH_STATE } from "../../graph";
 import { AGENTS_STATE } from "../agents-state";
 import { changeCloudNetworkCapacityEvent } from "../report-handlers/report-handler";
@@ -25,15 +25,13 @@ const handleUpdateResources = (msg) => {
 	const resources = msg.resources;
 
 	if (agent) {
-		agent.inUseCpu = resources.cpu;
-		agent.inUseMemory = resources.memory;
-		agent.inUseStorage = resources.storage;
+		agent.inUseResources = mapServerResources(resources);
 		agent.powerConsumption = msg.powerConsumption;
 		agent.powerConsumptionBackUp = msg.powerConsumptionBackUp;
 	}
 	const cna = getAgentByName(AGENTS_STATE.agents, (agent as ServerAgent).cloudNetworkAgent) as CloudNetworkAgent;
 	const totalCpuInUse = getAgentsByName(AGENTS_STATE.agents, cna.serverAgents).reduce((prev, server: ServerAgent) => {
-		return server.inUseCpu + prev;
+		return server.inUseResources["cpu"]?.characteristics?.["amount"]?.value ?? 0 + prev;
 	}, 0);
 
 	cna.isActive = totalCpuInUse > 0;

@@ -1,15 +1,14 @@
 import { DropdownOption, JobStatus } from '@types'
+import { mapIValueWithUnit } from 'utils/resourc-utils'
 
 export const CLIENT_STATISTICS_HEADER = [
    { key: 'status', label: 'Job status' },
    { key: 'processorName', label: 'Job type' }
 ]
 
-export const CLIENT_STATISTICS_RESOURCES = [
-   { key: 'cpu', label: 'CPU' },
-   { key: 'memory', label: 'Memory' },
-   { key: 'storage', label: 'Storage' }
-]
+export const CLIENT_STATISTICS_RESOURCES_MAPPER = [{ label: 'Required amount', mapper: mapIValueWithUnit }]
+
+export const CLIENT_STATISTICS_RESOURCES = [{ key: 'resources', label: '-' }]
 
 export const CLIENT_STATISTICS_TIMELINE = [
    { key: 'duration', label: 'Duration' },

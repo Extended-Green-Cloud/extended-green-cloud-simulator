@@ -1,3 +1,4 @@
+import { ResourceMap } from "../../../types";
 import { CommonAgent } from "./common-agent";
 
 export interface ServerAgentStatic {
@@ -5,18 +6,14 @@ export interface ServerAgentStatic {
 	greenEnergyAgents: string[];
 	maxPower: number;
 	idlePower: number;
-	cpu: number;
-	memory: number;
-	storage: number;
+	resources: ResourceMap;
 	price: number;
 }
 
 export interface ServerAgentDynamic {
 	traffic: number;
 	backUpTraffic: number;
-	inUseCpu: number;
-	inUseMemory: number;
-	inUseStorage: number;
+	inUseResources: ResourceMap;
 	powerConsumption: number;
 	powerConsumptionBackUp: number;
 	totalNumberOfClients: number;

@@ -22,30 +22,16 @@ const reportJobSizeData = (time: number) => {
 	];
 	const jobsCpu = CLIENTS_STATE.clients
 		.filter((client) => activeStatuses.includes(client.status))
-		.map((client) => client.job.cpu);
-	const jobsMemory = CLIENTS_STATE.clients
-		.filter((client) => activeStatuses.includes(client.status))
-		.map((client) => client.job.memory);
-	const jobsStorage = CLIENTS_STATE.clients
-		.filter((client) => activeStatuses.includes(client.status))
-		.map((client) => client.job.storage);
+		.map((client) => client.job.resources["cpu"]?.characteristics?.["amount"].value ?? 0);
 
 	const isEmpty = jobsCpu.length === 0;
 	const avgCpu = !isEmpty ? jobsCpu.reduce((size1, size2) => size1 + size2, 0) / jobsCpu.length : 0;
-	const avgMemory = !isEmpty ? jobsMemory.reduce((size1, size2) => size1 + size2, 0) / jobsMemory.length : 0;
-	const avgStorage = !isEmpty ? jobsStorage.reduce((size1, size2) => size1 + size2, 0) / jobsStorage.length : 0;
 
 	return {
 		time,
 		avgCpu,
-		avgMemory,
-		avgStorage,
 		minCpu: isEmpty ? 0 : Math.min(...jobsCpu),
-		minMemory: isEmpty ? 0 : Math.min(...jobsMemory),
-		minStorage: isEmpty ? 0 : Math.min(...jobsStorage),
 		maxCpu: isEmpty ? 0 : Math.max(...jobsCpu),
-		maxMemory: isEmpty ? 0 : Math.max(...jobsMemory),
-		maxStorage: isEmpty ? 0 : Math.max(...jobsStorage),
 	};
 };
 
@@ -85,37 +71,13 @@ const updateClientReportsState = (time) => {
 		time: jobSizeData.time,
 		value: jobSizeData.avgCpu,
 	});
-	const avgMemoryReport = CLIENTS_REPORTS_STATE.avgMemoryReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.avgMemory,
-	});
-	const avgStorageReport = CLIENTS_REPORTS_STATE.avgStorageReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.avgStorage,
-	});
 	const minCpuReport = CLIENTS_REPORTS_STATE.minCpuReport.concat({
 		time: jobSizeData.time,
 		value: jobSizeData.minCpu,
 	});
-	const minMemoryReport = CLIENTS_REPORTS_STATE.minMemoryReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.minMemory,
-	});
-	const minStorageReport = CLIENTS_REPORTS_STATE.minStorageReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.minStorage,
-	});
 	const maxCpuReport = CLIENTS_REPORTS_STATE.maxCpuReport.concat({
 		time: jobSizeData.time,
 		value: jobSizeData.maxCpu,
-	});
-	const maxMemoryReport = CLIENTS_REPORTS_STATE.maxMemoryReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.maxMemory,
-	});
-	const maxStorageReport = CLIENTS_REPORTS_STATE.maxStorageReport.concat({
-		time: jobSizeData.time,
-		value: jobSizeData.maxStorage,
 	});
 	const clientsStatusReport = CLIENTS_REPORTS_STATE.clientsStatusReport.concat({
 		time,
@@ -137,14 +99,8 @@ const updateClientReportsState = (time) => {
 	Object.assign(CLIENTS_REPORTS_STATE, {
 		executedJobsReport,
 		avgCpuReport,
-		avgMemoryReport,
-		avgStorageReport,
 		minCpuReport,
-		minMemoryReport,
-		minStorageReport,
 		maxCpuReport,
-		maxMemoryReport,
-		maxStorageReport,
 		clientsStatusReport,
 		avgClientsExecutionPercentage,
 		minClientsExecutionPercentage,

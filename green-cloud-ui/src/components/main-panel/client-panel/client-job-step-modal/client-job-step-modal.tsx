@@ -3,9 +3,10 @@ import { DetailsField } from 'components/common'
 import Modal from 'components/common/modal/modal'
 import React from 'react'
 import { styles } from './client-job-step-modal-styles'
+import MultiLevelDetailsField from 'components/common/multi-level-detils-field/multi-level-details-field'
+import { collectResourcesToMultiMap } from 'utils/resourc-utils'
+import { CLIENT_STATISTICS_RESOURCES_MAPPER } from '../client-panel-config'
 import { convertSecondsToString } from '@utils'
-import { getJobResourceVal } from 'utils/job-utils'
-
 interface Props {
    isOpen: boolean
    setIsOpen: (state: boolean) => void
@@ -21,38 +22,23 @@ interface Props {
  * @returns JSX Element
  */
 const ClientJobStepModal = ({ isOpen, setIsOpen, jobSteps }: Props) => {
-   const { modalStyle, valueStyle, stepWrapper, stepValueContainer, stepValueLabel, stepValue } = styles
+   const { modalStyle } = styles
 
    const header = 'JOB STEPS'
 
-   const getStepResourceField = (step: JobStep) => (
-      <div style={stepWrapper}>
-         <div style={stepValueContainer}>
-            <div style={stepValueLabel}>CPU:</div>
-            <div style={stepValue}>{getJobResourceVal(step.cpu)}</div>
-         </div>
-         <div style={stepValueContainer}>
-            <div style={stepValueLabel}>MEMORY:</div>
-            <div style={stepValue}>{getJobResourceVal(step.memory)}</div>
-         </div>
-         <div style={stepValueContainer}>
-            <div style={stepValueLabel}>DURATION:</div>
-            <div style={stepValue}>{convertSecondsToString(step.duration)}</div>
-         </div>
-      </div>
-   )
-
    const getStepsInformation = () => {
-      return jobSteps.map((step) => (
-         <DetailsField
-            {...{
-               key: step.name,
-               label: step.name,
-               valueObject: getStepResourceField(step),
-               fieldValueStyle: valueStyle
-            }}
-         />
-      ))
+      return jobSteps.map((step) => {
+         const resourceMap = step.requiredResources
+            ? collectResourcesToMultiMap(step.requiredResources, CLIENT_STATISTICS_RESOURCES_MAPPER)
+            : null
+         return (
+            <>
+               <DetailsField label={step.name} isHeader />
+               <DetailsField label={'DURATION'} value={convertSecondsToString(step.duration)} />
+               {resourceMap && <MultiLevelDetailsField {...{ detailsFieldMap: resourceMap }} />}
+            </>
+         )
+      })
    }
 
    return (

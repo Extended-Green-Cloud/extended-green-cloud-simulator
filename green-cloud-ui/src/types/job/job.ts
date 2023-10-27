@@ -1,11 +1,10 @@
+import { ResourceMap } from 'types/resources'
 import { JobStep } from './job-step'
 
 export interface Job {
    jobId: string
    processorName: string
-   cpu: number
-   memory: number
-   storage: number
+   resources: ResourceMap
    start: string
    end: string
    deadline: string

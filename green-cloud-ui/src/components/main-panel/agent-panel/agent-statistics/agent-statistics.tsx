@@ -11,10 +11,11 @@ import {
 } from './agent-statistics-config'
 import SubtitleContainer from '../../../common/subtitle-container/subtitle-container'
 
-import { Agent, AgentType } from '@types'
+import { Agent, AgentType, MultiLevelDetails } from '@types'
 import Badge from 'components/common/badge/badge'
 import { styles } from './agent-statistics-styles'
 import { Header } from 'components/common'
+import MultiLevelDetailsField from 'components/common/multi-level-detils-field/multi-level-details-field'
 
 interface Props {
    selectedAgent?: Agent | null
@@ -37,6 +38,11 @@ const AgentStatisticsPanel = ({ selectedAgent }: Props) => {
          const { label, key } = field
          const agentFields = getAgentFields(agent)
          const agentValue = { ...(agentFields as any) }[key] ?? ''
+
+         if (key === 'resourceMap') {
+            return <MultiLevelDetailsField {...{ detailsFieldMap: agentValue as MultiLevelDetails[] }} />
+         }
+
          const value = formatAgentValue(agentValue, key)
          const property = key === 'isActive' ? 'valueObject' : 'value'
 

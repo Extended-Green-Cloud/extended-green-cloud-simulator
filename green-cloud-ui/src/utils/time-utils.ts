@@ -59,7 +59,7 @@ export const convertSecondsToString = (seconds: number) => {
    if (days > 0) return days + ' d'
    if (hours > 0) return hours + ' h'
    if (minutes > 0) return minutes + ' min'
-   return seconds
+   return seconds + ' s'
 }
 
 /**

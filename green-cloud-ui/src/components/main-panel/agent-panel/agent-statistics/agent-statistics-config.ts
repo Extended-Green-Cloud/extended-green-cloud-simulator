@@ -1,4 +1,14 @@
-import { Agent, AgentType, CloudNetworkAgent, EventState, GreenEnergyAgent, MonitoringAgent, ServerAgent } from '@types'
+import {
+   Agent,
+   AgentType,
+   CloudNetworkAgent,
+   EventState,
+   GreenEnergyAgent,
+   MonitoringAgent,
+   MultiLevelDetails,
+   ServerAgent
+} from '@types'
+import { collectResourcesToMultiMap, mapInUseValues } from 'utils/resourc-utils'
 
 const CLOUD_NETWORK_STATISTICS_STATE = [
    { key: 'connectedServers', label: 'Number of connected servers' },
@@ -17,12 +27,11 @@ const CLOUD_NETWORK_STATISTICS_QUALITY = [
    }
 ]
 
-const SERVER_STATISTICS_RESOURCES = [
-   { key: 'cpu', label: 'Number of CPU cores' },
-   { key: 'memory', label: 'Memory amount (Gi)' },
-   { key: 'storage', label: 'Storage amount (Gi)' },
-   { key: 'price', label: 'Power price (per kWh)' }
-]
+const SERVER_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
+
+const SERVER_STATISTICS_RESOURCES = [{ key: 'resourceMap', label: '-' }]
+
+const SERVER_STATISTICS_VALUATION = [{ key: 'price', label: 'Power price (per kWh)' }]
 
 const SERVER_STATISTICS_POWER = [
    { key: 'powerConsumed', label: 'Current power consumption (W)' },
@@ -80,10 +89,7 @@ const mapCloudNetworkAgentFields = (agent: CloudNetworkAgent) => {
 }
 
 const mapServerAgentFields = (agent: ServerAgent) => {
-   const { isActive, cpu, memory, storage, powerConsumption, ...data } = agent
-   const cpuUsage = `${data.inUseCpu.toFixed(3)} / ${cpu}`
-   const memoryUsage = `${data.inUseMemory.toFixed(3)} / ${memory}`
-   const storageUsage = `${data.inUseStorage.toFixed(0)} / ${storage}`
+   const { isActive, powerConsumption, resources, inUseResources, ...data } = agent
    const activeLabel =
       data.events[0].state === EventState.INACTIVE
          ? StateTypes.BROKEN
@@ -91,11 +97,14 @@ const mapServerAgentFields = (agent: ServerAgent) => {
          ? StateTypes.ACTIVE
          : StateTypes.INACTIVE
    const currPowerConsumption = powerConsumption.toFixed(2)
+   const resourceMap: MultiLevelDetails[] = collectResourcesToMultiMap(
+      resources,
+      SERVER_STATISTICS_RESOURCE_CHARACTERISTICS,
+      inUseResources
+   )
    return {
       isActive: activeLabel,
-      cpu: cpuUsage,
-      memory: memoryUsage,
-      storage: storageUsage,
+      resourceMap,
       powerConsumed: currPowerConsumption,
       ...data
    }
@@ -135,6 +144,7 @@ export const MAP_TYPE = {
    QUALITY: 'QUALITY',
    STATE: 'STATE',
    RESOURCES: 'RESOURCES',
+   VALUATION: 'VALUATION',
    POWER: 'POWER',
    ENERGY: 'ENERGY'
 }
@@ -145,8 +155,9 @@ export const getStatisticsMapForAgent = (agent: Agent, type?: string) => {
          return type === MAP_TYPE.QUALITY ? CLOUD_NETWORK_STATISTICS_QUALITY : CLOUD_NETWORK_STATISTICS_STATE
       case AgentType.SERVER:
          if (type === MAP_TYPE.QUALITY) return SERVER_STATISTICS_QUALITY
-         if (type === MAP_TYPE.RESOURCES) return SERVER_STATISTICS_RESOURCES
+         if (type === MAP_TYPE.VALUATION) return SERVER_STATISTICS_VALUATION
          if (type === MAP_TYPE.POWER) return SERVER_STATISTICS_POWER
+         if (type === MAP_TYPE.RESOURCES) return SERVER_STATISTICS_RESOURCES
          return SERVER_STATISTICS_STATE
       case AgentType.GREEN_ENERGY:
          if (type === MAP_TYPE.QUALITY) return GREEN_SOURCE_STATISTICS_QUALITY
@@ -180,7 +191,7 @@ type AgentsMaps = { [key in AgentType]?: string[] }
 
 export const MAPS_FOR_AGENT_TYPE: AgentsMaps = {
    [AgentType.CLOUD_NETWORK]: [MAP_TYPE.STATE, MAP_TYPE.QUALITY],
-   [AgentType.SERVER]: [MAP_TYPE.STATE, MAP_TYPE.RESOURCES, MAP_TYPE.POWER, MAP_TYPE.QUALITY],
+   [AgentType.SERVER]: [MAP_TYPE.STATE, MAP_TYPE.RESOURCES, MAP_TYPE.VALUATION, MAP_TYPE.POWER, MAP_TYPE.QUALITY],
    [AgentType.GREEN_ENERGY]: [MAP_TYPE.STATE, MAP_TYPE.ENERGY, MAP_TYPE.QUALITY],
    [AgentType.MONITORING]: [MAP_TYPE.STATE]
 }

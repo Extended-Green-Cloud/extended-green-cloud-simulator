@@ -5,14 +5,11 @@ import {
    AgentSchedulerStatisticReports,
    AgentServerStatisticReports,
    AgentStatisticReport,
-   AgentType,
-   CloudNetworkAgent,
    CommonAgentReports,
    JobStatus,
    JobStatusMap,
    LiveChartGenerator,
-   ReportsStore,
-   ServerAgent
+   ReportsStore
 } from '@types'
 import {
    AvailableGreenPowerLiveChart,

@@ -8,14 +8,8 @@ interface ClientState {
 interface ClientsReportsState {
 	executedJobsReport: ReportEntry[];
 	avgCpuReport: ReportEntry[];
-	avgMemoryReport: ReportEntry[];
-	avgStorageReport: ReportEntry[];
 	minCpuReport: ReportEntry[];
-	minMemoryReport: ReportEntry[];
-	minStorageReport: ReportEntry[];
 	maxCpuReport: ReportEntry[];
-	maxMemoryReport: ReportEntry[];
-	maxStorageReport: ReportEntry[];
 	clientsStatusReport: ClientStatusReportEntry[];
 	avgClientsExecutionPercentage: ReportEntry[];
 	minClientsExecutionPercentage: ReportEntry[];
@@ -29,14 +23,8 @@ let CLIENTS_STATE: ClientState = {
 let CLIENTS_REPORTS_STATE: ClientsReportsState = {
 	executedJobsReport: [],
 	avgCpuReport: [],
-	avgMemoryReport: [],
-	avgStorageReport: [],
 	minCpuReport: [],
-	minMemoryReport: [],
-	minStorageReport: [],
 	maxCpuReport: [],
-	maxMemoryReport: [],
-	maxStorageReport: [],
 	clientsStatusReport: [],
 	avgClientsExecutionPercentage: [],
 	minClientsExecutionPercentage: [],
@@ -52,14 +40,8 @@ const resetClientsReportsState = () =>
 	Object.assign(CLIENTS_REPORTS_STATE, {
 		executedJobsReport: [],
 		avgCpuReport: [],
-		avgMemoryReport: [],
-		avgStorageReport: [],
 		minCpuReport: [],
-		minMemoryReport: [],
-		minStorageReport: [],
 		maxCpuReport: [],
-		maxMemoryReport: [],
-		maxStorageReport: [],
 		clientsStatusReport: [],
 		avgClientsExecutionPercentage: [],
 		minClientsExecutionPercentage: [],

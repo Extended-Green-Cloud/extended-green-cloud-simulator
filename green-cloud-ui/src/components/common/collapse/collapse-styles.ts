@@ -15,7 +15,7 @@ export const styles: Styles = {
       justifyContent: 'space-between',
       alignItems: 'center',
       cursor: 'pointer',
-      marginBottom: '10px'
+      marginBottom: '8px'
    },
    collapseContentStyle: {
       width: '90%',
@@ -23,7 +23,7 @@ export const styles: Styles = {
       marginBottom: '10px'
    },
    triggerIcon: {
-      size: '25px',
+      size: '20px',
       color: 'var(--gray-3)'
    }
 }

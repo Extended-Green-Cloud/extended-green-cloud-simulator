@@ -4,6 +4,7 @@ import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
 import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
 import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
+import { Resource, ResourceCharacteristic, ResourceCharacteristics, ResourceMap } from "../types";
 
 const getAgentByName = (agents: any[], agentName: string) => {
 	return agents.find((agent) => agent.name === agentName);
@@ -15,6 +16,24 @@ const getAgentsByName = (agents: any[], agentNames: string[]) => {
 
 const getAgentNodeById = (nodes: any[], id: string) => {
 	return nodes.find((node) => node.id === id);
+};
+
+type ResourceMapEntries = { [key: string]: Resource };
+
+const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
+	return Object.entries(resources).reduce((prev, [key, resource]) => {
+		const characteristicsVal = Object.entries(resource?.characteristics).reduce(
+			(prevC, [keyC, resourceC]) => ({
+				[keyC]: {
+					unit: resourceC.unit,
+					value: resourceC.value,
+				},
+				...prevC,
+			}),
+			{}
+		);
+		return { ...prev, [key]: { characteristics: characteristicsVal } };
+	}, {});
 };
 
 const addGreenSourcesToServer = (data) => {
@@ -108,16 +127,15 @@ const registerCloudNetwork = (data): CloudNetworkAgent => {
 };
 
 const registerServer = (data): ServerAgent => {
+	const { emptyResources, resources, ...remainingData } = data;
 	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE)];
 
 	AGENTS_REPORTS_STATE.agentsReports.push({
-		name: data.name,
+		name: remainingData.name,
 		type: AGENT_TYPES.SERVER,
 		reports: {
 			trafficReport: [],
 			cpuInUseReport: [],
-			memoryInUseReport: [],
-			storageInUseReport: [],
 			powerConsumptionReport: [],
 			backUpPowerConsumptionReport: [],
 			successRatioReport: [],
@@ -125,8 +143,14 @@ const registerServer = (data): ServerAgent => {
 		events: [],
 	});
 
-	addServersToCNA(data);
-	changeCloudNetworkCapacityEvent(data.cloudNetworkAgent, data.name, data.initialMaximumCapacity, true, true);
+	addServersToCNA(remainingData);
+	changeCloudNetworkCapacityEvent(
+		remainingData.cloudNetworkAgent,
+		remainingData.name,
+		remainingData.initialMaximumCapacity,
+		true,
+		true
+	);
 
 	return {
 		type: AGENT_TYPES.SERVER,
@@ -136,16 +160,15 @@ const registerServer = (data): ServerAgent => {
 		adaptation: "inactive",
 		traffic: 0,
 		backUpTraffic: 0,
-		inUseCpu: 0,
-		inUseMemory: 0,
-		inUseStorage: 0,
+		inUseResources: mapServerResources(emptyResources),
 		powerConsumption: 0,
 		powerConsumptionBackUp: 0,
 		numberOfClients: 0,
 		numberOfExecutedJobs: 0,
 		numberOfJobsOnHold: 0,
 		successRatio: 0,
-		...data,
+		resources: mapServerResources(resources),
+		...remainingData,
 	};
 };
 
@@ -222,4 +245,5 @@ export {
 	registerServer,
 	registerMonitoring,
 	registerAgent,
+	mapServerResources,
 };

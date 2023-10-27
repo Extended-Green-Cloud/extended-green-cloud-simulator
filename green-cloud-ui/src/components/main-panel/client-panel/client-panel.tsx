@@ -2,15 +2,21 @@ import { styles } from './client-panel-styles'
 import { ClientAgent, ClientAgentStatus, JobStatus } from '@types'
 import SubtitleContainer from 'components/common/subtitle-container/subtitle-container'
 import { useEffect, useState } from 'react'
-import { CLIENT_STATISTIC_MAPS, ClientMapType, STATUS_COLOR } from './client-panel-config'
+import {
+   CLIENT_STATISTICS_RESOURCES_MAPPER,
+   CLIENT_STATISTIC_MAPS,
+   ClientMapType,
+   STATUS_COLOR
+} from './client-panel-config'
 import DetailsField from 'components/common/details-field/details-field'
 import Badge from 'components/common/badge/badge'
 import ClientStatisticsSelect from './client-select/client-select'
 import { Button, Header } from 'components/common'
 import ClientJobDurationModal from './client-job-duration-modal/client-job-duration-modal'
 import { convertSecondsToString, convertTimeToString } from 'utils/time-utils'
-import { getJobResourceVal } from 'utils/job-utils'
 import ClientJobStepModal from './client-job-step-modal/client-job-step-modal'
+import { collectResourcesToMultiMap } from 'utils/resourc-utils'
+import MultiLevelDetailsField from 'components/common/multi-level-detils-field/multi-level-details-field'
 
 const description = 'Select client from the list to display current job statistics'
 
@@ -70,7 +76,11 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
             const value = getClientValue(key, clientVal)
             const property = ['status', 'durationMap', 'steps'].includes(key) ? 'valueObject' : 'value'
 
-            return <DetailsField {...{ label, [property]: value, key }} />
+            return key === 'resources' ? (
+               <MultiLevelDetailsField {...{ detailsFieldMap: value }} />
+            ) : (
+               <DetailsField {...{ label, [property]: value, key }} />
+            )
          })
       }
    }
@@ -82,7 +92,7 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
       if (key === 'start' || key === 'end') return typeof value === 'number' ? convertTimeToString(value) : value
       if (key === 'jobExecutionProportion') return `${Math.round(value * 100)}%`
       if (key === 'duration') return convertSecondsToString(value)
-      if (['cpu', 'memory', 'storage'].includes(key)) return getJobResourceVal(value)
+      if (key === 'resources') return collectResourcesToMultiMap(value, CLIENT_STATISTICS_RESOURCES_MAPPER)
       return value
    }
 

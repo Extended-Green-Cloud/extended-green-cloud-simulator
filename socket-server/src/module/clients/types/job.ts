@@ -1,16 +1,15 @@
+import { ResourceMap } from "../../../types";
+
 export interface JobStep {
 	name: string;
-	cpu: number;
-	memory: number;
+	resources: ResourceMap;
 	duration: number;
 }
 
 export interface Job {
 	jobId: string;
 	processorName: string;
-	cpu: number;
-	memory: number;
-	storage: number;
+	resources: ResourceMap;
 	start: string;
 	end: string;
 	deadline: string;

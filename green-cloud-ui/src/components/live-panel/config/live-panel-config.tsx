@@ -30,14 +30,11 @@ import {
    getClientJobCPURequirementChart
 } from './live-chart-generators'
 import {
+   getAverageBackUpPowerConsumption,
    getAverageCpu,
    getAverageJobExecutionPercentage,
-   getAverageMemory,
-   getAverageStorage,
    getAvgInProgressJobTime,
    getAvgInUseCpuIndicator,
-   getAvgMemoryIndicator,
-   getAvgStorageIndicator,
    getSystemAvgClientsIndicator,
    getSystemAvgJobsIndicator,
    getSystemAvgTrafficIndicator
@@ -73,11 +70,8 @@ interface AvgOptions {
    jobExecutionAvgTime: LiveIndicatorConfiguration
    jobExecutionAvgPercentage: LiveIndicatorConfiguration
    clientsAvgCpu: LiveIndicatorConfiguration
-   clientsAvgMemory: LiveIndicatorConfiguration
-   clientsAvgStorage: LiveIndicatorConfiguration
    serverInUseCpu: LiveIndicatorConfiguration
-   serverInUseMemory: LiveIndicatorConfiguration
-   serverInUseStorage: LiveIndicatorConfiguration
+   serverAvgBackUpPowerConsumption: LiveIndicatorConfiguration
 }
 
 const AVG_INDICATORS: AvgOptions = {
@@ -119,36 +113,16 @@ const AVG_INDICATORS: AvgOptions = {
       value: getAvgInUseCpuIndicator,
       indicator: PercentageIndicator
    },
-   serverInUseMemory: {
-      title: 'Average memory utilization',
+   serverAvgBackUpPowerConsumption: {
+      title: 'Average back-up utilization',
       type: LiveIndicatorAvgGeneratorType.AGENT_REPORT,
-      value: getAvgMemoryIndicator,
-      indicator: PercentageIndicator
-   },
-   serverInUseStorage: {
-      title: 'Average storage utilization',
-      type: LiveIndicatorAvgGeneratorType.AGENT_REPORT,
-      value: getAvgStorageIndicator,
+      value: getAverageBackUpPowerConsumption,
       indicator: PercentageIndicator
    },
    clientsAvgCpu: {
       title: 'Average CPU',
       type: LiveIndicatorAvgGeneratorType.REPORT,
       value: getAverageCpu,
-      icon: IconChip,
-      indicator: ValueIndicator
-   },
-   clientsAvgMemory: {
-      title: 'Average memory',
-      type: LiveIndicatorAvgGeneratorType.REPORT,
-      value: getAverageMemory,
-      icon: IconChip,
-      indicator: ValueIndicator
-   },
-   clientsAvgStorage: {
-      title: 'Average storage',
-      type: LiveIndicatorAvgGeneratorType.REPORT,
-      value: getAverageStorage,
       icon: IconChip,
       indicator: ValueIndicator
    }
@@ -180,9 +154,7 @@ export const CHART_MODALS: LiveChartDashboard = {
       valueFields: [
          AVG_INDICATORS.jobExecutionAvgPercentage,
          AVG_INDICATORS.jobExecutionAvgTime,
-         AVG_INDICATORS.clientsAvgCpu,
-         AVG_INDICATORS.clientsAvgMemory,
-         AVG_INDICATORS.clientsAvgStorage
+         AVG_INDICATORS.clientsAvgCpu
       ]
    },
    adaptation: {
@@ -209,7 +181,7 @@ export const CHART_MODALS: LiveChartDashboard = {
       name: 'Server Agent reports',
       charts: [CHARTS.agentSuccessRatio, CHARTS.agentTraffic, CHARTS.agentBackUpUsage, CHARTS.agentTrafficDistribution],
       mainChartId: 1,
-      valueFields: [AVG_INDICATORS.serverInUseCpu, AVG_INDICATORS.serverInUseMemory, AVG_INDICATORS.serverInUseStorage]
+      valueFields: [AVG_INDICATORS.serverInUseCpu, AVG_INDICATORS.serverAvgBackUpPowerConsumption]
    },
    [`agent${AgentType.GREEN_ENERGY}`]: {
       name: 'Green Energy Agent reports',

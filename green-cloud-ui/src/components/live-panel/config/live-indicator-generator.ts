@@ -20,21 +20,9 @@ const getAvgInUseCpuIndicator: LiveIndicatorAvgGenerator = (reports) => {
    const selectedAgent = useSelector((state: RootState) => selectChosenNetworkAgent(state)) as ServerAgent
    const reportsMapped = reports as AgentStatisticReport
    const { cpuInUseReport } = reportsMapped.reports as AgentServerStatisticReports
-   return (getAverage(cpuInUseReport, 'value') / selectedAgent.cpu).toFixed(1)
-}
-
-const getAvgMemoryIndicator: LiveIndicatorAvgGenerator = (reports) => {
-   const selectedAgent = useSelector((state: RootState) => selectChosenNetworkAgent(state)) as ServerAgent
-   const reportsMapped = reports as AgentStatisticReport
-   const { memoryInUseReport } = reportsMapped.reports as AgentServerStatisticReports
-   return (getAverage(memoryInUseReport, 'value') / selectedAgent.memory).toFixed(1)
-}
-
-const getAvgStorageIndicator: LiveIndicatorAvgGenerator = (reports) => {
-   const selectedAgent = useSelector((state: RootState) => selectChosenNetworkAgent(state)) as ServerAgent
-   const reportsMapped = reports as AgentStatisticReport
-   const { storageInUseReport } = reportsMapped.reports as AgentServerStatisticReports
-   return (getAverage(storageInUseReport, 'value') / selectedAgent.storage).toFixed(1)
+   return (
+      getAverage(cpuInUseReport, 'value') / selectedAgent.resources?.['cpu'].characteristics['amount']?.value ?? 0
+   ).toFixed(1)
 }
 
 const getSystemAvgJobsIndicator: LiveIndicatorAvgGenerator = (reports) =>
@@ -57,11 +45,15 @@ const getAverageJobExecutionPercentage: LiveIndicatorAvgGenerator = (reports) =>
 const getAverageCpu: LiveIndicatorAvgGenerator = (reports) =>
    getJobResourceVal(Math.round(getAverage((reports as ReportsStore).avgCpuReport, 'value')))
 
-const getAverageMemory: LiveIndicatorAvgGenerator = (reports) =>
-   getJobResourceVal(Math.round(getAverage((reports as ReportsStore).avgMemoryReport, 'value')))
-
-const getAverageStorage: LiveIndicatorAvgGenerator = (reports) =>
-   getJobResourceVal(Math.round(getAverage((reports as ReportsStore).avgStorageReport, 'value')))
+const getAverageBackUpPowerConsumption: LiveIndicatorAvgGenerator = (reports) =>
+   getJobResourceVal(
+      Math.round(
+         getAverage(
+            ((reports as AgentStatisticReport).reports as AgentServerStatisticReports).backUpPowerConsumptionReport,
+            'value'
+         )
+      )
+   )
 
 export {
    getSystemAvgClientsIndicator,
@@ -70,9 +62,6 @@ export {
    getAverageJobExecutionPercentage,
    getAvgInProgressJobTime,
    getAvgInUseCpuIndicator,
-   getAvgMemoryIndicator,
-   getAvgStorageIndicator,
    getAverageCpu,
-   getAverageMemory,
-   getAverageStorage
+   getAverageBackUpPowerConsumption
 }
