@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_PARAMS;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
@@ -41,7 +42,7 @@ public class ChangeGreenSourceWeightRule extends AgentBasicRule<ServerAgentProps
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
-		return facts.get(ADAPTATION_TYPE).equals(CHANGE_GREEN_SOURCE_WEIGHT);
+		return nonNull(facts.get(ADAPTATION_TYPE)) && facts.get(ADAPTATION_TYPE).equals(CHANGE_GREEN_SOURCE_WEIGHT);
 	}
 
 	@Override

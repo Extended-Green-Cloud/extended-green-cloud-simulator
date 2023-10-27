@@ -2,7 +2,11 @@ package com.gui.event;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.gui.agents.egcs.EGCSNode;
 import com.gui.event.domain.EventTypeEnum;
 
 /**
@@ -10,6 +14,10 @@ import com.gui.event.domain.EventTypeEnum;
  */
 public abstract class AbstractEvent implements Serializable {
 
+	protected static final ObjectMapper mapper =
+			new ObjectMapper().findAndRegisterModules().registerModule(new JavaTimeModule());
+
+	protected String agentName;
 	protected EventTypeEnum eventTypeEnum;
 	protected Instant occurrenceTime;
 
@@ -19,14 +27,19 @@ public abstract class AbstractEvent implements Serializable {
 	 * @param eventTypeEnum  type of the event
 	 * @param occurrenceTime time when the event occurs
 	 */
-	protected AbstractEvent(final EventTypeEnum eventTypeEnum, final Instant occurrenceTime) {
+	protected AbstractEvent(final EventTypeEnum eventTypeEnum, final Instant occurrenceTime, final String agentName) {
 		this.eventTypeEnum = eventTypeEnum;
 		this.occurrenceTime = occurrenceTime;
+		this.agentName = agentName;
 	}
 
 	/**
-	 * @return time when the event will occur
+	 * Method responsible for triggering a given event
+	 *
+	 * @param agentNodes all nodes present in the system
 	 */
+	public abstract void trigger(final Map<String, EGCSNode> agentNodes);
+
 	public Instant getOccurrenceTime() {
 		return occurrenceTime;
 	}

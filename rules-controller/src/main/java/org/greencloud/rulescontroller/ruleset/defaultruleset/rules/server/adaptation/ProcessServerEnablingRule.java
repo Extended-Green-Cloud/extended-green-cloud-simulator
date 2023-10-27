@@ -1,5 +1,6 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_ENABLING_RULE;
@@ -50,7 +51,9 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 	@Override
 	protected void handleInform(final ACLMessage inform, final RuleSetFacts facts) {
 		logger.info("Server was successfully enabled in Cloud Network {}.", inform.getSender().getName());
-		agent.send(prepareInformReply(facts.get(MESSAGE)));
+		if(nonNull(facts.get(MESSAGE))) {
+			agent.send(prepareInformReply(facts.get(MESSAGE)));
+		}
 
 		final ACLMessage confirmationMessage = MessageBuilder.builder((int) facts.get(RULE_SET_IDX))
 				.withPerformative(INFORM)
@@ -68,7 +71,10 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 				refuse.getSender().getName());
 		agentProps.disable();
 		agentProps.saveMonitoringData();
-		agent.send(prepareFailureReply(facts.get(MESSAGE)));
+
+		if(nonNull(facts.get(MESSAGE))) {
+			agent.send(prepareFailureReply(facts.get(MESSAGE)));
+		}
 	}
 
 	@Override

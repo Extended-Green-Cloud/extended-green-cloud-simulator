@@ -44,7 +44,7 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName) {
-		getEventSocket().triggerPowerShortage(powerShortageEvent, agentName);
+	public void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent) {
+		getEventSocket().triggerPowerShortage(powerShortageEvent);
 	}
 }

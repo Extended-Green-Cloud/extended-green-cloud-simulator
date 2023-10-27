@@ -15,9 +15,6 @@ public class GuiWebSocketServer extends WebSocketServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketServer.class);
 
-	/**
-	 * Creates a WebSocketServer that will attempt to bind/listen on the given <var>address</var>.
-	 */
 	public GuiWebSocketServer() {
 		super(new InetSocketAddress(8080));
 	}

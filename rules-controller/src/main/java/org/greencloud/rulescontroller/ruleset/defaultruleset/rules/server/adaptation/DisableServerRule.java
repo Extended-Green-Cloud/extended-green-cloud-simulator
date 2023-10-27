@@ -1,21 +1,25 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
+import static com.gui.event.domain.EventTypeEnum.DISABLE_SERVER_EVENT;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
+import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DISABLING_RULE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.slf4j.Logger;
-
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import com.gui.agents.server.ServerNode;
-
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
+import org.slf4j.Logger;
+
+import com.gui.agents.server.ServerNode;
+import com.gui.event.AbstractEvent;
 
 public class DisableServerRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -39,16 +43,19 @@ public class DisableServerRule extends AgentBasicRule<ServerAgentProps, ServerNo
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
-		return facts.get(ADAPTATION_TYPE).equals(DISABLE_SERVER);
+		return (nonNull(facts.get(ADAPTATION_TYPE)) && facts.get(ADAPTATION_TYPE).equals(DISABLE_SERVER)) ||
+				(nonNull(facts.get(EVENT)) &&
+						((AbstractEvent) facts.get(EVENT)).getEventTypeEnum().equals(DISABLE_SERVER_EVENT));
 	}
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("Disabling Server and informing CNA {}.",agentProps.getOwnerCloudNetworkAgent().getLocalName());
+		logger.info("Disabling Server and informing CNA {}.", agentProps.getOwnerCloudNetworkAgent().getLocalName());
 		agentProps.disable();
 		agentProps.saveMonitoringData();
 
-		facts.put(RULE_TYPE, PROCESS_SERVER_DISABLING_RULE);
-		controller.fire(facts);
+		final RuleSetFacts disablingFacts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		disablingFacts.put(RULE_TYPE, PROCESS_SERVER_DISABLING_RULE);
+		agent.addBehaviour(InitiateRequest.create(agent, disablingFacts, PROCESS_SERVER_DISABLING_RULE, controller));
 	}
 }

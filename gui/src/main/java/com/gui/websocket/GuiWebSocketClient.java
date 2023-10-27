@@ -5,6 +5,7 @@ import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
 import java.net.URI;
 import java.time.Instant;
 
+import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ import com.gui.message.ImmutableReportSystemStartTimeMessage;
 
 public class GuiWebSocketClient extends WebSocketClient {
 
-	protected static final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules()
-			.registerModule(new JavaTimeModule());
+	protected static final ObjectMapper mapper =
+			new ObjectMapper().findAndRegisterModules().registerModule(new JavaTimeModule());
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketClient.class);
 
 	public GuiWebSocketClient(URI serverUri) {
@@ -31,7 +32,7 @@ public class GuiWebSocketClient extends WebSocketClient {
 				super.send(mapper.writeValueAsString(message));
 			}
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new IncorrectMessageContentException();
 		}
 	}
 

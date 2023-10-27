@@ -34,8 +34,7 @@ public interface GuiController extends Runnable, Serializable {
 	 * Method triggers the power shortage event in the Cloud Network for specified agent
 	 *
 	 * @param powerShortageEvent data for event triggering
-	 * @param agentName          name of the agent for which the event is being triggered
 	 */
-	void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent, final String agentName);
+	void triggerPowerShortageEvent(final PowerShortageEvent powerShortageEvent);
 
 }

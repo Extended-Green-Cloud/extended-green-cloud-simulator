@@ -129,7 +129,7 @@ public class ScenarioEventService {
 		final PowerShortageEventArgs powerShortageArgs = (PowerShortageEventArgs) event;
 		final Instant eventOccurrence = Instant.now().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
 		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence, powerShortageArgs.isFinished(),
-				powerShortageArgs.getCause());
-		scenarioService.guiController.triggerPowerShortageEvent(eventData, powerShortageArgs.getAgentName());
+				powerShortageArgs.getCause(), powerShortageArgs.getAgentName());
+		scenarioService.guiController.triggerPowerShortageEvent(eventData);
 	}
 }

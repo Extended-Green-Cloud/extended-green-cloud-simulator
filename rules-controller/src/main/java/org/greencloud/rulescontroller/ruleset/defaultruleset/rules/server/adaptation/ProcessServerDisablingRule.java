@@ -1,5 +1,6 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DISABLING_RULE;
@@ -49,7 +50,9 @@ public class ProcessServerDisablingRule extends AgentRequestRule<ServerAgentProp
 	@Override
 	protected void handleInform(final ACLMessage inform, final RuleSetFacts facts) {
 		logger.info("Server was successfully disabled in Cloud Network {}.", inform.getSender().getName());
-		agent.send(prepareInformReply(facts.get(MESSAGE)));
+		if(nonNull(facts.get(MESSAGE))) {
+			agent.send(prepareInformReply(facts.get(MESSAGE)));
+		}
 
 		if (agentProps.getServerJobs().size() > 0) {
 			logger.info("Server will finish executing {} planned jobs before being fully disabled.",
@@ -66,7 +69,10 @@ public class ProcessServerDisablingRule extends AgentRequestRule<ServerAgentProp
 				refuse.getSender().getName());
 		agentProps.enable();
 		agentProps.saveMonitoringData();
-		agent.send(prepareFailureReply(facts.get(MESSAGE)));
+
+		if(nonNull(facts.get(MESSAGE))) {
+			agent.send(prepareFailureReply(facts.get(MESSAGE)));
+		}
 	}
 
 	@Override
