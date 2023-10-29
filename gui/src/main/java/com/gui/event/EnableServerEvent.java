@@ -30,7 +30,7 @@ public class EnableServerEvent extends AbstractEvent {
 	}
 
 	public EnableServerEvent(SwitchServerOnOffGUIMessage switchServerOnOffGUIMessage) {
-		this(switchServerOnOffGUIMessage.getEventData().getOccurrenceTime(),
+		this(switchServerOnOffGUIMessage.getData().getOccurrenceTime(),
 				switchServerOnOffGUIMessage.getAgentName());
 	}
 

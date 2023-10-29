@@ -115,6 +115,12 @@ public class ProposeToCNARule extends AgentProposalRule<ServerAgentProps, Server
 			logger.info("Cloud Network {} rejected the job volunteering offer", reject.getSender().getLocalName());
 
 			agentProps.removeJob(job);
+
+			if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+				logger.info("Server completed all planned jobs and is fully disabled.");
+				agentNode.disableServer();
+			}
+
 			agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 			agent.send(prepareReply(facts.get(MESSAGE), jobInstance, REJECT_PROPOSAL));
 		}

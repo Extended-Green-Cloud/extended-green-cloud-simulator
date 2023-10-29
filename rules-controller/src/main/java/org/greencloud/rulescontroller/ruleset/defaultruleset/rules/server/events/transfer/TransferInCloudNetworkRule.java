@@ -130,6 +130,12 @@ public class TransferInCloudNetworkRule extends AgentRequestRule<ServerAgentProp
 			agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 		}
 		agentProps.removeJob(job);
+
+		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+			logger.info("Server completed all planned jobs and is fully disabled.");
+			agentNode.disableServer();
+		}
+
 		agentProps.updateGUI();
 	}
 

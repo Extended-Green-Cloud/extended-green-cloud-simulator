@@ -70,6 +70,12 @@ public class ProposeInsufficientResourcesRule extends AgentBasicRule<ServerAgent
 				+ "Sending failure information and rejecting green source proposal", job.getJobId());
 
 		agentProps.removeJob(job);
+
+		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+			logger.info("Server completed all planned jobs and is fully disabled.");
+			agentNode.disableServer();
+		}
+
 		agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 		agent.send(prepareReply(greenSourceMessage, jobInstance, REJECT_PROPOSAL));
 		agentProps.incrementJobCounter(jobInstance, FAILED);

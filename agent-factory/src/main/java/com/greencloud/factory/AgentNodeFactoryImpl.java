@@ -5,6 +5,7 @@ import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		final CloudNetworkNodeArgs nodeArgs = ImmutableCloudNetworkNodeArgs.builder()
 				.serverAgents(serverList)
 				.maxServerCpu(getMaxCpu(ownedServers))
+				.ownedResources(new HashMap<>())
 				.name(cloudNetworkArgs.getName())
 				.build();
 

@@ -1,4 +1,4 @@
-package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing;
+package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing;
 
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
@@ -53,6 +53,7 @@ public class ProcessServerResourceInformationRule extends AgentBasicRule<CloudNe
 					addResources(agentProps.getAggregatedResources(), serverResources.getResources());
 			agentProps.setAggregatedResources(new ConcurrentHashMap<>(aggregatedResources));
 		}
+		agentNode.updateResourceMap(agentProps.getAggregatedResources());
 
 		agentProps.getOwnedServers().replace(server, true);
 		agentProps.getOwnedServerResources().put(server, serverResources);

@@ -31,7 +31,9 @@ import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableDisableServerMessage;
 import com.gui.message.ImmutableEnableServerMessage;
 import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.message.ImmutableUpdateDefaultResourcesMessage;
 import com.gui.message.ImmutableUpdateResourcesMessage;
+import com.gui.message.ImmutableUpdateServerMaintenanceMessage;
 import com.gui.message.ImmutableUpdateSingleValueMessage;
 
 import jade.util.leap.Serializable;
@@ -81,6 +83,51 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.powerConsumption(powerConsumption)
 				.powerConsumptionBackUp(powerConsumptionBackUp)
 				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function updates initial server resources
+	 *
+	 * @param resources default resource characteristics
+	 */
+	public void updateDefaultResources(final Map<String, Resource> resources) {
+		getAgentsWebSocket().send(ImmutableUpdateDefaultResourcesMessage.builder()
+				.resources(resources)
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function confirms that maintenance was initiated in server
+	 */
+	public void confirmMaintenanceInServer() {
+		getAgentsWebSocket().send(ImmutableUpdateServerMaintenanceMessage.builder()
+				.agentName(agentName)
+				.result(true)
+				.state("processDataInServer")
+				.build());
+	}
+
+	/**
+	 * Function sends the result of adaptation of server resources in CNA
+	 */
+	public void sendResultOfServerMaintenanceInCNA(final boolean result) {
+		getAgentsWebSocket().send(ImmutableUpdateServerMaintenanceMessage.builder()
+				.agentName(agentName)
+				.result(result)
+				.state("informationInManager")
+				.build());
+	}
+
+	/**
+	 * Function confirms that maintenance completed successfully
+	 */
+	public void confirmSuccessfulMaintenance() {
+		getAgentsWebSocket().send(ImmutableUpdateServerMaintenanceMessage.builder()
+				.agentName(agentName)
+				.result(true)
+				.state("maintenanceCompleted")
 				.build());
 	}
 

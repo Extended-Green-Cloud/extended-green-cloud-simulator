@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @JsonSerialize(as = ImmutableResourceCharacteristic.class)
 @JsonDeserialize(as = ImmutableResourceCharacteristic.class)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Value.Immutable
 public interface ResourceCharacteristic {
 
@@ -35,6 +35,7 @@ public interface ResourceCharacteristic {
 	/**
 	 * @return unit in which a given resource is described
 	 */
+	@Nullable
 	String getUnit();
 
 	/**

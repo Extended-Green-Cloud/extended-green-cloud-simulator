@@ -2,6 +2,7 @@ package org.greencloud.commons.utils.messaging.factory;
 
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_SERVER_RESOURCES_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONFIRM_SYSTEM_PLAN_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.REGISTER_SERVER_RESOURCES_PROTOCOL;
 
@@ -70,6 +71,25 @@ public class AgentDiscoveryMessageFactory {
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withObjectContent(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withReceivers(server)
+				.build();
+	}
+
+	/**
+	 * Message send to CNA informing that resources of the given server have changed
+	 *
+	 * @param serverAgentProps properties of the given Server
+	 * @return inform ACLMessage
+	 */
+	public static ACLMessage prepareRequestInformingCNAAboutResourceChange(final ServerAgentProps serverAgentProps,
+			final Map<String, Resource> newResources, final int ruleSetIdx) {
+		return MessageBuilder.builder(ruleSetIdx)
+				.withPerformative(REQUEST)
+				.withMessageProtocol(CHANGE_SERVER_RESOURCES_PROTOCOL)
+				.withObjectContent(ImmutableServerResources.builder()
+						.resources(newResources)
+						.price(serverAgentProps.getPricePerHour())
+						.build())
+				.withReceivers(serverAgentProps.getOwnerCloudNetworkAgent())
 				.build();
 	}
 }

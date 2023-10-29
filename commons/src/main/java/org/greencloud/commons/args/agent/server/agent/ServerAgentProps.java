@@ -19,6 +19,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_B
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -30,12 +31,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
@@ -273,14 +272,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 				.map(Map.Entry::getKey)
 				.map(ClientJob.class::cast)
 				.toList();
-		final AtomicReference<String> key = new AtomicReference<>();
-		return activeJobs.stream().map(PowerJob::getRequiredResources)
-				.flatMap(resourceMap -> resourceMap.entrySet().stream())
-				.filter(resourceEntry -> resources.containsKey(resourceEntry.getKey()))
-				.collect(toMap(entry -> {
-					key.set(entry.getKey());
-					return entry.getKey();
-				}, Map.Entry::getValue, (job1, job2) -> resources.get(key.get()).addResource(job1, job2)));
+		return getInUseResourcesForJobs(activeJobs, resources);
 	}
 
 	/**

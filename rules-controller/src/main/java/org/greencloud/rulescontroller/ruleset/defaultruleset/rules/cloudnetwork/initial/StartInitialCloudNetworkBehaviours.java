@@ -44,6 +44,7 @@ public class StartInitialCloudNetworkBehaviours extends AgentBehaviourRule<Cloud
 						SEARCH_OWNER_AGENT_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, "SERVER_RESOURCE_INFORMATION_RULE", controller, true),
+				ListenForMessages.create(agent, "SERVER_RESOURCE_UPDATE_RULE", controller, true),
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller, true),
 				ListenForMessages.create(agent, SERVER_STATUS_CHANGE_RULE, controller, true),
 				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller)

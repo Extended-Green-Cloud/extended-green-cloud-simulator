@@ -1,8 +1,10 @@
 package org.greencloud.commons.args.agent.cloudnetwork.node;
 
 import java.util.List;
+import java.util.Map;
 
 import org.greencloud.commons.args.agent.AgentArgs;
+import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface CloudNetworkNodeArgs extends AgentArgs {
 
 	List<String> getServerAgents();
+	Map<String, Resource> getOwnedResources();
 
 	Double getMaxServerCpu();
 }

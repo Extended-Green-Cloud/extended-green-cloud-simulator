@@ -1,4 +1,4 @@
-package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening;
+package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource;
 
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SERVER_RESOURCE_INFORMATION_TEMPLATE;
 

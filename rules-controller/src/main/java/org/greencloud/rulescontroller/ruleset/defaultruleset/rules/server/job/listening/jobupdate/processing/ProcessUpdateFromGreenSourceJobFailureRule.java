@@ -66,6 +66,11 @@ public class ProcessUpdateFromGreenSourceJobFailureRule extends AgentBasicRule<S
 		}
 		agentProps.removeJob(job);
 
+		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+			logger.info("Server completed all planned jobs and is fully disabled.");
+			agentNode.disableServer();
+		}
+
 		agentProps.incrementJobCounter(jobInstance, FAILED);
 		agentProps.updateGUI();
 

@@ -1,26 +1,30 @@
 package com.gui.agents.cloudnetwork;
 
 import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
+import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
+import static com.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
+import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.args.agent.AgentType.CLOUD_NETWORK;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING;
 import static org.greencloud.commons.utils.job.JobUtils.getJobSuccessRatio;
-import static com.gui.websocket.WebSocketConnections.getAgentsWebSocket;
-import static com.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
-import static java.util.Optional.ofNullable;
 
+import java.util.Map;
 import java.util.Optional;
+
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.args.agent.cloudnetwork.node.CloudNetworkNodeArgs;
+import org.greencloud.commons.domain.resources.Resource;
 
 import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.args.agent.cloudnetwork.node.CloudNetworkNodeArgs;
-
 import com.gui.agents.egcs.EGCSNetworkNode;
 import com.gui.event.AbstractEvent;
 import com.gui.message.ImmutableSetNumericValueMessage;
+import com.gui.message.ImmutableUpdateDefaultResourcesMessage;
+import com.gui.message.ImmutableUpdateResourcesMessage;
 import com.gui.message.ImmutableUpdateSingleValueMessage;
 
 /**
@@ -85,12 +89,37 @@ public class CloudNetworkNode extends EGCSNetworkNode<CloudNetworkNodeArgs, Clou
 	}
 
 	/**
+	 * Method updates resources owned by CNA
+	 *
+	 * @param newResources new CNA resources
+	 */
+	public void updateResourceMap(final Map<String, Resource> newResources) {
+		getCloudNetworkSocket().send(ImmutableUpdateDefaultResourcesMessage.builder()
+				.agentName(agentName)
+				.resources(newResources)
+				.build());
+	}
+
+	/**
+	 * Function updates current in-use resources
+	 *
+	 * @param resources currently utilized resources
+	 */
+	public void updateResources(final Map<String, Resource> resources) {
+		getAgentsWebSocket().send(ImmutableUpdateResourcesMessage.builder()
+				.resources(resources)
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
 	 * Method updates GUI of given agent node
 	 *
 	 * @param agentProps current properties of an agent
 	 */
 	@Override
 	public void updateGUI(final CloudNetworkAgentProps agentProps) {
+		updateResources(agentProps.getInUseResources());
 		updateClientNumber(getScheduledJobs(agentProps));
 		updateJobsCount(getJobInProgressCount(agentProps));
 		updateCurrentJobSuccessRatio(getSuccessRatio(agentProps));

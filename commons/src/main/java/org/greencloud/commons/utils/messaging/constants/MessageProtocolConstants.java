@@ -57,6 +57,8 @@ public class MessageProtocolConstants {
 	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing CNA that
 	 * <p> REGISTER_SERVER_RESOURCES_PROTOCOL - protocol sends information about resources of given Server to CNA</p>
 	 * the given Server is enabled </p>
+	 * <p> CHANGE_SERVER_RESOURCES_PROTOCOL - protocol sends information about changes in resources of given Server to CNA</p>
+	 * the given Server is enabled </p>
 	 */
 	public static final String CONNECT_GREEN_SOURCE_PROTOCOL = "CONNECT_GREEN_SOURCE_PROTOCOL";
 	public static final String DEACTIVATE_GREEN_SOURCE_PROTOCOL = "DEACTIVATE_GREEN_SOURCE_PROTOCOL";
@@ -64,6 +66,7 @@ public class MessageProtocolConstants {
 	public static final String DISABLE_SERVER_PROTOCOL = "DISABLE_SERVER_PROTOCOL";
 	public static final String ENABLE_SERVER_PROTOCOL = "ENABLE_SERVER_PROTOCOL";
 	public static final String REGISTER_SERVER_RESOURCES_PROTOCOL = "REGISTER_SERVER_RESOURCES_PROTOCOL";
+	public static final String CHANGE_SERVER_RESOURCES_PROTOCOL = "CHANGE_SERVER_RESOURCES_PROTOCOL";
 
 	/**
 	 * Error protocols

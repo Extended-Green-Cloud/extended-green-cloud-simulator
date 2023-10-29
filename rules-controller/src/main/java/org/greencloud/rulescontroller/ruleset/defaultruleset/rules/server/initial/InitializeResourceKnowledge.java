@@ -43,6 +43,7 @@ public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps
 	public void executeRule(final RuleSetFacts facts) {
 		fillRemainingResourcesInformation();
 		logger.info("Initialization of Server resources was completed!");
+		agentNode.updateDefaultResources(agentProps.resources());
 	}
 
 	private void fillRemainingResourcesInformation() {

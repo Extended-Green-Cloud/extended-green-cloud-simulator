@@ -21,10 +21,11 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.li
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.adaptation.UpdateRuleSetForWeatherDropRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SearchForSchedulerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SubscribeServerServiceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ListenForServerResourceInformationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ListenForServerStatusChangeRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ProcessServerStatusChangeCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing.ProcessServerResourceInformationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferConfirmationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ProcessTransferRequestCombinedRule;
@@ -41,6 +42,7 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessNewScheduledJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessServerJobStatusUpdateCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.proposing.ProposeToSchedulerRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.sensor.SenseExternalCloudNetworkEventsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.ChangeWeatherPredictionErrorRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.ConnectGreenSourceRule;
@@ -119,6 +121,8 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.dividejob.ProcessJobSubstitutionRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.HandlePowerShortageEventCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.SchedulePowerShortageStartRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.maintenance.ProcessServerMaintenanceRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.maintenance.RequestServerMaintenanceInCNARule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.HandleJobsAffectedByPowerShortageRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.ProcessCheckSingleAffectedJobRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.processing.ProcessJobResupplyWithGreenEnergyRule;
@@ -238,7 +242,9 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessNewScheduledJobCombinedRule(rulesController),
 				new ProcessServerJobStatusUpdateCombinedRule(rulesController),
 				new ProcessServerStatusChangeCombinedRule(rulesController),
-				new ProcessTransferRequestCombinedRule(rulesController)
+				new ProcessTransferRequestCombinedRule(rulesController),
+				new ListenForServerResourceUpdateRule(rulesController, this),
+				new ProcessServerResourceUpdateRule(rulesController)
 		);
 	}
 
@@ -295,7 +301,9 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessPowerShortageTransferRequestCombinedRule(rulesController),
 				new ProcessRuleSetUpdateRequestRule(rulesController),
 				new ProcessUpdateFromGreenSourceCombinedRule(rulesController),
-				new ProcessCheckSingleAffectedJobRule(rulesController)
+				new ProcessCheckSingleAffectedJobRule(rulesController),
+				new ProcessServerMaintenanceRule(rulesController),
+				new RequestServerMaintenanceInCNARule(rulesController)
 		);
 	}
 

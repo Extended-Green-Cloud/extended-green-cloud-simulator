@@ -314,4 +314,23 @@ public class ResourcesUtilization {
 				(k, val) -> ImmutableResourceCharacteristic.copyOf(val).withValue(0));
 		return ImmutableResource.copyOf(resource).withCharacteristics(newCharacteristics);
 	}
+
+	/**
+	 * Method calculates the amount of in use resources based on given set of jobs
+	 *
+	 * @param jobs      set of jobs
+	 * @param resources available resources
+	 * @return aggregated resource values
+	 */
+	public static <T extends PowerJob> Map<String, Resource> getInUseResourcesForJobs(final List<T> jobs,
+			final Map<String, Resource> resources) {
+		final AtomicReference<String> key = new AtomicReference<>();
+		return jobs.stream().map(PowerJob::getRequiredResources)
+				.flatMap(resourceMap -> resourceMap.entrySet().stream())
+				.filter(resourceEntry -> resources.containsKey(resourceEntry.getKey()))
+				.collect(toMap(entry -> {
+					key.set(entry.getKey());
+					return entry.getKey();
+				}, Map.Entry::getValue, (job1, job2) -> resources.get(key.get()).addResource(job1, job2)));
+	}
 }

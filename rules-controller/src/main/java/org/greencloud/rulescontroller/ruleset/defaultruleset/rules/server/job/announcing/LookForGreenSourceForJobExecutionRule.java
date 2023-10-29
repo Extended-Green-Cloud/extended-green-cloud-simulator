@@ -168,6 +168,12 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 	private void refuseToExecuteJob(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
 		agentProps.removeJob(job);
+
+		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+			logger.info("Server completed all planned jobs and is fully disabled.");
+			agentNode.disableServer();
+		}
+
 		agent.send(prepareRefuseReply(facts.get(MESSAGE)));
 	}
 }

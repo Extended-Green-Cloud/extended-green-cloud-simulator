@@ -9,13 +9,19 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.SetUtils;
 import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
@@ -96,6 +102,31 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	public int removeJob(final ClientJob job) {
 		networkJobs.remove(job);
 		return ruleSetForJob.remove(job.getJobInstanceId());
+	}
+
+	/**
+	 * Method returns currently used resources
+	 * @return in use resources
+	 */
+	public Map<String, Resource> getInUseResources() {
+		final List<ClientJob> executedJobs = networkJobs.entrySet().stream()
+				.filter(job -> job.getValue().equals(IN_PROGRESS))
+				.map(Map.Entry::getKey)
+				.map(ClientJob.class::cast)
+				.toList();
+		return getInUseResourcesForJobs(executedJobs, aggregatedResources);
+	}
+
+	/**
+	 * Method removes unused resources from aggregation
+	 */
+	public void removeUnusedResources() {
+		final Set<String> availableResources = ownedServerResources.values().stream()
+				.map(resource -> resource.getResources().keySet().stream().toList())
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
+		final Set<String> resourcesToRemove = SetUtils.difference(aggregatedResources.keySet(), availableResources);
+		resourcesToRemove.forEach(resourceKey -> aggregatedResources.remove(resourceKey));
 	}
 
 	@Override

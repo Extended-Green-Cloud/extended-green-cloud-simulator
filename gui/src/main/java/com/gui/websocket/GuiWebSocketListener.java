@@ -13,6 +13,7 @@ import com.gui.agents.egcs.EGCSNode;
 import com.gui.event.DisableServerEvent;
 import com.gui.event.EnableServerEvent;
 import com.gui.event.PowerShortageEvent;
+import com.gui.event.ServerMaintenanceEvent;
 import com.gui.event.WeatherDropEvent;
 
 public class GuiWebSocketListener extends GuiWebSocketClient {
@@ -60,6 +61,9 @@ public class GuiWebSocketListener extends GuiWebSocketClient {
 		}
 		if (message.contains("SWITCH_ON_EVENT")) {
 			EnableServerEvent.create(message).trigger(agentNodes);
+		}
+		if (message.contains("SERVER_MAINTENANCE_EVENT")) {
+			ServerMaintenanceEvent.create(message).trigger(agentNodes);
 		}
 	}
 }

@@ -6,15 +6,20 @@ import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_HANDLE_CHANGE_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.addResources;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.agent.ServerResources;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
 import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
@@ -51,6 +56,18 @@ public class ProcessServerStatusChangeRule extends AgentBasicRule<CloudNetworkAg
 		final AID server = request.getSender();
 
 		logger.info("CNA is {} Server {}.", type, server.getLocalName());
+		final ServerResources serverResources = agentProps.getOwnedServerResources().get(server);
+
+		agentProps.removeUnusedResources();
+		if (newStatus) {
+			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
+					addResources(agentProps.getAggregatedResources(), serverResources.getResources())));
+		} else {
+			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
+					computeResourceDifference(agentProps.getAggregatedResources(), serverResources.getResources())));
+		}
+		agentNode.updateResourceMap(agentProps.getAggregatedResources());
+
 		agentProps.getOwnedServers().replace(server, newStatus);
 		agent.send(prepareInformReply(request));
 	}
