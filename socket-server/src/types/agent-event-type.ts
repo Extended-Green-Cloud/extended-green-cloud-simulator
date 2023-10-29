@@ -14,5 +14,13 @@ export interface WeatherDropEvent extends CommonAgentEvent {}
 export interface SwitchOnOffEvent extends CommonAgentEvent {
 	isServerOn: boolean;
 }
+export interface ServerMaintenanceEvent extends CommonAgentEvent {
+	hasStarted: boolean;
+	hasError: boolean;
+	sendNewData: boolean | null;
+	processDataInServer: boolean | null;
+	informationInManager: boolean | null;
+	maintenanceCompleted: boolean | null;
+}
 
-export type AgentEvent = PowerShortageEvent | WeatherDropEvent | SwitchOnOffEvent;
+export type AgentEvent = PowerShortageEvent | WeatherDropEvent | SwitchOnOffEvent | ServerMaintenanceEvent;

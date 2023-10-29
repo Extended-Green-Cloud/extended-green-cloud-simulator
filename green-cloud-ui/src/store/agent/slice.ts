@@ -1,7 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Agent, AgentStore, PowerShortageEventData, SwitchOnOffEventData, WeatherDropEventData } from '@types'
+import {
+   Agent,
+   AgentStore,
+   PowerShortageEventData,
+   ServerMaintenanceEventData,
+   SwitchOnOffEventData,
+   WeatherDropEventData
+} from '@types'
 import { getAgentByName } from './api/get-agent-by-name'
-import { triggerPowerShortage, triggerSwitchOnOffServer, triggerWeatherDrop } from './api/trigger-events'
+import {
+   triggerPowerShortage,
+   sendMaintenanceData,
+   triggerServerMaintenanceReset,
+   triggerSwitchOnOffServer,
+   triggerWeatherDrop
+} from './api/trigger-events'
 
 const INITIAL_STATE: AgentStore = {
    agents: [],
@@ -35,6 +48,20 @@ export const agentSlice = createSlice({
 
          if (getAgentByName(state.agents, agentName)) {
             triggerSwitchOnOffServer(agentName)
+         }
+      },
+      triggerServerMaintenance(state, action: PayloadAction<ServerMaintenanceEventData>) {
+         const { agentName, newResources } = action.payload
+
+         if (getAgentByName(state.agents, agentName)) {
+            sendMaintenanceData(agentName, newResources)
+         }
+      },
+      resetServerMaintenance(state, action: PayloadAction<string>) {
+         const agentName = action.payload
+
+         if (getAgentByName(state.agents, agentName)) {
+            triggerServerMaintenanceReset(agentName)
          }
       },
       setAgents(state, action: PayloadAction<Agent[]>) {

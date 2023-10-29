@@ -1,3 +1,4 @@
+import { ResourceMap } from 'types/resources'
 import { CommonAgentInterface } from './common/common-agent'
 
 export interface CloudNetworkAgent extends CommonAgentInterface {
@@ -7,4 +8,6 @@ export interface CloudNetworkAgent extends CommonAgentInterface {
    totalNumberOfClients: number
    totalNumberOfExecutedJobs: number
    successRatio: number
+   inUseResources: ResourceMap
+   resources: ResourceMap
 }

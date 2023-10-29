@@ -20,11 +20,11 @@ export const EVENT_MAP = {
       title: 'Switch server on/off event',
       description: 'Event gracefully disables/enables given server making it inactive in the system'
    },
-   PERFORM_SERVER_MAINTENANCE_EVENT: {
-      label: 'Apply changes to the server',
+   SERVER_MAINTENANCE_EVENT: {
+      label: 'Start configuring server resources',
       title: 'Server maintenance event',
       description:
-         'Event performs server maintenance, given the user ability to change its resources. Important! Event can be executed only on servers that have been previously switched off.'
+         'Event initiates server maintenance, giving user the ability to change its resources. Important! Event can be executed only on servers that have been previously switched off.'
    },
    REMOVE_AGENT_EVENT: {
       label: 'Remove server and green energy sources',

@@ -1,7 +1,17 @@
 import { AGENT_TYPES, POWER_SHORTAGE_STATE, EVENT_TYPE } from "../../constants/index.js";
-import { PowerShortageEvent, SwitchOnOffEvent, WeatherDropEvent } from "../../types/agent-event-type.js";
+import {
+	PowerShortageEvent,
+	ServerMaintenanceEvent,
+	SwitchOnOffEvent,
+	WeatherDropEvent,
+} from "../../types/agent-event-type.js";
 import { getAgentByName, getAgentNodeById, getNodeState } from "../../utils/index.js";
-import { logPowerShortageEvent, logSwitchOnOffEvent, logWeatherDropEvent } from "../../utils/logger-utils.js";
+import {
+	logPowerShortageEvent,
+	logServerMaintenanceEvent,
+	logSwitchOnOffEvent,
+	logWeatherDropEvent,
+} from "../../utils/logger-utils.js";
 import { GRAPH_STATE } from "../graph/graph-state.js";
 import { AGENTS_STATE } from "./agents-state.js";
 
@@ -90,7 +100,7 @@ const handleServerSwitchOnOff = (data) => {
 			const dataToReturn = {
 				agentName: agent.name,
 				type: eventType,
-				eventData: {
+				data: {
 					occurrenceTime: getEventOccurrenceTime(0),
 				},
 			};
@@ -99,4 +109,53 @@ const handleServerSwitchOnOff = (data) => {
 	}
 };
 
-export { handlePowerShortage, handleWeatherDrop, handleServerSwitchOnOff };
+const handleServerMaintenanceSend = (data) => {
+	const agent = getAgentByName(AGENTS_STATE.agents, data.agentName);
+
+	if (agent) {
+		const event = getEventByType(agent.events, EVENT_TYPE.SERVER_MAINTENANCE_EVENT) as ServerMaintenanceEvent;
+
+		if (event) {
+			event.disabled = true;
+			event.hasStarted = true;
+			event.sendNewData = true;
+			logServerMaintenanceEvent(agent.name);
+
+			const dataToReturn = {
+				agentName: agent.name,
+				type: EVENT_TYPE.SERVER_MAINTENANCE_EVENT,
+				data: {
+					occurrenceTime: getEventOccurrenceTime(0),
+					newResources: data.newResources,
+				},
+			};
+			return dataToReturn;
+		}
+	}
+};
+
+const handleServerMaintenanceReset = (data) => {
+	const agent = getAgentByName(AGENTS_STATE.agents, data.agentName);
+
+	if (agent) {
+		const event = getEventByType(agent.events, EVENT_TYPE.SERVER_MAINTENANCE_EVENT) as ServerMaintenanceEvent;
+
+		if (event) {
+			event.disabled = false;
+			event.hasError = false;
+			event.hasStarted = false;
+			event.informationInManager = null;
+			event.maintenanceCompleted = null;
+			event.processDataInServer = null;
+			event.sendNewData = null;
+		}
+	}
+};
+
+export {
+	handlePowerShortage,
+	handleWeatherDrop,
+	handleServerSwitchOnOff,
+	handleServerMaintenanceReset,
+	handleServerMaintenanceSend,
+};

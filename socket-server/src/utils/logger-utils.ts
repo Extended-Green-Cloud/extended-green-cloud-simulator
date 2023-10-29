@@ -8,6 +8,10 @@ const logWeatherDropEvent = (agentName) =>
 	console.log(`[${new Date().toLocaleTimeString()}] Weather drop for ${agentName}`);
 const logSwitchOnOffEvent = (agentName, eventType) =>
 	console.log(`[${new Date().toLocaleTimeString()}] Switching ${eventType} server ${agentName}`);
+const logServerMaintenanceEvent = (agentName) =>
+	console.log(`[${new Date().toLocaleTimeString()}] Changing configuration of server ${agentName}`);
+const logResetServerMaintenanceEvent = (agentName) =>
+	console.log(`[${new Date().toLocaleTimeString()}] Resetting maintenance state of server ${agentName}`);
 
 export {
 	logNewMessage,
@@ -16,4 +20,6 @@ export {
 	logWeatherDropEvent,
 	logPowerShortageEvent,
 	logSwitchOnOffEvent,
+	logServerMaintenanceEvent,
+	logResetServerMaintenanceEvent,
 };

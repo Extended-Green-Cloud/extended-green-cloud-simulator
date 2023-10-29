@@ -1,7 +1,13 @@
 import { styles } from './event-panel-styles'
 
 import EventContainer from './event-container/event-container'
-import { Agent, PowerShortageEventData, SwitchOnOffEventData, WeatherDropEventData } from '@types'
+import {
+   Agent,
+   PowerShortageEventData,
+   ServerMaintenanceEventData,
+   SwitchOnOffEventData,
+   WeatherDropEventData
+} from '@types'
 import { DetailsField, Modal } from 'components/common'
 
 interface Props {
@@ -9,6 +15,8 @@ interface Props {
    triggerPowerShortage: (data: PowerShortageEventData) => void
    triggerWeatherDrop: (data: WeatherDropEventData) => void
    switchServerState: (data: SwitchOnOffEventData) => void
+   triggerServerMaintenance: (data: ServerMaintenanceEventData) => void
+   resetServerMaintenance: (agentName: string) => void
    isOpen: boolean
    setIsOpen: (state: boolean) => void
 }
@@ -28,6 +36,8 @@ export const EventPanel = ({
    triggerPowerShortage,
    triggerWeatherDrop,
    switchServerState,
+   triggerServerMaintenance,
+   resetServerMaintenance,
    isOpen,
    setIsOpen
 }: Props) => {
@@ -38,7 +48,16 @@ export const EventPanel = ({
          const key = [selectedAgent.name, event.type].join('_')
          return (
             <EventContainer
-               {...{ selectedAgent, event, key, triggerPowerShortage, triggerWeatherDrop, switchServerState }}
+               {...{
+                  selectedAgent,
+                  event,
+                  key,
+                  triggerPowerShortage,
+                  triggerWeatherDrop,
+                  switchServerState,
+                  triggerServerMaintenance,
+                  resetServerMaintenance
+               }}
             />
          )
       })

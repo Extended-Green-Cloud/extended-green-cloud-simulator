@@ -1,5 +1,6 @@
 import {
 	INITIAL_POWER_SHORTAGE_STATE,
+	INITIAL_SERVER_MAINTENANCE_STATE,
 	INITIAL_SWITCH_ON_OFF_STATE,
 	INITIAL_WEATHER_DROP_STATE,
 	JOB_STATUSES,
@@ -9,7 +10,7 @@ import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
 import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
 import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
-import { Resource, ResourceMap } from "../types";
+import { Resource, ResourceCharacteristic, ResourceMap } from "../types";
 
 const getAgentByName = (agents: any[], agentName: string) => {
 	return agents.find((agent) => agent.name === agentName);
@@ -32,12 +33,24 @@ const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
 				[keyC]: {
 					unit: resourceC.unit,
 					value: resourceC.value,
-				},
+					toCommonUnitConverter: resourceC.toCommonUnitConverter,
+					fromCommonUnitConverter: resourceC.fromCommonUnitConverter,
+					resourceBooker: resourceC.resourceBooker,
+				} as ResourceCharacteristic,
 				...prevC,
 			}),
 			{}
 		);
-		return { ...prev, [key]: { characteristics: characteristicsVal } };
+		return {
+			...prev,
+			[key]: {
+				characteristics: characteristicsVal,
+				emptyResource: resource.emptyResource,
+				sufficiencyValidator: resource.sufficiencyValidator,
+				resourceAddition: resource.resourceAddition,
+				resourceComparator: resource.resourceComparator,
+			} as Resource,
+		};
 	}, {});
 };
 
@@ -127,13 +140,19 @@ const registerCloudNetwork = (data): CloudNetworkAgent => {
 		maxCpuInServers: data.maxServerCpu,
 		traffic: 0,
 		successRatio: 0,
+		resources: {},
+		inUseResources: {},
 		...data,
 	};
 };
 
 const registerServer = (data): ServerAgent => {
 	const { emptyResources, resources, ...remainingData } = data;
-	const events = [structuredClone(INITIAL_POWER_SHORTAGE_STATE), structuredClone(INITIAL_SWITCH_ON_OFF_STATE)];
+	const events = [
+		structuredClone(INITIAL_POWER_SHORTAGE_STATE),
+		structuredClone(INITIAL_SWITCH_ON_OFF_STATE),
+		structuredClone(INITIAL_SERVER_MAINTENANCE_STATE),
+	];
 
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: remainingData.name,

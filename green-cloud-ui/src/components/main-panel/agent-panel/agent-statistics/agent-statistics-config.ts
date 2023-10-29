@@ -31,6 +31,10 @@ const CLOUD_NETWORK_STATISTICS_QUALITY = [
    }
 ]
 
+const CLOUD_NETWORK_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
+
+const CLOUD_NETWORK_STATISTICS_RESOURCES = [{ key: 'resourceMap', label: '-' }]
+
 const SERVER_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
 
 const SERVER_STATISTICS_RESOURCES = [{ key: 'resourceMap', label: '-' }]
@@ -89,7 +93,13 @@ const MONITORING_STATISTICS = [{ key: 'greenEnergyAgent', label: 'Connected Gree
 
 const mapCloudNetworkAgentFields = (agent: CloudNetworkAgent) => {
    const connectedServers = agent.serverAgents.length
-   return { connectedServers, ...agent }
+
+   const resourceMap: MultiLevelDetails[] = collectResourcesToMultiMap(
+      agent.resources,
+      CLOUD_NETWORK_STATISTICS_RESOURCE_CHARACTERISTICS,
+      agent.inUseResources
+   )
+   return { connectedServers, resourceMap, ...agent }
 }
 
 const mapServerAgentFields = (agent: ServerAgent) => {
@@ -166,6 +176,7 @@ export const MAP_TYPE = {
 export const getStatisticsMapForAgent = (agent: Agent, type?: string) => {
    switch (agent.type) {
       case AgentType.CLOUD_NETWORK:
+         if (type === MAP_TYPE.RESOURCES) return CLOUD_NETWORK_STATISTICS_RESOURCES
          return type === MAP_TYPE.QUALITY ? CLOUD_NETWORK_STATISTICS_QUALITY : CLOUD_NETWORK_STATISTICS_STATE
       case AgentType.SERVER:
          if (type === MAP_TYPE.QUALITY) return SERVER_STATISTICS_QUALITY
@@ -204,7 +215,7 @@ export const PERCENTAGE_VALUES = ['traffic', 'backUpTraffic', 'successRatio', 'w
 type AgentsMaps = { [key in AgentType]?: string[] }
 
 export const MAPS_FOR_AGENT_TYPE: AgentsMaps = {
-   [AgentType.CLOUD_NETWORK]: [MAP_TYPE.STATE, MAP_TYPE.QUALITY],
+   [AgentType.CLOUD_NETWORK]: [MAP_TYPE.STATE, MAP_TYPE.QUALITY, MAP_TYPE.RESOURCES],
    [AgentType.SERVER]: [MAP_TYPE.STATE, MAP_TYPE.RESOURCES, MAP_TYPE.VALUATION, MAP_TYPE.POWER, MAP_TYPE.QUALITY],
    [AgentType.GREEN_ENERGY]: [MAP_TYPE.STATE, MAP_TYPE.ENERGY, MAP_TYPE.QUALITY],
    [AgentType.MONITORING]: [MAP_TYPE.STATE]

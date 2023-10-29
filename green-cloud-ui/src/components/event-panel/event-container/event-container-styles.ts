@@ -31,6 +31,8 @@ export const styles: Styles = {
    },
    triggerDescription: {
       marginTop: '10px',
+      maxWidth: '50vh',
+      wordWrap: 'break-word',
       fontSize: 'var(--font-size-6)',
       fontWeight: 400
    },

@@ -7,6 +7,10 @@ import {
    EventType,
    PowerShortageEvent,
    PowerShortageEventData,
+   PowerShortageEventState,
+   ServerAgent,
+   ServerMaintenanceEvent,
+   ServerMaintenanceEventData,
    SwitchOnOffEvent,
    SwitchOnOffEventData,
    WeatherDropEventData
@@ -15,6 +19,8 @@ import PowerShortageCard from 'components/event-panel/power-shortage-event/power
 import Collapse from 'components/common/collapse/collapse'
 import WeatherDropCard from '../weather-drop-event/weather-drop-event'
 import SwitchOnOffCard from '../switch-off-on-event/switch-off-on-event'
+import ServerMaintenanceCard from '../server-maintenance-event/server-maintenance-event'
+import { getEventByType } from '@utils'
 
 interface Props {
    selectedAgent: Agent
@@ -22,6 +28,8 @@ interface Props {
    triggerPowerShortage: (data: PowerShortageEventData) => void
    triggerWeatherDrop: (data: WeatherDropEventData) => void
    switchServerState: (data: SwitchOnOffEventData) => void
+   triggerServerMaintenance: (data: ServerMaintenanceEventData) => void
+   resetServerMaintenance: (agentName: string) => void
 }
 
 /**
@@ -38,7 +46,9 @@ const EventContainer = ({
    event,
    triggerPowerShortage,
    triggerWeatherDrop,
-   switchServerState
+   switchServerState,
+   triggerServerMaintenance,
+   resetServerMaintenance
 }: Props) => {
    const {
       singleEventContainer,
@@ -53,24 +63,51 @@ const EventContainer = ({
 
    const getEventFields = (eventEntry: any) => {
       if (selectedAgent) {
+         const agentName = selectedAgent?.name
          switch (event.type) {
             case EventType.POWER_SHORTAGE_EVENT: {
                const powerShortageEvent = event as PowerShortageEvent
                const label = eventEntry.labels[powerShortageEvent.state].toUpperCase()
-               const agentName = selectedAgent?.name
                return <PowerShortageCard {...{ event: powerShortageEvent, label, agentName, triggerPowerShortage }} />
             }
             case EventType.WEATHER_DROP_EVENT: {
                const label = eventEntry.label
-               const agentName = selectedAgent?.name
                return <WeatherDropCard {...{ event, label, agentName, triggerWeatherDrop }} />
             }
             case EventType.SWITCH_ON_OFF_EVENT: {
                const switchServerStateEvent = event as SwitchOnOffEvent
                const onOffState = switchServerStateEvent.isServerOn ? 'OFF' : 'ON'
                const label = eventEntry.labels[onOffState].toUpperCase()
-               const agentName = selectedAgent?.name
                return <SwitchOnOffCard {...{ event: switchServerStateEvent, label, agentName, switchServerState }} />
+            }
+            case EventType.SERVER_MAINTENANCE_EVENT: {
+               const switchServerStateEvent = getEventByType(
+                  EventType.SWITCH_ON_OFF_EVENT,
+                  selectedAgent
+               ) as SwitchOnOffEvent
+               const powerShortageEvent = getEventByType(
+                  EventType.POWER_SHORTAGE_EVENT,
+                  selectedAgent
+               ) as PowerShortageEvent
+
+               const isAvailable =
+                  powerShortageEvent.state === PowerShortageEventState.ACTIVE && !switchServerStateEvent.isServerOn
+               const maintenanceEvent = event as ServerMaintenanceEvent
+               const label = eventEntry.label.toUpperCase()
+               const currentResources = (selectedAgent as ServerAgent).resources
+               return (
+                  <ServerMaintenanceCard
+                     {...{
+                        event: maintenanceEvent,
+                        currentResources,
+                        label,
+                        agentName,
+                        isAvailable,
+                        triggerServerMaintenance,
+                        resetServerMaintenance
+                     }}
+                  />
+               )
             }
          }
       }

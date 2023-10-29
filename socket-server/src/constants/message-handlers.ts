@@ -38,6 +38,8 @@ import {
 	handleUpdateEnergyInUse,
 	handleRegisterAgent,
 	handleRemoveAgent,
+	handleUpdateDefaultResources,
+	handleUpdateServerMaintenanceState,
 } from "../module/agents/message-handlers";
 
 export const MESSAGE_HANDLERS = {
@@ -76,6 +78,8 @@ export const MESSAGE_HANDLERS = {
 	ENABLE_SERVER: handleServerEnabling,
 	UPDATE_ADAPTATION_ACTION: handleUpdateAdaptationAction,
 	UPDATE_SERVER_RESOURCES: handleUpdateResources,
+	UPDATE_DEFAULT_RESOURCES: handleUpdateDefaultResources,
 	UPDATE_ENERGY_IN_USE: handleUpdateEnergyInUse,
 	UPDATE_JOB_EXECUTION_PROPORTION: handleUpdateJobExecutionProportion,
+	UPDATE_SERVER_MAINTENANCE_STATE: handleUpdateServerMaintenanceState,
 };

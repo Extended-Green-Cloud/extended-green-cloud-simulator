@@ -1,4 +1,4 @@
-import { PowerShortageEvent, SwitchOnOffEvent, WeatherDropEvent } from "../types";
+import { PowerShortageEvent, ServerMaintenanceEvent, SwitchOnOffEvent, WeatherDropEvent } from "../types";
 
 enum JOB_STATUSES {
 	CREATED = "CREATED",
@@ -38,6 +38,7 @@ enum EVENT_TYPE {
 	SWITCH_ON_OFF_EVENT = "SWITCH_ON_OFF_EVENT",
 	SWITCH_ON_EVENT = "SWITCH_ON_EVENT",
 	SWITCH_OFF_EVENT = "SWITCH_OFF_EVENT",
+	SERVER_MAINTENANCE_EVENT = "SERVER_MAINTENANCE_EVENT",
 	AGENT_CONNECTION_CHANGE = "AGENT_CONNECTION_CHANGE",
 }
 
@@ -73,6 +74,19 @@ const INITIAL_SWITCH_ON_OFF_STATE: SwitchOnOffEvent = {
 	data: null,
 };
 
+const INITIAL_SERVER_MAINTENANCE_STATE: ServerMaintenanceEvent = {
+	hasError: false,
+	hasStarted: false,
+	sendNewData: null,
+	processDataInServer: null,
+	informationInManager: null,
+	maintenanceCompleted: null,
+	disabled: false,
+	type: EVENT_TYPE.SERVER_MAINTENANCE_EVENT,
+	occurrenceTime: null,
+	data: null,
+};
+
 const INITIAL_NETWORK_AGENT_STATE = (data) => {
 	return {
 		traffic: 0,
@@ -94,6 +108,7 @@ export {
 	INITIAL_POWER_SHORTAGE_STATE,
 	INITIAL_WEATHER_DROP_STATE,
 	INITIAL_SWITCH_ON_OFF_STATE,
+	INITIAL_SERVER_MAINTENANCE_STATE,
 	REPORTING_TIME,
 	INITIAL_NETWORK_AGENT_STATE,
 };

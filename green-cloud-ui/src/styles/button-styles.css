@@ -20,6 +20,11 @@
    width: 140px;
 }
 
+.full-width-button {
+   width: 100%;
+   margin-top: 10px;
+}
+
 /* SMALL DARK GRAY BUTTON STYLE */
 
 .small-gray-button {
@@ -56,6 +61,26 @@
 
 .small-green-button:active {
    background-color: var(--green-4);
+}
+
+/* SMALL RED BUTTON STYLE */
+
+.small-red-button {
+   color: var(--white);
+   font-family: var(--font-1);
+   font-size: var(--font-size-2);
+   font-weight: 300;
+   padding: 5px 20px;
+   width: 120px;
+   background-color: var(--red-1);
+}
+
+.small-red-button:hover {
+   background-color: var(--red-3);
+}
+
+.small-red-button:active {
+   background-color: var(--red-2);
 }
 
 /* BANNER BUTTON STYLE */
@@ -123,6 +148,15 @@
    padding: 10px;
    width: 100%;
    margin-top: 15px;
+}
+
+.event-button-no-top-margin {
+   color: var(--white);
+   font-family: var(--font-1);
+   font-size: var(--font-size-2);
+   font-weight: 300;
+   padding: 10px;
+   width: 100%;
 }
 
 .event-button:disabled {
@@ -278,4 +312,23 @@
 
 .medium-gray-button-active:active {
    background-color: var(--gray-6);
+}
+
+/* MEDIUM LIGHT GRAY BUTTON */
+
+.medium-light-gray-button {
+   color: var(--white);
+   font-family: var(--font-1);
+   font-size: var(--font-size-2);
+   font-weight: 300;
+   padding: 10px;
+   background-color: var(--gray-11);
+}
+
+.medium-light-gray-button:hover {
+   background-color: var(--gray-1);
+}
+
+.medium-light-gray-button:active {
+   background-color: var(--gray-2);
 }

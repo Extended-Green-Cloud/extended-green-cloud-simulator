@@ -1,4 +1,10 @@
-import { EventType, CommonEventMessagePayload, WeatherDropMessage } from '@types'
+import {
+   EventType,
+   CommonEventMessagePayload,
+   WeatherDropMessage,
+   ResourceMap,
+   ServerMaintenanceMessagePayload
+} from '@types'
 import axios from 'axios'
 
 /**
@@ -25,6 +31,32 @@ export const triggerSwitchOnOffServer = (agentName: string) => {
       .post(process.env.REACT_APP_WEB_SOCKET_EVENT_FRONTEND_URL + '/switchOnOffServer', data)
       .then(() => console.log('Switching server state triggered successfully'))
       .catch((err) => console.error('An error occured while switching server state: ' + err))
+}
+
+/**
+ * Method triggers event that changes the resources of the given server
+ *
+ * @param {string}[agentName] - name of the server for which the event is to be triggered
+ */
+export const sendMaintenanceData = (agentName: string, newResources: ResourceMap) => {
+   const data: ServerMaintenanceMessagePayload = { agentName, type: EventType.SERVER_MAINTENANCE_EVENT, newResources }
+   axios
+      .post(process.env.REACT_APP_WEB_SOCKET_EVENT_FRONTEND_URL + '/serverMaintenance', data)
+      .then(() => console.log('New server configuration was sent successfully'))
+      .catch((err) => console.error('An error occured while sending server configuration: ' + err))
+}
+
+/**
+ * Method triggers event that resets the process of server maintenance
+ *
+ * @param {string}[agentName] - name of the server for which the event is to be triggered
+ */
+export const triggerServerMaintenanceReset = (agentName: string) => {
+   const data: CommonEventMessagePayload = { agentName, type: EventType.RESET_SERVER_MAINTENANCE_EVENT }
+   axios
+      .post(process.env.REACT_APP_WEB_SOCKET_EVENT_FRONTEND_URL + '/resetServerMaintenance', data)
+      .then(() => console.log('Resetting process of server maintenance performed successfully'))
+      .catch((err) => console.error('An error occurred while resetting process of server maintenance: ' + err))
 }
 
 /**
