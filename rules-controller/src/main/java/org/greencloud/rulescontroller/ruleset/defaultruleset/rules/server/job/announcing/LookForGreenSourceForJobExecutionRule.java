@@ -34,14 +34,13 @@ import org.greencloud.commons.domain.job.basic.EnergyJob;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateProposal;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentCFPRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.server.ServerNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

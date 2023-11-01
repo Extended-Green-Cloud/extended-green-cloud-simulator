@@ -40,10 +40,10 @@ import org.greencloud.rulescontroller.RulesController;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.greencloud.factory.AgentControllerFactory;
-import com.greencloud.factory.AgentNodeFactoryImpl;
-import com.gui.controller.GuiController;
-import com.gui.controller.GuiControllerImpl;
+import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.AgentNodeFactoryImpl;
+import com.greencloud.connector.gui.GuiController;
+import com.greencloud.connector.gui.GuiControllerImpl;
 
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -124,6 +124,7 @@ public abstract class AbstractScenarioService {
 					new Object[] { managingAgentArgs.getSystemQualityThreshold(),
 							scenario,
 							mainContainer,
+							guiController,
 							managingAgentArgs.getPowerShortageThreshold(),
 							managingAgentArgs.getDisabledActions()
 					});

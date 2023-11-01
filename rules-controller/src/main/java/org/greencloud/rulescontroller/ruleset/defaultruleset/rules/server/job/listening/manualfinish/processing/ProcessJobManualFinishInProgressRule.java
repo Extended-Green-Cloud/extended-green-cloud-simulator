@@ -1,29 +1,28 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.processing;
 
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_MANUAL_FINISH_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_MANUAL_FINISH_HANDLE_IN_PROGRESS_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_FINISH_JOB_EXECUTION_RULE;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 public class ProcessJobManualFinishInProgressRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

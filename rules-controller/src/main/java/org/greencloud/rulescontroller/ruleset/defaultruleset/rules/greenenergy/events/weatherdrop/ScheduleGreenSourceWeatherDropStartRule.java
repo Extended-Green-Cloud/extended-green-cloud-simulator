@@ -8,14 +8,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.time.Instant;
 import java.util.Date;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentScheduledRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 public class ScheduleGreenSourceWeatherDropStartRule
 		extends AgentScheduledRule<GreenEnergyAgentProps, GreenEnergyNode> {

@@ -263,6 +263,24 @@ public class ResourcesUtilization {
 	}
 
 	/**
+	 * Method removes from the resources, the resources given as an argument.
+	 *
+	 * @param initialResources  initial amounts of resources
+	 * @param resourcesToRemove resources that are to be removed
+	 * @return resources after removing
+	 */
+	public static Map<String, Resource> removeResources(final Map<String, Resource> initialResources,
+			final Map<String, Resource> resourcesToRemove) {
+		return initialResources.entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> {
+					if (resourcesToRemove.containsKey(entry.getKey())) {
+						return entry.getValue().removeResourceAmounts(resourcesToRemove.get(entry.getKey()));
+					}
+					return entry.getValue();
+				}));
+	}
+
+	/**
 	 * Method returns information if the resource amount is sufficient with regard to given required amount.
 	 *
 	 * @param resources         owned resources
@@ -271,10 +289,28 @@ public class ResourcesUtilization {
 	 */
 	public static boolean areSufficient(final Map<String, Resource> resources,
 			final Map<String, Resource> requiredResources) {
+		// if server does not own all resources
+		if (!resources.keySet().containsAll(requiredResources.keySet())) {
+			return false;
+		}
+
 		return resources.entrySet().stream()
-				.allMatch(entry -> (!requiredResources.containsKey(entry.getKey()) ||
-						entry.getValue().isSufficient(requiredResources)) &&
-						resources.keySet().containsAll(requiredResources.keySet()));
+				.allMatch(entry -> {
+					// if given resource is not required then it is sufficient
+					if (!requiredResources.containsKey(entry.getKey())) {
+						return true;
+					}
+					final Resource resourceRequirement = requiredResources.get(entry.getKey());
+
+					// if given resource does not define all required characteristics then it is not sufficient
+					if (!entry.getValue().getCharacteristics().keySet()
+							.containsAll(resourceRequirement.getCharacteristics().keySet())) {
+						return false;
+					}
+
+					// run resource sufficiency validator
+					return entry.getValue().isSufficient(resourceRequirement);
+				});
 	}
 
 	/**

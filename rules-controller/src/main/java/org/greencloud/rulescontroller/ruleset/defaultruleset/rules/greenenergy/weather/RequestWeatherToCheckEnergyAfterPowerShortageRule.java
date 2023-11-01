@@ -1,39 +1,38 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather;
 
+import static java.lang.String.join;
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_WEATHER_FOR_POWER_SHORTAGE_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NOT_ENOUGH_ENERGY_FOR_JOB_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
-import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
-import static java.lang.String.join;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.job.basic.ServerJob;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.domain.weather.MonitoringData;
-import org.greencloud.commons.exception.IncorrectMessageContentException;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

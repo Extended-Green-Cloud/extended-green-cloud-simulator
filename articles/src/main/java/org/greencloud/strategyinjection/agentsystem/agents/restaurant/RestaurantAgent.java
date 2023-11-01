@@ -4,14 +4,13 @@ import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.regis
 
 import java.util.Map;
 
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.strategyinjection.agentsystem.agents.AbstractAgent;
 import org.greencloud.strategyinjection.agentsystem.agents.restaurant.props.RestaurantAgentProps;
 import org.greencloud.strategyinjection.agentsystem.domain.CuisineType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.gui.agents.AgentNode;
 
 /**
  * Agent representing a restaurant

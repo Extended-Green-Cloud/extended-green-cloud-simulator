@@ -1,13 +1,18 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer;
 
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
+import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.NO_SERVER_AVAILABLE_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
@@ -16,26 +21,20 @@ import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFac
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
-import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
 import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -155,7 +154,8 @@ public class TransferInCloudNetworkRule extends AgentRequestRule<ServerAgentProp
 		agentProps.getServerJobs().replace(job, EXECUTING_ON_HOLD.getStatus(hasStarted));
 
 		if (hasStarted) {
-			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), ON_HOLD_JOB_ID, agentProps,
+			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), ON_HOLD_JOB_ID,
+					agentProps,
 					facts.get(RULE_SET_IDX)));
 		}
 		agentProps.updateGUI();

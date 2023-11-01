@@ -32,14 +32,13 @@ import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForSingleMessage;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentCFPRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

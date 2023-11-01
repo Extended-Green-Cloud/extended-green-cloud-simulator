@@ -24,6 +24,7 @@ import java.util.List;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.mapper.FactsMapper;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.MessageListenerRuleRest;
@@ -34,8 +35,6 @@ import org.greencloud.rulescontroller.rule.simple.AgentChainRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.jeasy.rules.api.Facts;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;

@@ -24,14 +24,14 @@ import org.greencloud.commons.args.scenario.ScenarioEventsArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
 import org.greencloud.commons.exception.InvalidScenarioException;
+import org.greencloud.gui.event.PowerShortageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.greencloud.factory.AgentControllerFactory;
-import com.greencloud.factory.AgentFactory;
-import com.greencloud.factory.AgentFactoryImpl;
-import com.gui.event.PowerShortageEvent;
+import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.AgentFactory;
+import com.greencloud.connector.factory.AgentFactoryImpl;
 
 import jade.wrapper.AgentController;
 

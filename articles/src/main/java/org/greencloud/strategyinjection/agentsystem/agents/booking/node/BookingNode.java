@@ -4,10 +4,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.greencloud.gui.agents.AgentNode;
+import org.greencloud.gui.websocket.GuiWebSocketClient;
 import org.greencloud.strategyinjection.agentsystem.agents.booking.props.BookingProps;
-
-import com.gui.agents.AgentNode;
-import com.gui.websocket.GuiWebSocketClient;
 
 import lombok.Getter;
 import lombok.Setter;

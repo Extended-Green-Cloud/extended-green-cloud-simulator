@@ -1,33 +1,32 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.processing;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENTS;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_HANDLE_TRANSFER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_HANDLE_TRANSFER_SEND_TRANSFER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_TRANSFER_REQUEST_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobNewStartTime;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToSelectedTime;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateCallForProposal;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 

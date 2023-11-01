@@ -9,8 +9,8 @@ import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.ORIGINAL_MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
@@ -35,13 +35,12 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.JobWithProtocol;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentProposalRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
 

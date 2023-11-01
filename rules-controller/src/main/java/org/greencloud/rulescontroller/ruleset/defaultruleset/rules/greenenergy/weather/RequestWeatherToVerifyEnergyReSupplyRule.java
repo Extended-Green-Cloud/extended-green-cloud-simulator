@@ -1,12 +1,16 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather;
 
+import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.INFORM;
+import static jade.lang.acl.ACLMessage.REFUSE;
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_WEATHER_FOR_RE_SUPPLY_RULE;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
@@ -14,26 +18,21 @@ import static org.greencloud.commons.utils.messaging.constants.MessageContentCon
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.RE_SUPPLY_SUCCESSFUL_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.WEATHER_UNAVAILABLE_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static jade.lang.acl.ACLMessage.FAILURE;
-import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.ACLMessage.REFUSE;
-import static java.lang.String.valueOf;
+import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.job.basic.ServerJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.domain.weather.MonitoringData;
-import org.greencloud.commons.exception.IncorrectMessageContentException;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

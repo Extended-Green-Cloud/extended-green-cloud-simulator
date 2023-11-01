@@ -48,7 +48,7 @@ import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class AnalyzerServiceDatabaseTest {

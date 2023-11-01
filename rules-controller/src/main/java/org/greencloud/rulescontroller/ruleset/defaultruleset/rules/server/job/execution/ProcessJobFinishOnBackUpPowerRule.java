@@ -22,13 +22,12 @@ import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.server.ServerNode;
 
 public class ProcessJobFinishOnBackUpPowerRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

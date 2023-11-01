@@ -12,12 +12,11 @@ import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentPro
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

@@ -11,12 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
 
@@ -39,27 +38,31 @@ public class RequestServerMaintenanceInCNARule extends AgentRequestRule<ServerAg
 	@Override
 	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
 		final Map<String, Resource> newResources = facts.get(RESOURCES);
-		return prepareRequestInformingCNAAboutResourceChange(agentProps, newResources,
+		final ConcurrentHashMap<String, Resource> prevResources = new ConcurrentHashMap<>(agentProps.resources());
+		agentProps.resources(new ConcurrentHashMap<>(newResources));
+
+		final RuleSetFacts initializeResources = new RuleSetFacts(controller.getLatestRuleSet().get());
+		initializeResources.put(RULE_TYPE, "INITIALIZE_SERVER_RESOURCE_KNOWLEDGE");
+		controller.fire(initializeResources);
+
+		facts.put("PREVIOUS_RESOURCES", prevResources);
+		return prepareRequestInformingCNAAboutResourceChange(agentProps, agentProps.resources(),
 				controller.getLatestRuleSet().get());
 	}
 
 	@Override
 	protected void handleInform(final ACLMessage inform, final RuleSetFacts facts) {
-		final Map<String, Resource> newResources = facts.get(RESOURCES);
-
 		logger.info("Received information that CNA adapted to new server resources!");
 		agentNode.sendResultOfServerMaintenanceInCNA(true);
-		agentProps.resources(new ConcurrentHashMap<>(newResources));
-
-		final RuleSetFacts initializeResources = new RuleSetFacts(controller.getLatestRuleSet().get());
-		facts.put(RULE_TYPE, "INITIALIZE_SERVER_RESOURCE_KNOWLEDGE");
-		controller.fire(initializeResources);
 		agentNode.confirmSuccessfulMaintenance();
 	}
 
 	@Override
 	protected void handleRefuse(final ACLMessage refuse, final RuleSetFacts facts) {
+		final ConcurrentHashMap<String, Resource> prevResources = facts.get("PREVIOUS_RESOURCES");
+
 		logger.info("Received information that CNA could not adapt to new server resources.");
+		agentProps.resources(new ConcurrentHashMap<>(prevResources));
 		agentNode.sendResultOfServerMaintenanceInCNA(false);
 	}
 }

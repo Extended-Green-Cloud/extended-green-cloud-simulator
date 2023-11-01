@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.mvel.MVELRuleMapper;
@@ -24,8 +25,6 @@ import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.support.composite.ActivationRuleGroup;
 import org.jeasy.rules.support.composite.UnitRuleGroup;
-
-import com.gui.agents.AgentNode;
 
 import lombok.Getter;
 import lombok.Setter;

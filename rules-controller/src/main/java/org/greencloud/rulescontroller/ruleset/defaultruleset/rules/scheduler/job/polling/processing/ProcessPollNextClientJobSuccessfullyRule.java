@@ -1,27 +1,25 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.Objects.requireNonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_ANNOUNCEMENT_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_HANDLE_JOB_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_RULE;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.domain.AnnouncingConstants;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.domain.AnnouncingConstants;
 
 public class ProcessPollNextClientJobSuccessfullyRule extends AgentBasicRule<SchedulerAgentProps, SchedulerNode> {
 

@@ -1,15 +1,15 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather;
 
 import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
-import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.PHYSICAL_CAUSE;
-import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.WEATHER_CAUSE;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_CAUSE;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_IS_FINISHED;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.PHYSICAL_CAUSE;
+import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.WEATHER_CAUSE;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_WEATHER_PERIODICALLY_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_RULE;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
@@ -21,18 +21,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.weather.MonitoringData;
-import org.greencloud.commons.exception.IncorrectMessageContentException;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

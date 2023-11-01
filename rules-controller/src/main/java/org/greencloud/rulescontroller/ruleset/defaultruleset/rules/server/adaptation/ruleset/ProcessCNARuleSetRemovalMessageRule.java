@@ -1,22 +1,21 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
-import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_RULE_SET_REMOVAL_HANDLER_RULE;
-import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetRemovalRequest;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_RULE_SET_REMOVAL_HANDLER_RULE;
+import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetRemovalRequest;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
 

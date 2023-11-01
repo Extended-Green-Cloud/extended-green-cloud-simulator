@@ -5,6 +5,7 @@ import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_RULE_SET;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
@@ -20,8 +21,6 @@ import org.greencloud.strategyinjection.agentsystem.ruleset.restaurant.initial.S
 import org.greencloud.strategyinjection.agentsystem.ruleset.restaurant.service.ListenForNewClientOrdersRule;
 import org.greencloud.strategyinjection.agentsystem.ruleset.restaurant.service.ProcessNewClientOrdersRule;
 import org.greencloud.strategyinjection.agentsystem.ruleset.restaurant.service.ProposeToBookingServiceRule;
-
-import com.gui.agents.AgentNode;
 
 /**
  * Default rule set applied in the restaurant testing system

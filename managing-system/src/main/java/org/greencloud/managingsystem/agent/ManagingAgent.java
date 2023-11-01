@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 
+import com.greencloud.connector.gui.GuiController;
+
 import jade.content.lang.sl.SLCodec;
 import jade.core.behaviours.Behaviour;
 import jade.domain.mobility.MobilityOntology;
@@ -41,6 +43,7 @@ public class ManagingAgent extends AbstractManagingAgent {
 				this.systemQualityThreshold = parseDouble(args[0].toString());
 				this.greenCloudStructure = (ScenarioStructureArgs) args[1];
 				this.greenCloudController = (ContainerController) args[2];
+				this.guiController = (GuiController) args[3];
 				parseAdditionalParameters(args);
 			} catch (NumberFormatException e) {
 				logger.info("Incorrect argument: please check arguments in the documentation");
@@ -78,13 +81,13 @@ public class ManagingAgent extends AbstractManagingAgent {
 
 	@SuppressWarnings({ "unchecked", "static" })
 	private void parseAdditionalParameters(final Object[] args) {
-		if (args.length > 3) {
-			if (Objects.nonNull(args[3])) {
-				POWER_SHORTAGE_THRESHOLD = Integer.parseInt(String.valueOf(args[3]));
+		if (args.length > 4) {
+			if (Objects.nonNull(args[4])) {
+				POWER_SHORTAGE_THRESHOLD = Integer.parseInt(String.valueOf(args[4]));
 			}
 
-			if (Objects.nonNull(args[4])) {
-				disabledByDefaultActions = (ArrayList<String>) args[4];
+			if (Objects.nonNull(args[5])) {
+				disabledByDefaultActions = (ArrayList<String>) args[5];
 			}
 		}
 	}

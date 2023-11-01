@@ -13,16 +13,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -55,7 +54,7 @@ public class ProcessTransferRequestJobPresentCombinedRule
 	public boolean evaluateRule(final RuleSetFacts facts) {
 		final Optional<ClientJob> jobOpt = facts.get(JOB);
 
-		if(jobOpt.isPresent()) {
+		if (jobOpt.isPresent()) {
 			facts.put(JOB, jobOpt.get());
 			return true;
 		}

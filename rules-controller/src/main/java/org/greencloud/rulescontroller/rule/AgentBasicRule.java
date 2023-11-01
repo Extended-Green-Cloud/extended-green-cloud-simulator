@@ -16,6 +16,7 @@ import org.apache.tomcat.util.buf.StringUtils;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.enums.rules.RuleStepType;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.RuleRest;
@@ -23,8 +24,6 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.core.BasicRule;
 import org.mvel2.MVEL;
 import org.slf4j.Logger;
-
-import com.gui.agents.AgentNode;
 
 import jade.core.Agent;
 import lombok.Getter;

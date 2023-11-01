@@ -4,8 +4,8 @@ import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_IS_STARTED;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_START_INFORM;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_JOB_SUBSTITUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RULE;
@@ -14,12 +14,11 @@ import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_F
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import com.gui.agents.server.ServerNode;
 
 public class ProcessJobSubstitutionRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

@@ -1,31 +1,30 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
-import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.HANDLE_POWER_SHORTAGE_RULE;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentScheduledRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 public class SchedulePowerShortageStartRule extends AgentScheduledRule<ServerAgentProps, ServerNode> {
 

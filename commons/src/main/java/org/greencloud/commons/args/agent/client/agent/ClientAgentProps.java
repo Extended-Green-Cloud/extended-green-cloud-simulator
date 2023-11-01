@@ -81,6 +81,7 @@ public class ClientAgentProps extends EGCSAgentProps {
 				.deadline(simulatedJobDeadline)
 				.requiredResources(jobArgs.getResources())
 				.jobSteps(jobArgs.getJobSteps())
+				.selectionPreference(jobArgs.getSelectionPreference())
 				.build();
 
 		this.jobType = jobArgs.processType();

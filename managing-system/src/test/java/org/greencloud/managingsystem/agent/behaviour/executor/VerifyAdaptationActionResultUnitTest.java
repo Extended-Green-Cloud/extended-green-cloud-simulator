@@ -34,7 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 class VerifyAdaptationActionResultUnitTest {

@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.ScheduledRuleRest;
@@ -22,8 +23,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> extends AgentBasicRule<T, E> {
 
@@ -82,7 +81,6 @@ public class AgentScheduledRule<T extends AgentProps, E extends AgentNode<T>> ex
 	public AgentRuleType getAgentRuleType() {
 		return SCHEDULED;
 	}
-
 
 	/**
 	 * Method specify time at which behaviour is to be executed

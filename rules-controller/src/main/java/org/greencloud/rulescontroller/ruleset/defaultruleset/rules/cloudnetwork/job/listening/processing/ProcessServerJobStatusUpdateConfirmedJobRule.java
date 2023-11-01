@@ -22,14 +22,13 @@ import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentPro
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 public class ProcessServerJobStatusUpdateConfirmedJobRule
 		extends AgentBasicRule<CloudNetworkAgentProps, CloudNetworkNode> {

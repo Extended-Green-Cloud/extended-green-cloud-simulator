@@ -4,12 +4,11 @@ import static org.greencloud.commons.enums.rules.RuleType.BASIC_LISTENER;
 
 import java.util.Set;
 
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
 import org.greencloud.strategyinjection.agentsystem.agents.restaurant.props.RestaurantAgentProps;
-
-import com.gui.agents.AgentNode;
 
 import jade.core.behaviours.Behaviour;
 

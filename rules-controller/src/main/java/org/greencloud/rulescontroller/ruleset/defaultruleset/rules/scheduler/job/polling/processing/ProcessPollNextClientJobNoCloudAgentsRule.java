@@ -4,14 +4,13 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_HANDLE
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_RULE;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
 
 public class ProcessPollNextClientJobNoCloudAgentsRule extends AgentBasicRule<SchedulerAgentProps, SchedulerNode> {
 	private static final Logger logger = getLogger(ProcessPollNextClientJobNoCloudAgentsRule.class);

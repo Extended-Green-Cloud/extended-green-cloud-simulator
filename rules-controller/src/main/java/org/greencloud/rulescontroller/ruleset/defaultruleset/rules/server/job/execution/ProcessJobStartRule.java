@@ -1,25 +1,31 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution;
 
+import static java.lang.String.valueOf;
+import static java.util.Collections.singletonList;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_START_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.replaceStatusToActive;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB_START_INFORM;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getMessageConversationId;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
-import static java.lang.String.valueOf;
-import static java.util.Collections.singletonList;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -27,13 +33,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.core.AID;
 

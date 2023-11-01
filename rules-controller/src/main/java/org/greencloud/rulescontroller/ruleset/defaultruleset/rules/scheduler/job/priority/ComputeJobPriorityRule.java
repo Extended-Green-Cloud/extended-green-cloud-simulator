@@ -1,20 +1,18 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.priority;
 
+import static java.time.Duration.between;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_JOB_PRIORITY_RULE;
-import static java.time.Duration.between;
-
-import org.greencloud.commons.domain.facts.RuleSetFacts;
 
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import com.gui.agents.scheduler.SchedulerNode;
-
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rule.AgentBasicRule;
 
 public class ComputeJobPriorityRule extends AgentBasicRule<SchedulerAgentProps, SchedulerNode> {
 

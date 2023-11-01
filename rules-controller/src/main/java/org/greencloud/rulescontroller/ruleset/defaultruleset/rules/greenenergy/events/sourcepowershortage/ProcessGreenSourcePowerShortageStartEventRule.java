@@ -8,8 +8,8 @@ import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
-import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_AGENT_NAME;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
@@ -32,6 +32,7 @@ import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.enums.event.PowerShortageCauseEnum;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
@@ -39,8 +40,6 @@ import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 public class ProcessGreenSourcePowerShortageStartEventRule extends
 		AgentBasicRule<GreenEnergyAgentProps, GreenEnergyNode> {

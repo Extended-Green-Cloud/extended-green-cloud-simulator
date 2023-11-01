@@ -5,6 +5,8 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.C
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.greencloud.commons.domain.jobstep.JobStep;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
@@ -22,7 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableJobArgs.class)
 @JsonDeserialize(as = ImmutableJobArgs.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Value.Immutable
 @Value.Style(jdkOnly = true)
 public interface JobArgs {
@@ -53,6 +55,12 @@ public interface JobArgs {
 	 */
 	@JsonProperty("steps")
 	List<JobStep> getJobSteps();
+
+	/**
+	 * @return optional server selection preference specified in Expression Language
+	 */
+	@Nullable
+	String getSelectionPreference();
 
 	/**
 	 * Method verifies the correctness of job structure

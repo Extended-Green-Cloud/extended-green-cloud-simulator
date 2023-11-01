@@ -1,22 +1,20 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling;
 
 import static org.greencloud.commons.constants.FactTypeConstants.INITIATE_CFP;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.POLL_NEXT_JOB_RULE;
 
-import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.behaviour.initiate.InitiateCallForProposal;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.domain.PollingConstants;
-import org.greencloud.rulescontroller.domain.AgentRuleDescription;
-import org.greencloud.rulescontroller.rule.template.AgentPeriodicRule;
-
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.behaviour.initiate.InitiateCallForProposal;
+import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rule.template.AgentPeriodicRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.domain.PollingConstants;
 
 public class PollNextClientJobRule extends AgentPeriodicRule<SchedulerAgentProps, SchedulerNode> {
 

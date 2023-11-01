@@ -1,20 +1,19 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df;
 
+import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SEARCH_OWNER_AGENT_RULE;
 import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.search;
-import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentSearchRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 

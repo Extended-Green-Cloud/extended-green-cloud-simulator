@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
+import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.factory.AgentControllerFactoryImpl;
+import com.greencloud.connector.factory.AgentControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
@@ -41,6 +41,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 
 		this.factory = new AgentControllerFactoryImpl(mainContainer, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);
+		guiController.connectWithAgentFactory(factory);
 	}
 
 	@Override

@@ -1,38 +1,37 @@
 package org.greencloud.agentsystem.agents;
 
-import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_CLOUD_RULE_SET;
-import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.args.agent.AgentType.CLIENT;
 import static org.greencloud.commons.args.agent.AgentType.MANAGING;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_AGENT_NAME;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_CLIENT_NAME;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_PARAMS;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_AGENT_NAME;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_CLIENT_NAME;
+import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_CLOUD_RULE_SET;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.INITIALIZE_BEHAVIOURS_RULE;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
 
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
+import org.greencloud.commons.args.agent.AgentNodeProps;
+import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.exception.JadeContainerException;
+import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
-import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
-import org.greencloud.commons.args.agent.AgentNodeProps;
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.exception.JadeContainerException;
-import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
-import com.gui.agents.egcs.EGCSNode;
-import com.gui.controller.GuiController;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -56,11 +55,10 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	protected T agentNode;
 	protected E properties;
 	protected ParallelBehaviour mainBehaviour;
-	protected GuiController guiController;
 	protected RulesController<E, T> rulesController;
 
 	protected AbstractAgent() {
-		setEnabledO2ACommunication(true, 3);
+		setEnabledO2ACommunication(true, 2);
 	}
 
 	/**

@@ -15,11 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.AgentNode;
 
 import jade.core.Agent;
 import lombok.Getter;

@@ -20,14 +20,13 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.enums.rules.RuleStepType;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.AgentNode;
 
 /**
  * Class storing methods used to construct rule sets

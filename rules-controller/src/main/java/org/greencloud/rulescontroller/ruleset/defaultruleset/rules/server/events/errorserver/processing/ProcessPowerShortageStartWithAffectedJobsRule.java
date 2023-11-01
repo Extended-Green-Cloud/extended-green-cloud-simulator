@@ -6,8 +6,8 @@ import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
-import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.SET_EVENT_ERROR;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.HANDLE_POWER_SHORTAGE_RULE;
@@ -29,6 +29,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
@@ -36,8 +37,6 @@ import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import com.gui.agents.server.ServerNode;
 
 public class ProcessPowerShortageStartWithAffectedJobsRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

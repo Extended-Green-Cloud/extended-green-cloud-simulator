@@ -4,8 +4,8 @@ import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_DIVIDED;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_START_INFORM;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_JOB_DIVISION_RULE;
@@ -18,12 +18,11 @@ import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import com.gui.agents.server.ServerNode;
 
 public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

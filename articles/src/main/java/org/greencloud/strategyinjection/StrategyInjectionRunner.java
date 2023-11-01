@@ -18,9 +18,9 @@ import org.greencloud.strategyinjection.agentsystem.ruleset.DefaultRestaurantRul
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.greencloud.factory.AgentControllerFactory;
-import com.greencloud.factory.AgentControllerFactoryImpl;
-import com.gui.websocket.GuiWebSocketServer;
+import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.AgentControllerFactoryImpl;
+import org.greencloud.gui.websocket.GuiWebSocketServer;
 
 import jade.core.ProfileImpl;
 import jade.core.Runtime;

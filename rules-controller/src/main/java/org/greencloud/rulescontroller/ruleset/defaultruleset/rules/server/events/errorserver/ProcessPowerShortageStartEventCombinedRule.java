@@ -1,9 +1,9 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver;
 
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
 import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_START_RULE;
 import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType.EXECUTE_FIRST;
@@ -12,25 +12,25 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.time.Instant;
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.server.ServerNode;
+import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.processing.ProcessPowerShortageStartNoAffectedJobsRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.processing.ProcessPowerShortageStartWithAffectedJobsRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.processing.ProcessPowerShortageStartNoAffectedJobsRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.processing.ProcessPowerShortageStartWithAffectedJobsRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
-import com.gui.event.PowerShortageEvent;
 
 public class ProcessPowerShortageStartEventCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 
 	private static final Logger logger = getLogger(ProcessPowerShortageStartEventCombinedRule.class);
 
-	public ProcessPowerShortageStartEventCombinedRule(final RulesController<ServerAgentProps, ServerNode> rulesController) {
+	public ProcessPowerShortageStartEventCombinedRule(
+			final RulesController<ServerAgentProps, ServerNode> rulesController) {
 		super(rulesController, EXECUTE_FIRST, 1);
 	}
 

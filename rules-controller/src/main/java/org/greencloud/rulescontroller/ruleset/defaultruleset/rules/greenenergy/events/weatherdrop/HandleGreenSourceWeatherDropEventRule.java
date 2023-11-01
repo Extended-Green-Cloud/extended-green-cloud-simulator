@@ -11,13 +11,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 public class HandleGreenSourceWeatherDropEventRule extends AgentBasicRule<GreenEnergyAgentProps, GreenEnergyNode> {
 

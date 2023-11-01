@@ -5,14 +5,13 @@ import static org.greencloud.commons.enums.rules.RuleType.SEARCH_OWNED_AGENTS_RU
 
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.client.ClientNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
 import org.greencloud.rulescontroller.behaviour.search.SearchForAgents;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.client.ClientNode;
 
 import jade.core.behaviours.Behaviour;
 

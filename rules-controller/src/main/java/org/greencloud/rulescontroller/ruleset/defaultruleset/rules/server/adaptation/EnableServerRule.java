@@ -1,25 +1,24 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ENABLE_SERVER;
-import static com.gui.event.domain.EventTypeEnum.ENABLE_SERVER_EVENT;
 import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_ENABLING_RULE;
+import static org.greencloud.gui.event.domain.EventTypeEnum.ENABLE_SERVER_EVENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.server.ServerNode;
+import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.server.ServerNode;
-import com.gui.event.AbstractEvent;
 
 public class EnableServerRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

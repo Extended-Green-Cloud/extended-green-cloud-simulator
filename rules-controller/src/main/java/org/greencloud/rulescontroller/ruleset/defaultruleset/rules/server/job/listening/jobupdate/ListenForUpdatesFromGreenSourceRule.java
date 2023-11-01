@@ -4,15 +4,13 @@ import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HA
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_GREEN_SOURCE_POWER_SUPPLY_UPDATE_TEMPLATE;
 
-import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.domain.AgentRuleDescription;
-import org.greencloud.rulescontroller.ruleset.RuleSet;
-
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import com.gui.agents.server.ServerNode;
-
+import org.greencloud.gui.agents.server.ServerNode;
+import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
+import org.greencloud.rulescontroller.ruleset.RuleSet;
 
 public class ListenForUpdatesFromGreenSourceRule extends AgentMessageListenerRule<ServerAgentProps, ServerNode> {
 

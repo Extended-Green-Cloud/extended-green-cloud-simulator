@@ -1,9 +1,11 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD_TRANSFER;
+import static jade.lang.acl.ACLMessage.INFORM;
+import static jade.lang.acl.ACLMessage.REFUSE;
+import static jade.lang.acl.MessageTemplate.MatchContent;
+import static jade.lang.acl.MessageTemplate.and;
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
@@ -11,29 +13,34 @@ import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD_TRANSFER;
 import static org.greencloud.commons.enums.rules.RuleType.HANDLE_POWER_SHORTAGE_TRANSFER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_CONFIRMATION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_CNA_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
 import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SOURCE_TRANSFER_CONFIRMATION;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.ACLMessage.REFUSE;
-import static jade.lang.acl.MessageTemplate.MatchContent;
-import static jade.lang.acl.MessageTemplate.and;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.job.transfer.JobDivided;
+import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
@@ -44,13 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.transfer.JobDivided;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -138,7 +138,8 @@ public class ListenForPowerShortageTransferConfirmationRule
 		MDC.put(MDC_JOB_ID, jobId);
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Job {} transfer has failed in green source. Passing transfer request to Cloud Network", jobId);
-		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(newJobInstances.getSecondInstance());
+		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(
+				newJobInstances.getSecondInstance());
 		final JobPowerShortageTransfer job = mapToPowerShortageJob(jobInstance, shortageStart);
 
 		final RuleSetFacts cnaTransferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));

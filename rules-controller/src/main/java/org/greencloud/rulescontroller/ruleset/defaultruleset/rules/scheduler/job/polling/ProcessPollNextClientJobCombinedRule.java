@@ -4,18 +4,16 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_POLLING_RULE;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing.ProcessPollNextClientJobNoCloudAgentsRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing.ProcessPollNextClientJobSuccessfullyRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing.ProcessPollNextClientJobNoCloudAgentsRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing.ProcessPollNextClientJobSuccessfullyRule;
 
 public class ProcessPollNextClientJobCombinedRule extends AgentCombinedRule<SchedulerAgentProps, SchedulerNode> {
 

@@ -1,27 +1,25 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing;
 
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.CREATED;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_ANNOUNCEMENT_RULE;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.CREATED;
+import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_ANNOUNCEMENT_RULE;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobAdjustTimeRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobAfterDeadlineRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobOriginalTimeRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobAdjustTimeRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobAfterDeadlineRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessNewClientJobOriginalTimeRule;
 
 public class AnnounceNewClientJobCombinedRule extends AgentCombinedRule<SchedulerAgentProps, SchedulerNode> {
 

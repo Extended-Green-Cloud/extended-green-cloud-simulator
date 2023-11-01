@@ -1,5 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation;
 
+import static jade.lang.acl.ACLMessage.REQUEST;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
@@ -7,19 +9,16 @@ import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_CONNECT
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
-import static jade.lang.acl.ACLMessage.REQUEST;
-import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.domain.AgentRuleDescription;
-import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
-import org.slf4j.Logger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.utils.messaging.MessageBuilder;
-import com.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
+import org.slf4j.Logger;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

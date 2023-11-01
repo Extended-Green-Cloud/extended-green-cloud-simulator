@@ -5,7 +5,12 @@ import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedR
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.gui.agents.client.ClientNode;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rule.AgentRule;
+import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerDelayedJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerFailedJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerFinishedJobUpdateRule;
@@ -17,13 +22,6 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.li
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerReScheduleJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerScheduledJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerStartedJobUpdateRule;
-import org.greencloud.rulescontroller.domain.AgentRuleDescription;
-import org.greencloud.rulescontroller.rule.AgentRule;
-import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-
-import com.gui.agents.client.ClientNode;
 
 public class ProcessSchedulerJobStatusUpdateRule extends AgentCombinedRule<ClientAgentProps, ClientNode> {
 

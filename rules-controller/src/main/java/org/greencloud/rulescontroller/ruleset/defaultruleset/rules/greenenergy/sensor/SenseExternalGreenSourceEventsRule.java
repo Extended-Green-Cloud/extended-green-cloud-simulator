@@ -1,5 +1,6 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.sensor;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_CAUSE;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_DURATION;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_IS_FINISHED;
@@ -7,20 +8,18 @@ import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SENSE_EVENTS_RULE;
-import static java.util.Objects.nonNull;
 
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.gui.event.AbstractEvent;
+import org.greencloud.gui.event.PowerShortageEvent;
+import org.greencloud.gui.event.WeatherDropEvent;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentPeriodicRule;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import com.gui.agents.greenenergy.GreenEnergyNode;
-import com.gui.event.AbstractEvent;
-import com.gui.event.PowerShortageEvent;
-import com.gui.event.WeatherDropEvent;
 
 public class SenseExternalGreenSourceEventsRule extends AgentPeriodicRule<GreenEnergyAgentProps, GreenEnergyNode> {
 

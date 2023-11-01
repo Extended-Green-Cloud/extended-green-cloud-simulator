@@ -31,7 +31,7 @@ import org.mockito.quality.Strictness;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

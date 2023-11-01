@@ -1,20 +1,19 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df;
 
+import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE;
 import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareSubscription;
-import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentSubscriptionRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;

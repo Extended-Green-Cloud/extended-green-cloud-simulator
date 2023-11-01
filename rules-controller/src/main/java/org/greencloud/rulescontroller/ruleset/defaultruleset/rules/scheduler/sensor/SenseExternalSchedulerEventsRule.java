@@ -1,20 +1,19 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.sensor;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SENSE_EVENTS_RULE;
-import static java.util.Objects.nonNull;
 
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentPeriodicRule;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
-import com.gui.event.AbstractEvent;
 
 public class SenseExternalSchedulerEventsRule extends AgentPeriodicRule<SchedulerAgentProps, SchedulerNode> {
 

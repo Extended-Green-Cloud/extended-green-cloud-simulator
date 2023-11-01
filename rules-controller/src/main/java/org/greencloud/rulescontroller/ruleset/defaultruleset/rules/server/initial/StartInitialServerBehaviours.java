@@ -18,13 +18,12 @@ import java.util.Set;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateSubscription;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
 import org.greencloud.rulescontroller.behaviour.schedule.SchedulePeriodically;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
-
-import com.gui.agents.server.ServerNode;
 
 import jade.core.behaviours.Behaviour;
 

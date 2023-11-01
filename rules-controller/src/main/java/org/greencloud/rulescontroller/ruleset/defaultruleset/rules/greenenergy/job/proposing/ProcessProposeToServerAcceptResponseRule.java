@@ -5,16 +5,14 @@ import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedR
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing.processing.ProcessNotEnoughResourcesBeforePowerSupplyRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing.processing.ProcessPowerSupplyConfirmationRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-
-import com.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing.processing.ProcessNotEnoughResourcesBeforePowerSupplyRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing.processing.ProcessPowerSupplyConfirmationRule;
 
 public class ProcessProposeToServerAcceptResponseRule
 		extends AgentCombinedRule<GreenEnergyAgentProps, GreenEnergyNode> {

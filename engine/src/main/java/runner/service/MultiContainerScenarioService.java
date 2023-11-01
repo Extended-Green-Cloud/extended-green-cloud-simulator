@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
+import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
@@ -30,7 +30,7 @@ import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.factory.AgentControllerFactoryImpl;
+import com.greencloud.connector.factory.AgentControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -59,6 +59,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 
 		this.factory = new AgentControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);
+		guiController.connectWithAgentFactory(factory);
 	}
 
 	/**

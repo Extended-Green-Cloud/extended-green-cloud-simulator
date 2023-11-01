@@ -4,18 +4,16 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDL
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobAlreadyExistsRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobQueueLimitRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobAlreadyExistsRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobQueueLimitRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.processing.ProcessNewClientJobRule;
 
 public class ProcessNewClientJobCombinedRule extends AgentCombinedRule<SchedulerAgentProps, SchedulerNode> {
 

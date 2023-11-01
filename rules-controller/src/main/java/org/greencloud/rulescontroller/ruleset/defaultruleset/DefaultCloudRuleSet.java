@@ -10,6 +10,11 @@ import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentPro
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.gui.agents.client.ClientNode;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
@@ -21,11 +26,8 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.li
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.adaptation.UpdateRuleSetForWeatherDropRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SearchForSchedulerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SubscribeServerServiceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ListenForServerStatusChangeRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ProcessServerStatusChangeCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferConfirmationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ProcessTransferRequestCombinedRule;
@@ -42,6 +44,9 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessNewScheduledJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessServerJobStatusUpdateCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.proposing.ProposeToSchedulerRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceInformationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.sensor.SenseExternalCloudNetworkEventsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.ChangeWeatherPredictionErrorRule;
@@ -156,12 +161,6 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.pr
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.proposing.ProposeToCNARule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.sensor.SenseExternalServerEventsRule;
 
-import com.gui.agents.client.ClientNode;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
-import com.gui.agents.greenenergy.GreenEnergyNode;
-import com.gui.agents.scheduler.SchedulerNode;
-import com.gui.agents.server.ServerNode;
-
 /**
  * Default rule set applied in the system
  */
@@ -175,7 +174,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 	@Override
 	protected List<AgentRule> initializeRules(RulesController<?, ?> rulesController) {
 		return new ArrayList<>(switch (rulesController.getAgentProps().getAgentType()) {
-			case "SCHEDULER" -> getSchedulerRules((RulesController<SchedulerAgentProps, SchedulerNode>) rulesController);
+			case "SCHEDULER" ->
+					getSchedulerRules((RulesController<SchedulerAgentProps, SchedulerNode>) rulesController);
 			case "CLIENT" -> getClientRules((RulesController<ClientAgentProps, ClientNode>) rulesController);
 			case "CLOUD_NETWORK" ->
 					getCNARules((RulesController<CloudNetworkAgentProps, CloudNetworkNode>) rulesController);

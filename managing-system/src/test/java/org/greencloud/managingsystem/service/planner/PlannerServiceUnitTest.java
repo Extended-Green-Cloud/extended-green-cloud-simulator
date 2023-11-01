@@ -71,7 +71,7 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 

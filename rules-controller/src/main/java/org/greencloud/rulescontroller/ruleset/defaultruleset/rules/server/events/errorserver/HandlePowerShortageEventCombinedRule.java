@@ -5,13 +5,12 @@ import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedR
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import com.gui.agents.server.ServerNode;
 
 public class HandlePowerShortageEventCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 

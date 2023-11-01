@@ -5,6 +5,7 @@ import static org.greencloud.rulescontroller.rule.AgentRuleType.CHAIN;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.rest.domain.RuleRest;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
@@ -12,8 +13,6 @@ import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
 import org.jeasy.rules.api.Facts;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 import lombok.Getter;
 
@@ -31,7 +30,7 @@ public class AgentChainRule<T extends AgentProps, E extends AgentNode<T>> extend
 	 *
 	 * @param controller rules controller connected to the agent
 	 * @param priority   priority of the rule execution
-	 * @param ruleSet   currently executed rule set
+	 * @param ruleSet    currently executed rule set
 	 */
 	protected AgentChainRule(final RulesController<T, E> controller, final int priority, final RuleSet ruleSet) {
 		super(controller, priority);
@@ -42,7 +41,7 @@ public class AgentChainRule<T extends AgentProps, E extends AgentNode<T>> extend
 	 * Constructor
 	 *
 	 * @param controller rules controller connected to the agent
-	 * @param ruleSet   currently executed rule set
+	 * @param ruleSet    currently executed rule set
 	 */
 	protected AgentChainRule(final RulesController<T, E> controller, final RuleSet ruleSet) {
 		super(controller);
@@ -53,7 +52,7 @@ public class AgentChainRule<T extends AgentProps, E extends AgentNode<T>> extend
 	 * Constructor
 	 *
 	 * @param ruleRest rest representation of agent rule
-	 * @param ruleSet currently executed rule set
+	 * @param ruleSet  currently executed rule set
 	 */
 	public AgentChainRule(final RuleRest ruleRest, final RuleSet ruleSet) {
 		super(ruleRest);

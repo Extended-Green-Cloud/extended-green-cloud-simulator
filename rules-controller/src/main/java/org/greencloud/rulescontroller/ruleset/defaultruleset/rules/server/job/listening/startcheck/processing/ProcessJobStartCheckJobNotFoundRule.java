@@ -1,24 +1,23 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.startcheck.processing;
 
+import static jade.lang.acl.ACLMessage.FAILURE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_HANDLE_NOT_FOUND_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static jade.lang.acl.ACLMessage.FAILURE;
 
 import java.util.Map;
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 public class ProcessJobStartCheckJobNotFoundRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 

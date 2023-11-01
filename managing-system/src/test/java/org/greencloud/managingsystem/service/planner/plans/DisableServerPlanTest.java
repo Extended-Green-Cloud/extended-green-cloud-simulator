@@ -24,7 +24,7 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class DisableServerPlanTest {
 

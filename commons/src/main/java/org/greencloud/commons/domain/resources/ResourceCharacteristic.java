@@ -1,7 +1,6 @@
 package org.greencloud.commons.domain.resources;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.resource.ResourceConverterConstants.commonConverters;
 
 import java.io.Serializable;
@@ -11,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.immutables.value.Value;
 import org.mvel2.MVEL;
 
@@ -57,6 +57,18 @@ public interface ResourceCharacteristic {
 	String getResourceBooker();
 
 	/**
+	 * @return function represented in EL used to remove resource characteristic permanently
+	 */
+	@Nullable
+	String getResourceRemover();
+
+	/**
+	 * @return function used to add resources
+	 */
+	@Nullable
+	String getResourceAddition();
+
+	/**
 	 * Method reserve amount resource characteristic for given job
 	 *
 	 * @param requiredCharacteristic amount of the given resource that should be reserved
@@ -64,7 +76,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object reserveResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
 		// when resource characteristic cannot be reserved
-		if (isNull(getResourceBooker())) {
+		if (StringUtils.isBlank(getResourceBooker())) {
 			return getValue();
 		}
 
@@ -81,11 +93,91 @@ public interface ResourceCharacteristic {
 	}
 
 	/**
+	 * Method removes permanently the given amount of resource characteristic
+	 *
+	 * @param requiredCharacteristic amount of the given resource that should be removed
+	 * @return resource amount after removing its part
+	 */
+	default Object removeResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
+		// when resource characteristic cannot be removed
+		if (StringUtils.isBlank(getResourceRemover())) {
+			return getValue();
+		}
+
+		final Serializable expression = MVEL.compileExpression(getResourceRemover());
+		final Map<String, Object> params = new HashMap<>();
+		final Object amountToRemove = requiredCharacteristic.convertToCommonUnit();
+		final Object ownedAmount = convertToCommonUnit();
+
+		params.put("amountToRemove", amountToRemove);
+		params.put("ownedAmount", ownedAmount);
+
+		final Object newAmount = MVEL.executeExpression(expression, params);
+		return convertFromCommonUnit(newAmount);
+	}
+
+	/**
+	 * Method adds current resource to the resource of the same type passed as parameter
+	 *
+	 * @param resource resource to add
+	 * @return incremented resource
+	 * @apiNote mostly used to sum resources of custom structure
+	 */
+	default ResourceCharacteristic addResource(final ResourceCharacteristic resource) {
+		// when none of the resource values are incremental
+		if (StringUtils.isBlank(getResourceAddition()) || isNull(resource)) {
+			return this;
+		}
+
+		final Serializable expression = MVEL.compileExpression(getResourceAddition());
+		final Map<String, Object> params = new HashMap<>();
+		final Object resource1 = convertToCommonUnit();
+		final Object resource2 = resource.convertToCommonUnit();
+
+		params.put("resource1", resource1);
+		params.put("resource2", resource2);
+
+		final Object newAmount = MVEL.executeExpression(expression, params);
+		final Object result = convertFromCommonUnit(newAmount);
+
+		return ImmutableResourceCharacteristic.copyOf(this).withValue(result);
+	}
+
+	/**
+	 * Method adds two resources passed as parameters
+	 *
+	 * @param resource1 resource 1 to add
+	 * @param resource2 resource 2 to add
+	 * @return incremented resource
+	 * @apiNote mostly used to sum resources of custom structure
+	 */
+	default ResourceCharacteristic addResource(final ResourceCharacteristic resource1,
+			final ResourceCharacteristic resource2) {
+		// when none of the resource values are incremental
+		if (StringUtils.isBlank(getResourceAddition())) {
+			return this;
+		}
+
+		final Serializable expression = MVEL.compileExpression(getResourceAddition());
+		final Map<String, Object> params = new HashMap<>();
+		final Object resource1Common = resource1.convertToCommonUnit();
+		final Object resource2Common = resource2.convertToCommonUnit();
+
+		params.put("resource1", resource1Common);
+		params.put("resource2", resource2Common);
+
+		final Object newAmount = MVEL.executeExpression(expression, params);
+		final Object result = convertFromCommonUnit(newAmount);
+
+		return ImmutableResourceCharacteristic.copyOf(this).withValue(result);
+	}
+
+	/**
 	 * Method converts a given characteristic to common unit
 	 */
 	default Object convertToCommonUnit() {
 		// if conversion is not necessary
-		if (isNull(getToCommonUnitConverter())) {
+		if (StringUtils.isBlank(getToCommonUnitConverter())) {
 			return getValue();
 		}
 
@@ -104,7 +196,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object convertFromCommonUnit(final Object value) {
 		// if conversion is not necessary
-		if (isNull(getFromCommonUnitConverter())) {
+		if (StringUtils.isBlank(getFromCommonUnitConverter())) {
 			return value;
 		}
 
@@ -120,8 +212,9 @@ public interface ResourceCharacteristic {
 
 	@Value.Check
 	default void check() {
-		if(!(nonNull(getToCommonUnitConverter()) && nonNull(getFromCommonUnitConverter())
-						|| (isNull(getToCommonUnitConverter()) && isNull(getFromCommonUnitConverter())))) {
+		if (!(!StringUtils.isBlank(getToCommonUnitConverter()) && !StringUtils.isBlank(getFromCommonUnitConverter())
+				|| (StringUtils.isBlank(getToCommonUnitConverter()) && StringUtils.isBlank(
+				getFromCommonUnitConverter())))) {
 			throw new InvalidParameterException("Either none or both converters must be specified.");
 		}
 	}

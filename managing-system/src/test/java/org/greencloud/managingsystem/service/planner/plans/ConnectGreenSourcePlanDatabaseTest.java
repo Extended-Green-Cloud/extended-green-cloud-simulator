@@ -22,7 +22,7 @@ import org.mockito.Mock;
 
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class ConnectGreenSourcePlanDatabaseTest {

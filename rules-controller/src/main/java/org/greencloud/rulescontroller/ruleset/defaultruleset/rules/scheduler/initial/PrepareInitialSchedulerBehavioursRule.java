@@ -9,16 +9,15 @@ import static org.greencloud.commons.enums.rules.RuleType.SUBSCRIBE_OWNED_AGENTS
 
 import java.util.Set;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateSubscription;
 import org.greencloud.rulescontroller.behaviour.listen.ListenForMessages;
 import org.greencloud.rulescontroller.behaviour.schedule.SchedulePeriodically;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.simple.AgentBehaviourRule;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
 
 import jade.core.behaviours.Behaviour;
 

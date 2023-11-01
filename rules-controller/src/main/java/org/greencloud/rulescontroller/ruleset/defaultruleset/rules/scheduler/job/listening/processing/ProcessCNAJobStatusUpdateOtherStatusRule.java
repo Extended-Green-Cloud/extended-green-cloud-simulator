@@ -14,15 +14,14 @@ import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFac
 import java.util.List;
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
 
 public class ProcessCNAJobStatusUpdateOtherStatusRule extends AgentBasicRule<SchedulerAgentProps, SchedulerNode> {
 
@@ -33,7 +32,8 @@ public class ProcessCNAJobStatusUpdateOtherStatusRule extends AgentBasicRule<Sch
 
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
-		return new AgentRuleDescription(JOB_STATUS_RECEIVER_HANDLER_RULE, JOB_STATUS_RECEIVER_HANDLE_UNKNOWN_STATUS_RULE,
+		return new AgentRuleDescription(JOB_STATUS_RECEIVER_HANDLER_RULE,
+				JOB_STATUS_RECEIVER_HANDLE_UNKNOWN_STATUS_RULE,
 				"handles job update - default status handler",
 				"rule runs when status which does not need special handling was received");
 	}

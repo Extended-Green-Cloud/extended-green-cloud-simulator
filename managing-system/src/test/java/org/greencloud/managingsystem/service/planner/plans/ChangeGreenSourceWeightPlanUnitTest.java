@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.commons.utils.yellowpages.YellowPagesRegister;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -46,7 +45,7 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 

@@ -1,27 +1,25 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_MANUAL_FINISH_HANDLER_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static java.util.Objects.nonNull;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.processing.ProcessJobManualFinishInProgressRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.processing.ProcessJobManualFinishNonExecutedRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.server.ServerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.processing.ProcessJobManualFinishInProgressRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.processing.ProcessJobManualFinishNonExecutedRule;
 
 public class ProcessJobManualFinishCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 

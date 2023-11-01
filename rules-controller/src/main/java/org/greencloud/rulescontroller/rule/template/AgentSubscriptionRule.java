@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.SubscriptionRuleRest;
@@ -24,8 +25,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -92,7 +91,6 @@ public class AgentSubscriptionRule<T extends AgentProps, E extends AgentNode<T>>
 	public AgentRuleType getAgentRuleType() {
 		return SUBSCRIPTION;
 	}
-
 
 	/**
 	 * Method executed when subscription message is to be created

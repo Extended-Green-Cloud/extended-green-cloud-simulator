@@ -2,17 +2,22 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_PARAMS;
 import static org.greencloud.commons.constants.FactTypeConstants.ADAPTATION_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DEACTIVATION_RULE;
-import static java.util.Objects.nonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -20,11 +25,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 
 import com.database.knowledge.domain.action.AdaptationActionEnum;
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
-import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

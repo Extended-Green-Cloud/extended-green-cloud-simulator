@@ -1,30 +1,29 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.transferring;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_RULE;
-import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Date;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentScheduledRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 

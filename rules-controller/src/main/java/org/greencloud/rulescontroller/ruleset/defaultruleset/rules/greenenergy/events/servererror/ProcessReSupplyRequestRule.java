@@ -1,31 +1,30 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.events.servererror;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static jade.lang.acl.ACLMessage.REFUSE;
+import static java.util.Objects.isNull;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_WEATHER_FOR_RE_SUPPLY_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_SERVER_RE_SUPPLY_HANDLER_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndServer;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndServer;
-import static jade.lang.acl.ACLMessage.REFUSE;
-import static java.util.Objects.isNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.job.basic.ServerJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

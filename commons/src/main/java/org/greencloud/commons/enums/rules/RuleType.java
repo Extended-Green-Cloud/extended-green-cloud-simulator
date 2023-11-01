@@ -24,6 +24,7 @@ public class RuleType {
 	 * ADAPTATION RULES
 	 */
 	public static final String ADAPTATION_REQUEST_RULE = "ADAPTATION_REQUEST_RULE";
+	public static final String AGENT_CREATION_RULE = "AGENT_CREATION_RULE";
 	public static final String SERVER_MAINTENANCE_RULE = "SERVER_MAINTENANCE_RULE";
 	public static final String REPORT_DATA_RULE = "REPORT_DATA_RULE";
 	public static final String PROCESS_SERVER_ENABLING_RULE = "PROCESS_SERVER_ENABLING_RULE";

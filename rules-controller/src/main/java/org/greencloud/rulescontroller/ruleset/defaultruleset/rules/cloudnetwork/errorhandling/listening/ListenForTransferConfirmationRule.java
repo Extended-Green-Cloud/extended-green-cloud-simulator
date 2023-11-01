@@ -1,10 +1,15 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static jade.lang.acl.ACLMessage.FAILURE;
+import static jade.lang.acl.ACLMessage.INFORM;
+import static jade.lang.acl.MessageTemplate.MatchContent;
+import static jade.lang.acl.MessageTemplate.and;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_CONFIRMATION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_RULE;
 import static org.greencloud.commons.mapper.JsonMapper.getMapper;
@@ -12,14 +17,13 @@ import static org.greencloud.commons.utils.messaging.constants.MessageContentCon
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SERVER_TRANSFER_CONFIRMATION_TEMPLATE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static jade.lang.acl.ACLMessage.FAILURE;
-import static jade.lang.acl.ACLMessage.INFORM;
-import static jade.lang.acl.MessageTemplate.MatchContent;
-import static jade.lang.acl.MessageTemplate.and;
-import static java.lang.String.valueOf;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -28,10 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;

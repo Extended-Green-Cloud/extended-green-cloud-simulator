@@ -13,6 +13,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
@@ -20,8 +21,6 @@ import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoGreenSourcesRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.processing.ProcessCNANewJobNoResourcesRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.processing.ProcessCNANewJobSuccessfullyRule;
-
-import com.gui.agents.server.ServerNode;
 
 public class ProcessCNANewJobCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 

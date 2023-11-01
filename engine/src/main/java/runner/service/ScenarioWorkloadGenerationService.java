@@ -1,6 +1,6 @@
 package runner.service;
 
-import static com.greencloud.factory.constants.AgentControllerConstants.RUN_CLIENT_AGENT_DELAY;
+import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_CLIENT_AGENT_DELAY;
 import static java.lang.Math.floorDiv;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
@@ -41,8 +41,8 @@ import org.greencloud.commons.args.job.SyntheticJobArgs;
 import org.greencloud.commons.exception.InvalidScenarioException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.greencloud.factory.AgentFactory;
-import com.greencloud.factory.AgentFactoryImpl;
+import com.greencloud.connector.factory.AgentFactory;
+import com.greencloud.connector.factory.AgentFactoryImpl;
 
 import jade.wrapper.AgentController;
 

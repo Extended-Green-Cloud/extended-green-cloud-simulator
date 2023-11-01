@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +46,7 @@ import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)

@@ -3,10 +3,9 @@ package org.greencloud.agentsystem.utils;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
+import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.slf4j.Logger;
 
-import com.gui.agents.egcs.EGCSNode;
-import com.gui.controller.GuiController;
 
 import org.greencloud.rulescontroller.RulesController;
 
@@ -22,20 +21,15 @@ public class AgentConnector {
 	 * Method connects agent with given object
 	 *
 	 * @param abstractAgent agent to be connected with object
-	 * @param objectCounter connected objects counter
 	 * @param currentObject object to be connected with agent
 	 */
-	public static void connectAgentObject(AbstractAgent abstractAgent, Integer objectCounter, Object currentObject) {
-		if (currentObject instanceof GuiController guiController) {
-			abstractAgent.setGuiController(guiController);
-		} else if (currentObject instanceof EGCSNode node) {
+	public static void connectAgentObject(AbstractAgent abstractAgent, Object currentObject) {
+		if (currentObject instanceof EGCSNode node) {
 			abstractAgent.setAgentNode(node);
+			logger.info("[{}] Agent connected with the GUI controller", abstractAgent.getName());
 		} else if (currentObject instanceof RulesController rulesController) {
 			abstractAgent.setRulesController(rulesController);
 			logger.info("[{}] Agent connected with the rules controller", abstractAgent.getName());
-		}
-		if (objectCounter == 1) {
-			logger.info("[{}] Agent connected with the GUI controller", abstractAgent.getName());
 		}
 	}
 

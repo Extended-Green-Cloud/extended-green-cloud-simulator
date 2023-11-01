@@ -1,13 +1,15 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.proposing;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
+import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.ORIGINAL_MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.rules.RuleType.INSUFFICIENT_RESOURCES_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
@@ -15,24 +17,21 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
-import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 import jade.lang.acl.ACLMessage;
 

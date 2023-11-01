@@ -7,6 +7,7 @@ import static org.greencloud.commons.enums.rules.RuleType.BASIC_PROPOSAL_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
 
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateProposal;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -15,8 +16,6 @@ import org.greencloud.strategyinjection.agentsystem.agents.restaurant.props.Rest
 import org.greencloud.strategyinjection.agentsystem.domain.ClientOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.gui.agents.AgentNode;
 
 public class ProcessNewClientOrdersRule extends AgentBasicRule<RestaurantAgentProps, AgentNode<RestaurantAgentProps>> {
 

@@ -8,11 +8,10 @@ import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_JOB_PRIORITY_R
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.agentsystem.agents.AbstractAgent;
-
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 
 /**
  * Abstract agent class storing the data regarding Scheduler Agent

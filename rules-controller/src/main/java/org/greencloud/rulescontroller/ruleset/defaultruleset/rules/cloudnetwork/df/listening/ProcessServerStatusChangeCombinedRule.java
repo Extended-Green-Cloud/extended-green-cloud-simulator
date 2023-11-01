@@ -10,17 +10,15 @@ import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedR
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing.ProcessServerStatusChangeNotFoundRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing.ProcessServerStatusChangeRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing.ProcessServerStatusChangeNotFoundRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.processing.ProcessServerStatusChangeRule;
 
 import jade.lang.acl.ACLMessage;
 

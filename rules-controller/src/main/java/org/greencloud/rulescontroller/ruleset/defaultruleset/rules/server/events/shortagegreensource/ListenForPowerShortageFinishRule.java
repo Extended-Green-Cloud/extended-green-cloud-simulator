@@ -6,8 +6,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesC
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import com.gui.agents.server.ServerNode;
-
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;

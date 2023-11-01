@@ -4,13 +4,12 @@ import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_H
 import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SERVER_STATUS_CHANGE_TEMPLATE;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 public class ListenForServerStatusChangeRule
 		extends AgentMessageListenerRule<CloudNetworkAgentProps, CloudNetworkNode> {

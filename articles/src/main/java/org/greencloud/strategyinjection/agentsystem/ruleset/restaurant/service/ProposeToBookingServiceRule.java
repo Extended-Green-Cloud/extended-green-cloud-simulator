@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentProposalRule;
@@ -20,8 +21,6 @@ import org.greencloud.strategyinjection.agentsystem.domain.ClientOrder;
 import org.greencloud.strategyinjection.agentsystem.domain.ImmutableRestaurantData;
 import org.greencloud.strategyinjection.agentsystem.domain.RestaurantData;
 import org.slf4j.Logger;
-
-import com.gui.agents.AgentNode;
 
 import jade.lang.acl.ACLMessage;
 

@@ -1,35 +1,34 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing;
 
+import static java.lang.String.valueOf;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS_CLOUD;
-import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HANDLE_STARTED_JOB_RULE;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.STARTED_IN_CLOUD_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.STARTED_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
-import static java.lang.String.valueOf;
-import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.time.temporal.ValueRange;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.enums.job.JobClientStatusEnum;
+import org.greencloud.gui.agents.client.ClientNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.enums.job.JobClientStatusEnum;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.client.ClientNode;
 
 import jade.lang.acl.ACLMessage;
 

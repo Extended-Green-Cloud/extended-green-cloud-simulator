@@ -1,32 +1,31 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution;
 
+import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PLANNED_JOB_STATUSES;
-import static org.greencloud.commons.constants.FactTypeConstants.JOB;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.Date;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentScheduledRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 public class HandleJobStartRule extends AgentScheduledRule<ServerAgentProps, ServerNode> {
 
@@ -57,11 +56,11 @@ public class HandleJobStartRule extends AgentScheduledRule<ServerAgentProps, Ser
 		final ClientJob job = facts.get(JOB);
 		final String jobId = job.getJobId();
 
-
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		if (!agentProps.getServerJobs().containsKey(job)) {
-			logger.info("Job execution couldn't start: job {} is not present", JobMapper.mapClientJobToJobInstanceId(job));
+			logger.info("Job execution couldn't start: job {} is not present",
+					JobMapper.mapClientJobToJobInstanceId(job));
 			return;
 		}
 

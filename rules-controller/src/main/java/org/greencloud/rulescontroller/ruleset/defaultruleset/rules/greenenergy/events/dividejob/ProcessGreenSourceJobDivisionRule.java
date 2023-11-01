@@ -13,12 +13,11 @@ import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 public class ProcessGreenSourceJobDivisionRule extends AgentBasicRule<GreenEnergyAgentProps, GreenEnergyNode> {
 

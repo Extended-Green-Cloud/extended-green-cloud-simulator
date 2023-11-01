@@ -4,13 +4,12 @@ import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_SERVER_ERRO
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_SERVER_ERROR_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SERVER_ERROR_INFORMATION;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 public class ListenForServerErrorInformationRule
 		extends AgentMessageListenerRule<GreenEnergyAgentProps, GreenEnergyNode> {

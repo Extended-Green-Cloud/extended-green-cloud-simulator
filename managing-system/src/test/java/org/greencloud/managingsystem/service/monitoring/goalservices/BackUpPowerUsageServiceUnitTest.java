@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 class BackUpPowerUsageServiceUnitTest {

@@ -1,31 +1,30 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource;
 
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
+import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
-import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
-import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_POWER_SHORTAGE_FINISH_HANDLER_RULE;
-import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
-import static java.lang.String.valueOf;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.server.ServerNode;
 
 public class ProcessPowerShortageFinishRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -44,8 +43,6 @@ public class ProcessPowerShortageFinishRule extends AgentBasicRule<ServerAgentPr
 				"handlers finish of power shortage in Green Source",
 				"rule handles information that power shortage has finished in the Green Source");
 	}
-
-
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {

@@ -1,11 +1,11 @@
 package runner.configuration;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.gui.websocket.enums.SocketTypeEnum.AGENTS_WEB_SOCKET;
-import static com.gui.websocket.enums.SocketTypeEnum.CLIENTS_WEB_SOCKET;
-import static com.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;
-import static com.gui.websocket.enums.SocketTypeEnum.MANAGING_SYSTEM_WEB_SOCKET;
-import static com.gui.websocket.enums.SocketTypeEnum.NETWORK_WEB_SOCKET;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.AGENTS_WEB_SOCKET;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.CLIENTS_WEB_SOCKET;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.MANAGING_SYSTEM_WEB_SOCKET;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.NETWORK_WEB_SOCKET;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.greencloud.commons.exception.InvalidPropertiesException;
-import com.gui.websocket.enums.SocketTypeEnum;
+import org.greencloud.gui.websocket.enums.SocketTypeEnum;
 
 import runner.EngineRunner;
 

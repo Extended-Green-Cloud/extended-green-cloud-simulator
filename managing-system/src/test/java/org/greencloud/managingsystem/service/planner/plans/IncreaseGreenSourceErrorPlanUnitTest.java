@@ -33,7 +33,7 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class IncreaseGreenSourceErrorPlanUnitTest {
 

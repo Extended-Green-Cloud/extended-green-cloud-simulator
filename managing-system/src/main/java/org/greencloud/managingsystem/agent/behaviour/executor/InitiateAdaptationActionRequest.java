@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.greencloud.commons.domain.timer.Timer;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.goal.GoalEnum;
-import org.greencloud.commons.domain.timer.Timer;
-import com.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Agent;

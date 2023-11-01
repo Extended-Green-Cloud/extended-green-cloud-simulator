@@ -1,10 +1,10 @@
 package org.greencloud.strategyinjection.agentsystem.domain;
 
+import org.greencloud.gui.messages.domain.Message;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.gui.message.domain.Message;
 
 @JsonSerialize(as = ImmutableRestaurantLookUpMessage.class)
 @JsonDeserialize(as = ImmutableRestaurantLookUpMessage.class)

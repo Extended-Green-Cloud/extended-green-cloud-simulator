@@ -3,7 +3,7 @@ package org.greencloud.managingsystem.agent.behaviour.knowledge;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.monitoring.MonitorSystemState;
 
-import com.greencloud.factory.AgentControllerFactoryImpl;
+import com.greencloud.connector.factory.AgentControllerFactoryImpl;
 
 import jade.core.behaviours.OneShotBehaviour;
 

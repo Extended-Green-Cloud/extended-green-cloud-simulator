@@ -31,8 +31,8 @@
 		</dependency>
 		<!-- Agent factory -->
 		<dependency>
-			<groupId>org.greencloud.agentfactory</groupId>
-			<artifactId>agent-factory</artifactId>
+			<groupId>org.greencloud.agentconnector</groupId>
+			<artifactId>agent-connector</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<!-- Commons -->

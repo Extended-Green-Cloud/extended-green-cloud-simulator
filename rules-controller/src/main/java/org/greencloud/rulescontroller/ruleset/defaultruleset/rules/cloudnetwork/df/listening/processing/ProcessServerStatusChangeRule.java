@@ -7,20 +7,20 @@ import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_H
 import static org.greencloud.commons.enums.rules.RuleType.SERVER_STATUS_CHANGE_HANDLE_CHANGE_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.addResources;
-import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.removeResources;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -59,12 +59,14 @@ public class ProcessServerStatusChangeRule extends AgentBasicRule<CloudNetworkAg
 		final ServerResources serverResources = agentProps.getOwnedServerResources().get(server);
 
 		agentProps.removeUnusedResources();
+		agentProps.removeUnusedResourceCharacteristics();
 		if (newStatus) {
+			agentProps.addResourceCharacteristics(new HashMap<>(serverResources.getResources()));
 			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
 					addResources(agentProps.getAggregatedResources(), serverResources.getResources())));
 		} else {
 			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
-					computeResourceDifference(agentProps.getAggregatedResources(), serverResources.getResources())));
+					removeResources(agentProps.getAggregatedResources(), serverResources.getResources())));
 		}
 		agentNode.updateResourceMap(agentProps.getAggregatedResources());
 

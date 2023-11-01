@@ -1,14 +1,13 @@
 package org.greencloud.strategyinjection.agentsystem.agents;
 
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.enums.rules.RuleType.INITIALIZE_BEHAVIOURS_RULE;
 import static org.greencloud.commons.enums.rules.RuleSetType.DEFAULT_RULE_SET;
+import static org.greencloud.commons.enums.rules.RuleType.INITIALIZE_BEHAVIOURS_RULE;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
-
-import com.gui.agents.AgentNode;
 
 import jade.core.Agent;
 

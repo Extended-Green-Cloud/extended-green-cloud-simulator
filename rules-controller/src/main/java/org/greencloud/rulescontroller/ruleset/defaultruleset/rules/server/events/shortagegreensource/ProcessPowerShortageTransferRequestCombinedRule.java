@@ -1,32 +1,30 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource;
 
+import static jade.lang.acl.ACLMessage.REFUSE;
+import static java.util.Objects.isNull;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_HANDLER_RULE;
+import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
-import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
-import static jade.lang.acl.ACLMessage.REFUSE;
-import static java.util.Objects.isNull;
 import static org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType.EXECUTE_FIRST;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestJobFinishedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestTransferCNARule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestTransferGreenSourceRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-
-import com.gui.agents.server.ServerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestJobFinishedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestTransferCNARule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestTransferGreenSourceRule;
 
 public class ProcessPowerShortageTransferRequestCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 

@@ -57,8 +57,8 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.factory.AgentControllerFactory;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;

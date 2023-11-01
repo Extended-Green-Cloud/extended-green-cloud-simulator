@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.PeriodicRuleRest;
@@ -21,8 +22,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 /**
  * Abstract class defining structure of a rule which handles default periodic behaviour

@@ -1,22 +1,21 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.sensor;
 
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_DURATION;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.SENSE_EVENTS_RULE;
-import static java.util.Objects.nonNull;
 
 import java.util.Optional;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.gui.event.AbstractEvent;
+import org.greencloud.gui.event.WeatherDropEvent;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentPeriodicRule;
-
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
-import com.gui.event.AbstractEvent;
-import com.gui.event.WeatherDropEvent;
 
 public class SenseExternalCloudNetworkEventsRule extends AgentPeriodicRule<CloudNetworkAgentProps, CloudNetworkNode> {
 

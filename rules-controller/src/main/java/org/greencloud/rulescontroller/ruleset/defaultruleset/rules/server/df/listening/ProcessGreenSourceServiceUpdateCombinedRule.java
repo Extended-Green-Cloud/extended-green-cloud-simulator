@@ -4,18 +4,16 @@ import static org.greencloud.commons.enums.rules.RuleType.GREEN_SOURCE_STATUS_CH
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateConnectRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateDeactivateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateDisconnectRule;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
 import org.greencloud.rulescontroller.rule.combined.domain.AgentCombinedRuleType;
-
-import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-
-import com.gui.agents.server.ServerNode;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateConnectRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateDeactivateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessGreenSourceServiceUpdateDisconnectRule;
 
 public class ProcessGreenSourceServiceUpdateCombinedRule extends AgentCombinedRule<ServerAgentProps, ServerNode> {
 

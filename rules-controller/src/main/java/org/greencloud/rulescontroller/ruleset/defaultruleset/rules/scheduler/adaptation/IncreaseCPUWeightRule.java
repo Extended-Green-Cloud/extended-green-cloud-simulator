@@ -7,15 +7,13 @@ import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RUL
 import static org.greencloud.commons.utils.math.MathOperations.nextFibonacci;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.greencloud.rulescontroller.RulesController;
-import org.greencloud.rulescontroller.rule.AgentBasicRule;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.slf4j.Logger;
-
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import com.gui.agents.scheduler.SchedulerNode;
-
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
+import org.greencloud.rulescontroller.rule.AgentBasicRule;
+import org.slf4j.Logger;
 
 public class IncreaseCPUWeightRule extends AgentBasicRule<SchedulerAgentProps, SchedulerNode> {
 

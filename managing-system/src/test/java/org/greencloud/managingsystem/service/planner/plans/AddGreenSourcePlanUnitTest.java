@@ -43,7 +43,7 @@ import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;

@@ -4,14 +4,13 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDL
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_NEW_CLIENT_JOB_TEMPLATE;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import com.gui.agents.scheduler.SchedulerNode;
 
 public class ListenForNewClientJobsRule extends AgentMessageListenerRule<SchedulerAgentProps, SchedulerNode> {
 

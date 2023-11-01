@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.gui.websocket.GuiWebSocketClient;
 import org.greencloud.rulescontroller.rest.domain.RuleRest;
 import org.greencloud.rulescontroller.rest.domain.RuleSetRest;
 import org.greencloud.strategyinjection.agentsystem.domain.ClientOrder;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gui.websocket.GuiWebSocketClient;
 
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -143,11 +143,11 @@ public class BookingWebsocketClient extends GuiWebSocketClient {
 				newProposal = facts.get(FactTypeConstants.CFP_NEW_PROPOSAL);
 				restaurantData = MessageReader.readMessageContent(newProposal, Class.forName("org.greencloud.strategyinjection.agentsystem.domain.RestaurantData"));
 				restaurantDataBest = MessageReader.readMessageContent(bestProposal, Class.forName("org.greencloud.strategyinjection.agentsystem.domain.RestaurantData"));
-				
+								
 				if($instruction) {
 				restaurantDataNewPrice = restaurantData.getPrice();
 				restaurantData = restaurantDataBest;
-				
+								
 				if($instruction) {
 				result = (int) (restaurantDataBest.getPrice() - restaurantDataNewPrice);
 				facts.put(FactTypeConstants.CFP_RESULT, result);

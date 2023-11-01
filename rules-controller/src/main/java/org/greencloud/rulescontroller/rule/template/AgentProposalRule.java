@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rest.domain.ProposalRuleRest;
@@ -24,8 +25,6 @@ import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
 import org.mvel2.MVEL;
-
-import com.gui.agents.AgentNode;
 
 import jade.lang.acl.ACLMessage;
 
@@ -91,7 +90,6 @@ public class AgentProposalRule<T extends AgentProps, E extends AgentNode<T>> ext
 	public AgentRuleType getAgentRuleType() {
 		return PROPOSAL;
 	}
-
 
 	/**
 	 * Method executed when proposal message is to be created

@@ -27,8 +27,8 @@
 	<dependencies>
 		<!-- Factory -->
 		<dependency>
-			<groupId>org.greencloud.agentfactory</groupId>
-			<artifactId>agent-factory</artifactId>
+			<groupId>org.greencloud.agentconnector</groupId>
+			<artifactId>agent-connector</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<!-- Commons -->
@@ -49,13 +49,6 @@
 		<dependency>
 			<groupId>org.greencloud.agentsystem</groupId>
 			<artifactId>agent-system</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		<!-- GUI -->
-		<dependency>
-			<groupId>org.greencloud.gui</groupId>
-			<artifactId>gui</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>

@@ -39,9 +39,9 @@ public class ListenForControllerObjects extends CyclicBehaviour {
 	public void action() {
 		final Object object = abstractAgent.getO2AObject();
 		if (object != null) {
-			connectAgentObject(abstractAgent, objectCounter, object);
+			connectAgentObject(abstractAgent, object);
 
-			if (objectCounter == 2) {
+			if (objectCounter == 1) {
 				final ParallelBehaviour behaviour = new ParallelBehaviour();
 				initialBehaviours.forEach(behaviour::addSubBehaviour);
 				behaviour.addSubBehaviour(new ReportHealthCheck(abstractAgent));

@@ -5,15 +5,14 @@ import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HA
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_JOB_STATUS_UPDATE_TEMPLATE;
 
+import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.scheduler.SchedulerNode;
 
 public class ListenForCNAJobStatusUpdateRule extends AgentMessageListenerRule<SchedulerAgentProps, SchedulerNode> {
 

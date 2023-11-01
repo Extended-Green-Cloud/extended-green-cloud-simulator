@@ -4,12 +4,11 @@ import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesC
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
+import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentMessageListenerRule;
 import org.greencloud.rulescontroller.ruleset.RuleSet;
-
-import com.gui.agents.cloudnetwork.CloudNetworkNode;
 
 public class ListenForServerResourceInformationRule extends
 		AgentMessageListenerRule<CloudNetworkAgentProps, CloudNetworkNode> {

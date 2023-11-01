@@ -9,16 +9,15 @@ import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RUL
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DEACTIVATION_RULE;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
-import com.gui.agents.greenenergy.GreenEnergyNode;
 
 import jade.lang.acl.ACLMessage;
 

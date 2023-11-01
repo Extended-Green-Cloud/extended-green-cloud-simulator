@@ -32,7 +32,7 @@ import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonit
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.gui.agents.managing.ManagingAgentNode;
+import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class MonitoringServiceDatabaseTest {

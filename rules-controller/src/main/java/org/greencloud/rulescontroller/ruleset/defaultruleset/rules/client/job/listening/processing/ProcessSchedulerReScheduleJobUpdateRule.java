@@ -1,29 +1,28 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing;
 
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HANDLE_RE_SCHEDULED_RULE;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
-import static java.lang.String.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.extended.JobWithTimeFrames;
+import org.greencloud.gui.agents.client.ClientNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithTimeFrames;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.client.ClientNode;
 
 import jade.lang.acl.ACLMessage;
 

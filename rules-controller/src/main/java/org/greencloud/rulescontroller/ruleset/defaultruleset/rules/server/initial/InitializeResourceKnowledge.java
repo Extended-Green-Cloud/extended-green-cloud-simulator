@@ -3,6 +3,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.initi
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_ADDITION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_COMPARATOR;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_REMOVER;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_RESERVATION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_SUFFICIENCY;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TAKE_FROM_INITIAL_KNOWLEDGE;
@@ -17,12 +18,11 @@ import org.greencloud.commons.domain.resources.ImmutableResource;
 import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.domain.resources.ResourceCharacteristic;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import com.gui.agents.server.ServerNode;
 
 public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -48,31 +48,33 @@ public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps
 
 	private void fillRemainingResourcesInformation() {
 		agentProps.resources().replaceAll((key, resource) -> {
-			String addition = resource.getResourceAddition();
 			String validate = resource.getSufficiencyValidator();
 			String compare = resource.getResourceComparator();
 
-			if (Objects.equals(resource.getResourceAddition(), TAKE_FROM_INITIAL_KNOWLEDGE) &&
-					agentProps.getSystemKnowledge().get(RESOURCE_ADDITION).containsKey(key.toUpperCase())) {
-				addition = agentProps.getSystemKnowledge().get(RESOURCE_ADDITION).get(key.toUpperCase()).toString();
+			if (Objects.equals(resource.getSufficiencyValidator(), TAKE_FROM_INITIAL_KNOWLEDGE)) {
+				if (agentProps.getSystemKnowledge().get(RESOURCE_SUFFICIENCY).containsKey(key.toUpperCase())) {
+					validate = agentProps.getSystemKnowledge().get(RESOURCE_SUFFICIENCY).get(key.toUpperCase())
+							.toString();
+				} else {
+					logger.info(
+							"Resource sufficiency validation method for {} was not found in initial knowledge!", key);
+				}
 			}
-			if (Objects.equals(resource.getSufficiencyValidator(), TAKE_FROM_INITIAL_KNOWLEDGE) &&
-					agentProps.getSystemKnowledge().get(RESOURCE_SUFFICIENCY).containsKey(key.toUpperCase())) {
-				validate = agentProps.getSystemKnowledge().get(RESOURCE_SUFFICIENCY).get(key.toUpperCase()).toString();
-			}
-			if (Objects.equals(resource.getResourceComparator(), TAKE_FROM_INITIAL_KNOWLEDGE) &&
-					agentProps.getSystemKnowledge().get(RESOURCE_COMPARATOR).containsKey(key.toUpperCase())) {
-				compare = agentProps.getSystemKnowledge().get(RESOURCE_COMPARATOR).get(key.toUpperCase()).toString();
+			if (Objects.equals(resource.getResourceComparator(), TAKE_FROM_INITIAL_KNOWLEDGE)) {
+				if (agentProps.getSystemKnowledge().get(RESOURCE_COMPARATOR).containsKey(key.toUpperCase())) {
+					compare = agentProps.getSystemKnowledge().get(RESOURCE_COMPARATOR).get(key.toUpperCase())
+							.toString();
+				} else {
+					logger.info("Resource comparator method for {} was not found in initial knowledge!", key);
+				}
 			}
 
 			return ImmutableResource.copyOf(resource)
 					.withEmptyResource(ImmutableResource.copyOf(resource.getEmptyResource())
 							.withCharacteristics(getNewCharacteristicsForResource(resource.getEmptyResource(), key))
-							.withResourceAddition(addition)
 							.withResourceComparator(compare)
 							.withSufficiencyValidator(validate))
 					.withCharacteristics(getNewCharacteristicsForResource(resource, key))
-					.withResourceAddition(addition)
 					.withResourceComparator(compare)
 					.withSufficiencyValidator(validate);
 		});
@@ -85,15 +87,41 @@ public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps
 					final String keyC = characteristicEntry.getKey();
 					final ResourceCharacteristic resourceC = characteristicEntry.getValue();
 					String book = resourceC.getResourceBooker();
+					String addition = resourceC.getResourceAddition();
+					String remover = resourceC.getResourceRemover();
 					String finalKey = String.join("_", key.toUpperCase(), keyC.toUpperCase());
 
-					if (Objects.equals(resourceC.getResourceBooker(), TAKE_FROM_INITIAL_KNOWLEDGE) &&
-							agentProps.getSystemKnowledge().get(RESOURCE_RESERVATION)
-									.containsKey(finalKey)) {
-						book = agentProps.getSystemKnowledge().get(RESOURCE_RESERVATION).get(finalKey)
-								.toString();
+					if (Objects.equals(resourceC.getResourceAddition(), TAKE_FROM_INITIAL_KNOWLEDGE)) {
+						if (agentProps.getSystemKnowledge().get(RESOURCE_ADDITION).containsKey(finalKey)) {
+							addition = agentProps.getSystemKnowledge().get(RESOURCE_ADDITION).get(finalKey)
+									.toString();
+						} else {
+							logger.info("Resource characteristic addition method for {} -> {} "
+											+ "was not found in initial knowledge!", key, keyC);
+						}
 					}
-					return ImmutableResourceCharacteristic.copyOf(resourceC).withResourceBooker(book);
+					if (Objects.equals(resourceC.getResourceRemover(), TAKE_FROM_INITIAL_KNOWLEDGE)) {
+						if (agentProps.getSystemKnowledge().get(RESOURCE_REMOVER).containsKey(finalKey)) {
+							remover = agentProps.getSystemKnowledge().get(RESOURCE_REMOVER).get(finalKey)
+									.toString();
+						} else {
+							logger.info("Resource characteristic removal method for {} -> {} "
+											+ "was not found in initial knowledge!", key, keyC);
+						}
+					}
+					if (Objects.equals(resourceC.getResourceBooker(), TAKE_FROM_INITIAL_KNOWLEDGE)) {
+						if (agentProps.getSystemKnowledge().get(RESOURCE_REMOVER).containsKey(finalKey)) {
+							book = agentProps.getSystemKnowledge().get(RESOURCE_RESERVATION).get(finalKey)
+									.toString();
+						} else {
+							logger.info("Resource characteristic reservation method for {} -> {} "
+											+ "was not found in initial knowledge!", key, keyC);
+						}
+					}
+					return ImmutableResourceCharacteristic.copyOf(resourceC)
+							.withResourceAddition(addition)
+							.withResourceRemover(remover)
+							.withResourceBooker(book);
 				}));
 	}
 }

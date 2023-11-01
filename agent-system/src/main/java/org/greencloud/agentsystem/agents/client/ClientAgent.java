@@ -29,9 +29,8 @@ public class ClientAgent extends AbstractClientAgent {
 	private static final Logger logger = getLogger(ClientAgent.class);
 
 	private static void connectClient(AbstractAgent<?, ?> abstractAgent) {
-		AgentConnector.connectAgentObject(abstractAgent, 0, abstractAgent.getO2AObject());
-		AgentConnector.connectAgentObject(abstractAgent, 1, abstractAgent.getO2AObject());
-		AgentConnector.connectAgentObject(abstractAgent, 2, abstractAgent.getO2AObject());
+		AgentConnector.connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
+		AgentConnector.connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
 	}
 
 	@Override

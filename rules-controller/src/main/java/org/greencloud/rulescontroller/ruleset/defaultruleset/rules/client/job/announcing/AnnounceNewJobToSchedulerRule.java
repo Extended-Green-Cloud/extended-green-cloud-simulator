@@ -6,14 +6,13 @@ import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_ANNOUNCEMENT_R
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobAnnouncementMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
+import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.gui.agents.client.ClientNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
-
-import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
-import com.gui.agents.client.ClientNode;
 
 import jade.core.AID;
 
