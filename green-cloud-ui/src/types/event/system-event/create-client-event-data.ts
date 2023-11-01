@@ -1,4 +1,4 @@
-import { JobCreator } from 'types/job'
+import { JobCreator } from 'types/creator'
 import { CommonAgentEventData } from './common-agent-event-data'
 
 export interface CreateClientEventData extends CommonAgentEventData {

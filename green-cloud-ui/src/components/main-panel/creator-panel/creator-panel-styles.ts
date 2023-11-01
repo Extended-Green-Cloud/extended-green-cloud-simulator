@@ -20,6 +20,7 @@ export const styles: Styles = {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
+      overflowY: 'auto',
       flexGrow: 1
    },
    selectorWrapper: {

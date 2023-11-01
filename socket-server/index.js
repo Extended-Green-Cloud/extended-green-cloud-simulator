@@ -12,7 +12,7 @@ const { reportSimulationStatistics } = require("./lib/module/simulation/report-h
 const { parseData } = require("./lib/utils/parse-utils")
 const { logUserConnected, logNewMessage, logStateReset } = require("./lib/utils/logger-utils")
 const { resetSystemState, getSystemState, getAgentsState, getClientsState, getManagingState, getNetworkState, getClient, getGraphState, getAgent, getNetworkReportsState, getClientsReportsState, getAgentsReportsState, getManaginReportsState } = require("./lib/utils/state-utils");
-const { handleCreateClientEvent } = require("./lib/module/network/event-handlers");
+const { handleCreateClientEvent, handleCreateGreenSourceEvent } = require("./lib/module/network/event-handlers");
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -138,6 +138,16 @@ app.post(ROUTE_TYPES.FRONT + '/serverMaintenance', (req, res) => {
 app.post(ROUTE_TYPES.FRONT + '/createClient', (req, res) => {
   const msg = req.body
   const dataToPass = handleCreateClientEvent(msg)
+  expressWs.getWss().clients.forEach(client => {
+    if (client.route === '/event') {
+      client.send(JSON.stringify(dataToPass))
+    }
+  })
+})
+
+app.post(ROUTE_TYPES.FRONT + '/createGreenSource', (req, res) => {
+  const msg = req.body
+  const dataToPass = handleCreateGreenSourceEvent(msg)
   expressWs.getWss().clients.forEach(client => {
     if (client.route === '/event') {
       client.send(JSON.stringify(dataToPass))

@@ -39,7 +39,6 @@ const getNewResourceWithoutEmptyResource = (): Resource => ({
 const AddNewResource = ({ resources, setNewResources, skipEmptyResource }: Props) => {
    const addEmptyResource = (inputName: string) => {
       setNewResources((prevState) => {
-         console.error(skipEmptyResource)
          const emptyResource = skipEmptyResource ? getNewResourceWithoutEmptyResource() : getNewResource()
          return {
             ...prevState,

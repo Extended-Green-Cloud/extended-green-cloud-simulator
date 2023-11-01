@@ -35,7 +35,6 @@ const UploadJSONButton = ({ buttonText, handleUploadedContent }: Props) => {
             if (e.target?.result) {
                const content = e.target?.result as string
                const parsedJSON = JSON.parse(content)
-               console.error(parsedJSON)
 
                if (handleUploadedContent) {
                   handleUploadedContent(parsedJSON)

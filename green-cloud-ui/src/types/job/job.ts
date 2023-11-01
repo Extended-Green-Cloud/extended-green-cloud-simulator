@@ -12,12 +12,3 @@ export interface Job {
    steps: JobStep[]
    selectionPreference: string
 }
-
-export interface JobCreator {
-   selectionPreference: string
-   processorName: string
-   resources: ResourceMap
-   deadline: number
-   duration: number
-   steps: JobStep[]
-}
