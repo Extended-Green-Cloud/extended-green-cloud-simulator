@@ -62,6 +62,7 @@ public class ProcessServerJobStatusUpdateJobOnHoldRule
 
 			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, ON_HOLD_JOB_ID,
 					facts.get(RULE_SET_IDX)));
+			agentNode.updateGUI(agentProps);
 		}
 	}
 }

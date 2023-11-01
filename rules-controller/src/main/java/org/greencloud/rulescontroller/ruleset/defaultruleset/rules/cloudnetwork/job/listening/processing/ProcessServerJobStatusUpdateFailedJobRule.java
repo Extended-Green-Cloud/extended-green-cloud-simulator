@@ -75,6 +75,7 @@ public class ProcessServerJobStatusUpdateFailedJobRule
 
 			agentProps.getServerForJobMap().remove(job.getJobId());
 			agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), FAILED);
+			agentNode.updateGUI(agentProps);
 			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, FAILED_JOB_ID,
 					facts.get(RULE_SET_IDX)));
 		}

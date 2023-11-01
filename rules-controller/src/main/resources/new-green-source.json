@@ -1,0 +1,10 @@
+{
+  "name": "Wind1",
+  "server": "Server4",
+  "latitude": 10,
+  "longitude": 20,
+  "pricePerPowerUnit": 10,
+  "maximumCapacity": 400,
+  "energyType": "WIND",
+  "weatherPredictionError": 0.02
+}

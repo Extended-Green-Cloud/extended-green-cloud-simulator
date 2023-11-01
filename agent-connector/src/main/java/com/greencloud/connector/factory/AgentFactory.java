@@ -13,6 +13,7 @@ import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
+import org.greencloud.gui.messages.domain.ServerCreator;
 
 /**
  * Interface with a set methods that create extra agents with specified parameters
@@ -45,6 +46,16 @@ public interface AgentFactory {
 			Integer idlePower,
 			Double price,
 			Integer jobProcessingLimit);
+
+	/**
+	 * Method creates new server agent args that can be used to initialize new agent
+	 *
+	 * @param serverCreator parameters to create server from GUI
+	 *
+	 * @return newly server agent args
+	 */
+	ServerArgs createServerAgent(ServerCreator serverCreator);
+
 
 	/**
 	 * Method creates new green energy agent args that can be used to initialize new agent with default latitude,

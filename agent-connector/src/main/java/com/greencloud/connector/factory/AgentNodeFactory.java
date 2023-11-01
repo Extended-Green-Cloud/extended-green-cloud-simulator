@@ -2,9 +2,11 @@ package com.greencloud.connector.factory;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.monitoring.MonitoringNode;
+import org.greencloud.gui.agents.server.ServerNode;
 
 /**
  * Factory used to create agent nodes
@@ -27,4 +29,12 @@ public interface AgentNodeFactory {
 	 * @return monitoring agent node
 	 */
 	MonitoringNode createMonitoringNode(final MonitoringArgs monitoringArgs, final String greenSourceName);
+
+	/**
+	 * Method creates server agent node
+	 *
+	 * @param serverArgs arguments of server agent
+	 * @return ServerNode
+	 */
+	ServerNode createServerNode(final ServerArgs serverArgs);
 }

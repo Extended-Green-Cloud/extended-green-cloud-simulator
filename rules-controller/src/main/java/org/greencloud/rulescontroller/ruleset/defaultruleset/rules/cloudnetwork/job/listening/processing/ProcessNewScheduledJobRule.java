@@ -67,13 +67,6 @@ public class ProcessNewScheduledJobRule extends AgentBasicRule<CloudNetworkAgent
 		logger.info("Evaluating available server resources for job {}!", job.getJobId());
 		agentProps.addJob(job, facts.get(RULE_SET_IDX), PROCESSING);
 
-		final Map<String, Resource> availableAggregatedResources = agentProps.getAvailableResources(job, null);
-		if (!areSufficient(availableAggregatedResources, job.getRequiredResources())) {
-			logger.info("Not enough CNA resources for job {}!", job.getJobId());
-			handleRejectedJob(job, facts);
-			return;
-		}
-
 		final List<AID> consideredServers = selectServersForJob(job);
 		if (consideredServers.isEmpty()) {
 			logger.info("No servers with enough resources for job {}!", job.getJobId());

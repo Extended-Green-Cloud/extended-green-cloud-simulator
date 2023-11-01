@@ -5,13 +5,12 @@ import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.addResources;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
-import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -48,9 +47,9 @@ public class ProcessServerResourceInformationRule extends AgentBasicRule<CloudNe
 		if (agentProps.getOwnedServerResources().isEmpty()) {
 			agentProps.setAggregatedResources(new ConcurrentHashMap<>(serverResources.getResources()));
 		} else {
-			final Map<String, Resource> aggregatedResources =
-					addResources(agentProps.getAggregatedResources(), serverResources.getResources());
-			agentProps.setAggregatedResources(new ConcurrentHashMap<>(aggregatedResources));
+			agentProps.addResourceCharacteristics(new HashMap<>(serverResources.getResources()));
+			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
+					addResources(agentProps.getAggregatedResources(), serverResources.getResources())));
 		}
 		agentNode.updateResourceMap(agentProps.getAggregatedResources());
 

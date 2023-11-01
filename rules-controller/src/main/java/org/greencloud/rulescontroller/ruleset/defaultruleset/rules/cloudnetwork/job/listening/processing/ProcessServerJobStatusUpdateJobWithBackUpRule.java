@@ -62,6 +62,7 @@ public class ProcessServerJobStatusUpdateJobWithBackUpRule
 
 			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, BACK_UP_POWER_JOB_ID,
 					facts.get(RULE_SET_IDX)));
+			agentNode.updateGUI(agentProps);
 		}
 	}
 }

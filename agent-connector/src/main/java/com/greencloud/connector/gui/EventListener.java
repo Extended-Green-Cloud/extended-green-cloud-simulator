@@ -11,13 +11,16 @@ import java.util.Objects;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.monitoring.MonitoringNode;
+import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.gui.event.ClientCreationEvent;
 import org.greencloud.gui.event.DisableServerEvent;
 import org.greencloud.gui.event.EnableServerEvent;
 import org.greencloud.gui.event.GreenSourceCreationEvent;
 import org.greencloud.gui.event.PowerShortageEvent;
+import org.greencloud.gui.event.ServerCreationEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
 import org.greencloud.gui.websocket.GuiWebSocketClient;
@@ -115,6 +118,15 @@ public class EventListener extends GuiWebSocketClient {
 
 			final AgentController greenSourceAgentController = factory.createAgentController(greenEnergyArgs);
 			factory.runAgentController(greenSourceAgentController, RUN_AGENT_DELAY);
+		}
+		if (message.contains("SERVER_CREATION_EVENT")) {
+			final ServerCreationEvent serverCreationEvent = ServerCreationEvent.create(message);
+
+			final ServerArgs serverArgs = agentFactory.createServerAgent(serverCreationEvent.getServerCreator());
+			final ServerNode serverNode = nodeFactory.createServerNode(serverArgs);
+
+			final AgentController serverAgentController = factory.createAgentController(serverArgs, serverNode);
+			factory.runAgentController(serverAgentController, RUN_AGENT_DELAY);
 		}
 	}
 }

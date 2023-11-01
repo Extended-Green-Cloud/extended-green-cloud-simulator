@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +78,23 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.greenEnergyAgent(greenSourceName)
 				.build();
 		return new MonitoringNode(nodeArgs);
+	}
+
+	@Override
+	public ServerNode createServerNode(final ServerArgs serverArgs) {
+		final Map<String, Resource> emptyResources = serverArgs.getResources().entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
+		final ServerNodeArgs nodeArgs = ImmutableServerNodeArgs.builder()
+				.name(serverArgs.getName())
+				.cloudNetworkAgent(serverArgs.getOwnerCloudNetwork())
+				.greenEnergyAgents(new HashSet<>())
+				.maxPower((long) serverArgs.getMaxPower())
+				.idlePower((long) serverArgs.getIdlePower())
+				.resources(serverArgs.getResources())
+				.emptyResources(emptyResources)
+				.price(serverArgs.getPrice())
+				.build();
+		return new ServerNode(nodeArgs);
 	}
 
 	private ClientNode createClientNode(final ClientArgs clientArgs) {

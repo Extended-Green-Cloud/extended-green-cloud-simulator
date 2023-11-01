@@ -67,6 +67,7 @@ public class ProcessServerJobStatusUpdateStartedJobRule
 				agentProps.getNetworkJobs().replace(job, IN_PROGRESS);
 				agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), STARTED);
 				agentNode.addStartedJob();
+				agentNode.updateGUI(agentProps);
 			}
 			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, STARTED_JOB_ID,
 					facts.get(RULE_SET_IDX)));

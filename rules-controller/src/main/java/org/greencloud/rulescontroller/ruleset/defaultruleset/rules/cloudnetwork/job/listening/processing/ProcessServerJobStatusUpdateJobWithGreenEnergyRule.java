@@ -62,6 +62,7 @@ public class ProcessServerJobStatusUpdateJobWithGreenEnergyRule
 
 			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, GREEN_POWER_JOB_ID,
 					facts.get(RULE_SET_IDX)));
+			agentNode.updateGUI(agentProps);
 		}
 	}
 }

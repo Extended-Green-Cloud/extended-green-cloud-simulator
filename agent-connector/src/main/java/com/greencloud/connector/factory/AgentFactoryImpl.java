@@ -37,6 +37,7 @@ import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
+import org.greencloud.gui.messages.domain.ServerCreator;
 
 public class AgentFactoryImpl implements AgentFactory {
 
@@ -71,6 +72,20 @@ public class AgentFactoryImpl implements AgentFactory {
 				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
 				.resources(isNull(resources) ? TEMPLATE_SERVER_RESOURCES : resources)
 				.jobProcessingLimit(isNull(jobProcessingLimit) ? TEMPLATE_SERVER_JOB_LIMIT : jobProcessingLimit)
+				.build();
+	}
+
+
+	@Override
+	public ServerArgs createServerAgent(final ServerCreator serverCreator) {
+		return ImmutableServerArgs.builder()
+				.name(serverCreator.getName())
+				.ownerCloudNetwork(serverCreator.getCloudNetwork())
+				.maxPower(serverCreator.getMaxPower().intValue())
+				.idlePower(serverCreator.getIdlePower().intValue())
+				.price(serverCreator.getPrice())
+				.resources(serverCreator.getResources())
+				.jobProcessingLimit(serverCreator.getJobProcessingLimit().intValue())
 				.build();
 	}
 
