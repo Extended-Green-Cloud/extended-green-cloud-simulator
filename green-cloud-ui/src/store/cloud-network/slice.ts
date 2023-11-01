@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CloudNetworkStore, MenuTab } from '@types'
+import { AgentType, CloudNetworkStore, MenuTab } from '@types'
 import { resetServerState } from './api'
+import { CreateAgentEventData } from 'types/event'
+import { createClientAgent } from './api/create-agents-api'
 
 const INITIAL_STATE: CloudNetworkStore = {
    currClientsNo: 0,
@@ -27,6 +29,12 @@ export const cloudNetworkSlice = createSlice({
    reducers: {
       setNetworkData(state, action: PayloadAction<CloudNetworkStore>) {
          Object.assign(state, action.payload)
+      },
+      createAgent(state, action: PayloadAction<CreateAgentEventData>) {
+         const { agentType } = action.payload
+         if (agentType === AgentType.CLIENT) {
+            createClientAgent(action.payload.jobData)
+         }
       },
       resetServerConnection(state) {
          state.isNetworkSocketConnected = null

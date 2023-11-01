@@ -82,10 +82,8 @@ const handleServerDisabling = (msg) => {
 		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
 	) as SwitchOnOffEvent;
 
-	if (switchingEvent.disabled) {
-		switchingEvent.disabled = false;
-		switchingEvent.isServerOn = false;
-	}
+	switchingEvent.disabled = false;
+	switchingEvent.isServerOn = false;
 	node.state = getNodeState(agent);
 	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, false, false);
 };
@@ -96,10 +94,8 @@ const handleServerEnabling = (msg) => {
 		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
 	) as SwitchOnOffEvent;
 
-	if (switchingEvent.disabled) {
-		switchingEvent.disabled = false;
-		switchingEvent.isServerOn = true;
-	}
+	switchingEvent.disabled = false;
+	switchingEvent.isServerOn = true;
 	node.state = getNodeState(agent);
 	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, true, false);
 };

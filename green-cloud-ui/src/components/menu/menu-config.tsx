@@ -1,4 +1,4 @@
-import { IconClients, IconCloudMenu, IconGear, IconNetwork } from '@assets'
+import { IconClients, IconCloudMenu, IconGear, IconNetwork, IconPen } from '@assets'
 import { MenuTab } from '@types'
 
 export const ICON_SIZE = '45px'
@@ -28,5 +28,11 @@ export const MENU_BUTTONS = [
       icon: <IconGear size={ICON_SIZE} />,
       iconOffset: ICON_OFFSET,
       id: MenuTab.ADAPTATION
+   },
+   {
+      header: 'CREATOR',
+      icon: <IconPen size={ICON_SIZE} />,
+      iconOffset: ICON_OFFSET,
+      id: MenuTab.CREATOR
    }
 ]

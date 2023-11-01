@@ -27,7 +27,7 @@ const ClientJobStepModal = ({ isOpen, setIsOpen, jobSteps }: Props) => {
    const header = 'JOB STEPS'
 
    const getStepsInformation = () => {
-      return jobSteps.map((step) => {
+      return jobSteps?.map((step) => {
          const resourceMap = step.requiredResources
             ? collectResourcesToMultiMap(step.requiredResources, CLIENT_STATISTICS_RESOURCES_MAPPER)
             : null

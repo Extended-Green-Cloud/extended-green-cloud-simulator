@@ -36,6 +36,8 @@ const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
 					toCommonUnitConverter: resourceC.toCommonUnitConverter,
 					fromCommonUnitConverter: resourceC.fromCommonUnitConverter,
 					resourceBooker: resourceC.resourceBooker,
+					resourceRemover: resourceC.resourceRemover,
+					resourceAddition: resourceC.resourceAddition,
 				} as ResourceCharacteristic,
 				...prevC,
 			}),
@@ -47,7 +49,6 @@ const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
 				characteristics: characteristicsVal,
 				emptyResource: resource.emptyResource,
 				sufficiencyValidator: resource.sufficiencyValidator,
-				resourceAddition: resource.resourceAddition,
 				resourceComparator: resource.resourceComparator,
 			} as Resource,
 		};

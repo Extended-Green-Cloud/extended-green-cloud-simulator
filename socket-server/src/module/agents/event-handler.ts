@@ -1,28 +1,21 @@
-import { AGENT_TYPES, POWER_SHORTAGE_STATE, EVENT_TYPE } from "../../constants/index.js";
+import { POWER_SHORTAGE_STATE, EVENT_TYPE } from "../../constants/index.js";
 import {
 	PowerShortageEvent,
 	ServerMaintenanceEvent,
 	SwitchOnOffEvent,
 	WeatherDropEvent,
 } from "../../types/agent-event-type.js";
-import { getAgentByName, getAgentNodeById, getNodeState } from "../../utils/index.js";
+import { getAgentByName, getEventOccurrenceTime } from "../../utils/index.js";
 import {
 	logPowerShortageEvent,
 	logServerMaintenanceEvent,
 	logSwitchOnOffEvent,
 	logWeatherDropEvent,
 } from "../../utils/logger-utils.js";
-import { GRAPH_STATE } from "../graph/graph-state.js";
 import { AGENTS_STATE } from "./agents-state.js";
 
 const getEventByType = (events, type) => {
 	return events.find((event) => event.type === type);
-};
-
-const getEventOccurrenceTime = (time) => {
-	const occurrenceTime = new Date();
-	occurrenceTime.setSeconds(occurrenceTime.getSeconds() + time);
-	return occurrenceTime;
 };
 
 async function unlockEvent(event, time) {

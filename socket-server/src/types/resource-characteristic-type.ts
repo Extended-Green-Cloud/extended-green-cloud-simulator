@@ -4,4 +4,6 @@ export interface ResourceCharacteristic {
 	toCommonUnitConverter: string;
 	fromCommonUnitConverter: string;
 	resourceBooker: string;
+	resourceRemover: string;
+	resourceAddition: string;
 }

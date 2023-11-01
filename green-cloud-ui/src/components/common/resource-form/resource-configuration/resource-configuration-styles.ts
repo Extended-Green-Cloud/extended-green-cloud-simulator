@@ -4,6 +4,7 @@ interface Styles {
    resourceWrapper: React.CSSProperties
    resourceTrigger: React.CSSProperties
    resourceContent: React.CSSProperties
+   resourceFieldWrapper: React.CSSProperties
 }
 
 export const styles: Styles = {
@@ -20,5 +21,10 @@ export const styles: Styles = {
    resourceTrigger: {
       fontSize: 'var(--font-size-8)',
       padding: '10px 20px 0px 10px'
+   },
+   resourceFieldWrapper: {
+      borderLeft: 'var(--border-bold-gray-1)',
+      borderRadius: 8,
+      padding: '5px 10px'
    }
 }

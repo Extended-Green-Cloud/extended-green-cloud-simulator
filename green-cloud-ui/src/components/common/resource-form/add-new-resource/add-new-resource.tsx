@@ -1,73 +1,62 @@
-import React, { useState } from 'react'
-import { Button, InputField } from 'components/common'
-import { styles } from './add-new-resource-styles'
-import { Resource } from '@types'
+import { AddWithInput } from 'components/common'
+import { Resource, ResourceMap } from '@types'
 import { UpdateResource } from '../resource-form'
 
 interface Props {
+   resources: ResourceMap
    setNewResources: UpdateResource
+   skipEmptyResource?: boolean
 }
 
-const getEmptyResource = (): Resource => ({
+const getNewResource = (): Resource => ({
    characteristics: {},
    emptyResource: {
       characteristics: {},
       emptyResource: null,
       sufficiencyValidator: '',
-      resourceAddition: '',
       resourceComparator: ''
    },
    sufficiencyValidator: '',
-   resourceAddition: '',
+   resourceComparator: ''
+})
+
+const getNewResourceWithoutEmptyResource = (): Resource => ({
+   characteristics: {},
+   emptyResource: null,
+   sufficiencyValidator: '',
    resourceComparator: ''
 })
 
 /**
  * Component representing form used to add new resource
  *
+ * @param {ResourceMap}[resources] - resource map
  * @param {UpdateResource}[setNewResources] - function used to update resource map
+ * @param {boolean}[skipEmptyResource] - parameter specifying if the empty resource component should be skipped
+ *
  * @returns JSX Element
  */
-const AddNewResource = ({ setNewResources }: Props) => {
-   const [newResourceName, setNewResourceName] = useState<string>('')
-   const { newResourceWrapper, newResourceText, newResourceButton } = styles
-   const addNewResourceButton = ['medium-green-button-active', 'medium-green-button', 'full-width-button'].join(' ')
-
-   const isNameEmpty = newResourceName === ''
-
-   const addEmptyResource = () => {
+const AddNewResource = ({ resources, setNewResources, skipEmptyResource }: Props) => {
+   const addEmptyResource = (inputName: string) => {
       setNewResources((prevState) => {
-         const emptyResource = getEmptyResource()
+         console.error(skipEmptyResource)
+         const emptyResource = skipEmptyResource ? getNewResourceWithoutEmptyResource() : getNewResource()
          return {
             ...prevState,
-            [newResourceName]: emptyResource
+            [inputName]: emptyResource
          }
       })
-      setNewResourceName('')
    }
 
    return (
-      <div style={newResourceWrapper}>
-         <div style={newResourceText}>
-            <InputField
-               {...{
-                  placeholder: 'Provide new resource name',
-                  value: newResourceName,
-                  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => setNewResourceName(event.target.value)
-               }}
-            />
-         </div>
-         <div style={newResourceButton}>
-            <Button
-               {...{
-                  title: 'ADD NEW RESOURCE',
-                  onClick: () => addEmptyResource(),
-                  buttonClassName: addNewResourceButton,
-                  isDisabled: isNameEmpty
-               }}
-            />
-         </div>
-      </div>
+      <AddWithInput
+         {...{
+            handleButtonPress: addEmptyResource,
+            inputTitle: 'Provide new resource name',
+            buttonTitle: 'Add new resource',
+            isDisabled: (name: string) => Object.keys(resources).includes(name)
+         }}
+      />
    )
 }
 

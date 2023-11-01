@@ -1,13 +1,13 @@
 import React from 'react'
 
 interface Styles {
-   newResourceWrapper: React.CSSProperties
-   newResourceText: React.CSSProperties
-   newResourceButton: React.CSSProperties
+   wrapper: React.CSSProperties
+   textInput: React.CSSProperties
+   button: React.CSSProperties
 }
 
 export const styles: Styles = {
-   newResourceWrapper: {
+   wrapper: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
@@ -15,10 +15,10 @@ export const styles: Styles = {
       width: '100%',
       marginBottom: '20px'
    },
-   newResourceText: {
+   textInput: {
       width: '50%'
    },
-   newResourceButton: {
+   button: {
       marginLeft: '30px',
       width: '50%'
    }

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { ServerMaintenanceEventData, ResourceMap, ServerMaintenanceEvent } from '@types'
 import { Button } from 'components/common'
 import ServerMaintenanceModal from './server-maintenance-modal/server-maintenance-modal'
-import { toast } from 'react-toastify'
 interface Props {
    event: ServerMaintenanceEvent
    label: string
@@ -39,15 +38,12 @@ const ServerMaintenanceCard = ({
    const buttonStyle = ['event-button', 'event-active-button'].join(' ')
 
    const handleServerMaintenanceTrigger = (newResources: ResourceMap) => {
-      toast.dismiss()
-      toast.warn(`Changing resource configuration of ${agentName}!`)
       triggerServerMaintenance({ agentName, newResources })
    }
 
    const handleServerMaintenanceReset = () => {
-      toast.dismiss()
-      toast.warn(`Completing maintenance of ${agentName}!`)
       resetServerMaintenance(agentName)
+      setIsOpen(false)
    }
 
    return (

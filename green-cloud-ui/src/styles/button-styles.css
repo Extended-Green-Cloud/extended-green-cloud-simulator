@@ -25,6 +25,10 @@
    margin-top: 10px;
 }
 
+.no-top-margin-button {
+   margin-top: 0px;
+}
+
 /* SMALL DARK GRAY BUTTON STYLE */
 
 .small-gray-button {
@@ -306,12 +310,32 @@
    background-color: var(--gray-7);
 }
 
-.medium-gray-button-active:hover {
-   background-color: var(--gray-6);
+/* LARGE GRAY BUTTON */
+
+.large-gray-button {
+   font-family: var(--font-1);
+   font-size: var(--font-size-5);
+   font-weight: 500;
+   padding: 10px 20px;
 }
 
-.medium-gray-button-active:active {
-   background-color: var(--gray-6);
+.large-gray-button-active {
+   color: var(--white);
+   background-color: var(--gray-1);
+}
+
+.large-gray-button-disabled {
+   cursor: auto;
+   color: var(--gray-11);
+   background-color: var(--gray-10);
+}
+
+.large-gray-button-active:hover {
+   background-color: var(--gray-11);
+}
+
+.large-gray-button-active:active {
+   background-color: var(--gray-8);
 }
 
 /* MEDIUM LIGHT GRAY BUTTON */

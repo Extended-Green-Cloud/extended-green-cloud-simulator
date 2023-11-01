@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
-import { Button, InputField } from 'components/common'
-import { styles } from './add-new-characteristics-styles'
+import { AddWithInput } from 'components/common'
 import { Resource, ResourceCharacteristic } from '@types'
 import { UpdateResource } from '../resource-form'
 import { UpdateNumeric } from '../resource-configuration/resource-configuration'
 
 interface Props {
+   resource: Resource
    resourceName: string
    setNewResources: UpdateResource
    setNumericResources: UpdateNumeric
@@ -16,42 +15,38 @@ const getEmptyCharacteristic = (): ResourceCharacteristic => ({
    unit: '',
    toCommonUnitConverter: '',
    fromCommonUnitConverter: '',
-   resourceBooker: ''
+   resourceBooker: '',
+   resourceAddition: ''
 })
 
 /**
  * Component representing form used to add new resource characteristics
  *
+ * @param {Resource}[resource] - the resource for which characteristic is to be added
  * @param {string}[resourceName] - name of the resource for which characteristic is to be added
  * @param {UpdateResource}[setNewResources] - function used to update resource map
  * @param {UpdateNumeric}[setNumericResources] - function used to update resource type assignment map
  * @returns JSX Element
  */
-const AddNewResourceCharacteristic = ({ resourceName, setNewResources, setNumericResources }: Props) => {
-   const [newResourceName, setNewResourceName] = useState<string>('')
-   const { newResourceWrapper, newResourceText, newResourceButton } = styles
-   const addNewResourceButton = ['medium-green-button-active', 'medium-green-button', 'full-width-button'].join(' ')
-
-   const isNameEmpty = newResourceName === ''
-
-   const addEmptyResourceCharacteristic = (resourceCharacteristicName: string, key: string) => {
+const AddNewResourceCharacteristic = ({ resource, resourceName, setNewResources, setNumericResources }: Props) => {
+   const addEmptyResourceCharacteristic = (inputName: string) => {
       setNewResources((prevState) => {
          const emptyCharacteristic = getEmptyCharacteristic()
          const newCharacteristics = {
-            ...prevState[key]?.characteristics,
-            [resourceCharacteristicName]: emptyCharacteristic
+            ...prevState[resourceName]?.characteristics,
+            [inputName]: emptyCharacteristic
          }
          return {
             ...prevState,
-            [key]: {
-               ...prevState[key],
+            [resourceName]: {
+               ...prevState[resourceName],
                emptyResource:
-                  prevState[key].emptyResource !== null
+                  prevState[resourceName].emptyResource !== null
                      ? {
-                          ...(prevState[key].emptyResource as Resource),
+                          ...(prevState[resourceName].emptyResource as Resource),
                           characteristics: {
-                             ...(prevState[key].emptyResource as Resource).characteristics,
-                             [resourceCharacteristicName]: emptyCharacteristic
+                             ...(prevState[resourceName].emptyResource as Resource).characteristics,
+                             [inputName]: emptyCharacteristic
                           }
                        }
                      : null,
@@ -59,34 +54,18 @@ const AddNewResourceCharacteristic = ({ resourceName, setNewResources, setNumeri
             }
          }
       })
-      setNumericResources((prevState) =>
-         prevState.concat({ isNumeric: false, key: resourceName, keyC: resourceCharacteristicName })
-      )
-      setNewResourceName('')
+      setNumericResources((prevState) => prevState.concat({ isNumeric: false, key: resourceName, keyC: inputName }))
    }
 
    return (
-      <div style={newResourceWrapper}>
-         <div style={newResourceText}>
-            <InputField
-               {...{
-                  placeholder: 'Provide new characteristic name',
-                  value: newResourceName,
-                  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => setNewResourceName(event.target.value)
-               }}
-            />
-         </div>
-         <div style={newResourceButton}>
-            <Button
-               {...{
-                  title: 'ADD NEW CHARACTERISTIC',
-                  onClick: () => addEmptyResourceCharacteristic(newResourceName, resourceName),
-                  buttonClassName: addNewResourceButton,
-                  isDisabled: isNameEmpty
-               }}
-            />
-         </div>
-      </div>
+      <AddWithInput
+         {...{
+            handleButtonPress: addEmptyResourceCharacteristic,
+            inputTitle: 'Provide new characteristic name',
+            buttonTitle: 'Add new characteristic',
+            isDisabled: (name: string) => Object.keys(resource.characteristics).includes(name)
+         }}
+      />
    )
 }
 

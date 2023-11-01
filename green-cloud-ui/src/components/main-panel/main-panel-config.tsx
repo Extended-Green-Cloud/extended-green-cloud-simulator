@@ -1,14 +1,15 @@
 import { AdaptationPanel } from '@components'
 import ClientStatistics from 'components/main-panel/client-panel/client-panel-connected'
-import CloudStatistics from 'components/main-panel/cloud-panel/cloud-panel-connected'
+import CloudPanel from 'components/main-panel/cloud-panel/cloud-panel-connected'
 import AgentPanel from './agent-panel/agent-panel-connected'
 import { MenuTab } from '@types'
+import CreatorPanel from './creator-panel/creator-panel-connected'
 
 export const PANEL_TABS = [
    {
       header: 'Cloud network statistics',
       id: MenuTab.CLOUD_SUMMARY,
-      panel: <CloudStatistics />,
+      panel: <CloudPanel />,
       removeScroll: false
    },
    {
@@ -28,5 +29,11 @@ export const PANEL_TABS = [
       id: MenuTab.ADAPTATION,
       panel: <AdaptationPanel />,
       removeScroll: false
+   },
+   {
+      header: 'Agent creator panel',
+      id: MenuTab.CREATOR,
+      panel: <CreatorPanel />,
+      removeScroll: true
    }
 ]

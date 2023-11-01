@@ -1,8 +1,14 @@
-import { AppDispatch, cloudNetworkActions } from '@store'
+import { AppDispatch, RootState, cloudNetworkActions } from '@store'
 import { MainView } from './main-view'
 import { connect } from 'react-redux'
 import { MenuTab } from '@types'
-import { navigatorActions } from 'store/navigator'
+import { navigatorActions, selectSelectedTab } from 'store/navigator'
+
+const mapStateToProps = (state: RootState) => {
+   return {
+      selectedTab: selectSelectedTab(state)
+   }
+}
 
 const mapDispatchToProps = (dispatch: AppDispatch) => {
    return {
@@ -11,4 +17,4 @@ const mapDispatchToProps = (dispatch: AppDispatch) => {
    }
 }
 
-export default connect(null, mapDispatchToProps)(MainView)
+export default connect(mapStateToProps, mapDispatchToProps)(MainView)

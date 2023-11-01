@@ -1,7 +1,9 @@
 export interface ResourceCharacteristic {
    value: any
-   unit: string
-   toCommonUnitConverter: string
-   fromCommonUnitConverter: string
-   resourceBooker: string
+   unit?: string
+   toCommonUnitConverter?: string
+   fromCommonUnitConverter?: string
+   resourceBooker?: string
+   resourceRemover?: string
+   resourceAddition?: string
 }

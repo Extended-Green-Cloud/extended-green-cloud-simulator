@@ -1,7 +1,5 @@
-import { Button } from 'components/common'
-import { styles } from './resource-characteristics-title-styles'
+import { HeaderWithDelete } from 'components/common'
 import { UpdateResource } from '../resource-configuration/resource-configuration'
-import { IconCross } from '@assets'
 import { Resource, ResourceCharacteristic } from '@types'
 
 interface Props {
@@ -20,29 +18,27 @@ interface Props {
  * @returns JSX Element
  */
 const ResourceCharacteristicTitle = ({ resourceName, characteristicName, setNewResources, isEmpty }: Props) => {
-   const { wrapper, text } = styles
-
-   const deleteResourceCharacteristic = (key: string, keyC: string) => {
+   const deleteResourceCharacteristic = () => {
       setNewResources((prevState) => {
-         const newCharacteristics = { ...prevState[key]?.characteristics }
-         delete newCharacteristics[keyC]
+         const newCharacteristics = { ...prevState[resourceName]?.characteristics }
+         delete newCharacteristics[characteristicName]
 
          let emptyResourceCharacteristics: { [key: string]: ResourceCharacteristic } = {}
 
-         if (prevState[key].emptyResource !== null) {
-            emptyResourceCharacteristics = { ...prevState[key].emptyResource?.characteristics }
-            delete emptyResourceCharacteristics[keyC]
+         if (prevState[resourceName].emptyResource !== null) {
+            emptyResourceCharacteristics = { ...prevState[resourceName].emptyResource?.characteristics }
+            delete emptyResourceCharacteristics[characteristicName]
          }
 
          return {
             ...prevState,
-            [key]: {
-               ...prevState[key],
+            [resourceName]: {
+               ...prevState[resourceName],
                characteristics: newCharacteristics,
                emptyResource:
-                  prevState[key].emptyResource !== null
+                  prevState[resourceName].emptyResource !== null
                      ? {
-                          ...(prevState[key].emptyResource as Resource),
+                          ...(prevState[resourceName].emptyResource as Resource),
                           characteristics: emptyResourceCharacteristics
                        }
                      : null
@@ -52,18 +48,9 @@ const ResourceCharacteristicTitle = ({ resourceName, characteristicName, setNewR
    }
 
    return (
-      <div style={wrapper}>
-         {!isEmpty && (
-            <Button
-               {...{
-                  title: <IconCross size="20px" color="var(--gray-3)" />,
-                  onClick: () => deleteResourceCharacteristic(resourceName, characteristicName),
-                  buttonClassName: ''
-               }}
-            />
-         )}
-         <div style={text}>{characteristicName}</div>
-      </div>
+      <HeaderWithDelete
+         {...{ title: characteristicName, deleteFunction: deleteResourceCharacteristic, omitDelete: isEmpty }}
+      />
    )
 }
 

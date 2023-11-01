@@ -1,3 +1,4 @@
+import React from 'react'
 import { ResourceMap, Resource } from '@types'
 import { Collapse, SingleCheckBox, InputField } from 'components/common'
 import ResourceConfigurationField from '../resource-configuration-field/resource-configuration-field'
@@ -15,6 +16,8 @@ interface Props {
    numericResources: NumericResources[]
    setNumericResources: UpdateNumeric
    isEmpty?: boolean
+   skipFunctionDefinition?: boolean
+   skipEmptyResource?: boolean
 }
 
 /**
@@ -27,6 +30,8 @@ interface Props {
  * @param {NumericResources[]}[numericResources] - assignment of resource types
  * @param {UpdateNumeric}[setNumericResources] - function changing assignment of resource types
  * @param {boolean}[isEmpty] - flag indicating if the resource represents nested empty resource
+ * @param {boolean}[skipFunctionDefinition] - optional flag indicating if definition of resource handling methods should be skipped
+ * @param {boolean}[skipEmptyResource] - parameter specifying if the empty resource component should be skipped
  *
  * @returns JSX Element
  */
@@ -36,7 +41,9 @@ const ResourceConfigurationCharacteristics = ({
    setNewResources,
    numericResources,
    setNumericResources,
-   isEmpty
+   isEmpty,
+   skipEmptyResource,
+   skipFunctionDefinition
 }: Props) => {
    const { characteristicFieldTrigger, characteristicFieldWrapper } = styles
 
@@ -49,12 +56,19 @@ const ResourceConfigurationCharacteristics = ({
       )
       setNumericResources(newMap)
 
-      const isTypeNotCompatible = !isSelected && !/^[0-9]*[.,]?[0-9]*$/.test(newValue)
+      const isCurrentlyNumeric = !isSelected
+      const isTypeNotCompatible = isCurrentlyNumeric && !/^[0-9]*[.,]?[0-9]*$/.test(newValue)
       const valueToUse = isTypeNotCompatible ? 0 : newValue
-      changeResourceCharacteristicValue(keyC, 'value', valueToUse)
+      changeResourceCharacteristicValue(keyC, 'value', valueToUse, isCurrentlyNumeric)
    }
 
-   const changeResourceCharacteristicValue = (keyC: string, field: string, newValue: any) => {
+   const changeResourceCharacteristicValue = (
+      keyC: string,
+      field: string,
+      newValue: any,
+      isCurrentlyNumeric?: boolean
+   ) => {
+      const useNumeric = isCurrentlyNumeric !== undefined ? isCurrentlyNumeric : isNumeric(keyC)
       setNewResources((prevState) => ({
          ...prevState,
          [resourceName]: {
@@ -63,7 +77,7 @@ const ResourceConfigurationCharacteristics = ({
                ...prevState[resourceName].characteristics,
                [keyC]: {
                   ...prevState[resourceName].characteristics[keyC],
-                  [field]: field === 'value' && isNumeric(keyC) ? +newValue : `${newValue}`
+                  [field]: field === 'value' && useNumeric ? +newValue : `${newValue}`
                }
             }
          }
@@ -103,6 +117,7 @@ const ResourceConfigurationCharacteristics = ({
             emptyResource: {
                ...(prevState[resourceName].emptyResource as Resource),
                characteristics: {
+                  ...(prevState[resourceName].emptyResource as Resource).characteristics,
                   [keyC]: {
                      ...(prevState[resourceName].emptyResource as Resource).characteristics[keyC],
                      [field]: field === 'value' && isNumeric(keyC) ? +newValue : `${newValue}`
@@ -113,8 +128,13 @@ const ResourceConfigurationCharacteristics = ({
       }))
    }
 
-   const changeValue = isEmpty ? changeEmptyResourceCharacteristicValue : changeResourceCharacteristicValue
-   const changeCommon = isEmpty ? changeEmptyResourceCharacteristicValue : changeResourceAndEmptyCharacteristicValue
+   const changeValue =
+      isEmpty && !skipEmptyResource ? changeEmptyResourceCharacteristicValue : changeResourceCharacteristicValue
+   const changeCommon = skipEmptyResource
+      ? changeResourceCharacteristicValue
+      : isEmpty
+      ? changeEmptyResourceCharacteristicValue
+      : changeResourceAndEmptyCharacteristicValue
 
    const getValueField = (value: any, keyC: string) => (
       <ResourceCharacteristicField {...{ propertyName: 'value' }}>
@@ -158,9 +178,13 @@ const ResourceConfigurationCharacteristics = ({
       </ResourceCharacteristicField>
    )
 
+   const Wrapper = skipFunctionDefinition ? React.Fragment : ResourceConfigurationField
+
    return (
-      <ResourceConfigurationField fieldName="Resource Characteristics">
-         {!isEmpty && <AddNewResourceCharacteristic {...{ resourceName, setNewResources, setNumericResources }} />}
+      <Wrapper fieldName="Resource Characteristics">
+         {!isEmpty && (
+            <AddNewResourceCharacteristic {...{ resource, resourceName, setNewResources, setNumericResources }} />
+         )}
          {Object.entries(resource.characteristics).map(([keyC, resourceC]) => (
             <Collapse
                {...{
@@ -190,16 +214,33 @@ const ResourceConfigurationCharacteristics = ({
                   'fromCommonUnitConverter',
                   'Provide from common unit converter in Expression Language'
                )}
-               {getTextField(
-                  resourceC.resourceBooker,
-                  keyC,
-                  'Reserve resource',
-                  'resourceBooker',
-                  'Provide method (in Expression Language) used to reserve resources'
-               )}
+               {!skipFunctionDefinition &&
+                  getTextField(
+                     resourceC.resourceBooker,
+                     keyC,
+                     'Reserve resource',
+                     'resourceBooker',
+                     'Provide method (in Expression Language) used to reserve resources'
+                  )}
+               {!skipFunctionDefinition &&
+                  getTextField(
+                     resourceC.resourceAddition,
+                     keyC,
+                     'Add resource',
+                     'resourceAddition',
+                     'Provide method (in Expression Language) used to add resources'
+                  )}
+               {!skipFunctionDefinition &&
+                  getTextField(
+                     resourceC.resourceRemover,
+                     keyC,
+                     'Remove resource',
+                     'resourceRemover',
+                     'Provide method (in Expression Language) used to remove resources'
+                  )}
             </Collapse>
          ))}
-      </ResourceConfigurationField>
+      </Wrapper>
    )
 }
 

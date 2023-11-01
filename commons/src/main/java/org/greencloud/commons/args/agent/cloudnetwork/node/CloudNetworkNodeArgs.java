@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface CloudNetworkNodeArgs extends AgentArgs {
 
 	List<String> getServerAgents();
+
 	Map<String, Resource> getOwnedResources();
 
 	Double getMaxServerCpu();

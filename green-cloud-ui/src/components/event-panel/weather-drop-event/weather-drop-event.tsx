@@ -1,7 +1,7 @@
 import { WeatherDropEventData } from '@types'
 import { toast } from 'react-toastify'
 import { Button } from 'components/common'
-import { CommonAgentEvent } from 'types/event/common-agent-event'
+import { CommonAgentEvent } from 'types/event/agent-event/common-agent-event'
 
 interface Props {
    event: CommonAgentEvent

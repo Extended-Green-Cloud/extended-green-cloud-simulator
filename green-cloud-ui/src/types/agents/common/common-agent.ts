@@ -1,4 +1,4 @@
-import { AgentEvent } from 'types/event'
+import { AgentEvent } from 'types/event/agent-event'
 import { AgentType } from '../../enum/agent-type-enum'
 
 export interface CommonAgentInterface {

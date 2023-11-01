@@ -11,7 +11,7 @@ import {
    SwitchOnOffEvent
 } from '@types'
 import { getEventByType } from '@utils'
-import { PowerShortageEvent } from 'types/event/power-shortage-event'
+import { PowerShortageEvent } from 'types/event/agent-event/power-shortage-event'
 import { collectResourcesToMultiMap, mapInUseValues } from 'utils/resource-utils'
 
 const CLOUD_NETWORK_STATISTICS_STATE = [

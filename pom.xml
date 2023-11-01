@@ -13,14 +13,14 @@
 	<modules>
 		<module>engine</module>
 		<module>agent-system</module>
-		<module>gui</module>
 		<module>commons</module>
 		<module>rules-controller</module>
 		<module>knowledge-database</module>
 		<module>managing-system</module>
-		<module>agent-factory</module>
+		<module>agent-connector</module>
 		<module>weather-api</module>
 		<module>articles</module>
+		<module>gui</module>
 	</modules>
 
 	<properties>

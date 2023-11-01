@@ -9,6 +9,7 @@ import {
    ResourceMap,
    ResourceMapper
 } from '@types'
+import { difference, every, keys } from 'lodash'
 
 const mapResourceCharacteristic = (
    keyC: string,

@@ -11,12 +11,13 @@ import { UpdateResourceReset } from '../resource-form'
 interface Props {
    resourceName: string
    resource: Resource | null
-   resetResource: boolean
-   setResetResource: UpdateResourceReset
+   resetResource?: boolean
+   setResetResource?: UpdateResourceReset
    newResources: ResourceMap
    setNewResources: UpdateResource
    initialNumericResources?: NumericResources[]
    skipEmptyResource?: boolean
+   skipFunctionDefinition?: boolean
    skipDropdown?: boolean
    isEmpty?: boolean
 }
@@ -34,8 +35,8 @@ export type NumericResources = {
    isNumeric: boolean
 }
 
-export type UpdateResource = (value: React.SetStateAction<ResourceMap>) => void
-export type UpdateNumeric = (value: React.SetStateAction<NumericResources[]>) => void
+export type UpdateResource = React.Dispatch<React.SetStateAction<ResourceMap>>
+export type UpdateNumeric = React.Dispatch<React.SetStateAction<NumericResources[]>>
 
 /**
  * Component allowing to configure single resource
@@ -50,6 +51,7 @@ export type UpdateNumeric = (value: React.SetStateAction<NumericResources[]>) =>
  * @param {boolean}[skipEmptyResource] - parameter specifying if the empty resource component should be skipped
  * @param {boolean}[skipDropdown] - optional flag indicating if the dropdown should be skipped
  * @param {boolean}[isEmpty] - flag indicating if the resource represents nested empty resource
+ * @param {boolean}[skipFunctionDefinition] - optional flag indicating if definition of resource handling methods should be skipped
  *
  * @returns JSX Element
  */
@@ -62,10 +64,11 @@ const ResourceConfiguration = ({
    setResetResource,
    initialNumericResources,
    skipEmptyResource,
+   skipFunctionDefinition,
    skipDropdown,
    isEmpty
 }: Props) => {
-   const { resourceWrapper, resourceContent, resourceTrigger } = styles
+   const { resourceWrapper, resourceContent, resourceTrigger, resourceFieldWrapper } = styles
    const [numericResources, setNumericResources] = useState<NumericResources[]>(
       initialNumericResources ?? getDefaultNumerics(newResources)
    )
@@ -73,7 +76,10 @@ const ResourceConfiguration = ({
    useEffect(() => {
       if (resetResource) {
          setNumericResources(initialNumericResources ?? getDefaultNumerics(newResources))
-         setResetResource(false)
+
+         if (setResetResource) {
+            setResetResource(false)
+         }
       }
    }, [resetResource])
 
@@ -135,7 +141,7 @@ const ResourceConfiguration = ({
       if (!skipEmptyResource && resource) {
          return (
             <ResourceConfigurationField fieldName="Empty Resource Representation">
-               <div style={{ borderLeft: 'var(--border-bold-gray-1)', borderRadius: 8, padding: '5px 10px' }}>
+               <div style={resourceFieldWrapper}>
                   <ResourceConfiguration
                      {...{
                         resourceName,
@@ -145,6 +151,7 @@ const ResourceConfiguration = ({
                         newResources,
                         setNewResources,
                         initialNumericResources: numericResources,
+                        skipFunctionDefinition,
                         skipEmptyResource: true,
                         skipDropdown: true,
                         isEmpty: true
@@ -168,29 +175,28 @@ const ResourceConfiguration = ({
                      setNewResources,
                      numericResources: initialNumericResources ?? numericResources,
                      setNumericResources,
+                     skipFunctionDefinition,
+                     skipEmptyResource,
                      isEmpty
                   }}
                />
                {getEmptyResource()}
-               {getTextConfiguration(
-                  'Resource aggregator',
-                  'resourceAddition',
-                  'Please provide function used to add two equivalent resources'
-               )}
-               {getTextConfiguration(
-                  'Resource comparator',
-                  'resourceComparator',
-                  'Please provide function used to compare resources'
-               )}
-               {getTextConfiguration(
-                  'Resource sufficiency evaluator',
-                  'sufficiencyValidator',
-                  'Please provide function used to evaluate if resources are sufficient'
-               )}
+               {!skipFunctionDefinition &&
+                  getTextConfiguration(
+                     'Resource comparator',
+                     'resourceComparator',
+                     'Please provide function used to compare resources'
+                  )}
+               {!skipFunctionDefinition &&
+                  getTextConfiguration(
+                     'Resource sufficiency evaluator',
+                     'sufficiencyValidator',
+                     'Please provide function used to evaluate if resources are sufficient'
+                  )}
             </>
          )
       }
-      return <AddNewResource {...{ setNewResources }} />
+      return <AddNewResource {...{ setNewResources, skipEmptyResource, resources: newResources }} />
    }
 
    return (

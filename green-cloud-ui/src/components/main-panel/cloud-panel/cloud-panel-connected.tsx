@@ -1,6 +1,6 @@
 import { RootState, selectNetworkStatistics } from '@store'
 import { connect } from 'react-redux'
-import { CloudStatistics } from './cloud-panel'
+import { CloudPanel } from './cloud-panel'
 
 const mapStateToProps = (state: RootState) => {
    return {
@@ -8,4 +8,4 @@ const mapStateToProps = (state: RootState) => {
    }
 }
 
-export default connect(mapStateToProps)(CloudStatistics)
+export default connect(mapStateToProps)(CloudPanel)

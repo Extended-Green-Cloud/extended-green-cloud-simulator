@@ -11,7 +11,7 @@ interface Props {
  *
  * @returns JSX Element
  */
-export const CloudStatistics = ({ cloudStatistics }: Props) => {
+export const CloudPanel = ({ cloudStatistics }: Props) => {
    const mapStatisticsToFields = () => {
       return CURRENT_CLOUD_STATISTICS.map((field) => {
          const { key, label } = field

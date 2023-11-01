@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ResourceMap, ServerMaintenanceEvent } from '@types'
-import { Button, Modal, ResourceForm } from 'components/common'
-import { IconExclamation, iconCheckMark, iconCross } from '@assets'
+import { Button, ErrorMessage, Modal, ResourceForm } from 'components/common'
+import { iconCheckMark, iconCross } from '@assets'
 import { validateResources } from '@utils'
 import { styles } from './server-maintenance-modal-styles'
 
@@ -75,7 +75,7 @@ const ServerMaintenanceModal = ({
    const isMaintenanceFinished = event.maintenanceCompleted !== null && event.hasStarted
    const isMaintenanceOngoing = event.maintenanceCompleted === null && event.hasStarted && !event.hasError
 
-   const { errorWrapper, contentWrapper, modal, errorTextStyle, statusWrapper, iconStyle } = styles
+   const { contentWrapper, modal, modalContainer, statusWrapper, iconStyle } = styles
    const buttonResetStyle = ['medium-light-gray-button-active', 'medium-light-gray-button', 'full-width-button'].join(
       ' '
    )
@@ -100,10 +100,10 @@ const ServerMaintenanceModal = ({
    }
 
    const submitForm = () => {
-      setErrorText(validateResources(newResources))
-      console.log(errorText)
+      const error = validateResources(newResources)
 
-      if (errorText === '') {
+      setErrorText(error)
+      if (error === '') {
          handleServerMaintenanceTrigger(newResources)
       }
    }
@@ -131,19 +131,22 @@ const ServerMaintenanceModal = ({
 
    return (
       <>
-         <Modal {...{ isOpen, setIsOpen, header: 'Server configuration'.toUpperCase(), contentStyle: modal }}>
+         <Modal
+            {...{
+               isOpen,
+               setIsOpen,
+               header: 'Server configuration'.toUpperCase(),
+               contentStyle: modal,
+               containerStyle: modalContainer
+            }}
+         >
             <div style={contentWrapper}>
-               <div>
+               <div style={{ overflowY: 'auto' }}>
                   <ResourceForm {...{ newResources, setNewResources, resetResource, setResetResource }} />
                </div>
                <div>
                   {getMaintenanceResults()}
-                  {errorText !== '' && (
-                     <div style={errorWrapper}>
-                        <IconExclamation {...{ size: '1.5em', color: 'var(--red-1)' }} />
-                        <div style={errorTextStyle}>{`Invalid configuration! ${errorText}`}</div>
-                     </div>
-                  )}
+                  <ErrorMessage {...{ errorText, errorType: 'Invalid content' }} />
                   <Button
                      {...{
                         buttonClassName: buttonResetStyle,

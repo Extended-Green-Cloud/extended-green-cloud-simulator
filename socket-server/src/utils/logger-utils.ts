@@ -12,6 +12,7 @@ const logServerMaintenanceEvent = (agentName) =>
 	console.log(`[${new Date().toLocaleTimeString()}] Changing configuration of server ${agentName}`);
 const logResetServerMaintenanceEvent = (agentName) =>
 	console.log(`[${new Date().toLocaleTimeString()}] Resetting maintenance state of server ${agentName}`);
+const logClientCreationEvent = () => console.log(`[${new Date().toLocaleTimeString()}] Creating client agent.`);
 
 export {
 	logNewMessage,
@@ -22,4 +23,5 @@ export {
 	logSwitchOnOffEvent,
 	logServerMaintenanceEvent,
 	logResetServerMaintenanceEvent,
+	logClientCreationEvent,
 };

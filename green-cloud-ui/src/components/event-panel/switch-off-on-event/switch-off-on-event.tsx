@@ -1,5 +1,4 @@
 import { SwitchOnOffEvent, SwitchOnOffEventData } from '@types'
-import { toast } from 'react-toastify'
 import { Button } from 'components/common'
 
 interface Props {
@@ -22,13 +21,10 @@ const buttonWaitLabel = "Wait until server's state will fully change"
  */
 const SwitchOnOffCard = ({ event, label, agentName, switchServerState }: Props) => {
    const buttonLabel = event.disabled ? buttonWaitLabel : label
-   const isSwitchingOff = event.isServerOn ? 'off' : 'on'
 
    const buttonStyle = ['event-button', 'event-active-button'].join(' ')
 
    function handleWeatherDropTrigger() {
-      toast.dismiss()
-      toast.warn(`Switching server ${agentName} ${isSwitchingOff}!`)
       switchServerState({ agentName })
    }
 

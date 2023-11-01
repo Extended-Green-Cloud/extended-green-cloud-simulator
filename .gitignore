@@ -10,7 +10,7 @@
 /logs/
 /agent-system/src/main/resources/config.properties
 /rules-controller/src/main/resources/config.properties
-/gui/target/
+/previous/target/
 /agent-system/APDescription.txt
 /agent-system/agent-system.iml
 /test/target/
@@ -36,7 +36,7 @@
 /commons/target/*
 /knowledge-database/target
 /knowledge-database/target/*
-/gui/gui.iml
+/previous/gui.iml
 /knowledge-database.iml
 /knowledge-database/knowledge-database.iml
 /commons.iml
@@ -109,3 +109,6 @@ weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domai
 /engine/strategy/properties/*
 /articles/target/
 /weather-api.iml
+/agent-connector/target/
+/gui/target/
+/weather-api/target/
