@@ -1,4 +1,4 @@
-import { Agent, GreenSourceCreator, JobCreator } from '@types'
+import { Agent, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
 import { validateResources } from './resource-utils'
 
 /**
@@ -73,6 +73,42 @@ export const validateGreenSourceData = (greenSourceData: GreenSourceCreator, age
    }
    if (greenSourceData.maximumCapacity <= 0) {
       return 'Maximum capacity of the Green Source must be greater than 0.'
+   }
+
+   return ''
+}
+
+/**
+ * Method verifies if provided server data is correct.
+ * It returns message indicating potential error.
+ *
+ * @param greenSourceData data to be verified
+ * @param agents agents present in the system
+ * @returns error message
+ */
+export const validateServerData = (serverData: ServerCreator, agents: Agent[]) => {
+   if (serverData.name === '') {
+      return 'Server name cannot be empty.'
+   }
+   if (agents.find((agent) => agent.name === serverData.name)) {
+      return 'Provided name already exists. Name of the Server must be unique with respect to already existing agents.'
+   }
+   if (serverData.idlePower < 0) {
+      return 'Idle power consumption cannot be smaller than 0.'
+   }
+   if (serverData.maxPower <= 0) {
+      return 'Maximal server power consumption must be greater than 0.'
+   }
+   if (serverData.jobProcessingLimit <= 0) {
+      return 'Job processing limit must be greater than 0.'
+   }
+   if (serverData.price < 0) {
+      return 'Price per power unit cannot be smaller than 0.'
+   }
+
+   const verificationResources = validateResources(serverData.resources)
+   if (verificationResources !== '') {
+      return `Specified Server resources are incorrect: ${verificationResources}`
    }
 
    return ''

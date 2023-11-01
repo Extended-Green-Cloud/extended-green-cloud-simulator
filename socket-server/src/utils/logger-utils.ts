@@ -15,6 +15,8 @@ const logResetServerMaintenanceEvent = (agentName) =>
 const logClientCreationEvent = () => console.log(`[${new Date().toLocaleTimeString()}] Creating client agent.`);
 const logGreenSourceCreationEvent = () =>
 	console.log(`[${new Date().toLocaleTimeString()}] Creating green source agent.`);
+const logServerCreationEvent = () =>
+	console.log(`[${new Date().toLocaleTimeString()}] Creating server agent.`);
 
 export {
 	logNewMessage,
@@ -27,4 +29,5 @@ export {
 	logResetServerMaintenanceEvent,
 	logClientCreationEvent,
 	logGreenSourceCreationEvent,
+	logServerCreationEvent
 };

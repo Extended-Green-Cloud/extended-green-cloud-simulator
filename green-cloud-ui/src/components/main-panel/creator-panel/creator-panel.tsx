@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Agent, AgentType, DropdownOption, GreenSourceCreator, JobCreator } from '@types'
+import { Agent, AgentType, DropdownOption, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
 import { Button, Dropdown, ErrorMessage, SubtitleContainer } from 'components/common'
 import React from 'react'
 import {
@@ -11,17 +11,20 @@ import {
 import { styles } from './creator-panel-styles'
 import { ClientAgentCreator } from './client-agent-creator/client-agent-creator'
 import { GreenSourceAgentCreator } from './green-source-agent-creator/green-source-agent-creator'
+import { ServerAgentCreator } from './server-agent-creator/server-agent-creator'
 
 interface Props {
    agents: Agent[]
    createClient: (jobData: JobCreator) => void
    createGreenSource: (greenSourceData: GreenSourceCreator) => void
+   createServer: (serverData: ServerCreator) => void
 }
 
 export type UpdateClientForm = (value: React.SetStateAction<JobCreator>) => void
 export type UpdateGreenSourceForm = (value: React.SetStateAction<GreenSourceCreator>) => void
+export type UpdateServerForm = (value: React.SetStateAction<ServerCreator>) => void
 
-export type Creator = JobCreator | GreenSourceCreator | null
+export type Creator = JobCreator | GreenSourceCreator | ServerCreator | null
 
 /**
  * Component represents a panel allowing to create new agents in the system
@@ -29,10 +32,11 @@ export type Creator = JobCreator | GreenSourceCreator | null
  * @param {Agent[]} agents - agents present in the system
  * @param {func} createClient - function used to create client agent
  * @param {func} createGreenSource - function used to create green source agent
+ * @param {func} createServer - function used to create server agent
  *
  * @returns JSX Element
  */
-export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props) => {
+export const CreatorPanel = ({ createClient, createGreenSource, createServer, agents }: Props) => {
    const [selectedAgentType, setSelectedAgentType] = useState<DropdownOption>(AVAILABLE_AGENT_OPTIONS[0])
    const [agentCreator, setAgentCreator] = useState<AgentType | null>(AgentType.CLIENT)
    const [agentCreatorData, setAgentCreatorData] = useState<Creator>(getEmptyClientForm())
@@ -43,7 +47,12 @@ export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props)
 
    const buttonStyle = ['large-green-button', 'large-green-button-active', 'full-width-button'].join(' ')
    const resetButtonStyle = ['large-gray-button', 'large-gray-button-active', 'full-width-button'].join(' ')
+
+   const buttonStyleDisabled = ['large-green-button', 'large-green-button-disabled', 'full-width-button'].join(' ')
+   const resetButtonStyleDisabled = ['large-gray-button', 'large-gray-button-disabled', 'full-width-button'].join(' ')
+
    const creatorConfig = agentCreator ? CREATOR_CONFIG[agentCreator as AgentType] : EMPTY_CREATOR_CONFIG
+   const isDisabled = creatorConfig.isButtonDisabled(agents)
 
    useEffect(() => {
       setErrorText('')
@@ -71,6 +80,9 @@ export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props)
          if (agentCreator === AgentType.GREEN_ENERGY) {
             createGreenSource(agentCreatorData as GreenSourceCreator)
          }
+         if (agentCreator === AgentType.SERVER) {
+            createServer(agentCreatorData as ServerCreator)
+         }
       }
    }
 
@@ -93,7 +105,22 @@ export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props)
                {...{
                   greenSourceAgentData: agentCreatorData as GreenSourceCreator,
                   setGreenSourceAgentData: setAgentCreatorData as UpdateGreenSourceForm,
-                  agents
+                  agents,
+                  resetData,
+                  setResetData
+               }}
+            />
+         )
+      }
+      if (agentCreator === AgentType.SERVER) {
+         return (
+            <ServerAgentCreator
+               {...{
+                  serverAgentData: agentCreatorData as ServerCreator,
+                  setServerAgentData: setAgentCreatorData as UpdateServerForm,
+                  agents,
+                  resetData,
+                  setResetData
                }}
             />
          )
@@ -130,7 +157,8 @@ export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props)
                            {...{
                               title: 'Reset data'.toUpperCase(),
                               onClick: () => resetCreatorData(),
-                              buttonClassName: resetButtonStyle
+                              isDisabled,
+                              buttonClassName: isDisabled ? resetButtonStyleDisabled : resetButtonStyle
                            }}
                         />
                      </div>
@@ -139,7 +167,8 @@ export const CreatorPanel = ({ createClient, createGreenSource, agents }: Props)
                            {...{
                               title: 'Create agent'.toUpperCase(),
                               onClick: () => createAgent(),
-                              buttonClassName: buttonStyle
+                              isDisabled,
+                              buttonClassName: isDisabled ? buttonStyleDisabled : buttonStyle
                            }}
                         />
                      </div>

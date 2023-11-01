@@ -2,8 +2,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AgentType, CloudNetworkStore, JobCreator, MenuTab } from '@types'
 import { resetServerState } from './api'
-import { CreateAgentEventData, CreateClientEventData, CreateGreenSourceEventData } from 'types/event'
-import { createClientAgent, createGreenSourceAgent } from './api/create-agents-api'
+import {
+   CreateAgentEventData,
+   CreateClientEventData,
+   CreateGreenSourceEventData,
+   CreateServerEventData
+} from 'types/event'
+import { createClientAgent, createGreenSourceAgent, createServerAgent } from './api/create-agents-api'
 
 const INITIAL_STATE: CloudNetworkStore = {
    currClientsNo: 0,
@@ -37,6 +42,9 @@ export const cloudNetworkSlice = createSlice({
          }
          if (agentType === AgentType.GREEN_ENERGY) {
             createGreenSourceAgent((action.payload as CreateGreenSourceEventData).greenSourceData)
+         }
+         if (agentType === AgentType.SERVER) {
+            createServerAgent((action.payload as CreateServerEventData).serverData)
          }
       },
       resetServerConnection(state) {

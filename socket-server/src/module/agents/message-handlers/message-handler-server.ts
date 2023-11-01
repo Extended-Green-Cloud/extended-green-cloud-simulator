@@ -29,9 +29,10 @@ const handleUpdateResources = (msg) => {
 	if (foundAgent.type === AGENT_TYPES.CLOUD_NETWORK) {
 		foundAgent.inUseResources = mapServerResources(resources);
 
-		const totalCpu = foundAgent.inUseResources["cpu"]?.characteristics?.["amount"]?.value;
+		const totalCpu = foundAgent.inUseResources["cpu"]?.characteristics?.["amount"]?.value ?? 0;
+		const maxCpu = foundAgent.resources["cpu"]?.characteristics?.["amount"]?.value ?? 0;
 		foundAgent.isActive = totalCpu > 0;
-		foundAgent.traffic = getNewTraffic((foundAgent as CloudNetworkAgent).maxCpuInServers, totalCpu);
+		foundAgent.traffic = getNewTraffic(maxCpu, totalCpu);
 
 		const connection = GRAPH_STATE.connections.find((el) => el.data.source === foundAgent.name);
 		const node = getAgentNodeById(GRAPH_STATE.nodes, foundAgent.name);

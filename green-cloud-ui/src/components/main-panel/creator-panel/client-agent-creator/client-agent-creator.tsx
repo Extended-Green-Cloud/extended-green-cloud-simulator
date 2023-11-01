@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { JobCreator, ResourceMap } from '@types'
-import { Button, InputField, UploadJSONButton } from 'components/common'
+import { UploadJSONButton } from 'components/common'
 import { styles } from './client-agent-creator-styles'
 import { ClientAgentCreatorResourceModal } from './client-agent-creator-resource-modal/client-agent-creator-resource-modal'
 import { ClientAgentCreatorStepModal } from './client-agent-creator-step-modal/client-agent-creator-step-modal'
 import { UpdateClientForm } from '../creator-panel'
 import { UpdateResourceReset } from 'components/common/resource-form/resource-form'
+import { CreatorInputField } from '../creator-input-field/creator-input-field'
+import { CreatorButtonField } from '../creator-button-field/creator-button-field'
 
 interface Props {
    clientAgentData: JobCreator
@@ -27,9 +29,7 @@ interface Props {
 export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetData, setResetData }: Props) => {
    const [isOpenResources, setIsOpenResources] = useState<boolean>(false)
    const [isOpenSteps, setIsOpenSteps] = useState<boolean>(false)
-
-   const { wrapper, wrapperHeader, wrapperInput, descriptionStyle, modalWrapper } = styles
-   const buttonStyle = ['large-green-button', 'large-green-button-active', 'full-width-button'].join(' ')
+   const { modalWrapper } = styles
 
    const updateClientAgentValue = (newValue: string | number | ResourceMap, valueKey: keyof JobCreator) => {
       setClientAgentData((prevData) => {
@@ -39,61 +39,6 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
          }
       })
    }
-
-   const getClientInputField = (
-      title: string,
-      description: string,
-      fieldName: keyof JobCreator,
-      isNumeric?: boolean,
-      isTextField?: boolean
-   ) => (
-      <div style={wrapper}>
-         <div style={wrapperHeader}>{title.toUpperCase()}</div>
-         <div style={wrapperInput}>
-            <InputField
-               {...{
-                  value: clientAgentData[fieldName] as string | number,
-                  placeholder: description,
-                  handleChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                     updateClientAgentValue(isNumeric ? +event.target.value : event.target.value, fieldName),
-                  isNumeric,
-                  isTextField
-               }}
-            />
-            <div style={descriptionStyle}>{description}</div>
-         </div>
-      </div>
-   )
-
-   const getResourceInputField = () => (
-      <div style={wrapper}>
-         <div style={wrapperHeader}>REQUIRED RESOURCES</div>
-         <div style={wrapperInput}>
-            <Button
-               {...{
-                  title: 'Specify resources'.toUpperCase(),
-                  onClick: () => setIsOpenResources(!isOpenResources),
-                  buttonClassName: buttonStyle
-               }}
-            />
-         </div>
-      </div>
-   )
-
-   const getStepsInputField = () => (
-      <div style={wrapper}>
-         <div style={wrapperHeader}>JOB STEPS</div>
-         <div style={wrapperInput}>
-            <Button
-               {...{
-                  title: 'Specify job steps'.toUpperCase(),
-                  onClick: () => setIsOpenSteps(!isOpenSteps),
-                  buttonClassName: buttonStyle
-               }}
-            />
-         </div>
-      </div>
-   )
 
    return (
       <div>
@@ -126,29 +71,61 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
             }}
          />
          <div style={modalWrapper}>
-            {getResourceInputField()}
-            {getStepsInputField()}
+            <CreatorButtonField
+               {...{
+                  title: 'Required resources',
+                  buttonName: 'Specify resources',
+                  onClick: () => setIsOpenResources(!isOpenResources)
+               }}
+            />
+            <CreatorButtonField
+               {...{
+                  title: 'Job steps',
+                  buttonName: 'Specify job steps',
+                  onClick: () => setIsOpenSteps(!isOpenSteps)
+               }}
+            />
          </div>
-         {getClientInputField('Processor type', 'Provide type of task', 'processorName')}
-         {getClientInputField(
-            'Deadline ',
-            'Provide deadline (in hours counted from job creation) of job execution (0 indicates no deadline)',
-            'deadline',
-            true
-         )}
-         {getClientInputField(
-            'Duration ',
-            'Provide duration (in hours counted from job creation) of job execution',
-            'duration',
-            true
-         )}
-         {getClientInputField(
-            'Preference of server selection ',
-            'Optionally provide method using Expression Language that will be used to select the server for job execution',
-            'selectionPreference',
-            true,
-            true
-         )}
+         <CreatorInputField
+            {...{
+               title: 'Processor type',
+               description: 'Provide type of task',
+               fieldName: 'processorName',
+               dataToModify: clientAgentData,
+               dataModificationFunction: updateClientAgentValue
+            }}
+         />
+         <CreatorInputField
+            {...{
+               title: 'Deadline',
+               description:
+                  'Provide deadline (in hours counted from job creation) of job execution (0 indicates no deadline)',
+               fieldName: 'deadline',
+               dataToModify: clientAgentData,
+               dataModificationFunction: updateClientAgentValue,
+               isNumeric: true
+            }}
+         />
+         <CreatorInputField
+            {...{
+               title: 'Duration',
+               description: 'Provide duration (in hours counted from job creation) of job execution',
+               fieldName: 'duration',
+               dataToModify: clientAgentData,
+               dataModificationFunction: updateClientAgentValue,
+               isNumeric: true
+            }}
+         />
+         <CreatorInputField
+            {...{
+               title: 'Preference of server selection',
+               description: 'Provide method that will be used to select the server for job execution',
+               fieldName: 'selectionPreference',
+               dataToModify: clientAgentData,
+               dataModificationFunction: updateClientAgentValue,
+               isTextField: true
+            }}
+         />
       </div>
    )
 }

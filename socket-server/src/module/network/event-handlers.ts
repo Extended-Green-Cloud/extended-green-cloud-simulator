@@ -1,5 +1,10 @@
 import { EVENT_TYPE } from "../../constants";
-import { getEventOccurrenceTime, logClientCreationEvent, logGreenSourceCreationEvent } from "../../utils";
+import {
+	getEventOccurrenceTime,
+	logClientCreationEvent,
+	logGreenSourceCreationEvent,
+	logServerCreationEvent,
+} from "../../utils";
 
 const handleCreateClientEvent = (data) => {
 	const { jobData } = data;
@@ -27,4 +32,17 @@ const handleCreateGreenSourceEvent = (data) => {
 	};
 };
 
-export { handleCreateClientEvent, handleCreateGreenSourceEvent };
+const handleCreateServerEvent = (data) => {
+	const { serverData } = data;
+	logServerCreationEvent();
+
+	return {
+		type: EVENT_TYPE.SERVER_CREATION_EVENT,
+		data: {
+			...serverData,
+			occurrenceTime: getEventOccurrenceTime(0),
+		},
+	};
+};
+
+export { handleCreateClientEvent, handleCreateGreenSourceEvent, handleCreateServerEvent };

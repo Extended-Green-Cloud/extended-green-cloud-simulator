@@ -1,13 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Agent, AgentType, DropdownOption, EnergyType, GreenSourceCreator, JobCreator, ResourceMap } from '@types'
-import { validateGreenSourceData, validateNewClientData } from 'utils/agent-creator-utils'
+import {
+   Agent,
+   AgentType,
+   DropdownOption,
+   EnergyType,
+   GreenSourceCreator,
+   JobCreator,
+   ResourceMap,
+   ServerCreator
+} from '@types'
+import { validateGreenSourceData, validateNewClientData, validateServerData } from 'utils/agent-creator-utils'
 
 export const AVAILABLE_AGENT_CREATORS: AgentType[] = [AgentType.CLIENT, AgentType.GREEN_ENERGY, AgentType.SERVER]
 
 export const AVAILABLE_AGENT_OPTIONS: DropdownOption[] = Object.values(AgentType)
    .filter((value) => AVAILABLE_AGENT_CREATORS.includes(value as AgentType))
    .map((key) => {
-      return { value: key as AgentType, label: key as string, isSelected: false }
+      return { value: key as AgentType, label: (key as string).replaceAll('_', ' ') as string, isSelected: false }
    })
 
 export const getEmptyClientForm = (): JobCreator => ({
@@ -30,18 +39,37 @@ export const getEmptyGreenSourceForm = (): GreenSourceCreator => ({
    energyType: EnergyType.WIND
 })
 
+export const getEmptyServerForm = (): ServerCreator => ({
+   name: '',
+   cloudNetwork: '',
+   maxPower: 0,
+   idlePower: 0,
+   price: 0,
+   jobProcessingLimit: 0,
+   resources: {}
+})
+
 export const CREATOR_CONFIG = {
    [AgentType.CLIENT]: {
       fillWithEmptyData: getEmptyClientForm,
-      validateData: (data: any) => validateNewClientData(data)
+      validateData: (data: any) => validateNewClientData(data),
+      isButtonDisabled: () => false
    },
    [AgentType.GREEN_ENERGY]: {
       fillWithEmptyData: getEmptyGreenSourceForm,
-      validateData: (data: any, agents: Agent[]) => validateGreenSourceData(data, agents)
+      validateData: (data: any, agents: Agent[]) => validateGreenSourceData(data, agents),
+      isButtonDisabled: (agents: Agent[]) => agents.filter((agent) => agent.type === AgentType.SERVER).length === 0
+   },
+   [AgentType.SERVER]: {
+      fillWithEmptyData: getEmptyServerForm,
+      validateData: (data: any, agents: Agent[]) => validateServerData(data, agents),
+      isButtonDisabled: (agents: Agent[]) =>
+         agents.filter((agent) => agent.type === AgentType.CLOUD_NETWORK).length === 0
    }
 }
 
 export const EMPTY_CREATOR_CONFIG = {
    fillWithEmptyData: () => null,
-   validateData: () => ''
+   validateData: () => '',
+   isButtonDisabled: (agents: Agent[]) => true
 }
