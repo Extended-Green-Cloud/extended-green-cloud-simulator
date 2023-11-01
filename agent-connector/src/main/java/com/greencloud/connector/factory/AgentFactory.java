@@ -11,6 +11,7 @@ import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
 
 /**
@@ -78,11 +79,28 @@ public interface AgentFactory {
 			GreenEnergySourceTypeEnum energyType);
 
 	/**
+	 * Method creates new green energy agent args that can be used to initialize new agent
+	 *
+	 * @param greenSourceCreator parameters to create green source from GUI
+	 * @param monitoringName     name of monitoring agent to connect with
+	 * @return newly green energy agent args
+	 */
+	GreenEnergyArgs createGreenEnergyAgent(GreenSourceCreator greenSourceCreator, final String monitoringName);
+
+	/**
 	 * Method creates new monitoring agent args that can be used to initialize new agent
 	 *
 	 * @return newly created monitoring agent args
 	 */
 	MonitoringArgs createMonitoringAgent();
+
+	/**
+	 * Method creates new monitoring agent args that can be used to initialize new agent
+	 *
+	 * @param name name of agent to be created
+	 * @return newly created monitoring agent args
+	 */
+	MonitoringArgs createMonitoringAgent(final String name);
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent

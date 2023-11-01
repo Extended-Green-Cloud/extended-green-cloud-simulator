@@ -1,5 +1,6 @@
 package com.greencloud.connector.gui;
 
+import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_CLIENT_AGENT_DELAY;
 
 import java.net.URI;
@@ -8,10 +9,14 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.gui.agents.egcs.EGCSNode;
+import org.greencloud.gui.agents.monitoring.MonitoringNode;
 import org.greencloud.gui.event.ClientCreationEvent;
 import org.greencloud.gui.event.DisableServerEvent;
 import org.greencloud.gui.event.EnableServerEvent;
+import org.greencloud.gui.event.GreenSourceCreationEvent;
 import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
@@ -23,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import com.greencloud.connector.factory.AgentControllerFactory;
 import com.greencloud.connector.factory.AgentFactory;
 import com.greencloud.connector.factory.AgentFactoryImpl;
+import com.greencloud.connector.factory.AgentNodeFactory;
+import com.greencloud.connector.factory.AgentNodeFactoryImpl;
 
 import jade.wrapper.AgentController;
 
@@ -32,12 +39,14 @@ public class EventListener extends GuiWebSocketClient {
 
 	private final Map<String, EGCSNode> agentNodes;
 	private final AgentFactory agentFactory;
+	private final AgentNodeFactory nodeFactory;
 	private AgentControllerFactory factory;
 
 	public EventListener(final URI serverUri) {
 		super(serverUri);
 		agentNodes = new HashMap<>();
 		agentFactory = new AgentFactoryImpl();
+		nodeFactory = new AgentNodeFactoryImpl();
 	}
 
 	public void connectWithAgentFactory(final AgentControllerFactory factory) {
@@ -89,6 +98,23 @@ public class EventListener extends GuiWebSocketClient {
 			final ClientArgs clientArgs = agentFactory.createClientAgent(clientCreationEvent.getJobCreator(), jobId);
 			final AgentController agentController = factory.createAgentController(clientArgs);
 			factory.runAgentController(agentController, RUN_CLIENT_AGENT_DELAY);
+		}
+		if (message.contains("GREEN_SOURCE_CREATION_EVENT")) {
+			final GreenSourceCreationEvent greenSourceCreationEvent = GreenSourceCreationEvent.create(message);
+			final String monitoringName = "Monitoring" + greenSourceCreationEvent.getGreenSourceCreator().getName();
+
+			final GreenEnergyArgs greenEnergyArgs = agentFactory.createGreenEnergyAgent(
+					greenSourceCreationEvent.getGreenSourceCreator(), monitoringName);
+
+			final MonitoringArgs monitoringArgs = agentFactory.createMonitoringAgent(monitoringName);
+			final MonitoringNode monitoringNode = nodeFactory.createMonitoringNode(monitoringArgs,
+					greenEnergyArgs.getName());
+			final AgentController monitoringAgentController = factory.createAgentController(monitoringArgs,
+					monitoringNode);
+			factory.runAgentController(monitoringAgentController, RUN_AGENT_DELAY);
+
+			final AgentController greenSourceAgentController = factory.createAgentController(greenEnergyArgs);
+			factory.runAgentController(greenSourceAgentController, RUN_AGENT_DELAY);
 		}
 	}
 }

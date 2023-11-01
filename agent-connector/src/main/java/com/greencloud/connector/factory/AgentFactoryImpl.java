@@ -35,6 +35,7 @@ import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
 
 public class AgentFactoryImpl implements AgentFactory {
@@ -103,7 +104,6 @@ public class AgentFactoryImpl implements AgentFactory {
 		String greenEnergyAgentName = "ExtraGreenEnergy" + greenEnergyAgentsCreated.incrementAndGet();
 		return ImmutableGreenEnergyArgs.builder()
 				.name(greenEnergyAgentName)
-				.weatherPredictionError(0.02)
 				.monitoringAgent(monitoringAgentName)
 				.ownerSever(ownerServerName)
 				.latitude(isNull(latitude) ? TEMPLATE_GREEN_ENERGY_LATITUDE : latitude.toString())
@@ -116,11 +116,34 @@ public class AgentFactoryImpl implements AgentFactory {
 				.build();
 	}
 
+
+	@Override
+	public GreenEnergyArgs createGreenEnergyAgent(final GreenSourceCreator greenSourceCreator, final String monitoringName) {
+		return ImmutableGreenEnergyArgs.builder()
+				.name(greenSourceCreator.getName())
+				.weatherPredictionError(greenSourceCreator.getWeatherPredictionError())
+				.monitoringAgent(monitoringName)
+				.ownerSever(greenSourceCreator.getServer())
+				.latitude(greenSourceCreator.getLatitude().toString())
+				.longitude(greenSourceCreator.getLongitude().toString())
+				.maximumCapacity(greenSourceCreator.getMaximumCapacity())
+				.pricePerPowerUnit(greenSourceCreator.getPricePerPowerUnit().longValue())
+				.energyType(greenSourceCreator.getEnergyType())
+				.build();
+	}
+
 	@Override
 	public MonitoringArgs createMonitoringAgent() {
 		String monitoringAgentName = "ExtraMonitoring" + monitoringAgentsCreated.incrementAndGet();
 		return ImmutableMonitoringArgs.builder()
 				.name(monitoringAgentName)
+				.build();
+	}
+
+	@Override
+	public MonitoringArgs createMonitoringAgent(final String name) {
+		return ImmutableMonitoringArgs.builder()
+				.name(name)
 				.build();
 	}
 

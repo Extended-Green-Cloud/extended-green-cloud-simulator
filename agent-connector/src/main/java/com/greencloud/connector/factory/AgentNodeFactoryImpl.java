@@ -70,6 +70,15 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return null;
 	}
 
+	@Override
+	public MonitoringNode createMonitoringNode(final MonitoringArgs monitoringArgs, final String greenSourceName) {
+		final MonitoringNodeArgs nodeArgs = ImmutableMonitoringNodeArgs.builder()
+				.name(monitoringArgs.getName())
+				.greenEnergyAgent(greenSourceName)
+				.build();
+		return new MonitoringNode(nodeArgs);
+	}
+
 	private ClientNode createClientNode(final ClientArgs clientArgs) {
 		final ClientNodeArgs nodeArgs = ImmutableClientNodeArgs.builder()
 				.name(clientArgs.getName())

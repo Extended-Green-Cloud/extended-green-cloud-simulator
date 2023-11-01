@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.egcs.EGCSNode;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 
@@ -23,6 +24,15 @@ public interface AgentControllerFactory {
 	 * @return AgentController that can be started
 	 */
 	AgentController createAgentController(AgentArgs agentArgs);
+
+	/**
+	 * Method creates the agent controllers
+	 *
+	 * @param agentArgs agent arguments
+	 * @param agentNode GUI agent node
+	 * @return AgentController that can be started
+	 */
+	AgentController createAgentController(AgentArgs agentArgs, EGCSNode<?,?> agentNode);
 
 	/**
 	 * Method creates the agent controllers

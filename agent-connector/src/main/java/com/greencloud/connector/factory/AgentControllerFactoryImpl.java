@@ -3,6 +3,7 @@ package com.greencloud.connector.factory;
 import static com.greencloud.connector.factory.constants.AgentControllerConstants.GRAPH_INITIALIZATION_DELAY;
 import static jade.wrapper.AgentController.ASYNC;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -80,18 +81,23 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 
 	@Override
 	public AgentController createAgentController(final AgentArgs agentArgs) {
-		return createController(agentArgs, null, false, null);
+		return createController(agentArgs, null, false, null, null);
+	}
+
+	@Override
+	public AgentController createAgentController(final AgentArgs agentArgs, final EGCSNode<?, ?> agentNode) {
+		return createController(agentArgs, null, false, null, agentNode);
 	}
 
 	@Override
 	public AgentController createAgentController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario) {
-		return createController(agentArgs, scenario, false, null);
+		return createController(agentArgs, scenario, false, null, null);
 	}
 
 	@Override
 	public AgentController createAgentController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
 			boolean isInformer, AID managingAgent) {
-		return createController(agentArgs, scenario, isInformer, managingAgent);
+		return createController(agentArgs, scenario, isInformer, managingAgent, null);
 	}
 
 	@Override
@@ -111,8 +117,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 	}
 
 	private AgentController createController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
-			Boolean isInformer, AID managingAgent) {
-		final EGCSNode<?, ?> agentNode = agentNodeFactory.createAgentNode(agentArgs, scenario);
+			Boolean isInformer, AID managingAgent, final EGCSNode<?, ?> node) {
+		final EGCSNode<?, ?> agentNode = isNull(node) ? agentNodeFactory.createAgentNode(agentArgs, scenario) : node;
 		var agentController = (AgentController) null;
 
 		try {
