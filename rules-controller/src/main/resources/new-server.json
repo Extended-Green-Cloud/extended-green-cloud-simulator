@@ -45,7 +45,7 @@
     "gpu": {
       "characteristics": {
         "amount": {
-          "value": 2,
+          "value": 6,
           "unit": "GB",
           "resourceBooker": "return ownedAmount - amountToReserve;",
           "resourceAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",

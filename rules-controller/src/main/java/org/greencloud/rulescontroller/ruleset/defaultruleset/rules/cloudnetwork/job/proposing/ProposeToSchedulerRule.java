@@ -59,7 +59,8 @@ public class ProposeToSchedulerRule extends AgentProposalRule<CloudNetworkAgentP
 		final ServerData selectedOffer = readMessageContent(selectedOfferMessage, ServerData.class);
 
 		final JobWithPrice pricedJob =
-				new ImmutableJobWithPrice(selectedOffer.getJobId(), selectedOffer.getServicePrice());
+				new ImmutableJobWithPrice(selectedOffer.getJobId(), selectedOffer.getServicePrice(),
+						agentProps.getOwnedServerResources().get(selectedOfferMessage.getSender()));
 		return MessageBuilder.builder((int) facts.get(RULE_SET_IDX))
 				.copy(((ACLMessage) facts.get(ORIGINAL_MESSAGE)).createReply())
 				.withObjectContent(pricedJob)

@@ -60,30 +60,30 @@ public class RuleSetConstructor {
 	 */
 	public static <E extends AgentProps, T extends AgentNode<E>> RuleSet constructRuleSetForType(
 			final String baseType, final String type, final RulesController<E, T> controller) {
-		return constructModifiedRuleSetForType(baseType, type, controller);
+		final RuleSet baseRuleSet = getRuleSetTemplate(baseType, controller);
+		final RuleSet modifications = getRuleSetTemplate(type, controller);
+		return constructModifiedRuleSetForType(baseRuleSet, modifications);
 	}
 
 	/**
 	 * Method constructs modified rule set (modifications are applied to default rule set)
 	 *
-	 * @param baseType     type of base rule set
-	 * @param typeModifier type of rule set which modifications are to be applied
-	 * @param controller   controller which runs given rule set
+	 * @param baseRuleSet     base rule set
+	 * @param modifications rule set which modifications are to be applied
+	 *
 	 * @return RuleSet
 	 */
 	public static <E extends AgentProps, T extends AgentNode<E>> RuleSet constructModifiedRuleSetForType(
-			final String baseType, final String typeModifier, final RulesController<E, T> controller) {
-		final RuleSet baseRuleSet = getRuleSetTemplate(baseType, controller);
-		final RuleSet modifications = getRuleSetTemplate(typeModifier, controller);
-
+			final RuleSet baseRuleSet, RuleSet modifications) {
 		if (nonNull(modifications) && nonNull(baseRuleSet)) {
+			final RuleSet baseRules = new RuleSet(baseRuleSet);
 			final List<String> modificationsTypes = new ArrayList<>(modifications.getAgentRules().stream()
 					.map(AgentRule::getRuleType)
 					.toList());
-			baseRuleSet.setName(modifications.getName());
+			baseRules.setName(modifications.getName());
 
 			if (!modificationsTypes.isEmpty()) {
-				final List<AgentRule> modifiableRules = baseRuleSet.getAgentRules().stream()
+				final List<AgentRule> modifiableRules = baseRules.getAgentRules().stream()
 						.filter(agentRule -> modificationsTypes.contains(agentRule.getRuleType()))
 						.toList();
 
@@ -96,15 +96,16 @@ public class RuleSetConstructor {
 								&& !usedModificationsStepBased.contains(modification))
 						.toList();
 
-				baseRuleSet.getAgentRules()
+				baseRules.getAgentRules()
 						.removeIf(agentRule -> modificationsTypes.contains(agentRule.getRuleType()));
-				baseRuleSet.getAgentRules().addAll(remainingModifications);
+				baseRules.getAgentRules().addAll(remainingModifications);
 			}
+			return baseRules;
 		}
 		return baseRuleSet;
 	}
 
-	private static <E extends AgentProps, T extends AgentNode<E>> RuleSet getRuleSetTemplate(
+	public static <E extends AgentProps, T extends AgentNode<E>> RuleSet getRuleSetTemplate(
 			final String typeModifier, final RulesController<E, T> controller) {
 		if (getAvailableRuleSets().containsKey(typeModifier)) {
 			final RuleSet ruleSetTemplate = getAvailableRuleSets().get(typeModifier);

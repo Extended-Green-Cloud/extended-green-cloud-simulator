@@ -4,15 +4,12 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSock
 import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSocket;
 
 import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.AgentNodeProps;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.gui.agents.AgentNode;
-import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.gui.messages.ImmutableRegisterAgentMessage;
 import org.greencloud.gui.messages.ImmutableRemoveAgentMessage;
 
@@ -29,7 +26,6 @@ import lombok.Getter;
 public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extends AgentNode<E>
 		implements EGCSNodeInterface, AgentNodeProps<E> {
 
-	protected final Queue<AbstractEvent> eventsQueue = new ConcurrentLinkedQueue<>();
 	protected TimescaleDatabase databaseClient;
 	protected T nodeArgs;
 
@@ -92,10 +88,6 @@ public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extend
 	@Override
 	public int hashCode() {
 		return Objects.hash(agentName);
-	}
-
-	public void addEvent(AbstractEvent event) {
-		eventsQueue.add(event);
 	}
 
 	public TimescaleDatabase getDatabaseClient() {

@@ -27,7 +27,8 @@ import {
    getSystemTrafficDistributionChart,
    getAgentBackUpUsageChart,
    getClientProcessorTypeChart,
-   getClientJobCPURequirementChart
+   getClientJobCPURequirementChart,
+   getSystemJobTypeChart
 } from './live-chart-generators'
 import {
    getAverageBackUpPowerConsumption,
@@ -46,6 +47,7 @@ export const CHARTS = {
    systemClients: getSystemClientsChart,
    systemJobExecution: getSystemJobExecutionChart,
    systemTrafficDistribution: getSystemTrafficDistributionChart,
+   systemJobExecutionTypeChart: getSystemJobTypeChart,
    agentClients: getAgentClientsChart,
    agentTraffic: getAgentTrafficChart,
    agentSuccessRatio: getAgentSuccessRatioChart,
@@ -133,6 +135,7 @@ export const CHART_MODALS: LiveChartDashboard = {
       name: 'System statistics reports',
       charts: [
          CHARTS.systemClients,
+         CHARTS.systemJobExecutionTypeChart,
          CHARTS.systemJobExecution,
          CHARTS.systemJobFinishSuccess,
          CHARTS.systemTraffic,

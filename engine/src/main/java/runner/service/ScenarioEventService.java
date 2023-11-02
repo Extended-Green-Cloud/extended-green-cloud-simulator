@@ -6,7 +6,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
 import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.constants.EngineConstants.POWER_SHORTAGE_EVENT_DELAY;
-import static runner.utils.FileReader.readFile;
+import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.io.IOException;

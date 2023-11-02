@@ -6,6 +6,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.greencloud.rulescontroller.rest.RuleSetRestApi.addAgentNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,6 +142,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				final RulesController<?, ?> rulesController = new RulesController<>();
 				agentNode.setDatabaseClient(timescaleDatabase);
 				guiController.addAgentNodeToGraph(agentNode);
+				addAgentNode(agentNode);
 				agentController.putO2AObject(guiController, ASYNC);
 				agentController.putO2AObject(agentNode, ASYNC);
 				agentController.putO2AObject(rulesController, ASYNC);

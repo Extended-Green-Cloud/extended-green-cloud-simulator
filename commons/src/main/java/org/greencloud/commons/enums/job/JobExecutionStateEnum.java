@@ -39,11 +39,15 @@ public enum JobExecutionStateEnum {
 	 *
 	 * @param jobsMap map of jobs in which the status is to be updated
 	 * @param job     job for which status is to be updated
+	 *
+	 * @return new status
 	 */
-	public static <T extends PowerJob> void replaceStatusToActive(
+	public static <T extends PowerJob> JobExecutionStatusEnum replaceStatusToActive(
 			final ConcurrentMap<T, JobExecutionStatusEnum> jobsMap, final T job) {
 		final JobExecutionStateEnum currentState = findStateByPlannedStatus(jobsMap.get(job));
-		jobsMap.replace(job, nonNull(currentState) ? currentState.activeStatus : jobsMap.get(job));
+		final JobExecutionStatusEnum newStatus = nonNull(currentState) ? currentState.activeStatus : jobsMap.get(job);
+		jobsMap.replace(job, newStatus);
+		return newStatus;
 	}
 
 	/**

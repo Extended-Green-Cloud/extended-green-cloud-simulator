@@ -97,6 +97,7 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.df.
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.initial.PrepareInitialSchedulerBehavioursRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.AnnounceNewClientJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.LookForCNAForJobExecutionRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.comparison.CompareProposalsOfJobExecution;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessLookForCNAForJobExecutionFailureRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ListenForCNAJobStatusUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ListenForNewClientJobsRule;
@@ -213,7 +214,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessCNAJobStatusUpdateCombinedRule(rulesController),
 				new ProcessNewClientJobCombinedRule(rulesController),
 				new UpdateRuleSetInSchedulerForWeatherDropRule(rulesController),
-				new SenseExternalSchedulerEventsRule(rulesController)
+				new SenseExternalSchedulerEventsRule(rulesController),
+				new CompareProposalsOfJobExecution(rulesController)
 		);
 	}
 

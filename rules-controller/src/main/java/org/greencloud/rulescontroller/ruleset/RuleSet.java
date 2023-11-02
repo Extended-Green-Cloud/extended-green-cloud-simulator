@@ -23,14 +23,13 @@ import lombok.Setter;
  * Class represents rule set of a given system part
  */
 @Getter
-@SuppressWarnings("unchecked")
 public class RuleSet {
 
 	protected final RulesEngine rulesEngine;
+	private final List<AgentRule> agentRules;
+	protected RulesController<?, ?> rulesController;
 	@Setter
 	private String name;
-	protected RulesController<?, ?> rulesController;
-	private final List<AgentRule> agentRules;
 	private boolean callInitializeRules;
 
 	/**
@@ -51,7 +50,20 @@ public class RuleSet {
 	/**
 	 * Constructor
 	 *
-	 * @param ruleSet   ruleSet template from ruleSet map
+	 * @param ruleSet rule set to create copy from
+	 */
+	public RuleSet(final RuleSet ruleSet) {
+		this.rulesEngine = new DefaultRulesEngine();
+		this.name = ruleSet.getName();
+		this.agentRules = new ArrayList<>(ruleSet.getAgentRules());
+		this.rulesController = ruleSet.getRulesController();
+		this.callInitializeRules = false;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param ruleSet    ruleSet template from ruleSet map
 	 * @param controller controller which runs given rule set
 	 */
 	public RuleSet(final RuleSet ruleSet, final RulesController<?, ?> controller) {
@@ -71,7 +83,7 @@ public class RuleSet {
 	/**
 	 * Constructor
 	 *
-	 * @param name       name of the rule set
+	 * @param name name of the rule set
 	 */
 	protected RuleSet(final String name) {
 		this.rulesEngine = new DefaultRulesEngine();

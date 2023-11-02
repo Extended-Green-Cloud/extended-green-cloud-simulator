@@ -320,7 +320,7 @@ public class ResourcesUtilization {
 	 * @param resources2 second resources
 	 * @return aggregated resources
 	 */
-	public static Map<String, Resource> addResources(final Map<String, Resource> resources1,
+	public synchronized static Map<String, Resource> addResources(final Map<String, Resource> resources1,
 			final Map<String, Resource> resources2) {
 		final Set<String> resourceKeys = union(resources1.keySet(), resources2.keySet());
 		final Map<String, Resource> aggregatedResources = new HashMap<>();

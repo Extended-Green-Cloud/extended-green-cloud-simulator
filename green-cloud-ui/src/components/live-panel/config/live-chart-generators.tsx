@@ -29,6 +29,7 @@ import {
    TrafficLiveChart
 } from '../live-charts'
 import { GoalContributionLiveChart, QualityPropertiesLiveChart } from '../live-charts/managing-system-charts'
+import JobExecutionTypeChart from '../live-charts/cloud-network-charts/job-execution-type-chart'
 
 const getJobCompletionChart: LiveChartGenerator = (reports, _) => {
    const { failJobsReport, finishJobsReport } = reports as ReportsStore
@@ -52,6 +53,10 @@ const getSystemJobExecutionChart: LiveChartGenerator = (reports, _) => {
 
 const getSystemTrafficDistributionChart: LiveChartGenerator = (reports, _) => {
    return <TrafficDistributionLiveChart {...{ reports: reports as ReportsStore }} />
+}
+
+const getSystemJobTypeChart: LiveChartGenerator = (reports, _) => {
+   return <JobExecutionTypeChart />
 }
 
 const getAgentClientsChart: LiveChartGenerator = (_, agentReports) => {
@@ -198,5 +203,6 @@ export {
    getClientJobCPURequirementChart,
    getManagingGoalContributionChart,
    getClientJobExecutionTimeChart,
-   getClientJobExecutionPercentageChart
+   getClientJobExecutionPercentageChart,
+   getSystemJobTypeChart
 }

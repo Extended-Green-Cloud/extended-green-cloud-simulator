@@ -77,6 +77,7 @@ public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extend
 		imports = StringUtils.join(ruleRest.getImports(), ' ');
 		imports = imports + " import org.slf4j.MDC;";
 		imports = imports + " import org.greencloud.commons.constants.LoggingConstants;";
+		imports = imports.trim();
 		if (nonNull(ruleRest.getExecute())) {
 			this.executeExpression = MVEL.compileExpression(imports + " " + ruleRest.getExecute());
 		}
@@ -91,11 +92,13 @@ public class AgentBasicRule<T extends AgentProps, E extends AgentNode<T>> extend
 	 * @param rulesController rules controller connected to the agent
 	 */
 	protected AgentBasicRule(final RulesController<T, E> rulesController) {
-		this.agent = rulesController.getAgent();
-		this.agentProps = rulesController.getAgentProps();
-		this.agentNode = rulesController.getAgentNode();
-		this.controller = rulesController;
-		this.isRuleStep = false;
+		if(nonNull(rulesController)) {
+			this.agent = rulesController.getAgent();
+			this.agentProps = rulesController.getAgentProps();
+			this.agentNode = rulesController.getAgentNode();
+			this.controller = rulesController;
+			this.isRuleStep = false;
+		}
 
 		final AgentRuleDescription ruleDescription = initializeRuleDescription();
 		this.name = ruleDescription.ruleName();

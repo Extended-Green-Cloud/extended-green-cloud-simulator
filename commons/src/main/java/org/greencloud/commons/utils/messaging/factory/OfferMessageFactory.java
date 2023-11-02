@@ -1,8 +1,8 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static java.util.Objects.requireNonNull;
+import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;

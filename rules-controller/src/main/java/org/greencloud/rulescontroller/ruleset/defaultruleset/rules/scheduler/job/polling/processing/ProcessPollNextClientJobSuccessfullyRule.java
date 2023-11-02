@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.processing;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
@@ -45,12 +46,15 @@ public class ProcessPollNextClientJobSuccessfullyRule extends AgentBasicRule<Sch
 		final ClientJob jobToExecute = agentProps.getJobsToBeExecuted().poll();
 		agentNode.updateScheduledJobQueue(agentProps);
 
-		final RuleSetFacts announcementFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		announcementFacts.put(JOB, jobToExecute);
-		announcementFacts.put(RULE_TYPE, NEW_JOB_ANNOUNCEMENT_RULE);
-		putAdjustedTimeFrame(requireNonNull(jobToExecute), announcementFacts);
+		if(nonNull(jobToExecute)) {
+			facts.put(RULE_SET_IDX, agentProps.getRuleSetForJob().get(jobToExecute.getJobId()));
+			final RuleSetFacts announcementFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
+			announcementFacts.put(JOB, jobToExecute);
+			announcementFacts.put(RULE_TYPE, NEW_JOB_ANNOUNCEMENT_RULE);
+			putAdjustedTimeFrame(requireNonNull(jobToExecute), announcementFacts);
 
-		controller.fire(announcementFacts);
+			controller.fire(announcementFacts);
+		}
 	}
 
 	private void putAdjustedTimeFrame(final ClientJob job, final RuleSetFacts facts) {

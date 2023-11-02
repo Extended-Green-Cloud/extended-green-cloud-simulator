@@ -1,6 +1,7 @@
 package runner.configuration;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.greencloud.commons.utils.filereader.FileReader.buildResourceFilePath;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.AGENTS_WEB_SOCKET;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.CLIENTS_WEB_SOCKET;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;

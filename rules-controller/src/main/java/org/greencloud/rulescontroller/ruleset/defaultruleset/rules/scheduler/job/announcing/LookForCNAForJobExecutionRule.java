@@ -4,22 +4,23 @@ import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING;
+import static org.greencloud.commons.enums.rules.RuleType.COMPARE_EXECUTION_PROPOSALS;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_HANDLE_FAILURE_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
-import static org.greencloud.commons.utils.messaging.MessageComparator.compareMessages;
+import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SCHEDULER_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
-import java.util.Comparator;
 
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
@@ -60,9 +61,19 @@ public class LookForCNAForJobExecutionRule extends AgentCFPRule<SchedulerAgentPr
 	@Override
 	protected int compareProposals(final RuleSetFacts facts, final ACLMessage bestProposal,
 			final ACLMessage newProposal) {
-		final Comparator<JobWithPrice> comparator = (msg1, msg2) ->
-				(int) (msg1.getPriceForJob() - msg2.getPriceForJob());
-		return compareMessages(bestProposal, newProposal, JobWithPrice.class, comparator);
+		final ClientJob job = facts.get(JOB);
+		final JobWithPrice bestOfferContent = readMessageContent(bestProposal, JobWithPrice.class);
+		final JobWithPrice newOfferContent = readMessageContent(newProposal, JobWithPrice.class);
+
+		final RuleSetFacts comparatorFacts = new RuleSetFacts(agentProps.getRuleSetForJob().get(job.getJobId()));
+		comparatorFacts.put(RULE_TYPE, COMPARE_EXECUTION_PROPOSALS);
+		comparatorFacts.put("BEST_PROPOSAL_CONTENT", bestOfferContent);
+		comparatorFacts.put("NEW_PROPOSAL_CONTENT", newOfferContent);
+		controller.fire(comparatorFacts);
+
+		return comparatorFacts.get(RESULT) instanceof Double doubleVal ?
+				doubleVal.intValue() :
+				comparatorFacts.get(RESULT);
 	}
 
 	@Override

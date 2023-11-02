@@ -5,6 +5,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_STEP;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructModifiedRuleSetForType;
 import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructRuleSet;
 import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructRuleSetForType;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -84,6 +85,16 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	public void addModifiedRuleSet(final String type, final int idx) {
 		this.ruleSets.put(idx, constructRuleSetForType(baseRuleSet, type, this));
 		this.latestRuleSet.set(idx);
+	}
+
+	/**
+	 * Method adds new agent's rule set
+	 *
+	 * @param modifications modifications to current rule set that are to be applied
+	 */
+	public void addModifiedRuleSetFromCurrent(final RuleSet modifications, final int idx) {
+		final RuleSet connectedRuleSet = new RuleSet(modifications, this);
+		this.ruleSets.put(idx, constructModifiedRuleSetForType(ruleSets.get(latestRuleSet.get()), connectedRuleSet));
 	}
 
 	/**

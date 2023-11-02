@@ -13,7 +13,7 @@ import static runner.configuration.EngineConfiguration.newPlatform;
 import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static runner.utils.FileReader.readFile;
+import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;

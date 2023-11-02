@@ -1,0 +1,53 @@
+{
+  "processorName": "download",
+  "resources": {
+    "cpu": {
+      "characteristics": {
+        "amount": {
+          "value": 2,
+          "unit": "core"
+        }
+      }
+    },
+    "gpu": {
+      "characteristics": {
+        "amount": {
+          "value": 2,
+          "unit": "GB",
+          "toCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER",
+          "fromCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER"
+        }
+      }
+    }
+  },
+  "selectionPreference": "bestProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit() - newProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit();",
+
+  "deadline": 0,
+  "duration": 3,
+  "steps": [
+    {
+      "name": "execution",
+      "duration": 10800,
+      "requiredResources": {
+        "cpu": {
+          "characteristics": {
+            "amount": {
+              "value": 2,
+              "unit": "core"
+            }
+          }
+        },
+        "gpu": {
+          "characteristics": {
+            "amount": {
+              "value": 2,
+              "unit": "GB",
+              "toCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER",
+              "fromCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

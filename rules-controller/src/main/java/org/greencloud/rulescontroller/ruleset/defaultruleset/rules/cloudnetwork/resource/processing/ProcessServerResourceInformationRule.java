@@ -44,13 +44,10 @@ public class ProcessServerResourceInformationRule extends AgentBasicRule<CloudNe
 
 		logger.info("CNA received information about resources of {}.", server.getLocalName());
 
-		if (agentProps.getOwnedServerResources().isEmpty()) {
-			agentProps.setAggregatedResources(new ConcurrentHashMap<>(serverResources.getResources()));
-		} else {
-			agentProps.addResourceCharacteristics(new HashMap<>(serverResources.getResources()));
-			agentProps.setAggregatedResources(new ConcurrentHashMap<>(
-					addResources(agentProps.getAggregatedResources(), serverResources.getResources())));
-		}
+		agentProps.addResourceCharacteristics(new HashMap<>(serverResources.getResources()));
+		agentProps.setAggregatedResources(new ConcurrentHashMap<>(
+				addResources(agentProps.getAggregatedResources(), serverResources.getResources())));
+
 		agentNode.updateResourceMap(agentProps.getAggregatedResources());
 
 		agentProps.getOwnedServers().replace(server, true);

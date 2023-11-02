@@ -23,7 +23,7 @@ import static runner.configuration.ScenarioConfiguration.clientNumber;
 import static runner.configuration.ScenarioConfiguration.generatorType;
 import static runner.configuration.ScenarioConfiguration.jobTypesNumber;
 import static runner.configuration.ScenarioConfiguration.jobsSampleFilePath;
-import static runner.utils.FileReader.readFile;
+import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.io.IOException;

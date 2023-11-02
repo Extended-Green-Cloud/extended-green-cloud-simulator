@@ -6,7 +6,7 @@ import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
-import static runner.utils.FileReader.readFile;
+import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;
