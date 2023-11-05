@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource;
 
 import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOBS;
@@ -65,8 +66,11 @@ public class SchedulePowerShortageJobTransferRule extends AgentScheduledRule<Ser
 		final JobDivided<ClientJob> newJobInstances = facts.get(JOBS);
 		final AID newGreenSource = facts.get(AGENT);
 
-		MDC.put(LoggingConstants.MDC_JOB_ID, job.getJobId());
-		finishPreviousInstance(newJobInstances, facts);
+		if (nonNull(newJobInstances.getFirstInstance()) && agentProps.getServerJobs()
+				.containsKey(newJobInstances.getFirstInstance())) {
+			MDC.put(LoggingConstants.MDC_JOB_ID, job.getJobId());
+			finishPreviousInstance(newJobInstances, facts);
+		}
 
 		if (agentProps.getServerJobs().containsKey(job)) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
@@ -74,8 +78,7 @@ public class SchedulePowerShortageJobTransferRule extends AgentScheduledRule<Ser
 			logger.info("Transferring job between green sources");
 			agentProps.getGreenSourceForJobMap().replace(job.getJobId(), newGreenSource);
 			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), GREEN_POWER_JOB_ID,
-					agentProps,
-					facts.get(RULE_SET_IDX)));
+					agentProps, facts.get(RULE_SET_IDX)));
 			agentProps.updateGUI();
 
 			if (isJobStarted(job, agentProps.getServerJobs())) {

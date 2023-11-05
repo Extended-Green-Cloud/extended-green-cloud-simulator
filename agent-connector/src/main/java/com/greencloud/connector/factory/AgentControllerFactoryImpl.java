@@ -5,6 +5,7 @@ import static jade.wrapper.AgentController.ASYNC;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.greencloud.rulescontroller.rest.RuleSetRestApi.addAgentNode;
 
@@ -208,7 +209,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						deadline,
 						clientAgent.getJob(),
 						clientAgent.getJobId(),
-						systemKnowledge });
+						ofNullable(systemKnowledge) });
 	}
 
 	private AgentController createSchedulerController(final SchedulerArgs schedulerAgent, Boolean isInformer,
@@ -219,7 +220,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				new Object[] { schedulerAgent.getDeadlineWeight(),
 						schedulerAgent.getCpuWeight(),
 						schedulerAgent.getMaximumQueueSize(),
-						systemKnowledge,
+						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });
 	}
@@ -229,7 +230,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(cloudNetworkAgent.getName(),
 				"org.greencloud.agentsystem.agents.cloudnetwork.CloudNetworkAgent",
-				new Object[] { mainDFAddress, mainHostPlatformId, systemKnowledge, isInformer, managingAgent });
+				new Object[] { mainDFAddress, mainHostPlatformId, ofNullable(systemKnowledge), isInformer,
+						managingAgent });
 	}
 
 	private AgentController createServerController(final ServerArgs serverAgent, Boolean isInformer,
@@ -243,7 +245,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						serverAgent.getIdlePower(),
 						serverAgent.getJobProcessingLimit(),
 						serverAgent.getResources(),
-						systemKnowledge,
+						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });
 	}
@@ -261,7 +263,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						greenEnergyAgent.getLongitude(),
 						greenEnergyAgent.getEnergyType(),
 						greenEnergyAgent.getWeatherPredictionError(),
-						systemKnowledge,
+						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });
 	}
@@ -271,6 +273,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),
 				"org.greencloud.agentsystem.agents.monitoring.MonitoringAgent",
-				new Object[] { monitoringAgent.getBadStubProbability(), systemKnowledge, isInformer, managingAgent });
+				new Object[] { monitoringAgent.getBadStubProbability(), ofNullable(systemKnowledge), isInformer,
+						managingAgent });
 	}
 }

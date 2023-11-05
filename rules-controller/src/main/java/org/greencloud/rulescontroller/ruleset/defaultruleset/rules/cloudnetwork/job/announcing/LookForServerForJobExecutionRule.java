@@ -6,23 +6,23 @@ import static org.greencloud.commons.constants.FactTypeConstants.AGENTS;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.ORIGINAL_MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.RESULT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.commons.enums.rules.RuleType.COMPARE_EXECUTION_PROPOSALS;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
-import static org.greencloud.commons.utils.messaging.MessageComparator.compareMessages;
+import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CNA_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.time.temporal.ValueRange;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
@@ -45,7 +45,6 @@ import jade.lang.acl.ACLMessage;
 public class LookForServerForJobExecutionRule extends AgentCFPRule<CloudNetworkAgentProps, CloudNetworkNode> {
 
 	private static final Logger logger = getLogger(LookForServerForJobExecutionRule.class);
-	private static final ValueRange MAX_POWER_DIFFERENCE = ValueRange.of(-10, 10);
 
 	public LookForServerForJobExecutionRule(
 			final RulesController<CloudNetworkAgentProps, CloudNetworkNode> controller) {
@@ -67,26 +66,29 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<CloudNetworkA
 	@Override
 	protected ACLMessage createCFPMessage(final RuleSetFacts facts) {
 		final List<AID> consideredServers = facts.get(AGENTS);
-		return prepareCallForProposal(facts.get(JOB),
-				consideredServers,
-				CNA_JOB_CFP_PROTOCOL,
-				facts.get(RULE_SET_IDX));
+		return prepareCallForProposal(facts.get(JOB), consideredServers, CNA_JOB_CFP_PROTOCOL, facts.get(RULE_SET_IDX));
 	}
 
 	@Override
 	protected int compareProposals(final RuleSetFacts facts, final ACLMessage bestProposal,
 			final ACLMessage newProposal) {
-		final int weight1 = agentProps.getWeightsForServersMap().get(bestProposal.getSender());
-		final int weight2 = agentProps.getWeightsForServersMap().get(newProposal.getSender());
+		final ClientJob job = facts.get(JOB);
+		final ServerData bestOfferContent = readMessageContent(bestProposal, ServerData.class);
+		final ServerData newOfferContent = readMessageContent(newProposal, ServerData.class);
 
-		final Comparator<ServerData> comparator = (msg1, msg2) -> {
-			final double powerDiff = (msg1.getPowerConsumption() * weight2) - (msg2.getPowerConsumption() * weight1);
-			final double priceDiff = ((msg1.getServicePrice() * 1 / weight1) - (msg2.getServicePrice() * 1 / weight2));
+		final RuleSetFacts comparatorFacts = new RuleSetFacts(
+				agentProps.getRuleSetForJob().get(job.getJobInstanceId()));
+		comparatorFacts.put(RULE_TYPE, COMPARE_EXECUTION_PROPOSALS);
+		comparatorFacts.put(JOB, job);
+		comparatorFacts.put("BEST_PROPOSAL", bestProposal);
+		comparatorFacts.put("NEW_PROPOSAL", newProposal);
+		comparatorFacts.put("BEST_PROPOSAL_CONTENT", bestOfferContent);
+		comparatorFacts.put("NEW_PROPOSAL_CONTENT", newOfferContent);
+		controller.fire(comparatorFacts);
 
-			return MAX_POWER_DIFFERENCE.isValidIntValue((int) powerDiff) ? (int) priceDiff : (int) powerDiff;
-		};
-
-		return compareMessages(bestProposal, newProposal, ServerData.class, comparator);
+		return comparatorFacts.get(RESULT) instanceof Double doubleVal ?
+				doubleVal.intValue() :
+				comparatorFacts.get(RESULT);
 	}
 
 	@Override

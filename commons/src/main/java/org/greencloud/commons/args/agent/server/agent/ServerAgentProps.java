@@ -18,6 +18,7 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static org.greencloud.commons.enums.job.JobIdentificationEnum.JOB_INSTANCE_ID;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
@@ -36,13 +37,14 @@ import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
+import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.domain.job.instance.JobInstanceWithPrice;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
-import org.greencloud.commons.utils.time.TimeConverter;
 import org.slf4j.Logger;
 
 import jade.core.AID;
@@ -60,11 +62,15 @@ public class ServerAgentProps extends EGCSAgentProps {
 	private static final Logger logger = getLogger(ServerAgentProps.class);
 
 	protected ConcurrentMap<ClientJob, JobExecutionStatusEnum> serverJobs;
-	protected ConcurrentMap<String, Integer> ruleSetForJob;
+	protected ConcurrentMap<ClientJob, Integer> ruleSetForJob;
 	protected ConcurrentMap<String, AID> greenSourceForJobMap;
 	protected AtomicLong currentlyProcessing;
 	protected ConcurrentMap<AID, Integer> weightsForGreenSourcesMap;
 	protected ConcurrentMap<AID, Boolean> ownedGreenSources;
+	protected ConcurrentMap<String, Double> energyExecutionCost;
+	protected ConcurrentMap<String, Double> serverPriceForJob;
+	protected ConcurrentMap<String, Double> totalPriceForJob;
+	protected JobExecutionDuration<ClientJob> jobsExecutionTime;
 	protected AID ownerCloudNetworkAgent;
 
 	@Accessors(fluent = true)
@@ -109,6 +115,11 @@ public class ServerAgentProps extends EGCSAgentProps {
 		this.ownedGreenSources = new ConcurrentHashMap<>();
 		this.greenSourceForJobMap = new ConcurrentHashMap<>();
 		this.weightsForGreenSourcesMap = new ConcurrentHashMap<>();
+		this.energyExecutionCost = new ConcurrentHashMap<>();
+		this.serverPriceForJob = new ConcurrentHashMap<>();
+		this.totalPriceForJob = new ConcurrentHashMap<>();
+
+		this.jobsExecutionTime = new JobExecutionDuration<>(JOB_INSTANCE_ID);
 		this.currentlyProcessing = new AtomicLong(0L);
 		this.hasError = false;
 		this.isDisabled = false;
@@ -123,7 +134,8 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 */
 	public void addJob(final ClientJob job, final Integer ruleSet, final JobExecutionStatusEnum status) {
 		serverJobs.put(job, status);
-		ruleSetForJob.put(job.getJobInstanceId(), ruleSet);
+		jobsExecutionTime.addDurationMap(job);
+		ruleSetForJob.put(job, ruleSet);
 	}
 
 	/**
@@ -133,7 +145,37 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 */
 	public int removeJob(final ClientJob job) {
 		serverJobs.remove(job);
-		return ruleSetForJob.remove(job.getJobInstanceId());
+		serverPriceForJob.remove(job.getJobInstanceId());
+		energyExecutionCost.remove(job.getJobInstanceId());
+		jobsExecutionTime.removeDurationMap(job);
+		return ruleSetForJob.remove(job);
+	}
+
+	/**
+	 * Method updates the energy cost of the given job
+	 *
+	 * @param jobInstanceWithPrice job that is to be updated
+	 */
+	public void updateJobEnergyCost(final JobInstanceWithPrice jobInstanceWithPrice) {
+		final String jobInstanceId = jobInstanceWithPrice.getJobInstanceId().getJobInstanceId();
+
+		energyExecutionCost.computeIfPresent(jobInstanceId,
+				(key, value) -> value + jobInstanceWithPrice.getPrice());
+		energyExecutionCost.putIfAbsent(jobInstanceId, jobInstanceWithPrice.getPrice());
+	}
+
+	/**
+	 * Method computes execution cost of given job (server + green energy)
+	 *
+	 * @param job job for which cost is to be computed
+	 */
+	public void updateJobExecutionCost(final ClientJob job) {
+		final double energyCost = energyExecutionCost.getOrDefault(job.getJobInstanceId(), 0D);
+		final double price = serverPriceForJob.getOrDefault(job.getJobInstanceId(), 0D);
+		final double totalCost = energyCost + jobsExecutionTime.computeFinalPrice(job, price);
+
+		totalPriceForJob.computeIfPresent(job.getJobId(), (key, val) -> val + totalCost);
+		totalPriceForJob.putIfAbsent(job.getJobId(), totalCost);
 	}
 
 	/**
@@ -157,7 +199,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 		final double cpuInUse = serverJobs.entrySet().stream()
 				.filter(job -> (nonNull(statusSet) && statusSet.contains(job.getValue()))
 						|| (isNull(statusSet) && job.getValue().equals(IN_PROGRESS)))
-				.mapToDouble(job -> job.getKey().getRequiredResources().get(CPU).getAmount())
+				.mapToDouble(job -> job.getKey().getRequiredResources().get(CPU).getAmountInCommonUnit())
 				.sum();
 		return cpuInUse / resources.get(CPU).getAmountInCommonUnit();
 	}
@@ -188,13 +230,11 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @param job job for which energy is to be estimated
 	 * @return energy required to process the job
 	 */
-	public double estimateEnergyForJob(final ClientJob job) {
+	public double estimatePowerForJob(final ClientJob job) {
 		final double cpuUsage =
 				job.getRequiredResources().get(CPU).getAmountInCommonUnit() / resources.get(CPU)
 						.getAmountInCommonUnit();
-		final double powerConsumption = computePowerConsumption(cpuUsage);
-
-		return powerConsumption * TimeConverter.convertToHourDuration(job.getStartTime(), job.getEndTime());
+		return computePowerConsumption(cpuUsage);
 	}
 
 	/**

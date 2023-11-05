@@ -31,6 +31,6 @@ public class ProcessCNAResourceInformationRequestRule extends AgentBasicRule<Ser
 		logger.info("Received request for resource information. Sending information to {}",
 				agentProps.getOwnerCloudNetworkAgent());
 		agent.send(prepareResourceInformationMessage(agentProps, agentProps.getOwnerCloudNetworkAgent(),
-				controller.getLatestRuleSet().get()));
+				controller.getLatestLongTermRuleSetIdx().get()));
 	}
 }

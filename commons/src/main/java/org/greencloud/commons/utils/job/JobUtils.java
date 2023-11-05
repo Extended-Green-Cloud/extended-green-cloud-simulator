@@ -1,5 +1,7 @@
 package org.greencloud.commons.utils.job;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
@@ -12,11 +14,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import org.greencloud.commons.constants.MonitoringConstants;
 import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.job.extended.ImmutableJobStatusWithTime;
+import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
+import org.greencloud.commons.domain.timer.Timer;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.commons.utils.time.TimeScheduler;
@@ -210,6 +218,20 @@ public class JobUtils {
 	public static Date calculateExpectedJobEndTime(final PowerJob job) {
 		final Instant endDate = TimeScheduler.alignStartTimeToCurrentTime(job.getEndTime());
 		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+	}
+
+	/**
+	 * Method initializes empty map of timers and job statuses
+	 *
+	 * @return map with initialized timers for statuses
+	 */
+	public static ConcurrentMap<JobExecutionStatusEnum, JobStatusWithTime> initializeJobStatusDurationMap() {
+		return new ConcurrentHashMap<>(stream(JobExecutionStatusEnum.values()).collect(
+				toMap(status -> status,
+						status -> ImmutableJobStatusWithTime.builder()
+								.duration(new AtomicLong(0))
+								.timer(new Timer())
+								.build())));
 	}
 
 	/**

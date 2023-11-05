@@ -24,7 +24,7 @@ public enum RuleSetSelector {
 			final RulesController<?, ?> controller) {
 		return switch (selector) {
 			case SELECT_BY_FACTS_IDX -> facts -> facts.get(RULE_SET_IDX);
-			case SELECT_LATEST -> facts -> controller.getLatestRuleSet().get();
+			case SELECT_LATEST -> facts -> controller.getLatestLongTermRuleSetIdx().get();
 		};
 	}
 }

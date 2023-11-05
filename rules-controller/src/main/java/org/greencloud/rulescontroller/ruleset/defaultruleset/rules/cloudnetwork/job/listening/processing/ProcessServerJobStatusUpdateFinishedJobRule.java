@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
@@ -61,9 +62,11 @@ public class ProcessServerJobStatusUpdateFinishedJobRule
 		if (jobOptional.isPresent()) {
 			final ClientJob job = jobOptional.get();
 			final JobWithStatus jobStatusUpdate = facts.get(MESSAGE_CONTENT);
+			final Double finalCost = agentProps.updatePriceForJob(job.getJobId(), jobStatusUpdate.getPriceForJob());
 
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
+			logger.info("Total cost of execution of the job {} was", finalCost);
 			logger.info("Sending information that the job {} execution has finished", job.getJobId());
 
 			if (isJobStarted(job, agentProps.getNetworkJobs())) {
@@ -73,6 +76,8 @@ public class ProcessServerJobStatusUpdateFinishedJobRule
 				agentNode.removeActiveJob();
 				agentNode.removePlannedJob();
 			}
+			final JobWithStatus jobWithFinalCost = ImmutableJobWithStatus.copyOf(jobStatusUpdate)
+					.withPriceForJob(finalCost);
 			final RuleSetFacts jobRemovalFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 			jobRemovalFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
 			jobRemovalFacts.put(JOB, job);
@@ -80,7 +85,7 @@ public class ProcessServerJobStatusUpdateFinishedJobRule
 
 			agentProps.getServerForJobMap().remove(job.getJobId());
 			agentProps.updateGUI();
-			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, FINISH_JOB_ID,
+			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobWithFinalCost, FINISH_JOB_ID,
 					facts.get(RULE_SET_IDX)));
 		}
 	}

@@ -1,36 +1,42 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution;
 
-import static java.util.Collections.singletonList;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_MANUAL_FINISH_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
+import static org.greencloud.commons.enums.rules.RuleType.FINAL_PRICE_RECEIVER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_FINISH_JOB_BACK_UP_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_FINISH_JOB_EXECUTION_RULE;
+import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessage;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.PriceMessageFactory.preparePriceMessage;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.List;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.behaviour.listen.ListenForSingleMessage;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
-import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -61,24 +67,62 @@ public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, Serve
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
 		sendFinishInformation(facts);
-		updateStateAfterJobIsDone(facts);
 
 		facts.put(RULE_TYPE, PROCESS_FINISH_JOB_BACK_UP_EXECUTION_RULE);
 		controller.fire(facts);
 	}
 
-	private void sendFinishInformation(final Facts facts) {
+	private void sendFinishInformation(final RuleSetFacts facts) {
+		final boolean isJobFullyFinished = facts.get(JOB_FINISH_INFORM);
+		final boolean isJobManuallyFinished = ofNullable((Boolean) facts.get(JOB_MANUAL_FINISH_INFORM)).orElse(false);
 		final ClientJob job = facts.get(JOB);
 		final AID greenSource = agentProps.getGreenSourceForJobMap().get(job.getJobId());
-		final List<AID> receivers = (boolean) facts.get(JOB_FINISH_INFORM)
-				? List.of(greenSource, agentProps.getOwnerCloudNetworkAgent())
-				: singletonList(greenSource);
-		agent.send(prepareJobFinishMessage(job, facts.get(RULE_SET_IDX), receivers.toArray(new AID[0])));
+		final ACLMessage jobFinishMessage = prepareJobFinishMessage(job, facts.get(RULE_SET_IDX), greenSource);
+
+		agentProps.getJobsExecutionTime()
+				.stopJobExecutionTimer(job, agentProps.getServerJobs().get(job), getCurrentTime());
+
+		if (!isJobManuallyFinished) {
+			agent.send(jobFinishMessage);
+		}
+
+		if (!isJobManuallyFinished && isJobFullyFinished) {
+			final RuleSetFacts listenerFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
+			listenerFacts.put(JOB, job);
+			listenerFacts.put(MESSAGE, jobFinishMessage);
+			agent.addBehaviour(
+					ListenForSingleMessage.create(agent, listenerFacts, FINAL_PRICE_RECEIVER_RULE, controller));
+		} else if (isJobFullyFinished) {
+			finishJobInCNA(job, facts);
+			updateStateAfterJobIsDone(facts);
+		} else {
+			informCNAAboutPrice(job, facts);
+			updateStateAfterJobIsDone(facts);
+		}
 	}
 
-	private void updateStateAfterJobIsDone(final Facts facts) {
+	private void informCNAAboutPrice(final ClientJob job, final RuleSetFacts facts) {
+		agentProps.updateJobExecutionCost(job);
+		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
+		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+		final ACLMessage cnaPriceMessage = preparePriceMessage(agentProps.getOwnerCloudNetworkAgent(), jobInstanceId,
+				finalJobPrice, facts.get(RULE_SET_IDX));
+		agentProps.getTotalPriceForJob().remove(job.getJobId());
+		agent.send(cnaPriceMessage);
+	}
+
+	private void finishJobInCNA(final ClientJob job, final RuleSetFacts facts) {
+		agentProps.updateJobExecutionCost(job);
+		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
+		final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
+				agentProps.getOwnerCloudNetworkAgent());
+		agentProps.getTotalPriceForJob().remove(job.getJobId());
+		agent.send(cnaMessage);
+	}
+
+	private void updateStateAfterJobIsDone(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
-		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(job);
+		final JobInstanceIdentifier jobInstance = mapClientJobToJobInstanceId(job);
 
 		if (isJobStarted(job, agentProps.getServerJobs())) {
 			agentProps.incrementJobCounter(jobInstance, FINISH);
@@ -88,7 +132,6 @@ public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, Serve
 			agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 			agentNode.updateClientNumber(getJobCount(agentProps.getServerJobs(), ACCEPTED_JOB_STATUSES));
 		}
-
 		agentProps.removeJob(job);
 
 		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {

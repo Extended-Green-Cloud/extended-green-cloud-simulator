@@ -63,7 +63,8 @@ public class ProcessCNAJobStatusUpdateStartedJobRule extends AgentBasicRule<Sche
 			logger.info("Client job {} execution has started.", job.getJobId());
 
 			agentProps.getClientJobs().replace(job, PROCESSING, IN_PROGRESS);
-			agent.send(prepareJobStatusMessageForClient(job, jobStatusUpdate, STARTED_JOB_ID, facts.get(RULE_SET_IDX)));
+			agent.send(prepareJobStatusMessageForClient(job, jobStatusUpdate, STARTED_JOB_ID,
+					facts.get(RULE_SET_IDX)));
 		}
 	}
 }

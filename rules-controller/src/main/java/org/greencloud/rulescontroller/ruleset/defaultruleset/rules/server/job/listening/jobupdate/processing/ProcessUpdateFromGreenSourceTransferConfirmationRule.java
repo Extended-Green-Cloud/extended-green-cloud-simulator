@@ -12,7 +12,6 @@ import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PLANNED_JOB_STATUSES;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_TRANSFER_UPDATE_CONFIRMATION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RULE;
@@ -80,11 +79,8 @@ public class ProcessUpdateFromGreenSourceTransferConfirmationRule extends AgentB
 		agent.send(prepareJobTransferUpdateMessageForCNA(jobInstance, CONFIRMED_TRANSFER_PROTOCOL,
 				agentProps.getOwnerCloudNetworkAgent(), facts.get(RULE_SET_IDX)));
 
-		final boolean doInformCNAAboutStart = PLANNED_JOB_STATUSES.contains(agentProps.getServerJobs().get(job));
-		final boolean doInformCNAAboutFinish = true;
-
-		facts.put(JOB_START_INFORM, doInformCNAAboutStart);
-		facts.put(JOB_FINISH_INFORM, doInformCNAAboutFinish);
+		facts.put(JOB_START_INFORM, true);
+		facts.put(JOB_FINISH_INFORM, true);
 
 		agent.addBehaviour(
 				ScheduleOnce.create(agent, facts, START_JOB_EXECUTION_RULE, controller, SELECT_BY_FACTS_IDX));

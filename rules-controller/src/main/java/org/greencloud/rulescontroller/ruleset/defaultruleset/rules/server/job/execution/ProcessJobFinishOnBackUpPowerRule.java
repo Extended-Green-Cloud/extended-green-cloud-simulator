@@ -21,6 +21,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -69,8 +70,12 @@ public class ProcessJobFinishOnBackUpPowerRule extends AgentBasicRule<ServerAgen
 						MDC.put(MDC_JOB_ID, clientJob.getJobId());
 						MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 						logger.info("Supplying job {} with back up power", clientJob.getJobId());
+						final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(clientJob);
+						final JobExecutionStatusEnum newStatus = EXECUTING_ON_BACK_UP.getStatus(hasStarted);
 
-						agentProps.getServerJobs().replace(clientJob, EXECUTING_ON_BACK_UP.getStatus(hasStarted));
+						agentProps.getJobsExecutionTime()
+								.updateJobExecutionDuration(clientJob, prevStatus, newStatus, getCurrentTime());
+						agentProps.getServerJobs().replace(clientJob, newStatus);
 						agentProps.updateGUI();
 					}
 				});

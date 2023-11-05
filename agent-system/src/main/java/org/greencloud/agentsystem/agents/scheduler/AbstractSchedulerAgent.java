@@ -31,7 +31,7 @@ public abstract class AbstractSchedulerAgent extends AbstractAgent<SchedulerNode
 	 */
 	public final ToDoubleFunction<ClientJob> getJobPriority() {
 		return clientJob -> {
-			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
 			facts.put(RULE_TYPE, COMPUTE_JOB_PRIORITY_RULE);
 			facts.put(JOB, clientJob);
 			fireOnFacts(facts);

@@ -10,13 +10,18 @@ import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.UPDATE_JOB_EXECUTOR_ID;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForScheduler;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Date;
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -63,11 +68,18 @@ public class TransferJobBetweenServersRule extends AgentScheduledRule<CloudNetwo
 	protected void handleActionTrigger(final RuleSetFacts facts) {
 		final AID newServer = facts.get(AGENT);
 		final JobInstanceIdentifier jobInstance = facts.get(JOB);
+		final JobWithStatus jobWithStatus = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstance)
+				.serverName(newServer.getName())
+				.changeTime(getCurrentTime())
+				.build();
 
 		MDC.put(MDC_JOB_ID, jobInstance.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Transferring job {} to server {}", jobInstance.getJobId(), newServer.getLocalName());
 
+		agent.send(prepareJobStatusMessageForScheduler(agentProps, jobWithStatus, UPDATE_JOB_EXECUTOR_ID,
+				facts.get(RULE_SET_IDX)));
 		agentProps.getServerForJobMap().replace(jobInstance.getJobId(), newServer);
 	}
 }

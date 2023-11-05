@@ -11,9 +11,11 @@ import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.combined.AgentCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerAcceptedJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerDelayedJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerFailedJobUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerFinishedJobUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerJobExecutorUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerJobOnBackUpUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerJobOnGreenEnergyUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.processing.ProcessSchedulerJobOnHoldUpdateRule;
@@ -49,7 +51,9 @@ public class ProcessSchedulerJobStatusUpdateRule extends AgentCombinedRule<Clien
 				new ProcessSchedulerJobOnBackUpUpdateRule(controller),
 				new ProcessSchedulerJobOnGreenEnergyUpdateRule(controller),
 				new ProcessSchedulerJobOnHoldUpdateRule(controller),
-				new ProcessSchedulerReScheduleJobUpdateRule(controller)
+				new ProcessSchedulerReScheduleJobUpdateRule(controller),
+				new ProcessSchedulerJobExecutorUpdateRule(controller),
+				new ProcessSchedulerAcceptedJobUpdateRule(controller)
 		);
 	}
 }

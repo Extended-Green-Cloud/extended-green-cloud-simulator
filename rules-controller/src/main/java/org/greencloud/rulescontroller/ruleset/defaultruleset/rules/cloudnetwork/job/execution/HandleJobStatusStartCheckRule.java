@@ -17,6 +17,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.HANDLE_JOB_STATUS_CHECK_RULE;
+import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.DELAYED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FAILED_JOB_ID;
@@ -34,7 +35,6 @@ import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.messaging.MessageBuilder;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -87,10 +87,13 @@ public class HandleJobStatusStartCheckRule extends AgentRequestRule<CloudNetwork
 
 		final ClientJob job = requireNonNull(getJobById(facts.get(JOB_ID), agentProps.getNetworkJobs()));
 		final Instant jobStart = ((Date) facts.get(JOB_TIME)).toInstant();
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job),
-				jobStart);
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(mapClientJobToJobInstanceId(job))
+				.changeTime(jobStart)
+				.serverName(inform.getSender().getLocalName())
+				.build();
 		agentProps.getNetworkJobs().replace(job, IN_PROGRESS);
-		agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), STARTED);
+		agentProps.incrementJobCounter(mapClientJobToJobInstanceId(job), STARTED);
 		agentNode.addStartedJob();
 		agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, STARTED_JOB_ID,
 				facts.get(RULE_SET_IDX)));
@@ -104,8 +107,10 @@ public class HandleJobStatusStartCheckRule extends AgentRequestRule<CloudNetwork
 				(String) facts.get(JOB_ID));
 
 		final ClientJob job = requireNonNull(getJobById(facts.get(JOB_ID), agentProps.getNetworkJobs()));
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job),
-				getCurrentTime());
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(mapClientJobToJobInstanceId(job))
+				.changeTime(getCurrentTime())
+				.build();
 		agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, DELAYED_JOB_ID,
 				facts.get(RULE_SET_IDX)));
 	}
@@ -118,8 +123,10 @@ public class HandleJobStatusStartCheckRule extends AgentRequestRule<CloudNetwork
 				(String) facts.get(JOB_ID));
 
 		final ClientJob job = requireNonNull(getJobById(facts.get(JOB_ID), agentProps.getNetworkJobs()));
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job),
-				getCurrentTime());
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(mapClientJobToJobInstanceId(job))
+				.changeTime(getCurrentTime())
+				.build();
 		agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, FAILED_JOB_ID,
 				facts.get(RULE_SET_IDX)));
 
@@ -132,6 +139,6 @@ public class HandleJobStatusStartCheckRule extends AgentRequestRule<CloudNetwork
 		controller.fire(jobRemovalFacts);
 
 		agentProps.getServerForJobMap().remove(job.getJobId());
-		agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), FAILED);
+		agentProps.incrementJobCounter(mapClientJobToJobInstanceId(job), FAILED);
 	}
 }

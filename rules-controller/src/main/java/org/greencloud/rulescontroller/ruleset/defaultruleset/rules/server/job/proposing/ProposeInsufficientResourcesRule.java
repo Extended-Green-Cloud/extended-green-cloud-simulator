@@ -61,7 +61,10 @@ public class ProposeInsufficientResourcesRule extends AgentBasicRule<ServerAgent
 		final String responseProtocol = protocol.equals(POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL) ?
 				FAILED_TRANSFER_PROTOCOL : FAILED_JOB_PROTOCOL;
 
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(jobInstance, getCurrentTime());
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstance)
+				.changeTime(getCurrentTime())
+				.build();
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));

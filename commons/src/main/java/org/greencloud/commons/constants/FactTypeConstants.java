@@ -34,12 +34,14 @@ public class FactTypeConstants {
 	// JOB FACTS
 	public static final String JOB = "job";
 	public static final String JOB_DIVIDED = "job-divided";
+	public static final String JOB_PREVIOUS = "job-previous";
 	public static final String JOB_IS_STARTED = "job-is-started";
 	public static final String JOBS = "jobs";
 	public static final String JOB_ID = "job-id";
 	public static final String JOB_TIME = "job-time";
 	public static final String JOB_START_INFORM = "job-start-inform";
 	public static final String JOB_FINISH_INFORM = "job-finish-inform";
+	public static final String JOB_MANUAL_FINISH_INFORM = "job-manual-finish-inform";
 
 	// RESOURCES FACTS
 	public static final String RESOURCES = "resources";
@@ -92,4 +94,7 @@ public class FactTypeConstants {
 
 	// SUBSCRIPTION BEHAVIOUR FACTS
 	public static final String SUBSCRIPTION_CREATE_MESSAGE = "subscription-create-message";
+
+	// PRICE FACTS
+	public static final String COMPUTE_FINAL_PRICE = "compute-final-price";
 }

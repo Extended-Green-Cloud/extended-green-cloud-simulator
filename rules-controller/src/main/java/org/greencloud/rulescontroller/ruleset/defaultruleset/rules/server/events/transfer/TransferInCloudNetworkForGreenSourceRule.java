@@ -24,11 +24,13 @@ import static org.greencloud.commons.utils.messaging.constants.MessageConversati
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessage;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
@@ -39,6 +41,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStateEnum;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -83,12 +86,9 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 			logger.info(
 					"Transfer of job with id {} was established successfully. Finishing the job and informing the green source",
 					job.getJobInstanceId());
-
-			final AID receiver = agentProps.getGreenSourceForJobMap().get(job.getJobId());
-			agent.send(prepareJobFinishMessage(job, facts.get(RULE_SET_IDX), receiver));
+			
 			agent.send(prepareStringReply(facts.get(MESSAGE), TRANSFER_SUCCESSFUL_MESSAGE, INFORM));
-
-			updateServerStateUponJobFinish(job);
+			updateServerStateUponJobFinish(job, facts);
 		}
 	}
 
@@ -137,18 +137,23 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 					job.getJobInstanceId());
 
 			final AID receiver = agentProps.getGreenSourceForJobMap().get(job.getJobId());
-			agent.send(
-					prepareNetworkFailureInformation(jobToTransfer, INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL,
-							facts.get(RULE_SET_IDX), receiver));
+			agent.send(prepareNetworkFailureInformation(jobToTransfer, INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL,
+					facts.get(RULE_SET_IDX), receiver));
 			agent.send(prepareStringReply(facts.get(MESSAGE), failure.getContent(), REFUSE));
 
 			updateServerStateUponJobOnHold(job, jobToTransfer, facts);
 		}
 	}
 
-	private void updateServerStateUponJobFinish(final ClientJob job) {
+	private void updateServerStateUponJobFinish(final ClientJob job, final RuleSetFacts facts) {
 		if (isJobStarted(job, agentProps.getServerJobs())) {
 			agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), FINISH);
+			agentProps.updateJobExecutionCost(job);
+			final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
+			final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
+					agentProps.getOwnerCloudNetworkAgent());
+			agentProps.getTotalPriceForJob().remove(job.getJobId());
+			agent.send(cnaMessage);
 		}
 		if (isJobUnique(job.getJobId(), agentProps.getServerJobs())) {
 			agentProps.getGreenSourceForJobMap().remove(job.getJobId());
@@ -179,6 +184,10 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info(message, job.getJobId());
+		final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+		final JobExecutionStatusEnum newStatus = state.getStatus(hasStarted);
+
+		agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
 		agentProps.getServerJobs().replace(job, state.getStatus(hasStarted));
 
 		if (hasStarted) {

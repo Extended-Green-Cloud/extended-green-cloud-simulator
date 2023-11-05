@@ -33,11 +33,11 @@ public class PrepareInitialSchedulerBehavioursRule extends AgentBehaviourRule<Sc
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
 		return Set.of(
-				InitiateSubscription.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				InitiateSubscription.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						POLL_NEXT_JOB_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SENSE_EVENTS_RULE, controller),
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller, true)

@@ -9,6 +9,8 @@ import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.and;
 import static jade.lang.acl.MessageTemplate.or;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_SERVER_RESOURCES_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ESTIMATED_PRICE_MESSAGE;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.EXECUTION_PRICE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.REGISTER_SERVER_RESOURCES_PROTOCOL;
 
 import jade.lang.acl.MessageTemplate;
@@ -31,6 +33,13 @@ public class MessageTemplatesConstants {
 			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.CHANGE_RULE_SET_PROTOCOL));
 	public static final MessageTemplate LISTEN_FOR_RULE_SET_REMOVAL_REQUEST = and(
 			MatchPerformative(REQUEST), MatchProtocol(MessageProtocolConstants.REMOVE_RULE_SET_PROTOCOL));
+
+	/**
+	 * PRICE TEMPLATES
+	 */
+	public static final MessageTemplate LISTEN_FOR_PRICE_UPDATE_TEMPLATE =
+			and(MatchPerformative(INFORM),
+					or(MatchProtocol(EXECUTION_PRICE_MESSAGE), MatchProtocol(ESTIMATED_PRICE_MESSAGE)));
 
 	/**
 	 * SCHEDULER TEMPLATES

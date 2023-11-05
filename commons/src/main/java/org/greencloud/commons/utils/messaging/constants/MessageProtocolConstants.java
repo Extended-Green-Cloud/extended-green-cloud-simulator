@@ -123,4 +123,16 @@ public class MessageProtocolConstants {
 	 */
 	public static final String CONFIRM_SYSTEM_PLAN_MESSAGE = "CONFIRM_SYSTEM_PLAN_MESSAGE";
 	public static final String EXECUTE_ACTION_PROTOCOL = "EXECUTE_ACTION_PROTOCOL";
+
+	/**
+	 * Cost-related protocols
+	 *
+	 * <p> EXECUTION_PRICE_MESSAGE - protocol used in messages that pass the information about job execution price </p>
+	 * <p> ESTIMATED_PRICE_MESSAGE - protocol used in messages that pass the information about estimated job price </p>
+	 * <p> FINAL_EXECUTION_PRICE_MESSAGE - protocol used in messages that pass the information about final job execution price </p>
+	 */
+	public static final String EXECUTION_PRICE_MESSAGE = "EXECUTION_PRICE_MESSAGE";
+	public static final String ESTIMATED_PRICE_MESSAGE = "ESTIMATED_PRICE_MESSAGE";
+	public static final String FINAL_EXECUTION_PRICE_MESSAGE = "FINAL_EXECUTION_PRICE_MESSAGE";
+
 }

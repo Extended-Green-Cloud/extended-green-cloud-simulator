@@ -11,6 +11,7 @@ import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
+import static org.greencloud.commons.mapper.FactsMapper.mapToRuleSetFacts;
 import static org.greencloud.commons.mapper.JobMapper.mapPowerJobToEnergyJob;
 import static org.greencloud.commons.utils.messaging.MessageComparator.compareMessages;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
@@ -32,7 +33,6 @@ import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.EnergyJob;
 import org.greencloud.commons.domain.resources.Resource;
-import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -65,7 +65,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 	protected ACLMessage createCFPMessage(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
 		final List<AID> greenSources = agentProps.getOwnedActiveGreenSources().stream().toList();
-		final double estimatedEnergy = agentProps.estimateEnergyForJob(job);
+		final double estimatedEnergy = agentProps.estimatePowerForJob(job);
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
@@ -110,6 +110,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("No responses were retrieved from green sources");
+		agentProps.stoppedJobProcessing();
 		refuseToExecuteJob(facts);
 	}
 
@@ -119,6 +120,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("No Green Sources available - sending refuse message to Cloud Network Agent");
+		agentProps.stoppedJobProcessing();
 		refuseToExecuteJob(facts);
 	}
 
@@ -155,9 +157,8 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 
 			facts.put(ORIGINAL_MESSAGE, facts.get(MESSAGE));
 			facts.put(MESSAGE, bestProposal);
-			agent.addBehaviour(
-					InitiateProposal.create(agent, FactsMapper.mapToRuleSetFacts(facts), PROPOSE_TO_EXECUTE_JOB_RULE,
-							controller));
+			agent.addBehaviour(InitiateProposal.create(agent, mapToRuleSetFacts(facts), PROPOSE_TO_EXECUTE_JOB_RULE,
+					controller));
 		} else {
 			agent.send(prepareReply(bestProposal, JobMapper.mapClientJobToJobInstanceId(job), REJECT_PROPOSAL));
 			refuseToExecuteJob(facts);

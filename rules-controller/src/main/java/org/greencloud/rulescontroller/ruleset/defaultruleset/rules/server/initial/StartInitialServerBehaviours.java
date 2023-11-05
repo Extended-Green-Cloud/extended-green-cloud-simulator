@@ -3,6 +3,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.initi
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.CHECK_AFFECTED_JOBS_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.GREEN_SOURCE_STATUS_CHANGE_RULE;
+import static org.greencloud.commons.enums.rules.RuleType.JOB_ENERGY_PRICE_RECEIVER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_MANUAL_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_CHECK_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_RULE;
@@ -38,12 +39,12 @@ public class StartInitialServerBehaviours extends AgentBehaviourRule<ServerAgent
 	 */
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
-		final RuleSetFacts facts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts facts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		facts.put(RULE_TYPE, "INITIALIZE_SERVER_RESOURCE_KNOWLEDGE");
 		controller.fire(facts);
 
 		return Set.of(
-				InitiateSubscription.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				InitiateSubscription.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE, controller),
 				ListenForMessages.create(agent, GREEN_SOURCE_STATUS_CHANGE_RULE, controller),
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
@@ -55,9 +56,10 @@ public class StartInitialServerBehaviours extends AgentBehaviourRule<ServerAgent
 				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_RULE_SET_UPDATE_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_RULE_SET_REMOVAL_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				ListenForMessages.create(agent, JOB_ENERGY_PRICE_RECEIVER_RULE, controller),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						CHECK_AFFECTED_JOBS_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SENSE_EVENTS_RULE, controller)
 		);
 	}

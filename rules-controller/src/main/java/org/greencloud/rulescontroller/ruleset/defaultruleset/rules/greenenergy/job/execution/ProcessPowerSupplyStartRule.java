@@ -3,6 +3,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
@@ -17,7 +18,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -54,11 +57,14 @@ public class ProcessPowerSupplyStartRule extends AgentBasicRule<GreenEnergyAgent
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
+		final JobWithStatus jobWithStatus = facts.get(MESSAGE_CONTENT);
+
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Started the execution of the job with id {}", jobInstance.getJobId());
+		final JobExecutionStatusEnum newStatus = replaceStatusToActive(agentProps.getServerJobs(), job);
 
-		replaceStatusToActive(agentProps.getServerJobs(), job);
+		agentProps.getJobsExecutionTime().startJobExecutionTimer(job, newStatus, jobWithStatus.getChangeTime());
 		agentProps.incrementJobCounter(jobInstance, STARTED);
 	}
 }

@@ -25,6 +25,11 @@ public interface WeatherData {
 	Double getTemperature();
 
 	/**
+	 * @return temperature at given location for given time period
+	 */
+	Double getAirDensity();
+
+	/**
 	 * @return wind speed at given location for given time period
 	 */
 	Double getWindSpeed();

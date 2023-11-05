@@ -35,14 +35,14 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	protected Agent agent;
 	protected E agentNode;
 	protected T agentProps;
-	protected AtomicInteger latestRuleSet;
-	protected AtomicInteger latestAdaptedRuleSet;
+	protected AtomicInteger latestLongTermRuleSetIdx;
+	protected AtomicInteger latestRuleSetIdx;
 	protected ConcurrentMap<Integer, RuleSet> ruleSets;
 	protected String baseRuleSet;
 
 	public RulesController() {
-		latestRuleSet = new AtomicInteger(0);
-		latestAdaptedRuleSet = new AtomicInteger(0);
+		latestLongTermRuleSetIdx = new AtomicInteger(0);
+		latestRuleSetIdx = new AtomicInteger(0);
 		ruleSets = new ConcurrentHashMap<>();
 	}
 
@@ -73,7 +73,7 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 		this.agentProps = agentProps;
 		this.agentNode = agentNode;
 		this.baseRuleSet = baseRuleSet;
-		this.ruleSets.put(latestRuleSet.get(), constructRuleSet(baseRuleSet, this));
+		this.ruleSets.put(latestLongTermRuleSetIdx.get(), constructRuleSet(baseRuleSet, this));
 	}
 
 	/**
@@ -84,7 +84,8 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	 */
 	public void addModifiedRuleSet(final String type, final int idx) {
 		this.ruleSets.put(idx, constructRuleSetForType(baseRuleSet, type, this));
-		this.latestRuleSet.set(idx);
+		this.latestLongTermRuleSetIdx.set(idx);
+		this.latestRuleSetIdx.set(idx);
 	}
 
 	/**
@@ -92,9 +93,10 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	 *
 	 * @param modifications modifications to current rule set that are to be applied
 	 */
-	public void addModifiedRuleSetFromCurrent(final RuleSet modifications, final int idx) {
+	public void addModifiedTemporaryRuleSetFromCurrent(final RuleSet modifications, final int idx) {
 		final RuleSet connectedRuleSet = new RuleSet(modifications, this);
-		this.ruleSets.put(idx, constructModifiedRuleSetForType(ruleSets.get(latestRuleSet.get()), connectedRuleSet));
+		this.ruleSets.put(idx, constructModifiedRuleSetForType(ruleSets.get(latestLongTermRuleSetIdx.get()), connectedRuleSet));
+		this.latestRuleSetIdx.set(idx);
 	}
 
 	/**
@@ -105,7 +107,8 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	 */
 	public void addNewRuleSet(final String type, final int idx) {
 		this.ruleSets.put(idx, constructRuleSet(type, this));
-		this.latestRuleSet.set(idx);
+		this.latestLongTermRuleSetIdx.set(idx);
+		this.latestRuleSetIdx.set(idx);
 	}
 
 	/**
@@ -116,7 +119,7 @@ public class RulesController<T extends AgentProps, E extends AgentNode<T>> {
 	 * @return flag indicating if the rule set was removed
 	 */
 	public boolean removeRuleSet(final ConcurrentMap<String, Integer> ruleSetForObject, final int ruleSetIdx) {
-		if (ruleSetIdx != latestRuleSet.get()
+		if (ruleSetIdx != latestLongTermRuleSetIdx.get()
 				&& ruleSetForObject.values().stream().noneMatch(val -> val == ruleSetIdx)) {
 
 			MDC.put(MDC_RULE_SET_ID, valueOf(ruleSetIdx));

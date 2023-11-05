@@ -105,6 +105,16 @@ public class TimeConverter {
 	 * @return time in hours
 	 */
 	public static double convertToHourDuration(final Instant startTime, final Instant endTime) {
-		return (double) SECONDS.between(startTime, endTime) / SECONDS_IN_HOUR;
+		return (double) SECONDS.between(startTime, endTime) / SECONDS_PER_HOUR;
+	}
+
+	/**
+	 * Method computes converts milliseconds to hours
+	 *
+	 * @param duration duration in milliseconds
+	 * @return duration in hours
+	 */
+	public static double convertMillisToHoursRealTime(final long duration) {
+		return ((double) duration / (MILLISECOND_MULTIPLIER * SECONDS_PER_HOUR));
 	}
 }

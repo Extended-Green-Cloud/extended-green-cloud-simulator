@@ -1,24 +1,45 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.execution;
 
+import static java.lang.String.valueOf;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.AGENT;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DISCONNECTION_RULE;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
+import static org.greencloud.commons.utils.messaging.factory.PriceMessageFactory.prepareFinalPriceMessage;
+import static org.greencloud.commons.utils.messaging.factory.PriceMessageFactory.preparePriceMessage;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.slf4j.LoggerFactory.getLogger;
+
+import java.time.Instant;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateRequest;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import jade.core.AID;
+import jade.lang.acl.ACLMessage;
 
 public class ProcessPowerSupplyRemoveRule extends AgentBasicRule<GreenEnergyAgentProps, GreenEnergyNode> {
+
+	private static final Logger logger = getLogger(ProcessPowerSupplyRemoveRule.class);
 
 	public ProcessPowerSupplyRemoveRule(
 			final RulesController<GreenEnergyAgentProps, GreenEnergyNode> rulesController) {
@@ -35,6 +56,32 @@ public class ProcessPowerSupplyRemoveRule extends AgentBasicRule<GreenEnergyAgen
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
 		final ServerJob job = facts.get(JOB);
+		final boolean sendFinalPriceSummary = facts.get(COMPUTE_FINAL_PRICE);
+
+		if (sendFinalPriceSummary) {
+			final Instant changeTime = nonNull(facts.get(MESSAGE_CONTENT))
+					? ((JobWithStatus) facts.get(MESSAGE_CONTENT)).getChangeTime()
+					: getCurrentTime();
+			agentProps.getJobsExecutionTime()
+					.stopJobExecutionTimer(job, agentProps.getServerJobs().get(job), changeTime);
+			final double finalPrice = isJobStarted(agentProps.getServerJobs().get(job)) ?
+					agentProps.computeFinalJobInstancePrice(job) : 0;
+
+			final ACLMessage message = facts.get(MESSAGE);
+			final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
+
+			MDC.put(MDC_JOB_ID, job.getJobId());
+			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
+			logger.info("Execution of the job {} (job instance: {}) cost {} in Green Source.",
+					job.getJobId(), job.getJobInstanceId(), finalPrice);
+
+			final ACLMessage priceMessage = nonNull(message)
+					? prepareFinalPriceMessage(message.getReplyWith(), agentProps.getOwnerServer(), jobInstanceId,
+					finalPrice, facts.get(RULE_SET_IDX))
+					: preparePriceMessage(agentProps.getOwnerServer(), jobInstanceId, finalPrice,
+					facts.get(RULE_SET_IDX));
+			agent.send(priceMessage);
+		}
 		agentProps.removeJob(job);
 
 		return agentProps.getGreenSourceDisconnection().isBeingDisconnectedFromServer();

@@ -1,6 +1,7 @@
 package org.greencloud.commons.args.agent.cloudnetwork.agent;
 
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.greencloud.commons.args.agent.AgentType.CLOUD_NETWORK;
@@ -62,6 +63,7 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<AID, ServerResources> ownedServerResources;
 	protected ConcurrentMap<String, Resource> aggregatedResources;
 	protected ConcurrentMap<AID, Integer> weightsForServersMap;
+	protected ConcurrentMap<String, Double> priceForJob;
 	protected AID scheduler;
 
 	/**
@@ -79,6 +81,7 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 		this.aggregatedResources = new ConcurrentHashMap<>();
 		this.ruleSetForJob = new ConcurrentHashMap<>();
 		this.weightsForServersMap = new ConcurrentHashMap<>();
+		this.priceForJob = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -88,6 +91,20 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	 */
 	public List<AID> getOwnedActiveServers() {
 		return ownedServers.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).toList();
+	}
+
+	/**
+	 * Method updates price of execution of given job
+	 *
+	 * @param jobId executed job
+	 * @param price job execution price
+	 * @return updated job price
+	 */
+	public double updatePriceForJob(final String jobId, final Double price) {
+		final double newPrice =
+				ofNullable(priceForJob.computeIfPresent(jobId, (key, val) -> price + val)).orElse(price);
+		priceForJob.putIfAbsent(jobId, price);
+		return newPrice;
 	}
 
 	/**

@@ -32,6 +32,6 @@ public class UpdateRuleSetInSchedulerForWeatherDropRule
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
 		logger.info("Updating Scheduler rule set to {}!", WEATHER_DROP_RULE_SET);
-		controller.addModifiedRuleSet(WEATHER_DROP_RULE_SET, controller.getLatestRuleSet().get() + 1);
+		controller.addModifiedRuleSet(WEATHER_DROP_RULE_SET, controller.getLatestRuleSetIdx().get() + 1);
 	}
 }

@@ -11,11 +11,13 @@ import static org.greencloud.commons.enums.rules.RuleType.REFUSED_TRANSFER_JOB_E
 import static org.greencloud.commons.enums.rules.RuleType.REFUSED_TRANSFER_JOB_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -53,8 +55,11 @@ public class ProcessTransferRefuseExistingJobRule extends AgentBasicRule<GreenEn
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Transfer of job with id {} was unsuccessful! Putting the job on hold.", job.getJobId());
+		final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+		final JobExecutionStatusEnum newStatus = EXECUTING_ON_HOLD.getStatus(hasJobStarted);
 
-		agentProps.getServerJobs().replace(job, EXECUTING_ON_HOLD.getStatus(hasJobStarted));
+		agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+		agentProps.getServerJobs().replace(job, newStatus);
 		agentProps.updateGUI();
 	}
 }

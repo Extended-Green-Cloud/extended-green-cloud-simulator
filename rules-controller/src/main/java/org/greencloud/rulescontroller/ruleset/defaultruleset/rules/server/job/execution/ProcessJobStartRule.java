@@ -14,6 +14,7 @@ import static org.greencloud.commons.enums.rules.RuleType.PROCESS_START_JOB_EXEC
 import static org.greencloud.commons.utils.job.JobUtils.getMessageConversationId;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -93,8 +94,9 @@ public class ProcessJobStartRule extends AgentBasicRule<ServerAgentProps, Server
 	private void substituteJobStatus(final Facts facts) {
 		final JobExecutionStatusEnum currentStatus = agentProps.getServerJobs().get(job);
 		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(job);
+		final JobExecutionStatusEnum newStatus = replaceStatusToActive(agentProps.getServerJobs(), job);
 
-		replaceStatusToActive(agentProps.getServerJobs(), job);
+		agentProps.getJobsExecutionTime().startJobExecutionTimer(job, newStatus, getCurrentTime());
 		agent.send(prepareJobStatusMessageForCNA(jobInstance, getMessageConversationId(currentStatus), agentProps,
 				facts.get(RULE_SET_IDX)));
 	}

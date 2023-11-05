@@ -65,17 +65,17 @@ public class ListenForExternalOrdersRule extends AgentPeriodicRule<BookingProps,
 
 				if (Strings.isNotBlank(order.getAdditionalInstructions())) {
 					controller.addModifiedRuleSet(order.getAdditionalInstructions(),
-							controller.getLatestRuleSet().incrementAndGet());
+							controller.getLatestLongTermRuleSetIdx().incrementAndGet());
 					logger.info("Customer added personalized search instructions! Changing rule set to {}.",
 							order.getAdditionalInstructions());
 				}
 
-				facts.put(RULE_SET_IDX, controller.getLatestRuleSet().get());
+				facts.put(RULE_SET_IDX, controller.getLatestLongTermRuleSetIdx().get());
 				agentProps.getStrategyForOrder()
-						.put(Integer.toString(order.getOrderId()), controller.getLatestRuleSet().get());
+						.put(Integer.toString(order.getOrderId()), controller.getLatestLongTermRuleSetIdx().get());
 				logger.info("New client order with id {} was received. Looking for restaurants with rule set {}.",
 						order.getOrderId(),
-						controller.getRuleSets().get(controller.getLatestRuleSet().get()).getName());
+						controller.getRuleSets().get(controller.getLatestLongTermRuleSetIdx().get()).getName());
 				facts.put(RESULT, order);
 				agent.addBehaviour(InitiateCallForProposal.create(agent, facts, BASIC_CFP_RULE, controller));
 			} else {
@@ -86,7 +86,7 @@ public class ListenForExternalOrdersRule extends AgentPeriodicRule<BookingProps,
 				final int strategyIdx = agentProps.getStrategyForOrder()
 						.remove(Integer.toString(response.getOrderId()));
 				controller.removeRuleSet(agentProps.getStrategyForOrder(), strategyIdx);
-				controller.addNewRuleSet(DEFAULT_RULE_SET, controller.getLatestRuleSet().incrementAndGet());
+				controller.addNewRuleSet(DEFAULT_RULE_SET, controller.getLatestLongTermRuleSetIdx().incrementAndGet());
 
 				final ACLMessage message = response.getAccepted() ?
 						prepareStringReply(restaurantMsg, "ACCEPT", ACCEPT_PROPOSAL) :

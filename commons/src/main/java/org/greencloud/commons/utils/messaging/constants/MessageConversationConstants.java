@@ -21,11 +21,13 @@ public class MessageConversationConstants {
 	 * <p> FINISH_JOB_ID			   - the job execution has finished </p>
 	 * <p> FAILED_JOB_ID			   - the job execution has failed </p>
 	 * <p> STARTED_IN_CLOUD_ID		   - the job is being executed by central cloud </p>
+	 * <p> UPDATE_JOB_EXECUTOR_ID      - the job executor has changed </p>
 	 */
 	public static final String SCHEDULED_JOB_ID = "SCHEDULED_JOB_ID";
 	public static final String RE_SCHEDULED_JOB_ID = "RE_SCHEDULED_JOB_ID";
 	public static final String PROCESSING_JOB_ID = "PROCESSING_JOB_ID";
 	public static final String CONFIRMED_JOB_ID = "CONFIRMED_JOB_ID";
+	public static final String ACCEPTED_JOB_ID = "ACCEPTED_JOB_ID";
 	public static final String STARTED_JOB_ID = "STARTED_JOB_ID";
 	public static final String DELAYED_JOB_ID = "DELAYED_JOB_ID";
 	public static final String POSTPONED_JOB_ID = "POSTPONED_JOB_ID";
@@ -35,4 +37,5 @@ public class MessageConversationConstants {
 	public static final String FINISH_JOB_ID = "FINISH_JOB_ID";
 	public static final String FAILED_JOB_ID = "FAILED_JOB_ID";
 	public static final String STARTED_IN_CLOUD_ID = "STARTED_IN_CLOUD_ID";
+	public static final String UPDATE_JOB_EXECUTOR_ID = "UPDATE_JOB_EXECUTOR_ID";
 }

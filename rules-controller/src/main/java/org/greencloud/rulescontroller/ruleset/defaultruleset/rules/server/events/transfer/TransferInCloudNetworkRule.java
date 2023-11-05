@@ -21,12 +21,14 @@ import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFac
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -128,6 +130,9 @@ public class TransferInCloudNetworkRule extends AgentRequestRule<ServerAgentProp
 		if (isJobUnique(job.getJobId(), agentProps.getServerJobs())) {
 			agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 		}
+		agentProps.getJobsExecutionTime()
+				.stopJobExecutionTimer(job, agentProps.getServerJobs().get(job), getCurrentTime());
+		agentProps.updateJobExecutionCost(job);
 		agentProps.removeJob(job);
 
 		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
@@ -151,7 +156,11 @@ public class TransferInCloudNetworkRule extends AgentRequestRule<ServerAgentProp
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Transfer of job with id {} was unsuccessful! Putting job on hold", job.getJobId());
-		agentProps.getServerJobs().replace(job, EXECUTING_ON_HOLD.getStatus(hasStarted));
+		final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+		final JobExecutionStatusEnum newStatus = EXECUTING_ON_HOLD.getStatus(hasStarted);
+
+		agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+		agentProps.getServerJobs().replace(job, newStatus);
 
 		if (hasStarted) {
 			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), ON_HOLD_JOB_ID,

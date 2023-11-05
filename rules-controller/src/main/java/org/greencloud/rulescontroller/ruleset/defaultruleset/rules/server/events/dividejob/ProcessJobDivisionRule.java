@@ -3,6 +3,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.event
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_DIVIDED;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_PREVIOUS;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_START_INFORM;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
@@ -13,10 +14,15 @@ import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RU
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -42,6 +48,8 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 		final JobDivided<ClientJob> jobInstances = facts.get(JOB_DIVIDED);
 		final ClientJob affectedJob = jobInstances.getSecondInstance();
 		final ClientJob nonAffectedJob = jobInstances.getFirstInstance();
+		final ClientJob prevJob = facts.get(JOB_PREVIOUS);
+		updateJobExecutionData(prevJob, nonAffectedJob, affectedJob);
 
 		final RuleSetFacts jobStartFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 
@@ -64,6 +72,8 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 				ScheduleOnce.create(agent, jobFinishFacts, FINISH_JOB_EXECUTION_RULE, controller, SELECT_BY_FACTS_IDX));
 
 		if (!isJobStarted(nonAffectedJob, agentProps.getServerJobs())) {
+			agentProps.getJobsExecutionTime().addDurationMap(nonAffectedJob);
+
 			final RuleSetFacts jobStartFactsNonAffected = new RuleSetFacts(facts.get(RULE_SET_IDX));
 
 			jobStartFactsNonAffected.put(RULE_TYPE, START_JOB_EXECUTION_RULE);
@@ -75,5 +85,26 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 					ScheduleOnce.create(agent, jobStartFactsNonAffected, START_JOB_EXECUTION_RULE, controller,
 							SELECT_BY_FACTS_IDX));
 		}
+	}
+
+	private void updateJobExecutionData(final ClientJob prevJob, final ClientJob nonAffectedJob,
+			final ClientJob affectedJob) {
+		final Double jobPrice = agentProps.getServerPriceForJob().get(prevJob.getJobInstanceId());
+
+		agentProps.getServerPriceForJob().put(affectedJob.getJobInstanceId(), jobPrice);
+		agentProps.getServerPriceForJob().put(nonAffectedJob.getJobInstanceId(), jobPrice);
+		agentProps.getJobsExecutionTime().addDurationMap(affectedJob);
+
+		if (isJobStarted(nonAffectedJob, agentProps.getServerJobs())) {
+			final ConcurrentMap<JobExecutionStatusEnum, JobStatusWithTime> prevExecutionTime =
+					new ConcurrentHashMap<>(agentProps.getJobsExecutionTime().getForJob(prevJob));
+			agentProps.getJobsExecutionTime().addDurationMap(nonAffectedJob, prevExecutionTime);
+		} else {
+			agentProps.getJobsExecutionTime().addDurationMap(nonAffectedJob);
+		}
+
+		agentProps.getServerPriceForJob().remove(prevJob.getJobInstanceId());
+		agentProps.getJobsExecutionTime().removeDurationMap(prevJob);
+		agentProps.getEnergyExecutionCost().remove(prevJob.getJobInstanceId());
 	}
 }

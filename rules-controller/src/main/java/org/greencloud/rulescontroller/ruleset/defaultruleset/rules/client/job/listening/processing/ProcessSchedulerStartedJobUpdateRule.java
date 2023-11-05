@@ -2,6 +2,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.l
 
 import static java.lang.String.valueOf;
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
@@ -71,6 +72,10 @@ public class ProcessSchedulerStartedJobUpdateRule extends AgentBasicRule<ClientA
 		agentNode.updateJobStatus(statusEnum);
 		agentProps.updateJobStatusDuration(statusEnum, jobUpdate.getChangeTime());
 		checkIfJobStartedOnTime(jobUpdate.getChangeTime(), agentProps.getJobSimulatedStart(), facts, statusEnum);
+
+		if (nonNull(jobUpdate.getServerName())) {
+			agentNode.updateServerForExecution(jobUpdate.getServerName());
+		}
 	}
 
 	protected void checkIfJobStartedOnTime(final Instant startTime, final Instant jobStartTime,

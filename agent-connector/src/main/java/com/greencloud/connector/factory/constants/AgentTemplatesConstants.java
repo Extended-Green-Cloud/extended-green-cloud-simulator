@@ -26,7 +26,14 @@ public class AgentTemplatesConstants {
 					.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
 							.value(20D)
 							.unit("cores")
+							.resourceAddition("return resource1 + resource2;")
+							.resourceBooker("return ownedAmount - amountToReserve;")
+							.resourceRemover("return ownedAmount - amountToRemove;")
 							.build())
+					.resourceComparator(
+							"import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
+					.sufficiencyValidator(
+							"requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
 					.build(),
 			MEMORY, ImmutableResource.builder()
 					.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
@@ -34,7 +41,14 @@ public class AgentTemplatesConstants {
 							.unit("Gi")
 							.toCommonUnitConverter(FROM_GI_TO_BYTE_CONVERTER)
 							.fromCommonUnitConverter(TO_GI_FROM_BYTE_CONVERTER)
+							.resourceAddition("return resource1 + resource2;")
+							.resourceBooker("return ownedAmount - amountToReserve;")
+							.resourceRemover("return ownedAmount - amountToRemove;")
 							.build())
+					.resourceComparator(
+							"import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
+					.sufficiencyValidator(
+							"requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
 					.build(),
 			STORAGE, ImmutableResource.builder()
 					.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
@@ -42,7 +56,14 @@ public class AgentTemplatesConstants {
 							.unit("Gi")
 							.toCommonUnitConverter(FROM_GI_TO_BYTE_CONVERTER)
 							.fromCommonUnitConverter(TO_GI_FROM_BYTE_CONVERTER)
+							.resourceAddition("return resource1 + resource2;")
+							.resourceBooker("return ownedAmount - amountToReserve;")
+							.resourceRemover("return ownedAmount - amountToRemove;")
 							.build())
+					.resourceComparator(
+							"import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
+					.sufficiencyValidator(
+							"requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
 					.build()
 	);
 	public static final Integer TEMPLATE_SERVER_JOB_LIMIT = 20;

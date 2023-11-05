@@ -37,7 +37,7 @@ public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<CloudNetwo
 
 	@Override
 	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
-		final int nextIdx = controller.getLatestAdaptedRuleSet().incrementAndGet();
+		final int nextIdx = controller.getLatestRuleSetIdx().incrementAndGet();
 		return prepareRuleSetAdaptationRequest(facts.get(RULE_SET_IDX), nextIdx, facts.get(RULE_SET_TYPE),
 				agentProps.getOwnedServers().keySet());
 	}

@@ -2,6 +2,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork
 
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
@@ -28,6 +30,8 @@ import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+
+import jade.lang.acl.ACLMessage;
 
 public class ProcessServerJobStatusUpdateStartedJobRule
 		extends AgentBasicRule<CloudNetworkAgentProps, CloudNetworkNode> {
@@ -58,19 +62,22 @@ public class ProcessServerJobStatusUpdateStartedJobRule
 		if (jobOptional.isPresent()) {
 			final ClientJob job = jobOptional.get();
 			final JobWithStatus jobStatusUpdate = facts.get(MESSAGE_CONTENT);
+			final ACLMessage message = facts.get(MESSAGE);
+			final JobWithStatus jobWithStatusWithServer = ImmutableJobWithStatus.copyOf(jobStatusUpdate)
+					.withServerName(message.getSender().getLocalName());
 
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("Sending information that the job {} execution has started", job.getJobId());
+			logger.info("Received information that execution of the job {} has started", job.getJobId());
 
 			if (!agentProps.getNetworkJobs().get(job).equals(IN_PROGRESS)) {
 				agentProps.getNetworkJobs().replace(job, IN_PROGRESS);
 				agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(job), STARTED);
 				agentNode.addStartedJob();
+				agent.send(prepareJobStatusMessageForScheduler(agentProps, jobWithStatusWithServer, STARTED_JOB_ID,
+						facts.get(RULE_SET_IDX)));
 				agentNode.updateGUI(agentProps);
 			}
-			agent.send(prepareJobStatusMessageForScheduler(agentProps, jobStatusUpdate, STARTED_JOB_ID,
-					facts.get(RULE_SET_IDX)));
 		}
 	}
 }

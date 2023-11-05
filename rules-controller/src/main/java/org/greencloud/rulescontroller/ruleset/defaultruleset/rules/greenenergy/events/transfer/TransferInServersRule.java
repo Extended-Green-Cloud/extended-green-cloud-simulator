@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.events.transfer;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.EVENT_TIME;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
@@ -80,12 +81,14 @@ public class TransferInServersRule extends AgentRequestRule<GreenEnergyAgentProp
 			if (isJobStarted(job, agentProps.getServerJobs())) {
 				agentProps.incrementJobCounter(mapToJobInstanceId(job), FINISH);
 			}
+
 			final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 			finishFacts.put(JOB, job);
 			finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+			finishFacts.put(COMPUTE_FINAL_PRICE, true);
 			controller.fire(finishFacts);
 		} else {
-			logger.info("The job with id {} has finished before transfer.", job.getJobId());
+			logger.info("The job instance with id {} was finished upon transfer.", job.getJobInstanceId());
 		}
 		agentProps.updateGUI();
 	}

@@ -17,6 +17,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ON_HOLD_JOB_CHECK_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Optional;
@@ -81,7 +82,10 @@ public class RequestWeatherToCheckEnergyAfterPowerShortageRule
 				logger.info("Changing the status of the job {}", job.getJobId());
 				final boolean isJobStarted = isJobStarted(job, agentProps.getServerJobs());
 				final JobExecutionStatusEnum newStatus = EXECUTING_ON_GREEN.getStatus(isJobStarted);
+				final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
 
+				agentProps.getJobsExecutionTime()
+						.updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
 				agentProps.getServerJobs().replace(job, newStatus);
 				agentProps.updateGUI();
 				agent.send(prepareNetworkFailureInformation(mapToJobInstanceId(job),

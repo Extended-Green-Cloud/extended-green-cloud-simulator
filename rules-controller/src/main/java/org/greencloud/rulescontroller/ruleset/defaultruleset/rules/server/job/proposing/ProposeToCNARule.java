@@ -61,6 +61,7 @@ public class ProposeToCNARule extends AgentProposalRule<ServerAgentProps, Server
 
 	@Override
 	protected ACLMessage createProposalMessage(final RuleSetFacts facts) {
+		final ClientJob job = facts.get(JOB);
 		final GreenSourceData data = readMessageContent(facts.get(MESSAGE), GreenSourceData.class);
 
 		final RuleSetFacts priceFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
@@ -68,6 +69,11 @@ public class ProposeToCNARule extends AgentProposalRule<ServerAgentProps, Server
 		priceFacts.put(RULE_TYPE, COMPUTE_PRICE_RULE);
 		controller.fire(priceFacts);
 
+		MDC.put(MDC_JOB_ID, job.getJobId());
+		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
+		logger.info("Estimated Server job price: {}", (double) priceFacts.get(RESULT));
+
+		agentProps.getServerPriceForJob().put(job.getJobInstanceId(), agentProps.getPricePerHour());
 		return prepareServerJobOffer(agentProps, priceFacts.get(RESULT), data.getJobId(), facts.get(ORIGINAL_MESSAGE),
 				facts.get(RULE_SET_IDX));
 	}

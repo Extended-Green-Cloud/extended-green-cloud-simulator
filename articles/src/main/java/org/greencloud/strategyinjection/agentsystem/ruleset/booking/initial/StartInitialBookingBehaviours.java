@@ -28,9 +28,9 @@ public class StartInitialBookingBehaviours extends AgentBehaviourRule<BookingPro
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
 		return Set.of(
-				SearchForAgents.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SearchForAgents.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SEARCH_OWNED_AGENTS_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SENSE_EVENTS_RULE, controller)
 		);
 	}

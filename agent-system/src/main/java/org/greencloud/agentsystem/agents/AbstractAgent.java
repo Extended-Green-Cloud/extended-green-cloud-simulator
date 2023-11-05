@@ -18,6 +18,7 @@ import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessa
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.greencloud.agentsystem.behaviours.ListenForControllerObjects;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
@@ -93,7 +94,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	 * Abstract method responsible for running initial custom behaviours prepared only for selected rule set
 	 */
 	protected void runInitialBehavioursForRuleSet() {
-		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
+		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
 		facts.put(RULE_TYPE, INITIALIZE_BEHAVIOURS_RULE);
 		rulesController.fire(facts);
 	}
@@ -108,7 +109,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 	public boolean executeAction(final AdaptationActionEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters) {
 		if (nonNull(rulesController)) {
-			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
 			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
 			facts.put(ADAPTATION_PARAMS, actionParameters);
 			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
@@ -132,7 +133,7 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 			final AdaptationActionParameters actionParameters,
 			final ACLMessage adaptationMessage) {
 		if (nonNull(rulesController)) {
-			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
+			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
 			facts.put(MESSAGE, adaptationMessage);
 			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
 			facts.put(ADAPTATION_PARAMS, actionParameters);
@@ -175,7 +176,8 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 		runStartingBehaviours();
 
 		if (arguments.length >= 3 && !List.of(CLIENT.name(), MANAGING.name()).contains(properties.getAgentType())) {
-			properties.setSystemKnowledge((Map<String, Map<String, Object>>) arguments[arguments.length - 3]);
+			((Optional<Map<String, Map<String, Object>>>) arguments[arguments.length - 3]).ifPresent(knowledgeMap ->
+					properties.setSystemKnowledge(knowledgeMap));
 		}
 
 		// checking if the managing agent should be informed about agent creation

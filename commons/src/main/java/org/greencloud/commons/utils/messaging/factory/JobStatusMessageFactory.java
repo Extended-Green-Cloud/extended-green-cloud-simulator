@@ -1,24 +1,27 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
+import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FINISH_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.util.Objects;
 
+import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithTimeFrames;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.domain.job.extended.JobWithTimeFrames;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.mapper.JobMapper;
+import org.greencloud.commons.utils.messaging.MessageBuilder;
 import org.greencloud.commons.utils.messaging.constants.MessageConversationConstants;
 import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
-import org.greencloud.commons.domain.job.extended.JobWithTimeFrames;
-import org.greencloud.commons.domain.job.extended.JobWithStatus;
-import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -38,7 +41,10 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStatusMessageForClient(final ClientJob job, final String conversationId,
 			final Integer ruleSet) {
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(JobMapper.mapClientJobToJobInstanceId(job), getCurrentTime());
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(mapClientJobToJobInstanceId(job))
+				.changeTime(getCurrentTime())
+				.build();
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
 		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, clientAID);
@@ -69,7 +75,8 @@ public class JobStatusMessageFactory {
 	public static ACLMessage preparePostponeJobMessageForClient(final ClientJob job, final Integer ruleSet) {
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(job.getJobId(), MessageConversationConstants.POSTPONED_JOB_ID, ruleSet, clientAID);
+		return prepareJobStatusMessage(job.getJobId(), MessageConversationConstants.POSTPONED_JOB_ID, ruleSet,
+				clientAID);
 	}
 
 	/**
@@ -83,7 +90,8 @@ public class JobStatusMessageFactory {
 				adjustedJob.getEndTime(), adjustedJob.getJobId());
 		final AID clientAID = new AID(adjustedJob.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(adjustedJob.getClientAddress());
-		return prepareJobStatusMessage(jobTimeFrames, MessageConversationConstants.RE_SCHEDULED_JOB_ID, ruleSet, clientAID);
+		return prepareJobStatusMessage(jobTimeFrames, MessageConversationConstants.RE_SCHEDULED_JOB_ID, ruleSet,
+				clientAID);
 	}
 
 	/**
@@ -109,7 +117,10 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStatusMessageForCNA(final JobInstanceIdentifier jobInstanceId,
 			final String conversationId, final ServerAgentProps agentProps, final Integer ruleSet) {
-		final JobWithStatus jobStatusUpdate = new ImmutableJobWithStatus(jobInstanceId, getCurrentTime());
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstanceId)
+				.changeTime(getCurrentTime())
+				.build();
 		final AID cna = agentProps.getOwnerCloudNetworkAgent();
 
 		if (Objects.equals(conversationId, MessageConversationConstants.FAILED_JOB_ID)) {
@@ -175,9 +186,12 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStartedMessage(final ClientJob job, final Integer ruleSet,
 			final AID... receivers) {
-		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
-		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.STARTED_JOB_ID,
-				ruleSet, receivers);
+		final JobInstanceIdentifier jobInstanceId = mapClientJobToJobInstanceId(job);
+		final JobWithStatus jobWithStatus = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstanceId)
+				.changeTime(getCurrentTime())
+				.build();
+		return prepareJobStatusMessage(jobWithStatus, STARTED_JOB_ID, ruleSet, receivers);
 	}
 
 	/**
@@ -190,9 +204,31 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobFinishMessage(final ClientJob job, final Integer ruleSet,
 			final AID... receivers) {
-		final JobInstanceIdentifier jobInstanceId = JobMapper.mapClientJobToJobInstanceId(job);
-		return prepareJobStatusMessage(new ImmutableJobWithStatus(jobInstanceId, getCurrentTime()), MessageConversationConstants.FINISH_JOB_ID,
-				ruleSet, receivers);
+		final JobInstanceIdentifier jobInstanceId = mapClientJobToJobInstanceId(job);
+		final JobWithStatus jobWithStatus = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstanceId)
+				.changeTime(getCurrentTime())
+				.build();
+		return prepareJobStatusMessage(jobWithStatus, FINISH_JOB_ID, ruleSet, receivers);
+	}
+
+	/**
+	 * Method prepares the information message about the job execution finish which is to be sent to Cloud Network Agent
+	 *
+	 * @param job       job of interest
+	 * @param receivers list of AID addresses of the message receivers
+	 * @return INFORM ACLMessage
+	 */
+	public static ACLMessage prepareJobFinishMessageForCNA(final ClientJob job, final Integer ruleSet,
+			final Double price, final AID... receivers) {
+		final JobInstanceIdentifier jobInstanceId = mapClientJobToJobInstanceId(job);
+		final JobWithStatus jobInstanceWithPrice = ImmutableJobWithStatus.builder()
+				.jobInstance(jobInstanceId)
+				.changeTime(getCurrentTime())
+				.priceForJob(price)
+				.build();
+
+		return prepareJobStatusMessage(jobInstanceWithPrice, FINISH_JOB_ID, ruleSet, receivers);
 	}
 
 	/**
@@ -206,7 +242,7 @@ public class JobStatusMessageFactory {
 			final AID serverAddress, final Integer ruleSet) {
 		return MessageBuilder.builder(ruleSet)
 				.withPerformative(INFORM)
-				.withMessageProtocol(MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL)
+				.withMessageProtocol(MANUAL_JOB_FINISH_PROTOCOL)
 				.withObjectContent(jobInstanceId)
 				.withReceivers(serverAddress)
 				.build();

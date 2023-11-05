@@ -23,6 +23,7 @@ public class MonitoringAgentConstants {
 							.cloudCover(25.0)
 							.temperature(25.0)
 							.windSpeed(10.0)
+							.airDensity(0.31)
 							.time(getCurrentTime())
 							.build())
 					.build();
@@ -32,6 +33,7 @@ public class MonitoringAgentConstants {
 							.cloudCover(0.0)
 							.temperature(0.0)
 							.windSpeed(0.0)
+							.airDensity(0.31)
 							.time(getCurrentTime())
 							.build())
 					.build();

@@ -35,11 +35,11 @@ public class StartInitialGreenEnergyBehaviours extends AgentBehaviourRule<GreenE
 	@Override
 	protected Set<Behaviour> initializeBehaviours() {
 		return Set.of(
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						REPORT_DATA_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SENSE_EVENTS_RULE, controller),
-				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestRuleSet().get()),
+				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						SCHEDULE_CHECK_WEATHER_PERIODICALLY_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_SERVER_ERROR_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_SERVER_RE_SUPPLY_RULE, controller),

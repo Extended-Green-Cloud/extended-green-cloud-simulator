@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.constants.FactTypeConstants.RESOURCES;
@@ -81,7 +82,7 @@ public class RequestWeatherForNewPowerSupplyRule extends AgentRequestRule<GreenE
 			} else if (energyForJob > availablePower.get()) {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-				logger.info("Refusing job with id {} - not enough available power. Needed {}, available {}", jobId,
+				logger.info("Refusing job with id {} - not enough available energy. Needed {}, available {}", jobId,
 						energyForJob, availablePower.get());
 				handleRefusal(job, facts);
 			} else {
@@ -119,6 +120,7 @@ public class RequestWeatherForNewPowerSupplyRule extends AgentRequestRule<GreenE
 		final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		finishFacts.put(JOB, job);
 		finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+		finishFacts.put(COMPUTE_FINAL_PRICE, false);
 		controller.fire(finishFacts);
 
 		agent.send(prepareRefuseReply(facts.get(MESSAGE)));

@@ -41,13 +41,13 @@ public class RequestServerMaintenanceInCNARule extends AgentRequestRule<ServerAg
 		final ConcurrentHashMap<String, Resource> prevResources = new ConcurrentHashMap<>(agentProps.resources());
 		agentProps.resources(new ConcurrentHashMap<>(newResources));
 
-		final RuleSetFacts initializeResources = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts initializeResources = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		initializeResources.put(RULE_TYPE, "INITIALIZE_SERVER_RESOURCE_KNOWLEDGE");
 		controller.fire(initializeResources);
 
 		facts.put("PREVIOUS_RESOURCES", prevResources);
 		return prepareRequestInformingCNAAboutResourceChange(agentProps, agentProps.resources(),
-				controller.getLatestRuleSet().get());
+				controller.getLatestLongTermRuleSetIdx().get());
 	}
 
 	@Override

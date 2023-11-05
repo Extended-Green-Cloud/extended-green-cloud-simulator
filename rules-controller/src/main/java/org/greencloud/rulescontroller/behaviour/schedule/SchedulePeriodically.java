@@ -53,7 +53,7 @@ public class SchedulePeriodically extends TickerBehaviour {
 	 */
 	@Override
 	protected void onTick() {
-		final RuleSetFacts newFacts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts newFacts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		newFacts.put(RULE_TYPE, ruleType);
 		newFacts.put(RULE_STEP, PERIODIC_EXECUTE_ACTION_STEP);
 		controller.fire(newFacts);

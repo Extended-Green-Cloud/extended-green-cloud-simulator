@@ -53,7 +53,7 @@ public class EnableServerRule extends AgentBasicRule<ServerAgentProps, ServerNod
 		agentProps.enable();
 		agentProps.saveMonitoringData();
 
-		final RuleSetFacts enablingFacts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts enablingFacts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		enablingFacts.put(RULE_TYPE, PROCESS_SERVER_ENABLING_RULE);
 		agent.addBehaviour(InitiateRequest.create(agent, enablingFacts, PROCESS_SERVER_ENABLING_RULE, controller));
 	}

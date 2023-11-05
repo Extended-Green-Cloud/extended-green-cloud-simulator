@@ -63,7 +63,7 @@ public class ProcessGreenSourcePowerShortageFinishEventRule
 				MDC.put(MDC_JOB_ID, powerJob.getJobId());
 				MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 				if (agentProps.getServerJobs().containsKey(powerJob)) {
-					final int ruleSetForJob = agentProps.getRuleSetForJob().get(powerJob.getJobInstanceId());
+					final int ruleSetForJob = agentProps.getRuleSetForJob().get(powerJob);
 					facts.put(RULE_SET_IDX, ruleSetForJob);
 
 					logger.info("Checking if the job {} can be put in progress", powerJob.getJobId());

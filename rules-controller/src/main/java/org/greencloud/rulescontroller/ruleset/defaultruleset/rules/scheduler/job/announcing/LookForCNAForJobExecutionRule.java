@@ -14,10 +14,14 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PROCESSING
 import static org.greencloud.commons.enums.rules.RuleType.COMPARE_EXECUTION_PROPOSALS;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_HANDLE_FAILURE_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ACCEPTED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SCHEDULER_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForClient;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
@@ -25,7 +29,9 @@ import java.util.Collection;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithPrice;
+import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -100,8 +106,17 @@ public class LookForCNAForJobExecutionRule extends AgentCFPRule<SchedulerAgentPr
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Sending ACCEPT_PROPOSAL to {}", bestProposal.getSender().getName());
 
+		final JobWithPrice bestOfferContent = readMessageContent(bestProposal, JobWithPrice.class);
+		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
+				.jobInstance(mapToJobInstanceId(job))
+				.priceForJob(bestOfferContent.getPriceForJob())
+				.changeTime(getCurrentTime())
+				.build();
+
 		agentProps.getClientJobs().replace(job, PROCESSING, ACCEPTED);
 		agentProps.getCnaForJobMap().put(job.getJobId(), bestProposal.getSender());
+		agent.send(prepareJobStatusMessageForClient(job, jobStatusUpdate, ACCEPTED_JOB_ID,
+				facts.get(RULE_SET_IDX)));
 		agent.send(prepareReply(bestProposal, JobMapper.mapClientJobToJobInstanceId(job), ACCEPT_PROPOSAL));
 	}
 

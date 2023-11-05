@@ -20,12 +20,14 @@ import static org.greencloud.commons.utils.messaging.constants.MessageContentCon
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -85,7 +87,11 @@ public class RequestWeatherToVerifyEnergyReSupplyRule extends AgentRequestRule<G
 				if (agentProps.getServerJobs().containsKey(job)) {
 					logger.info("Job {} is being supplied again using the green energy", job.getJobId());
 					final boolean isActive = agentProps.getServerJobs().get(job).equals(ON_HOLD);
+					final JobExecutionStatusEnum newStatus = EXECUTING_ON_GREEN.getStatus(isActive);
+					final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
 
+					agentProps.getJobsExecutionTime()
+							.updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
 					agentProps.getServerJobs().replace(job, EXECUTING_ON_GREEN.getStatus(isActive));
 					agentProps.updateGUI();
 					agent.send(prepareStringReply(request, RE_SUPPLY_SUCCESSFUL_MESSAGE, INFORM));

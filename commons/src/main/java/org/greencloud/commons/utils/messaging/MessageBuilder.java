@@ -88,7 +88,18 @@ public class MessageBuilder {
 		return this;
 	}
 
+	public MessageBuilder withReplyWith(final String replyWith) {
+		aclMessage.setReplyWith(replyWith);
+		return this;
+	}
+
 	public MessageBuilder withReceivers(final AID... aids) {
+		Arrays.stream(aids).forEach(aclMessage::addReceiver);
+		return this;
+	}
+
+	public MessageBuilder withNewReceivers(final AID... aids) {
+		aclMessage.clearAllReceiver();
 		Arrays.stream(aids).forEach(aclMessage::addReceiver);
 		return this;
 	}

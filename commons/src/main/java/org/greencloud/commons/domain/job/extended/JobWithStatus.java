@@ -2,12 +2,14 @@ package org.greencloud.commons.domain.job.extended;
 
 import java.time.Instant;
 
+import javax.annotation.Nullable;
+
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.immutables.value.Value;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
 
 /**
  * Object stores the information about the time of job status update
@@ -15,7 +17,7 @@ import org.greencloud.commons.domain.ImmutableConfig;
 @JsonSerialize(as = ImmutableJobWithStatus.class)
 @JsonDeserialize(as = ImmutableJobWithStatus.class)
 @Value.Immutable
-@ImmutableConfig
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public interface JobWithStatus {
 
 	/**
@@ -27,4 +29,16 @@ public interface JobWithStatus {
 	 * @return time of status change
 	 */
 	Instant getChangeTime();
+
+	/**
+	 * @return server executing the job
+	 */
+	@Nullable
+	String getServerName();
+
+	/**
+	 * @return cost of execution of the given job
+	 */
+	@Nullable
+	Double getPriceForJob();
 }

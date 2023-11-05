@@ -8,7 +8,9 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;
 import org.greencloud.commons.domain.agent.ImmutableGreenSourceData;
 import org.greencloud.commons.domain.agent.ImmutableServerData;
+import org.greencloud.commons.domain.agent.ImmutableServerResources;
 import org.greencloud.commons.domain.agent.ServerData;
+import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.utils.job.JobUtils;
 import org.greencloud.commons.utils.messaging.MessageBuilder;
@@ -33,7 +35,9 @@ public class OfferMessageFactory {
 			final String jobId, final ACLMessage cnaMessage, final Integer ruleSet) {
 		final ClientJob job = requireNonNull(JobUtils.getJobById(jobId, agentProps.getServerJobs()));
 		final double powerConsumption = agentProps.getPowerConsumption(job.getStartTime(), job.getEndTime());
-		final ServerData jobOffer = new ImmutableServerData(servicePrice, powerConsumption, jobId);
+		final ServerResources serverResources = ImmutableServerResources.builder().resources(agentProps.resources())
+				.price(agentProps.getPricePerHour()).build();
+		final ServerData jobOffer = new ImmutableServerData(servicePrice, powerConsumption, jobId, serverResources);
 
 		return MessageBuilder.builder(ruleSet)
 				.copy(cnaMessage.createReply())

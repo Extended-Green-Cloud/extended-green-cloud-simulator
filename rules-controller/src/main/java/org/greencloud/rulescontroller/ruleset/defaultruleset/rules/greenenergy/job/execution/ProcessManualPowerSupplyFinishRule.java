@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.execution;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
@@ -71,6 +72,7 @@ public class ProcessManualPowerSupplyFinishRule extends AgentScheduledRule<Green
 		final RuleSetFacts factsJobEnd = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		factsJobEnd.put(JOB, job);
 		factsJobEnd.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+		factsJobEnd.put(COMPUTE_FINAL_PRICE, true);
 		controller.fire(factsJobEnd);
 
 		agentProps.updateGUI();

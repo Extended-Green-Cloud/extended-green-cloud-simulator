@@ -20,6 +20,7 @@ import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFE
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_CNA_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_IN_GS_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapPowerJobToEnergyJob;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
@@ -35,6 +36,7 @@ import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -54,6 +56,7 @@ import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStateEnum;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.FactsMapper;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
@@ -92,7 +95,7 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 	protected ACLMessage createCFPMessage(final RuleSetFacts facts) {
 		final JobDivided<ClientJob> newJobInstances = facts.get(JOBS);
 		final ClientJob job = newJobInstances.getSecondInstance();
-		final double estimatedEnergy = agentProps.estimateEnergyForJob(job);
+		final double estimatedEnergy = agentProps.estimatePowerForJob(job);
 		return prepareCallForProposal(mapPowerJobToEnergyJob(job, estimatedEnergy), facts.get(AGENTS),
 				SERVER_JOB_CFP_PROTOCOL, facts.get(RULE_SET_IDX));
 	}
@@ -124,7 +127,7 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 	protected void handleRejectProposal(final ACLMessage proposalToReject, final RuleSetFacts facts) {
 		final JobDivided<ClientJob> newJobInstances = facts.get(JOBS);
 		final ClientJob jobInstance = newJobInstances.getSecondInstance();
-		agent.send(prepareReply(proposalToReject, jobInstance, REJECT_PROPOSAL));
+		agent.send(prepareReply(proposalToReject, mapToJobInstanceId(jobInstance), REJECT_PROPOSAL));
 	}
 
 	@Override
@@ -195,7 +198,11 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 			logger.info(stateFields.getMiddle(), job.getJobId());
-			agentProps.getServerJobs().replace(job, stateFields.getLeft().getStatus(hasStarted));
+			final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+			final JobExecutionStatusEnum newStatus = stateFields.getLeft().getStatus(hasStarted);
+
+			agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+			agentProps.getServerJobs().replace(job, newStatus);
 
 			if (hasStarted) {
 				agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job),

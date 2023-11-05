@@ -99,13 +99,14 @@ public class ProcessGreenSourcePowerShortageStartEventRule extends
 			}
 
 			affectedJobs.stream().parallel().forEach(serverJob -> {
-				final int ruleSetForJob = agentProps.getRuleSetForJob().get(serverJob.getJobInstanceId());
-				facts.put(RULE_SET_IDX, ruleSetForJob);
+				final RuleSetFacts internalRules = new RuleSetFacts(facts.get(RULE_SET_IDX));
+				final int ruleSetForJob = agentProps.getRuleSetForJob().get(serverJob);
+				internalRules.put(RULE_SET_IDX, ruleSetForJob);
 
 				MDC.put(MDC_JOB_ID, serverJob.getJobId());
 				logger.info("Requesting job {} transfer in parent Server", serverJob.getJobId());
 
-				final RuleSetFacts transferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
+				final RuleSetFacts transferFacts = new RuleSetFacts(internalRules.get(RULE_SET_IDX));
 				transferFacts.put(JOB, serverJob);
 				transferFacts.put(EVENT_TIME, startTime);
 

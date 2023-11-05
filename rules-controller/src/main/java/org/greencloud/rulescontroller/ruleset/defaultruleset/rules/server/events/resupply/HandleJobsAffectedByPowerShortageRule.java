@@ -49,7 +49,7 @@ public class HandleJobsAffectedByPowerShortageRule extends AgentPeriodicRule<Ser
 				.collect(toSet());
 
 		affectedJobs.forEach(job -> {
-			final int ruleSet = agentProps.getRuleSetForJob().get(job.getJobInstanceId());
+			final int ruleSet = agentProps.getRuleSetForJob().get(job);
 			final RuleSetFacts handlerFacts = new RuleSetFacts(ruleSet);
 			handlerFacts.put(RULE_TYPE, CHECK_SINGLE_AFFECTED_JOB_RULE);
 			handlerFacts.put(JOB, job);

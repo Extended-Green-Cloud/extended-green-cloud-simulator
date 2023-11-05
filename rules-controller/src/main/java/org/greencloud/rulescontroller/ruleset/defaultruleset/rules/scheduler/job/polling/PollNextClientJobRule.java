@@ -38,7 +38,7 @@ public class PollNextClientJobRule extends AgentPeriodicRule<SchedulerAgentProps
 	protected void handleActionTrigger(final RuleSetFacts facts) {
 		facts.put(RULE_TYPE, NEW_JOB_POLLING_RULE);
 		facts.put(INITIATE_CFP, false);
-		facts.put(RULE_SET_IDX, controller.getLatestRuleSet().get());
+		facts.put(RULE_SET_IDX, controller.getLatestLongTermRuleSetIdx().get());
 		controller.fire(facts);
 
 		if (facts.get(INITIATE_CFP)) {

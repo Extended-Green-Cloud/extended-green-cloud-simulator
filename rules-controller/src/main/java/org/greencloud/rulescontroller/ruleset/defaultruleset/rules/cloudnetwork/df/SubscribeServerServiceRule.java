@@ -54,7 +54,7 @@ public class SubscribeServerServiceRule extends AgentSubscriptionRule<CloudNetwo
 		addedAgents.replaceAll((key, val) -> false);
 		agentProps.getOwnedServers().putAll(addedAgents);
 		addedAgents.forEach((server, state) -> agent.send(
-				prepareRequestForResourceInformationMessage(server, controller.getLatestRuleSet().get())));
+				prepareRequestForResourceInformationMessage(server, controller.getLatestLongTermRuleSetIdx().get())));
 	}
 
 	private void initializeWeights(Set<AID> addedServers) {

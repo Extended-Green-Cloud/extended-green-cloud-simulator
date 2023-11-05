@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing.processing;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
@@ -77,6 +78,7 @@ public class ProcessNotEnoughResourcesBeforePowerSupplyRule
 		final RuleSetFacts finishJobFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		finishJobFacts.put(JOB, job);
 		finishJobFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+		finishJobFacts.put(COMPUTE_FINAL_PRICE, false);
 		controller.fire(finishJobFacts);
 
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();

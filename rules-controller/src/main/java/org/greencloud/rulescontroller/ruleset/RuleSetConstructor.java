@@ -1,7 +1,9 @@
 package org.greencloud.rulescontroller.ruleset;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.enums.rules.RuleType.COMPARE_EXECUTION_PROPOSALS;
 import static org.greencloud.rulescontroller.rest.RuleSetRestApi.getAvailableRuleSets;
+import static org.greencloud.rulescontroller.rule.AgentRuleType.BASIC;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.CFP;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.COMBINED;
 import static org.greencloud.rulescontroller.rule.AgentRuleType.LISTENER;
@@ -19,9 +21,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.AgentProps;
+import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.enums.rules.RuleStepType;
 import org.greencloud.gui.agents.AgentNode;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.rest.domain.RuleRest;
+import org.greencloud.rulescontroller.rest.domain.RuleSetRest;
 import org.greencloud.rulescontroller.rule.AgentBasicRule;
 import org.greencloud.rulescontroller.rule.AgentRule;
 import org.greencloud.rulescontroller.rule.AgentRuleType;
@@ -66,6 +71,57 @@ public class RuleSetConstructor {
 	}
 
 	/**
+	 * Method creates rule set used when client specifies individual comparison preferences
+	 *
+	 * @param instructions instructions obtained by the client
+	 * @param ruleSetName  name of the created rule set
+	 * @param log          log message displayed when performing comparison
+	 * @param jobId        job identifier
+	 * @return rule set with client comparison
+	 */
+	public static RuleSetRest constructRuleSetForCustomClientComparison(final String instructions,
+			final String ruleSetName, final String log,
+			final String jobId, final AgentType agentType) {
+		final RuleRest compareProposalsRule = createComparatorRule(instructions, log, jobId, agentType);
+
+		final RuleSetRest ruleSetRest = new RuleSetRest();
+		ruleSetRest.setName(ruleSetName);
+		ruleSetRest.setRules(new ArrayList<>(List.of(compareProposalsRule)));
+
+		return ruleSetRest;
+	}
+
+	private static RuleRest createComparatorRule(final String instructions, final String log, final String jobId,
+			final AgentType agentType) {
+		final RuleRest handleProposalsRule = new RuleRest();
+		handleProposalsRule.setAgentRuleType(BASIC);
+		handleProposalsRule.setAgentType(agentType.name());
+		handleProposalsRule.setType(COMPARE_EXECUTION_PROPOSALS);
+		handleProposalsRule.setName(
+				"compare proposals from servers according to custom instructions of client" + jobId);
+		handleProposalsRule.setDescription(
+				"compare proposals from servers according to custom instructions of client" + jobId);
+		handleProposalsRule.setImports(List.of(
+				"import org.greencloud.commons.constants.FactTypeConstants;",
+				"import org.greencloud.commons.domain.job.extended.JobWithPrice;"
+		));
+		handleProposalsRule.setExecute("""
+				bestP = facts.get("BEST_PROPOSAL_CONTENT");
+				newP = facts.get("NEW_PROPOSAL_CONTENT");
+				def computeServerComparison(bestProposal, newProposal) { $instruction }
+				MDC.put(LoggingConstants.MDC_JOB_ID, $jobId);
+				MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts));
+				logger.info("$log (job: $jobId).");
+				finalResult = computeServerComparison(bestP, newP);
+				facts.put(FactTypeConstants.RESULT, finalResult);
+				"""
+				.replace("$instruction", instructions)
+				.replace("$log", log)
+				.replace("$jobId", jobId));
+		return handleProposalsRule;
+	}
+
+	/**
 	 * Method constructs modified rule set (modifications are applied to default rule set)
 	 *
 	 * @param baseRuleSet     base rule set
@@ -73,7 +129,7 @@ public class RuleSetConstructor {
 	 *
 	 * @return RuleSet
 	 */
-	public static <E extends AgentProps, T extends AgentNode<E>> RuleSet constructModifiedRuleSetForType(
+	public static <E extends AgentProps> RuleSet constructModifiedRuleSetForType(
 			final RuleSet baseRuleSet, RuleSet modifications) {
 		if (nonNull(modifications) && nonNull(baseRuleSet)) {
 			final RuleSet baseRules = new RuleSet(baseRuleSet);

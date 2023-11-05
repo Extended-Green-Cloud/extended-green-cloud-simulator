@@ -13,12 +13,14 @@ import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -60,7 +62,11 @@ public class ProcessPowerShortageFinishRule extends AgentBasicRule<ServerAgentPr
 				job.getJobId());
 
 		final boolean hasStarted = isJobStarted(job, agentProps.getServerJobs());
-		agentProps.getServerJobs().replace(job, EXECUTING_ON_GREEN.getStatus(hasStarted));
+		final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+		final JobExecutionStatusEnum newStatus = EXECUTING_ON_GREEN.getStatus(hasStarted);
+
+		agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+		agentProps.getServerJobs().replace(job, newStatus);
 		agentProps.updateGUI();
 		agent.send(prepareJobStatusMessageForCNA(jobInstance, GREEN_POWER_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
 	}

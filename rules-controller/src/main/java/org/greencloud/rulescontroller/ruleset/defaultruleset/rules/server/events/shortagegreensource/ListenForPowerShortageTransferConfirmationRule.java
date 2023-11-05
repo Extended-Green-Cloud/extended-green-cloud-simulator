@@ -23,11 +23,13 @@ import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
 import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
+import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.TRANSFER_SUCCESSFUL_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_SOURCE_TRANSFER_CONFIRMATION;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -39,6 +41,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -153,6 +156,14 @@ public class ListenForPowerShortageTransferConfirmationRule
 
 	private void updateJobStatus(final ClientJob jobToExecute) {
 		final boolean isJobRunning = agentProps.getServerJobs().get(jobToExecute).equals(ON_HOLD_TRANSFER);
+
+		if (!isJobStarted(jobToExecute, agentProps.getServerJobs())) {
+			final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(jobToExecute);
+			final JobExecutionStatusEnum newStatus = EXECUTING_ON_GREEN.getStatus(isJobRunning);
+
+			agentProps.getJobsExecutionTime()
+					.updateJobExecutionDuration(jobToExecute, prevStatus, newStatus, getCurrentTime());
+		}
 		agentProps.getServerJobs().replace(jobToExecute, EXECUTING_ON_GREEN.getStatus(isJobRunning));
 	}
 }

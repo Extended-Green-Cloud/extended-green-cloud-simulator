@@ -37,7 +37,7 @@ public class ProcessServerMaintenanceRule extends AgentBasicRule<ServerAgentProp
 		logger.info("Received information about server maintenance - informing CNA about changes in server resources!");
 		agentNode.confirmMaintenanceInServer();
 
-		final RuleSetFacts maintenanceFacts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts maintenanceFacts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		maintenanceFacts.put(RESOURCES, serverMaintenanceEvent.getNewResources());
 		agent.addBehaviour(
 				InitiateRequest.create(agent, maintenanceFacts, "SERVER_MAINTENANCE_REQUEST_RULE", controller));

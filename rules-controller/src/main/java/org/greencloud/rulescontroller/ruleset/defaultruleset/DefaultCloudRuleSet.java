@@ -36,13 +36,16 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.weatherdrop.HandleCNAWeatherDropEventRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.initial.StartInitialCloudNetworkBehaviours;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.LookForServerForJobExecutionRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.comparison.CompareServersProposalsOfJobExecution;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.HandleJobRemovalRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.HandleJobStatusStartCheckRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.ScheduleJobStartVerificationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForJobPriceUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForNewScheduledJobRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForServerJobStatusUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessNewScheduledJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessServerJobStatusUpdateCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.processing.ProcessJobPriceUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.proposing.ProposeToSchedulerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceInformationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceUpdateRule;
@@ -149,6 +152,9 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.ex
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution.ProcessJobFinishOnBackUpPowerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution.ProcessJobFinishRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.execution.ProcessJobStartRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobprice.HandleJobFinishPriceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobprice.ListenForJobInstancePriceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobprice.processing.ProcessJobInstancePriceUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobupdate.ListenForUpdatesFromGreenSourceRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobupdate.ProcessUpdateFromGreenSourceCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.ListenForJobManualFinishRule;
@@ -246,7 +252,10 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessServerStatusChangeCombinedRule(rulesController),
 				new ProcessTransferRequestCombinedRule(rulesController),
 				new ListenForServerResourceUpdateRule(rulesController, this),
-				new ProcessServerResourceUpdateRule(rulesController)
+				new ProcessServerResourceUpdateRule(rulesController),
+				new CompareServersProposalsOfJobExecution(rulesController),
+				new ListenForJobPriceUpdateRule(rulesController, this),
+				new ProcessJobPriceUpdateRule(rulesController)
 		);
 	}
 
@@ -305,7 +314,10 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessUpdateFromGreenSourceCombinedRule(rulesController),
 				new ProcessCheckSingleAffectedJobRule(rulesController),
 				new ProcessServerMaintenanceRule(rulesController),
-				new RequestServerMaintenanceInCNARule(rulesController)
+				new RequestServerMaintenanceInCNARule(rulesController),
+				new ListenForJobInstancePriceUpdateRule(rulesController, this),
+				new ProcessJobInstancePriceUpdateRule(rulesController),
+				new HandleJobFinishPriceUpdateRule(rulesController)
 		);
 	}
 

@@ -66,6 +66,7 @@ public class ProcessSchedulerFinishedJobUpdateRule extends AgentBasicRule<Client
 		final JobWithStatus jobUpdate = readMessageContent(message, JobWithStatus.class);
 		agentNode.measureTimeToRetrieveTheMessage(jobUpdate, agentProps);
 		agentNode.updateJobStatus(FINISHED);
+		agentNode.updateFinalExecutionCost(jobUpdate.getPriceForJob());
 		agentProps.updateJobStatusDuration(FINISHED, jobUpdate.getChangeTime());
 
 		MDC.put(MDC_JOB_ID, agentProps.getJob().getJobId());

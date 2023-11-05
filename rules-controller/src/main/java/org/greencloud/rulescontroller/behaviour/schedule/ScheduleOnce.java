@@ -40,7 +40,7 @@ public class ScheduleOnce extends WakerBehaviour {
 		super(agent, facts.get(TRIGGER_TIME));
 		this.facts = facts;
 		this.controller = controller;
-		this.selectRuleSet = isNull(selectRuleSet) ? o -> controller.getLatestRuleSet().get() : selectRuleSet;
+		this.selectRuleSet = isNull(selectRuleSet) ? o -> controller.getLatestLongTermRuleSetIdx().get() : selectRuleSet;
 	}
 
 	/**

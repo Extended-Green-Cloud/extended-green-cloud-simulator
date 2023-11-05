@@ -23,7 +23,10 @@ import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.ImmutableSetClientJobDurationMapMessage;
 import org.greencloud.gui.messages.ImmutableSetClientJobStatusMessage;
 import org.greencloud.gui.messages.ImmutableSetClientJobTimeFrameMessage;
+import org.greencloud.gui.messages.ImmutableUpdateEstimatedCostForClientMessage;
+import org.greencloud.gui.messages.ImmutableUpdateFinalCostForClientMessage;
 import org.greencloud.gui.messages.ImmutableUpdateJobExecutionProportionMessage;
+import org.greencloud.gui.messages.ImmutableUpdateServerForClientMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
 import org.greencloud.gui.messages.domain.ImmutableJobTimeFrame;
 
@@ -115,6 +118,42 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	public void updateJobStatus(final JobClientStatusEnum clientJobStatusEnum) {
 		getClientsWebSocket().send(ImmutableSetClientJobStatusMessage.builder()
 				.status(clientJobStatusEnum.getStatus())
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function updates name of the server executing client job
+	 *
+	 * @param serverName name of the server executing client job
+	 */
+	public void updateServerForExecution(final String serverName) {
+		getClientsWebSocket().send(ImmutableUpdateServerForClientMessage.builder()
+				.serverName(serverName)
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function updates final cost of job execution
+	 *
+	 * @param finalPrice final price of job execution
+	 */
+	public void updateFinalExecutionCost(final Double finalPrice) {
+		getClientsWebSocket().send(ImmutableUpdateFinalCostForClientMessage.builder()
+				.finalPrice(finalPrice)
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
+	 * Function updates estimated cost of job execution
+	 *
+	 * @param estimatedPrice estimated cost of job execution
+	 */
+	public void updateEstimatedExecutionCost(final Double estimatedPrice) {
+		getClientsWebSocket().send(ImmutableUpdateEstimatedCostForClientMessage.builder()
+				.estimatedPrice(estimatedPrice)
 				.agentName(agentName)
 				.build());
 	}

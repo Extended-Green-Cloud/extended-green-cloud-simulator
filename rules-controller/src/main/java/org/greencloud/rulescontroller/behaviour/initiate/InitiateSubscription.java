@@ -40,7 +40,7 @@ public class InitiateSubscription extends SubscriptionInitiator {
 		super(agent, facts.get(SUBSCRIPTION_CREATE_MESSAGE));
 		this.facts = facts;
 		this.controller = controller;
-		this.selectRuleSet = isNull(selectRuleSet) ? o -> controller.getLatestRuleSet().get() : selectRuleSet;
+		this.selectRuleSet = isNull(selectRuleSet) ? o -> controller.getLatestLongTermRuleSetIdx().get() : selectRuleSet;
 	}
 
 	/**

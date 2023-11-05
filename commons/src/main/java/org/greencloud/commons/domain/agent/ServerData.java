@@ -29,4 +29,9 @@ public interface ServerData {
 	 * @return unique identifier of the given job of interest
 	 */
 	String getJobId();
+
+	/**
+	 * @return specification of the server that will execute given job
+	 */
+	ServerResources getServerResources();
 }

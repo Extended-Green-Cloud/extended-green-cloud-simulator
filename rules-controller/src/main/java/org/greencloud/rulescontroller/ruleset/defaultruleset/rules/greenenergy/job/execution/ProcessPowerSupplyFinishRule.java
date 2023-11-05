@@ -1,8 +1,11 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.execution;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
@@ -58,14 +61,19 @@ public class ProcessPowerSupplyFinishRule extends AgentBasicRule<GreenEnergyAgen
 	public void executeRule(final RuleSetFacts facts) {
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
+
 		if (isJobStarted(job, agentProps.getServerJobs())) {
 			agentProps.incrementJobCounter(jobInstance, FINISH);
 		}
+
 		logger.info("Finish the execution of the job {}", jobInstance);
 
 		final RuleSetFacts jobRemoveFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		jobRemoveFacts.put(JOB, job);
+		jobRemoveFacts.put(MESSAGE, facts.get(MESSAGE));
+		jobRemoveFacts.put(MESSAGE_CONTENT, facts.get(MESSAGE_CONTENT));
 		jobRemoveFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+		jobRemoveFacts.put(COMPUTE_FINAL_PRICE, true);
 		controller.fire(jobRemoveFacts);
 		agentProps.updateGUI();
 	}

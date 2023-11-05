@@ -10,12 +10,14 @@ import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndSer
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.INTERNAL_SERVER_ERROR_ON_HOLD_PROTOCOL;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
+import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
@@ -61,8 +63,11 @@ public class ProcessPutJobOnHoldRule extends AgentBasicRule<GreenEnergyAgentProp
 			logger.info("Received information about job {} transfer failure. Putting job on hold",
 					jobInstanceId.getJobId());
 			final boolean hasStarted = isJobStarted(job, agentProps.getServerJobs());
+			final JobExecutionStatusEnum prevStatus = agentProps.getServerJobs().get(job);
+			final JobExecutionStatusEnum newStatus = EXECUTING_ON_HOLD.getStatus(hasStarted);
 
-			agentProps.getServerJobs().replace(job, EXECUTING_ON_HOLD.getStatus(hasStarted));
+			agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+			agentProps.getServerJobs().replace(job, newStatus);
 			agentProps.updateGUI();
 		} else {
 			logger.info("Job {} to put on hold was not found", jobInstanceId.getJobId());

@@ -7,11 +7,15 @@ import static java.time.ZoneOffset.UTC;
 import static java.util.Comparator.comparingLong;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.COEFFICIENT_OF_PERFORMANCE;
+import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.ROTOR_SWEPT_AREA;
+import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.TEST_MULTIPLIER;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.CURRENT_AVAILABLE_POWER_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_ACCEPTED_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_FAILED_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_FINISH_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_START_LOG;
+import static org.greencloud.commons.enums.job.JobIdentificationEnum.JOB_INSTANCE_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -32,6 +36,7 @@ import org.greencloud.commons.constants.LoggingConstants;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
+import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.domain.weather.MonitoringData;
@@ -65,7 +70,9 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	private final AtomicInteger weatherShortagesCounter;
 	protected GreenSourceDisconnectionProps greenSourceDisconnection;
 	protected ConcurrentMap<ServerJob, JobExecutionStatusEnum> serverJobs;
-	protected ConcurrentMap<String, Integer> ruleSetForJob;
+	protected ConcurrentMap<ServerJob, Integer> ruleSetForJob;
+	protected JobExecutionDuration<ServerJob> jobsExecutionTime;
+	protected ConcurrentMap<ServerJob, Double> priceForJob;
 	protected Location location;
 	protected GreenEnergySourceTypeEnum energyType;
 	protected AID monitoringAgent;
@@ -83,6 +90,8 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		this.hasError = false;
 		this.serverJobs = new ConcurrentHashMap<>();
 		this.ruleSetForJob = new ConcurrentHashMap<>();
+		this.jobsExecutionTime = new JobExecutionDuration<>(JOB_INSTANCE_ID);
+		this.priceForJob = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -120,7 +129,8 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 */
 	public void addJob(final ServerJob job, final Integer ruleSet, final JobExecutionStatusEnum status) {
 		serverJobs.put(job, status);
-		ruleSetForJob.put(job.getJobInstanceId(), ruleSet);
+		jobsExecutionTime.addDurationMap(job);
+		ruleSetForJob.put(job, ruleSet);
 	}
 
 	/**
@@ -128,9 +138,21 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 *
 	 * @param job job that is to be removed
 	 */
-	public int removeJob(final ServerJob job) {
+	public void removeJob(final ServerJob job) {
 		serverJobs.remove(job);
-		return ruleSetForJob.remove(job.getJobInstanceId());
+		priceForJob.remove(job);
+		jobsExecutionTime.removeDurationMap(job);
+		ruleSetForJob.remove(job);
+	}
+
+	/**
+	 * Method computes final cost of job instance execution
+	 *
+	 * @param job job for which cost is to be calculated
+	 */
+	public double computeFinalJobInstancePrice(final ServerJob job) {
+		final double price = priceForJob.get(job);
+		return jobsExecutionTime.computeFinalPrice(job, price);
 	}
 
 	/**
@@ -300,12 +322,16 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		};
 	}
 
+	/**
+	 * @implNote Formula: P (Watts) = 0.5 * p * R^2 * Cp * V^3  where:
+	 * <p> p - air density (kg/m^3) </p>
+	 * <p> R - rotor swept area (m^3) </p>
+	 * <p> Cp - coeff. of performance </p>
+	 * <p> V - wind speed (m/s) </p>
+	 */
 	private double getWindEnergy(WeatherData weather) {
-		return maximumGeneratorCapacity * pow(
-				(weather.getWindSpeed() + 5 - GreenEnergyAgentPropsConstants.CUT_ON_WIND_SPEED)
-						/ (GreenEnergyAgentPropsConstants.RATED_WIND_SPEED
-						- GreenEnergyAgentPropsConstants.CUT_ON_WIND_SPEED), 2)
-				* GreenEnergyAgentPropsConstants.TEST_MULTIPLIER;
+		return 0.5 * COEFFICIENT_OF_PERFORMANCE * pow(ROTOR_SWEPT_AREA, 2) * weather.getAirDensity() * pow(
+				weather.getWindSpeed(), 3) * TEST_MULTIPLIER;
 	}
 
 	private double getSolarEnergy(WeatherData weather, ZonedDateTime dateTime, Location location) {
@@ -321,7 +347,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		}
 
 		return maximumGeneratorCapacity * min(weather.getCloudCover() / 100 + 0.1, 1)
-				* GreenEnergyAgentPropsConstants.TEST_MULTIPLIER;
+				* TEST_MULTIPLIER;
 	}
 
 	private WeatherData getNearestWeather(final MonitoringData monitoringData, final Instant timestamp) {

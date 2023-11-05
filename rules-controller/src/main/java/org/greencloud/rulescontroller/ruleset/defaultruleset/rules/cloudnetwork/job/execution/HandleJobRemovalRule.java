@@ -30,6 +30,7 @@ public class HandleJobRemovalRule extends AgentBasicRule<CloudNetworkAgentProps,
 	public void executeRule(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
 		final int ruleSetIdx = agentProps.removeJob(job);
+		agentProps.getPriceForJob().remove(job.getJobId());
 
 		if (controller.removeRuleSet(agentProps.getRuleSetForJob(), ruleSetIdx)) {
 			agent.send(prepareRuleSetRemovalRequest(ruleSetIdx, agentProps.getOwnedServers().keySet()));

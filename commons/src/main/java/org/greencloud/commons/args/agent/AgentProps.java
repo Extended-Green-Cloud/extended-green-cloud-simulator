@@ -79,6 +79,10 @@ public class AgentProps {
 
 	public void setSystemKnowledge(
 			final Map<String, Map<String, Object>> systemKnowledge) {
-		this.systemKnowledge = new HashMap<>(systemKnowledge);
+		try {
+			this.systemKnowledge = new HashMap<>(systemKnowledge);
+		} catch (NullPointerException e) {
+			System.out.println(":)");
+		}
 	}
 }

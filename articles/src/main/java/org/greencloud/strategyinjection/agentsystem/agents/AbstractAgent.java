@@ -24,7 +24,7 @@ public class AbstractAgent<T extends AgentNode<E>, E extends AgentProps> extends
 	 * Method responsible for running initial custom behaviours prepared only for selected rule set
 	 */
 	public void runInitialBehavioursForStrategy() {
-		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestRuleSet().get());
+		final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
 		facts.put(RULE_TYPE, INITIALIZE_BEHAVIOURS_RULE);
 		rulesController.fire(facts);
 	}

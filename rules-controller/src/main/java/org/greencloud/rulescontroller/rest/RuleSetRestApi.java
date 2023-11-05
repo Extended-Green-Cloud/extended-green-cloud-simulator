@@ -42,6 +42,7 @@ public class RuleSetRestApi {
 		builder.run();
 
 		availableRuleSets = new HashMap<>();
+		agentNodes = new ArrayList<>();
 		availableRuleSets.put(DEFAULT_CLOUD_RULE_SET, new DefaultCloudRuleSet());
 
 		final List<File> ruleSetFiles = readAllFiles(RULE_SETS_PATH);

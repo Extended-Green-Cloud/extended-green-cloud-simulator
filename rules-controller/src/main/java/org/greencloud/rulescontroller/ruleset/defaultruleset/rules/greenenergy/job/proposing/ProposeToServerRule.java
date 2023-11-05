@@ -1,6 +1,7 @@
 package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.job.proposing;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.constants.FactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_ID;
 import static org.greencloud.commons.constants.FactTypeConstants.MESSAGE;
@@ -56,6 +57,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 		final double availablePower = facts.get(RESULT);
 		final double energyCost =
 				convertToHourDuration(job.getStartTime(), job.getEndTime()) * agentProps.getPricePerPowerUnit();
+		agentProps.getPriceForJob().put(job,  agentProps.getPricePerPowerUnit());
 		return prepareGreenEnergyPowerSupplyOffer(energyCost, availablePower,
 				agentProps.computeCombinedPowerError(job), job.getJobId(), facts.get(MESSAGE));
 	}
@@ -93,6 +95,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 			final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 			finishFacts.put(JOB, facts.get(JOB));
 			finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
+			finishFacts.put(COMPUTE_FINAL_PRICE, false);
 			controller.fire(finishFacts);
 		}
 

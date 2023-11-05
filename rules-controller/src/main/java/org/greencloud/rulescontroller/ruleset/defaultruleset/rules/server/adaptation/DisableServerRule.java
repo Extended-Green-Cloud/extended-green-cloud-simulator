@@ -53,7 +53,7 @@ public class DisableServerRule extends AgentBasicRule<ServerAgentProps, ServerNo
 		agentProps.disable();
 		agentProps.saveMonitoringData();
 
-		final RuleSetFacts disablingFacts = new RuleSetFacts(controller.getLatestRuleSet().get());
+		final RuleSetFacts disablingFacts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());
 		disablingFacts.put(RULE_TYPE, PROCESS_SERVER_DISABLING_RULE);
 		agent.addBehaviour(InitiateRequest.create(agent, disablingFacts, PROCESS_SERVER_DISABLING_RULE, controller));
 	}

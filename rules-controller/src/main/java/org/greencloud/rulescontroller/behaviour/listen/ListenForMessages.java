@@ -89,7 +89,7 @@ public class ListenForMessages extends CyclicBehaviour {
 	@Override
 	public void action() {
 		final RuleSetFacts facts = constructMessageRetrievalFacts();
-		facts.put(RULE_SET_IDX, controller.getLatestRuleSet().get());
+		facts.put(RULE_SET_IDX, controller.getLatestLongTermRuleSetIdx().get());
 		controller.fire(facts);
 		final List<ACLMessage> messages = facts.get(MESSAGES);
 
@@ -98,7 +98,7 @@ public class ListenForMessages extends CyclicBehaviour {
 				final RuleSetFacts factsToProcessMessage = FactsMapper.mapToRuleSetFacts(facts);
 				factsToProcessMessage.put(MESSAGE, message);
 
-				if (!omitRuleSetFromMessage) {
+				if (!omitRuleSetFromMessage && controller.getRuleSets().containsKey(parseInt(message.getOntology()))) {
 					factsToProcessMessage.put(RULE_SET_IDX, parseInt(message.getOntology()));
 				}
 

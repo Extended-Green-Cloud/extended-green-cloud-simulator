@@ -16,6 +16,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageContentCon
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareGreenPowerSupplyRequest;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
@@ -73,6 +74,9 @@ public class ProcessJobResupplyWithGreenEnergyRule extends AgentRequestRule<Serv
 
 			if (nonNull(isActive)) {
 				final JobExecutionStatusEnum newStatus = EXECUTING_ON_GREEN.getStatus(isActive);
+
+				agentProps.getJobsExecutionTime()
+						.updateJobExecutionDuration(job, jobStatus, newStatus, getCurrentTime());
 				agentProps.getServerJobs().replace(job, newStatus);
 
 				if (Boolean.TRUE.equals(isActive)) {

@@ -3,6 +3,7 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.l
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB;
 import static org.greencloud.commons.constants.FactTypeConstants.JOB_FINISH_INFORM;
+import static org.greencloud.commons.constants.FactTypeConstants.JOB_MANUAL_FINISH_INFORM;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
@@ -61,6 +62,7 @@ public class ProcessJobManualFinishInProgressRule extends AgentBasicRule<ServerA
 				.filter(clientJob -> clientJob.getJobId().equals(job.getJobId()))
 				.count() == 1;
 
+		facts.put(JOB_MANUAL_FINISH_INFORM, true);
 		facts.put(JOB_FINISH_INFORM, informCNA);
 		facts.put(RULE_TYPE, PROCESS_FINISH_JOB_EXECUTION_RULE);
 		controller.fire(facts);
