@@ -19,9 +19,9 @@ const getServerState = (server: ServerAgent) => {
 		(event) => event.type === EVENT_TYPE.SWITCH_ON_OFF_EVENT
 	) as SwitchOnOffEvent;
 
-	if (powerShortageEvent.state === POWER_SHORTAGE_STATE.INACTIVE || !disablingEvent.isServerOn) return "disabled";
 	if (server.numberOfJobsOnHold > 0) return "on_hold";
 	if (server.backUpTraffic > 0) return "back_up";
+	if (powerShortageEvent.state === POWER_SHORTAGE_STATE.INACTIVE || !disablingEvent.isServerOn) return "disabled";
 
 	return server.isActive ? "active" : "inactive";
 };

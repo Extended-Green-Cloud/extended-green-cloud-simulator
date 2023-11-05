@@ -21,6 +21,9 @@ export interface Client {
 	events: AgentEvent[];
 	isActive: boolean;
 	adaptation: string;
+	finalPrice: number;
+	estimatedPrice: number;
+	executor: string;
 	job: Job;
 	status: JOB_STATUSES;
 	durationMap: JobDurationMap | null;

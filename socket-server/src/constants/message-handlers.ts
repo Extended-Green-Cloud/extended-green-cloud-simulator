@@ -17,6 +17,9 @@ import {
 	handleUpdateJobExecutionProportion,
 	handleExecutedInCloudJobs,
 	handleIncrementFinishInCloudJobs,
+	handleUpdateJobExecutor,
+	handleUpdateJobFinalPrice,
+	handleUpdateJobEstimatedPrice,
 } from "../module";
 import {
 	handleUpdateDeadlinePriority,
@@ -82,4 +85,7 @@ export const MESSAGE_HANDLERS = {
 	UPDATE_ENERGY_IN_USE: handleUpdateEnergyInUse,
 	UPDATE_JOB_EXECUTION_PROPORTION: handleUpdateJobExecutionProportion,
 	UPDATE_SERVER_MAINTENANCE_STATE: handleUpdateServerMaintenanceState,
+	UPDATE_SERVER_FOR_CLIENT: handleUpdateJobExecutor,
+	UPDATE_FINAL_COST_FOR_CLIENT: handleUpdateJobFinalPrice,
+	UPDATE_ESTIMATED_COST_FOR_CLIENT: handleUpdateJobEstimatedPrice,
 };

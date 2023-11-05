@@ -5,13 +5,14 @@ import {
 	SwitchOnOffEvent,
 	WeatherDropEvent,
 } from "../../types/agent-event-type.js";
-import { getAgentByName, getEventOccurrenceTime } from "../../utils/index.js";
+import { getAgentByName, getAgentNodeById, getEventOccurrenceTime, getNodeState } from "../../utils/index.js";
 import {
 	logPowerShortageEvent,
 	logServerMaintenanceEvent,
 	logSwitchOnOffEvent,
 	logWeatherDropEvent,
 } from "../../utils/logger-utils.js";
+import { GRAPH_STATE } from "../graph/graph-state.js";
 import { AGENTS_STATE } from "./agents-state.js";
 
 const getEventByType = (events, type) => {
@@ -47,6 +48,9 @@ const handlePowerShortage = (data) => {
 			event.state = isEventActive ? POWER_SHORTAGE_STATE.INACTIVE : POWER_SHORTAGE_STATE.ACTIVE;
 
 			unlockEvent(event, 3000);
+			const node = getAgentNodeById(GRAPH_STATE.nodes, data.agentName);
+			node.state = getNodeState(agent);
+
 			return dataToReturn;
 		}
 	}

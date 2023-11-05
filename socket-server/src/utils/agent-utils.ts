@@ -86,8 +86,11 @@ const registerClient = (data): Client => {
 	return {
 		type: AGENT_TYPES.CLIENT,
 		status: JOB_STATUSES.CREATED,
+		executor: "",
 		events: [],
 		name,
+		finalPrice: 0,
+		estimatedPrice: 0,
 		isActive: false,
 		adaptation: "inactive",
 		durationMap: null,

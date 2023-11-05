@@ -37,9 +37,39 @@ const handleUpdateJobExecutionProportion = (msg) => {
 	}
 };
 
+const handleUpdateJobExecutor = (msg) => {
+	const agent: Client = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
+	const { serverName } = msg;
+
+	if (agent) {
+		agent.executor = serverName;
+	}
+};
+
+const handleUpdateJobFinalPrice = (msg) => {
+	const agent: Client = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
+	const { finalPrice } = msg;
+
+	if (agent) {
+		agent.finalPrice = finalPrice;
+	}
+};
+
+const handleUpdateJobEstimatedPrice = (msg) => {
+	const agent: Client = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
+	const { estimatedPrice } = msg;
+
+	if (agent) {
+		agent.estimatedPrice = estimatedPrice;
+	}
+};
+
 export {
 	handleSetClientJobStatus,
 	handleSetClientJobTimeFrame,
 	handleSetClientJobDurationMap,
 	handleUpdateJobExecutionProportion,
+	handleUpdateJobExecutor,
+	handleUpdateJobFinalPrice,
+	handleUpdateJobEstimatedPrice,
 };

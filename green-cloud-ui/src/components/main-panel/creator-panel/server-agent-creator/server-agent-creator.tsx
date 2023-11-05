@@ -54,11 +54,20 @@ export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents
 
    useEffect(() => {
       if (serverAgentData.resources) {
-         const cna = serverAgentData?.cloudNetwork ?? ''
+         const cna =
+            serverAgentData?.cloudNetwork &&
+            agents
+               .filter((agent) => agent.type === AgentType.CLOUD_NETWORK)
+               .map((agent) => agent.name)
+               .includes(serverAgentData?.cloudNetwork)
+               ? serverAgentData.cloudNetwork
+               : ''
+
+         updateServerAgentValue(cna, 'cloudNetwork')
          setSelectedCNA({ label: cna, value: cna, isSelected: false })
          setResources(serverAgentData.resources)
       }
-   }, [serverAgentData.resources])
+   }, [serverAgentData])
 
    const updateServerAgentValue = (newValue: string | number | ResourceMap, valueKey: keyof ServerCreator) => {
       setServerAgentData((prevData) => {

@@ -56,6 +56,12 @@ export const validateGreenSourceData = (greenSourceData: GreenSourceCreator, age
    if (greenSourceData.name === '') {
       return 'Green Source name cannot be empty.'
    }
+   if (greenSourceData.server === '') {
+      return 'Server cannot be empty.'
+   }
+   if (greenSourceData.energyType.toString() === '') {
+      return 'Energy type cannot be empty.'
+   }
    if (agents.find((agent) => agent.name === greenSourceData.name)) {
       return 'Provided name already exists. Name of the Green Source must be unique with respect to already existing agents.'
    }
@@ -89,6 +95,9 @@ export const validateGreenSourceData = (greenSourceData: GreenSourceCreator, age
 export const validateServerData = (serverData: ServerCreator, agents: Agent[]) => {
    if (serverData.name === '') {
       return 'Server name cannot be empty.'
+   }
+   if (serverData.cloudNetwork === '') {
+      return 'Cloud network cannot be empty.'
    }
    if (agents.find((agent) => agent.name === serverData.name)) {
       return 'Provided name already exists. Name of the Server must be unique with respect to already existing agents.'

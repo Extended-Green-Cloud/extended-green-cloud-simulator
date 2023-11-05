@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Agent, AgentType, DropdownOption, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
 import { Button, Dropdown, ErrorMessage, SubtitleContainer } from 'components/common'
 import React from 'react'
@@ -54,22 +54,21 @@ export const CreatorPanel = ({ createClient, createGreenSource, createServer, ag
    const creatorConfig = agentCreator ? CREATOR_CONFIG[agentCreator as AgentType] : EMPTY_CREATOR_CONFIG
    const isDisabled = creatorConfig.isButtonDisabled(agents)
 
-   useEffect(() => {
-      setErrorText('')
-   }, [agentCreatorData])
-
    const resetCreatorData = () => {
+      setErrorText('')
       setAgentCreatorData(creatorConfig.fillWithEmptyData())
       setResetData(true)
    }
 
    const changeCreator = (value: any) => {
+      setErrorText('')
       setSelectedAgentType(value)
       setAgentCreatorData(CREATOR_CONFIG[value.value as AgentType].fillWithEmptyData())
       setAgentCreator(value.value as AgentType)
    }
 
    const createAgent = () => {
+      setErrorText('')
       const error = creatorConfig.validateData(agentCreatorData, agents)
       setErrorText(error)
 

@@ -17,6 +17,9 @@ export const CLIENT_STATISTICS_TIMELINE = [
 ]
 
 export const CLIENT_STATISTICS_EXECUTION = [
+   { key: 'executor', label: 'Server executing job' },
+   { key: 'estimatedPrice', label: 'Estimated job execution price' },
+   { key: 'finalPrice', label: 'Final job execution price' },
    { key: 'steps', label: 'Job steps' },
    { key: 'durationMap', label: 'Job status duration map' },
    { key: 'jobExecutionProportion', label: 'Job execution percentage' }
@@ -41,6 +44,7 @@ type StatusColor = { [key in JobStatus]: string }
 export const STATUS_COLOR: StatusColor = {
    [JobStatus.CREATED]: 'var(--gray-2)',
    [JobStatus.PROCESSED]: 'var(--gray-2)',
+   [JobStatus.ACCEPTED]: 'var(--gray-2)',
    [JobStatus.IN_PROGRESS]: 'var(--green-1)',
    [JobStatus.IN_PROGRESS_CLOUD]: 'var(--green-1)',
    [JobStatus.ON_BACK_UP]: 'var(--green-1)',

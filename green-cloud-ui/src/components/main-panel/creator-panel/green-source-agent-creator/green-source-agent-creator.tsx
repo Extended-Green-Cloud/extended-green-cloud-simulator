@@ -62,9 +62,22 @@ export const GreenSourceAgentCreator = ({
 
    useEffect(() => {
       if (greenSourceAgentData) {
-         const server = greenSourceAgentData?.server ?? ''
-         const energyType = greenSourceAgentData?.energyType.toString() ?? ''
+         const server =
+            greenSourceAgentData?.server &&
+            agents
+               .filter((agent) => agent.type === AgentType.SERVER)
+               .map((agent) => agent.name)
+               .includes(greenSourceAgentData?.server)
+               ? greenSourceAgentData.server
+               : ''
+         const energyType =
+            greenSourceAgentData?.energyType &&
+            Object.values(EnergyType).includes(greenSourceAgentData?.energyType.toString())
+               ? greenSourceAgentData?.energyType.toString()
+               : ''
 
+         updateGreenSourceAgentValue(server, 'server')
+         updateGreenSourceAgentValue(energyType, 'energyType')
          setSelectedServer({ label: server, value: server, isSelected: false })
          setSelectedEnergyType({ label: energyType, value: energyType, isSelected: false })
       }

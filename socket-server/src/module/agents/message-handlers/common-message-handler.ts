@@ -4,7 +4,6 @@ import {
 	createNodeForAgent,
 	getAgentByName,
 	getAgentNodeById,
-	getAgentsByName,
 	getNodeState,
 	registerAgent,
 } from "../../../utils";

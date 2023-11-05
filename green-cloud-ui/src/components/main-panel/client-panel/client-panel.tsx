@@ -69,7 +69,10 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
             const { key, label } = field
             const clientVal = {
                ...(selectedClient.job as any),
+               executor: selectedClient?.executor ?? '',
                status: selectedClient.status as any,
+               estimatedPrice: `${((selectedClient?.estimatedPrice ?? 0) as number).toFixed(2)} $`,
+               finalPrice: `${((selectedClient?.finalPrice ?? 0) as number).toFixed(2)} $`,
                durationMap: selectedClient.durationMap as any,
                jobExecutionProportion: selectedClient.jobExecutionProportion as any
             }[key]
