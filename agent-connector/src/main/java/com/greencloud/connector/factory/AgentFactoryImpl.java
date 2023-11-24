@@ -186,8 +186,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public ClientArgs createClientAgent(final JobCreator jobCreator, final int nextClientId) {
-		final String clientName = format("Client%d", nextClientId);
+	public ClientArgs createClientAgent(final JobCreator jobCreator, final String clientName, final int nextClientId) {
 		final JobArgs clientJob = ImmutableJobArgs.builder()
 				.processType(jobCreator.getProcessorName())
 				.jobSteps(jobCreator.getSteps())

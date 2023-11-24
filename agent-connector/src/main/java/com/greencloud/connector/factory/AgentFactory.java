@@ -136,9 +136,10 @@ public interface AgentFactory {
 	 * Method creates new client agent args from the arguments passed by the GUI
 	 *
 	 * @param jobCreator   arguments passed by the GUI
+	 * @param clientName name of the client
 	 * @param nextClientId identifier of next client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(JobCreator jobCreator, final int nextClientId);
+	ClientArgs createClientAgent(JobCreator jobCreator, final String clientName, final int nextClientId);
 
 }

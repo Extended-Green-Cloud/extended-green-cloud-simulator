@@ -98,7 +98,8 @@ public class EventListener extends GuiWebSocketClient {
 			final ClientCreationEvent clientCreationEvent = ClientCreationEvent.create(message);
 			final int jobId = factory.getDatabase().getNextClientId();
 
-			final ClientArgs clientArgs = agentFactory.createClientAgent(clientCreationEvent.getJobCreator(), jobId);
+			final ClientArgs clientArgs = agentFactory.createClientAgent(clientCreationEvent.getJobCreator(),
+					clientCreationEvent.getClientName(), jobId);
 			final AgentController agentController = factory.createAgentController(clientArgs);
 			factory.runAgentController(agentController, RUN_CLIENT_AGENT_DELAY);
 		}
