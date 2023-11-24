@@ -18,19 +18,22 @@ import lombok.Getter;
 public class ClientCreationEvent extends AbstractEvent {
 
 	JobCreator jobCreator;
+	String clientName;
 
 	/**
 	 * Default event constructor
 	 *
 	 * @param occurrenceTime time when the event occurs
 	 */
-	protected ClientCreationEvent(final Instant occurrenceTime, final JobCreator jobCreator) {
-		super(CLIENT_CREATION_EVENT, occurrenceTime, null);
+	protected ClientCreationEvent(final Instant occurrenceTime, final JobCreator jobCreator, final String clientName) {
+		super(CLIENT_CREATION_EVENT, occurrenceTime, clientName);
 		this.jobCreator = jobCreator;
+		this.clientName = clientName;
 	}
 
 	public ClientCreationEvent(CreateClientMessage createClientMessage) {
-		this(createClientMessage.getData().getOccurrenceTime(), createClientMessage.getData());
+		this(createClientMessage.getData().getOccurrenceTime(), createClientMessage.getData(),
+				createClientMessage.getClientName());
 	}
 
 	public static ClientCreationEvent create(String message) {

@@ -55,15 +55,15 @@ public class ProcessNewClientJobRule extends AgentBasicRule<SchedulerAgentProps,
 
 		if (nonNull(job.getSelectionPreference())) {
 			final String log = "Comparing CNA offers using custom comparator";
-			final String ruleSetName = "CUSTOM_CLIENT_COMPARATOR_" + job.getJobId();
+			final String ruleSetName = "CUSTOM_CLIENT_COMPARATOR_" + job.getClientIdentifier().toUpperCase();
 			final RuleSetRest rules = constructRuleSetForCustomClientComparison(job.getSelectionPreference(),
 					ruleSetName, log, job.getJobId(), SCHEDULER);
 			newRuleSetIdx = controller.getLatestRuleSetIdx().get() + 1;
 
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf(newRuleSetIdx));
-			logger.info("Client with job {} requested to use custom server comparison. Adding rule set {}",
-					job.getJobId(), ruleSetName);
+			logger.info("Client {} requested to use custom server comparison. Adding rule set {}",
+					job.getClientIdentifier(), ruleSetName);
 
 			final RuleSet modifications = new RuleSet(rules);
 			controller.addModifiedTemporaryRuleSetFromCurrent(modifications, newRuleSetIdx);

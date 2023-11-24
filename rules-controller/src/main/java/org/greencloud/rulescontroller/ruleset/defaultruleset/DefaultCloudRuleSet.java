@@ -34,6 +34,7 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.transferring.LookForServerForJobTransferRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.transferring.TransferJobBetweenServersRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.weatherdrop.HandleCNAWeatherDropEventRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.weatherdrop.ScheduleWeatherDropAdaptation;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.initial.StartInitialCloudNetworkBehaviours;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.LookForServerForJobExecutionRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.comparison.CompareServersProposalsOfJobExecution;
@@ -255,7 +256,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessServerResourceUpdateRule(rulesController),
 				new CompareServersProposalsOfJobExecution(rulesController),
 				new ListenForJobPriceUpdateRule(rulesController, this),
-				new ProcessJobPriceUpdateRule(rulesController)
+				new ProcessJobPriceUpdateRule(rulesController),
+				new ScheduleWeatherDropAdaptation(rulesController)
 		);
 	}
 

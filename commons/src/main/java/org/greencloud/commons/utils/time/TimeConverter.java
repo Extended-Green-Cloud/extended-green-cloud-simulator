@@ -1,11 +1,12 @@
 package org.greencloud.commons.utils.time;
 
+import static java.time.Duration.between;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.greencloud.commons.constants.TimeConstants.MILLISECOND_MULTIPLIER;
+import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
 import static org.greencloud.commons.constants.TimeConstants.MINUTES_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
-import static java.time.Duration.between;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -53,13 +54,23 @@ public class TimeConverter {
 	 * @return formatted string
 	 */
 	public static String convertMillisecondsToTimeString(final long ms) {
-		final long min = TimeUnit.MILLISECONDS.toMinutes(ms);
-		final long sec = TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(min);
-		final long msRest = ms - (TimeUnit.MINUTES.toMillis(min) + TimeUnit.MINUTES.toMillis(sec));
+		final long h = TimeUnit.MILLISECONDS.toHours(ms);
+		final long min = TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(h);
+		final long sec =
+				TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(min) - TimeUnit.HOURS.toMinutes(h);
+		final long msRest =
+				ms - (TimeUnit.MINUTES.toMillis(min) + TimeUnit.MINUTES.toMillis(sec) + TimeUnit.HOURS.toMinutes(h));
 
-		return min != 0 ?
-				String.format("%02d min. %02d sec. %02d ms.", min, sec, msRest) :
-				(sec != 0 ? String.format("%02d sec. %02d ms.", sec, msRest) : String.format("%02d ms.", msRest));
+		if (h != 0) {
+			return String.format("%02d h %02d min. %02d sec. %02d ms.", h, min, sec, msRest);
+		}
+		if (min != 0) {
+			return String.format("%02d min. %02d sec. %02d ms.", min, sec, msRest);
+		}
+		if (sec != 0) {
+			return String.format("%02d sec. %02d ms.", sec, msRest);
+		}
+		return String.format("%02d ms.", msRest);
 	}
 
 	/**
@@ -85,6 +96,16 @@ public class TimeConverter {
 		final double realTimeMultiplier = (double) MINUTES_IN_HOUR / (SECONDS_PER_HOUR * MILLISECOND_MULTIPLIER);
 		final double realTimeDifference = millis * realTimeMultiplier;
 		return (long) realTimeDifference;
+	}
+
+	/**
+	 * Method converts the current simulation time into the real time
+	 *
+	 * @param millis time in milliseconds
+	 * @return time in millis of real time
+	 */
+	public static long convertToRealTimeMillis(final long millis) {
+		return convertToRealTime(millis) * MILLIS_IN_MIN;
 	}
 
 	/**

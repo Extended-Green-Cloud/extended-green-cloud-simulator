@@ -73,7 +73,7 @@ public class LookForServerForJobTransferRule extends AgentCFPRule<CloudNetworkAg
 
 		final Comparator<ServerData> comparator = (msg1, msg2) -> {
 			final double powerDiff = (msg1.getPowerConsumption() * weight2) - (msg2.getPowerConsumption() * weight1);
-			final double priceDiff = ((msg1.getServicePrice() * 1 / weight1) - (msg2.getServicePrice() * 1 / weight2));
+			final double priceDiff = ((msg1.getPriceForJob() * 1 / weight1) - (msg2.getPriceForJob() * 1 / weight2));
 
 			return MAX_POWER_DIFFERENCE.isValidIntValue((int) powerDiff) ? (int) priceDiff : (int) powerDiff;
 		};

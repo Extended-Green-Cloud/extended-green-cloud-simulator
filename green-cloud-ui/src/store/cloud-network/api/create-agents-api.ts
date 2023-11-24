@@ -1,10 +1,10 @@
 import {
-   JobCreator,
    CreateClientAgentMessagePayload,
    GreenSourceCreator,
    CreateGreenSourceAgentMessagePayload,
    ServerCreator,
-   CreateServerAgentMessagePayload
+   CreateServerAgentMessagePayload,
+   ClientCreator
 } from '@types'
 import axios from 'axios'
 
@@ -13,8 +13,8 @@ import axios from 'axios'
  *
  * @param {JobCreator}[jobData] - data used to create client job
  */
-export const createClientAgent = (jobData: JobCreator) => {
-   const data: CreateClientAgentMessagePayload = { jobData }
+export const createClientAgent = (clientData: ClientCreator) => {
+   const data: CreateClientAgentMessagePayload = { clientData }
    axios
       .post(process.env.REACT_APP_WEB_SOCKET_EVENT_FRONTEND_URL + '/createClient', data)
       .then(() => console.log('Client agent created successfully'))

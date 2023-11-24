@@ -7,13 +7,14 @@ import {
 } from "../../utils";
 
 const handleCreateClientEvent = (data) => {
-	const { jobData } = data;
+	const { clientData } = data;
 	logClientCreationEvent();
 
 	return {
 		type: EVENT_TYPE.CLIENT_CREATION_EVENT,
+		clientName: clientData.clientName,
 		data: {
-			...jobData,
+			...clientData.jobCreator,
 			occurrenceTime: getEventOccurrenceTime(0),
 		},
 	};

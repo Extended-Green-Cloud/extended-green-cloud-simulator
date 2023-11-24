@@ -17,6 +17,14 @@ public class ResourceConverterConstants {
 			return value * 1000;
 			""";
 
+	public static final String FROM_KI_CUDA_CORES_CONVERTER = """
+			return value * 1000;
+			""";
+
+	public static final String TO_KI_CUDA_CORES_CONVERTER = """
+			return value / 1000;
+			""";
+
 	// COMMON BYTE UNIT CONVERTERS
 
 	public static final String FROM_KI_TO_BYTE_CONVERTER = """
@@ -136,6 +144,8 @@ public class ResourceConverterConstants {
 	public static final Map<String, String> commonConverters = Map.ofEntries(
 			entry("TO_CPU_CORES_CONVERTER", TO_CPU_CORES_CONVERTER),
 			entry("FROM_CPU_CORES_CONVERTER", FROM_CPU_CORES_CONVERTER),
+			entry("FROM_KI_CUDA_CORES_CONVERTER", FROM_KI_CUDA_CORES_CONVERTER),
+			entry("TO_KI_CUDA_CORES_CONVERTER", TO_KI_CUDA_CORES_CONVERTER),
 			entry("FROM_KI_TO_BYTE_CONVERTER", FROM_KI_TO_BYTE_CONVERTER),
 			entry("FROM_MI_TO_BYTE_CONVERTER", FROM_MI_TO_BYTE_CONVERTER),
 			entry("FROM_GI_TO_BYTE_CONVERTER", FROM_GI_TO_BYTE_CONVERTER),

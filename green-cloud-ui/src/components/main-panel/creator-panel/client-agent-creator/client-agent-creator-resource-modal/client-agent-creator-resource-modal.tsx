@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
-import { JobCreator, JobStep, ResourceMap } from '@types'
+import React, { useState, useEffect } from 'react'
+import { ClientCreator, JobStep, ResourceMap } from '@types'
 import { Button, Modal, ResourceForm } from 'components/common'
-import React from 'react'
 import { styles } from './client-agent-creator-resource-modal-styles'
 import { UpdateResourceReset } from 'components/common/resource-form/resource-form'
 
@@ -15,7 +14,7 @@ interface Props {
    setResetData: UpdateResourceReset
 }
 
-type UpdateJob = (value: React.SetStateAction<JobCreator>) => void
+type UpdateJob = (value: React.SetStateAction<ClientCreator>) => void
 type UpdateJobStep = (value: React.SetStateAction<JobStep[]>) => void
 
 /**
@@ -62,7 +61,10 @@ export const ClientAgentCreatorResourceModal = ({
          const updateData = setClientData as UpdateJob
          updateData((prevState) => ({
             ...prevState,
-            resources: jobResources
+            jobCreator: {
+               ...prevState.jobCreator,
+               resources: jobResources
+            }
          }))
       } else {
          const updateData = setClientData as UpdateJobStep

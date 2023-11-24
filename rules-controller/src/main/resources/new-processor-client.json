@@ -1,0 +1,60 @@
+{
+  "clientName": "Xenon-Client",
+  "jobCreator": {
+    "processorName": "gpu-task",
+    "resources": {
+      "cpu": {
+        "characteristics": {
+          "amount": {
+            "value": 5,
+            "unit": "core"
+          },
+          "type": {
+            "value": "Intel Xenon 8280"
+          }
+        }
+      },
+      "memory": {
+        "characteristics": {
+          "amount": {
+            "value": 20,
+            "unit": "GB",
+            "toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+            "fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
+          }
+        }
+      }
+    },
+    "deadline": 0,
+    "duration": 3,
+    "steps": [
+      {
+        "name": "execution",
+        "duration": 10800,
+        "requiredResources": {
+          "cpu": {
+            "characteristics": {
+              "amount": {
+                "value": 5,
+                "unit": "core"
+              },
+              "type": {
+                "value": "Intel Xenon 8280"
+              }
+            }
+          },
+          "memory": {
+            "characteristics": {
+              "amount": {
+                "value": 20,
+                "unit": "GB",
+                "toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+                "fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -55,7 +55,7 @@ public class CompareServersProposalsOfJobExecution extends AgentBasicRule<CloudN
 
 		final double powerDiff =
 				(bestProposal.getPowerConsumption() * weight2) - (newProposal.getPowerConsumption() * weight1);
-		final double priceDiff = ((bestProposal.getServicePrice() * 1 / weight1) - (newProposal.getServicePrice() * 1
+		final double priceDiff = ((bestProposal.getPriceForJob() * 1 / weight1) - (newProposal.getPriceForJob() * 1
 				/ weight2));
 
 		MDC.put(MDC_JOB_ID, job.getJobId());

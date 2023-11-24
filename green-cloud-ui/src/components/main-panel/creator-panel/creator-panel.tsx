@@ -1,7 +1,6 @@
-import { useState } from 'react'
-import { Agent, AgentType, DropdownOption, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
+import React, { useState } from 'react'
+import { Agent, AgentType, ClientCreator, DropdownOption, GreenSourceCreator, ServerCreator } from '@types'
 import { Button, Dropdown, ErrorMessage, SubtitleContainer } from 'components/common'
-import React from 'react'
 import {
    AVAILABLE_AGENT_OPTIONS,
    CREATOR_CONFIG,
@@ -15,16 +14,16 @@ import { ServerAgentCreator } from './server-agent-creator/server-agent-creator'
 
 interface Props {
    agents: Agent[]
-   createClient: (jobData: JobCreator) => void
+   createClient: (jobData: ClientCreator) => void
    createGreenSource: (greenSourceData: GreenSourceCreator) => void
    createServer: (serverData: ServerCreator) => void
 }
 
-export type UpdateClientForm = (value: React.SetStateAction<JobCreator>) => void
+export type UpdateClientForm = (value: React.SetStateAction<ClientCreator>) => void
 export type UpdateGreenSourceForm = (value: React.SetStateAction<GreenSourceCreator>) => void
 export type UpdateServerForm = (value: React.SetStateAction<ServerCreator>) => void
 
-export type Creator = JobCreator | GreenSourceCreator | ServerCreator | null
+export type Creator = ClientCreator | GreenSourceCreator | ServerCreator | null
 
 /**
  * Component represents a panel allowing to create new agents in the system
@@ -74,7 +73,7 @@ export const CreatorPanel = ({ createClient, createGreenSource, createServer, ag
 
       if (error === '') {
          if (agentCreator === AgentType.CLIENT) {
-            createClient(agentCreatorData as JobCreator)
+            createClient(agentCreatorData as ClientCreator)
          }
          if (agentCreator === AgentType.GREEN_ENERGY) {
             createGreenSource(agentCreatorData as GreenSourceCreator)
@@ -90,7 +89,7 @@ export const CreatorPanel = ({ createClient, createGreenSource, createServer, ag
          return (
             <ClientAgentCreator
                {...{
-                  clientAgentData: agentCreatorData as JobCreator,
+                  clientAgentData: agentCreatorData as ClientCreator,
                   setClientAgentData: setAgentCreatorData as UpdateClientForm,
                   resetData,
                   setResetData

@@ -16,17 +16,14 @@ import static org.greencloud.commons.enums.rules.RuleType.LOOK_FOR_JOB_EXECUTOR_
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.NEW_JOB_RECEIVER_HANDLE_NEW_JOB_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
-import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.greencloud.rulescontroller.ruleset.RuleSetConstructor.constructRuleSetForCustomClientComparison;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
-import java.util.Map;
 
 import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
 import org.greencloud.rulescontroller.behaviour.initiate.InitiateCallForProposal;
@@ -70,7 +67,7 @@ public class ProcessNewScheduledJobRule extends AgentBasicRule<CloudNetworkAgent
 		MDC.put(MDC_RULE_SET_ID, valueOf(newRuleSetIdx));
 		logger.info("Evaluating available server resources for job {}!", job.getJobId());
 
-		final List<AID> consideredServers = selectServersForJob(job);
+		final List<AID> consideredServers = agentProps.selectServersForJob(job);
 		if (consideredServers.isEmpty()) {
 			logger.info("No servers with enough resources for job {}!", job.getJobId());
 			agentProps.updateGUI();
@@ -100,14 +97,5 @@ public class ProcessNewScheduledJobRule extends AgentBasicRule<CloudNetworkAgent
 		cfpFacts.put(AGENTS, consideredServers);
 		cfpFacts.put(MESSAGE, facts.get(MESSAGE));
 		agent.addBehaviour(InitiateCallForProposal.create(agent, cfpFacts, LOOK_FOR_JOB_EXECUTOR_RULE, controller));
-	}
-
-	private List<AID> selectServersForJob(final ClientJob job) {
-		return agentProps.getOwnedActiveServers().stream()
-				.filter(server -> {
-					final Map<String, Resource> availableResources = agentProps.getAvailableResources(job, server);
-					return areSufficient(availableResources, job.getRequiredResources());
-				})
-				.toList();
 	}
 }

@@ -33,10 +33,15 @@ import org.immutables.value.Generated;
 @CheckReturnValue
 public final class ImmutableCreateClientMessage implements CreateClientMessage {
   private final String type;
+  private final String clientName;
   private final JobCreator data;
 
-  private ImmutableCreateClientMessage(String type, JobCreator data) {
+  private ImmutableCreateClientMessage(
+      String type,
+      String clientName,
+      JobCreator data) {
     this.type = type;
+    this.clientName = clientName;
     this.data = data;
   }
 
@@ -47,6 +52,15 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
   @Override
   public String getType() {
     return type;
+  }
+
+  /**
+   * @return The value of the {@code clientName} attribute
+   */
+  @JsonProperty("clientName")
+  @Override
+  public String getClientName() {
+    return clientName;
   }
 
   /**
@@ -67,7 +81,19 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
   public final ImmutableCreateClientMessage withType(String value) {
     String newValue = Objects.requireNonNull(value, "type");
     if (this.type.equals(newValue)) return this;
-    return new ImmutableCreateClientMessage(newValue, this.data);
+    return new ImmutableCreateClientMessage(newValue, this.clientName, this.data);
+  }
+
+  /**
+   * Copy the current immutable object by setting a value for the {@link CreateClientMessage#getClientName() clientName} attribute.
+   * An equals check used to prevent copying of the same value by returning {@code this}.
+   * @param value A new value for clientName
+   * @return A modified copy of the {@code this} object
+   */
+  public final ImmutableCreateClientMessage withClientName(String value) {
+    String newValue = Objects.requireNonNull(value, "clientName");
+    if (this.clientName.equals(newValue)) return this;
+    return new ImmutableCreateClientMessage(this.type, newValue, this.data);
   }
 
   /**
@@ -79,7 +105,7 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
   public final ImmutableCreateClientMessage withData(JobCreator value) {
     if (this.data == value) return this;
     JobCreator newValue = Objects.requireNonNull(value, "data");
-    return new ImmutableCreateClientMessage(this.type, newValue);
+    return new ImmutableCreateClientMessage(this.type, this.clientName, newValue);
   }
 
   /**
@@ -95,17 +121,19 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
 
   private boolean equalTo(int synthetic, ImmutableCreateClientMessage another) {
     return type.equals(another.type)
+        && clientName.equals(another.clientName)
         && data.equals(another.data);
   }
 
   /**
-   * Computes a hash code from attributes: {@code type}, {@code data}.
+   * Computes a hash code from attributes: {@code type}, {@code clientName}, {@code data}.
    * @return hashCode value
    */
   @Override
   public int hashCode() {
     @Var int h = 5381;
     h += (h << 5) + type.hashCode();
+    h += (h << 5) + clientName.hashCode();
     h += (h << 5) + data.hashCode();
     return h;
   }
@@ -119,6 +147,7 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
     return MoreObjects.toStringHelper("CreateClientMessage")
         .omitNullValues()
         .add("type", type)
+        .add("clientName", clientName)
         .add("data", data)
         .toString();
   }
@@ -134,10 +163,15 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE)
   static final class Json implements CreateClientMessage {
     @Nullable String type;
+    @Nullable String clientName;
     @Nullable JobCreator data;
     @JsonProperty("type")
     public void setType(String type) {
       this.type = type;
+    }
+    @JsonProperty("clientName")
+    public void setClientName(String clientName) {
+      this.clientName = clientName;
     }
     @JsonProperty("data")
     public void setData(JobCreator data) {
@@ -145,6 +179,8 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
     }
     @Override
     public String getType() { throw new UnsupportedOperationException(); }
+    @Override
+    public String getClientName() { throw new UnsupportedOperationException(); }
     @Override
     public JobCreator getData() { throw new UnsupportedOperationException(); }
   }
@@ -160,6 +196,9 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
     ImmutableCreateClientMessage.Builder builder = ImmutableCreateClientMessage.builder();
     if (json.type != null) {
       builder.type(json.type);
+    }
+    if (json.clientName != null) {
+      builder.clientName(json.clientName);
     }
     if (json.data != null) {
       builder.data(json.data);
@@ -188,6 +227,7 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
    * <pre>
    * ImmutableCreateClientMessage.builder()
    *    .type(String) // required {@link CreateClientMessage#getType() type}
+   *    .clientName(String) // required {@link CreateClientMessage#getClientName() clientName}
    *    .data(org.greencloud.gui.messages.domain.JobCreator) // required {@link CreateClientMessage#getData() data}
    *    .build();
    * </pre>
@@ -208,10 +248,12 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
   @NotThreadSafe
   public static final class Builder {
     private static final long INIT_BIT_TYPE = 0x1L;
-    private static final long INIT_BIT_DATA = 0x2L;
-    private long initBits = 0x3L;
+    private static final long INIT_BIT_CLIENT_NAME = 0x2L;
+    private static final long INIT_BIT_DATA = 0x4L;
+    private long initBits = 0x7L;
 
     private @Nullable String type;
+    private @Nullable String clientName;
     private @Nullable JobCreator data;
 
     private Builder() {
@@ -250,6 +292,7 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
           type(instance.getType());
           bits |= 0x1L;
         }
+        clientName(instance.getClientName());
       }
       if (object instanceof Message) {
         Message instance = (Message) object;
@@ -270,6 +313,19 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
     public final Builder type(String type) {
       this.type = Objects.requireNonNull(type, "type");
       initBits &= ~INIT_BIT_TYPE;
+      return this;
+    }
+
+    /**
+     * Initializes the value for the {@link CreateClientMessage#getClientName() clientName} attribute.
+     * @param clientName The value for clientName 
+     * @return {@code this} builder for use in a chained invocation
+     */
+    @CanIgnoreReturnValue 
+    @JsonProperty("clientName")
+    public final Builder clientName(String clientName) {
+      this.clientName = Objects.requireNonNull(clientName, "clientName");
+      initBits &= ~INIT_BIT_CLIENT_NAME;
       return this;
     }
 
@@ -295,12 +351,13 @@ public final class ImmutableCreateClientMessage implements CreateClientMessage {
       if (initBits != 0) {
         throw new IllegalStateException(formatRequiredAttributesMessage());
       }
-      return new ImmutableCreateClientMessage(type, data);
+      return new ImmutableCreateClientMessage(type, clientName, data);
     }
 
     private String formatRequiredAttributesMessage() {
       List<String> attributes = new ArrayList<>();
       if ((initBits & INIT_BIT_TYPE) != 0) attributes.add("type");
+      if ((initBits & INIT_BIT_CLIENT_NAME) != 0) attributes.add("clientName");
       if ((initBits & INIT_BIT_DATA) != 0) attributes.add("data");
       return "Cannot build CreateClientMessage, some of required attributes are not set " + attributes;
     }

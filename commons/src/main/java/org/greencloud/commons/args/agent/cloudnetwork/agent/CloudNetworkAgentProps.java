@@ -15,6 +15,7 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
@@ -101,9 +102,11 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 	 * @return updated job price
 	 */
 	public double updatePriceForJob(final String jobId, final Double price) {
+		final double jobExecutionPrice = ofNullable(price).orElse(0D);
 		final double newPrice =
-				ofNullable(priceForJob.computeIfPresent(jobId, (key, val) -> price + val)).orElse(price);
-		priceForJob.putIfAbsent(jobId, price);
+				ofNullable(priceForJob.computeIfPresent(jobId, (key, val) -> jobExecutionPrice + val)).orElse(
+						jobExecutionPrice);
+		priceForJob.putIfAbsent(jobId, jobExecutionPrice);
 		return newPrice;
 	}
 
@@ -162,6 +165,21 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 		final Map<String, Resource> maxResources =
 				getMaximumUsedResourcesDuringTimeStamp(jobs, resources, startDate, endDate);
 		return computeResourceDifference(resources, maxResources);
+	}
+
+	/**
+	 * Method selects servers with sufficient resources for job execution
+	 *
+	 * @param job job that is to be executed
+	 * @return list of server AIDs
+	 */
+	public List<AID> selectServersForJob(final ClientJob job) {
+		return getOwnedActiveServers().stream()
+				.filter(server -> {
+					final Map<String, Resource> availableResources = getAvailableResources(job, server);
+					return areSufficient(availableResources, job.getRequiredResources());
+				})
+				.toList();
 	}
 
 	/**
@@ -242,7 +260,7 @@ public class CloudNetworkAgentProps extends EGCSAgentProps {
 							new HashMap<>(resource.getEmptyResource().getCharacteristics());
 
 					characteristicsToAdd.forEach(resourceKey -> {
-						final Resource resourceForKey = resourceMap.get(key);
+						final Resource resourceForKey = resourceMap.get(key).getEmptyResource();
 						newCharacteristics.put(resourceKey, resourceForKey.getCharacteristics().get(resourceKey));
 						newEmptyResourceCharacteristics.put(resourceKey,
 								resourceForKey.getEmptyResource().getCharacteristics().get(resourceKey));

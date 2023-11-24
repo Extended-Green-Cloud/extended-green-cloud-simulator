@@ -13,6 +13,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.greencloud.commons.enums.energy.EnergyTypeEnum.GREEN_ENERGY;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER;
 import static org.greencloud.commons.enums.rules.RuleType.COMPUTE_PRICE_RULE;
@@ -75,7 +76,7 @@ public class ProposeToCNARule extends AgentProposalRule<ServerAgentProps, Server
 
 		agentProps.getServerPriceForJob().put(job.getJobInstanceId(), agentProps.getPricePerHour());
 		return prepareServerJobOffer(agentProps, priceFacts.get(RESULT), data.getJobId(), facts.get(ORIGINAL_MESSAGE),
-				facts.get(RULE_SET_IDX));
+				facts.get(RULE_SET_IDX), GREEN_ENERGY);
 	}
 
 	@Override

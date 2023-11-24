@@ -1,5 +1,6 @@
 package org.greencloud.commons.domain.agent;
 
+import org.greencloud.commons.domain.job.extended.JobWithPrice;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,25 +14,11 @@ import org.greencloud.commons.domain.ImmutableConfig;
 @JsonDeserialize(as = ImmutableServerData.class)
 @Value.Immutable
 @ImmutableConfig
-public interface ServerData {
-
-	/**
-	 * @return price for executing the given job
-	 */
-	double getServicePrice();
+public interface ServerData extends JobWithPrice {
 
 	/**
 	 * @return power consumption in given server
 	 */
 	double getPowerConsumption();
 
-	/**
-	 * @return unique identifier of the given job of interest
-	 */
-	String getJobId();
-
-	/**
-	 * @return specification of the server that will execute given job
-	 */
-	ServerResources getServerResources();
 }

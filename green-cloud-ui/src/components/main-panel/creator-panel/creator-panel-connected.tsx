@@ -1,7 +1,7 @@
 import { AppDispatch, RootState, cloudNetworkActions, selectAgents } from '@store'
 import { connect } from 'react-redux'
 import { CreatorPanel } from './creator-panel'
-import { AgentType, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
+import { AgentType, ClientCreator, GreenSourceCreator, ServerCreator } from '@types'
 
 const mapStateToProps = (state: RootState) => {
    return {
@@ -11,8 +11,8 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = (dispatch: AppDispatch) => {
    return {
-      createClient: (jobData: JobCreator) =>
-         dispatch(cloudNetworkActions.createAgent({ jobData, agentType: AgentType.CLIENT })),
+      createClient: (clientData: ClientCreator) =>
+         dispatch(cloudNetworkActions.createAgent({ clientData, agentType: AgentType.CLIENT })),
       createGreenSource: (greenSourceData: GreenSourceCreator) =>
          dispatch(cloudNetworkActions.createAgent({ greenSourceData, agentType: AgentType.GREEN_ENERGY })),
       createServer: (serverData: ServerCreator) =>

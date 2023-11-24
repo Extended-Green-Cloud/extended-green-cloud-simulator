@@ -7,6 +7,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jeasy.rules.api.Facts;
 import org.slf4j.Logger;
 
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class AgentProps {
 	protected AgentNodeProps<AgentProps> agentNode;
 	protected String agentType;
 	protected Map<String, Map<String, Object>> systemKnowledge;
+	protected Facts agentKnowledge;
 
 	/**
 	 * Default constructor that sets the type of the agent
@@ -35,6 +37,7 @@ public class AgentProps {
 		this.agentType = BASIC.name();
 		this.agentName = agentName;
 		this.systemKnowledge = new HashMap<>();
+		this.agentKnowledge = new Facts();
 	}
 
 	/**
@@ -46,6 +49,7 @@ public class AgentProps {
 		this.agentType = agentType.name();
 		this.agentName = agentName;
 		this.systemKnowledge = new HashMap<>();
+		this.agentKnowledge = new Facts();
 	}
 
 	/**
@@ -57,6 +61,7 @@ public class AgentProps {
 		this.agentType = agentType;
 		this.agentName = agentName;
 		this.systemKnowledge = new HashMap<>();
+		this.agentKnowledge = new Facts();
 	}
 
 	/**
@@ -79,10 +84,6 @@ public class AgentProps {
 
 	public void setSystemKnowledge(
 			final Map<String, Map<String, Object>> systemKnowledge) {
-		try {
 			this.systemKnowledge = new HashMap<>(systemKnowledge);
-		} catch (NullPointerException e) {
-			System.out.println(":)");
-		}
 	}
 }

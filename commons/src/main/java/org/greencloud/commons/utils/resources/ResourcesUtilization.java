@@ -327,10 +327,14 @@ public class ResourcesUtilization {
 
 		resourceKeys.forEach(key -> {
 			if (resources1.containsKey(key) && resources2.containsKey(key)) {
+				aggregatedResources.computeIfPresent(key,
+						(_k, _v) -> resources1.get(key).addResource(resources2.get(key)));
 				aggregatedResources.putIfAbsent(key, resources1.get(key).addResource(resources2.get(key)));
 			} else if (!resources1.containsKey(key)) {
+				aggregatedResources.computeIfPresent(key, (_k, _v) -> ImmutableResource.copyOf(resources2.get(key)));
 				aggregatedResources.putIfAbsent(key, ImmutableResource.copyOf(resources2.get(key)));
 			} else {
+				aggregatedResources.computeIfPresent(key, (_k, _v) -> ImmutableResource.copyOf(resources1.get(key)));
 				aggregatedResources.putIfAbsent(key, ImmutableResource.copyOf(resources1.get(key)));
 			}
 		});

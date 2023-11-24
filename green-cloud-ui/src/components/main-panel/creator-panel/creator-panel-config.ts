@@ -2,10 +2,10 @@
 import {
    Agent,
    AgentType,
+   ClientCreator,
    DropdownOption,
    EnergyType,
    GreenSourceCreator,
-   JobCreator,
    ResourceMap,
    ServerCreator
 } from '@types'
@@ -19,13 +19,16 @@ export const AVAILABLE_AGENT_OPTIONS: DropdownOption[] = Object.values(AgentType
       return { value: key as AgentType, label: (key as string).replaceAll('_', ' ') as string, isSelected: false }
    })
 
-export const getEmptyClientForm = (): JobCreator => ({
-   processorName: '',
-   selectionPreference: '',
-   resources: {} as ResourceMap,
-   deadline: 0,
-   duration: 0,
-   steps: []
+export const getEmptyClientForm = (): ClientCreator => ({
+   jobCreator: {
+      processorName: '',
+      selectionPreference: '',
+      resources: {} as ResourceMap,
+      deadline: 0,
+      duration: 0,
+      steps: []
+   },
+   clientName: ''
 })
 
 export const getEmptyGreenSourceForm = (): GreenSourceCreator => ({

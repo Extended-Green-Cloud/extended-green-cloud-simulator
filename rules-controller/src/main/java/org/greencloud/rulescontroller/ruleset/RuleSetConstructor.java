@@ -98,9 +98,9 @@ public class RuleSetConstructor {
 		handleProposalsRule.setAgentType(agentType.name());
 		handleProposalsRule.setType(COMPARE_EXECUTION_PROPOSALS);
 		handleProposalsRule.setName(
-				"compare proposals from servers according to custom instructions of client" + jobId);
+				"compare proposals from servers according to custom instructions of job" + jobId);
 		handleProposalsRule.setDescription(
-				"compare proposals from servers according to custom instructions of client" + jobId);
+				"compare proposals from servers according to custom instructions of job" + jobId);
 		handleProposalsRule.setImports(List.of(
 				"import org.greencloud.commons.constants.FactTypeConstants;",
 				"import org.greencloud.commons.domain.job.extended.JobWithPrice;"
@@ -113,6 +113,7 @@ public class RuleSetConstructor {
 				MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts));
 				logger.info("$log (job: $jobId).");
 				finalResult = computeServerComparison(bestP, newP);
+				intResult = 
 				facts.put(FactTypeConstants.RESULT, finalResult);
 				"""
 				.replace("$instruction", instructions)
@@ -129,7 +130,7 @@ public class RuleSetConstructor {
 	 *
 	 * @return RuleSet
 	 */
-	public static <E extends AgentProps> RuleSet constructModifiedRuleSetForType(
+	public static RuleSet constructModifiedRuleSetForType(
 			final RuleSet baseRuleSet, RuleSet modifications) {
 		if (nonNull(modifications) && nonNull(baseRuleSet)) {
 			final RuleSet baseRules = new RuleSet(baseRuleSet);

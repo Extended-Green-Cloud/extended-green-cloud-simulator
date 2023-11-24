@@ -1,6 +1,7 @@
 package org.greencloud.commons.domain.job.basic;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -71,4 +72,14 @@ public interface PowerJob extends Serializable {
 	 * @return method returns list of job steps
 	 */
 	List<JobStep> getJobSteps();
+
+	/**
+	 * Method returns duration of the job in milliseconds
+	 *
+	 * @return duration of job execution in milliseconds
+	 */
+	@Value.Default
+	default long getJobDurationForSimulated() {
+		return Duration.between(getStartTime(), getEndTime()).toMillis();
+	}
 }

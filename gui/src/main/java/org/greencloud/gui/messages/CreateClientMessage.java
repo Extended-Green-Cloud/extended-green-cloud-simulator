@@ -12,5 +12,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 public interface CreateClientMessage extends Message {
 
+	String getClientName();
 	JobCreator getData();
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { JobCreator, ResourceMap } from '@types'
+import { ClientCreator, JobCreator, ResourceMap } from '@types'
 import { UploadJSONButton } from 'components/common'
 import { styles } from './client-agent-creator-styles'
 import { ClientAgentCreatorResourceModal } from './client-agent-creator-resource-modal/client-agent-creator-resource-modal'
@@ -10,7 +10,7 @@ import { CreatorInputField } from '../creator-input-field/creator-input-field'
 import { CreatorButtonField } from '../creator-button-field/creator-button-field'
 
 interface Props {
-   clientAgentData: JobCreator
+   clientAgentData: ClientCreator
    setClientAgentData: UpdateClientForm
    resetData: boolean
    setResetData: UpdateResourceReset
@@ -19,7 +19,7 @@ interface Props {
 /**
  * Component represents a view allowing to create new client agent
  *
- * @param {JobCreator}[clientAgentData] - data modified using creator
+ * @param {ClientCreator}[clientAgentData] - data modified using creator
  * @param {UpdateClientForm}[setClientAgentData] - method used to modify client data
  * @param {boolean}[resetData] - flag indicating if resources should be reset
  * @param {UpdateResourceReset}[setResetData] - method used to modify information if data should be reset
@@ -31,11 +31,23 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
    const [isOpenSteps, setIsOpenSteps] = useState<boolean>(false)
    const { modalWrapper } = styles
 
-   const updateClientAgentValue = (newValue: string | number | ResourceMap, valueKey: keyof JobCreator) => {
+   const updateClientAgentValue = (newValue: string | number | ResourceMap, valueKey: keyof ClientCreator) => {
       setClientAgentData((prevData) => {
          return {
             ...prevData,
             [valueKey]: newValue
+         }
+      })
+   }
+
+   const updateClientAgentJobValue = (newValue: string | number | ResourceMap, valueKey: keyof JobCreator) => {
+      setClientAgentData((prevData) => {
+         return {
+            ...prevData,
+            jobCreator: {
+               ...prevData.jobCreator,
+               [valueKey]: newValue
+            }
          }
       })
    }
@@ -47,7 +59,7 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                isOpen: isOpenSteps,
                setIsOpen: setIsOpenSteps,
                setClientAgentData,
-               initialSteps: clientAgentData.steps,
+               initialSteps: clientAgentData.jobCreator.steps,
                resetData,
                setResetData
             }}
@@ -57,7 +69,7 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                isOpen: isOpenResources,
                setIsOpen: setIsOpenResources,
                setClientData: setClientAgentData,
-               initialResources: clientAgentData.resources,
+               initialResources: clientAgentData.jobCreator.resources,
                resetData,
                setResetData
             }}
@@ -68,6 +80,15 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                handleUploadedContent: (data) => {
                   setClientAgentData(data)
                }
+            }}
+         />
+         <CreatorInputField
+            {...{
+               title: 'Client name',
+               description: 'Provide client name',
+               fieldName: 'clientName',
+               dataToModify: clientAgentData,
+               dataModificationFunction: updateClientAgentValue
             }}
          />
          <div style={modalWrapper}>
@@ -91,8 +112,8 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                title: 'Processor type',
                description: 'Provide type of task',
                fieldName: 'processorName',
-               dataToModify: clientAgentData,
-               dataModificationFunction: updateClientAgentValue
+               dataToModify: clientAgentData.jobCreator,
+               dataModificationFunction: updateClientAgentJobValue
             }}
          />
          <CreatorInputField
@@ -101,8 +122,8 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                description:
                   'Provide deadline (in hours counted from job creation) of job execution (0 indicates no deadline)',
                fieldName: 'deadline',
-               dataToModify: clientAgentData,
-               dataModificationFunction: updateClientAgentValue,
+               dataToModify: clientAgentData.jobCreator,
+               dataModificationFunction: updateClientAgentJobValue,
                isNumeric: true
             }}
          />
@@ -111,8 +132,8 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                title: 'Duration',
                description: 'Provide duration (in hours counted from job creation) of job execution',
                fieldName: 'duration',
-               dataToModify: clientAgentData,
-               dataModificationFunction: updateClientAgentValue,
+               dataToModify: clientAgentData.jobCreator,
+               dataModificationFunction: updateClientAgentJobValue,
                isNumeric: true
             }}
          />
@@ -121,8 +142,8 @@ export const ClientAgentCreator = ({ setClientAgentData, clientAgentData, resetD
                title: 'Preference of server selection',
                description: 'Provide method that will be used to select the server for job execution',
                fieldName: 'selectionPreference',
-               dataToModify: clientAgentData,
-               dataModificationFunction: updateClientAgentValue,
+               dataToModify: clientAgentData.jobCreator,
+               dataModificationFunction: updateClientAgentJobValue,
                isTextField: true
             }}
          />

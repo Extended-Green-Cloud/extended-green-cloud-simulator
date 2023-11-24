@@ -3,8 +3,10 @@ package org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork
 import static java.lang.Integer.parseInt;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_SET_TYPE;
+import static org.greencloud.commons.enums.rules.RuleSetType.WEATHER_PRE_DROP_RULE_SET;
 import static org.greencloud.commons.enums.rules.RuleType.REQUEST_RULE_SET_UPDATE_RULE;
 import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetAdaptationRequest;
+import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
@@ -13,6 +15,7 @@ import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentPro
 import org.greencloud.commons.domain.facts.RuleSetFacts;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.rulescontroller.RulesController;
+import org.greencloud.rulescontroller.behaviour.schedule.ScheduleOnce;
 import org.greencloud.rulescontroller.domain.AgentRuleDescription;
 import org.greencloud.rulescontroller.rule.template.AgentRequestRule;
 import org.slf4j.Logger;
@@ -49,6 +52,13 @@ public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<CloudNetwo
 		final int indexOfNewRuleSet = parseInt(informs.stream().findFirst().orElseThrow().getOntology());
 		controller.addModifiedRuleSet(facts.get(RULE_SET_TYPE), indexOfNewRuleSet);
 		logger.info("System components are changing rule set to {}!", ruleSetType);
+
+		if (facts.get(RULE_SET_TYPE).equals(WEATHER_PRE_DROP_RULE_SET)) {
+			logger.info("Scheduling adaptation for time when weather drop will start!");
+			agent.addBehaviour(
+					ScheduleOnce.create(agent, new RuleSetFacts(indexOfNewRuleSet), "ADAPT_TO_WEATHER_DROP_RULE",
+							controller, SELECT_BY_FACTS_IDX));
+		}
 	}
 
 	@Override

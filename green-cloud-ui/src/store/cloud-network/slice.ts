@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AgentType, CloudNetworkStore, JobCreator, MenuTab } from '@types'
+import { AgentType, CloudNetworkStore, MenuTab } from '@types'
 import { resetServerState } from './api'
 import {
    CreateAgentEventData,
@@ -38,7 +38,7 @@ export const cloudNetworkSlice = createSlice({
       createAgent(state, action: PayloadAction<CreateAgentEventData>) {
          const { agentType } = action.payload
          if (agentType === AgentType.CLIENT) {
-            createClientAgent((action.payload as CreateClientEventData).jobData)
+            createClientAgent((action.payload as CreateClientEventData).clientData)
          }
          if (agentType === AgentType.GREEN_ENERGY) {
             createGreenSourceAgent((action.payload as CreateGreenSourceEventData).greenSourceData)

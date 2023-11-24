@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { JobCreator, JobStep } from '@types'
+import React, { useState, useEffect } from 'react'
+import { ClientCreator, JobStep } from '@types'
 import {
    AddWithInput,
    Button,
@@ -9,7 +9,6 @@ import {
    Modal,
    UploadJSONButton
 } from 'components/common'
-import React from 'react'
 import { styles } from './client-agent-creator-step-modal-styles'
 import { ClientAgentCreatorResourceModal } from '../client-agent-creator-resource-modal/client-agent-creator-resource-modal'
 import { UpdateResourceReset } from 'components/common/resource-form/resource-form'
@@ -18,7 +17,7 @@ interface Props {
    initialSteps: JobStep[]
    isOpen: boolean
    setIsOpen: (isOpen: boolean) => void
-   setClientAgentData: (value: React.SetStateAction<JobCreator>) => void
+   setClientAgentData: (value: React.SetStateAction<ClientCreator>) => void
    resetData: boolean
    setResetData: UpdateResourceReset
 }
@@ -92,7 +91,10 @@ export const ClientAgentCreatorStepModal = ({
    const saveJobSteps = () => {
       setClientAgentData((prevState) => ({
          ...prevState,
-         steps: jobSteps
+         jobCreator: {
+            ...prevState.jobCreator,
+            steps: jobSteps
+         }
       }))
       setIsOpen(!isOpen)
    }

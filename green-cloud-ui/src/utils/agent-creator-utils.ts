@@ -1,4 +1,4 @@
-import { Agent, GreenSourceCreator, JobCreator, ServerCreator } from '@types'
+import { Agent, ClientCreator, GreenSourceCreator, ServerCreator } from '@types'
 import { validateResources } from './resource-utils'
 
 /**
@@ -8,29 +8,35 @@ import { validateResources } from './resource-utils'
  * @param jobData data to be verified
  * @returns error message
  */
-export const validateNewClientData = (jobData: JobCreator) => {
-   if (jobData.processorName === '') {
+export const validateNewClientData = (clientData: ClientCreator) => {
+   if (clientData.clientName === '') {
+      return 'Client name cannot be empty.'
+   }
+   if (clientData.jobCreator.processorName === '') {
       return 'Processor name is empty. Type of the task must be specified.'
    }
-   if (jobData.duration <= 0) {
+   if (clientData.jobCreator.duration <= 0) {
       return 'Duration of task execution must be greater than 0.'
    }
-   if (jobData.deadline < 0) {
+   if (clientData.jobCreator.deadline < 0) {
       return 'Job execution deadline cannot be smaller than 0.'
    }
-   if (jobData.steps.length === 0) {
+   if (clientData.jobCreator.steps.length === 0) {
       return 'At least 1 job execution step must be specified.'
    }
-   if (jobData.steps.reduce((prev, step) => step.duration + prev, 0) !== jobData.duration * 60 * 60) {
+   if (
+      clientData.jobCreator.steps.reduce((prev, step) => step.duration + prev, 0) !==
+      clientData.jobCreator.duration * 60 * 60
+   ) {
       return 'Duration of job execution steps must be equal to the duration of entire task execution.'
    }
 
-   const resourceVerification = validateResources(jobData.resources)
+   const resourceVerification = validateResources(clientData.jobCreator.resources)
    if (resourceVerification !== '') {
       return `Some of the job resources were specified incorrectly: ${resourceVerification}`
    }
 
-   const jobStepResourceVerification = jobData.steps
+   const jobStepResourceVerification = clientData.jobCreator.steps
       .map((step) => ({
          name: step.name,
          validation: validateResources(step.requiredResources)

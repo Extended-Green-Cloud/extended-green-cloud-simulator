@@ -1,5 +1,5 @@
-import { JobCreator } from 'types/creator'
+import { ClientCreator } from 'types/creator'
 
 export interface CreateClientAgentMessagePayload {
-   jobData: JobCreator
+   clientData: ClientCreator
 }

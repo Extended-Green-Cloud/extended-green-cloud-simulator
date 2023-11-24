@@ -1,6 +1,7 @@
 package org.greencloud.commons.domain.job.extended;
 
 import org.greencloud.commons.domain.agent.ServerResources;
+import org.greencloud.commons.enums.energy.EnergyTypeEnum;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -25,6 +26,11 @@ public interface JobWithPrice {
 	 * @return cost of execution of the given job
 	 */
 	double getPriceForJob();
+
+	/**
+	 * @return type of energy with which a given job is to be executed
+	 */
+	EnergyTypeEnum getTypeOfEnergy();
 
 	/**
 	 * @return specification of the server that will execute given job

@@ -1,7 +1,7 @@
 {
-  "clientName": "GPU-Client",
+  "clientName": "GreenClient",
   "jobCreator": {
-    "processorName": "gpu-task",
+    "processorName": "green-task",
     "resources": {
       "cpu": {
         "characteristics": {
@@ -18,27 +18,11 @@
             "unit": "GB",
             "toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
             "fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
-          },
-          "VRAM": {
-            "value": 12,
-            "unit": "GB",
-            "toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
-            "fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
-          }
-        }
-      },
-      "gpu": {
-        "characteristics": {
-          "amount": {
-            "value": 3,
-            "unit": "kCUDA cores",
-            "toCommonUnitConverter": "FROM_KI_CUDA_CORES_CONVERTER",
-            "fromCommonUnitConverter": "TO_KI_CUDA_CORES_CONVERTER"
           }
         }
       }
     },
-    "selectionPreference": "bestProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit() - newProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit();",
+    "selectionPreference": "bestProposal.getPriceForJob() - newProposal.getPriceForJob();",
     "deadline": 0,
     "duration": 3,
     "steps": [

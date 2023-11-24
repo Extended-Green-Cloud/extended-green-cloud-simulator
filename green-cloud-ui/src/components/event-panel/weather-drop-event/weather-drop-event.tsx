@@ -27,7 +27,7 @@ const WeatherDropCard = ({ event, label, agentName, triggerWeatherDrop }: Props)
 
    function handleWeatherDropTrigger() {
       toast.dismiss()
-      toast.warn(`ALERT! Weather conditions of Green Sources being under ${agentName} will worsen in 5s!`)
+      toast.warn(`ALERT! Weather conditions of Green Sources being under ${agentName} will worsen in 24h!`)
       triggerWeatherDrop({
          agentName,
          duration: 30

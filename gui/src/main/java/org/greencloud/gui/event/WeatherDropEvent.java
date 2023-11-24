@@ -1,5 +1,7 @@
 package org.greencloud.gui.event;
 
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.constants.TimeConstants;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
@@ -44,7 +47,7 @@ public class WeatherDropEvent extends AbstractEvent {
 	}
 
 	public WeatherDropEvent(WeatherDropMessage weatherDropMessage) {
-		this(weatherDropMessage.getData().getOccurrenceTime(), weatherDropMessage.getData().getDuration(),
+		this(getCurrentTime().plusSeconds(TimeConstants.SECONDS_PER_HOUR), weatherDropMessage.getData().getDuration(),
 				weatherDropMessage.getAgentName());
 	}
 

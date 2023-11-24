@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 from src.helpers.path_reader import PathReader
 from src.helpers.workflow_filter import filter_by_numerical_features, filter_workflows_by_label
-from src.helpers.feature_encoder import get_codes_of_feature, WORKFLOW_FEATURES
+from src.helpers.feature_encoder import WORKFLOW_FEATURES
 from src.helpers.workflow_converter import convert_synthetic_workflows_to_dict
 
 
