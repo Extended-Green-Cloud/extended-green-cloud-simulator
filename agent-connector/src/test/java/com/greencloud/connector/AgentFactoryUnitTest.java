@@ -1,25 +1,46 @@
 package com.greencloud.connector;
 
-import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.CPU_CHARACTERISTIC;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.MEMORY_CHARACTERISTIC;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.STORAGE_CHARACTERISTIC;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_ADDITION;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_BOOKER;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_COMPARATOR;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_REMOVER;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_IDLE_POWER;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_VALIDATOR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.FROM_CPU_CORES_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceConverterConstants.TO_CPU_CORES_CONVERTER;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.MEMORY;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
+import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Instant;
+import java.util.Map;
+
 import org.assertj.core.api.Assertions;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.domain.resources.ImmutableResource;
+import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
+import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
+import org.greencloud.gui.messages.domain.ImmutableServerCreator;
+import org.greencloud.gui.messages.domain.ServerCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
-import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 
 import com.greencloud.connector.factory.AgentFactory;
 import com.greencloud.connector.factory.AgentFactoryImpl;
@@ -38,14 +59,98 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateServerDefaultValues() {
-		ServerArgs result = factory.createServerAgent("OwnerCna1", null, null, null, null, null);
+		final ServerArgs result = factory.createDefaultServerAgent("OwnerCna1");
 
-		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
+		assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(TEMPLATE_SERVER_MAX_POWER);
 		assertThat(result.getIdlePower()).isEqualTo(TEMPLATE_SERVER_IDLE_POWER);
 		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE.doubleValue());
 		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
+		assertThat(result.getContainerId()).isNull();
+		assertThat(result.getResources())
+				.containsEntry(CPU, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, CPU_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build())
+				.containsEntry(MEMORY, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, MEMORY_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build())
+				.containsEntry(STORAGE, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, STORAGE_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build());
+	}
+
+	@Test
+	void testCreateTemplateServerMixedDefaultValues() {
+		final ServerArgs result = factory.createServerAgent("OwnerCna1", null, 100, 30, 10D, null);
+
+		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
+		assertThat(result.getMaxPower()).isEqualTo(100);
+		assertThat(result.getIdlePower()).isEqualTo(30);
+		assertThat(result.getPrice()).isEqualTo(10D);
+		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
+		assertThat(result.getResources())
+				.containsEntry(CPU, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, CPU_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build())
+				.containsEntry(MEMORY, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, MEMORY_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build())
+				.containsEntry(STORAGE, ImmutableResource.builder()
+						.putCharacteristics(AMOUNT, STORAGE_CHARACTERISTIC)
+						.resourceComparator(TEMPLATE_COMPARATOR)
+						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.build());
+	}
+
+	@Test
+	void testCreateTemplateServerCustomValues() {
+		final Map<String, Resource> customResources = Map.of(CPU, getCustomCpuResource());
+		final ServerArgs result = factory.createServerAgent("OwnerCna1", customResources, 150, 10, 15D, 30);
+
+		assertThat(result.getName()).isEqualTo("ExtraServer1");
+		assertThat(result.getMaxPower()).isEqualTo(150);
+		assertThat(result.getIdlePower()).isEqualTo(10);
+		assertThat(result.getPrice()).isEqualTo(15D);
+		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getJobProcessingLimit()).isEqualTo(30);
+		assertThat(result.getResources()).containsEntry(CPU, getCustomCpuResource());
+	}
+
+	@Test
+	void testCreateTemplateServerFromServerCreator() {
+		final ServerCreator serverCreator = ImmutableServerCreator.builder()
+				.name("ServerTest")
+				.idlePower(20D)
+				.maxPower(100D)
+				.cloudNetwork("TestOwner")
+				.isFinished(false)
+				.occurrenceTime(Instant.now())
+				.jobProcessingLimit(10L)
+				.price(20D)
+				.putResources(CPU, getCustomCpuResource())
+				.build();
+		final ServerArgs result = factory.createServerAgent(serverCreator);
+
+		assertThat(result.getName()).isEqualTo("ServerTest");
+		assertThat(result.getMaxPower()).isEqualTo(100);
+		assertThat(result.getIdlePower()).isEqualTo(20);
+		assertThat(result.getPrice()).isEqualTo(20D);
+		assertThat(result.getOwnerCloudNetwork()).isEqualTo("TestOwner");
+		assertThat(result.getJobProcessingLimit()).isEqualTo(10);
+		assertThat(result.getResources()).containsEntry(CPU, getCustomCpuResource());
+
 	}
 
 	@Test
@@ -82,15 +187,14 @@ class AgentFactoryUnitTest {
 	void testCreatingGreenSourceNullParameters() {
 		Exception exception = assertThrows(IllegalArgumentException.class, () ->
 				factory.createGreenEnergyAgent(null
-						, "testServer"
+						, null
 						, 52
 						, 52
 						, 200
 						, 1
 						, 0.0
 						, GreenEnergySourceTypeEnum.SOLAR));
-
-		assertThat(exception.getMessage()).isEqualTo("monitoringAgentName and ownerServerName should not be null");
+		assertThat(exception.getMessage()).isEqualTo("Name of monitoring agent and owner server must be specified");
 	}
 
 	@Test
@@ -109,5 +213,21 @@ class AgentFactoryUnitTest {
 		assertThat(result.getIdlePower()).isEqualTo(25);
 		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
 		assertThat(result.getPrice()).isEqualTo(10);
+	}
+
+	private Resource getCustomCpuResource() {
+		return ImmutableResource.builder()
+				.putCharacteristics("amount", ImmutableResourceCharacteristic.builder()
+						.value(10)
+						.unit("millicores")
+						.toCommonUnitConverter(TO_CPU_CORES_CONVERTER)
+						.fromCommonUnitConverter(FROM_CPU_CORES_CONVERTER)
+						.resourceAddition(TEMPLATE_ADDITION)
+						.resourceBooker(TEMPLATE_BOOKER)
+						.resourceRemover(TEMPLATE_REMOVER)
+						.build())
+				.resourceComparator(TEMPLATE_COMPARATOR)
+				.sufficiencyValidator(TEMPLATE_VALIDATOR)
+				.build();
 	}
 }

@@ -52,10 +52,20 @@ public class EventListener extends GuiWebSocketClient {
 		nodeFactory = new AgentNodeFactoryImpl();
 	}
 
+	/**
+	 * Method used to connect the event listener with agent factory
+	 *
+	 * @param factory agent factory that is to be connected with the event listener
+	 */
 	public void connectWithAgentFactory(final AgentControllerFactory factory) {
 		this.factory = factory;
 	}
 
+	/**
+	 * Method used to connect new agent node with a listener
+	 *
+	 * @param agentNode node that is to be taken into account in event listener
+	 */
 	public void addAgentNode(EGCSNode agentNode) {
 		if (Objects.nonNull(agentNode)) {
 			agentNodes.put(agentNode.getAgentName(), agentNode);

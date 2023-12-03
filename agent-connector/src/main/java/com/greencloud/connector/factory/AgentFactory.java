@@ -122,7 +122,10 @@ public interface AgentFactory {
 	 * @param jobArgs  specification of the job sent by the client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(String name, String jobId, ClientTimeTypeEnum timeType, JobArgs jobArgs);
+	ClientArgs createClientAgent(String name,
+			String jobId,
+			ClientTimeTypeEnum timeType,
+			JobArgs jobArgs);
 
 	/**
 	 * Method creates new client agent args that can be used to initialize new agent
@@ -140,6 +143,8 @@ public interface AgentFactory {
 	 * @param nextClientId identifier of next client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(JobCreator jobCreator, final String clientName, final int nextClientId);
+	ClientArgs createClientAgent(JobCreator jobCreator,
+			final String clientName,
+			final int nextClientId);
 
 }

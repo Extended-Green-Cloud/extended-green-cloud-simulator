@@ -230,7 +230,10 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(cloudNetworkAgent.getName(),
 				"org.greencloud.agentsystem.agents.cloudnetwork.CloudNetworkAgent",
-				new Object[] { mainDFAddress, mainHostPlatformId, ofNullable(systemKnowledge), isInformer,
+				new Object[] { mainDFAddress,
+						mainHostPlatformId,
+						ofNullable(systemKnowledge),
+						isInformer,
 						managingAgent });
 	}
 
@@ -273,7 +276,9 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),
 				"org.greencloud.agentsystem.agents.monitoring.MonitoringAgent",
-				new Object[] { monitoringAgent.getBadStubProbability(), ofNullable(systemKnowledge), isInformer,
+				new Object[] { monitoringAgent.getBadStubProbability(),
+						ofNullable(systemKnowledge),
+						isInformer,
 						managingAgent });
 	}
 }

@@ -33,9 +33,6 @@ public class GuiControllerImpl implements GuiController {
 		eventSocket.connect();
 	}
 
-	/**
-	 * Method connects GUI with agent factory
-	 */
 	@Override
 	public void connectWithAgentFactory(final AgentControllerFactory factory) {
 		eventSocket.connectWithAgentFactory(factory);

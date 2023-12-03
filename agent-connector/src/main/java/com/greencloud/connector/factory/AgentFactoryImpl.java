@@ -61,8 +61,12 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public ServerArgs createServerAgent(final String ownerCNA, final Map<String, Resource> resources,
-			final Integer maxPower, final Integer idlePower, final Double price, final Integer jobProcessingLimit) {
+	public ServerArgs createServerAgent(final String ownerCNA,
+			final Map<String, Resource> resources,
+			final Integer maxPower,
+			final Integer idlePower,
+			final Double price,
+			final Integer jobProcessingLimit) {
 		final String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
 		return ImmutableServerArgs.builder()
 				.name(serverAgentName)
@@ -95,9 +99,13 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public GreenEnergyArgs createGreenEnergyAgent(final String monitoringAgentName, final String ownerServerName,
-			final Integer latitude, final Integer longitude, final Integer maximumCapacity,
-			final Integer pricePerPowerUnit, final Double weatherPredictionError,
+	public GreenEnergyArgs createGreenEnergyAgent(final String monitoringAgentName,
+			final String ownerServerName,
+			final Integer latitude,
+			final Integer longitude,
+			final Integer maximumCapacity,
+			final Integer pricePerPowerUnit,
+			final Double weatherPredictionError,
 			final GreenEnergySourceTypeEnum energyType) {
 
 		if (isNull(monitoringAgentName) || isNull(ownerServerName)) {
