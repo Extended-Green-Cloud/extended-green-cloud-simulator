@@ -153,6 +153,19 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 		rulesController.fire(facts);
 	}
 
+	/**
+	 * Method initialized rules controller and starts default agent behaviours.
+	 *
+	 * @param rulesController rules controller with which agent is to be connected
+	 */
+	public void setRulesController(RulesController<E, T> rulesController) {
+		this.rulesController = rulesController;
+		properties.setAgentName(getName());
+		properties.setAgentNode((AgentNodeProps<AgentProps>) agentNode);
+		rulesController.setAgent(this, properties, agentNode, DEFAULT_CLOUD_RULE_SET);
+		runInitialBehavioursForRuleSet();
+	}
+
 	@Override
 	public void clean(boolean ok) {
 		if (!ok && nonNull(getAgentNode()) && !properties.getAgentType().equals(CLIENT.name())) {
@@ -212,13 +225,5 @@ public abstract class AbstractAgent<T extends EGCSNode<?, E>, E extends AgentPro
 		} else {
 			super.addBehaviour(b);
 		}
-	}
-
-	public void setRulesController(RulesController<E, T> rulesController) {
-		this.rulesController = rulesController;
-		properties.setAgentName(getName());
-		properties.setAgentNode((AgentNodeProps<AgentProps>) agentNode);
-		rulesController.setAgent(this, properties, agentNode, DEFAULT_CLOUD_RULE_SET);
-		runInitialBehavioursForRuleSet();
 	}
 }

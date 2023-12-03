@@ -9,7 +9,6 @@ import org.greencloud.commons.domain.weather.MonitoringData;
 /**
  * Class stores all predefined constants for Monitoring Agent
  *
- * <p> BAD_STUB_PROBABILITY 		  - probability for stubbing data insufficient for job execution </p>
  * <p> STUB_DATA 					  - predefined weather data used instead of real API response </p>
  * <p> BAD_STUB_DATA 				  - predefined weather data that is insufficient for job execution </p>
  * <p> MAX_NUMBER_OF_WEATHER_REQUESTS - maximal number of messages asking for weather data that can be read at once </p>
