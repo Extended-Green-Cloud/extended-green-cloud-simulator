@@ -10,10 +10,10 @@ import org.greencloud.gui.websocket.enums.SocketTypeEnum;
 /**
  * Class stores the information about available websocket connections
  *
- * <p>AGENTS_WEB_SOCKET - websocket via which the application sends the data related to cloud network component agents</p>
+ * <p>AGENTS_WEB_SOCKET - websocket via which the application sends the data related to regional manager component agents</p>
  * <p>CLIENTS_WEB_SOCKET - websocket via which the application sends the data related to client agents</p>
  * <p>CLIENTS_WEB_SOCKET - websocket via which the application sends the data related to managing system agent</p>
- * <p>CLOUD_NETWORK_SOCKET - websocket via which the application sends the overall statistics of the cloud network</p>
+ * <p>CLOUD_NETWORK_SOCKET - websocket via which the application sends the overall statistics of the regional manager</p>
  * <p>EVENT_SOCKET - websocket via which the application listens for the external events triggered on the system</p>
  */
 public class WebSocketConnections {

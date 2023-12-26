@@ -3,7 +3,7 @@ import { CommonNetworkAgentInterface } from './common/common-network-agent'
 import { ServerState } from 'types/enum'
 
 export interface ServerAgent extends CommonNetworkAgentInterface {
-   cloudNetworkAgent: string
+   regionalManagerAgent: string
    greenEnergyAgents: string[]
    maxPower: number
    idlePower: number

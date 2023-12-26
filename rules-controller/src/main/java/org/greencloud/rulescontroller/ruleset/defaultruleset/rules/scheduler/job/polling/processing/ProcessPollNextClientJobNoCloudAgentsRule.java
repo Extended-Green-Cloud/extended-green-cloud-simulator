@@ -23,17 +23,17 @@ public class ProcessPollNextClientJobNoCloudAgentsRule extends AgentBasicRule<Sc
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(NEW_JOB_POLLING_RULE, NEW_JOB_POLLING_HANDLE_NO_CLOUD_AGENTS_RULE,
-				"do not announce job when there are no CNAs",
-				"when Scheduler has no CNA agents, it logs a message");
+				"do not announce job when there are no RMAs",
+				"when Scheduler has no RMA agents, it logs a message");
 	}
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
-		return agentProps.getAvailableCloudNetworks().isEmpty();
+		return agentProps.getAvailableRegionalManagers().isEmpty();
 	}
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("There are no available Cloud Network Agents!");
+		logger.info("There are no available Regional Manager Agents!");
 	}
 }

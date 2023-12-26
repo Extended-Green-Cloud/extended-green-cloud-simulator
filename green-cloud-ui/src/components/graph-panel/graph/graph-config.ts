@@ -122,7 +122,7 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       }
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][adaptation = 'active']",
+      selector: "node[type = 'REGIONAL_MANAGER'][adaptation = 'active']",
       style: {
          'background-width': '23',
          'background-height': '23',
@@ -156,9 +156,9 @@ const SCHEDULER_STYLESHEET: Array<cytoscape.Stylesheet> = [
    }
 ]
 
-const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
+const RMA_STYLESHEET: Array<cytoscape.Stylesheet> = [
    {
-      selector: "node[type = 'CLOUD_NETWORK']",
+      selector: "node[type = 'REGIONAL_MANAGER']",
       style: {
          width: '60',
          height: '60',
@@ -166,25 +166,25 @@ const CNA_STYLESHEET: Array<cytoscape.Stylesheet> = [
       }
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][state = 'inactive']",
+      selector: "node[type = 'REGIONAL_MANAGER'][state = 'inactive']",
       style: {
          'background-color': '#8C8C8C'
       }
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][state = 'low']",
+      selector: "node[type = 'REGIONAL_MANAGER'][state = 'low']",
       style: {
          'background-color': '#8AE423'
       }
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][state = 'medium']",
+      selector: "node[type = 'REGIONAL_MANAGER'][state = 'medium']",
       style: {
          'background-color': '#FDBB2A'
       }
    },
    {
-      selector: "node[type = 'CLOUD_NETWORK'][state = 'high']",
+      selector: "node[type = 'REGIONAL_MANAGER'][state = 'high']",
       style: {
          'background-color': '#DB432C'
       }
@@ -272,7 +272,7 @@ export const EDGE_UNIDIRECTED_ACTIVE = {
    'line-color': '#58B905'
 }
 
-export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> = COMMON_STYLESHEET.concat(CNA_STYLESHEET)
+export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> = COMMON_STYLESHEET.concat(RMA_STYLESHEET)
    .concat(SERVER_STYLESHEET)
    .concat(GREEN_ENERGY_STYLESHEET)
    .concat(MONITORING_STYLESHEET)

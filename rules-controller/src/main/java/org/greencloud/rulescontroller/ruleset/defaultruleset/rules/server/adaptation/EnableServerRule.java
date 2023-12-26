@@ -49,7 +49,7 @@ public class EnableServerRule extends AgentBasicRule<ServerAgentProps, ServerNod
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("Enabling Server and informing CNA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
+		logger.info("Enabling Server and informing RMA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
 		agentProps.enable();
 		agentProps.saveMonitoringData();
 

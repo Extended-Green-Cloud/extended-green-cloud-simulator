@@ -17,7 +17,7 @@ import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FINAL_EXECUTION_PRICE_MESSAGE;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForRMA;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
@@ -78,11 +78,11 @@ public class HandleJobFinishPriceUpdateRule extends AgentSingleMessageListenerRu
 		updateStateAfterJobIsDone(facts);
 
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
-		final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
+		final ACLMessage rmaMessage = prepareJobFinishMessageForRMA(job, facts.get(RULE_SET_IDX), finalJobPrice,
 				agentProps.getOwnerRegionalManagerAgent());
 
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
-		agent.send(cnaMessage);
+		agent.send(rmaMessage);
 	}
 
 	private void updateStateAfterJobIsDone(final Facts facts) {

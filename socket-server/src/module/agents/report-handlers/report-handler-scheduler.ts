@@ -1,13 +1,13 @@
 import { AGENT_TYPES } from "../../../constants";
 import { AGENTS_REPORTS_STATE, AGENTS_STATE } from "../agents-state";
 import { SchedulerAgent } from "../types";
-import { CloudNetworkAgent } from "../types/cloud-network-agent";
+import { RegionalManagerAgent } from "../types/cloud-network-agent";
 
 const reportSystemTraffic = (time) => {
 	const currentState = AGENTS_STATE.agents
-		.filter((agent) => agent.type === AGENT_TYPES.CLOUD_NETWORK)
+		.filter((agent) => agent.type === AGENT_TYPES.REGIONAL_MANAGER)
 		.reduce(
-			(sum, agent: CloudNetworkAgent) => {
+			(sum, agent: RegionalManagerAgent) => {
 				sum.capacity = sum.capacity + agent.maxCpuInServers;
 				sum.traffic = sum.traffic + agent.maxCpuInServers * agent.traffic;
 				return sum;

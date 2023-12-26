@@ -13,7 +13,7 @@ import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HA
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_TRANSFER_UPDATE_FAILURE_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferUpdateMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferUpdateMessageForRMA;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
@@ -76,7 +76,7 @@ public class ProcessUpdateFromGreenSourceTransferFailureRule extends AgentBasicR
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Job {} transfer has failed in green source", jobInstance.getJobId());
-		agent.send(prepareJobTransferUpdateMessageForCNA(jobInstance, FAILED_TRANSFER_PROTOCOL,
+		agent.send(prepareJobTransferUpdateMessageForRMA(jobInstance, FAILED_TRANSFER_PROTOCOL,
 				agentProps.getOwnerRegionalManagerAgent(), facts.get(RULE_SET_IDX)));
 	}
 }

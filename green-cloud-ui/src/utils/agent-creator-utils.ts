@@ -102,8 +102,8 @@ export const validateServerData = (serverData: ServerCreator, agents: Agent[]) =
    if (serverData.name === '') {
       return 'Server name cannot be empty.'
    }
-   if (serverData.cloudNetwork === '') {
-      return 'Cloud network cannot be empty.'
+   if (serverData.regionalManager === '') {
+      return 'Regional manager cannot be empty.'
    }
    if (agents.find((agent) => agent.name === serverData.name)) {
       return 'Provided name already exists. Name of the Server must be unique with respect to already existing agents.'

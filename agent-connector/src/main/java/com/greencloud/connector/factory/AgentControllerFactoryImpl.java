@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
@@ -129,8 +129,8 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 				agentController = createClientController(clientAgent);
 			} else if (agentArgs instanceof ServerArgs serverAgent) {
 				agentController = createServerController(serverAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof CloudNetworkArgs cloudNetworkAgent) {
-				agentController = createCloudNetworkController(cloudNetworkAgent, isInformer, managingAgent);
+			} else if (agentArgs instanceof RegionalManagerArgs regionalManagerArgs) {
+				agentController = createRegionalManagerController(regionalManagerArgs, isInformer, managingAgent);
 			} else if (agentArgs instanceof GreenEnergyArgs greenEnergyAgent) {
 				agentController = createGreenSourceController(greenEnergyAgent, isInformer, managingAgent);
 			} else if (agentArgs instanceof MonitoringArgs monitoringAgent) {
@@ -225,11 +225,11 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 						managingAgent });
 	}
 
-	private AgentController createCloudNetworkController(final CloudNetworkArgs cloudNetworkAgent, Boolean isInformer,
+	private AgentController createRegionalManagerController(final RegionalManagerArgs regionalManagerArgs, Boolean isInformer,
 			AID managingAgent)
 			throws StaleProxyException {
-		return containerController.createNewAgent(cloudNetworkAgent.getName(),
-				"org.greencloud.agentsystem.agents.cloudnetwork.CloudNetworkAgent",
+		return containerController.createNewAgent(regionalManagerArgs.getName(),
+				"org.greencloud.agentsystem.agents.regionalmanager.RegionalManagerAgent",
 				new Object[] { mainDFAddress,
 						mainHostPlatformId,
 						ofNullable(systemKnowledge),

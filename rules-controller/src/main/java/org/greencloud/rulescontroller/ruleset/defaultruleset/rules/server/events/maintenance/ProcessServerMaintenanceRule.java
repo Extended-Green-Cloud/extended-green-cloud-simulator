@@ -34,7 +34,7 @@ public class ProcessServerMaintenanceRule extends AgentBasicRule<ServerAgentProp
 	public void executeRule(final RuleSetFacts facts) {
 		final ServerMaintenanceEvent serverMaintenanceEvent = facts.get(EVENT);
 
-		logger.info("Received information about server maintenance - informing CNA about changes in server resources!");
+		logger.info("Received information about server maintenance - informing RMA about changes in server resources!");
 		agentNode.confirmMaintenanceInServer();
 
 		final RuleSetFacts maintenanceFacts = new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get());

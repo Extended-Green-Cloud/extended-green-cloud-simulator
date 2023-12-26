@@ -8,7 +8,7 @@ const INITIAL_STATE: ClientStoreState = {
 }
 
 /**
- * Slice storing current state of cloud network agents
+ * Slice storing current state of cloud network clients
  */
 export const clientSlice = createSlice({
    name: 'clients',

@@ -14,7 +14,7 @@ import static org.greencloud.commons.enums.rules.RuleType.JOB_STATUS_RECEIVER_HA
 import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
@@ -76,7 +76,7 @@ public class ProcessUpdateFromGreenSourceJobFailureRule extends AgentBasicRule<S
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Job {} execution has failed in green source", jobInstance.getJobId());
-		agent.send(prepareJobStatusMessageForCNA(jobInstance, FAILED_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
+		agent.send(prepareJobStatusMessageForRMA(jobInstance, FAILED_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
 	}
 }
 

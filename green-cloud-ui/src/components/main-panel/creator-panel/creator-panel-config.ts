@@ -44,7 +44,7 @@ export const getEmptyGreenSourceForm = (): GreenSourceCreator => ({
 
 export const getEmptyServerForm = (): ServerCreator => ({
    name: '',
-   cloudNetwork: '',
+   regionalManager: '',
    maxPower: 0,
    idlePower: 0,
    price: 0,
@@ -67,7 +67,7 @@ export const CREATOR_CONFIG = {
       fillWithEmptyData: getEmptyServerForm,
       validateData: (data: any, agents: Agent[]) => validateServerData(data, agents),
       isButtonDisabled: (agents: Agent[]) =>
-         agents.filter((agent) => agent.type === AgentType.CLOUD_NETWORK).length === 0
+         agents.filter((agent) => agent.type === AgentType.REGIONAL_MANAGER).length === 0
    }
 }
 

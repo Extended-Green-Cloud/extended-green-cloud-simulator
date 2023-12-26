@@ -12,7 +12,7 @@ import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_POWER_SHORT
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -68,6 +68,6 @@ public class ProcessPowerShortageFinishRule extends AgentBasicRule<ServerAgentPr
 		agentProps.getJobsExecutionTime().updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
 		agentProps.getServerJobs().replace(job, newStatus);
 		agentProps.updateGUI();
-		agent.send(prepareJobStatusMessageForCNA(jobInstance, GREEN_POWER_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
+		agent.send(prepareJobStatusMessageForRMA(jobInstance, GREEN_POWER_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
 	}
 }

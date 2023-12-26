@@ -2,7 +2,7 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static org.greencloud.commons.args.agent.AgentType.CLOUD_NETWORK;
+import static org.greencloud.commons.args.agent.AgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -56,15 +56,15 @@ public class TrafficDistributionService extends AbstractGoalService {
 
 	@Override
 	public double computeCurrentGoalQuality(final int time) {
-		final List<String> cnaAgents = findCNAs();
+		final List<String> rmaAgents = findRMAs();
 
 		//Servers
-		final List<List<String>> servers = findServers(cnaAgents);
+		final List<List<String>> servers = findServers(rmaAgents);
 		final List<Pair<Double, Double>> serverValues = readServerQuality(servers);
 		final List<Double> serverQualities = serverValues.stream().map(Pair::getRight).toList();
 		final List<Double> allQualities = new ArrayList<>(serverQualities);
 
-		//CNAs
+		//RMAs
 		final List<Double> regionPowerConsumption = serverValues.stream().map(Pair::getLeft).toList();
 		final double regionsQuality = regionPowerConsumption.stream().allMatch(val -> val <= 0) ? 0 :
 				computeCoefficient(regionPowerConsumption);
@@ -110,13 +110,13 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return concat(powerConsumptions, consumptionForAgentsWithNoRecords).toList();
 	}
 
-	private List<String> findCNAs() {
-		return managingAgent.monitor().getAliveAgents(CLOUD_NETWORK);
+	private List<String> findRMAs() {
+		return managingAgent.monitor().getAliveAgents(REGIONAL_MANAGER);
 	}
 
-	private List<List<String>> findServers(List<String> cnaAgents) {
+	private List<List<String>> findServers(List<String> rmaAgents) {
 		final List<String> servers = managingAgent.monitor().getActiveServers();
-		return groupServersByCNA(servers, cnaAgents);
+		return groupServersByRMA(servers, rmaAgents);
 	}
 
 	private List<Pair<Double, Double>> readServerQuality(List<List<String>> servers) {
@@ -144,11 +144,11 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return ((ServerMonitoringData) data.monitoringData()).getCurrentPowerConsumption();
 	}
 
-	private List<List<String>> groupServersByCNA(List<String> aliveServers, List<String> cnaAgents) {
+	private List<List<String>> groupServersByRMA(List<String> aliveServers, List<String> rmaAgents) {
 		final List<List<String>> serversList = new ArrayList<>();
-		cnaAgents.forEach(cna -> {
+		rmaAgents.forEach(rma -> {
 			final List<String> childServers = managingAgent.getGreenCloudStructure()
-					.getServersForCloudNetworkAgent(cna.split("@")[0]);
+					.getServersForRegionalManagerAgent(rma.split("@")[0]);
 			final List<String> aliveChildServers = childServers.stream().filter(childServer -> aliveServers.stream()
 					.anyMatch(server -> server.split("@")[0].equals(childServer))).toList();
 			serversList.add(aliveChildServers);

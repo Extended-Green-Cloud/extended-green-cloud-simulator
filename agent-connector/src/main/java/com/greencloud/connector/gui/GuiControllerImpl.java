@@ -97,11 +97,11 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void createNewServerEvent(final String name, final String cloudNetwork, final double maxPower,
+	public void createNewServerEvent(final String name, final String regionalManager, final double maxPower,
 			final double idlePower, final Map<String, Resource> resources, final long jobProcessingLimit,
 			final double price) {
 		final ServerCreator serverCreator = ImmutableServerCreator.builder()
-				.cloudNetwork(cloudNetwork)
+				.regionalManager(regionalManager)
 				.name(name)
 				.occurrenceTime(Instant.now())
 				.isFinished(false)

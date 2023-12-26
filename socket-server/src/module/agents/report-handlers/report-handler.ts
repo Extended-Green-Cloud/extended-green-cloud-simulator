@@ -1,19 +1,19 @@
 import { AGENT_TYPES, EVENT_TYPE } from "../../../constants";
 import { getCurrentTime } from "../../../utils";
 import { AGENTS_REPORTS_STATE, AGENTS_STATE } from "../agents-state";
-import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../types";
+import { RegionalManagerAgent, GreenEnergyAgent, SchedulerAgent } from "../types";
 import { ServerAgent } from "../types/server-agent";
-import { reportCloudNetworkData } from "./report-hadnler-cloud-network";
+import { reportRegionalManagerData } from "./report-hadnler-cloud-network";
 import { reportGreenSourceData } from "./report-handler-green-energy-source";
 import { reportSchedulerData } from "./report-handler-scheduler";
 import { reportServerData } from "./report-handler-server";
 
-const changeCloudNetworkCapacityEvent = (cnaName, serverName, cpu, isAdded, isNew) => {
-	const events = AGENTS_REPORTS_STATE.agentsReports.filter((agentReport) => agentReport.name === cnaName)[0]?.events;
+const changeRegionalManagerCapacityEvent = (rmaName, serverName, cpu, isAdded, isNew) => {
+	const events = AGENTS_REPORTS_STATE.agentsReports.filter((agentReport) => agentReport.name === rmaName)[0]?.events;
 
 	if (events) {
 		const eventName = isAdded ? (isNew ? "New Server" : "Server enabled") : "Server disabled";
-		const event = isAdded ? (isNew ? `added to ${cnaName}` : `enabled for ${cnaName}`) : `disabled from ${cnaName}`;
+		const event = isAdded ? (isNew ? `added to ${rmaName}` : `enabled for ${rmaName}`) : `disabled from ${rmaName}`;
 		const eventDescription = `Server ${serverName} with CPU ${cpu} was ${event}`;
 
 		events.push({
@@ -27,8 +27,8 @@ const changeCloudNetworkCapacityEvent = (cnaName, serverName, cpu, isAdded, isNe
 
 const updateAgentsReportsState = (time) => {
 	AGENTS_STATE.agents.forEach((agent) => {
-		if (agent.type === AGENT_TYPES.CLOUD_NETWORK) {
-			reportCloudNetworkData(agent as CloudNetworkAgent, time);
+		if (agent.type === AGENT_TYPES.REGIONAL_MANAGER) {
+			reportRegionalManagerData(agent as RegionalManagerAgent, time);
 		} else if (agent.type === AGENT_TYPES.SERVER) {
 			reportServerData(agent as ServerAgent, time);
 		} else if (agent.type === AGENT_TYPES.GREEN_ENERGY) {
@@ -39,4 +39,4 @@ const updateAgentsReportsState = (time) => {
 	});
 };
 
-export { changeCloudNetworkCapacityEvent, updateAgentsReportsState };
+export { changeRegionalManagerCapacityEvent, updateAgentsReportsState };

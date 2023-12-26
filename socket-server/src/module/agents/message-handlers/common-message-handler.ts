@@ -10,11 +10,11 @@ import {
 import { CLIENTS_STATE } from "../../clients";
 import { GRAPH_STATE } from "../../graph";
 import { AGENTS_STATE } from "../agents-state";
-import { CloudNetworkAgent, GreenEnergyAgent } from "../types";
+import { RegionalManagerAgent, GreenEnergyAgent } from "../types";
 import { ServerAgent } from "../types/server-agent";
 
 const handleSetClientNumber = (msg) => {
-	const agent: CloudNetworkAgent | ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
+	const agent: RegionalManagerAgent | ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
 	const clientNumber = msg.data;
 
 	if (agent) {
@@ -36,7 +36,7 @@ const handleSetTraffic = (msg) => {
 };
 
 const handleSetJobsCount = (msg) => {
-	const agent: CloudNetworkAgent | ServerAgent | GreenEnergyAgent = getAgentByName(
+	const agent: RegionalManagerAgent | ServerAgent | GreenEnergyAgent = getAgentByName(
 		AGENTS_STATE.agents,
 		msg.agentName
 	);
@@ -46,8 +46,8 @@ const handleSetJobsCount = (msg) => {
 	if (agent) {
 		if (agent.type === AGENT_TYPES.SERVER || agent?.type === AGENT_TYPES.GREEN_ENERGY) {
 			(agent as ServerAgent | GreenEnergyAgent).numberOfExecutedJobs = jobsCount;
-		} else if (agent.type === AGENT_TYPES.CLOUD_NETWORK) {
-			(agent as CloudNetworkAgent).totalNumberOfExecutedJobs = jobsCount;
+		} else if (agent.type === AGENT_TYPES.REGIONAL_MANAGER) {
+			(agent as RegionalManagerAgent).totalNumberOfExecutedJobs = jobsCount;
 		}
 
 		if (node) {
@@ -93,7 +93,7 @@ const handleSetActive = (msg) => {
 };
 
 const handleSetSuccessRatio = (msg) => {
-	const agent: ServerAgent | CloudNetworkAgent | GreenEnergyAgent = getAgentByName(
+	const agent: ServerAgent | RegionalManagerAgent | GreenEnergyAgent = getAgentByName(
 		AGENTS_STATE.agents,
 		msg.agentName
 	);

@@ -14,9 +14,9 @@ import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.args.agent.client.node.ImmutableClientNodeArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.node.CloudNetworkNodeArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.node.ImmutableCloudNetworkNodeArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
+import org.greencloud.commons.args.agent.regionalmanager.node.RegionalManagerNodeArgs;
+import org.greencloud.commons.args.agent.regionalmanager.node.ImmutableRegionalManagerNodeArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
 import org.greencloud.commons.args.agent.greenenergy.node.ImmutableGreenEnergyNodeArgs;
@@ -35,7 +35,7 @@ import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.gui.agents.client.ClientNode;
-import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
@@ -50,8 +50,8 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		if (agentArgs instanceof ClientArgs clientArgs) {
 			return createClientNode(clientArgs);
 		}
-		if (agentArgs instanceof CloudNetworkArgs cloudNetworkArgs) {
-			return createCloudNetworkNode(cloudNetworkArgs, scenarioArgs);
+		if (agentArgs instanceof RegionalManagerArgs regionalManagerArgsArgs) {
+			return createRegionalManagerNode(regionalManagerArgsArgs, scenarioArgs);
 		}
 		if (agentArgs instanceof GreenEnergyArgs greenEnergyAgentArgs) {
 			return createGreenEnergyNode(greenEnergyAgentArgs);
@@ -86,7 +86,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
 		final ServerNodeArgs nodeArgs = ImmutableServerNodeArgs.builder()
 				.name(serverArgs.getName())
-				.cloudNetworkAgent(serverArgs.getOwnerRegionalManager())
+				.regionalManagerAgent(serverArgs.getOwnerRegionalManager())
 				.greenEnergyAgents(new HashSet<>())
 				.maxPower((long) serverArgs.getMaxPower())
 				.idlePower((long) serverArgs.getIdlePower())
@@ -114,20 +114,20 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return new ClientNode(nodeArgs);
 	}
 
-	private CloudNetworkNode createCloudNetworkNode(final CloudNetworkArgs cloudNetworkArgs,
+	private RegionalManagerNode createRegionalManagerNode(final RegionalManagerArgs regionalManagerArgs,
 			final ScenarioStructureArgs scenarioArgs) {
 		final List<ServerArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
-				.filter(serverArgs -> serverArgs.getOwnerRegionalManager().equals(cloudNetworkArgs.getName()))
+				.filter(serverArgs -> serverArgs.getOwnerRegionalManager().equals(regionalManagerArgs.getName()))
 				.toList();
 		final List<String> serverList = ownedServers.stream().map(ServerArgs::getName).toList();
-		final CloudNetworkNodeArgs nodeArgs = ImmutableCloudNetworkNodeArgs.builder()
+		final RegionalManagerNodeArgs nodeArgs = ImmutableRegionalManagerNodeArgs.builder()
 				.serverAgents(serverList)
 				.maxServerCpu(getMaxCpu(ownedServers))
 				.ownedResources(new HashMap<>())
-				.name(cloudNetworkArgs.getName())
+				.name(regionalManagerArgs.getName())
 				.build();
 
-		return new CloudNetworkNode(nodeArgs);
+		return new RegionalManagerNode(nodeArgs);
 	}
 
 	private ServerNode createServerNode(final ServerArgs serverAgentArgs,
@@ -142,7 +142,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
 		final ServerNodeArgs nodeArgs = ImmutableServerNodeArgs.builder()
 				.name(serverAgentArgs.getName())
-				.cloudNetworkAgent(serverAgentArgs.getOwnerRegionalManager())
+				.regionalManagerAgent(serverAgentArgs.getOwnerRegionalManager())
 				.greenEnergyAgents(greenSourceNames)
 				.maxPower((long) serverAgentArgs.getMaxPower())
 				.idlePower((long) serverAgentArgs.getIdlePower())

@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.DoublePredicate;
 
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
@@ -77,24 +78,24 @@ public class AddGreenSourcePlan extends SystemPlan {
 			return null;
 		}
 
-		final String targetCloudNetworkAgent = targetServerArgs.getOwnerRegionalManager();
-		final CloudNetworkArgs cloudNetwork = managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
+		final String targetRegionalManagerAgent = targetServerArgs.getOwnerRegionalManager();
+		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs()
 				.stream()
-				.filter(cna -> cna.getName().equals(targetCloudNetworkAgent))
+				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))
 				.findFirst()
 				.orElse(null);
 
-		if (isNull(cloudNetwork)) {
+		if (isNull(regionalManager)) {
 			return null;
 		}
 
-		final String cloudNetworkLocation = defaultIfNull(cloudNetwork.getLocationId(),
+		final String regionalManagerLocation = defaultIfNull(regionalManager.getLocationId(),
 				targetServerArgs.getOwnerRegionalManager());
 		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
 		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), targetServerArgs.getName());
 		final Map.Entry<Location, AID> targetLocation = managingAgent.move()
-				.findTargetLocation(cloudNetworkLocation);
+				.findTargetLocation(regionalManagerLocation);
 
 		if (isNull(targetLocation)) {
 			return null;

@@ -119,7 +119,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 		final ClientJob job = facts.get(JOB);
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("No Green Sources available - sending refuse message to Cloud Network Agent");
+		logger.info("No Green Sources available - sending refuse message to Regional Manager Agent");
 		agentProps.stoppedJobProcessing();
 		refuseToExecuteJob(facts);
 	}
@@ -135,7 +135,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 		if (!areSufficient(serverResources, job.getRequiredResources())) {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("Not enough resources - sending refuse message to Cloud Network Agent");
+			logger.info("Not enough resources - sending refuse message to Regional Manager Agent");
 			refuseToExecuteJob(facts);
 		} else {
 			handleSelectedProposal(bestProposal, facts);
@@ -151,7 +151,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 			MDC.put(MDC_JOB_ID, jobId);
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 			logger.info("Chosen Green Source for the job with id {} : {}. "
-					+ "Sending job volunteering offer to Cloud Network Agent", jobId, greenSource.getLocalName());
+					+ "Sending job volunteering offer to Regional Manager Agent", jobId, greenSource.getLocalName());
 
 			agentProps.getGreenSourceForJobMap().put(jobId, greenSource);
 

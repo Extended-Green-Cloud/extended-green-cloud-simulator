@@ -19,7 +19,7 @@ import com.database.knowledge.domain.agent.DataType;
  * <p> MONITOR_SYSTEM_DATA_HEALTH_PERIOD 	 	 - time period (in seconds) of last saved health-check data </p>
  * <p> AGGREGATION_SIZE							 - number of data records taken into account in calculations of
  * 											       traffic distribution </p>
- * <p> NETWORK_AGENT_DATA_TYPES 			 	 - list of data types used in monitoring data for cloud network agents </p>
+ * <p> NETWORK_AGENT_DATA_TYPES 			 	 - list of data types used in monitoring data for regional manager agents </p>
  * <p> VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS - defines after how many seconds from the adaptation action execution
  * 												   verification should begin (for actions performed on singular agents) </p>
  * <p> SYSTEM_ADAPTATION_PLAN_VERIFY_DELAY 		 - defines after how many seconds from the adaptation action execution

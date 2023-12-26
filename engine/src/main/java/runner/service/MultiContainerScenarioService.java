@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
@@ -38,7 +38,7 @@ import jade.wrapper.StaleProxyException;
 
 /**
  * Scenario service responsible for running Green Cloud dispersed among multiple hosts.
- * Each host is responsible for running for single Cloud Network. Additionally, to that
+ * Each host is responsible for running for single Regional Manager. Additionally, to that
  */
 public class MultiContainerScenarioService extends AbstractScenarioService implements Runnable {
 
@@ -63,7 +63,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	}
 
 	/**
-	 * Runs AgentContainer. For example host with id = 1 would run all agents for first CNA declared
+	 * Runs AgentContainer. For example host with id = 1 would run all agents for first RMA declared
 	 * in the XML scenario document. A special case is host with id = 0, such host is responsible
 	 * for generating Client Agents.
 	 */
@@ -80,7 +80,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		if (nonNull(locationId) && locationId.contains(CLIENTS_CONTAINER_ID.getName())) {
 			workloadGenerator.generateWorkloadForSimulation();
 		} else {
-			final List<AgentController> controllers = runCloudNetworkContainers(scenario);
+			final List<AgentController> controllers = runRegionalManagerContainers(scenario);
 			if (controllers.isEmpty()) {
 				logger.info("No agents to be run! Make sure that you passed a correct configuration.");
 			} else {
@@ -98,8 +98,8 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		factory.runAgentController(managingAgentController, RUN_AGENT_DELAY);
 	}
 
-	private List<AgentController> runCloudNetworkContainers(final ScenarioStructureArgs scenario) {
-		var clouds = selectCloudNetworksForContainers();
+	private List<AgentController> runRegionalManagerContainers(final ScenarioStructureArgs scenario) {
+		var clouds = selectRegionalManagersForContainers();
 		var servers = selectServersForContainer(clouds);
 		var sources = selectGreenSourcesForContainer(servers);
 		var monitors = selectMonitoringForContainer(sources);
@@ -115,19 +115,19 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		return controllers;
 	}
 
-	private List<CloudNetworkArgs> selectCloudNetworksForContainers() {
-		final List<CloudNetworkArgs> cloudNetworkArgs = scenario.getCloudNetworkAgentsArgs();
+	private List<RegionalManagerArgs> selectRegionalManagersForContainers() {
+		final List<RegionalManagerArgs> regionalManagerArgs = scenario.getRegionalManagerAgentsArgs();
 
-		return cloudNetworkArgs.stream()
-				.filter(cnaArgs -> Objects.equals(cnaArgs.getLocationId(), locationId))
+		return regionalManagerArgs.stream()
+				.filter(rmaArgs -> Objects.equals(rmaArgs.getLocationId(), locationId))
 				.toList();
 	}
 
-	private List<ServerArgs> selectServersForContainer(final List<CloudNetworkArgs> cloudNetworkArgs) {
+	private List<ServerArgs> selectServersForContainer(final List<RegionalManagerArgs> regionalManagerArgs) {
 		final List<ServerArgs> serverAgentsArgs = scenario.getServerAgentsArgs();
 
 		return serverAgentsArgs.stream()
-				.filter(serverArgs -> cloudNetworkArgs.stream().map(AgentArgs::getName).toList()
+				.filter(serverArgs -> regionalManagerArgs.stream().map(AgentArgs::getName).toList()
 						.contains(serverArgs.getOwnerRegionalManager()))
 				.filter(serverArgs -> Objects.equals(serverArgs.getContainerId(), containerId))
 				.toList();

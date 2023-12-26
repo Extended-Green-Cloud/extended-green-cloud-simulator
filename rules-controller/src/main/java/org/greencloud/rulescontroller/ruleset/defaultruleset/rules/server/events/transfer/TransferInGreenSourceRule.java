@@ -17,7 +17,7 @@ import static org.greencloud.commons.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_BACK_UP;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD_SOURCE;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_CONFIRMATION_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_CNA_RULE;
+import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_RMA_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_IN_GS_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapPowerJobToEnergyJob;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
@@ -31,7 +31,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageConversati
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareAcceptJobOfferReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
@@ -147,18 +147,18 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 				newJobInstances.getSecondInstance());
 		MDC.put(MDC_JOB_ID, jobInstance.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Job {} transfer has failed in green source. Passing transfer request to Cloud Network",
+		logger.info("Job {} transfer has failed in green source. Passing transfer request to Regional Manager",
 				jobInstance.getJobId());
 		final Instant shortageStart = facts.get(EVENT_TIME);
 		final JobPowerShortageTransfer job = mapToPowerShortageJob(jobInstance, shortageStart);
 
-		final RuleSetFacts cnaTransferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		cnaTransferFacts.put(JOB, job);
-		cnaTransferFacts.put(JOB_ID, jobInstance);
-		cnaTransferFacts.put(MESSAGE, facts.get(MESSAGE));
+		final RuleSetFacts rmaTransferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
+		rmaTransferFacts.put(JOB, job);
+		rmaTransferFacts.put(JOB_ID, jobInstance);
+		rmaTransferFacts.put(MESSAGE, facts.get(MESSAGE));
 
 		agent.addBehaviour(
-				InitiateRequest.create(agent, cnaTransferFacts, TRANSFER_JOB_FOR_GS_IN_CNA_RULE, controller));
+				InitiateRequest.create(agent, rmaTransferFacts, TRANSFER_JOB_FOR_GS_IN_RMA_RULE, controller));
 	}
 
 	@Override
@@ -205,7 +205,7 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 			agentProps.getServerJobs().replace(job, newStatus);
 
 			if (hasStarted) {
-				agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job),
+				agent.send(prepareJobStatusMessageForRMA(JobMapper.mapClientJobToJobInstanceId(job),
 						stateFields.getRight(), agentProps,
 						facts.get(RULE_SET_IDX)));
 			}

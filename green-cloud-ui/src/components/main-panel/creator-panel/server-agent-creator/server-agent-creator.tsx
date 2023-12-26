@@ -16,9 +16,9 @@ interface Props {
    setResetData: UpdateResourceReset
 }
 
-const getAvailableCNAOptions = (agents: Agent[]): DropdownOption[] =>
+const getAvailableRMAOptions = (agents: Agent[]): DropdownOption[] =>
    agents
-      .filter((agent) => agent.type === AgentType.CLOUD_NETWORK)
+      .filter((agent) => agent.type === AgentType.REGIONAL_MANAGER)
       .map((agent) => agent.name)
       .map((agentName) => {
          return { value: agentName, label: agentName as string, isSelected: false }
@@ -38,15 +38,15 @@ const EMPTY_OPTION = { value: '', label: '', isSelected: false }
  */
 export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents, resetData, setResetData }: Props) => {
    const [isOpen, setIsOpen] = useState<boolean>(false)
-   const [selectedCNA, setSelectedCNA] = useState<DropdownOption>(EMPTY_OPTION)
+   const [selectedRMA, setSelectedRMA] = useState<DropdownOption>(EMPTY_OPTION)
    const [resources, setResources] = useState<ResourceMap>(serverAgentData.resources)
-   const { container, cnaWrapper, modalContainer, modalContent, modalWrapper } = styles
+   const { container, rmaWrapper, modalContainer, modalContent, modalWrapper } = styles
 
    const closeButtonStyle = ['large-green-button', 'large-green-button-active', 'full-width-button'].join(' ')
 
    useEffect(() => {
       if (resetData) {
-         setSelectedCNA(EMPTY_OPTION)
+         setSelectedRMA(EMPTY_OPTION)
          setResources({})
          setResetData(false)
       }
@@ -54,17 +54,17 @@ export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents
 
    useEffect(() => {
       if (serverAgentData.resources) {
-         const cna =
-            serverAgentData?.cloudNetwork &&
+         const rma =
+            serverAgentData?.regionalManager &&
             agents
-               .filter((agent) => agent.type === AgentType.CLOUD_NETWORK)
+               .filter((agent) => agent.type === AgentType.REGIONAL_MANAGER)
                .map((agent) => agent.name)
-               .includes(serverAgentData?.cloudNetwork)
-               ? serverAgentData.cloudNetwork
+               .includes(serverAgentData?.regionalManager)
+               ? serverAgentData.regionalManager
                : ''
 
-         updateServerAgentValue(cna, 'cloudNetwork')
-         setSelectedCNA({ label: cna, value: cna, isSelected: false })
+         updateServerAgentValue(rma, 'regionalManager')
+         setSelectedRMA({ label: rma, value: rma, isSelected: false })
          setResources(serverAgentData.resources)
       }
    }, [serverAgentData])
@@ -116,10 +116,10 @@ export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents
    return (
       <div>
          {getResourceModal()}
-         {agents.filter((agent) => agent.type === AgentType.CLOUD_NETWORK).length === 0 ? (
+         {agents.filter((agent) => agent.type === AgentType.REGIONAL_MANAGER).length === 0 ? (
             <SubtitleContainer
                {...{
-                  text: 'Server cannot be created because there are no Cloud Networks in the systems to which it can be attached'
+                  text: 'Server cannot be created because there are no Regional Managers in the systems to which it can be attached'
                }}
             />
          ) : (
@@ -135,11 +135,11 @@ export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents
                      {...{
                         title: 'Regional manager to connect with',
                         description: 'Select Regional Manager with which Server is to be connected',
-                        options: getAvailableCNAOptions(agents),
-                        selectedData: selectedCNA,
-                        setSelectedData: setSelectedCNA,
-                        modifyData: (data: any) => updateServerAgentValue(data, 'cloudNetwork'),
-                        wrapperStyle: cnaWrapper
+                        options: getAvailableRMAOptions(agents),
+                        selectedData: selectedRMA,
+                        setSelectedData: setSelectedRMA,
+                        modifyData: (data: any) => updateServerAgentValue(data, 'regionalManager'),
+                        wrapperStyle: rmaWrapper
                      }}
                   />
                   <CreatorInputField

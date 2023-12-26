@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.gui.agents.client.ClientNode;
-import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
+import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.rulescontroller.RulesController;
@@ -23,36 +23,6 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.initia
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.announcing.AnnounceNewJobToSchedulerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.ListenForSchedulerJobStatusUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.client.job.listening.ProcessSchedulerJobStatusUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.adaptation.UpdateRuleSetForWeatherDropRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SearchForSchedulerRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.SubscribeServerServiceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ListenForServerStatusChangeRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.df.listening.ProcessServerStatusChangeCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferConfirmationRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ListenForTransferRequestRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.listening.ProcessTransferRequestCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.transferring.LookForServerForJobTransferRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.transferring.TransferJobBetweenServersRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.weatherdrop.HandleCNAWeatherDropEventRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.errorhandling.weatherdrop.ScheduleWeatherDropAdaptation;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.initial.StartInitialCloudNetworkBehaviours;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.LookForServerForJobExecutionRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.announcing.comparison.CompareServersProposalsOfJobExecution;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.HandleJobRemovalRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.HandleJobStatusStartCheckRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.execution.ScheduleJobStartVerificationRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForJobPriceUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForNewScheduledJobRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ListenForServerJobStatusUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessNewScheduledJobCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.ProcessServerJobStatusUpdateCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.listening.processing.ProcessJobPriceUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.job.proposing.ProposeToSchedulerRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceInformationRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.ListenForServerResourceUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceInformationRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.resource.processing.ProcessServerResourceUpdateRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.cloudnetwork.sensor.SenseExternalCloudNetworkEventsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.ChangeWeatherPredictionErrorRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.ConnectGreenSourceRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.adaptation.DisconnectGreenSourceRule;
@@ -94,19 +64,49 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.w
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather.RequestWeatherToVerifyEnergyReSupplyRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather.SchedulePeriodicWeatherRequestsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.greenenergy.weather.processing.ProcessNotEnoughEnergyForJobRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.adaptation.UpdateRuleSetForWeatherDropRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.df.SearchForSchedulerRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.df.SubscribeServerServiceRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.df.listening.ListenForServerStatusChangeRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.df.listening.ProcessServerStatusChangeCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.listening.ListenForTransferConfirmationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.listening.ListenForTransferRequestRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.listening.ProcessTransferRequestCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.transferring.LookForServerForJobTransferRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.transferring.TransferJobBetweenServersRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.weatherdrop.HandleRMAWeatherDropEventRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.errorhandling.weatherdrop.ScheduleWeatherDropAdaptation;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.initial.StartInitialRegionalManagerBehaviours;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.announcing.LookForServerForJobExecutionRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.announcing.comparison.CompareServersProposalsOfJobExecution;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.execution.HandleJobRemovalRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.execution.HandleJobStatusStartCheckRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.execution.ScheduleJobStartVerificationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.ListenForJobPriceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.ListenForNewScheduledJobRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.ListenForServerJobStatusUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.ProcessNewScheduledJobCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.ProcessServerJobStatusUpdateCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.listening.processing.ProcessJobPriceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.job.proposing.ProposeToSchedulerRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.resource.ListenForServerResourceInformationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.resource.ListenForServerResourceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.resource.processing.ProcessServerResourceInformationRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.resource.processing.ProcessServerResourceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.regionalmanager.sensor.SenseExternalRegionalManagerEventsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.adaptation.IncreaseCPUWeightRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.adaptation.IncreaseDeadlineWeightRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.adaptation.UpdateRuleSetInSchedulerForWeatherDropRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.df.SubscribeCloudNetworkAgentsRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.df.SubscribeRegionalManagerAgentsRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.initial.PrepareInitialSchedulerBehavioursRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.AnnounceNewClientJobCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.LookForCNAForJobExecutionRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.LookForRMAForJobExecutionRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.comparison.CompareProposalsOfJobExecution;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessLookForCNAForJobExecutionFailureRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ListenForCNAJobStatusUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.announcing.processing.ProcessLookForRMAForJobExecutionFailureRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ListenForNewClientJobsRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ProcessCNAJobStatusUpdateCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ListenForRMAJobStatusUpdateRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ProcessNewClientJobCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.listening.ProcessRMAJobStatusUpdateCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.PollNextClientJobRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.polling.ProcessPollNextClientJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.scheduler.job.priority.ComputeJobPriorityRule;
@@ -116,23 +116,23 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adapta
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.EnableServerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ProcessServerDisablingRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ProcessServerEnablingRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ListenForCNARuleSetRemovalMessageRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ListenForRMARuleSetRemovalMessageRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ListenForRuleSetUpdateRequestRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ProcessCNARuleSetRemovalMessageRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ProcessRMARuleSetRemovalMessageRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.ProcessRuleSetUpdateRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.adaptation.ruleset.RequestRuleSetUpdateInGreenSourcesRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.SubscribeGreenSourceServiceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.ListenForCNAResourceInformationRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.ListenForGreenSourceServiceUpdateRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.ListenForRMAResourceInformationRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.ProcessGreenSourceServiceUpdateCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessCNAResourceInformationRequestRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.df.listening.processing.ProcessRMAResourceInformationRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.dividejob.ProcessJobDivisionRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.dividejob.ProcessJobNewInstanceCreationRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.dividejob.ProcessJobSubstitutionRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.HandlePowerShortageEventCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.errorserver.SchedulePowerShortageStartRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.maintenance.ProcessServerMaintenanceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.maintenance.RequestServerMaintenanceInCNARule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.maintenance.RequestServerMaintenanceInRMARule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.HandleJobsAffectedByPowerShortageRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.ProcessCheckSingleAffectedJobRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.resupply.processing.ProcessJobResupplyWithGreenEnergyRule;
@@ -142,8 +142,8 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.ProcessPowerShortageFinishRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.ProcessPowerShortageTransferRequestCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.shortagegreensource.SchedulePowerShortageJobTransferRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer.TransferInCloudNetworkForGreenSourceRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer.TransferInCloudNetworkRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer.TransferInRegionalManagerForGreenSourceRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer.TransferInRegionalManagerRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.events.transfer.TransferInGreenSourceRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.initial.InitializeResourceKnowledge;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.initial.StartInitialServerBehaviours;
@@ -160,13 +160,13 @@ import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.li
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.jobupdate.ProcessUpdateFromGreenSourceCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.ListenForJobManualFinishRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.manualfinish.ProcessJobManualFinishCombinedRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.ListenForCNANewJobRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.ProcessCNANewJobCombinedRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.ListenForRMANewJobRule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.newjob.ProcessRMANewJobCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.startcheck.ListenForJobStartCheckRequestRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.listening.startcheck.ProcessJobStartCheckRequestCombinedRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.price.CalculateServerPriceRule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.proposing.ProposeInsufficientResourcesRule;
-import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.proposing.ProposeToCNARule;
+import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.job.proposing.ProposeToRMARule;
 import org.greencloud.rulescontroller.ruleset.defaultruleset.rules.server.sensor.SenseExternalServerEventsRule;
 
 /**
@@ -185,8 +185,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 			case "SCHEDULER" ->
 					getSchedulerRules((RulesController<SchedulerAgentProps, SchedulerNode>) rulesController);
 			case "CLIENT" -> getClientRules((RulesController<ClientAgentProps, ClientNode>) rulesController);
-			case "CLOUD_NETWORK" ->
-					getCNARules((RulesController<CloudNetworkAgentProps, CloudNetworkNode>) rulesController);
+			case "REGIONAL_MANAGER" ->
+					getRMARules((RulesController<RegionalManagerAgentProps, RegionalManagerNode>) rulesController);
 			case "SERVER" -> getServerRules((RulesController<ServerAgentProps, ServerNode>) rulesController);
 			case "GREEN_ENERGY" ->
 					getGreenEnergyRules((RulesController<GreenEnergyAgentProps, GreenEnergyNode>) rulesController);
@@ -206,19 +206,19 @@ public class DefaultCloudRuleSet extends RuleSet {
 
 	protected List<AgentRule> getSchedulerRules(RulesController<SchedulerAgentProps, SchedulerNode> rulesController) {
 		return List.of(
-				new ProcessLookForCNAForJobExecutionFailureRule(rulesController),
+				new ProcessLookForRMAForJobExecutionFailureRule(rulesController),
 				new PrepareInitialSchedulerBehavioursRule(rulesController),
 				new ComputeJobPriorityRule(rulesController),
-				new SubscribeCloudNetworkAgentsRule(rulesController),
-				new ListenForCNAJobStatusUpdateRule(rulesController, this),
+				new SubscribeRegionalManagerAgentsRule(rulesController),
+				new ListenForRMAJobStatusUpdateRule(rulesController, this),
 				new ListenForNewClientJobsRule(rulesController, this),
 				new PollNextClientJobRule(rulesController),
 				new ProcessPollNextClientJobCombinedRule(rulesController, this),
 				new AnnounceNewClientJobCombinedRule(rulesController, this),
-				new LookForCNAForJobExecutionRule(rulesController),
+				new LookForRMAForJobExecutionRule(rulesController),
 				new IncreaseCPUWeightRule(rulesController),
 				new IncreaseDeadlineWeightRule(rulesController),
-				new ProcessCNAJobStatusUpdateCombinedRule(rulesController),
+				new ProcessRMAJobStatusUpdateCombinedRule(rulesController),
 				new ProcessNewClientJobCombinedRule(rulesController),
 				new UpdateRuleSetInSchedulerForWeatherDropRule(rulesController),
 				new SenseExternalSchedulerEventsRule(rulesController),
@@ -226,11 +226,12 @@ public class DefaultCloudRuleSet extends RuleSet {
 		);
 	}
 
-	protected List<AgentRule> getCNARules(RulesController<CloudNetworkAgentProps, CloudNetworkNode> rulesController) {
+	protected List<AgentRule> getRMARules(
+			RulesController<RegionalManagerAgentProps, RegionalManagerNode> rulesController) {
 		return List.of(
 				new ListenForServerResourceInformationRule(rulesController, this),
 				new ProcessServerResourceInformationRule(rulesController),
-				new StartInitialCloudNetworkBehaviours(rulesController),
+				new StartInitialRegionalManagerBehaviours(rulesController),
 				new LookForServerForJobExecutionRule(rulesController),
 				new ProposeToSchedulerRule(rulesController),
 				new ListenForServerStatusChangeRule(rulesController, this),
@@ -244,8 +245,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ListenForServerJobStatusUpdateRule(rulesController, this),
 				new ScheduleJobStartVerificationRule(rulesController),
 				new HandleJobStatusStartCheckRule(rulesController),
-				new SenseExternalCloudNetworkEventsRule(rulesController),
-				new HandleCNAWeatherDropEventRule(rulesController),
+				new SenseExternalRegionalManagerEventsRule(rulesController),
+				new HandleRMAWeatherDropEventRule(rulesController),
 				new UpdateRuleSetForWeatherDropRule(rulesController),
 				new HandleJobRemovalRule(rulesController),
 				new ProcessNewScheduledJobCombinedRule(rulesController),
@@ -264,8 +265,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 	protected List<AgentRule> getServerRules(final RulesController<ServerAgentProps, ServerNode> rulesController) {
 		return List.of(
 				new InitializeResourceKnowledge(rulesController),
-				new ListenForCNAResourceInformationRequestRule(rulesController, this),
-				new ProcessCNAResourceInformationRequestRule(rulesController),
+				new ListenForRMAResourceInformationRequestRule(rulesController, this),
+				new ProcessRMAResourceInformationRequestRule(rulesController),
 				new SubscribeGreenSourceServiceRule(rulesController),
 				new StartInitialServerBehaviours(rulesController),
 				new ListenForGreenSourceServiceUpdateRule(rulesController, this),
@@ -274,11 +275,11 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new EnableServerRule(rulesController),
 				new DisableServerRule(rulesController),
 				new ChangeGreenSourceWeightRule(rulesController),
-				new ListenForCNANewJobRule(rulesController, this),
+				new ListenForRMANewJobRule(rulesController, this),
 				new LookForGreenSourceForJobExecutionRule(rulesController),
 				new CalculateServerPriceRule(rulesController),
 				new ProposeInsufficientResourcesRule(rulesController),
-				new ProposeToCNARule(rulesController),
+				new ProposeToRMARule(rulesController),
 				new ProcessJobDivisionRule(rulesController),
 				new ProcessJobNewInstanceCreationRule(rulesController),
 				new ProcessJobSubstitutionRule(rulesController),
@@ -290,8 +291,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ListenForPowerShortageTransferConfirmationRule(rulesController),
 				new ListenForPowerShortageTransferRequestRule(rulesController, this),
 				new SchedulePowerShortageJobTransferRule(rulesController),
-				new TransferInCloudNetworkForGreenSourceRule(rulesController),
-				new TransferInCloudNetworkRule(rulesController),
+				new TransferInRegionalManagerForGreenSourceRule(rulesController),
+				new TransferInRegionalManagerRule(rulesController),
 				new TransferInGreenSourceRule(rulesController),
 				new HandleJobFinishRule(rulesController),
 				new HandleJobStartRule(rulesController),
@@ -304,9 +305,9 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new SenseExternalServerEventsRule(rulesController),
 				new ListenForRuleSetUpdateRequestRule(rulesController, this),
 				new RequestRuleSetUpdateInGreenSourcesRule(rulesController),
-				new ListenForCNARuleSetRemovalMessageRule(rulesController, this),
-				new ProcessCNANewJobCombinedRule(rulesController),
-				new ProcessCNARuleSetRemovalMessageRule(rulesController),
+				new ListenForRMARuleSetRemovalMessageRule(rulesController, this),
+				new ProcessRMANewJobCombinedRule(rulesController),
+				new ProcessRMARuleSetRemovalMessageRule(rulesController),
 				new ProcessGreenSourceServiceUpdateCombinedRule(rulesController),
 				new ProcessJobManualFinishCombinedRule(rulesController),
 				new ProcessJobStartCheckRequestCombinedRule(rulesController),
@@ -316,7 +317,7 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessUpdateFromGreenSourceCombinedRule(rulesController),
 				new ProcessCheckSingleAffectedJobRule(rulesController),
 				new ProcessServerMaintenanceRule(rulesController),
-				new RequestServerMaintenanceInCNARule(rulesController),
+				new RequestServerMaintenanceInRMARule(rulesController),
 				new ListenForJobInstancePriceUpdateRule(rulesController, this),
 				new ProcessJobInstancePriceUpdateRule(rulesController),
 				new HandleJobFinishPriceUpdateRule(rulesController)

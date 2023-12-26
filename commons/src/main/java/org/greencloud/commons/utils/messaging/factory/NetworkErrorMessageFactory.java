@@ -57,17 +57,17 @@ public class NetworkErrorMessageFactory {
 	 * Method prepares the message about the job transfer update that is sent to scheduler
 	 *
 	 * @param jobInstanceId unique job instance
-	 * @param cloudNetwork  cloud network to which message is sent
+	 * @param regionalManager  Regional Manager to which message is sent
 	 * @param protocol      protocol used in transfer messages
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobTransferUpdateMessageForCNA(final JobInstanceIdentifier jobInstanceId,
-			final String protocol, final AID cloudNetwork, final Integer ruleSet) {
+	public static ACLMessage prepareJobTransferUpdateMessageForRMA(final JobInstanceIdentifier jobInstanceId,
+			final String protocol, final AID regionalManager, final Integer ruleSet) {
 		final int performative = protocol.equals(MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL) ? FAILURE : INFORM;
 		return MessageBuilder.builder(ruleSet)
 				.withObjectContent(jobInstanceId)
 				.withPerformative(performative)
-				.withReceivers(cloudNetwork)
+				.withReceivers(regionalManager)
 				.withMessageProtocol(protocol)
 				.build();
 	}

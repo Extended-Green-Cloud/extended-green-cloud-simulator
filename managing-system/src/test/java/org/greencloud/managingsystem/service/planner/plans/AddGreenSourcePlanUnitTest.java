@@ -77,7 +77,7 @@ class AddGreenSourcePlanUnitTest {
 		ServerArgs server1AgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.price(5.0)
 				.maxPower(100)
 				.idlePower(10)
@@ -86,7 +86,7 @@ class AddGreenSourcePlanUnitTest {
 		ServerArgs server2AgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server2")
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.price(5.0)
 				.maxPower(100)
 				.idlePower(10)
@@ -131,7 +131,7 @@ class AddGreenSourcePlanUnitTest {
 		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue, backUpPowerValue + 20));
 
-		doReturn(null).when(mobilityService).getContainerLocations("CNA1");
+		doReturn(null).when(mobilityService).getContainerLocations("RMA1");
 		doReturn(new AbstractMap.SimpleImmutableEntry<>(mock(Location.class), testAID)).when(mobilityService)
 				.getContainerLocations("Main-Container");
 

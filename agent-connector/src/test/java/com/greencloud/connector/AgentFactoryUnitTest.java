@@ -59,13 +59,13 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateServerDefaultValues() {
-		final ServerArgs result = factory.createDefaultServerAgent("OwnerCna1");
+		final ServerArgs result = factory.createDefaultServerAgent("OwnerRMA1");
 
 		assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(TEMPLATE_SERVER_MAX_POWER);
 		assertThat(result.getIdlePower()).isEqualTo(TEMPLATE_SERVER_IDLE_POWER);
 		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE.doubleValue());
-		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerRMA1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
 		assertThat(result.getContainerId()).isNull();
 		assertThat(result.getResources())
@@ -88,13 +88,13 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreateTemplateServerMixedDefaultValues() {
-		final ServerArgs result = factory.createServerAgent("OwnerCna1", null, 100, 30, 10D, null);
+		final ServerArgs result = factory.createServerAgent("OwnerRMA1", null, 100, 30, 10D, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(100);
 		assertThat(result.getIdlePower()).isEqualTo(30);
 		assertThat(result.getPrice()).isEqualTo(10D);
-		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerRMA1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
 		assertThat(result.getResources())
 				.containsEntry(CPU, ImmutableResource.builder()
@@ -117,13 +117,13 @@ class AgentFactoryUnitTest {
 	@Test
 	void testCreateTemplateServerCustomValues() {
 		final Map<String, Resource> customResources = Map.of(CPU, getCustomCpuResource());
-		final ServerArgs result = factory.createServerAgent("OwnerCna1", customResources, 150, 10, 15D, 30);
+		final ServerArgs result = factory.createServerAgent("OwnerRMA1", customResources, 150, 10, 15D, 30);
 
 		assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(150);
 		assertThat(result.getIdlePower()).isEqualTo(10);
 		assertThat(result.getPrice()).isEqualTo(15D);
-		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerRMA1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(30);
 		assertThat(result.getResources()).containsEntry(CPU, getCustomCpuResource());
 	}
@@ -134,7 +134,7 @@ class AgentFactoryUnitTest {
 				.name("ServerTest")
 				.idlePower(20D)
 				.maxPower(100D)
-				.cloudNetwork("TestOwner")
+				.regionalManager("TestOwner")
 				.isFinished(false)
 				.occurrenceTime(Instant.now())
 				.jobProcessingLimit(10L)
@@ -206,12 +206,12 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreatingServerCustomValues() {
-		ServerArgs result = factory.createServerAgent("OwnerCna1", null, 150, 25, 10D, null);
+		ServerArgs result = factory.createServerAgent("OwnerRMA1", null, 150, 25, 10D, null);
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(150);
 		assertThat(result.getIdlePower()).isEqualTo(25);
-		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerRMA1");
 		assertThat(result.getPrice()).isEqualTo(10);
 	}
 

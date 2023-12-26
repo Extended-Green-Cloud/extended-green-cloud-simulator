@@ -2,7 +2,7 @@ import { ResourceMap } from "../../../types";
 import { CommonAgent } from "./common-agent";
 
 export interface ServerAgentStatic {
-	cloudNetworkAgent: string;
+	regionalManagerAgent: string;
 	greenEnergyAgents: string[];
 	maxPower: number;
 	idlePower: number;

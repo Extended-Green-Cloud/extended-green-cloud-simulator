@@ -15,7 +15,7 @@ import static org.greencloud.commons.enums.rules.RuleType.PROCESS_FINISH_JOB_EXE
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStartedMessage;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -77,7 +77,7 @@ public class SchedulePowerShortageJobTransferRule extends AgentScheduledRule<Ser
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 			logger.info("Transferring job between green sources");
 			agentProps.getGreenSourceForJobMap().replace(job.getJobId(), newGreenSource);
-			agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job), GREEN_POWER_JOB_ID,
+			agent.send(prepareJobStatusMessageForRMA(JobMapper.mapClientJobToJobInstanceId(job), GREEN_POWER_JOB_ID,
 					agentProps, facts.get(RULE_SET_IDX)));
 			agentProps.updateGUI();
 

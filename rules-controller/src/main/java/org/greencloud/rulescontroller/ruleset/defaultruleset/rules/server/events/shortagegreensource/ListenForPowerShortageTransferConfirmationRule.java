@@ -19,7 +19,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_O
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD_TRANSFER;
 import static org.greencloud.commons.enums.rules.RuleType.HANDLE_POWER_SHORTAGE_TRANSFER_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.LISTEN_FOR_JOB_TRANSFER_CONFIRMATION_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_CNA_RULE;
+import static org.greencloud.commons.enums.rules.RuleType.TRANSFER_JOB_FOR_GS_IN_RMA_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
 import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
@@ -140,18 +140,18 @@ public class ListenForPowerShortageTransferConfirmationRule
 
 		MDC.put(MDC_JOB_ID, jobId);
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Job {} transfer has failed in green source. Passing transfer request to Cloud Network", jobId);
+		logger.info("Job {} transfer has failed in green source. Passing transfer request to Regional Manager", jobId);
 		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(
 				newJobInstances.getSecondInstance());
 		final JobPowerShortageTransfer job = mapToPowerShortageJob(jobInstance, shortageStart);
 
-		final RuleSetFacts cnaTransferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		cnaTransferFacts.put(JOB, job);
-		cnaTransferFacts.put(JOB_ID, jobInstance);
-		cnaTransferFacts.put(MESSAGE, gsRequest);
+		final RuleSetFacts rmaTransferFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
+		rmaTransferFacts.put(JOB, job);
+		rmaTransferFacts.put(JOB_ID, jobInstance);
+		rmaTransferFacts.put(MESSAGE, gsRequest);
 
 		agent.addBehaviour(
-				InitiateRequest.create(agent, cnaTransferFacts, TRANSFER_JOB_FOR_GS_IN_CNA_RULE, controller));
+				InitiateRequest.create(agent, rmaTransferFacts, TRANSFER_JOB_FOR_GS_IN_RMA_RULE, controller));
 	}
 
 	private void updateJobStatus(final ClientJob jobToExecute) {

@@ -40,7 +40,7 @@ public class ProcessNewClientJobOriginalTimeRule extends AgentBasicRule<Schedule
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(NEW_JOB_ANNOUNCEMENT_RULE, NEW_JOB_ANNOUNCEMENT_HANDLE_JOB_RULE,
 				"announce job with original time frames",
-				"when job has correct time frames, CFP is sent to CNAs");
+				"when job has correct time frames, CFP is sent to RMAs");
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class ProcessNewClientJobOriginalTimeRule extends AgentBasicRule<Schedule
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Looking for Cloud Network for job {} execution", JobMapper.mapClientJobToJobInstanceId(job));
+		logger.info("Looking for Regional Manager for job {} execution", JobMapper.mapClientJobToJobInstanceId(job));
 
 		final ACLMessage message = prepareJobStatusMessageForClient(job, PROCESSING_JOB_ID, facts.get(RULE_SET_IDX));
 		replaceStatusToActive(agentProps.getClientJobs(), job);

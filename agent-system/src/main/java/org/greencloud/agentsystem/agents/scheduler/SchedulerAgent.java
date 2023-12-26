@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 
 /**
- * Agent representing the Scheduler that orchestrate the job announcement in Cloud Network
+ * Agent representing the Scheduler that orchestrate the job announcement in system regions
  */
 public class SchedulerAgent extends AbstractSchedulerAgent {
 

@@ -23,6 +23,6 @@ public class ListenForServerRuleSetRemovalMessageRule
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(LISTEN_FOR_RULE_SET_REMOVAL_RULE,
 				"listen for rule set update messages",
-				"listening for messages from CNA asking Server to remove given rule set");
+				"listening for messages from RMA asking Server to remove given rule set");
 	}
 }

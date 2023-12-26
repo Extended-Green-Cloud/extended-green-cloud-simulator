@@ -18,7 +18,7 @@ import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RU
 import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferUpdateMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferUpdateMessageForRMA;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -76,7 +76,7 @@ public class ProcessUpdateFromGreenSourceTransferConfirmationRule extends AgentB
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Confirming job {} transfer", jobInstance.getJobId());
-		agent.send(prepareJobTransferUpdateMessageForCNA(jobInstance, CONFIRMED_TRANSFER_PROTOCOL,
+		agent.send(prepareJobTransferUpdateMessageForRMA(jobInstance, CONFIRMED_TRANSFER_PROTOCOL,
 				agentProps.getOwnerRegionalManagerAgent(), facts.get(RULE_SET_IDX)));
 
 		facts.put(JOB_START_INFORM, true);

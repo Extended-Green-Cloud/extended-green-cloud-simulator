@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
@@ -33,17 +33,17 @@ class ScenarioStructureArgsUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting servers for cloud network agent")
-	void testGetServersForCloudNetworkAgent() {
-		var resultCNA1 = scenarioStructureArgs.getServersForCloudNetworkAgent("test_cna1");
-		var resultCNA2 = scenarioStructureArgs.getServersForCloudNetworkAgent("test_cna2");
+	@DisplayName("Test getting servers for regional manager agent")
+	void testGetServersForRegionalManagerAgent() {
+		var resultRMA1 = scenarioStructureArgs.getServersForRegionalManagerAgent("test_rma1");
+		var resultRMA2 = scenarioStructureArgs.getServersForRegionalManagerAgent("test_rma2");
 
-		assertThat(resultCNA1)
+		assertThat(resultRMA1)
 				.as("Result should have size 2")
 				.hasSize(2)
 				.as("Result should contain correct servers")
 				.containsExactlyInAnyOrder("test_server1", "test_server2");
-		assertThat(resultCNA2)
+		assertThat(resultRMA2)
 				.as("Result should have size 1")
 				.hasSize(1)
 				.as("Result should contain correct servers")
@@ -69,17 +69,17 @@ class ScenarioStructureArgsUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting green sources for cloud network agent")
-	void testGetGreenSourcesForCloudNetwork() {
-		var resultCNA1 = scenarioStructureArgs.getGreenSourcesForCloudNetwork("test_cna1");
-		var resultCNA2 = scenarioStructureArgs.getGreenSourcesForCloudNetwork("test_cna2");
+	@DisplayName("Test getting green sources for regional manager agent")
+	void testGetGreenSourcesForRegionalManager() {
+		var resultRMA1 = scenarioStructureArgs.getGreenSourcesForRegionalManager("test_rma1");
+		var resultRMA2 = scenarioStructureArgs.getGreenSourcesForRegionalManager("test_rma2");
 
-		assertThat(resultCNA1)
+		assertThat(resultRMA1)
 				.as("Result should have size 3")
 				.hasSize(3)
 				.as("Result should contain correct green sources")
 				.containsExactlyInAnyOrder("test_gs1", "test_gs2", "test_gs3");
-		assertThat(resultCNA2)
+		assertThat(resultRMA2)
 				.as("Result should have size 1")
 				.hasSize(1)
 				.as("Result should contain correct green sources")
@@ -87,14 +87,14 @@ class ScenarioStructureArgsUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting parent CNA for a server")
-	void testGetParentCNAForServer() {
+	@DisplayName("Test getting parent RMA for a server")
+	void testGetParentRMAForServer() {
 		var serverName = "test_server3";
-		var expectedCNA = "test_cna2";
+		var expectedRMA = "test_rma2";
 
-		var result = scenarioStructureArgs.getParentCNAForServer(serverName);
+		var result = scenarioStructureArgs.getParentRMAForServer(serverName);
 
-		assertThat(result).isEqualTo(expectedCNA);
+		assertThat(result).isEqualTo(expectedRMA);
 	}
 
 	@Test
@@ -114,8 +114,8 @@ class ScenarioStructureArgsUnitTest {
 				"test_gs2",
 				"test_gs3",
 				"test_gs4",
-				"test_cna1",
-				"test_cna2"
+				"test_rma1",
+				"test_rma2"
 		);
 		var result = scenarioStructureArgs.getAgentsArgs();
 
@@ -203,7 +203,7 @@ class ScenarioStructureArgsUnitTest {
 
 		var mockServer1 = ImmutableServerArgs.builder()
 				.name("test_server1")
-				.ownerRegionalManager("test_cna1")
+				.ownerRegionalManager("test_rma1")
 				.jobProcessingLimit(2)
 				.price(100D)
 				.maxPower(200)
@@ -212,7 +212,7 @@ class ScenarioStructureArgsUnitTest {
 				.build();
 		var mockServer2 = ImmutableServerArgs.builder()
 				.name("test_server2")
-				.ownerRegionalManager("test_cna1")
+				.ownerRegionalManager("test_rma1")
 				.jobProcessingLimit(10)
 				.price(50D)
 				.maxPower(200)
@@ -221,7 +221,7 @@ class ScenarioStructureArgsUnitTest {
 				.build();
 		var mockServer3 = ImmutableServerArgs.builder()
 				.name("test_server3")
-				.ownerRegionalManager("test_cna2")
+				.ownerRegionalManager("test_rma2")
 				.jobProcessingLimit(2)
 				.price(200D)
 				.maxPower(200)
@@ -229,11 +229,11 @@ class ScenarioStructureArgsUnitTest {
 				.putResources(CPU, mockCPUResource)
 				.build();
 
-		var mockCNA1 = ImmutableCloudNetworkArgs.builder()
-				.name("test_cna1")
+		var mockRMA1 = ImmutableRegionalManagerArgs.builder()
+				.name("test_rma1")
 				.build();
-		var mockCNA2 = ImmutableCloudNetworkArgs.builder()
-				.name("test_cna2")
+		var mockRMA2 = ImmutableRegionalManagerArgs.builder()
+				.name("test_rma2")
 				.build();
 
 		var mockScheduler = ImmutableSchedulerArgs.builder()
@@ -251,7 +251,7 @@ class ScenarioStructureArgsUnitTest {
 		scenarioStructureArgs = new ScenarioStructureArgs(
 				mockManaging,
 				mockScheduler,
-				List.of(mockCNA1, mockCNA2),
+				List.of(mockRMA1, mockRMA2),
 				List.of(mockServer1, mockServer2, mockServer3),
 				List.of(mockMonitor1, mockMonitor2, mockMonitor3, mockMonitor4),
 				List.of(mockGS1, mockGS2, mockGS3, mockGS4)

@@ -13,7 +13,7 @@ public interface DisableServerMessage extends Message {
 
 	String getServer();
 
-	String getCna();
+	String getRma();
 
 	double getCpu();
 

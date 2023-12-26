@@ -53,7 +53,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 			createAgents(scenario.getMonitoringAgentsArgs(), scenario);
 			createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);
 			createAgents(scenario.getServerAgentsArgs(), scenario);
-			createAgents(scenario.getCloudNetworkAgentsArgs(), scenario);
+			createAgents(scenario.getRegionalManagerAgentsArgs(), scenario);
 		}
 		updateSystemStartTime();
 		factory.runAgentControllers(AGENTS_TO_RUN, RUN_AGENT_DELAY);

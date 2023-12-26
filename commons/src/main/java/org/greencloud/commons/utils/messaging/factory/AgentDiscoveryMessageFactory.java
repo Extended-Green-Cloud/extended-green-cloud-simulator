@@ -41,13 +41,13 @@ public class AgentDiscoveryMessageFactory {
 	}
 
 	/**
-	 * Message send to CNA informing about resources of new Server
+	 * Message send to RMA informing about resources of new Server
 	 *
 	 * @param serverAgentProps properties of the given Server
 	 * @return inform ACLMessage
 	 */
 	public static ACLMessage prepareResourceInformationMessage(final ServerAgentProps serverAgentProps,
-			final AID cna, final int ruleSetIdx) {
+			final AID rma, final int ruleSetIdx) {
 		return MessageBuilder.builder(ruleSetIdx)
 				.withPerformative(INFORM)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
@@ -55,7 +55,7 @@ public class AgentDiscoveryMessageFactory {
 						.resources(serverAgentProps.resources())
 						.price(serverAgentProps.getPricePerHour())
 						.build())
-				.withReceivers(cna)
+				.withReceivers(rma)
 				.build();
 	}
 
@@ -75,12 +75,12 @@ public class AgentDiscoveryMessageFactory {
 	}
 
 	/**
-	 * Message send to CNA informing that resources of the given server have changed
+	 * Message send to RMA informing that resources of the given server have changed
 	 *
 	 * @param serverAgentProps properties of the given Server
 	 * @return inform ACLMessage
 	 */
-	public static ACLMessage prepareRequestInformingCNAAboutResourceChange(final ServerAgentProps serverAgentProps,
+	public static ACLMessage prepareRequestInformingRMAAboutResourceChange(final ServerAgentProps serverAgentProps,
 			final Map<String, Resource> newResources, final int ruleSetIdx) {
 		return MessageBuilder.builder(ruleSetIdx)
 				.withPerformative(REQUEST)

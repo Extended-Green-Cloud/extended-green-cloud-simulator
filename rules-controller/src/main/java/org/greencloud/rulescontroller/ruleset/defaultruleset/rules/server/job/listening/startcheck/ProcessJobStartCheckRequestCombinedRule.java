@@ -44,7 +44,7 @@ public class ProcessJobStartCheckRequestCombinedRule extends AgentCombinedRule<S
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(JOB_STATUS_HANDLER_RULE,
 				"handles start check request",
-				"processing CNA message checking job start status");
+				"processing RMA message checking job start status");
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.util.Objects;
 
-import org.greencloud.commons.args.agent.cloudnetwork.agent.CloudNetworkAgentProps;
+import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
@@ -102,36 +102,36 @@ public class JobStatusMessageFactory {
 	 * @param conversationId  type of the message passed to scheduler
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobStatusMessageForScheduler(final CloudNetworkAgentProps agentProps,
+	public static ACLMessage prepareJobStatusMessageForScheduler(final RegionalManagerAgentProps agentProps,
 			final JobWithStatus jobStatusUpdate, final String conversationId, final Integer ruleSet) {
 		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, agentProps.getScheduler());
 	}
 
 	/**
-	 * Method prepares the message about the job changing its status that is sent to the Cloud Network Agent
+	 * Method prepares the message about the job changing its status that is sent to the Regional Manager Agent
 	 *
 	 * @param jobInstanceId  unique job instance
 	 * @param agentProps     properties of Server Agent
 	 * @param conversationId conversation identifier informing about message type
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobStatusMessageForCNA(final JobInstanceIdentifier jobInstanceId,
+	public static ACLMessage prepareJobStatusMessageForRMA(final JobInstanceIdentifier jobInstanceId,
 			final String conversationId, final ServerAgentProps agentProps, final Integer ruleSet) {
 		final JobWithStatus jobStatusUpdate = ImmutableJobWithStatus.builder()
 				.jobInstance(jobInstanceId)
 				.changeTime(getCurrentTime())
 				.build();
-		final AID cna = agentProps.getOwnerRegionalManagerAgent();
+		final AID rma = agentProps.getOwnerRegionalManagerAgent();
 
 		if (Objects.equals(conversationId, MessageConversationConstants.FAILED_JOB_ID)) {
 			return MessageBuilder.builder(ruleSet)
 					.withPerformative(FAILURE)
 					.withMessageProtocol(MessageProtocolConstants.FAILED_JOB_PROTOCOL)
 					.withObjectContent(jobStatusUpdate)
-					.withReceivers(cna)
+					.withReceivers(rma)
 					.build();
 		}
-		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, cna);
+		return prepareJobStatusMessage(jobStatusUpdate, conversationId, ruleSet, rma);
 	}
 
 	/**
@@ -213,13 +213,13 @@ public class JobStatusMessageFactory {
 	}
 
 	/**
-	 * Method prepares the information message about the job execution finish which is to be sent to Cloud Network Agent
+	 * Method prepares the information message about the job execution finish which is to be sent to Regional Manager Agent
 	 *
 	 * @param job       job of interest
 	 * @param receivers list of AID addresses of the message receivers
 	 * @return INFORM ACLMessage
 	 */
-	public static ACLMessage prepareJobFinishMessageForCNA(final ClientJob job, final Integer ruleSet,
+	public static ACLMessage prepareJobFinishMessageForRMA(final ClientJob job, final Integer ruleSet,
 			final Double price, final AID... receivers) {
 		final JobInstanceIdentifier jobInstanceId = mapClientJobToJobInstanceId(job);
 		final JobWithStatus jobInstanceWithPrice = ImmutableJobWithStatus.builder()

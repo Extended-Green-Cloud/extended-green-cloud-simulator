@@ -45,14 +45,14 @@ public final class EngineConfiguration extends AbstractConfiguration {
 	 */
 	public static boolean newPlatform;
 	/**
-	 * Identifier value denoting which CNA is to be started at the given container.
-	 * If the value is null then it starts all CNAs without specified locationId at the same container.
+	 * Identifier value denoting which RMA is to be started at the given container.
+	 * If the value is null then it starts all RMAs without specified locationId at the same container.
 	 * If it is set to "Clients<number>" then it denotes that the container which generates clients is to be started
 	 */
 	public static String locationId;
 	/**
 	 * Identifier value denoting which Servers are to be run at the given container
-	 * If the identifier is null then it means that it will run the container with CNA and Servers which have no
+	 * If the identifier is null then it means that it will run the container with RMA and Servers which have no
 	 * containerId specified.
 	 * The value is treated as null if the newPlatform value is set to true.
 	 */
@@ -106,7 +106,7 @@ public final class EngineConfiguration extends AbstractConfiguration {
 	 */
 	public static String managingWebsocketHostIp;
 	/**
-	 * Local IP of the host running socket server processing cloud network statistics data.
+	 * Local IP of the host running socket server processing regional manager statistics data.
 	 */
 	public static String networkWebsocketHostIp;
 	/**

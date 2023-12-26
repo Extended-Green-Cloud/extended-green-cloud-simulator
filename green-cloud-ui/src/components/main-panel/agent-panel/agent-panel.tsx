@@ -11,7 +11,7 @@ interface Props {
 }
 
 /**
- * Component represents a panel gathering all infromations about cloud network agents
+ * Component represents a panel gathering all infromations about regional manager agents
  *
  * @param {Agent}[selectedAgent] - agent for which the statistics are displayed
  * @returns JSX Element

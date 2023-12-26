@@ -13,7 +13,7 @@ public interface EnableServerMessage extends Message {
 
 	String getServer();
 
-	String getCna();
+	String getRma();
 
 	double getCpu();
 

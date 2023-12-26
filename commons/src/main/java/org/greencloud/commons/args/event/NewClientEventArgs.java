@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Interface containing properties of scenario event that generates new client in Cloud Network
+ * Interface containing properties of scenario event that generates new client in Regional Manager
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableNewClientEventArgs.class)

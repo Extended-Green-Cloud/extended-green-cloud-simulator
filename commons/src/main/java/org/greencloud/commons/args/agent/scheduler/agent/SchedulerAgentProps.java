@@ -37,8 +37,8 @@ public class SchedulerAgentProps extends EGCSAgentProps {
 	protected PriorityBlockingQueue<ClientJob> jobsToBeExecuted;
 	protected ConcurrentMap<ClientJob, JobExecutionStatusEnum> clientJobs;
 	protected ConcurrentMap<String, Integer> ruleSetForJob;
-	protected ConcurrentMap<String, AID> cnaForJobMap;
-	protected List<AID> availableCloudNetworks;
+	protected ConcurrentMap<String, AID> rmaForJobMap;
+	protected List<AID> availableRegionalManagers;
 	protected int deadlinePriority;
 	protected int cpuPriority;
 	protected int maximumQueueSize;
@@ -63,8 +63,8 @@ public class SchedulerAgentProps extends EGCSAgentProps {
 		this.maximumQueueSize = maximumQueueSize;
 
 		this.clientJobs = new ConcurrentHashMap<>();
-		this.cnaForJobMap = new ConcurrentHashMap<>();
-		this.availableCloudNetworks = new ArrayList<>();
+		this.rmaForJobMap = new ConcurrentHashMap<>();
+		this.availableRegionalManagers = new ArrayList<>();
 		this.ruleSetForJob = new ConcurrentHashMap<>();
 	}
 

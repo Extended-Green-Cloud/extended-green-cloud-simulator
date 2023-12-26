@@ -254,8 +254,8 @@ The directory `./properties` contains two files (**which names should not be cha
 The following example, will illustrate how to configure a system that is going to run on 4 different hosts:
 
 1. _Host1_ (IP: 10.0.0.0) - running only main system container
-2. _Host2_ (IP: 10.0.0.1) - running Cloud Network Agent and its Servers that do not have container specified
-3. _Host3_ (IP: 10.0.0.2) - running remaining Servers of Cloud Network Agent that should reside in container of a
+2. _Host2_ (IP: 10.0.0.1) - running Regional Manager Agent and its Servers that do not have container specified
+3. _Host3_ (IP: 10.0.0.2) - running remaining Servers of Regional Manager Agent that should reside in container of a
    specific name
 4. _Host4_ (IP: 10.0.0.3) - running Client Agents
 
@@ -498,7 +498,7 @@ type.
 
 ##### Regional Manager Agent (RMA)
 
-- _Cloud Network Agents_ are defined inside an array under **"cloudNetworkAgentsArgs"** key
+- _Regional Manager Agents_ are defined inside an array under **"regionalManagerAgentsArgs"** key
 
 ```json lines
 {

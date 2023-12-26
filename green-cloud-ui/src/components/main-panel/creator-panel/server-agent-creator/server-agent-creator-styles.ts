@@ -2,7 +2,7 @@ import React from 'react'
 
 interface Styles {
    container: React.CSSProperties
-   cnaWrapper: React.CSSProperties
+   rmaWrapper: React.CSSProperties
    modalContent: React.CSSProperties
    modalContainer: React.CSSProperties
    modalWrapper: React.CSSProperties
@@ -12,7 +12,7 @@ export const styles: Styles = {
    container: {
       marginTop: '15px'
    },
-   cnaWrapper: {
+   rmaWrapper: {
       borderTop: 'var(--border-thin-light-gray)',
       borderBottom: 'var(--border-thin-light-gray)',
       padding: '10px 0',

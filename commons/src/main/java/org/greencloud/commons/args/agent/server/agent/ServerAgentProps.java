@@ -90,13 +90,13 @@ public class ServerAgentProps extends EGCSAgentProps {
 	/**
 	 * Constructor
 	 *
-	 * @param agentName              name of the agent
-	 * @param ownerRegionalManagerAgent cloud network to which the server is connected
-	 * @param resources              hardware resources owned by the server
-	 * @param maxPowerConsumption    maximal power consumption that can be reached by the server
-	 * @param idlePowerConsumption   power consumption of a server when no jobs are running
-	 * @param pricePerHour           price of job execution calculated for an hour
-	 * @param jobProcessingLimit     limit of job requests that a server can process in at once
+	 * @param agentName                 name of the agent
+	 * @param ownerRegionalManagerAgent regional manager to which the server is connected
+	 * @param resources                 hardware resources owned by the server
+	 * @param maxPowerConsumption       maximal power consumption that can be reached by the server
+	 * @param idlePowerConsumption      power consumption of a server when no jobs are running
+	 * @param pricePerHour              price of job execution calculated for an hour
+	 * @param jobProcessingLimit        limit of job requests that a server can process in at once
 	 */
 	public ServerAgentProps(final String agentName, final AID ownerRegionalManagerAgent,
 			final Map<String, Resource> resources,

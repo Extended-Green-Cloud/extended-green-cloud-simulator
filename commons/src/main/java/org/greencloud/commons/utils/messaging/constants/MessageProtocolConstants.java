@@ -9,15 +9,15 @@ public class MessageProtocolConstants {
 	 * Call for proposals protocols
 	 *
 	 * <p> SCHEDULER_JOB_CFP_PROTOCOL        - protocol used in scheduler's call for proposal message that is
-	 * sent to cloud networks while looking for the network for job execution </p>
-	 * <p> CNA_JOB_CFP_PROTOCOL              - protocol used in cloud network's call for proposal message that is sent
+	 * sent to regional managers while looking for the network for job execution </p>
+	 * <p> RMA_JOB_CFP_PROTOCOL              - protocol used in regional manager's call for proposal message that is sent
 	 * to the servers while looking for the server which will execute the job </p>
 	 * <p> SERVER_JOB_CFP_PROTOCOL           - protocol used in the server's call for proposal message that is sent to the green
 	 * sources while looking for the green source which will supply the
 	 * server with power needed for the job execution </p>
 	 */
 	public static final String SCHEDULER_JOB_CFP_PROTOCOL = "SCHEDULER_JOB_CFP";
-	public static final String CNA_JOB_CFP_PROTOCOL = "CNA_JOB_CFP";
+	public static final String RMA_JOB_CFP_PROTOCOL = "RMA_JOB_CFP";
 	public static final String SERVER_JOB_CFP_PROTOCOL = "SERVER_JOB_CFP";
 
 	/**
@@ -52,12 +52,12 @@ public class MessageProtocolConstants {
 	 * it should deactivate given green source </p>
 	 * <p> DISCONNECT_GREEN_SOURCE_PROTOCOL	  - protocol used in messages sent by the Green Source informing Server that
 	 * it remove given green source connection </p>
-	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing CNA that
+	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing RMA that
 	 * the given Server is disabled </p>
-	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing CNA that
-	 * <p> REGISTER_SERVER_RESOURCES_PROTOCOL - protocol sends information about resources of given Server to CNA</p>
+	 * <p> DISABLE_SERVER_PROTOCOL	  		  - protocol used in messages sent by the Server informing RMA that
+	 * <p> REGISTER_SERVER_RESOURCES_PROTOCOL - protocol sends information about resources of given Server to RMA</p>
 	 * the given Server is enabled </p>
-	 * <p> CHANGE_SERVER_RESOURCES_PROTOCOL - protocol sends information about changes in resources of given Server to CNA</p>
+	 * <p> CHANGE_SERVER_RESOURCES_PROTOCOL - protocol sends information about changes in resources of given Server to RMA</p>
 	 * the given Server is enabled </p>
 	 */
 	public static final String CONNECT_GREEN_SOURCE_PROTOCOL = "CONNECT_GREEN_SOURCE_PROTOCOL";
@@ -84,7 +84,7 @@ public class MessageProtocolConstants {
 	 * <p> INTERNAL_SERVER_ERROR_ALERT_PROTOCOL         - protocol used in informing that the server is affected by
 	 * the internal error causing its failure </p>
 	 * <p> POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL       - protocol informing that the job is being transferred on servers'
-	 * level (between servers from given CNA, not between
+	 * level (between servers from given RMA, not between
 	 * green sources from given Server) </p>
 	 */
 	public static final String NETWORK_ERROR_ALERT_PROTOCOL = "NETWORK_ERROR_ALERT_PROTOCOL";

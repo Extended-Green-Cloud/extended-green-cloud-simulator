@@ -1,6 +1,6 @@
 {
   "name": "Server4",
-  "cloudNetwork": "CNA2",
+  "regionalManager": "RMA2",
   "jobProcessingLimit": 50,
   "price": 10,
   "maxPower": 200,

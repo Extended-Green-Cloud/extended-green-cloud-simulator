@@ -12,7 +12,7 @@ import java.util.Objects;
 import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.constants.TimeConstants;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
-import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.gui.agents.server.ServerNode;
@@ -73,7 +73,7 @@ public class WeatherDropEvent extends AbstractEvent {
 
 	@Override
 	public void trigger(final Map<String, EGCSNode> agentNodes) {
-		final CloudNetworkNode agentNode = (CloudNetworkNode) agentNodes.get(agentName);
+		final RegionalManagerNode agentNode = (RegionalManagerNode) agentNodes.get(agentName);
 		final SchedulerNode schedulerNode = (SchedulerNode) agentNodes.values().stream()
 				.filter(node -> node.getAgentType().equals(AgentType.SCHEDULER.name()))
 				.findFirst().orElseThrow();

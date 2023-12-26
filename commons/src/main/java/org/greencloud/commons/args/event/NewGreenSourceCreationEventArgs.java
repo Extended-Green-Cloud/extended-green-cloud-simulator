@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Interface containing properties of scenario event that generates new green source in Cloud Network
+ * Interface containing properties of scenario event that generates new green source in Regional Manager
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableNewGreenSourceCreationEventArgs.class)

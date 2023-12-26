@@ -12,7 +12,7 @@ interface Props {
 }
 
 /**
- * Component represents a panel gathering all infromations about cloud network
+ * Component represents a panel gathering all information about cloud network
  *
  * @returns JSX Element
  */

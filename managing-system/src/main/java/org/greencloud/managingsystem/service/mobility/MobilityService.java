@@ -91,19 +91,19 @@ public class MobilityService extends AbstractManagingService {
 	}
 
 	/**
-	 * Method retrieved the location of agent container which corresponds to the given Cloud Network Agent
+	 * Method retrieved the location of agent container which corresponds to the given Regional Manager Agent
 	 *
-	 * @param candidateCloudNetwork - name of the cloud network agent of interest
+	 * @param candidateRegionalManager - name of the regional manager agent of interest
 	 * @return location of the container
 	 */
-	public Map.Entry<Location, AID> findTargetLocation(final String candidateCloudNetwork) {
+	public Map.Entry<Location, AID> findTargetLocation(final String candidateRegionalManager) {
 		if (managingAgent.getContainersLocations() == null) {
 			managingAgent.setContainersLocations(findContainersLocations());
 		}
-		var cloudNetworkContainer = getContainerLocations(candidateCloudNetwork);
-		return isNull(cloudNetworkContainer)
+		var regionalManagerContainer = getContainerLocations(candidateRegionalManager);
+		return isNull(regionalManagerContainer)
 				? getContainerLocations("Main-Container")
-				: cloudNetworkContainer;
+				: regionalManagerContainer;
 	}
 
 	/**

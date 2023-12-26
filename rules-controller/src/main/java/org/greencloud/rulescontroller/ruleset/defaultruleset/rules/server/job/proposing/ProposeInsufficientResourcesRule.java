@@ -54,7 +54,7 @@ public class ProposeInsufficientResourcesRule extends AgentBasicRule<ServerAgent
 	public void executeRule(final RuleSetFacts facts) {
 		final String protocol = facts.get(MESSAGE_TYPE);
 		final ClientJob job = facts.get(JOB);
-		final ACLMessage cnaMessage = facts.get(ORIGINAL_MESSAGE);
+		final ACLMessage rmaMessage = facts.get(ORIGINAL_MESSAGE);
 		final ACLMessage greenSourceMessage = facts.get(MESSAGE);
 
 		final JobInstanceIdentifier jobInstance = JobMapper.mapClientJobToJobInstanceId(job);
@@ -81,6 +81,6 @@ public class ProposeInsufficientResourcesRule extends AgentBasicRule<ServerAgent
 		agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 		agent.send(prepareReply(greenSourceMessage, jobInstance, REJECT_PROPOSAL));
 		agentProps.incrementJobCounter(jobInstance, FAILED);
-		agent.send(prepareFailureReply(cnaMessage, jobStatusUpdate, responseProtocol));
+		agent.send(prepareFailureReply(rmaMessage, jobStatusUpdate, responseProtocol));
 	}
 }

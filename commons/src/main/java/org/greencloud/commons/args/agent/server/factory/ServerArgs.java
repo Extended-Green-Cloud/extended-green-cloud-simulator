@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface ServerArgs extends AgentArgs {
 
 	/**
-	 * @return owner cloud network agent name
+	 * @return owner regional manager agent name
 	 */
 	String getOwnerRegionalManager();
 

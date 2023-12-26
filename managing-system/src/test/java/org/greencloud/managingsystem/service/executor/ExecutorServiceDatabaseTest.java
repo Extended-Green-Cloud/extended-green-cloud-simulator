@@ -2,12 +2,12 @@ package org.greencloud.managingsystem.service.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.CLOUD_NETWORK_MONITORING;
+import static com.database.knowledge.domain.agent.DataType.REGIONAL_MANAGER_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static jade.core.AID.ISGUID;
 import static java.util.Collections.emptyList;
-import static org.greencloud.commons.constants.DFServiceConstants.CNA_SERVICE_TYPE;
+import static org.greencloud.commons.constants.DFServiceConstants.RMA_SERVICE_TYPE;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
@@ -56,7 +56,7 @@ import org.mockito.quality.Strictness;
 
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
-import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.regionalmanager.ImmutableRegionalManagerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.connector.factory.AgentControllerFactory;
 
@@ -132,12 +132,12 @@ class ExecutorServiceDatabaseTest {
 		final AID testAID = new AID("test@address", ISGUID);
 		testAID.addAddresses("test_address");
 		initializeData();
-		when(mobilityService.getContainerLocations("CNA1")).thenReturn(
+		when(mobilityService.getContainerLocations("RMA1")).thenReturn(
 				new AbstractMap.SimpleEntry<>(location, testAID));
 		when(location.getName()).thenReturn("Main-Container");
 		doNothing().when(mobilityService).moveContainers(any(), any());
-		yellowPagesService.when(() -> search(any(), any(), eq(CNA_SERVICE_TYPE)))
-				.thenReturn(Set.of(new AID("CNA1", true)));
+		yellowPagesService.when(() -> search(any(), any(), eq(RMA_SERVICE_TYPE)))
+				.thenReturn(Set.of(new AID("RMA1", true)));
 		adaptationPlan = new AddServerPlan(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
 		adaptationPlan.isPlanExecutable();
 		adaptationPlan.constructAdaptationPlan();
@@ -155,7 +155,7 @@ class ExecutorServiceDatabaseTest {
 		var serverAgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.price(5.0)
 				.build();
 		var greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
@@ -165,15 +165,15 @@ class ExecutorServiceDatabaseTest {
 				.jobStatusDurationMap(Map.of(ON_BACK_UP, 10L, IN_PROGRESS, 20L))
 				.isFinished(true)
 				.build();
-		var cnaHealthData = new HealthCheck(true, AgentType.CLOUD_NETWORK);
-		var cnaTrafficData = ImmutableCloudNetworkMonitoringData.builder()
+		var rmaHealthData = new HealthCheck(true, AgentType.REGIONAL_MANAGER);
+		var rmaTrafficData = ImmutableRegionalManagerMonitoringData.builder()
 				.successRatio(0.8)
 				.build();
 
 		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 
 		database.writeMonitoringData("test", CLIENT_MONITORING, monitoringData);
-		database.writeMonitoringData("testCNA", HEALTH_CHECK, cnaHealthData);
-		database.writeMonitoringData("testCNA", CLOUD_NETWORK_MONITORING, cnaTrafficData);
+		database.writeMonitoringData("testRMA", HEALTH_CHECK, rmaHealthData);
+		database.writeMonitoringData("testRMA", REGIONAL_MANAGER_MONITORING, rmaTrafficData);
 	}
 }

@@ -19,9 +19,9 @@ import org.greencloud.commons.args.agent.AgentArgs;
 public interface ServerNodeArgs extends AgentArgs {
 
 	/**
-	 * @return owner cloud network agent name
+	 * @return owner regional manager agent name
 	 */
-	String getCloudNetworkAgent();
+	String getRegionalManagerAgent();
 
 	/**
 	 * @return energy agents names

@@ -16,7 +16,7 @@ public class ManagingAgentMonitoringLog {
 	public static final String READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG =
 			"There is no client success ratio data available yet.";
 	public static final String READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG =
-			"There is no cloud network success ratio data available yet.";
+			"There is no regional manager success ratio data available yet.";
 	public static final String SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG =
 			"Component {} does not satisfy job success ratio threshold! Job success ratio for component: {}.";
 	public static final String SUCCESS_RATIO_CLIENT_LOG =

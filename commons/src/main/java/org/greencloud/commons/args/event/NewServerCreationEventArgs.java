@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Interface containing properties of scenario event that generates new server in Cloud Network
+ * Interface containing properties of scenario event that generates new server in Regional Manager
  */
 @Value.Immutable
 @JsonSerialize(as = ImmutableNewServerCreationEventArgs.class)

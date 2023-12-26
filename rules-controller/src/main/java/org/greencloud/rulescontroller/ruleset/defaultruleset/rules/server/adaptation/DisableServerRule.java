@@ -49,7 +49,7 @@ public class DisableServerRule extends AgentBasicRule<ServerAgentProps, ServerNo
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("Disabling Server and informing CNA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
+		logger.info("Disabling Server and informing RMA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
 		agentProps.disable();
 		agentProps.saveMonitoringData();
 

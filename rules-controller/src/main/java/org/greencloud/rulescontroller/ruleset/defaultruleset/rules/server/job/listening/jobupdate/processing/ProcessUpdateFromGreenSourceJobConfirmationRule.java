@@ -18,7 +18,7 @@ import static org.greencloud.commons.enums.rules.RuleType.START_JOB_EXECUTION_RU
 import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.CONFIRMED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -75,7 +75,7 @@ public class ProcessUpdateFromGreenSourceJobConfirmationRule extends AgentBasicR
 		logger.info("Announcing new job {} in network!", jobInstance.getJobId());
 		agentNode.announceClientJob();
 
-		agent.send(prepareJobStatusMessageForCNA(jobInstance, CONFIRMED_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
+		agent.send(prepareJobStatusMessageForRMA(jobInstance, CONFIRMED_JOB_ID, agentProps, facts.get(RULE_SET_IDX)));
 
 		facts.put(JOB_START_INFORM, true);
 		facts.put(JOB_FINISH_INFORM, true);

@@ -13,7 +13,7 @@ import static org.greencloud.commons.enums.rules.RuleType.FINISH_JOB_EXECUTION_R
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getMessageConversationId;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStartedMessage;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.rulescontroller.ruleset.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -68,7 +68,7 @@ public class ProcessJobStartRule extends AgentBasicRule<ServerAgentProps, Server
 
 		final String logMessage = informAboutStart
 				? "Start executing the job {} by executing step {}."
-				: "Start executing the job {} by executing step {} without informing CNA";
+				: "Start executing the job {} by executing step {} without informing RMA";
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
@@ -97,7 +97,7 @@ public class ProcessJobStartRule extends AgentBasicRule<ServerAgentProps, Server
 		final JobExecutionStatusEnum newStatus = replaceStatusToActive(agentProps.getServerJobs(), job);
 
 		agentProps.getJobsExecutionTime().startJobExecutionTimer(job, newStatus, getCurrentTime());
-		agent.send(prepareJobStatusMessageForCNA(jobInstance, getMessageConversationId(currentStatus), agentProps,
+		agent.send(prepareJobStatusMessageForRMA(jobInstance, getMessageConversationId(currentStatus), agentProps,
 				facts.get(RULE_SET_IDX)));
 	}
 }

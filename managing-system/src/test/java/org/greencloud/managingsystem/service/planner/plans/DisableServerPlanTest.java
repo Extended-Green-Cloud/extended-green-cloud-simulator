@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
@@ -112,38 +112,38 @@ class DisableServerPlanTest {
 	private void mockNetworkStructure() {
 		var server1 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.name("server1")
 				.price(10D)
 				.build();
 		var server2 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerRegionalManager("CNA2")
+				.ownerRegionalManager("RMA2")
 				.name("server2")
 				.price(10D)
 				.build();
 		var server3 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerRegionalManager("CNA2")
+				.ownerRegionalManager("RMA2")
 				.name("server3")
 				.price(10D)
 				.build();
 		var server4 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.name("server4")
 				.price(10D)
 				.build();
-		var cna1 = ImmutableCloudNetworkArgs.builder()
-				.name("CNA1")
+		var rma1 = ImmutableRegionalManagerArgs.builder()
+				.name("RMA1")
 				.build();
-		var cna2 = ImmutableCloudNetworkArgs.builder()
-				.name("CNA2")
+		var rma2 = ImmutableRegionalManagerArgs.builder()
+				.name("RMA2")
 				.build();
 		var networkStructure = new ScenarioStructureArgs(
 				null,
 				null,
-				List.of(cna1, cna2),
+				List.of(rma1, rma2),
 				List.of(server1, server2, server3, server4),
 				emptyList(),
 				emptyList()

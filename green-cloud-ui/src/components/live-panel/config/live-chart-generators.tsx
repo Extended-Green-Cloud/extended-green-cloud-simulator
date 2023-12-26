@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-   AgentCloudNetworkStatisticReports,
+   AgentRegionalManagerStatisticReports,
    AgentGreenSourceStatisticReports,
    AgentSchedulerStatisticReports,
    AgentServerStatisticReports,
@@ -61,8 +61,8 @@ const getSystemJobTypeChart: LiveChartGenerator = (reports, _) => {
 
 const getAgentClientsChart: LiveChartGenerator = (_, agentReports) => {
    const reportsMapped = agentReports as AgentStatisticReport
-   const cnaReports = reportsMapped.reports as AgentCloudNetworkStatisticReports
-   const { clientsReport } = cnaReports
+   const rmaReports = reportsMapped.reports as AgentRegionalManagerStatisticReports
+   const { clientsReport } = rmaReports
    return <ClientsNumberLiveChart {...{ title: `Number of ${reportsMapped.name} clients over time`, clientsReport }} />
 }
 

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -329,16 +329,16 @@ class DecrementGreenSourceErrorPlanUnitTest {
 
 	private void prepareNetworkStructure() {
 		doReturn(List.of("test_server1", "test_server2")).when(mockScenarioStructure)
-				.getServersForCloudNetworkAgent("test_cna1");
+				.getServersForRegionalManagerAgent("test_rma1");
 		doReturn(List.of("test_gs1", "test_gs2")).when(mockScenarioStructure)
 				.getGreenSourcesForServerAgent("test_server1");
 		doReturn(List.of("test_gs3", "test_gs4")).when(mockScenarioStructure)
 				.getGreenSourcesForServerAgent("test_server2");
 		doReturn(List.of("test_gs1", "test_gs2", "test_gs3", "test_gs4")).when(mockScenarioStructure)
-				.getGreenSourcesForCloudNetwork("test_cna1");
+				.getGreenSourcesForRegionalManager("test_rma1");
 		doReturn(List.of(
-				ImmutableCloudNetworkArgs.builder().name("test_cna1").build()
-		)).when(mockScenarioStructure).getCloudNetworkAgentsArgs();
+				ImmutableRegionalManagerArgs.builder().name("test_rma1").build()
+		)).when(mockScenarioStructure).getRegionalManagerAgentsArgs();
 		doReturn(mockScenarioStructure).when(mockManagingAgent).getGreenCloudStructure();
 	}
 

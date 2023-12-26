@@ -31,8 +31,8 @@ public class AnnounceNewClientJobCombinedRule extends AgentCombinedRule<Schedule
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(NEW_JOB_ANNOUNCEMENT_RULE,
-				"announcing job to CNAs",
-				"combined rule executed when new client job is to be announced to CNAs");
+				"announcing job to RMAs",
+				"combined rule executed when new client job is to be announced to RMAs");
 	}
 
 	@Override

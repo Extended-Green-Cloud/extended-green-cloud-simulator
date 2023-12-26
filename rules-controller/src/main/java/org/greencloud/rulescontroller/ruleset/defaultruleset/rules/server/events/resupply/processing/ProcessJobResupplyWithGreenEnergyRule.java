@@ -14,7 +14,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStateEnum.isStatusAct
 import static org.greencloud.commons.enums.rules.RuleType.RESUPPLY_JOB_WITH_GREEN_POWER_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareGreenPowerSupplyRequest;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
@@ -80,7 +80,7 @@ public class ProcessJobResupplyWithGreenEnergyRule extends AgentRequestRule<Serv
 				agentProps.getServerJobs().replace(job, newStatus);
 
 				if (Boolean.TRUE.equals(isActive)) {
-					agent.send(prepareJobStatusMessageForCNA(JobMapper.mapClientJobToJobInstanceId(job),
+					agent.send(prepareJobStatusMessageForRMA(JobMapper.mapClientJobToJobInstanceId(job),
 							GREEN_POWER_JOB_ID, agentProps,
 							facts.get(RULE_SET_IDX)));
 				}

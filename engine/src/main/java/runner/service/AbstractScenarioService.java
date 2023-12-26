@@ -173,7 +173,7 @@ public abstract class AbstractScenarioService {
 			if (containerName.equals(CLIENTS_CONTAINER_ID.toString())) {
 				throw new JadeContainerException("Failed to create Agent Clients container", e);
 			}
-			throw new JadeContainerException("Failed to create CloudNetwork container", e);
+			throw new JadeContainerException("Failed to create RegionalManager container", e);
 		}
 	}
 

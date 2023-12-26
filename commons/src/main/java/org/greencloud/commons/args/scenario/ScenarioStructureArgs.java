@@ -10,22 +10,25 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.jetbrains.annotations.Nullable;
 
+import lombok.Getter;
+
 /**
- * Arguments of the structure of Cloud Network in given scenario
+ * Arguments of the structure of Regional Manager in given scenario
  */
+@Getter
 public class ScenarioStructureArgs implements Serializable {
 
 	private ManagingAgentArgs managingAgentArgs;
 	private SchedulerArgs schedulerAgentArgs;
-	private List<CloudNetworkArgs> cloudNetworkAgentsArgs;
+	private List<RegionalManagerArgs> regionalManagerAgentsArgs;
 	private List<ServerArgs> serverAgentsArgs;
 	private List<MonitoringArgs> monitoringAgentsArgs;
 	private List<GreenEnergyArgs> greenEnergyAgentsArgs;
@@ -36,61 +39,41 @@ public class ScenarioStructureArgs implements Serializable {
 	/**
 	 * Scenario constructor.
 	 *
-	 * @param managingAgentArgs      managing agent
-	 * @param schedulerAgentArgs     scheduler agent
-	 * @param cloudNetworkAgentsArgs list of cloud network com.greencloud.application.agents
-	 * @param serverAgentsArgs       list of server com.greencloud.application.agents
-	 * @param monitoringAgentsArgs   list of monitoring com.greencloud.application.agents
-	 * @param greenEnergyAgentsArgs  list of green energy source com.greencloud.application.agents
+	 * @param managingAgentArgs         managing agent
+	 * @param schedulerAgentArgs        scheduler agent
+	 * @param regionalManagerAgentsArgs list of regional manager agents
+	 * @param serverAgentsArgs          list of server agents
+	 * @param monitoringAgentsArgs      list of monitoring agents
+	 * @param greenEnergyAgentsArgs     list of green energy source agents
 	 */
 	public ScenarioStructureArgs(ManagingAgentArgs managingAgentArgs,
 			SchedulerArgs schedulerAgentArgs,
-			List<CloudNetworkArgs> cloudNetworkAgentsArgs,
+			List<RegionalManagerArgs> regionalManagerAgentsArgs,
 			List<ServerArgs> serverAgentsArgs,
 			List<MonitoringArgs> monitoringAgentsArgs,
 			List<GreenEnergyArgs> greenEnergyAgentsArgs) {
 		this.managingAgentArgs = managingAgentArgs;
 		this.schedulerAgentArgs = schedulerAgentArgs;
-		this.cloudNetworkAgentsArgs = new ArrayList<>(cloudNetworkAgentsArgs);
+		this.regionalManagerAgentsArgs = new ArrayList<>(regionalManagerAgentsArgs);
 		this.serverAgentsArgs = new ArrayList<>(serverAgentsArgs);
 		this.monitoringAgentsArgs = new ArrayList<>(monitoringAgentsArgs);
 		this.greenEnergyAgentsArgs = new ArrayList<>(greenEnergyAgentsArgs);
 	}
 
-	public List<CloudNetworkArgs> getCloudNetworkAgentsArgs() {
-		return cloudNetworkAgentsArgs;
-	}
-
-	public List<ServerArgs> getServerAgentsArgs() {
-		return serverAgentsArgs;
-	}
-
-	public List<MonitoringArgs> getMonitoringAgentsArgs() {
-		return monitoringAgentsArgs;
-	}
-
-	public List<GreenEnergyArgs> getGreenEnergyAgentsArgs() {
-		return greenEnergyAgentsArgs;
-	}
-
-	public SchedulerArgs getSchedulerAgentArgs() {
-		return schedulerAgentArgs;
-	}
-
-	public ManagingAgentArgs getManagingAgentArgs() {
-		return managingAgentArgs;
+	public List<RegionalManagerArgs> getRegionalManagerAgentsArgs() {
+		return regionalManagerAgentsArgs;
 	}
 
 	/**
-	 * Method retrieves servers connected to given cloud network agent
+	 * Method retrieves servers connected to given regional manager agent
 	 *
-	 * @param cloudNetworkAgentName name of the CNA of interest
+	 * @param regionalManagerAgentName name of the RMA of interest
 	 * @return list of connected server
 	 */
-	public List<String> getServersForCloudNetworkAgent(final String cloudNetworkAgentName) {
+	public List<String> getServersForRegionalManagerAgent(final String regionalManagerAgentName) {
 		return getServerAgentsArgs()
 				.stream()
-				.filter(agent -> agent.getOwnerRegionalManager().equals(cloudNetworkAgentName))
+				.filter(agent -> agent.getOwnerRegionalManager().equals(regionalManagerAgentName))
 				.map(AgentArgs::getName)
 				.toList();
 	}
@@ -125,26 +108,26 @@ public class ScenarioStructureArgs implements Serializable {
 	}
 
 	/**
-	 * Method retrieves green sources connected to given cloud network agent
+	 * Method retrieves green sources connected to given regional manager agent
 	 *
-	 * @param cloudNetworkAgentName name of the Cloud Network of interest
+	 * @param regionalManagerAgentName name of the Regional Manager of interest
 	 * @return list of connected green sources
 	 */
-	public List<String> getGreenSourcesForCloudNetwork(final String cloudNetworkAgentName) {
-		return getServersForCloudNetworkAgent(cloudNetworkAgentName).stream()
+	public List<String> getGreenSourcesForRegionalManager(final String regionalManagerAgentName) {
+		return getServersForRegionalManagerAgent(regionalManagerAgentName).stream()
 				.map(this::getGreenSourcesForServerAgent)
 				.flatMap(Collection::stream)
 				.toList();
 	}
 
 	/**
-	 * Method retrieves name of parent CNA for server with given name
+	 * Method retrieves name of parent RMA for server with given name
 	 *
 	 * @param serverName name of the Server
-	 * @return name of CNA or null if not found
+	 * @return name of RMA or null if not found
 	 */
 	@Nullable
-	public String getParentCNAForServer(final String serverName) {
+	public String getParentRMAForServer(final String serverName) {
 		var serverArgs = serverAgentsArgs.stream()
 				.filter(server -> server.getName().equals(serverName.split("@")[0]))
 				.findFirst()
@@ -156,11 +139,11 @@ public class ScenarioStructureArgs implements Serializable {
 	/**
 	 * Method concatenates the scenario arguments into one stream
 	 *
-	 * @return stream of all scenario's com.greencloud.application.agents' arguments
+	 * @return stream of all scenario's agents' arguments
 	 */
 	public List<AgentArgs> getAgentsArgs() {
 		var serverArgs = serverAgentsArgs.stream().map(AgentArgs.class::cast);
-		var cloudNetworkArgs = cloudNetworkAgentsArgs.stream().map(AgentArgs.class::cast);
+		var regionalManagerArgs = regionalManagerAgentsArgs.stream().map(AgentArgs.class::cast);
 		var monitoringArgs = monitoringAgentsArgs.stream().map(AgentArgs.class::cast);
 		var greenEnergyArgs = greenEnergyAgentsArgs.stream().map(AgentArgs.class::cast);
 		var schedulerArgs = Stream.of(schedulerAgentArgs).map(AgentArgs.class::cast);
@@ -170,6 +153,6 @@ public class ScenarioStructureArgs implements Serializable {
 				concat(schedulerArgs,
 						concat(monitoringArgs,
 								concat(greenEnergyArgs,
-										concat(serverArgs, cloudNetworkArgs))))).toList();
+										concat(serverArgs, regionalManagerArgs))))).toList();
 	}
 }

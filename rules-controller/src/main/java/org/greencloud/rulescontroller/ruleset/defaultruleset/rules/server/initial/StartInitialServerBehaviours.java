@@ -50,7 +50,7 @@ public class StartInitialServerBehaviours extends AgentBehaviourRule<ServerAgent
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_CHECK_RULE, controller),
-				ListenForMessages.create(agent, "CNA_RESOURCE_REQUEST_RULE", controller, true),
+				ListenForMessages.create(agent, "RMA_RESOURCE_REQUEST_RULE", controller, true),
 				ListenForMessages.create(agent, JOB_MANUAL_FINISH_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_POWER_SHORTAGE_FINISH_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_JOB_TRANSFER_RULE, controller),

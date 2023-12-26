@@ -72,7 +72,7 @@
   "serverAgentsArgs": [
     {
       "name": "Server1",
-      "ownerRegionalManager": "CNA1",
+      "ownerRegionalManager": "RMA1",
       "jobProcessingLimit": 50,
       "price": 10.5,
       "containerId": "Servers1",
@@ -141,7 +141,7 @@
     },
     {
       "name": "Server2",
-      "ownerRegionalManager": "CNA1",
+      "ownerRegionalManager": "RMA1",
       "jobProcessingLimit": 50,
       "price": 10.5,
       "containerId": "Servers2",
@@ -194,10 +194,10 @@
       }
     }
   ],
-  "cloudNetworkAgentsArgs": [
+  "regionalManagerAgentsArgs": [
     {
-      "name": "CNA1",
-      "locationId": "CNA1"
+      "name": "RMA1",
+      "locationId": "RMA1"
     }
   ]
 }

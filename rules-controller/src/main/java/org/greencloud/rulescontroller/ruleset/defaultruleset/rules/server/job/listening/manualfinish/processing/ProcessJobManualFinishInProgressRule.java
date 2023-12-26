@@ -58,12 +58,12 @@ public class ProcessJobManualFinishInProgressRule extends AgentBasicRule<ServerA
 				"Information about finishing job with id {} does not reach the green source. Finished executing the job for {}",
 				job.getJobId(), job.getClientIdentifier());
 
-		final boolean informCNA = agentProps.getServerJobs().keySet().stream()
+		final boolean informRMA = agentProps.getServerJobs().keySet().stream()
 				.filter(clientJob -> clientJob.getJobId().equals(job.getJobId()))
 				.count() == 1;
 
 		facts.put(JOB_MANUAL_FINISH_INFORM, true);
-		facts.put(JOB_FINISH_INFORM, informCNA);
+		facts.put(JOB_FINISH_INFORM, informRMA);
 		facts.put(RULE_TYPE, PROCESS_FINISH_JOB_EXECUTION_RULE);
 		controller.fire(facts);
 	}

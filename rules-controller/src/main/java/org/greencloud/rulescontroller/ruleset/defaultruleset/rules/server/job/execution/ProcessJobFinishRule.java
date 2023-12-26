@@ -19,7 +19,7 @@ import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.job.JobUtils.isJobUnique;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessage;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobFinishMessageForRMA;
 import static org.greencloud.commons.utils.messaging.factory.PriceMessageFactory.preparePriceMessage;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -93,31 +93,31 @@ public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, Serve
 			agent.addBehaviour(
 					ListenForSingleMessage.create(agent, listenerFacts, FINAL_PRICE_RECEIVER_RULE, controller));
 		} else if (isJobFullyFinished) {
-			finishJobInCNA(job, facts);
+			finishJobInRMA(job, facts);
 			updateStateAfterJobIsDone(facts);
 		} else {
-			informCNAAboutPrice(job, facts);
+			informRMAAboutPrice(job, facts);
 			updateStateAfterJobIsDone(facts);
 		}
 	}
 
-	private void informCNAAboutPrice(final ClientJob job, final RuleSetFacts facts) {
+	private void informRMAAboutPrice(final ClientJob job, final RuleSetFacts facts) {
 		agentProps.updateJobExecutionCost(job);
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
 		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
-		final ACLMessage cnaPriceMessage = preparePriceMessage(agentProps.getOwnerRegionalManagerAgent(), jobInstanceId,
+		final ACLMessage rmaPriceMessage = preparePriceMessage(agentProps.getOwnerRegionalManagerAgent(), jobInstanceId,
 				finalJobPrice, facts.get(RULE_SET_IDX));
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
-		agent.send(cnaPriceMessage);
+		agent.send(rmaPriceMessage);
 	}
 
-	private void finishJobInCNA(final ClientJob job, final RuleSetFacts facts) {
+	private void finishJobInRMA(final ClientJob job, final RuleSetFacts facts) {
 		agentProps.updateJobExecutionCost(job);
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
-		final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
+		final ACLMessage rmaMessage = prepareJobFinishMessageForRMA(job, facts.get(RULE_SET_IDX), finalJobPrice,
 				agentProps.getOwnerRegionalManagerAgent());
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
-		agent.send(cnaMessage);
+		agent.send(rmaMessage);
 	}
 
 	private void updateStateAfterJobIsDone(final RuleSetFacts facts) {

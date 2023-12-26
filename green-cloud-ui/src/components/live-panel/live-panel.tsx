@@ -22,7 +22,7 @@ const headerTitle = 'Live statistics'
 const buttonTitle = 'Display all statistics'
 
 /**
- * Component represents a panel gathering all infromations about cloud network
+ * Component represents a panel gathering all information about cloud network
  *
  * @returns JSX Element
  */

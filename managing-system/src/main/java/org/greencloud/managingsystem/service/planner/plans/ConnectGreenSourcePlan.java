@@ -51,11 +51,11 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	/**
 	 * Method verifies if the plan is executable. The plan is executable if:
 	 * 1. there are some GS alive in the system
-	 * 2. there are some Green Sources which are connected to the Servers from one CNA and for which the
+	 * 2. there are some Green Sources which are connected to the Servers from one RMA and for which the
 	 * average traffic during last 15s was not greater than 50% (i.e. there are idle green sources)
 	 * 3. the available power for these Green Sources in last timestamp was on average equal to at least 70% of
 	 * maximum capacity (i.e. the green sources were not on idle due to bad weather conditions)
-	 * 4. there are some Servers in the Cloud Network which traffic is less than 90% (i.e. not all servers are using
+	 * 4. there are some Servers in the Region which traffic is less than 90% (i.e. not all servers are using
 	 * all operational power) and which are active
 	 * 5. the list of Servers (satisfying the above thresholds) to which a Green Source (which also satisfy
 	 * above thresholds) may connect, is not empty (i.e. the Green Sources can be connected to new Servers)
@@ -65,20 +65,20 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	@Override
 	public boolean isPlanExecutable() {
 		// verifying which server complies with thresholds
-		final Map<String, List<AgentsTraffic>> serversForCloudNetworks = getAvailableServersMap();
-		if (serversForCloudNetworks.isEmpty()) {
+		final Map<String, List<AgentsTraffic>> serversForRegionalManagers = getAvailableServersMap();
+		if (serversForRegionalManagers.isEmpty()) {
 			return false;
 		}
 
 		// verifying which green sources comply with the thresholds
-		final Map<String, Set<AgentsGreenPower>> greenSourcesForCloudNetworks = getAvailableGreenSourcesMap();
-		if (greenSourcesForCloudNetworks.isEmpty()) {
+		final Map<String, Set<AgentsGreenPower>> greenSourcesForRegionalManagers = getAvailableGreenSourcesMap();
+		if (greenSourcesForRegionalManagers.isEmpty()) {
 			return false;
 		}
 
 		// verifying if green sources complying with thresholds can connect to new servers
 		connectableServersForGreenSource =
-				getConnectableServersForGreenSources(serversForCloudNetworks, greenSourcesForCloudNetworks);
+				getConnectableServersForGreenSources(serversForRegionalManagers, greenSourcesForRegionalManagers);
 
 		return !connectableServersForGreenSource.isEmpty();
 	}
@@ -124,8 +124,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	protected Map<String, List<AgentsTraffic>> getAvailableServersMap() {
 		final List<String> activeServers = managingAgent.monitor().getActiveServers();
 
-		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs().stream()
-				.collect(toMap(AgentArgs::getName, cna -> getServersForCNA(cna.getName(), activeServers)))
+		return managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
+				.collect(toMap(AgentArgs::getName, rma -> getServersForRMA(rma.getName(), activeServers)))
 				.entrySet().stream()
 				.filter(entry -> !entry.getValue().isEmpty())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -135,8 +135,8 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	protected Map<String, Set<AgentsGreenPower>> getAvailableGreenSourcesMap() {
 		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_ENERGY);
 
-		return managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs().stream()
-				.collect(toMap(AgentArgs::getName, cna -> getGreenSourcesForCNA(cna.getName(), aliveGreenSources)))
+		return managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
+				.collect(toMap(AgentArgs::getName, rma -> getGreenSourcesForRMA(rma.getName(), aliveGreenSources)))
 				.entrySet().stream()
 				.filter(entry -> !entry.getValue().isEmpty())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -144,20 +144,20 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 
 	@VisibleForTesting
 	protected Map<AgentsGreenPower, List<AgentsTraffic>> getConnectableServersForGreenSources(
-			final Map<String, List<AgentsTraffic>> serversForCloudNetworks,
-			final Map<String, Set<AgentsGreenPower>> greenSourcesForCloudNetworks) {
+			final Map<String, List<AgentsTraffic>> serversForRegionalManagers,
+			final Map<String, Set<AgentsGreenPower>> greenSourcesForRegionalManagers) {
 
-		return greenSourcesForCloudNetworks.keySet().stream()
-				.map(cloudNetwork -> {
-					final List<AgentsTraffic> serversToConsider = serversForCloudNetworks.get(cloudNetwork);
-					final Set<AgentsGreenPower> greenSourcesToConsider = greenSourcesForCloudNetworks.get(cloudNetwork);
+		return greenSourcesForRegionalManagers.keySet().stream()
+				.map(regionalManager -> {
+					final List<AgentsTraffic> serversToConsider = serversForRegionalManagers.get(regionalManager);
+					final Set<AgentsGreenPower> greenSourcesToConsider = greenSourcesForRegionalManagers.get(regionalManager);
 
 					if (Objects.isNull(serversToConsider)) {
 						return new HashMap<AgentsGreenPower, List<AgentsTraffic>>();
 					}
 
 					return greenSourcesToConsider.stream()
-							.map(greenSource -> getConnectableServersForGreenSourcePerCNA(greenSource,
+							.map(greenSource -> getConnectableServersForGreenSourcePerRMA(greenSource,
 									serversToConsider))
 							.filter(entry -> !entry.getValue().isEmpty())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -166,7 +166,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private Map.Entry<AgentsGreenPower, List<AgentsTraffic>> getConnectableServersForGreenSourcePerCNA(
+	private Map.Entry<AgentsGreenPower, List<AgentsTraffic>> getConnectableServersForGreenSourcePerRMA(
 			final AgentsGreenPower greenSource, final List<AgentsTraffic> serversToConsider) {
 		final String greenSourceLocalName = greenSource.name().split("@")[0];
 
@@ -184,12 +184,12 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected List<AgentsTraffic> getServersForCNA(final String cna, final List<String> aliveServers) {
-		final List<String> serversForCNA = managingAgent.getGreenCloudStructure().getServersForCloudNetworkAgent(cna);
-		final List<String> aliveServersForCNA = managingAgent.monitor()
-				.getAliveAgentsIntersection(aliveServers, serversForCNA);
+	protected List<AgentsTraffic> getServersForRMA(final String rma, final List<String> aliveServers) {
+		final List<String> serversForRMA = managingAgent.getGreenCloudStructure().getServersForRegionalManagerAgent(rma);
+		final List<String> aliveServersForRMA = managingAgent.monitor()
+				.getAliveAgentsIntersection(aliveServers, serversForRMA);
 
-		return managingAgent.monitor().getAverageTrafficForNetworkComponent(aliveServersForCNA, SERVER_MONITORING)
+		return managingAgent.monitor().getAverageTrafficForNetworkComponent(aliveServersForRMA, SERVER_MONITORING)
 				.entrySet().stream()
 				.filter(server -> server.getValue() <= SERVER_TRAFFIC_THRESHOLD)
 				.map(entry -> new AgentsTraffic(entry.getKey(), entry.getValue()))
@@ -197,13 +197,13 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	}
 
 	@VisibleForTesting
-	protected Set<AgentsGreenPower> getGreenSourcesForCNA(final String cloudNetworkName,
+	protected Set<AgentsGreenPower> getGreenSourcesForRMA(final String regionalManagerName,
 			final List<String> aliveGreenSources) {
-		final List<String> greenSourcesForCNA = managingAgent.getGreenCloudStructure()
-				.getGreenSourcesForCloudNetwork(cloudNetworkName);
+		final List<String> greenSourcesForRMA = managingAgent.getGreenCloudStructure()
+				.getGreenSourcesForRegionalManager(regionalManagerName);
 
 		final List<String> aliveSourcesForServer = managingAgent.monitor()
-				.getAliveAgentsIntersection(aliveGreenSources, greenSourcesForCNA);
+				.getAliveAgentsIntersection(aliveGreenSources, greenSourcesForRMA);
 
 		return managingAgent.monitor()
 				.getAverageTrafficForNetworkComponent(getSourcesWithEnoughPower(aliveSourcesForServer),

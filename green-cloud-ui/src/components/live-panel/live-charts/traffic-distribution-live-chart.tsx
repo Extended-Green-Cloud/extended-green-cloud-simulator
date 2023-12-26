@@ -3,7 +3,7 @@ import React from 'react'
 import { LiveChartWrapper } from '@components'
 import {
    AgentType,
-   CloudNetworkAgent,
+   RegionalManagerAgent,
    CommonAgentReports,
    LiveChartDataCategory,
    MenuTab,
@@ -29,8 +29,8 @@ export const TrafficDistributionLiveChart = ({ reports }: Props) => {
    const selectedTab = useSelector((state: RootState) => selectSelectedTab(state))
    const connectedAgents =
       selectedTab !== MenuTab.CLOUD_SUMMARY && selectedAgent !== null
-         ? selectedAgent?.type === AgentType.CLOUD_NETWORK
-            ? { type: 'Servers', agents: (selectedAgent as CloudNetworkAgent).serverAgents }
+         ? selectedAgent?.type === AgentType.REGIONAL_MANAGER
+            ? { type: 'Servers', agents: (selectedAgent as RegionalManagerAgent).serverAgents }
             : { type: 'Green Sources', agents: (selectedAgent as ServerAgent).greenEnergyAgents }
          : { type: 'RMA', agents: [] }
    const agentReports =
@@ -39,16 +39,16 @@ export const TrafficDistributionLiveChart = ({ reports }: Props) => {
          : reports.agentsReports.filter((report) => report.name.includes('RMA'))
 
    const getChartData = (): LiveChartDataCategory[] => {
-      const cnaTraffics = agentReports
+      const rmaTraffics = agentReports
          .map((agentReports) => (agentReports.reports as CommonAgentReports).trafficReport)
          .map((trafficReport) => (trafficReport.length === 0 ? 0 : trafficReport[trafficReport.length - 1]?.value ?? 0))
 
-      const overallTraffic = cnaTraffics.reduce((sum, val) => sum + val, 0)
+      const overallTraffic = rmaTraffics.reduce((sum, val) => sum + val, 0)
 
       return agentReports.map((agent, idx) => ({
          name: `${agent.name} traffic`,
          color: `var(--green-${idx + 2})`,
-         statistics: overallTraffic === 0 ? 0 : (cnaTraffics[idx] / overallTraffic) * 100
+         statistics: overallTraffic === 0 ? 0 : (rmaTraffics[idx] / overallTraffic) * 100
       }))
    }
 

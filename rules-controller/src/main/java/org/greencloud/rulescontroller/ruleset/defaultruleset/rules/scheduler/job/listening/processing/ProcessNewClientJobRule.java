@@ -54,7 +54,7 @@ public class ProcessNewClientJobRule extends AgentBasicRule<SchedulerAgentProps,
 		int newRuleSetIdx = facts.get(RULE_SET_IDX);
 
 		if (nonNull(job.getSelectionPreference())) {
-			final String log = "Comparing CNA offers using custom comparator";
+			final String log = "Comparing RMA offers using custom comparator";
 			final String ruleSetName = "CUSTOM_CLIENT_COMPARATOR_" + job.getClientIdentifier().toUpperCase();
 			final RuleSetRest rules = constructRuleSetForCustomClientComparison(job.getSelectionPreference(),
 					ruleSetName, log, job.getJobId(), SCHEDULER);

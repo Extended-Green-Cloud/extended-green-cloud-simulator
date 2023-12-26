@@ -24,7 +24,7 @@ interface Props {
 const modalHeader = 'TRIGGER AGENT EVENT'
 
 /**
- * Component represents panel that can be used by the administrators to handle events condcuted on cloud network agents
+ * Component represents panel that can be used by the administrators to handle events condcuted on regional manager agents
  *
  * @param {boolean}[isOpen] - flag indicating if the modal is open
  * @param {func}[setIsOpen] - function changing the state of the modal

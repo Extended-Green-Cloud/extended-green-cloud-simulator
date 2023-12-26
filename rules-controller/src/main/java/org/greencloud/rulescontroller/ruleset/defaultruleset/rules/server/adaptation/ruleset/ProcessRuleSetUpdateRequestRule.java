@@ -31,7 +31,7 @@ public class ProcessRuleSetUpdateRequestRule extends AgentBasicRule<ServerAgentP
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(LISTEN_FOR_RULE_SET_UPDATE_HANDLER_RULE,
 				"handles rule set update messages",
-				"handling messages from CNA asking Server to update its rule set");
+				"handling messages from RMA asking Server to update its rule set");
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class ProcessRuleSetUpdateRequestRule extends AgentBasicRule<ServerAgentP
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
 		final RuleSetUpdate updateData = facts.get(MESSAGE_CONTENT);
-		logger.info("CNA asked Server to update its rule set to {}! Passing information to underlying Green Sources.",
+		logger.info("RMA asked Server to update its rule set to {}! Passing information to underlying Green Sources.",
 				updateData.getRuleSetType());
 
 		final RuleSetFacts handlerFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));

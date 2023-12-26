@@ -23,6 +23,6 @@ public class ListenForJobStartCheckRequestRule extends AgentMessageListenerRule<
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(JOB_STATUS_CHECK_RULE,
 				"listen for start check request",
-				"listening for CNA message checking job start status");
+				"listening for RMA message checking job start status");
 	}
 }

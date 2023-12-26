@@ -31,7 +31,7 @@ public class ProcessServerRuleSetRemovalMessageRule extends AgentBasicRule<Green
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(LISTEN_FOR_RULE_SET_REMOVAL_HANDLER_RULE,
 				"handles rule set removal messages",
-				"handling messages from CNA asking Server to remove given rule set");
+				"handling messages from RMA asking Server to remove given rule set");
 	}
 
 	@Override

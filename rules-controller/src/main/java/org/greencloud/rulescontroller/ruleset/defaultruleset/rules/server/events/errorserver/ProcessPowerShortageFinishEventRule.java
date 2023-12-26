@@ -11,7 +11,7 @@ import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_R
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.NETWORK_ERROR_FINISH_ALERT_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCNA;
+import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareNetworkFailureInformation;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
@@ -66,7 +66,7 @@ public class ProcessPowerShortageFinishEventRule extends AgentBasicRule<ServerAg
 		if (affectedJobs.isEmpty()) {
 			logger.info("There are no jobs supplied using back up power. Updating server state.");
 		} else {
-			logger.info("Changing the statuses of the jobs and informing the CNA and Green Sources");
+			logger.info("Changing the statuses of the jobs and informing the RMA and Green Sources");
 
 			affectedJobs.forEach(job -> {
 				final boolean isJobPresent = agentProps.getServerJobs().containsKey(job)
@@ -104,7 +104,7 @@ public class ProcessPowerShortageFinishEventRule extends AgentBasicRule<ServerAg
 		agentProps.getServerJobs().replace(job, newStatus);
 
 		if (hasStarted) {
-			agent.send(prepareJobStatusMessageForCNA(jobInstance, GREEN_POWER_JOB_ID, agentProps,
+			agent.send(prepareJobStatusMessageForRMA(jobInstance, GREEN_POWER_JOB_ID, agentProps,
 					facts.get(RULE_SET_IDX)));
 		}
 		agentProps.updateGUI();

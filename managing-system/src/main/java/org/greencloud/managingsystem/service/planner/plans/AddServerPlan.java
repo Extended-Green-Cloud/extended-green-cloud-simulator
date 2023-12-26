@@ -22,7 +22,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.GoalEnum;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.CloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
@@ -70,7 +70,7 @@ public class AddServerPlan extends SystemPlan {
 
 	/**
 	 * Method constructs plan which adds the additional server to the system.
-	 * The CNA to which new server is added to is selected based on the highest average traffic load.
+	 * The RMA to which new server is added to is selected based on the highest average traffic load.
 	 * The method gathers all information necessary to add a server (together with dedicated Green Source
 	 * and Monitoring Agent) and passes that information to the ExecutorService.
 	 *
@@ -78,35 +78,35 @@ public class AddServerPlan extends SystemPlan {
 	 */
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
-		final Map<String, Double> cloudNetworkAgentsTraffic = managingAgent.getGreenCloudStructure()
+		final Map<String, Double> regionalManagerAgentsTraffic = managingAgent.getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
 				.collect(groupingBy(ServerArgs::getOwnerRegionalManager,
 						flatMapping(this::getServerTrafficByName, averagingDouble(Double::doubleValue))));
 
-		if (cloudNetworkAgentsTraffic.isEmpty()) {
+		if (regionalManagerAgentsTraffic.isEmpty()) {
 			return null;
 		}
 
-		final String targetCloudNetworkAgent = max(cloudNetworkAgentsTraffic.entrySet(),
+		final String targetRegionalManagerAgent = max(regionalManagerAgentsTraffic.entrySet(),
 				comparingDouble(Map.Entry::getValue))
 				.getKey();
 
-		final CloudNetworkArgs cloudNetwork = managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
+		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs()
 				.stream()
-				.filter(cna -> cna.getName().equals(targetCloudNetworkAgent))
+				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))
 				.findFirst()
 				.orElse(null);
 
-		if (isNull(cloudNetwork)) {
+		if (isNull(regionalManager)) {
 			return null;
 		}
 
-		final String cloudNetworkLocation = defaultIfNull(cloudNetwork.getLocationId(), targetCloudNetworkAgent);
-		final ServerArgs extraServerArguments = agentFactory.createDefaultServerAgent(targetCloudNetworkAgent);
+		final String regionalManagerLocation = defaultIfNull(regionalManager.getLocationId(), targetRegionalManagerAgent);
+		final ServerArgs extraServerArguments = agentFactory.createDefaultServerAgent(targetRegionalManagerAgent);
 		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
 		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), extraServerArguments.getName());
-		final Map.Entry<Location, AID> targetLocation = managingAgent.move().findTargetLocation(cloudNetworkLocation);
+		final Map.Entry<Location, AID> targetLocation = managingAgent.move().findTargetLocation(regionalManagerLocation);
 
 		if (isNull(targetLocation)) {
 			return null;

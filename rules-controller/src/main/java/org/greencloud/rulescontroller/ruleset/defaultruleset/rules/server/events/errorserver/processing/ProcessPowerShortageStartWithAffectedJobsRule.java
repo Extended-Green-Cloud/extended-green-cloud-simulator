@@ -69,7 +69,7 @@ public class ProcessPowerShortageStartWithAffectedJobsRule extends AgentBasicRul
 		affectedJobs.forEach(job -> {
 			MDC.put(MDC_JOB_ID, job.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("Requesting job {} transfer in Cloud Network", job.getJobId());
+			logger.info("Requesting job {} transfer in Regional Manager", job.getJobId());
 
 			final RuleSetFacts divisionFacts = agentProps.constructDivisionFacts(job, startTime,
 					facts.get(RULE_SET_IDX));

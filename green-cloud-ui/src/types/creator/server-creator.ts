@@ -2,7 +2,7 @@ import { ResourceMap } from 'types/resources'
 
 export interface ServerCreator {
    name: string
-   cloudNetwork: string
+   regionalManager: string
    maxPower: number
    idlePower: number
    resources: ResourceMap

@@ -29,11 +29,11 @@ public class OfferMessageFactory {
 	 * @param agentProps   properties of Server Agent
 	 * @param servicePrice cost of executing the given job
 	 * @param jobId        unique identifier of the job of interest
-	 * @param cnaMessage   reply message as which the job offer is to be sent
+	 * @param rmaMessage   reply message as which the job offer is to be sent
 	 * @return PROPOSE ACLMessage
 	 */
 	public static ACLMessage prepareServerJobOffer(final ServerAgentProps agentProps, final double servicePrice,
-			final String jobId, final ACLMessage cnaMessage, final Integer ruleSet, final EnergyTypeEnum typeOfEnergy) {
+			final String jobId, final ACLMessage rmaMessage, final Integer ruleSet, final EnergyTypeEnum typeOfEnergy) {
 		final ClientJob job = requireNonNull(JobUtils.getJobById(jobId, agentProps.getServerJobs()));
 		final double powerConsumption = agentProps.getPowerConsumption(job.getStartTime(), job.getEndTime());
 		final ServerResources serverResources = ImmutableServerResources.builder().resources(agentProps.resources())
@@ -47,7 +47,7 @@ public class OfferMessageFactory {
 				.build();
 
 		return MessageBuilder.builder(ruleSet)
-				.copy(cnaMessage.createReply())
+				.copy(rmaMessage.createReply())
 				.withPerformative(PROPOSE)
 				.withObjectContent(jobOffer)
 				.build();

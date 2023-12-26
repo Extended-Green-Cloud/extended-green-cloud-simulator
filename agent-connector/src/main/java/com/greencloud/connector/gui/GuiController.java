@@ -46,7 +46,7 @@ public interface GuiController extends Runnable, Serializable {
 	void reportSystemStartTime(final Instant time);
 
 	/**
-	 * Method triggers the power shortage event in the Cloud Network for specified agent
+	 * Method triggers the power shortage event for specified agent
 	 *
 	 * @param powerShortageEvent data for event triggering
 	 */
@@ -87,12 +87,11 @@ public interface GuiController extends Runnable, Serializable {
 	 */
 	void modifyServerResources(final ServerMaintenanceEvent serverMaintenanceEvent);
 
-
 	/**
 	 * Method used to create new server in the network
 	 *
 	 * @param name               name of the server that is to be created
-	 * @param cloudNetwork       name of the cloud network with which the server is to be connected
+	 * @param regionalManager    name of the regional manager with which the server is to be connected
 	 * @param maxPower           maximal server power
 	 * @param idlePower          idle server power
 	 * @param resources          resources of the server
@@ -100,7 +99,7 @@ public interface GuiController extends Runnable, Serializable {
 	 * @param price              price of the job execution
 	 */
 	void createNewServerEvent(final String name,
-			final String cloudNetwork,
+			final String regionalManager,
 			final double maxPower,
 			final double idlePower,
 			final Map<String, Resource> resources,

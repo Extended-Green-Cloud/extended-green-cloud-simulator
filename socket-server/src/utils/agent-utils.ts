@@ -4,11 +4,11 @@ import {
 	INITIAL_SWITCH_ON_OFF_STATE,
 	INITIAL_WEATHER_DROP_STATE,
 	JOB_STATUSES,
+	AGENT_TYPES
 } from "../constants/constants";
-import { AGENT_TYPES } from "../constants/constants";
 import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
-import { changeCloudNetworkCapacityEvent } from "../module/agents/report-handlers/report-handler";
-import { CloudNetworkAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
+import { changeRegionalManagerCapacityEvent } from "../module/agents/report-handlers/report-handler";
+import { RegionalManagerAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
 import { Resource, ResourceCharacteristic, ResourceMap } from "../types";
 
@@ -66,17 +66,17 @@ const addGreenSourcesToServer = (data) => {
 		.forEach((server: ServerAgent) => server.greenEnergyAgents.push(data.name));
 };
 
-const addServersToCNA = (data) => {
+const addServersToRMA = (data) => {
 	AGENTS_STATE.agents
 		.filter(
 			(el) =>
-				el.type === AGENT_TYPES.CLOUD_NETWORK &&
-				el.name === data.cloudNetworkAgent &&
-				!(el as CloudNetworkAgent).serverAgents.includes(data.name)
+				el.type === AGENT_TYPES.REGIONAL_MANAGER &&
+				el.name === data.regionalManagerAgent &&
+				!(el as RegionalManagerAgent).serverAgents.includes(data.name)
 		)
-		.forEach((cna: CloudNetworkAgent) => {
-			cna.maxCpuInServers += data.cpu;
-			cna.serverAgents.push(data.name);
+		.forEach((rma: RegionalManagerAgent) => {
+			rma.maxCpuInServers += data.cpu;
+			rma.serverAgents.push(data.name);
 		});
 };
 
@@ -122,10 +122,10 @@ const registerScheduler = (data): SchedulerAgent => {
 	};
 };
 
-const registerCloudNetwork = (data): CloudNetworkAgent => {
+const registerRegionalManager = (data): RegionalManagerAgent => {
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: data.name,
-		type: AGENT_TYPES.CLOUD_NETWORK,
+		type: AGENT_TYPES.REGIONAL_MANAGER,
 		reports: {
 			clientsReport: [],
 			trafficReport: [],
@@ -135,7 +135,7 @@ const registerCloudNetwork = (data): CloudNetworkAgent => {
 	});
 
 	return {
-		type: AGENT_TYPES.CLOUD_NETWORK,
+		type: AGENT_TYPES.REGIONAL_MANAGER,
 		events: [structuredClone(INITIAL_WEATHER_DROP_STATE)],
 		isActive: false,
 		adaptation: "inactive",
@@ -171,9 +171,9 @@ const registerServer = (data): ServerAgent => {
 		events: [],
 	});
 
-	addServersToCNA(remainingData);
-	changeCloudNetworkCapacityEvent(
-		remainingData.cloudNetworkAgent,
+	addServersToRMA(remainingData);
+	changeRegionalManagerCapacityEvent(
+		remainingData.regionalManagerAgent,
 		remainingData.name,
 		remainingData.initialMaximumCapacity,
 		true,
@@ -249,11 +249,11 @@ const registerAgent = (data, type) => {
 	switch (type) {
 		case AGENT_TYPES.CLIENT:
 			return registerClient(data);
-		case AGENT_TYPES.CLOUD_NETWORK:
-			return registerCloudNetwork(data);
+		case AGENT_TYPES.REGIONAL_MANAGER:
+			return registerRegionalManager(data);
 		case AGENT_TYPES.GREEN_ENERGY:
 			return registerGreenEnergy(data);
-		`case AGENT_TYPES.MONITORING:
+		case AGENT_TYPES.MONITORING:
 			return registerMonitoring(data);
 		case AGENT_TYPES.SERVER:
 			return registerServer(data);
@@ -268,7 +268,7 @@ export {
 	getAgentNodeById,
 	registerClient,
 	registerScheduler,
-	registerCloudNetwork,
+	registerRegionalManager,
 	registerGreenEnergy,
 	registerServer,
 	registerMonitoring,

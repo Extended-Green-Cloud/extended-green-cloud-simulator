@@ -106,9 +106,9 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	}
 
 	/**
-	 * Function sends the result of adaptation of server resources in CNA
+	 * Function sends the result of adaptation of server resources in RMA
 	 */
-	public void sendResultOfServerMaintenanceInCNA(final boolean result) {
+	public void sendResultOfServerMaintenanceInRMA(final boolean result) {
 		getAgentsWebSocket().send(ImmutableUpdateServerMaintenanceMessage.builder()
 				.agentName(agentName)
 				.result(result)
@@ -145,7 +145,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	 */
 	public void disableServer() {
 		getAgentsWebSocket().send(ImmutableDisableServerMessage.builder()
-				.cna(nodeArgs.getCloudNetworkAgent())
+				.rma(nodeArgs.getRegionalManagerAgent())
 				.server(agentName)
 				.cpu(nodeArgs.getResources().get(ResourceTypesConstants.CPU).getAmount())
 				.build());
@@ -156,8 +156,8 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	 */
 	public void enableServer() {
 		getAgentsWebSocket().send(ImmutableEnableServerMessage.builder()
-				.cna(nodeArgs.getCloudNetworkAgent())
-				.cna(nodeArgs.getCloudNetworkAgent())
+				.rma(nodeArgs.getRegionalManagerAgent())
+				.rma(nodeArgs.getRegionalManagerAgent())
 				.server(agentName)
 				.cpu(nodeArgs.getResources().get(ResourceTypesConstants.CPU).getAmount())
 				.build());

@@ -56,12 +56,12 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public ServerArgs createDefaultServerAgent(String ownerCNA) {
-		return createServerAgent(ownerCNA, null, null, null, null, null);
+	public ServerArgs createDefaultServerAgent(String ownerRMA) {
+		return createServerAgent(ownerRMA, null, null, null, null, null);
 	}
 
 	@Override
-	public ServerArgs createServerAgent(final String ownerCNA,
+	public ServerArgs createServerAgent(final String ownerRMA,
 			final Map<String, Resource> resources,
 			final Integer maxPower,
 			final Integer idlePower,
@@ -70,7 +70,7 @@ public class AgentFactoryImpl implements AgentFactory {
 		final String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
 		return ImmutableServerArgs.builder()
 				.name(serverAgentName)
-				.ownerRegionalManager(ownerCNA)
+				.ownerRegionalManager(ownerRMA)
 				.maxPower(isNull(maxPower) ? TEMPLATE_SERVER_MAX_POWER : maxPower)
 				.idlePower(isNull(idlePower) ? TEMPLATE_SERVER_IDLE_POWER : idlePower)
 				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
@@ -84,7 +84,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	public ServerArgs createServerAgent(final ServerCreator serverCreator) {
 		return ImmutableServerArgs.builder()
 				.name(serverCreator.getName())
-				.ownerRegionalManager(serverCreator.getCloudNetwork())
+				.ownerRegionalManager(serverCreator.getRegionalManager())
 				.maxPower(serverCreator.getMaxPower().intValue())
 				.idlePower(serverCreator.getIdlePower().intValue())
 				.price(serverCreator.getPrice())

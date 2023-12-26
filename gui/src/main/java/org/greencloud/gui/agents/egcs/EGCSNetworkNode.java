@@ -7,12 +7,12 @@ import java.io.Serializable;
 import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.AgentProps;
 import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
+import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.messages.ImmutableIsActiveMessage;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
 
 /**
- * Class represents abstract generic agent node which is a part of cloud network
+ * Class represents abstract generic agent node which is a part of regional manager
  */
 public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps> extends EGCSNode<T, E>
 		implements Serializable {
@@ -49,7 +49,7 @@ public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps>
 	 * @param isActive information if the network node is active
 	 */
 	public void updateIsActive(final boolean isActive) {
-		if (!(this instanceof CloudNetworkNode)) {
+		if (!(this instanceof RegionalManagerNode)) {
 			getAgentsWebSocket().send(ImmutableIsActiveMessage.builder()
 					.data(isActive)
 					.agentName(agentName)
@@ -76,7 +76,7 @@ public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps>
 	 * @param value number of jobs that are on hold
 	 */
 	public void updateJobsOnHoldCount(final int value) {
-		if (!(this instanceof CloudNetworkNode)) {
+		if (!(this instanceof RegionalManagerNode)) {
 			getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
 					.data(value)
 					.agentName(agentName)

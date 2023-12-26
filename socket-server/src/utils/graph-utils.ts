@@ -1,14 +1,14 @@
 import { AGENT_TYPES, EVENT_TYPE, POWER_SHORTAGE_STATE } from "../constants/constants";
 import { AGENTS_STATE } from "../module";
-import { CloudNetworkAgent } from "../module/agents/types";
+import { RegionalManagerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
 import { PowerShortageEvent, SwitchOnOffEvent } from "../types";
 
-const getCloudNetworkState = (cloudNetwork: CloudNetworkAgent) => {
-	if (cloudNetwork.traffic > 85) return "high";
-	if (cloudNetwork.traffic > 50) return "medium";
+const getRegionalManagerState = (regionalManager: RegionalManagerAgent) => {
+	if (regionalManager.traffic > 85) return "high";
+	if (regionalManager.traffic > 50) return "medium";
 
-	return cloudNetwork.traffic > 0 ? "low" : "inactive";
+	return regionalManager.traffic > 0 ? "low" : "inactive";
 };
 
 const getServerState = (server: ServerAgent) => {
@@ -34,8 +34,8 @@ const getGreenEnergyState = (greenEnergy) => {
 
 const getNodeState = (agent) => {
 	switch (agent.type) {
-		case AGENT_TYPES.CLOUD_NETWORK:
-			return getCloudNetworkState(agent);
+		case AGENT_TYPES.REGIONAL_MANAGER:
+			return getRegionalManagerState(agent);
 		case AGENT_TYPES.GREEN_ENERGY:
 			return getGreenEnergyState(agent);
 		case AGENT_TYPES.SERVER:
@@ -45,7 +45,7 @@ const getNodeState = (agent) => {
 	}
 };
 
-const createCloudNetworkEdges = (agent) => {
+const createRegionalManagerEdges = (agent) => {
 	const scheduler = AGENTS_STATE.agents.find((agent) => agent.type === AGENT_TYPES.SCHEDULER);
 	const schedulerEdge = createEdge(agent.name, scheduler.name);
 
@@ -53,9 +53,9 @@ const createCloudNetworkEdges = (agent) => {
 };
 
 const createServerEdges = (agent) => {
-	const cloudNetworkEdge = createEdge(agent.name, agent.cloudNetworkAgent);
+	const regionalManagerEdge = createEdge(agent.name, agent.regionalManagerAgent);
 
-	return [cloudNetworkEdge];
+	return [regionalManagerEdge];
 };
 
 const createGreenEnergyEdges = (agent) => {
@@ -78,7 +78,7 @@ const createNodeForAgent = (agent) => {
 		adaptation: agent.adaptation,
 	};
 	switch (agent.type) {
-		case AGENT_TYPES.CLOUD_NETWORK:
+		case AGENT_TYPES.REGIONAL_MANAGER:
 		case AGENT_TYPES.GREEN_ENERGY:
 		case AGENT_TYPES.SERVER:
 			return { state: "inactive", ...node };
@@ -93,19 +93,19 @@ const createAgentConnections = (agent) => {
 			return createServerEdges(agent);
 		case AGENT_TYPES.GREEN_ENERGY:
 			return createGreenEnergyEdges(agent);
-		case AGENT_TYPES.CLOUD_NETWORK:
-			return createCloudNetworkEdges(agent);
+		case AGENT_TYPES.REGIONAL_MANAGER:
+			return createRegionalManagerEdges(agent);
 		default:
 			return [];
 	}
 };
 
 export {
-	getCloudNetworkState,
+	getRegionalManagerState,
 	getGreenEnergyState,
 	getServerState,
 	getNodeState,
-	createCloudNetworkEdges,
+	createRegionalManagerEdges,
 	createServerEdges,
 	createGreenEnergyEdges,
 	createEdge,

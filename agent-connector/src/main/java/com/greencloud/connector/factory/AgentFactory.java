@@ -24,15 +24,15 @@ public interface AgentFactory {
 	 * Method creates new server agent args that can be used to initialize new agent with default maximumCapacity,
 	 * price and jobProcessingLimit.
 	 *
-	 * @param ownerCNA - required argument specifying owner CNA
+	 * @param ownerRMA - required argument specifying owner RMA
 	 * @return newly created server agent args
 	 */
-	ServerArgs createDefaultServerAgent(String ownerCNA);
+	ServerArgs createDefaultServerAgent(String ownerRMA);
 
 	/**
 	 * Method creates new server agent args that can be used to initialize new agent
 	 *
-	 * @param ownerCNA           - required argument specifying owner CNA
+	 * @param ownerRMA           - required argument specifying owner RMA
 	 * @param resources          - optional argument specifying server's resources
 	 * @param maxPower           - optional argument specifying maximal power consumption of the server
 	 * @param idlePower          - optional argument specifying idle power consumption of the server
@@ -40,7 +40,7 @@ public interface AgentFactory {
 	 * @param jobProcessingLimit - optional argument specifying maximum number of jobs processed at the same time
 	 * @return newly created server agent args
 	 */
-	ServerArgs createServerAgent(String ownerCNA,
+	ServerArgs createServerAgent(String ownerRMA,
 			Map<String, Resource> resources,
 			Integer maxPower,
 			Integer idlePower,

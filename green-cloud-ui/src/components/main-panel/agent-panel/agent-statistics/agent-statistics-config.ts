@@ -1,7 +1,7 @@
 import {
    Agent,
    AgentType,
-   CloudNetworkAgent,
+   RegionalManagerAgent,
    PowerShortageEventState,
    GreenEnergyAgent,
    MonitoringAgent,
@@ -14,7 +14,7 @@ import { getEventByType } from '@utils'
 import { PowerShortageEvent } from 'types/event/agent-event/power-shortage-event'
 import { collectResourcesToMultiMap, mapInUseValues } from 'utils/resource-utils'
 
-const CLOUD_NETWORK_STATISTICS_STATE = [
+const REGIONAL_MANAGER_STATISTICS_STATE = [
    { key: 'connectedServers', label: 'Number of connected servers' },
    { key: 'totalNumberOfClients', label: 'Number of clients' },
    {
@@ -23,7 +23,7 @@ const CLOUD_NETWORK_STATISTICS_STATE = [
    }
 ]
 
-const CLOUD_NETWORK_STATISTICS_QUALITY = [
+const REGIONAL_MANAGER_STATISTICS_QUALITY = [
    { key: 'traffic', label: 'Current traffic' },
    {
       key: 'successRatio',
@@ -31,9 +31,9 @@ const CLOUD_NETWORK_STATISTICS_QUALITY = [
    }
 ]
 
-const CLOUD_NETWORK_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
+const REGIONAL_MANAGER_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
 
-const CLOUD_NETWORK_STATISTICS_RESOURCES = [{ key: 'resourceMap', label: '-' }]
+const REGIONAL_MANAGER_STATISTICS_RESOURCES = [{ key: 'resourceMap', label: '-' }]
 
 const SERVER_STATISTICS_RESOURCE_CHARACTERISTICS = [{ label: 'In use', mapper: mapInUseValues }]
 
@@ -91,12 +91,12 @@ const GREEN_SOURCE_STATISTICS_QUALITY = [
 
 const MONITORING_STATISTICS = [{ key: 'greenEnergyAgent', label: 'Connected Green Energy Source' }]
 
-const mapCloudNetworkAgentFields = (agent: CloudNetworkAgent) => {
+const mapRegionalManagerAgentFields = (agent: RegionalManagerAgent) => {
    const connectedServers = agent.serverAgents.length
 
    const resourceMap: MultiLevelDetails[] = collectResourcesToMultiMap(
       agent.resources,
-      CLOUD_NETWORK_STATISTICS_RESOURCE_CHARACTERISTICS,
+      REGIONAL_MANAGER_STATISTICS_RESOURCE_CHARACTERISTICS,
       agent.inUseResources
    )
    return { connectedServers, resourceMap, ...agent }
@@ -175,9 +175,9 @@ export const MAP_TYPE = {
 
 export const getStatisticsMapForAgent = (agent: Agent, type?: string) => {
    switch (agent.type) {
-      case AgentType.CLOUD_NETWORK:
-         if (type === MAP_TYPE.RESOURCES) return CLOUD_NETWORK_STATISTICS_RESOURCES
-         return type === MAP_TYPE.QUALITY ? CLOUD_NETWORK_STATISTICS_QUALITY : CLOUD_NETWORK_STATISTICS_STATE
+      case AgentType.REGIONAL_MANAGER:
+         if (type === MAP_TYPE.RESOURCES) return REGIONAL_MANAGER_STATISTICS_RESOURCES
+         return type === MAP_TYPE.QUALITY ? REGIONAL_MANAGER_STATISTICS_QUALITY : REGIONAL_MANAGER_STATISTICS_STATE
       case AgentType.SERVER:
          if (type === MAP_TYPE.QUALITY) return SERVER_STATISTICS_QUALITY
          if (type === MAP_TYPE.VALUATION) return SERVER_STATISTICS_VALUATION
@@ -199,8 +199,8 @@ export const getAgentFields = (agent: Agent) => {
    switch (agent.type) {
       case AgentType.SERVER:
          return mapServerAgentFields(agent as ServerAgent)
-      case AgentType.CLOUD_NETWORK:
-         return mapCloudNetworkAgentFields(agent as CloudNetworkAgent)
+      case AgentType.REGIONAL_MANAGER:
+         return mapRegionalManagerAgentFields(agent as RegionalManagerAgent)
       case AgentType.GREEN_ENERGY:
          return mapGreenEnergyAgentFields(agent as GreenEnergyAgent)
       case AgentType.MONITORING:
@@ -208,14 +208,14 @@ export const getAgentFields = (agent: Agent) => {
    }
 }
 
-export const NETWORK_AGENTS = [AgentType.CLOUD_NETWORK, AgentType.SERVER, AgentType.GREEN_ENERGY]
+export const NETWORK_AGENTS = [AgentType.REGIONAL_MANAGER, AgentType.SERVER, AgentType.GREEN_ENERGY]
 
 export const PERCENTAGE_VALUES = ['traffic', 'backUpTraffic', 'successRatio', 'weatherPredictionError']
 
 type AgentsMaps = { [key in AgentType]?: string[] }
 
 export const MAPS_FOR_AGENT_TYPE: AgentsMaps = {
-   [AgentType.CLOUD_NETWORK]: [MAP_TYPE.STATE, MAP_TYPE.QUALITY, MAP_TYPE.RESOURCES],
+   [AgentType.REGIONAL_MANAGER]: [MAP_TYPE.STATE, MAP_TYPE.QUALITY, MAP_TYPE.RESOURCES],
    [AgentType.SERVER]: [MAP_TYPE.STATE, MAP_TYPE.RESOURCES, MAP_TYPE.VALUATION, MAP_TYPE.POWER, MAP_TYPE.QUALITY],
    [AgentType.GREEN_ENERGY]: [MAP_TYPE.STATE, MAP_TYPE.ENERGY, MAP_TYPE.QUALITY],
    [AgentType.MONITORING]: [MAP_TYPE.STATE]

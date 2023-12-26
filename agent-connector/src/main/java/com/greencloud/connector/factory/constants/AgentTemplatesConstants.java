@@ -16,6 +16,28 @@ import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.domain.resources.ResourceCharacteristic;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 
+/**
+ * Class stores constants used to run default agent controllers.
+ *
+ * <p> TEMPLATE_SERVER_MAX_POWER - default maximal server power </p>
+ * <p> TEMPLATE_SERVER_IDLE_POWER - default idle server power </p>
+ * <p> TEMPLATE_SERVER_PRICE - default server execution price </p>
+ * <p> TEMPLATE_SERVER_JOB_LIMIT - default server job processing limit </p>
+ * <p> TEMPLATE_GREEN_ENERGY_LATITUDE - default green source location latitude </p>
+ * <p> TEMPLATE_GREEN_ENERGY_LONGITUDE - default green source location longitude </p>
+ * <p> TEMPLATE_GREEN_ENERGY_PRICE - default green source execution price </p>
+ * <p> TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY - default green source maximal capacity </p>
+ * <p> TEMPLATE_GREEN_ENERGY_TYPE - default green source energy type </p>
+ * <p> TEMPLATE_ADDITION - default method used for resource addition </p>
+ * <p> TEMPLATE_BOOKER - default method used for resource booking </p>
+ * <p> TEMPLATE_REMOVER - default method used for resource removal </p>
+ * <p> TEMPLATE_COMPARATOR - default method used for resource comparison </p>
+ * <p> TEMPLATE_VALIDATOR - default method used for resource validation </p>
+ * <p> CPU_CHARACTERISTIC - default cpu resource characteristics </p>
+ * <p> MEMORY_CHARACTERISTIC - default memory resource characteristics </p>
+ * <p> STORAGE_CHARACTERISTIC - default storage resource characteristics </p>
+ * <p> TEMPLATE_SERVER_RESOURCES - default server resources </p>
+ */
 public class AgentTemplatesConstants {
 
 	// SERVER TEMPLATE CONSTANTS

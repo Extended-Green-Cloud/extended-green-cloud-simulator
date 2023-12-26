@@ -17,7 +17,7 @@ public interface ServerCreator extends EventData {
 
 	String getName();
 
-	String getCloudNetwork();
+	String getRegionalManager();
 
 	Double getMaxPower();
 

@@ -174,8 +174,8 @@ export const CHART_MODALS: LiveChartDashboard = {
       mainChartId: 0,
       valueFields: []
    },
-   [`agent${AgentType.CLOUD_NETWORK}`]: {
-      name: 'Cloud Network Agent reports',
+   [`agent${AgentType.REGIONAL_MANAGER}`]: {
+      name: 'Regional Manager Agent reports',
       charts: [CHARTS.agentClients, CHARTS.agentSuccessRatio, CHARTS.agentTraffic, CHARTS.agentTrafficDistribution],
       mainChartId: 2,
       valueFields: []

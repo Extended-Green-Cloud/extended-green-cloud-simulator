@@ -1,12 +1,12 @@
 import { ResourceMap } from "../../../types";
 import { CommonAgent } from "./common-agent";
 
-export interface CloudNetworkAgentStatic {
+export interface RegionalManagerAgentStatic {
 	serverAgents: string[];
 	resources: ResourceMap;
 }
 
-export interface CloudNetworkAgentDynamic {
+export interface RegionalManagerAgentDynamic {
 	maxCpuInServers: number;
 	traffic: number;
 	totalNumberOfClients: number;
@@ -15,4 +15,4 @@ export interface CloudNetworkAgentDynamic {
 	inUseResources: ResourceMap;
 }
 
-export type CloudNetworkAgent = CommonAgent & CloudNetworkAgentStatic & CloudNetworkAgentDynamic;
+export type RegionalManagerAgent = CommonAgent & RegionalManagerAgentStatic & RegionalManagerAgentDynamic;

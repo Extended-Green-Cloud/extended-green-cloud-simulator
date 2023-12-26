@@ -3,8 +3,8 @@ import { ServerMaintenanceEvent, SwitchOnOffEvent } from "../../../types";
 import { getAgentByName, getAgentNodeById, getAgentsByName, getNodeState, mapServerResources } from "../../../utils";
 import { GRAPH_STATE } from "../../graph";
 import { AGENTS_STATE } from "../agents-state";
-import { changeCloudNetworkCapacityEvent } from "../report-handlers/report-handler";
-import { CloudNetworkAgent } from "../types";
+import { changeRegionalManagerCapacityEvent } from "../report-handlers/report-handler";
+import { RegionalManagerAgent } from "../types";
 import { ServerAgent } from "../types/server-agent";
 
 const getNewTraffic = (maxCpu, cpuInUse) => (maxCpu === 0 ? 0 : (cpuInUse / maxCpu) * 100);
@@ -23,10 +23,10 @@ const handleSetBackUpTraffic = (msg) => {
 };
 
 const handleUpdateResources = (msg) => {
-	const foundAgent: ServerAgent | CloudNetworkAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
+	const foundAgent: ServerAgent | RegionalManagerAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
 	const resources = msg.resources;
 
-	if (foundAgent && foundAgent.type === AGENT_TYPES.CLOUD_NETWORK) {
+	if (foundAgent && foundAgent.type === AGENT_TYPES.REGIONAL_MANAGER) {
 		foundAgent.inUseResources = mapServerResources(resources);
 
 		const totalCpu = foundAgent.inUseResources["cpu"]?.characteristics?.["amount"]?.value ?? 0;
@@ -54,7 +54,7 @@ const handleUpdateResources = (msg) => {
 };
 
 const handleUpdateDefaultResources = (msg) => {
-	const agent: ServerAgent | CloudNetworkAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
+	const agent: ServerAgent | RegionalManagerAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
 	const resources = msg.resources;
 
 	if (agent) {
@@ -86,7 +86,7 @@ const handleServerDisabling = (msg) => {
 	switchingEvent.disabled = false;
 	switchingEvent.isServerOn = false;
 	node.state = getNodeState(agent);
-	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, false, false);
+	changeRegionalManagerCapacityEvent(msg.rma, msg.server, msg.cpu, false, false);
 };
 const handleServerEnabling = (msg) => {
 	const agent: ServerAgent = getAgentByName(AGENTS_STATE.agents, msg.server);
@@ -98,7 +98,7 @@ const handleServerEnabling = (msg) => {
 	switchingEvent.disabled = false;
 	switchingEvent.isServerOn = true;
 	node.state = getNodeState(agent);
-	changeCloudNetworkCapacityEvent(msg.cna, msg.server, msg.cpu, true, false);
+	changeRegionalManagerCapacityEvent(msg.rma, msg.server, msg.cpu, true, false);
 };
 
 export {

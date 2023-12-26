@@ -1,7 +1,7 @@
 import { AGENTS_REPORTS_STATE } from "../agents-state";
-import { CloudNetworkAgent } from "../types";
+import { RegionalManagerAgent } from "../types";
 
-const reportCloudNetworkData = (agent: CloudNetworkAgent, time) => {
+const reportRegionalManagerData = (agent: RegionalManagerAgent, time) => {
 	const reports = AGENTS_REPORTS_STATE.agentsReports.filter((agentReport) => agentReport.name === agent.name)[0]
 		.reports;
 
@@ -10,4 +10,4 @@ const reportCloudNetworkData = (agent: CloudNetworkAgent, time) => {
 	reports["successRatioReport"].push({ time, value: agent.successRatio ?? 0 });
 };
 
-export { reportCloudNetworkData };
+export { reportRegionalManagerData };

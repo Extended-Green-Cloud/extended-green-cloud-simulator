@@ -26,7 +26,7 @@ const INITIAL_STATE: CloudNetworkStore = {
 }
 
 /**
- * Slice storing current state of cloud network summary data
+ * Slice storing current state of regional manager summary data
  */
 export const cloudNetworkSlice = createSlice({
    name: 'cloudNetwork',

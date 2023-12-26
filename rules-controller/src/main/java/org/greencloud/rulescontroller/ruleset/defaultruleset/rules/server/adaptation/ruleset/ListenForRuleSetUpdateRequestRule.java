@@ -24,6 +24,6 @@ public class ListenForRuleSetUpdateRequestRule extends AgentMessageListenerRule<
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(LISTEN_FOR_RULE_SET_UPDATE_RULE,
 				"listen for rule set update messages",
-				"listening for messages from CNA asking Server to update its rule set");
+				"listening for messages from RMA asking Server to update its rule set");
 	}
 }

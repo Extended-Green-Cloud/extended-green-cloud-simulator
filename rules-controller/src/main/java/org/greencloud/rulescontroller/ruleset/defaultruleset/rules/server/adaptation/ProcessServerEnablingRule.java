@@ -49,7 +49,7 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 
 	@Override
 	protected void handleInform(final ACLMessage inform, final RuleSetFacts facts) {
-		logger.info("Server was successfully enabled in Cloud Network {}.", inform.getSender().getName());
+		logger.info("Server was successfully enabled in Regional Manager {}.", inform.getSender().getName());
 		if (nonNull(facts.get(MESSAGE))) {
 			agent.send(prepareInformReply(facts.get(MESSAGE)));
 		}
@@ -66,7 +66,7 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 
 	@Override
 	protected void handleRefuse(final ACLMessage refuse, final RuleSetFacts facts) {
-		logger.info("Enabling server failed - Server {} does not exists in a given Cloud Network.",
+		logger.info("Enabling server failed - Server {} does not exists in a given Regional Manager.",
 				refuse.getSender().getName());
 		agentProps.disable();
 		agentProps.saveMonitoringData();

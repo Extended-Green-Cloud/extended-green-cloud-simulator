@@ -24,8 +24,8 @@ public class CompareProposalsOfJobExecution extends AgentBasicRule<SchedulerAgen
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(COMPARE_EXECUTION_PROPOSALS,
-				"rule compares proposals of job execution made by Cloud Network Agent",
-				"rule executed when CNAs send job execution proposals");
+				"rule compares proposals of job execution made by Regional Manager Agent",
+				"rule executed when RMAs send job execution proposals");
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class CompareProposalsOfJobExecution extends AgentBasicRule<SchedulerAgen
 		final JobWithPrice bestProposal = facts.get("BEST_PROPOSAL_CONTENT");
 		final JobWithPrice newProposal = facts.get("NEW_PROPOSAL_CONTENT");
 
-		logger.info("Comparing CNA offers using default comparator for job $jobId.");
+		logger.info("Comparing RMA offers using default comparator for job $jobId.");
 		facts.put(RESULT, (int) (bestProposal.getPriceForJob() - newProposal.getPriceForJob()));
 	}
 }

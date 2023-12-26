@@ -32,12 +32,12 @@ import org.immutables.value.Generated;
 @CheckReturnValue
 public final class ImmutableEnableServerMessage implements EnableServerMessage {
   private final String server;
-  private final String cna;
+  private final String rma;
   private final double cpu;
 
-  private ImmutableEnableServerMessage(String server, String cna, double cpu) {
+  private ImmutableEnableServerMessage(String server, String rma, double cpu) {
     this.server = server;
-    this.cna = cna;
+    this.rma = rma;
     this.cpu = cpu;
   }
 
@@ -51,12 +51,12 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
   }
 
   /**
-   * @return The value of the {@code cna} attribute
+   * @return The value of the {@code rma} attribute
    */
-  @JsonProperty("cna")
+  @JsonProperty("rma")
   @Override
-  public String getCna() {
-    return cna;
+  public String getRma() {
+    return rma;
   }
 
   /**
@@ -77,18 +77,18 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
   public final ImmutableEnableServerMessage withServer(String value) {
     String newValue = Objects.requireNonNull(value, "server");
     if (this.server.equals(newValue)) return this;
-    return new ImmutableEnableServerMessage(newValue, this.cna, this.cpu);
+    return new ImmutableEnableServerMessage(newValue, this.rma, this.cpu);
   }
 
   /**
-   * Copy the current immutable object by setting a value for the {@link EnableServerMessage#getCna() cna} attribute.
+   * Copy the current immutable object by setting a value for the {@link EnableServerMessage#getRma() rma} attribute.
    * An equals check used to prevent copying of the same value by returning {@code this}.
-   * @param value A new value for cna
+   * @param value A new value for rma
    * @return A modified copy of the {@code this} object
    */
-  public final ImmutableEnableServerMessage withCna(String value) {
-    String newValue = Objects.requireNonNull(value, "cna");
-    if (this.cna.equals(newValue)) return this;
+  public final ImmutableEnableServerMessage withRma(String value) {
+    String newValue = Objects.requireNonNull(value, "rma");
+    if (this.rma.equals(newValue)) return this;
     return new ImmutableEnableServerMessage(this.server, newValue, this.cpu);
   }
 
@@ -100,7 +100,7 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
    */
   public final ImmutableEnableServerMessage withCpu(double value) {
     if (Double.doubleToLongBits(this.cpu) == Double.doubleToLongBits(value)) return this;
-    return new ImmutableEnableServerMessage(this.server, this.cna, value);
+    return new ImmutableEnableServerMessage(this.server, this.rma, value);
   }
 
   /**
@@ -116,19 +116,19 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
 
   private boolean equalTo(int synthetic, ImmutableEnableServerMessage another) {
     return server.equals(another.server)
-        && cna.equals(another.cna)
+        && rma.equals(another.rma)
         && Double.doubleToLongBits(cpu) == Double.doubleToLongBits(another.cpu);
   }
 
   /**
-   * Computes a hash code from attributes: {@code server}, {@code cna}, {@code cpu}.
+   * Computes a hash code from attributes: {@code server}, {@code rma}, {@code cpu}.
    * @return hashCode value
    */
   @Override
   public int hashCode() {
     @Var int h = 5381;
     h += (h << 5) + server.hashCode();
-    h += (h << 5) + cna.hashCode();
+    h += (h << 5) + rma.hashCode();
     h += (h << 5) + Doubles.hashCode(cpu);
     return h;
   }
@@ -142,7 +142,7 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
     return MoreObjects.toStringHelper("EnableServerMessage")
         .omitNullValues()
         .add("server", server)
-        .add("cna", cna)
+        .add("rma", rma)
         .add("cpu", cpu)
         .toString();
   }
@@ -158,16 +158,16 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE)
   static final class Json implements EnableServerMessage {
     @Nullable String server;
-    @Nullable String cna;
+    @Nullable String rma;
     double cpu;
     boolean cpuIsSet;
     @JsonProperty("server")
     public void setServer(String server) {
       this.server = server;
     }
-    @JsonProperty("cna")
-    public void setCna(String cna) {
-      this.cna = cna;
+    @JsonProperty("rma")
+    public void setRma(String rma) {
+      this.rma = rma;
     }
     @JsonProperty("cpu")
     public void setCpu(double cpu) {
@@ -177,7 +177,7 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
     @Override
     public String getServer() { throw new UnsupportedOperationException(); }
     @Override
-    public String getCna() { throw new UnsupportedOperationException(); }
+    public String getRma() { throw new UnsupportedOperationException(); }
     @Override
     public double getCpu() { throw new UnsupportedOperationException(); }
   }
@@ -194,8 +194,8 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
     if (json.server != null) {
       builder.server(json.server);
     }
-    if (json.cna != null) {
-      builder.cna(json.cna);
+    if (json.rma != null) {
+      builder.rma(json.rma);
     }
     if (json.cpuIsSet) {
       builder.cpu(json.cpu);
@@ -224,7 +224,7 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
    * <pre>
    * ImmutableEnableServerMessage.builder()
    *    .server(String) // required {@link EnableServerMessage#getServer() server}
-   *    .cna(String) // required {@link EnableServerMessage#getCna() cna}
+   *    .rma(String) // required {@link EnableServerMessage#getRma() rma}
    *    .cpu(double) // required {@link EnableServerMessage#getCpu() cpu}
    *    .build();
    * </pre>
@@ -245,12 +245,12 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
   @NotThreadSafe
   public static final class Builder {
     private static final long INIT_BIT_SERVER = 0x1L;
-    private static final long INIT_BIT_CNA = 0x2L;
+    private static final long INIT_BIT_RMA = 0x2L;
     private static final long INIT_BIT_CPU = 0x4L;
     private long initBits = 0x7L;
 
     private @Nullable String server;
-    private @Nullable String cna;
+    private @Nullable String rma;
     private double cpu;
 
     private Builder() {
@@ -267,7 +267,7 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
     public final Builder from(EnableServerMessage instance) {
       Objects.requireNonNull(instance, "instance");
       server(instance.getServer());
-      cna(instance.getCna());
+      rma(instance.getRma());
       cpu(instance.getCpu());
       return this;
     }
@@ -286,15 +286,15 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
     }
 
     /**
-     * Initializes the value for the {@link EnableServerMessage#getCna() cna} attribute.
-     * @param cna The value for cna 
+     * Initializes the value for the {@link EnableServerMessage#getRma() rma} attribute.
+     * @param rma The value for rma 
      * @return {@code this} builder for use in a chained invocation
      */
     @CanIgnoreReturnValue 
-    @JsonProperty("cna")
-    public final Builder cna(String cna) {
-      this.cna = Objects.requireNonNull(cna, "cna");
-      initBits &= ~INIT_BIT_CNA;
+    @JsonProperty("rma")
+    public final Builder rma(String rma) {
+      this.rma = Objects.requireNonNull(rma, "rma");
+      initBits &= ~INIT_BIT_RMA;
       return this;
     }
 
@@ -320,13 +320,13 @@ public final class ImmutableEnableServerMessage implements EnableServerMessage {
       if (initBits != 0) {
         throw new IllegalStateException(formatRequiredAttributesMessage());
       }
-      return new ImmutableEnableServerMessage(server, cna, cpu);
+      return new ImmutableEnableServerMessage(server, rma, cpu);
     }
 
     private String formatRequiredAttributesMessage() {
       List<String> attributes = new ArrayList<>();
       if ((initBits & INIT_BIT_SERVER) != 0) attributes.add("server");
-      if ((initBits & INIT_BIT_CNA) != 0) attributes.add("cna");
+      if ((initBits & INIT_BIT_RMA) != 0) attributes.add("rma");
       if ((initBits & INIT_BIT_CPU) != 0) attributes.add("cpu");
       return "Cannot build EnableServerMessage, some of required attributes are not set " + attributes;
     }

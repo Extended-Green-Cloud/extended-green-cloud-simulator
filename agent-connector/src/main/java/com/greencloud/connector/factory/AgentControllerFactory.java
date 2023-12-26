@@ -32,7 +32,7 @@ public interface AgentControllerFactory {
 	 * @param agentNode GUI agent node
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs, EGCSNode<?,?> agentNode);
+	AgentController createAgentController(AgentArgs agentArgs, EGCSNode<?, ?> agentNode);
 
 	/**
 	 * Method creates the agent controllers
@@ -61,7 +61,9 @@ public interface AgentControllerFactory {
 	 * @param managingAgent AID of managing agent with which the given agent should communicate
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs, ScenarioStructureArgs scenario, boolean isInformer,
+	AgentController createAgentController(AgentArgs agentArgs,
+			ScenarioStructureArgs scenario,
+			boolean isInformer,
 			AID managingAgent);
 
 	/**
@@ -87,6 +89,7 @@ public interface AgentControllerFactory {
 
 	/**
 	 * Method returns database instance
+	 *
 	 * @return TimeScale Database
 	 */
 	TimescaleDatabase getDatabase();

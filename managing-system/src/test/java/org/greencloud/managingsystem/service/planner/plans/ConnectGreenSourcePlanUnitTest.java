@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
-import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -105,8 +105,8 @@ class ConnectGreenSourcePlanUnitTest {
 	@DisplayName("Test verifying if the plan is executable for no available green sources")
 	void testIsPlanExecutableNoGreenSources() {
 		doReturn(Map.of(
-				"test_cna1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
-				"test_cna2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
+				"test_rma1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
+				"test_rma2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
 		)).when(connectGreenSourcePlan).getAvailableServersMap();
 		doReturn(Collections.emptyMap()).when(connectGreenSourcePlan).getAvailableGreenSourcesMap();
 
@@ -117,12 +117,12 @@ class ConnectGreenSourcePlanUnitTest {
 	@DisplayName("Test verifying if the plan is executable for no available connections")
 	void testIsPlanExecutableNoConnections() {
 		doReturn(Map.of(
-				"test_cna1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
-				"test_cna2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
+				"test_rma1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
+				"test_rma2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
 		)).when(connectGreenSourcePlan).getAvailableServersMap();
 		doReturn(Map.of(
-				"test_cna1", Map.of("test_gs1@192.168.56.1:6996/JADE", 0.3),
-				"test_cna2", Map.of("test_gs2@192.168.56.1:6996/JADE", 0.4)
+				"test_rma1", Map.of("test_gs1@192.168.56.1:6996/JADE", 0.3),
+				"test_rma2", Map.of("test_gs2@192.168.56.1:6996/JADE", 0.4)
 		)).when(connectGreenSourcePlan).getAvailableGreenSourcesMap();
 		doReturn(Collections.emptyMap()).when(connectGreenSourcePlan)
 				.getConnectableServersForGreenSources(anyMap(), anyMap());
@@ -134,12 +134,12 @@ class ConnectGreenSourcePlanUnitTest {
 	@DisplayName("Test verifying if the plan is executable for available connections")
 	void testIsPlanExecutableSuccess() {
 		doReturn(Map.of(
-				"test_cna1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
-				"test_cna2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
+				"test_rma1", Map.of("test_server1@192.168.56.1:6996/JADE", 0.7),
+				"test_rma2", Map.of("test_server2@192.168.56.1:6996/JADE", 0.5)
 		)).when(connectGreenSourcePlan).getAvailableServersMap();
 		doReturn(Map.of(
-				"test_cna1", Map.of("test_gs1@192.168.56.1:6996/JADE", 0.3),
-				"test_cna2", Map.of("test_gs2@192.168.56.1:6996/JADE", 0.4)
+				"test_rma1", Map.of("test_gs1@192.168.56.1:6996/JADE", 0.3),
+				"test_rma2", Map.of("test_gs2@192.168.56.1:6996/JADE", 0.4)
 		)).when(connectGreenSourcePlan).getAvailableGreenSourcesMap();
 		doReturn(Map.of(
 				new AbstractMap.SimpleEntry<>("test_gs1@192.168.56.1:6996/JADE", 0.4),
@@ -152,52 +152,52 @@ class ConnectGreenSourcePlanUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting servers for cloud network when no servers are sufficient")
-	void testGetServersForCNAEmptySet() {
+	@DisplayName("Test getting servers for regional manager when no servers are sufficient")
+	void testGetServersForRMAEmptySet() {
 		var testServerList = List.of("test_server1", "test_server2");
 		var aliveAgents = List.of("test_server1@192.168.56.1:6996/JADE", "test_server2@192.168.56.1:6996/JADE");
 
-		doReturn(testServerList).when(mockStructure).getServersForCloudNetworkAgent("test_cna");
+		doReturn(testServerList).when(mockStructure).getServersForRegionalManagerAgent("test_rma");
 		doReturn(Map.of(
 				"test_server1@192.168.56.1:6996/JADE", 0.95,
 				"test_server2@192.168.56.1:6996/JADE", 0.98
 		)).when(mockMonitoring).getAverageTrafficForNetworkComponent(aliveAgents, SERVER_MONITORING);
 
-		assertThat(connectGreenSourcePlan.getServersForCNA("test_cna", aliveAgents)).isEmpty();
+		assertThat(connectGreenSourcePlan.getServersForRMA("test_rma", aliveAgents)).isEmpty();
 	}
 
 	@Test
-	@DisplayName("Test getting servers for cloud network when no servers are alive")
-	void testGetServersForCNANoServersAlive() {
+	@DisplayName("Test getting servers for regional manager when no servers are alive")
+	void testGetServersForRMANoServersAlive() {
 		var testServerList = List.of("test_server1", "test_server2");
 
-		doReturn(testServerList).when(mockStructure).getServersForCloudNetworkAgent("test_cna");
+		doReturn(testServerList).when(mockStructure).getServersForRegionalManagerAgent("test_rma");
 		doReturn(Collections.emptyMap()).when(mockMonitoring)
 				.getAverageTrafficForNetworkComponent(emptyList(), SERVER_MONITORING);
 
-		assertThat(connectGreenSourcePlan.getServersForCNA("test_cna", emptyList())).isEmpty();
+		assertThat(connectGreenSourcePlan.getServersForRMA("test_rma", emptyList())).isEmpty();
 	}
 
 	@Test
-	@DisplayName("Test getting servers for cloud network when there are some servers")
-	void testGetServersForCNAAvailableServers() {
+	@DisplayName("Test getting servers for regional manager when there are some servers")
+	void testGetServersForRMAAvailableServers() {
 		var testServerList = List.of("test_server1", "test_server2");
 		var aliveAgents = List.of("test_server1@192.168.56.1:6996/JADE", "test_server2@192.168.56.1:6996/JADE");
 
-		doReturn(testServerList).when(mockStructure).getServersForCloudNetworkAgent("test_cna");
+		doReturn(testServerList).when(mockStructure).getServersForRegionalManagerAgent("test_rma");
 		doReturn(Map.of(
 				"test_server1@192.168.56.1:6996/JADE", 0.7,
 				"test_server2@192.168.56.1:6996/JADE", 0.98
 		)).when(mockMonitoring).getAverageTrafficForNetworkComponent(aliveAgents, SERVER_MONITORING);
 
-		assertThat(connectGreenSourcePlan.getServersForCNA("test_cna", aliveAgents))
+		assertThat(connectGreenSourcePlan.getServersForRMA("test_rma", aliveAgents))
 				.hasSize(1)
 				.allMatch(data -> data.name().equals("test_server1@192.168.56.1:6996/JADE") && data.value() == 0.7);
 	}
 
 	@Test
-	@DisplayName("Test getting green sources for cloud network when green sources have not enough power")
-	void testGetGreenSourcesForCNANotEnoughPower() {
+	@DisplayName("Test getting green sources for regional manager when green sources have not enough power")
+	void testGetGreenSourcesForRMANotEnoughPower() {
 		var testGreenSourceList = List.of("test_gs1", "test_gs2", "test_gs3");
 		var aliveAgents = List.of(
 				"test_gs1@192.168.56.1:6996/JADE",
@@ -205,19 +205,19 @@ class ConnectGreenSourcePlanUnitTest {
 				"test_gs3@192.168.56.1:6996/JADE"
 		);
 
-		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForCloudNetwork("test_cna");
+		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForRegionalManager("test_rma");
 		doReturn(Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", 0.6,
 				"test_gs2@192.168.56.1:6996/JADE", 0.5,
 				"test_gs3@192.168.56.1:6996/JADE", 0.55
 		)).when(connectGreenSourcePlan).getAveragePowerForSources(aliveAgents);
 
-		assertThat(connectGreenSourcePlan.getGreenSourcesForCNA("test_cna", aliveAgents)).isEmpty();
+		assertThat(connectGreenSourcePlan.getGreenSourcesForRMA("test_rma", aliveAgents)).isEmpty();
 	}
 
 	@Test
-	@DisplayName("Test getting green sources for cloud network when green sources have invalid traffic")
-	void testGetGreenSourcesForCNAInvalidTraffic() {
+	@DisplayName("Test getting green sources for regional manager when green sources have invalid traffic")
+	void testGetGreenSourcesForRMAInvalidTraffic() {
 		var testGreenSourceList = List.of("test_gs1", "test_gs2", "test_gs3");
 		var aliveAgents = List.of(
 				"test_gs1@192.168.56.1:6996/JADE",
@@ -225,7 +225,7 @@ class ConnectGreenSourcePlanUnitTest {
 				"test_gs3@192.168.56.1:6996/JADE"
 		);
 
-		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForCloudNetwork("test_cna");
+		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForRegionalManager("test_rma");
 		doReturn(Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", 0.7,
 				"test_gs2@192.168.56.1:6996/JADE", 0.8,
@@ -239,12 +239,12 @@ class ConnectGreenSourcePlanUnitTest {
 						argThat(t -> t.containsAll(List.of("test_gs1@192.168.56.1:6996/JADE",
 								"test_gs2@192.168.56.1:6996/JADE"))), eq(GREEN_SOURCE_MONITORING));
 
-		assertThat(connectGreenSourcePlan.getGreenSourcesForCNA("test_cna", aliveAgents)).isEmpty();
+		assertThat(connectGreenSourcePlan.getGreenSourcesForRMA("test_rma", aliveAgents)).isEmpty();
 	}
 
 	@Test
-	@DisplayName("Test getting green sources for cloud network when green sources are available")
-	void testGetGreenSourcesForCNA() {
+	@DisplayName("Test getting green sources for regional manager when green sources are available")
+	void testGetGreenSourcesForRMA() {
 		var testGreenSourceList = List.of("test_gs1", "test_gs2", "test_gs3");
 		var aliveAgents = List.of(
 				"test_gs1@192.168.56.1:6996/JADE",
@@ -252,7 +252,7 @@ class ConnectGreenSourcePlanUnitTest {
 				"test_gs3@192.168.56.1:6996/JADE"
 		);
 
-		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForCloudNetwork("test_cna");
+		doReturn(testGreenSourceList).when(mockStructure).getGreenSourcesForRegionalManager("test_rma");
 		doReturn(Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", 0.7,
 				"test_gs2@192.168.56.1:6996/JADE", 0.8,
@@ -266,7 +266,7 @@ class ConnectGreenSourcePlanUnitTest {
 						argThat(t -> t.containsAll(List.of("test_gs1@192.168.56.1:6996/JADE",
 								"test_gs2@192.168.56.1:6996/JADE"))), eq(GREEN_SOURCE_MONITORING));
 
-		assertThat(connectGreenSourcePlan.getGreenSourcesForCNA("test_cna", aliveAgents))
+		assertThat(connectGreenSourcePlan.getGreenSourcesForRMA("test_rma", aliveAgents))
 				.hasSize(1)
 				.matches(data -> data.stream()
 						.allMatch(greenSource -> greenSource.name().equals("test_gs1@192.168.56.1:6996/JADE")
@@ -274,7 +274,7 @@ class ConnectGreenSourcePlanUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting available servers map for cloud networks")
+	@DisplayName("Test getting available servers map for regional managers")
 	void testGetAvailableServersMap() {
 		var aliveAgents = List.of(
 				"test_server1@192.168.56.1:6996/JADE",
@@ -283,15 +283,15 @@ class ConnectGreenSourcePlanUnitTest {
 		);
 
 		doReturn(List.of(
-				ImmutableCloudNetworkArgs.builder().name("test_cna1").build(),
-				ImmutableCloudNetworkArgs.builder().name("test_cna2").build())
-		).when(mockStructure).getCloudNetworkAgentsArgs();
+				ImmutableRegionalManagerArgs.builder().name("test_rma1").build(),
+				ImmutableRegionalManagerArgs.builder().name("test_rma2").build())
+		).when(mockStructure).getRegionalManagerAgentsArgs();
 		doReturn(aliveAgents).when(mockMonitoring).getAliveAgents(SERVER);
 
 		doReturn(List.of("test_server1", "test_server2"))
-				.when(mockStructure).getServersForCloudNetworkAgent("test_cna1");
+				.when(mockStructure).getServersForRegionalManagerAgent("test_rma1");
 		doReturn(List.of("test_server3"))
-				.when(mockStructure).getServersForCloudNetworkAgent("test_cna2");
+				.when(mockStructure).getServersForRegionalManagerAgent("test_rma2");
 
 		doReturn(Map.of(
 				"test_server1@192.168.56.1:6996/JADE", 0.7,
@@ -307,8 +307,8 @@ class ConnectGreenSourcePlanUnitTest {
 				"test_server3@192.168.56.1:6996/JADE")).when(mockMonitoring).getActiveServers();
 
 		var expectedMap = Map.of(
-				"test_cna1", List.of(new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.7)),
-				"test_cna2", List.of(new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.6))
+				"test_rma1", List.of(new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.7)),
+				"test_rma2", List.of(new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.6))
 		);
 
 		assertThat(connectGreenSourcePlan.getAvailableServersMap())
@@ -318,7 +318,7 @@ class ConnectGreenSourcePlanUnitTest {
 	}
 
 	@Test
-	@DisplayName("Test getting available green sources map for cloud networks")
+	@DisplayName("Test getting available green sources map for regional managers")
 	void testGetAvailableGreenSourcesMap() {
 		var aliveAgents = List.of(
 				"test_gs1@192.168.56.1:6996/JADE",
@@ -328,14 +328,14 @@ class ConnectGreenSourcePlanUnitTest {
 		);
 
 		doReturn(List.of(
-				ImmutableCloudNetworkArgs.builder().name("test_cna1").build(),
-				ImmutableCloudNetworkArgs.builder().name("test_cna2").build())
-		).when(mockStructure).getCloudNetworkAgentsArgs();
+				ImmutableRegionalManagerArgs.builder().name("test_rma1").build(),
+				ImmutableRegionalManagerArgs.builder().name("test_rma2").build())
+		).when(mockStructure).getRegionalManagerAgentsArgs();
 		doReturn(aliveAgents).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
 
 		doReturn(List.of("test_gs1", "test_gs2", "test_gs3")).when(mockStructure)
-				.getGreenSourcesForCloudNetwork("test_cna1");
-		doReturn(List.of("test_gs4")).when(mockStructure).getGreenSourcesForCloudNetwork("test_cna2");
+				.getGreenSourcesForRegionalManager("test_rma1");
+		doReturn(List.of("test_gs4")).when(mockStructure).getGreenSourcesForRegionalManager("test_rma2");
 
 		doReturn(Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", 0.9,
@@ -359,8 +359,8 @@ class ConnectGreenSourcePlanUnitTest {
 				GREEN_SOURCE_MONITORING);
 
 		var expectedMap = Map.of(
-				"test_cna1", Set.of(new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.4)),
-				"test_cna2", Set.of(new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.3))
+				"test_rma1", Set.of(new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.4)),
+				"test_rma2", Set.of(new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.3))
 		);
 
 		assertThat(connectGreenSourcePlan.getAvailableGreenSourcesMap())
@@ -374,20 +374,20 @@ class ConnectGreenSourcePlanUnitTest {
 	void testGetConnectableServersForGreenSources() {
 		prepareNetworkStructure();
 
-		var serversForCloudNetworks = Map.of(
-				"test_cna1", List.of(
+		var serversForRegionalManagers = Map.of(
+				"test_rma1", List.of(
 						new AgentsTraffic("test_server1@192.168.56.1:6996/JADE", 0.4),
 						new AgentsTraffic("test_server2@192.168.56.1:6996/JADE", 0.6)),
-				"test_cna2", List.of(
+				"test_rma2", List.of(
 						new AgentsTraffic("test_server3@192.168.56.1:6996/JADE", 0.5),
 						new AgentsTraffic("test_server4@192.168.56.1:6996/JADE", 0.65))
 		);
-		var greenSourcesForCloudNetworks = Map.of(
-				"test_cna1", Set.of(
+		var greenSourcesForRegionalManagers = Map.of(
+				"test_rma1", Set.of(
 						new AgentsGreenPower("test_gs1@192.168.56.1:6996/JADE", 0.4),
 						new AgentsGreenPower("test_gs2@192.168.56.1:6996/JADE", 0.5),
 						new AgentsGreenPower("test_gs3@192.168.56.1:6996/JADE", 0.65)),
-				"test_cna2", Set.of(
+				"test_rma2", Set.of(
 						new AgentsGreenPower("test_gs4@192.168.56.1:6996/JADE", 0.45),
 						new AgentsGreenPower("test_gs5@192.168.56.1:6996/JADE", 0.51),
 						new AgentsGreenPower("test_gs6@192.168.56.1:6996/JADE", 0.62))
@@ -409,8 +409,8 @@ class ConnectGreenSourcePlanUnitTest {
 		);
 
 		var result =
-				connectGreenSourcePlan.getConnectableServersForGreenSources(serversForCloudNetworks,
-						greenSourcesForCloudNetworks);
+				connectGreenSourcePlan.getConnectableServersForGreenSources(serversForRegionalManagers,
+						greenSourcesForRegionalManagers);
 
 		assertThat(result)
 				.hasSize(6)

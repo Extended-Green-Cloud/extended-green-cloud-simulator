@@ -63,7 +63,7 @@ class AddServerPlanUnitTest {
 		ServerArgs serverAgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerRegionalManager("CNA1")
+				.ownerRegionalManager("RMA1")
 				.price(5.0)
 				.maxPower(100)
 				.idlePower(50)
@@ -99,7 +99,7 @@ class AddServerPlanUnitTest {
 		var trafficValue = 0.9;
 		var aid = new AID("test", AID.ISGUID);
 		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
-		when(mobilityService.getContainerLocations("CNA1")).thenReturn(null);
+		when(mobilityService.getContainerLocations("RMA1")).thenReturn(null);
 		when(mobilityService.getContainerLocations("Main-Container")).thenReturn(
 				new AbstractMap.SimpleEntry<>(mock(Location.class), aid));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(of(SERVER_MONITORING),

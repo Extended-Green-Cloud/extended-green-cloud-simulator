@@ -3,7 +3,7 @@ package com.database.knowledge.domain.agent;
 import com.database.knowledge.domain.agent.client.ClientJobExecutionData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ClientStatisticsData;
-import com.database.knowledge.domain.agent.cloudnetwork.CloudNetworkMonitoringData;
+import com.database.knowledge.domain.agent.regionalmanager.RegionalManagerMonitoringData;
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
@@ -17,7 +17,7 @@ public enum DataType {
 	CLIENT_MONITORING(ClientMonitoringData.class),
 	CLIENT_STATISTICS(ClientStatisticsData.class),
 	CLIENT_JOB_EXECUTION(ClientJobExecutionData.class),
-	CLOUD_NETWORK_MONITORING(CloudNetworkMonitoringData.class),
+	REGIONAL_MANAGER_MONITORING(RegionalManagerMonitoringData.class),
 	SERVER_MONITORING(ServerMonitoringData.class),
 	GREEN_SOURCE_MONITORING(GreenSourceMonitoringData.class),
 	AVAILABLE_GREEN_ENERGY(AvailableGreenEnergy.class),
