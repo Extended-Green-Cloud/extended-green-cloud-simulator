@@ -1,15 +1,20 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
-from typing import List
+from typing import List, Any
+from IPython.display import display
+
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
+
 from src.helpers.path_reader import PathReader
 from src.helpers.workflow_filter import filter_by_numerical_features, filter_workflows_by_label
 from src.helpers.feature_encoder import WORKFLOW_FEATURES
 from src.helpers.workflow_converter import convert_synthetic_workflows_to_dict
+from src.clustering.clustering_pre_processing import ClusteringPreProcessing
+from src.helpers.statistics_operations import compute_range, compute_percentage_error
+from src.exploratory.exploratory_analysis import ExploratoryAnalysis
 
 
 def generate_synthetic_sample(data: np.ndarray,
@@ -47,6 +52,55 @@ def generate_synthetic_sample(data: np.ndarray,
     # draw final sample
     sample, _ = gmm.sample(sample_size)
     return pca.inverse_transform(sample)
+
+def compare_with_real_sample(features_to_compare: List[str],
+                             pre_processing_operations: List[Any],
+                             pre_processing_operations_synthetic: List[Any],
+                             original_workflows: pd.DataFrame) -> None:
+    '''
+    Method prints the results of comparison of synthetically generated sample to the real workflow sample.
+
+    Parameters:
+    features_to_compare - list of features that are used in comparison
+    pre_processing_operations - list of pre-processing operations that are to be applied to real data sample
+    pre_processing_operations_synthetic - list of pre-processing operations that are to be applied to synthetic data sample
+    original_workflows - data frame of original workflows
+    '''
+    synthetic_workflows = pd.read_json(PathReader.SYNTHETIC_PATH(False))
+
+    for operation in pre_processing_operations:
+        original_workflows = operation(original_workflows)
+
+    for operation in pre_processing_operations_synthetic:
+        synthetic_workflows = operation(synthetic_workflows)
+        
+    synthetic_workflows[WORKFLOW_FEATURES.CPU] = [val[WORKFLOW_FEATURES.CPU] for val in synthetic_workflows['resources']]
+    synthetic_workflows[WORKFLOW_FEATURES.MEMORY] = [val[WORKFLOW_FEATURES.MEMORY] for val in synthetic_workflows['resources']]
+    synthetic_workflows[WORKFLOW_FEATURES.EPHEMERAL_STORAGE] = [val[WORKFLOW_FEATURES.EPHEMERAL_STORAGE] for val in synthetic_workflows['resources']]
+    synthetic_workflows[WORKFLOW_FEATURES.STORAGE] = [val[WORKFLOW_FEATURES.STORAGE] for val in synthetic_workflows['resources']]
+
+    synthetic_statistics = synthetic_workflows.groupby([WORKFLOW_FEATURES.PROCESSOR_TYPE])[features_to_compare].describe()
+    real_statistics = ClusteringPreProcessing.ONLY_SUCCEEDED(original_workflows).groupby([WORKFLOW_FEATURES.PROCESSOR_TYPE])[features_to_compare].describe()
+
+    for feature in features_to_compare:
+        df_comparison = pd.DataFrame()
+        df_comparison['mean_percentage_error'] = compute_percentage_error(synthetic_statistics[feature], real_statistics[feature], 'mean')
+        df_comparison['std_percentage_error'] = compute_percentage_error(synthetic_statistics[feature], real_statistics[feature], 'std')
+        df_comparison['synthetic_range'] = compute_range(synthetic_statistics[feature])
+        df_comparison['real_range'] = compute_range(real_statistics[feature])
+
+        print(f'For feature: {feature}')
+        display(df_comparison)
+
+    exploratory_synthetic = ExploratoryAnalysis(synthetic_workflows, None, features_to_compare, False)
+    exploratory_synthetic.multivariate_analysis_correlation_matrix('synthetic_correlation_matrix.png')
+
+    exploratory_real = ExploratoryAnalysis(original_workflows, None, features_to_compare, False)
+    exploratory_real.multivariate_analysis_correlation_matrix('real_correlation_matrix.png')
+
+    display(synthetic_statistics)
+    display(real_statistics)
+
 
 class AugmentWorkflows():
     '''
@@ -96,3 +150,6 @@ class AugmentWorkflows():
 
         with open(PathReader.SYNTHETIC_PATH(), "w") as file:
             json.dump(final_synthetic_data, file)
+
+
+    

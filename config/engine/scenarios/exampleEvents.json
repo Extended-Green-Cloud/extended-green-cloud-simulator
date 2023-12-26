@@ -1,0 +1,20 @@
+[
+	{
+		"type": "CLIENT_CREATION_EVENT",
+		"occurrenceTime": "1",
+		"name": "Client1",
+		"jobId": "1",
+		"start": "3",
+		"end": "10",
+		"deadline": "150",
+		"power": "100"
+	},
+	{
+		"type": "POWER_SHORTAGE_EVENT",
+		"occurrenceTime": "6",
+		"agentName": "Solar1",
+		"newMaximumCapacity": "0",
+		"isFinished": "false",
+		"cause": "PHYSICAL_CAUSE"
+	}
+]

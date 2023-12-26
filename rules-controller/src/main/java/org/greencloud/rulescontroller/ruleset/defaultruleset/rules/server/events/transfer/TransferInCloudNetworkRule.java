@@ -58,7 +58,7 @@ public class TransferInCloudNetworkRule extends AgentRequestRule<ServerAgentProp
 
 	@Override
 	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
-		final AID cloudNetwork = agentProps.getOwnerCloudNetworkAgent();
+		final AID cloudNetwork = agentProps.getOwnerRegionalManagerAgent();
 		return prepareJobTransferRequest(facts.get(JOB), cloudNetwork, facts.get(RULE_SET_IDX));
 	}
 

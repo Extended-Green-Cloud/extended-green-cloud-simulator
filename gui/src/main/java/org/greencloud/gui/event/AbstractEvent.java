@@ -4,19 +4,13 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.event.domain.EventTypeEnum;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Class represents the abstract event which may occur in the environment
  */
 public abstract class AbstractEvent implements Serializable {
-
-	protected static final ObjectMapper mapper =
-			new ObjectMapper().findAndRegisterModules().registerModule(new JavaTimeModule());
 
 	protected String agentName;
 	protected EventTypeEnum eventTypeEnum;

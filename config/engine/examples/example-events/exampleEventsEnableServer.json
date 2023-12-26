@@ -1,0 +1,12 @@
+[
+	{
+		"type": "DISABLE_SERVER_EVENT",
+		"occurrenceTime": "1",
+		"name": "Server1"
+	},
+	{
+		"type": "ENABLE_SERVER_EVENT",
+		"occurrenceTime": "3",
+		"name": "Server1"
+	}
+]

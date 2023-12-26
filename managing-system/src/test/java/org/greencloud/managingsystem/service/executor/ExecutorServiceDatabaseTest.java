@@ -34,6 +34,7 @@ import org.greencloud.commons.args.agent.AgentType;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.utils.yellowpages.YellowPagesRegister;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.agent.behaviour.executor.VerifyAdaptationActionResult;
@@ -58,7 +59,6 @@ import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.cloudnetwork.ImmutableCloudNetworkMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.greencloud.connector.factory.AgentControllerFactory;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -155,7 +155,7 @@ class ExecutorServiceDatabaseTest {
 		var serverAgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.price(5.0)
 				.build();
 		var greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),

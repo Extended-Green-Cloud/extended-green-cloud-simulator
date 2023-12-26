@@ -1,5 +1,6 @@
 package org.greencloud.gui.event;
 
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
@@ -15,7 +16,7 @@ import org.greencloud.gui.agents.cloudnetwork.CloudNetworkNode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.gui.agents.server.ServerNode;
-import org.greencloud.gui.event.domain.EventTypeEnum;
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.WeatherDropMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class WeatherDropEvent extends AbstractEvent {
 	 * @param duration       duration of weather drop
 	 * @param agentName      name of the agent for which event was triggered
 	 */
-	protected WeatherDropEvent(final Instant occurrenceTime, final long duration, final String agentName) {
+	public WeatherDropEvent(final Instant occurrenceTime, final long duration, final String agentName) {
 		super(EventTypeEnum.WEATHER_DROP_EVENT, occurrenceTime, agentName);
 		this.duration = duration;
 	}
@@ -64,7 +65,7 @@ public class WeatherDropEvent extends AbstractEvent {
 
 	private static WeatherDropMessage readWeatherDropMessage(String message) {
 		try {
-			return mapper.readValue(message, WeatherDropMessage.class);
+			return getMapper().readValue(message, WeatherDropMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

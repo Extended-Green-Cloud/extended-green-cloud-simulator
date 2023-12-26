@@ -84,7 +84,7 @@ public class ClientAgentProps extends EGCSAgentProps {
 				.selectionPreference(jobArgs.getSelectionPreference())
 				.build();
 
-		this.jobType = jobArgs.processType();
+		this.jobType = jobArgs.getProcessorName();
 		this.job = clientJob;
 		this.jobSimulatedStart = simulatedJobStart;
 		this.jobSimulatedEnd = simulatedJobEnd;

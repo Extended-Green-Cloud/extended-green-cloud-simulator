@@ -25,6 +25,7 @@ import runner.configuration.enums.ClientGeneratorTypeEnum;
 public class ScenarioConfiguration extends AbstractConfiguration {
 
 	private static final String SCENARIOS_DIR = "scenarios";
+	private static final String KNOWLEDGE_DIR = "knowledge";
 	private static final String SAMPLE_DIR = "samples";
 	private static final String SCENARIO_PROPERTIES_FILE = "scenario.properties";
 
@@ -79,7 +80,7 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 			final String scenarioPath = useSubDirectory ? retrieveScenarioSubDirectory(props) : SCENARIOS_DIR;
 
 			scenarioFilePath = buildResourceFilePath(scenarioPath, props.getProperty("scenario.structure"));
-			knowledgeFilePath = buildResourceFilePath(scenarioPath, props.getProperty("scenario.knowledge"));
+			knowledgeFilePath = buildResourceFilePath(KNOWLEDGE_DIR, props.getProperty("scenario.knowledge"));
 			eventFilePath = generatorType.equals(FROM_EVENTS)
 					? Optional.of(buildResourceFilePath(scenarioPath, props.getProperty("scenario.events")))
 					: Optional.empty();

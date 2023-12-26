@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class TrafficDistributionServiceTest {
 

@@ -111,6 +111,6 @@ public class ProcessPowerShortageFinishEventRule extends AgentBasicRule<ServerAg
 		agent.send(prepareNetworkFailureInformation(jobInstance, NETWORK_ERROR_FINISH_ALERT_PROTOCOL,
 				facts.get(RULE_SET_IDX),
 				agentProps.getGreenSourceForJobMap().get(job.getJobId()),
-				agentProps.getOwnerCloudNetworkAgent()));
+				agentProps.getOwnerRegionalManagerAgent()));
 	}
 }

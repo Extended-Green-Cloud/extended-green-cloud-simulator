@@ -84,13 +84,12 @@ class TestExploratoryAnalysisClass(TestCase):
         test_col_name = WORKFLOW_FEATURES.PROCESSOR_TYPE
 
         # when
-        actual = exploratory.display_codes_for_column(
+        actual = exploratory.display_column_count(
             exploratory.data_argo, test_col_name)
 
         # then
         expected = pd.DataFrame({
             "Processor name": ["test_processor_name_1", "test_processor_name_2"],
-            "Processor name code": [0, 1],
             "Count": [1, 1]
         })
 
@@ -114,7 +113,7 @@ class TestExploratoryAnalysisClass(TestCase):
         test_col_name = WORKFLOW_FEATURES.PROCESSOR_TYPE
 
         # when
-        exploratory.display_codes_for_column(
+        exploratory.display_column_count(
             exploratory.data_argo, test_col_name)
 
         # then

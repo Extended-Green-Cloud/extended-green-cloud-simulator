@@ -184,7 +184,7 @@ public class AgentCFPRule<T extends AgentProps, E extends AgentNode<T>> extends 
 		public AgentRuleDescription initializeRuleDescription() {
 			return new AgentRuleDescription(AgentCFPRule.this.ruleType, CFP_CREATE_STEP,
 					format("%s - create CFP message", AgentCFPRule.this.name),
-					"when agent initiate CNA lookup, it creates CFP");
+					"when agent initiate RMA lookup, it creates CFP");
 		}
 	}
 

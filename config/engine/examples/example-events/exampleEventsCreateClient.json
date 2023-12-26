@@ -1,0 +1,86 @@
+[
+	{
+		"type": "CLIENT_CREATION_EVENT",
+		"occurrenceTime": "1",
+		"name": "GPU-Client",
+		"jobId": "1",
+		"job": {
+			"duration": 3600,
+			"deadline": 0,
+			"processorName": "gpu-task",
+			"selectionPreference": "bestProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit() - newProposal.getServerResources().getResources().get(\"gpu\").getAmountInCommonUnit();",
+			"resources": {
+				"cpu": {
+					"characteristics": {
+						"amount": {
+							"value": 2,
+							"unit": "core"
+						}
+					}
+				},
+				"memory": {
+					"characteristics": {
+						"amount": {
+							"value": 10,
+							"unit": "GB",
+							"toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+							"fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
+						},
+						"VRAM": {
+							"value": 12,
+							"unit": "GB",
+							"toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+							"fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
+						}
+					}
+				},
+				"gpu": {
+					"characteristics": {
+						"amount": {
+							"value": 3,
+							"unit": "kCUDA cores",
+							"toCommonUnitConverter": "FROM_KI_CUDA_CORES_CONVERTER",
+							"fromCommonUnitConverter": "TO_KI_CUDA_CORES_CONVERTER"
+						}
+					}
+				}
+			},
+			"steps": [
+				{
+					"name": "execution",
+					"duration": 3600,
+					"requiredResources": {
+						"cpu": {
+							"characteristics": {
+								"amount": {
+									"value": 2,
+									"unit": "core"
+								}
+							}
+						},
+						"memory": {
+							"characteristics": {
+								"amount": {
+									"value": 10,
+									"unit": "GB",
+									"toCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+									"fromCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER"
+								}
+							}
+						},
+						"gpu": {
+							"characteristics": {
+								"amount": {
+									"value": 3,
+									"unit": "kCUDA cores",
+									"toCommonUnitConverter": "FROM_KI_CUDA_CORES_CONVERTER",
+									"fromCommonUnitConverter": "TO_KI_CUDA_CORES_CONVERTER"
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	}
+]

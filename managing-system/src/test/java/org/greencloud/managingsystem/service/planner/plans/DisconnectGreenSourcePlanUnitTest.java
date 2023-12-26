@@ -4,11 +4,11 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.time.Instant.now;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,9 +47,6 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = LENIENT)
@@ -463,18 +463,27 @@ class DisconnectGreenSourcePlanUnitTest {
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
+				.currentBackUpPowerTraffic(0.7)
+				.currentPowerConsumption(0.8)
+				.idlePowerConsumption(20)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.4)
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
+				.currentBackUpPowerTraffic(0.7)
+				.currentPowerConsumption(0.8)
+				.idlePowerConsumption(20)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.currentTraffic(0.8)
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
+				.currentBackUpPowerTraffic(0.7)
+				.currentPowerConsumption(0.8)
+				.idlePowerConsumption(20)
 				.build();
 
 		var mockData = List.of(

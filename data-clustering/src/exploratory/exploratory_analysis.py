@@ -38,8 +38,10 @@ class ExploratoryAnalysis():
         '''
         workflows = convert_fields_to_numeric(workflows, features)
 
-        self.data_argo = workflows.fillna('undefined')
-        self.data_db = workflows_db.fillna('undefined')
+        if isinstance(workflows, pd.DataFrame):
+            self.data_argo = workflows.fillna('undefined')
+        if isinstance(workflows_db, pd.DataFrame):
+            self.data_db = workflows_db.fillna('undefined')
         self.features = features
         self.store_result = store_result
         self.is_test = is_test
@@ -63,14 +65,12 @@ class ExploratoryAnalysis():
         '''
         Method runs segment responsible for categorical features analysis.
         '''
+        if not isinstance(self.data_argo, pd.DataFrame):
+            raise Exception('Argo data has not been specified!')
+        
         data = filter_out_undefined_workflows(self.data_argo)
-
-        for field in CATEGORICAL_FIELDS:
-            self.display_codes_for_column(data, field)
-
         unique_orders = get_column_count(data, DB_ORDER_AGGREGATION, False)
-        self.display_codes_for_column(
-            unique_orders, WORKFLOW_FEATURES.ORDER_STATUS)
+        self.display_column_count(unique_orders, WORKFLOW_FEATURES.ORDER_STATUS)
         
     def analyze_workflow_steps(self) -> None:
         '''
@@ -83,7 +83,7 @@ class ExploratoryAnalysis():
 
     def analyze_workflows_without_db_records(self) -> None:
         '''
-        Method uns segment responsible for analyzing statistics of workflows which have argo files but do not have corresponding database records.
+        Method runs segment responsible for analyzing statistics of workflows which have argo files but do not have corresponding database records.
         '''
         undefined_workflows = self.data_argo[self.data_argo[WORKFLOW_FEATURES.ORDER_NAME] == 'undefined']
         undefined_workflows = get_column_count(
@@ -97,7 +97,7 @@ class ExploratoryAnalysis():
 
     def analyze_workflows_without_argo_files(self) -> None:
         '''
-        Method uns segment responsible for analyzing statistics of workflows which have database records but do not have corresponding argo files
+        Method runs segment responsible for analyzing statistics of workflows which have database records but do not have corresponding argo files
         '''
         data_db = self.data_db
         data_argo = self.data_argo
@@ -198,7 +198,7 @@ class ExploratoryAnalysis():
         pio.write_image(fig, file_path, format='png')
         fig.show()
 
-    def multivariate_analysis_correlation_matrix(self) -> None:
+    def multivariate_analysis_correlation_matrix(self, file_name = None) -> None:
         '''
         Method runs segment responsible for displaying correlation matrix of features.
         '''
@@ -212,7 +212,7 @@ class ExploratoryAnalysis():
                          width=1400,
                          height=1000)
 
-        file_name = 'multivariate-correlation-matrix.png'
+        file_name = 'multivariate-correlation-matrix.png' if file_name == None else file_name
         file_path = PathReader.EXPLORATORY_PATH(file_name, self.is_test)
 
         pio.write_image(fig, file_path, format='png')
@@ -229,22 +229,20 @@ class ExploratoryAnalysis():
         file_path = PathReader.EXPLORATORY_PATH(name, self.is_test)
         data.to_csv(file_path)
 
-    def display_codes_for_column(self, data: pd.DataFrame,  column_name: str) -> None:
+    def display_column_count(self, data: pd.DataFrame,  column_name: str) -> None:
         '''
-        Method displays the codes assigned to given column values.
+        Method displays the aggregation of given column values.
 
         Parameters:
         data - data frame
         column_name - name of the column taken into account
         '''
-        grouped_values = data.groupby(
-            [column_name, f'{column_name}_code']).size().to_frame().reset_index()
+        grouped_values = data.groupby([column_name]).size().to_frame().reset_index()
 
         name = column_name.replace('_', ' ').capitalize()
-        grouped_values.columns = [name, f'{name} code', 'Count']
+        grouped_values.columns = [name, 'Count']
 
-        sorted_result = grouped_values.sort_values(
-            by=['Count'], ascending=False)
+        sorted_result = grouped_values.sort_values(by=['Count'], ascending=False)
 
         if self.store_result:
             file_name = f'{column_name.replace("_", "-")}-count.csv'

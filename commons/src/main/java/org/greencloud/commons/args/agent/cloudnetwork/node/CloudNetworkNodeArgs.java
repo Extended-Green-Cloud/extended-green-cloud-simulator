@@ -18,9 +18,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 public interface CloudNetworkNodeArgs extends AgentArgs {
 
+	/**
+	 * @return names of servers owned by a given CNA
+	 */
 	List<String> getServerAgents();
 
+	/**
+	 * @return resources owned within given system region
+	 */
 	Map<String, Resource> getOwnedResources();
 
+	/**
+	 * @return maximal possible CPU of all servers
+	 */
 	Double getMaxServerCpu();
 }

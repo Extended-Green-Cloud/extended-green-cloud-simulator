@@ -77,6 +77,20 @@ def filter_out_outliers(df: pd.DataFrame) -> pd.DataFrame:
     return df[~((df < (q25 - 1.5 * IQR)) | (df > (q75 + 1.5 * IQR)))]
 
 
+def find_outliers_no(df: pd.DataFrame) -> int:
+    '''
+    Method returns number of outliers in the data.
+
+    Parameters:
+    df - data frame
+    '''
+    q25 = df.quantile(0.25)
+    q75 = df.quantile(0.75)
+    IQR = q75 - q25
+
+    return len(df) - len(df[~((df < (q25 - 1.5 * IQR)) | (df > (q75 + 1.5 * IQR)))])
+
+
 def filter_out_unused_step_features(df: pd.DataFrame) -> pd.DataFrame:
     '''
     Method filters out from the data frame features related to workflow steps that are unnecessary with respect to given clustering.
@@ -162,3 +176,28 @@ def filter_out_undefined_workflows(data: pd.DataFrame) -> pd.DataFrame:
     data - data frame
     '''
     return data[data[DB_FEATURES.ORDER_NAME] != 'undefined']
+
+def compute_range(statistics: pd.DataFrame) -> float:
+    '''
+    Method computes range from data frame statistics.
+
+    Parameters:
+    statistics - data frame statistics
+
+    Returns: range of values
+    '''
+    return statistics['max'] - statistics['min']
+
+def compute_percentage_error(statistics: pd.DataFrame, real_statistics, property_name: str) -> float:
+    '''
+    Method computes percentage error from data frame statistics.
+
+    Parameters:
+    statistics - data frame statistics
+    real_statistics - true data statistics
+    property_name - name of the property for which percentage error is to be computed
+
+    Returns: range of values
+    '''
+    return 0 if statistics[property_name][0] == 0.0 else \
+        abs(100 * (real_statistics[property_name] - statistics[property_name]) / real_statistics[property_name])

@@ -14,7 +14,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableSchedulerNodeArgs.class)
 public interface SchedulerNodeArgs extends AgentArgs {
 
+	/**
+	 * @return importance of the job deadline taken into account in its scheduling
+	 */
 	Double getDeadlinePriority();
+
+	/**
+	 * @return importance of the job cpu requirement taken into account in its scheduling
+	 */
 	Double getCpuPriority();
+
+	/**
+	 * @return maximal size of scheduler job queue
+	 */
 	Integer getMaxQueueSize();
 }

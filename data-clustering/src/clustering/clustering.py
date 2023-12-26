@@ -11,7 +11,7 @@ from src.clustering.clustering_evaluation import ClusteringMetrics, print_cluste
 from src.clustering.clustering_visualization import display_data_frame_with_labels, display_clustering_scatter_plot, display_cluster_statistics, display_histograms_per_clusters, display_histograms_per_feature_for_clusters
 from src.clustering.clustering_pre_processing import ClusteringPreProcessing
 from src.helpers.dimensionality_reducer import DimensionalityReducer
-from src.helpers.feature_encoder import WORKFLOW_FEATURES, ORDER_FEATURES
+from src.helpers.feature_encoder import WORKFLOW_FEATURES, ORDER_FEATURES, get_all_column_names_for_features
 from src.clustering.clustering_parameter_selection import TestingClusteringParameters
 from enum import Enum
 
@@ -79,6 +79,7 @@ class Clustering():
         preprocessing_operations - list of preprocessing methods applied on the data before clustering
         scaler - scaler used in dimensionality reduction (default: STANDARD)
         '''
+        features = get_all_column_names_for_features(features, data)
         self.data = convert_fields_to_numeric(data, features)
         self.name = name
         self.features = features

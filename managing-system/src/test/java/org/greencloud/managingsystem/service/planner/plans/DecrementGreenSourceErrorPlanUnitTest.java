@@ -4,12 +4,12 @@ import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORI
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.AgentType.SERVER;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,7 +20,10 @@ import static org.mockito.Mockito.spy;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
@@ -36,9 +39,6 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 
@@ -67,7 +67,8 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		mockDatabase = mock(TimescaleDatabase.class);
 		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
 
-		decrementGreenSourceErrorPlan = new DecrementGreenSourceErrorPlan(mockManagingAgent, MINIMIZE_USED_BACKUP_POWER);
+		decrementGreenSourceErrorPlan = new DecrementGreenSourceErrorPlan(mockManagingAgent,
+				MINIMIZE_USED_BACKUP_POWER);
 
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
@@ -397,24 +398,36 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.currentTraffic(0.6)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.8)
+				.currentPowerConsumption(0.7)
 				.build();
 		var data2 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.7)
+				.currentPowerConsumption(0.7)
 				.build();
 		var data3 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 		var data4 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.6)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 
 		return List.of(

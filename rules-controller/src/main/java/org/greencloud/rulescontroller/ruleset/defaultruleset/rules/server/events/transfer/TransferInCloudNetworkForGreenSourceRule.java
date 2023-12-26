@@ -71,7 +71,7 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 
 	@Override
 	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
-		final AID cloudNetwork = agentProps.getOwnerCloudNetworkAgent();
+		final AID cloudNetwork = agentProps.getOwnerRegionalManagerAgent();
 		return prepareJobTransferRequest(facts.get(JOB), cloudNetwork, facts.get(RULE_SET_IDX));
 	}
 
@@ -151,7 +151,7 @@ public class TransferInCloudNetworkForGreenSourceRule extends AgentRequestRule<S
 			agentProps.updateJobExecutionCost(job);
 			final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
 			final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
-					agentProps.getOwnerCloudNetworkAgent());
+					agentProps.getOwnerRegionalManagerAgent());
 			agentProps.getTotalPriceForJob().remove(job.getJobId());
 			agent.send(cnaMessage);
 		}

@@ -3,7 +3,7 @@ export interface ResourceCharacteristic {
 	unit: string;
 	toCommonUnitConverter: string;
 	fromCommonUnitConverter: string;
-	resourceBooker: string;
-	resourceRemover: string;
-	resourceAddition: string;
+	resourceCharacteristicReservation: string;
+	resourceCharacteristicSubtraction: string;
+	resourceCharacteristicAddition: string;
 }

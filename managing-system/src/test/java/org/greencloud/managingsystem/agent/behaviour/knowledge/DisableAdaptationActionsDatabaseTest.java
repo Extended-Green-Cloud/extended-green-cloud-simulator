@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class DisableAdaptationActionsDatabaseTest {
 	@Mock

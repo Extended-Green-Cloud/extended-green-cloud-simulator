@@ -26,7 +26,7 @@ public interface ServerArgs extends AgentArgs {
 	/**
 	 * @return owner cloud network agent name
 	 */
-	String getOwnerCloudNetwork();
+	String getOwnerRegionalManager();
 
 	/**
 	 * @return maximum server power consumption (i.e. when CPU load is 100%)
@@ -58,8 +58,8 @@ public interface ServerArgs extends AgentArgs {
 
 	@Value.Check
 	default void check() {
-		if (isNull(getOwnerCloudNetwork())) {
-			throw new InvalidParameterException("Owner CNA should be specified.");
+		if (isNull(getOwnerRegionalManager())) {
+			throw new InvalidParameterException("Owner RMA should be specified.");
 		}
 		if (isNull(getResources())) {
 			throw new InvalidParameterException("Hardware resources must be specified.");

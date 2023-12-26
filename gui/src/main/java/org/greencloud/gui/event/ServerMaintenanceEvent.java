@@ -1,12 +1,14 @@
 package org.greencloud.gui.event;
 
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+
 import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.event.domain.EventTypeEnum;
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.ServerMaintenanceMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +29,7 @@ public class ServerMaintenanceEvent extends AbstractEvent {
 	 * @param occurrenceTime time when the event occurs
 	 * @param agentName      name of the agent for which the event is executed
 	 */
-	protected ServerMaintenanceEvent(final Instant occurrenceTime, final String agentName,
+	public ServerMaintenanceEvent(final Instant occurrenceTime, final String agentName,
 			final Map<String, Resource> newResources) {
 		super(EventTypeEnum.SERVER_MAINTENANCE_EVENT, occurrenceTime, agentName);
 		this.newResources = newResources;
@@ -51,7 +53,7 @@ public class ServerMaintenanceEvent extends AbstractEvent {
 
 	private static ServerMaintenanceMessage readServerMaintenanceMessage(String message) {
 		try {
-			return mapper.readValue(message, ServerMaintenanceMessage.class);
+			return getMapper().readValue(message, ServerMaintenanceMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

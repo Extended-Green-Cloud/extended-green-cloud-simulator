@@ -48,7 +48,7 @@ public interface ClientArgs extends AgentArgs {
 	default String formatClientDeadline() {
 		final Instant deadline = now().plusSeconds(INITIAL_SEC + getJob().getDeadline() + getJob().getDuration());
 		final Instant date = getJob().getDeadline().equals(0L) ?
-				deadline.plus(24, ChronoUnit.HOURS) :
+				deadline.plus(4, ChronoUnit.HOURS) :
 				deadline;
 		final String dateFormat = "dd/MM/yyyy HH:mm";
 		return DateTimeFormatter.ofPattern(dateFormat).withZone(ZoneId.of("UTC")).format(date);

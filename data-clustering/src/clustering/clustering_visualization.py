@@ -152,7 +152,7 @@ def display_histograms_per_feature_for_clusters(data_frame: pd.DataFrame,
         fig = initialize_subplot(len(unique_labels))
 
         for idx, label in enumerate(unique_labels):
-            data_per_label = get_workflows_for_label(data_frame, label)
+            data_per_label = get_workflows_for_label(data_frame, label)[features]
             subplot_name = f'{feature} for cluster {label + 1}'
             add_feature_trace(subplot_name, fig, data_per_label, feature, idx)
 
@@ -182,7 +182,7 @@ def display_histograms_per_clusters(data_frame: pd.DataFrame,
     unique_labels = np.unique(labels)
 
     for label in unique_labels:
-        data_per_label = get_workflows_for_label(data_frame, label)
+        data_per_label = get_workflows_for_label(data_frame, label)[features]
         fig = initialize_subplot(len(features))
 
         for idx, feature in enumerate(data_frame[features].describe().columns):

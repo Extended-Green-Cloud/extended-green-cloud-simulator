@@ -26,6 +26,8 @@
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencyManagement>
@@ -125,8 +127,8 @@
 							<fileSets>
 								<!-- Copying configuration of weather-api module -->
 								<fileSet>
-									<sourceFile>config/weather-api/config.properties</sourceFile>
-									<destinationFile>weather-api/src/main/resources/config.properties</destinationFile>
+									<sourceFile>config/weather-api/api.properties</sourceFile>
+									<destinationFile>weather-api/src/main/resources/api.properties</destinationFile>
 								</fileSet>
 								<!-- Copying configuration of agent-system module -->
 								<fileSet>
@@ -143,6 +145,11 @@
 									<sourceFile>config/socket-server/.env</sourceFile>
 									<destinationFile>socket-server/.env</destinationFile>
 								</fileSet>
+								<!-- Copying configuration of data-clustering module -->
+								<fileSet>
+									<sourceFile>config/data-clustering/.env</sourceFile>
+									<destinationFile>data-clustering/.env</destinationFile>
+								</fileSet>
 							</fileSets>
 						</configuration>
 					</execution>
@@ -154,6 +161,54 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.3.1</version>
 				<executions>
+					<execution>
+						<id>copy-rule-sets</id>
+						<phase>generate-sources</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>rules-controller/src/main/resources/rulesets</outputDirectory>
+							<resources>
+								<resource>
+									<directory>config/rules-controller/rulesets</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-spring-file</id>
+						<phase>generate-sources</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>rules-controller/src/main/resources/META-INF</outputDirectory>
+							<resources>
+								<resource>
+									<directory>config/rules-controller/META-INF</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-engine-spring-file</id>
+						<phase>generate-sources</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>engine/src/main/resources/META-INF</outputDirectory>
+							<resources>
+								<resource>
+									<directory>config/engine/META-INF</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
 					<execution>
 						<id>copy-engine-structure-files</id>
 						<phase>generate-sources</phase>
@@ -182,6 +237,38 @@
 							<resources>
 								<resource>
 									<directory>config/engine/properties</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-engine-samples-files</id>
+						<phase>generate-sources</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>engine/src/main/resources/samples</outputDirectory>
+							<resources>
+								<resource>
+									<directory>config/engine/samples</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-engine-knowledge-files</id>
+						<phase>generate-sources</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>engine/src/main/resources/knowledge</outputDirectory>
+							<resources>
+								<resource>
+									<directory>config/engine/knowledge</directory>
 								</resource>
 							</resources>
 						</configuration>

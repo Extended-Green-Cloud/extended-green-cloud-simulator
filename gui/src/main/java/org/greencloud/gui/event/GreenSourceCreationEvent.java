@@ -1,6 +1,7 @@
 package org.greencloud.gui.event;
 
-import static org.greencloud.gui.event.domain.EventTypeEnum.GREEN_SOURCE_CREATION_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.GREEN_SOURCE_CREATION_EVENT;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class GreenSourceCreationEvent extends AbstractEvent {
 
 	private static CreateGreenSourceMessage readGreenSourceCreationMessage(String message) {
 		try {
-			return mapper.readValue(message, CreateGreenSourceMessage.class);
+			return getMapper().readValue(message, CreateGreenSourceMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

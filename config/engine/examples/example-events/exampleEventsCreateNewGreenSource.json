@@ -1,0 +1,14 @@
+[
+	{
+		"type": "GREEN_SOURCE_CREATION_EVENT",
+		"occurrenceTime": "3",
+		"name": "AdditionalGreenSource",
+		"server": "Server1",
+		"latitude": 50,
+		"longitude": 20,
+		"pricePerPowerUnit": 20,
+		"weatherPredictionError": 0.2,
+		"maximumCapacity": 200,
+		"energyType": "WIND"
+	}
+]

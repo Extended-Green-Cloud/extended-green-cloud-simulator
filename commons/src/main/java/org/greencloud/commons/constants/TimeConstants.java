@@ -6,7 +6,7 @@ package org.greencloud.commons.constants;
  */
 public class TimeConstants {
 
-	public static final int SECONDS_PER_HOUR = 7;
+	public static final int SECONDS_PER_HOUR = 13;
 	public static final int MINUTES_IN_HOUR = 60;
 	public static final int MILLISECOND_MULTIPLIER = 1000;
 	public static final long MILLIS_IN_MIN = 60000L;

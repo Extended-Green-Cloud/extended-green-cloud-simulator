@@ -13,17 +13,17 @@ const getNewResource = (): Resource => ({
    emptyResource: {
       characteristics: {},
       emptyResource: null,
-      sufficiencyValidator: '',
+      resourceValidator: '',
       resourceComparator: ''
    },
-   sufficiencyValidator: '',
+   resourceValidator: '',
    resourceComparator: ''
 })
 
 const getNewResourceWithoutEmptyResource = (): Resource => ({
    characteristics: {},
    emptyResource: null,
-   sufficiencyValidator: '',
+   resourceValidator: '',
    resourceComparator: ''
 })
 

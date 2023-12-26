@@ -1,0 +1,9 @@
+[
+	{
+		"type": "MODIFY_RULE_SET",
+		"occurrenceTime": "5",
+		"agentName": "RMA1",
+		"fullReplace": false,
+		"ruleSetName": "WEATHER_DROP_RULE_SET"
+	}
+]

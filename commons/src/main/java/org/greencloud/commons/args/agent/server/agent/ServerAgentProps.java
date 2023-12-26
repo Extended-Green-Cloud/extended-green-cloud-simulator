@@ -71,7 +71,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<String, Double> serverPriceForJob;
 	protected ConcurrentMap<String, Double> totalPriceForJob;
 	protected JobExecutionDuration<ClientJob> jobsExecutionTime;
-	protected AID ownerCloudNetworkAgent;
+	protected AID ownerRegionalManagerAgent;
 
 	@Accessors(fluent = true)
 	protected Map<String, Resource> resources;
@@ -91,19 +91,19 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * Constructor
 	 *
 	 * @param agentName              name of the agent
-	 * @param ownerCloudNetworkAgent cloud network to which the server is connected
+	 * @param ownerRegionalManagerAgent cloud network to which the server is connected
 	 * @param resources              hardware resources owned by the server
 	 * @param maxPowerConsumption    maximal power consumption that can be reached by the server
 	 * @param idlePowerConsumption   power consumption of a server when no jobs are running
 	 * @param pricePerHour           price of job execution calculated for an hour
 	 * @param jobProcessingLimit     limit of job requests that a server can process in at once
 	 */
-	public ServerAgentProps(final String agentName, final AID ownerCloudNetworkAgent,
+	public ServerAgentProps(final String agentName, final AID ownerRegionalManagerAgent,
 			final Map<String, Resource> resources,
 			final Integer maxPowerConsumption, final Integer idlePowerConsumption, final double pricePerHour,
 			final int jobProcessingLimit) {
 		this(agentName);
-		this.ownerCloudNetworkAgent = ownerCloudNetworkAgent;
+		this.ownerRegionalManagerAgent = ownerRegionalManagerAgent;
 		this.resources = new HashMap<>(resources);
 		this.maxPowerConsumption = maxPowerConsumption;
 		this.idlePowerConsumption = idlePowerConsumption;

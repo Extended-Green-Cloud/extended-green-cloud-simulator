@@ -162,7 +162,7 @@ public class ScenarioWorkloadGenerationService {
 				}).toList();
 
 		return ImmutableSyntheticJobArgs.builder()
-				.processType(jobType)
+				.processorName(jobType)
 				.putResources(CPU, randomCPU)
 				.putResources(MEMORY, randomMemory)
 				.putResources(STORAGE, randomStorage)

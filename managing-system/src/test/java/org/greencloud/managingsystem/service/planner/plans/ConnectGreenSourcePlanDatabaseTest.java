@@ -11,6 +11,7 @@ import static org.mockito.Mockito.spy;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +23,6 @@ import org.mockito.Mock;
 
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class ConnectGreenSourcePlanDatabaseTest {
@@ -53,7 +53,6 @@ class ConnectGreenSourcePlanDatabaseTest {
 	void cleanUp() {
 		database.close();
 	}
-
 
 	@Test
 	@DisplayName("Test getting average power for sources for empty set")

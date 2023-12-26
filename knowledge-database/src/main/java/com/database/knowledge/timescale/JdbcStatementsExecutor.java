@@ -21,6 +21,7 @@ import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_
 import static com.database.knowledge.timescale.DmlQueries.READ_SYSTEM_START_TIME;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.sql.Array;
 import java.sql.Connection;
@@ -43,18 +44,11 @@ import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Statements executor methods are to be used ONLY INTERNALLY by the TimescaleDatabase
  */
 public class JdbcStatementsExecutor {
-
-	private static final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule())
-			.registerModule(new GuavaModule());
 
 	private final Connection sqlConnection;
 
@@ -74,7 +68,7 @@ public class JdbcStatementsExecutor {
 			JsonProcessingException {
 		var jsonObject = new PGobject();
 		jsonObject.setType("json");
-		jsonObject.setValue(objectMapper.writeValueAsString(data));
+		jsonObject.setValue(getMapper().writeValueAsString(data));
 		try (var statement = sqlConnection.prepareStatement(INSERT_MONITORING_DATA)) {
 			statement.setString(1, aid);
 			statement.setString(2, dataType.toString());
@@ -86,7 +80,7 @@ public class JdbcStatementsExecutor {
 	void executeWriteStatement(AdaptationAction adaptationAction) throws JsonProcessingException, SQLException {
 		var jsonObject = new PGobject();
 		jsonObject.setType("json");
-		jsonObject.setValue(objectMapper.writeValueAsString(adaptationAction.getActionResults()));
+		jsonObject.setValue(getMapper().writeValueAsString(adaptationAction.getActionResults()));
 		try (var statement = sqlConnection.prepareStatement(INSERT_ADAPTATION_ACTION)) {
 			statement.setInt(1, adaptationAction.getActionId());
 			statement.setString(2, adaptationAction.getAction().getName());
@@ -128,7 +122,7 @@ public class JdbcStatementsExecutor {
 			throws JsonProcessingException, SQLException {
 		var jsonObject = new PGobject();
 		jsonObject.setType("json");
-		jsonObject.setValue(objectMapper.writeValueAsString(adaptationAction.getActionResults()));
+		jsonObject.setValue(getMapper().writeValueAsString(adaptationAction.getActionResults()));
 		try (var statement = sqlConnection.prepareStatement(UPDATE_ADAPTATION_ACTION)) {
 			statement.setObject(1, jsonObject);
 			statement.setInt(2, adaptationAction.getRuns());
@@ -281,7 +275,7 @@ public class JdbcStatementsExecutor {
 				getAdaptationActionEnumByName(resultSet.getString(2)), // action name
 				AdaptationActionTypeEnum.valueOf(resultSet.getObject(3).toString()), // action type
 				GoalEnum.getByGoalId(resultSet.getInt(4)), // action's goal id
-				objectMapper.readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
+				getMapper().readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
 				}), // action_results
 				resultSet.getBoolean(6), // availability
 				resultSet.getInt(7), // runs
@@ -298,7 +292,7 @@ public class JdbcStatementsExecutor {
 					resultSet.getTimestamp("time").toInstant(),
 					resultSet.getString("aid"),
 					type,
-					objectMapper.readValue(resultSet.getObject("data").toString(), type.getDataTypeClass())
+					getMapper().readValue(resultSet.getObject("data").toString(), type.getDataTypeClass())
 			);
 			result.add(agentData);
 		}

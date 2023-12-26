@@ -77,6 +77,6 @@ public class ProcessUpdateFromGreenSourceTransferFailureRule extends AgentBasicR
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Job {} transfer has failed in green source", jobInstance.getJobId());
 		agent.send(prepareJobTransferUpdateMessageForCNA(jobInstance, FAILED_TRANSFER_PROTOCOL,
-				agentProps.getOwnerCloudNetworkAgent(), facts.get(RULE_SET_IDX)));
+				agentProps.getOwnerRegionalManagerAgent(), facts.get(RULE_SET_IDX)));
 	}
 }

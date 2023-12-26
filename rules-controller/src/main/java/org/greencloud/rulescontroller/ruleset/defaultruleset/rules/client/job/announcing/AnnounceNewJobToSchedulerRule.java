@@ -27,7 +27,7 @@ public class AnnounceNewJobToSchedulerRule extends AgentBasicRule<ClientAgentPro
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(NEW_JOB_ANNOUNCEMENT_RULE,
-				"announcing new job to CNA",
+				"announcing new job to RMA",
 				"when Scheduler Agent was found, Client announce new job");
 	}
 

@@ -1,6 +1,7 @@
 package org.greencloud.commons.utils.messaging;
 
 import static java.lang.Integer.parseInt;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,9 +9,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -19,10 +17,6 @@ import jade.lang.acl.ACLMessage;
  * Class used to build various messages in the system
  */
 public class MessageBuilder {
-
-	private static final ObjectMapper MAPPER = new ObjectMapper()
-			.registerModules(new GuavaModule())
-			.registerModule(new JavaTimeModule());
 
 	private ACLMessage aclMessage;
 
@@ -67,7 +61,7 @@ public class MessageBuilder {
 
 	public MessageBuilder withObjectContent(final Object content) {
 		try {
-			this.aclMessage.setContent(MAPPER.writeValueAsString(content));
+			this.aclMessage.setContent(getMapper().writeValueAsString(content));
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
@@ -76,7 +70,7 @@ public class MessageBuilder {
 
 	public MessageBuilder withObjectContent(final Object content, final Consumer<Exception> errorHandler) {
 		try {
-			this.aclMessage.setContent(MAPPER.writeValueAsString(content));
+			this.aclMessage.setContent(getMapper().writeValueAsString(content));
 		} catch (JsonProcessingException e) {
 			errorHandler.accept(e);
 		}

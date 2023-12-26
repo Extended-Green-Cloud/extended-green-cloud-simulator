@@ -10,7 +10,7 @@ export const EVENT_MAP = {
    WEATHER_DROP_EVENT: {
       label: 'Trigger drop in weather conditions',
       title: 'Weather drop event',
-      description: 'Event that decreases available power of all Green Sources connected to Servers of given CNA'
+      description: 'Event that decreases available power of all Green Sources connected to Servers of given RMA'
    },
    SWITCH_ON_OFF_EVENT: {
       labels: {

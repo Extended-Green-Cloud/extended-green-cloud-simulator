@@ -9,6 +9,10 @@ import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import jade.core.AID;
 import jade.core.Location;
 
+/**
+ * Content of the message sent when the adaptation plan which adds additional green source is
+ * executed
+ */
 public class AddGreenSourceActionParameters implements SystemAdaptationActionParameters {
 
 	/**

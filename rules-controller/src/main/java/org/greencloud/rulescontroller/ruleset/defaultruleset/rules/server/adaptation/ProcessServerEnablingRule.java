@@ -43,7 +43,7 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 				.withPerformative(REQUEST)
 				.withMessageProtocol(ENABLE_SERVER_PROTOCOL)
 				.withStringContent(ENABLE_SERVER_PROTOCOL)
-				.withReceivers(agentProps.getOwnerCloudNetworkAgent())
+				.withReceivers(agentProps.getOwnerRegionalManagerAgent())
 				.build();
 	}
 
@@ -57,7 +57,7 @@ public class ProcessServerEnablingRule extends AgentRequestRule<ServerAgentProps
 		final ACLMessage confirmationMessage = MessageBuilder.builder((int) facts.get(RULE_SET_IDX))
 				.withPerformative(INFORM)
 				.withMessageProtocol(ENABLE_SERVER_PROTOCOL)
-				.withReceivers(agentProps.getOwnerCloudNetworkAgent())
+				.withReceivers(agentProps.getOwnerRegionalManagerAgent())
 				.build();
 
 		agent.send(confirmationMessage);

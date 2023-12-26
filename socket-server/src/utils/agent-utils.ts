@@ -35,9 +35,9 @@ const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
 					value: resourceC.value,
 					toCommonUnitConverter: resourceC.toCommonUnitConverter,
 					fromCommonUnitConverter: resourceC.fromCommonUnitConverter,
-					resourceBooker: resourceC.resourceBooker,
-					resourceRemover: resourceC.resourceRemover,
-					resourceAddition: resourceC.resourceAddition,
+					resourceCharacteristicReservation: resourceC.resourceCharacteristicReservation,
+					resourceCharacteristicSubtraction: resourceC.resourceCharacteristicSubtraction,
+					resourceCharacteristicAddition: resourceC.resourceCharacteristicAddition,
 				} as ResourceCharacteristic,
 				...prevC,
 			}),
@@ -48,7 +48,7 @@ const mapServerResources = (resources: ResourceMapEntries): ResourceMap => {
 			[key]: {
 				characteristics: characteristicsVal,
 				emptyResource: resource.emptyResource,
-				sufficiencyValidator: resource.sufficiencyValidator,
+				resourceValidator: resource.resourceValidator,
 				resourceComparator: resource.resourceComparator,
 			} as Resource,
 		};
@@ -253,7 +253,7 @@ const registerAgent = (data, type) => {
 			return registerCloudNetwork(data);
 		case AGENT_TYPES.GREEN_ENERGY:
 			return registerGreenEnergy(data);
-		case AGENT_TYPES.MONITORING:
+		`case AGENT_TYPES.MONITORING:
 			return registerMonitoring(data);
 		case AGENT_TYPES.SERVER:
 			return registerServer(data);

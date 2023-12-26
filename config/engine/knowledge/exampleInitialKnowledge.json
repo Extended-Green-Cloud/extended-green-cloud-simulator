@@ -1,0 +1,30 @@
+{
+  "RESOURCE_VALIDATOR": {
+    "CPU": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
+    "MEMORY": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
+    "STORAGE": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();"
+  },
+  "RESOURCE_COMPARATOR": {
+    "CPU": "import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());",
+    "MEMORY": "import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());",
+    "STORAGE": "import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());",
+    "GPU": "import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());"
+  },
+  "RESOURCE_CHARACTERISTIC_RESERVATION": {
+    "CPU_AMOUNT": "return ownedAmount - amountToReserve;",
+    "MEMORY_AMOUNT": "return ownedAmount - amountToReserve;",
+    "STORAGE_AMOUNT": "return ownedAmount - amountToReserve;"
+  },
+  "RESOURCE_CHARACTERISTIC_ADDITION": {
+    "CPU_AMOUNT": "return resource1 + resource2;",
+    "MEMORY_AMOUNT": "return resource1 + resource2;",
+    "STORAGE_AMOUNT": "return resource1 + resource2;",
+    "GPU_AMOUNT": "return resource1 + resource2;"
+  },
+  "RESOURCE_CHARACTERISTIC_SUBTRACTION": {
+    "CPU_AMOUNT": "return ownedAmount - amountToRemove;",
+    "MEMORY_AMOUNT": "return ownedAmount - amountToRemove;",
+    "STORAGE_AMOUNT": "return ownedAmount - amountToRemove;",
+    "GPU_AMOUNT": "return ownedAmount - amountToRemove;"
+  }
+}

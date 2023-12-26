@@ -42,7 +42,7 @@ public class ProcessServerDisablingRule extends AgentRequestRule<ServerAgentProp
 				.withPerformative(REQUEST)
 				.withMessageProtocol(DISABLE_SERVER_PROTOCOL)
 				.withStringContent(DISABLE_SERVER_PROTOCOL)
-				.withReceivers(agentProps.getOwnerCloudNetworkAgent())
+				.withReceivers(agentProps.getOwnerRegionalManagerAgent())
 				.build();
 	}
 

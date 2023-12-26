@@ -15,8 +15,8 @@ const getEmptyCharacteristic = (): ResourceCharacteristic => ({
    unit: '',
    toCommonUnitConverter: '',
    fromCommonUnitConverter: '',
-   resourceBooker: '',
-   resourceAddition: ''
+   resourceCharacteristicReservation: '',
+   resourceCharacteristicAddition: ''
 })
 
 /**

@@ -1,6 +1,6 @@
 package org.greencloud.commons.args.event;
 
-import static org.greencloud.commons.enums.event.EventTypeEnum.NEW_CLIENT_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.CLIENT_CREATION_EVENT;
 
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 @JsonSerialize(as = ImmutableNewClientEventArgs.class)
 @JsonDeserialize(as = ImmutableNewClientEventArgs.class)
-@JsonTypeName("NEW_CLIENT_EVENT")
+@JsonTypeName("CLIENT_CREATION_EVENT")
 public interface NewClientEventArgs extends EventArgs {
 
 	/**
@@ -42,7 +42,7 @@ public interface NewClientEventArgs extends EventArgs {
 	default void check() {
 		EventArgs.super.check();
 
-		if (!getType().equals(NEW_CLIENT_EVENT)) {
+		if (!getType().equals(CLIENT_CREATION_EVENT)) {
 			throw new InvalidScenarioEventStructure("Invalid event type. Acceptable event type is: NEW_CLIENT_EVENT");
 		}
 		if (getJobId() < 1) {

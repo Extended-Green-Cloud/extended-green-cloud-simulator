@@ -7,7 +7,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_DISABLING_RULE;
-import static org.greencloud.gui.event.domain.EventTypeEnum.DISABLE_SERVER_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.DISABLE_SERVER_EVENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
@@ -49,7 +49,7 @@ public class DisableServerRule extends AgentBasicRule<ServerAgentProps, ServerNo
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("Disabling Server and informing CNA {}.", agentProps.getOwnerCloudNetworkAgent().getLocalName());
+		logger.info("Disabling Server and informing CNA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
 		agentProps.disable();
 		agentProps.saveMonitoringData();
 

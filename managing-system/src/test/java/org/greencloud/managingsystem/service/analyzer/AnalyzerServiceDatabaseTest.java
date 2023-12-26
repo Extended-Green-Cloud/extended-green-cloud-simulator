@@ -14,12 +14,12 @@ import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doNothing;
@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
@@ -48,7 +49,6 @@ import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 @Disabled
 class AnalyzerServiceDatabaseTest {
@@ -101,7 +101,8 @@ class AnalyzerServiceDatabaseTest {
 		verify(database, times(2)).readAdaptationActions();
 		verify(mockManagingAgent).plan();
 		verify(plannerService).trigger(argThat(
-				adaptationActionDoubleMap -> adaptationActionDoubleMap.values().stream().allMatch(val -> val == 0)), MAXIMIZE_JOB_SUCCESS_RATIO);
+						adaptationActionDoubleMap -> adaptationActionDoubleMap.values().stream().allMatch(val -> val == 0)),
+				MAXIMIZE_JOB_SUCCESS_RATIO);
 	}
 
 	@Test

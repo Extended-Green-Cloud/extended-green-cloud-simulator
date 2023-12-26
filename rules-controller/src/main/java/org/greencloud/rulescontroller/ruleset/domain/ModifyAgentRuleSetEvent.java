@@ -1,7 +1,8 @@
 package org.greencloud.rulescontroller.ruleset.domain;
 
-import static org.greencloud.gui.event.domain.EventTypeEnum.MODIFY_RULE_SET;
+import static org.greencloud.commons.enums.event.EventTypeEnum.MODIFY_RULE_SET;
 
+import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.gui.agents.egcs.EGCSNode;
@@ -20,13 +21,13 @@ public class ModifyAgentRuleSetEvent extends AbstractEvent {
 	 * Default event constructor
 	 */
 	public ModifyAgentRuleSetEvent(final Boolean replaceFully, final RuleSet newRuleSet, final String agentName) {
-		super(MODIFY_RULE_SET, null, agentName);
+		super(MODIFY_RULE_SET, Instant.now(), agentName);
 		this.replaceFully = replaceFully;
 		this.newRuleSet = newRuleSet;
 	}
 
 	@Override
 	public void trigger(final Map<String, EGCSNode> agentNodes) {
-		// no communication with agents here
+		agentNodes.get(agentName).addEvent(this);
 	}
 }

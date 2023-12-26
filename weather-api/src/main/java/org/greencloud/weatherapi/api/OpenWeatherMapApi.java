@@ -1,8 +1,8 @@
 package org.greencloud.weatherapi.api;
 
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.FileNotFoundException;
@@ -10,12 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.greencloud.commons.domain.location.Location;
 import org.greencloud.weatherapi.domain.CurrentWeather;
 import org.greencloud.weatherapi.domain.Forecast;
 import org.slf4j.Logger;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.greencloud.commons.domain.location.Location;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,7 +30,6 @@ public class OpenWeatherMapApi {
 			"https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s&units=metric";
 	private static final String FORECAST_URL =
 			"https://api.openweathermap.org/data/2.5/forecast?lat=%s&lon=%s&appid=%s&units=metric";
-	private static final ObjectMapper MAPPER = getMapper();
 
 	private final String apiKey;
 	private final OkHttpClient client;
@@ -67,7 +64,7 @@ public class OpenWeatherMapApi {
 		final Request request = new Request.Builder().url(url).build();
 
 		try (final Response response = client.newCall(request).execute()) {
-			return MAPPER.readValue(response.body().string(), CurrentWeather.class);
+			return getMapper().readValue(response.body().string(), CurrentWeather.class);
 		} catch (final IOException | NullPointerException e) {
 			logger.error("Network error fetching weather", e);
 		}
@@ -85,7 +82,7 @@ public class OpenWeatherMapApi {
 		final Request request = new Request.Builder().url(url).build();
 
 		try (final Response response = client.newCall(request).execute()) {
-			return MAPPER.readValue(response.body().string(), Forecast.class);
+			return getMapper().readValue(response.body().string(), Forecast.class);
 		} catch (IOException | NullPointerException e) {
 			logger.error("Network error fetching weather", e);
 		}

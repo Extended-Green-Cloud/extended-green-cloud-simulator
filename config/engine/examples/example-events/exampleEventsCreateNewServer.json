@@ -1,0 +1,105 @@
+[
+	{
+		"type": "SERVER_CREATION_EVENT",
+		"occurrenceTime": "3",
+		"name": "AdditionalServer",
+		"regionalManager": "RMA1",
+		"jobProcessingLimit": 50,
+		"price": 10,
+		"maxPower": 200,
+		"idlePower": 50,
+		"resources": {
+			"cpu": {
+				"characteristics": {
+					"amount": {
+						"value": 2000,
+						"unit": "core",
+						"resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+						"resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
+						"resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+					}
+				},
+				"resourceValidator": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
+				"resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+			},
+			"gpu": {
+				"characteristics": {
+					"amount": {
+						"value": 30,
+						"unit": "kCUDA cores",
+						"resourceCharacteristicReservation": "return ownedAmount - amountToReserve;",
+						"resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+						"toCommonUnitConverter": "FROM_KI_CUDA_CORES_CONVERTER",
+						"fromCommonUnitConverter": "TO_KI_CUDA_CORES_CONVERTER"
+					},
+					"type": {
+						"value": "GH200",
+						"resourceCharacteristicSubtraction": "return ownedAmount.replace(\"[\" + amountToRemove + \"]\", \"\").trim();",
+						"resourceCharacteristicAddition": "return resource1.contains(resource2) ? resource2 : \"[\" + resource1 + \"]\" + \" \" + \"[\" + resource2 + \"]\";"
+					}
+				},
+				"resourceValidator": "(requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit()) && (!requirements.getCharacteristics().containsKey(\"type\") || requirements.getCharacteristics().get(\"type\").getValue().contains(\"[GH200]\") || requirements.getCharacteristics().get(\"type\").getValue().trim().equals(\"GH200\"));",
+				"resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+			},
+			"memory": {
+				"characteristics": {
+					"amount": {
+						"value": 2,
+						"unit": "TB",
+						"toCommonUnitConverter": "FROM_TB_TO_BYTE_CONVERTER",
+						"fromCommonUnitConverter": "TO_TB_FROM_BYTE_CONVERTER",
+						"resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
+						"resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+					},
+					"VRAM": {
+						"value": 128,
+						"unit": "GB",
+						"toCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER",
+						"fromCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+						"resourceCharacteristicReservation": "return ownedAmount - amountToReserve;",
+						"resourceCharacteristicAddition": "return resource1 + resource2;",
+						"resourceCharacteristicSubtraction": "return ownedAmount - amountToRemove;"
+					}
+				},
+				"emptyResource": {
+					"characteristics": {
+						"amount": {
+							"value": 0,
+							"unit": "core",
+							"resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+							"resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
+							"resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+						},
+						"VRAM": {
+							"value": 0,
+							"unit": "GB",
+							"toCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER",
+							"fromCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER",
+							"resourceCharacteristicReservation": "return ownedAmount - amountToReserve;",
+							"resourceCharacteristicAddition": "return resource1 + resource2;",
+							"resourceCharacteristicSubtraction": "return ownedAmount - amountToRemove;"
+						}
+					},
+					"resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
+					"resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+				},
+				"resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
+				"resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+			},
+			"storage": {
+				"characteristics": {
+					"amount": {
+						"value": 1,
+						"unit": "PB",
+						"toCommonUnitConverter": "FROM_PB_TO_BYTE_CONVERTER",
+						"fromCommonUnitConverter": "TO_PB_FROM_BYTE_CONVERTER",
+						"resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
+						"resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+					}
+				},
+				"resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
+				"resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+			}
+		}
+	}
+]

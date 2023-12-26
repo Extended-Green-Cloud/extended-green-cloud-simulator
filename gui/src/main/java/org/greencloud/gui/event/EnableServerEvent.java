@@ -1,11 +1,13 @@
 package org.greencloud.gui.event;
 
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+
 import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.event.domain.EventTypeEnum;
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.SwitchServerOnOffGUIMessage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +26,7 @@ public class EnableServerEvent extends AbstractEvent {
 	 * @param occurrenceTime time when the event occurs
 	 * @param agentName      name of the agent for which the event is executed
 	 */
-	protected EnableServerEvent(final Instant occurrenceTime, final String agentName) {
+	public EnableServerEvent(final Instant occurrenceTime, final String agentName) {
 		super(EventTypeEnum.ENABLE_SERVER_EVENT, occurrenceTime, agentName);
 	}
 
@@ -46,7 +48,7 @@ public class EnableServerEvent extends AbstractEvent {
 
 	private static SwitchServerOnOffGUIMessage readDisableServerMessage(String message) {
 		try {
-			return mapper.readValue(message, SwitchServerOnOffGUIMessage.class);
+			return getMapper().readValue(message, SwitchServerOnOffGUIMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

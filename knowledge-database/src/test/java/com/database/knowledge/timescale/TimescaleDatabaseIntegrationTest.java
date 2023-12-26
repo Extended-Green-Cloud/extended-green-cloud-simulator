@@ -496,6 +496,9 @@ class TimescaleDatabaseIntegrationTest {
 				.successRatio(0.5)
 				.currentTraffic(0.1)
 				.isDisabled(false)
+				.idlePowerConsumption(10)
+				.currentPowerConsumption(5)
+				.currentBackUpPowerTraffic(3)
 				.serverJobs(10)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
@@ -503,18 +506,27 @@ class TimescaleDatabaseIntegrationTest {
 				.currentTraffic(0.1)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentPowerConsumption(5)
+				.currentBackUpPowerTraffic(3)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.7)
 				.currentTraffic(0.1)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentPowerConsumption(5)
+				.currentBackUpPowerTraffic(3)
 				.build();
 		final ServerMonitoringData data4 = ImmutableServerMonitoringData.builder()
 				.successRatio(0.8)
 				.currentTraffic(0.1)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentPowerConsumption(5)
+				.currentBackUpPowerTraffic(3)
 				.build();
 		database.writeMonitoringData("test_aid1", SERVER_MONITORING, data1);
 		database.writeMonitoringData("test_aid1", SERVER_MONITORING, data2);
@@ -582,6 +594,10 @@ class TimescaleDatabaseIntegrationTest {
 				.successRatio(0.8)
 				.isDisabled(false)
 				.serverJobs(10)
+				.currentTraffic(0.9)
+				.idlePowerConsumption(10)
+				.currentPowerConsumption(5)
+				.currentBackUpPowerTraffic(0.7)
 				.build();
 		return List.of(
 				new AbstractMap.SimpleEntry<>(CLIENT_MONITORING, data1),

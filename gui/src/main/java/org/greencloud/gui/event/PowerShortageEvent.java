@@ -1,5 +1,7 @@
 package org.greencloud.gui.event;
 
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -7,7 +9,7 @@ import java.util.Objects;
 import org.greencloud.commons.enums.event.PowerShortageCauseEnum;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.event.domain.EventTypeEnum;
+import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.PowerShortageMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,7 @@ public class PowerShortageEvent extends AbstractEvent {
 
 	private static PowerShortageMessage readPowerShortage(String message) {
 		try {
-			return mapper.readValue(message, PowerShortageMessage.class);
+			return getMapper().readValue(message, PowerShortageMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

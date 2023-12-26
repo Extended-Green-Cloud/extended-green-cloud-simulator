@@ -1,0 +1,8 @@
+[
+	{
+		"type": "WEATHER_DROP_EVENT",
+		"occurrenceTime": "5",
+		"agentName": "RMA1",
+		"duration": 10
+	}
+]

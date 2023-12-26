@@ -44,7 +44,7 @@ public interface SyntheticJobArgs {
 	 * @return type of process that is to be executed
 	 */
 	@JsonProperty("processor_name")
-	String processType();
+	String getProcessorName();
 
 	/**
 	 * @return list of partial job steps

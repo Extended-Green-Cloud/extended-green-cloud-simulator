@@ -3,6 +3,7 @@ package org.greencloud.managingsystem.service.planner.plans;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.google.common.collect.ImmutableList.of;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +16,11 @@ import static org.mockito.Mockito.when;
 import java.util.AbstractMap;
 import java.util.List;
 
+import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +37,6 @@ import org.mockito.quality.Strictness;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -62,8 +63,11 @@ class AddServerPlanUnitTest {
 		ServerArgs serverAgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.price(5.0)
+				.maxPower(100)
+				.idlePower(50)
+				.resources(TEMPLATE_SERVER_RESOURCES)
 				.build();
 		greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(), List.of(serverAgentArgs), emptyList(),
 				emptyList());
@@ -118,6 +122,9 @@ class AddServerPlanUnitTest {
 				.currentTraffic(trafficValue)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(20)
+				.currentPowerConsumption(0.8)
+				.currentBackUpPowerTraffic(0.7)
 				.build()));
 	}
 }

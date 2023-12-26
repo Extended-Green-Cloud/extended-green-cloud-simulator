@@ -128,7 +128,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 
 		return serverAgentsArgs.stream()
 				.filter(serverArgs -> cloudNetworkArgs.stream().map(AgentArgs::getName).toList()
-						.contains(serverArgs.getOwnerCloudNetwork()))
+						.contains(serverArgs.getOwnerRegionalManager()))
 				.filter(serverArgs -> Objects.equals(serverArgs.getContainerId(), containerId))
 				.toList();
 	}

@@ -190,7 +190,7 @@ const ResourceConfiguration = ({
                {!skipFunctionDefinition &&
                   getTextConfiguration(
                      'Resource sufficiency evaluator',
-                     'sufficiencyValidator',
+                     'resourceValidator',
                      'Please provide function used to evaluate if resources are sufficient'
                   )}
             </>

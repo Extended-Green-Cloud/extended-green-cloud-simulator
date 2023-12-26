@@ -350,7 +350,7 @@ public class JobMapper {
 		return ImmutableJobArgs.builder()
 				.duration(syntheticJobArgs.getDuration())
 				.deadline(syntheticJobArgs.getDeadline())
-				.processType(syntheticJobArgs.processType())
+				.processorName(syntheticJobArgs.getProcessorName())
 				.putResources(CPU, cpuResource)
 				.putResources(MEMORY, memoryResource)
 				.putResources(STORAGE, storageResource)

@@ -80,7 +80,7 @@ public class AddServerPlan extends SystemPlan {
 	public AbstractPlan constructAdaptationPlan() {
 		final Map<String, Double> cloudNetworkAgentsTraffic = managingAgent.getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
-				.collect(groupingBy(ServerArgs::getOwnerCloudNetwork,
+				.collect(groupingBy(ServerArgs::getOwnerRegionalManager,
 						flatMapping(this::getServerTrafficByName, averagingDouble(Double::doubleValue))));
 
 		if (cloudNetworkAgentsTraffic.isEmpty()) {

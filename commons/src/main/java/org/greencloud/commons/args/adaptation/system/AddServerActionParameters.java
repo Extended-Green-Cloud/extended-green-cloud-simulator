@@ -10,6 +10,10 @@ import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import jade.core.AID;
 import jade.core.Location;
 
+/**
+ * Content of the message sent when the adaptation plan which adds additional server is
+ * executed
+ */
 public class AddServerActionParameters implements SystemAdaptationActionParameters {
 
 	/**

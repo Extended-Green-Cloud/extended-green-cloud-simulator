@@ -85,7 +85,7 @@ public class ProcessJobStartRule extends AgentBasicRule<ServerAgentProps, Server
 	private void sendJobStartMessage(final Facts facts) {
 		final AID greenSource = agentProps.getGreenSourceForJobMap().get(job.getJobId());
 		final List<AID> receivers = informAboutStart ?
-				List.of(greenSource, agentProps.getOwnerCloudNetworkAgent()) :
+				List.of(greenSource, agentProps.getOwnerRegionalManagerAgent()) :
 				singletonList(greenSource);
 
 		agent.send(prepareJobStartedMessage(job, facts.get(RULE_SET_IDX), receivers.toArray(new AID[0])));

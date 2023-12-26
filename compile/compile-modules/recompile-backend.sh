@@ -9,8 +9,10 @@ cd "${PARENT_DIR}/green-cloud" || exit
 mvn clean compile package
 
 # COPY CONFIGURATION FILES TO STRATEGY FOLDER
-cp -R ./engine/src/main/resources/scenarios ./engine/strategy/scenarios
-cp -R .engine/src/main/resources/properties ./engine/strategy/properties
+cp -R ./engine/src/main/resources/scenarios/. ./engine/runnable/scenarios/
+cp -R ./engine/src/main/resources/properties/. ./engine/runnable/properties/
+cp -R ./engine/src/main/resources/knowledge/. ./engine/runnable/knowledge/
+cp -R ./engine/src/main/resources/samples/. ./engine/runnable/samples/
 
 echo "Recompilation of the backend application completed"
 

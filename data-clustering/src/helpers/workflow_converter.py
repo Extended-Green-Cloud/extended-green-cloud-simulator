@@ -3,7 +3,7 @@ import numpy as np
 
 from typing import List, Tuple
 from src.models.Workflow import Workflow
-from src.helpers.feature_encoder import factorize_feature, encode_categorical_list, WORKFLOW_FEATURES
+from src.helpers.feature_encoder import one_hot_encode_feature, encode_categorical_list, WORKFLOW_FEATURES
 from src.helpers.workflow_filter import WORKFLOW_NON_RESOURCE_FEATURES, WORKFLOW_RESOURCE_FEATURES
 
 WORKFLOWS_COLUMNS = [
@@ -179,12 +179,16 @@ def map_workflow_processing_details(workflow: Workflow, unique_steps: List[str],
     return np.array(processing_details)
 
 
-def convert_workflows_to_data_frame(workflows: List[Workflow]) -> pd.DataFrame:
+def convert_workflows_to_data_frame(workflows: List[Workflow],
+                                    encode_order_names: bool = False, 
+                                    encode_steps: bool = False) -> pd.DataFrame:
     '''
     Method returns data frame of processing details for given list of workflows.
 
     Parameters:
     workflows - list of workflows for which the processing details are to be retrieved
+    encode_order_names - flag indicating if order names should be one-hot encoded
+    encode_steps - flag indicating if step categorical features should be one-hot encoded
 
     Returns: data frame of workflows processing details
     '''
@@ -201,16 +205,19 @@ def convert_workflows_to_data_frame(workflows: List[Workflow]) -> pd.DataFrame:
         [map_workflow_processing_details(workflow, workflows_unique_steps, workflows_unique_nodes, workflows_unique_steps_statuses) for workflow in workflows])
 
     df = pd.DataFrame(workflow_details, columns=columns)
-    df = factorize_feature(WORKFLOW_FEATURES.ORDER_NAME, df)
-    df = factorize_feature(WORKFLOW_FEATURES.ORDER_ITEM_STATUS, df)
-    df = factorize_feature(WORKFLOW_FEATURES.ORDER_STATUS, df)
-    df = factorize_feature(WORKFLOW_FEATURES.ARGO_STATUS, df)
-    df = factorize_feature(WORKFLOW_FEATURES.ARGO_STATUS_DETAILS, df)
-    df = factorize_feature(WORKFLOW_FEATURES.ARGO_OUTPUT_MSG, df)
-    df = factorize_feature(WORKFLOW_FEATURES.PROCESSOR_TYPE, df)
-    df = factorize_feature(WORKFLOW_FEATURES.WORKFLOW_STEPS_ENCODED, df)
-    df = factorize_feature(WORKFLOW_FEATURES.NODES_ENCODED, df)
-    df = factorize_feature(WORKFLOW_FEATURES.STEPS_STATUSES_ENCODED, df)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.ORDER_ITEM_STATUS, df, WORKFLOW_FEATURES.ORDER_ITEM_STATUS_CODE)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.ORDER_STATUS, df, WORKFLOW_FEATURES.ORDER_STATUS_CODE)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.ARGO_STATUS, df, WORKFLOW_FEATURES.ARGO_STATUS_CODE)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.ARGO_STATUS_DETAILS, df, WORKFLOW_FEATURES.ARGO_STATUS_DETAILS_CODE)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.ARGO_OUTPUT_MSG, df, WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE)
+    df = one_hot_encode_feature(WORKFLOW_FEATURES.PROCESSOR_TYPE, df, WORKFLOW_FEATURES.PROCESSOR_TYPE_CODE)
+    
+    if encode_order_names:
+        df = one_hot_encode_feature(WORKFLOW_FEATURES.ORDER_NAME, df, WORKFLOW_FEATURES.ORDER_NAME_CODE)
+    if encode_steps:
+        df = one_hot_encode_feature(WORKFLOW_FEATURES.WORKFLOW_STEPS_ENCODED, df, WORKFLOW_FEATURES.WORKFLOW_STEPS_ENCODED_CODE)
+        df = one_hot_encode_feature(WORKFLOW_FEATURES.NODES_ENCODED, df, WORKFLOW_FEATURES.NODES_ENCODED_CODE)
+        df = one_hot_encode_feature(WORKFLOW_FEATURES.STEPS_STATUSES_ENCODED, df, WORKFLOW_FEATURES.STEPS_STATUSES_ENCODED_CODE)
 
     return df
 

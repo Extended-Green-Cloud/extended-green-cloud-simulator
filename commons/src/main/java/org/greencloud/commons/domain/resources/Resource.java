@@ -32,7 +32,7 @@ import com.google.errorprone.annotations.Var;
 @JsonSerialize(as = ImmutableResource.class)
 @JsonDeserialize(as = ImmutableResource.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Value.Style(underrideHashCode = "hash")
+@Value.Style(underrideHashCode = "hash", underrideEquals = "equalTo")
 @Value.Immutable(prehash = true)
 public interface Resource {
 
@@ -53,7 +53,7 @@ public interface Resource {
 	 * @return validation function that verifies if the characteristics of a given resource are sufficient
 	 */
 	@Nullable
-	String getSufficiencyValidator();
+	String getResourceValidator();
 
 	/**
 	 * @return function used to compare the same resources
@@ -91,14 +91,14 @@ public interface Resource {
 	 */
 	default boolean isSufficient(final Resource resource) {
 		// when the validation of given resource can be omitted at this step
-		if (StringUtils.isBlank(getSufficiencyValidator())) {
+		if (StringUtils.isBlank(getResourceValidator())) {
 			return true;
 		}
-		if (getSufficiencyValidator().equals(TAKE_FROM_INITIAL_KNOWLEDGE)) {
+		if (getResourceValidator().equals(TAKE_FROM_INITIAL_KNOWLEDGE)) {
 			return false;
 		}
 
-		final Serializable expression = MVEL.compileExpression(getSufficiencyValidator());
+		final Serializable expression = MVEL.compileExpression(getResourceValidator());
 		final Map<String, Object> params = new HashMap<>();
 		params.put("requirements", resource);
 		params.put("resource", this);
@@ -270,8 +270,17 @@ public interface Resource {
 	default int hash() {
 		@Var int h = 5381;
 		h += (h << 5) + getCharacteristics().hashCode();
-		h += (h << 5) + Objects.hashCode(getSufficiencyValidator());
+		h += (h << 5) + Objects.hashCode(getResourceValidator());
 		h += (h << 5) + Objects.hashCode(getResourceComparator());
 		return h;
+	}
+
+	default boolean equalTo(ImmutableResource another) {
+		if (this == another)
+			return true;
+		return another != null
+				&& getCharacteristics().equals(another.getCharacteristics())
+				&& Objects.equals(getResourceValidator(), another.getResourceValidator())
+				&& Objects.equals(getResourceComparator(), another.getResourceComparator());
 	}
 }

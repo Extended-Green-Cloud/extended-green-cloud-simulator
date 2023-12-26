@@ -216,26 +216,26 @@ const ResourceConfigurationCharacteristics = ({
                )}
                {!skipFunctionDefinition &&
                   getTextField(
-                     resourceC.resourceBooker,
+                     resourceC.resourceCharacteristicReservation,
                      keyC,
                      'Reserve resource',
-                     'resourceBooker',
+                     'resourceCharacteristicReservation',
                      'Provide method (in Expression Language) used to reserve resources'
                   )}
                {!skipFunctionDefinition &&
                   getTextField(
-                     resourceC.resourceAddition,
+                     resourceC.resourceCharacteristicAddition,
                      keyC,
                      'Add resource',
-                     'resourceAddition',
+                     'resourceCharacteristicAddition',
                      'Provide method (in Expression Language) used to add resources'
                   )}
                {!skipFunctionDefinition &&
                   getTextField(
-                     resourceC.resourceRemover,
+                     resourceC.resourceCharacteristicSubtraction,
                      keyC,
                      'Remove resource',
-                     'resourceRemover',
+                     'resourceCharacteristicSubtraction',
                      'Provide method (in Expression Language) used to remove resources'
                   )}
             </Collapse>

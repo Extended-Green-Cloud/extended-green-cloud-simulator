@@ -36,7 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -68,10 +72,6 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 
@@ -232,6 +232,9 @@ class PlannerServiceUnitTest {
 				.currentTraffic(0.4)
 				.isDisabled(false)
 				.serverJobs(10)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 
 		return List.of(

@@ -65,24 +65,24 @@ class AgentFactoryUnitTest {
 		assertThat(result.getMaxPower()).isEqualTo(TEMPLATE_SERVER_MAX_POWER);
 		assertThat(result.getIdlePower()).isEqualTo(TEMPLATE_SERVER_IDLE_POWER);
 		assertThat(result.getPrice()).isEqualTo(TEMPLATE_SERVER_PRICE.doubleValue());
-		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
 		assertThat(result.getContainerId()).isNull();
 		assertThat(result.getResources())
 				.containsEntry(CPU, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, CPU_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build())
 				.containsEntry(MEMORY, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, MEMORY_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build())
 				.containsEntry(STORAGE, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, STORAGE_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build());
 	}
 
@@ -94,23 +94,23 @@ class AgentFactoryUnitTest {
 		assertThat(result.getMaxPower()).isEqualTo(100);
 		assertThat(result.getIdlePower()).isEqualTo(30);
 		assertThat(result.getPrice()).isEqualTo(10D);
-		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(20);
 		assertThat(result.getResources())
 				.containsEntry(CPU, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, CPU_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build())
 				.containsEntry(MEMORY, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, MEMORY_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build())
 				.containsEntry(STORAGE, ImmutableResource.builder()
 						.putCharacteristics(AMOUNT, STORAGE_CHARACTERISTIC)
 						.resourceComparator(TEMPLATE_COMPARATOR)
-						.sufficiencyValidator(TEMPLATE_VALIDATOR)
+						.resourceValidator(TEMPLATE_VALIDATOR)
 						.build());
 	}
 
@@ -123,7 +123,7 @@ class AgentFactoryUnitTest {
 		assertThat(result.getMaxPower()).isEqualTo(150);
 		assertThat(result.getIdlePower()).isEqualTo(10);
 		assertThat(result.getPrice()).isEqualTo(15D);
-		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(30);
 		assertThat(result.getResources()).containsEntry(CPU, getCustomCpuResource());
 	}
@@ -147,7 +147,7 @@ class AgentFactoryUnitTest {
 		assertThat(result.getMaxPower()).isEqualTo(100);
 		assertThat(result.getIdlePower()).isEqualTo(20);
 		assertThat(result.getPrice()).isEqualTo(20D);
-		assertThat(result.getOwnerCloudNetwork()).isEqualTo("TestOwner");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("TestOwner");
 		assertThat(result.getJobProcessingLimit()).isEqualTo(10);
 		assertThat(result.getResources()).containsEntry(CPU, getCustomCpuResource());
 
@@ -211,7 +211,7 @@ class AgentFactoryUnitTest {
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraServer1");
 		assertThat(result.getMaxPower()).isEqualTo(150);
 		assertThat(result.getIdlePower()).isEqualTo(25);
-		assertThat(result.getOwnerCloudNetwork()).isEqualTo("OwnerCna1");
+		assertThat(result.getOwnerRegionalManager()).isEqualTo("OwnerCna1");
 		assertThat(result.getPrice()).isEqualTo(10);
 	}
 
@@ -222,12 +222,12 @@ class AgentFactoryUnitTest {
 						.unit("millicores")
 						.toCommonUnitConverter(TO_CPU_CORES_CONVERTER)
 						.fromCommonUnitConverter(FROM_CPU_CORES_CONVERTER)
-						.resourceAddition(TEMPLATE_ADDITION)
-						.resourceBooker(TEMPLATE_BOOKER)
-						.resourceRemover(TEMPLATE_REMOVER)
+						.resourceCharacteristicAddition(TEMPLATE_ADDITION)
+						.resourceCharacteristicReservation(TEMPLATE_BOOKER)
+						.resourceCharacteristicSubtraction(TEMPLATE_REMOVER)
 						.build())
 				.resourceComparator(TEMPLATE_COMPARATOR)
-				.sufficiencyValidator(TEMPLATE_VALIDATOR)
+				.resourceValidator(TEMPLATE_VALIDATOR)
 				.build();
 	}
 }

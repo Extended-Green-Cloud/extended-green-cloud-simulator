@@ -105,7 +105,7 @@ public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, Serve
 		agentProps.updateJobExecutionCost(job);
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
 		final JobInstanceIdentifier jobInstanceId = mapToJobInstanceId(job);
-		final ACLMessage cnaPriceMessage = preparePriceMessage(agentProps.getOwnerCloudNetworkAgent(), jobInstanceId,
+		final ACLMessage cnaPriceMessage = preparePriceMessage(agentProps.getOwnerRegionalManagerAgent(), jobInstanceId,
 				finalJobPrice, facts.get(RULE_SET_IDX));
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
 		agent.send(cnaPriceMessage);
@@ -115,7 +115,7 @@ public class ProcessJobFinishRule extends AgentBasicRule<ServerAgentProps, Serve
 		agentProps.updateJobExecutionCost(job);
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
 		final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
-				agentProps.getOwnerCloudNetworkAgent());
+				agentProps.getOwnerRegionalManagerAgent());
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
 		agent.send(cnaMessage);
 	}

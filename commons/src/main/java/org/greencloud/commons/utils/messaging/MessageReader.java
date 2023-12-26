@@ -1,6 +1,7 @@
 package org.greencloud.commons.utils.messaging;
 
 import static com.google.common.collect.Collections2.filter;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.util.Collection;
 import java.util.Vector;
@@ -9,10 +10,7 @@ import org.greencloud.commons.exception.IncorrectMessageContentException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jade.lang.acl.ACLMessage;
 
@@ -20,10 +18,6 @@ import jade.lang.acl.ACLMessage;
  * Class defines set of utilities used to read messages
  */
 public class MessageReader {
-
-	private static final ObjectMapper MAPPER = new ObjectMapper()
-			.registerModules(new GuavaModule())
-			.registerModule(new JavaTimeModule());
 
 	/**
 	 * Method reads the message object content
@@ -34,7 +28,7 @@ public class MessageReader {
 	 */
 	public static <T> T readMessageContent(final ACLMessage message, final Class<T> expectedClassType) {
 		try {
-			return MAPPER.readValue(message.getContent(), expectedClassType);
+			return getMapper().readValue(message.getContent(), expectedClassType);
 		} catch (MismatchedInputException | JsonParseException e) {
 			throw new IncorrectMessageContentException();
 		} catch (JsonProcessingException e) {

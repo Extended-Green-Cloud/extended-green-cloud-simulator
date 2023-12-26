@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +25,6 @@ import org.mockito.Mock;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class DisableServerPlanTest {
 
@@ -112,25 +112,25 @@ class DisableServerPlanTest {
 	private void mockNetworkStructure() {
 		var server1 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.name("server1")
 				.price(10D)
 				.build();
 		var server2 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerCloudNetwork("CNA2")
+				.ownerRegionalManager("CNA2")
 				.name("server2")
 				.price(10D)
 				.build();
 		var server3 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerCloudNetwork("CNA2")
+				.ownerRegionalManager("CNA2")
 				.name("server3")
 				.price(10D)
 				.build();
 		var server4 = ImmutableServerArgs.builder()
 				.jobProcessingLimit(10)
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.name("server4")
 				.price(10D)
 				.build();

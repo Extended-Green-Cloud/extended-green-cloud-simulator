@@ -1,6 +1,7 @@
 package org.greencloud.gui.event;
 
-import static org.greencloud.gui.event.domain.EventTypeEnum.CLIENT_CREATION_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.CLIENT_CREATION_EVENT;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class ClientCreationEvent extends AbstractEvent {
 
 	private static CreateClientMessage readClientCreationMessage(String message) {
 		try {
-			return mapper.readValue(message, CreateClientMessage.class);
+			return getMapper().readValue(message, CreateClientMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

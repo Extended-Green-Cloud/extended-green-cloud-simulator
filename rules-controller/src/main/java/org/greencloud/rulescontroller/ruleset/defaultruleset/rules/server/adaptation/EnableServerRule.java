@@ -7,7 +7,7 @@ import static org.greencloud.commons.constants.FactTypeConstants.EVENT;
 import static org.greencloud.commons.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.RuleType.PROCESS_SERVER_ENABLING_RULE;
-import static org.greencloud.gui.event.domain.EventTypeEnum.ENABLE_SERVER_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.ENABLE_SERVER_EVENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
@@ -49,7 +49,7 @@ public class EnableServerRule extends AgentBasicRule<ServerAgentProps, ServerNod
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		logger.info("Enabling Server and informing CNA {}.", agentProps.getOwnerCloudNetworkAgent().getLocalName());
+		logger.info("Enabling Server and informing CNA {}.", agentProps.getOwnerRegionalManagerAgent().getLocalName());
 		agentProps.enable();
 		agentProps.saveMonitoringData();
 

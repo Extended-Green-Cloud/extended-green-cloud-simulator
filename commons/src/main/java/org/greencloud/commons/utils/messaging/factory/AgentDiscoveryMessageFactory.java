@@ -89,7 +89,7 @@ public class AgentDiscoveryMessageFactory {
 						.resources(newResources)
 						.price(serverAgentProps.getPricePerHour())
 						.build())
-				.withReceivers(serverAgentProps.getOwnerCloudNetworkAgent())
+				.withReceivers(serverAgentProps.getOwnerRegionalManagerAgent())
 				.build();
 	}
 }

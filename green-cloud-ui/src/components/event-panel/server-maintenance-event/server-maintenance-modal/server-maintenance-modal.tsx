@@ -38,8 +38,8 @@ const LABELS_MAP = {
       false: 'An error occurred while processing server resource configuration by server agent.'
    },
    informationInManager: {
-      true: 'CNA received information about new server configuration.',
-      false: 'An error occurred while sending server resource configuration to the CNA.'
+      true: 'RMA received information about new server configuration.',
+      false: 'An error occurred while sending server resource configuration to the RMA.'
    },
    maintenanceCompleted: {
       true: 'Server maintenance was successfully completed. Server can now be started.',

@@ -27,7 +27,7 @@ public class ServerAgent extends AbstractServerAgent {
 	@Override
 	protected void initializeAgent(final Object[] args) {
 		if (args.length >= 9) {
-			final AID ownerCloudNetworkAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
+			final AID ownerRegionalManagerAgentAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 
 			try {
 				final double pricePerHour = parseDouble(args[1].toString());
@@ -35,14 +35,14 @@ public class ServerAgent extends AbstractServerAgent {
 				final int idlePowerConsumption = parseInt(args[3].toString());
 				final int jobProcessingLimit = parseInt(args[4].toString());
 				final Map<String, Resource> resources = (Map<String, Resource>) (args[5]);
-				this.properties = new ServerAgentProps(getName(), ownerCloudNetworkAgent, resources,
+				this.properties = new ServerAgentProps(getName(), ownerRegionalManagerAgentAgent, resources,
 						maxPowerConsumption, idlePowerConsumption, pricePerHour, jobProcessingLimit);
 
 				// Additional argument indicates if the ServerAgent is going to be moved to another container
 				// In such case, its service should be registered after moving
 				if (args.length != 9 || !parseBoolean(args[6].toString())) {
 					register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
-							properties.getOwnerCloudNetworkAgent().getName());
+							properties.getOwnerRegionalManagerAgent().getName());
 				}
 
 			} catch (final NumberFormatException e) {
@@ -58,7 +58,7 @@ public class ServerAgent extends AbstractServerAgent {
 	@Override
 	protected void takeDown() {
 		deregister(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
-				properties.getOwnerCloudNetworkAgent().getName());
+				properties.getOwnerRegionalManagerAgent().getName());
 		super.takeDown();
 	}
 
@@ -66,7 +66,7 @@ public class ServerAgent extends AbstractServerAgent {
 	protected void afterMove() {
 		super.afterMove();
 		register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
-				properties.getOwnerCloudNetworkAgent().getName());
+				properties.getOwnerRegionalManagerAgent().getName());
 
 		// restoring default values
 		properties.setPricePerHour(20);

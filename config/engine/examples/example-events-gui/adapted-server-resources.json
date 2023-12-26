@@ -1,0 +1,80 @@
+{
+  "cpu": {
+    "characteristics": {
+      "amount": {
+        "value": 20,
+        "unit": "core",
+        "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+        "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
+        "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+      },
+      "type": {
+        "value": "AMD-64",
+        "resourceCharacteristicSubtraction": "return ownedAmount.replace(\"[\" + amountToRemove + \"]\", \"\").trim();",
+        "resourceCharacteristicAddition": "return resource1.contains(resource2) ? resource2 : \"[\" + resource1 + \"]\" + \" \" + \"[\" + resource2 + \"]\";"
+      }
+    },
+    "emptyResource": {
+      "characteristics": {
+        "amount": {
+          "value": 0,
+          "unit": "core",
+          "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+        },
+        "type": {
+          "value": "AMD-64",
+          "resourceCharacteristicSubtraction": "return ownedAmount.replace(\"[\" + amountToRemove + \"]\", \"\").trim();",
+          "resourceCharacteristicAddition": "return resource1.contains(resource2) ? resource2 : \"[\" + resource1 + \"]\" + \" \" + \"[\" + resource2 + \"]\";"
+        }
+      },
+      "resourceValidator": "(requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit()) && (!requirements.getCharacteristics().containsKey(\"type\") || requirements.getCharacteristics().get(\"type\").getValue().contains(\"[AMD-64]\") || requirements.getCharacteristics().get(\"type\").getValue().trim().equals(\"AMD-64\"));"
+    },
+    "resourceValidator": "(requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit()) && (!requirements.getCharacteristics().containsKey(\"type\") || requirements.getCharacteristics().get(\"type\").getValue().contains(\"[AMD-64]\") || requirements.getCharacteristics().get(\"type\").getValue().trim().equals(\"AMD-64\"));"
+
+
+  },
+  "gpu": {
+    "characteristics": {
+      "amount": {
+        "value": 10,
+        "unit": "kCUDA cores",
+        "resourceCharacteristicReservation": "return ownedAmount - amountToReserve;",
+        "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
+        "toCommonUnitConverter": "FROM_KI_CUDA_CORES_CONVERTER",
+        "fromCommonUnitConverter": "TO_KI_CUDA_CORES_CONVERTER"
+      }
+    },
+    "resourceValidator": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
+    "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+  },
+  "memory": {
+    "characteristics": {
+      "amount": {
+        "value": 400,
+        "unit": "Gi",
+        "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
+        "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
+        "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
+        "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+      }
+    },
+    "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
+    "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+  },
+  "storage": {
+    "characteristics": {
+      "amount": {
+        "value": 1000,
+        "unit": "Gi",
+        "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
+        "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
+        "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
+        "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+      }
+    },
+    "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
+    "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+  }
+}

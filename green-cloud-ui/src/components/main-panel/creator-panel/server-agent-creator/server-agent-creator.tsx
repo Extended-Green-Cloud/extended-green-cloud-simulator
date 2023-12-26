@@ -133,8 +133,8 @@ export const ServerAgentCreator = ({ serverAgentData, setServerAgentData, agents
                <div style={container}>
                   <CreatorDropdownField
                      {...{
-                        title: 'Cloud network to connect with',
-                        description: 'Select Cloud Network with which Server is to be connected',
+                        title: 'Regional manager to connect with',
+                        description: 'Select Regional Manager with which Server is to be connected',
                         options: getAvailableCNAOptions(agents),
                         selectedData: selectedCNA,
                         setSelectedData: setSelectedCNA,

@@ -70,7 +70,7 @@ public class AgentFactoryImpl implements AgentFactory {
 		final String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
 		return ImmutableServerArgs.builder()
 				.name(serverAgentName)
-				.ownerCloudNetwork(ownerCNA)
+				.ownerRegionalManager(ownerCNA)
 				.maxPower(isNull(maxPower) ? TEMPLATE_SERVER_MAX_POWER : maxPower)
 				.idlePower(isNull(idlePower) ? TEMPLATE_SERVER_IDLE_POWER : idlePower)
 				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
@@ -84,7 +84,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	public ServerArgs createServerAgent(final ServerCreator serverCreator) {
 		return ImmutableServerArgs.builder()
 				.name(serverCreator.getName())
-				.ownerCloudNetwork(serverCreator.getCloudNetwork())
+				.ownerRegionalManager(serverCreator.getCloudNetwork())
 				.maxPower(serverCreator.getMaxPower().intValue())
 				.idlePower(serverCreator.getIdlePower().intValue())
 				.price(serverCreator.getPrice())
@@ -196,7 +196,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	@Override
 	public ClientArgs createClientAgent(final JobCreator jobCreator, final String clientName, final int nextClientId) {
 		final JobArgs clientJob = ImmutableJobArgs.builder()
-				.processType(jobCreator.getProcessorName())
+				.processorName(jobCreator.getProcessorName())
 				.jobSteps(jobCreator.getSteps())
 				.deadline(jobCreator.getDeadline() * 60 * 60)
 				.duration(jobCreator.getDuration() * 60 * 60)

@@ -1,6 +1,7 @@
 package org.greencloud.gui.event;
 
-import static org.greencloud.gui.event.domain.EventTypeEnum.DISABLE_SERVER_EVENT;
+import static org.greencloud.commons.enums.event.EventTypeEnum.DISABLE_SERVER_EVENT;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class DisableServerEvent extends AbstractEvent {
 	 * @param occurrenceTime time when the event occurs
 	 * @param agentName      name of the agent for which the event is executed
 	 */
-	protected DisableServerEvent(final Instant occurrenceTime, final String agentName) {
+	public DisableServerEvent(final Instant occurrenceTime, final String agentName) {
 		super(DISABLE_SERVER_EVENT, occurrenceTime, agentName);
 	}
 
@@ -47,7 +48,7 @@ public class DisableServerEvent extends AbstractEvent {
 
 	private static SwitchServerOnOffGUIMessage readDisableServerMessage(String message) {
 		try {
-			return mapper.readValue(message, SwitchServerOnOffGUIMessage.class);
+			return getMapper().readValue(message, SwitchServerOnOffGUIMessage.class);
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
 		}

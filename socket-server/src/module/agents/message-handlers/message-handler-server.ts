@@ -26,7 +26,7 @@ const handleUpdateResources = (msg) => {
 	const foundAgent: ServerAgent | CloudNetworkAgent = getAgentByName(AGENTS_STATE.agents, msg.agentName);
 	const resources = msg.resources;
 
-	if (foundAgent.type === AGENT_TYPES.CLOUD_NETWORK) {
+	if (foundAgent && foundAgent.type === AGENT_TYPES.CLOUD_NETWORK) {
 		foundAgent.inUseResources = mapServerResources(resources);
 
 		const totalCpu = foundAgent.inUseResources["cpu"]?.characteristics?.["amount"]?.value ?? 0;

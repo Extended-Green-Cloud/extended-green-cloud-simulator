@@ -11,7 +11,7 @@ function navigate() {
 # NAVIGATE TO ENGINE DIR
 PROJECT_DIR=$(pwd)
 PARENT_DIR=${PROJECT_DIR%/"green-cloud"*}
-cd "${PARENT_DIR}/green-cloud/engine/strategy" || exit
+cd "${PARENT_DIR}/green-cloud/engine/runnable" || exit
 
 PACKAGE_NAME="green-cloud-engine.jar"
 
@@ -22,18 +22,21 @@ fi
 
 # COPY CONFIGURATION TO JAR
 
-cp -R ../src/main/resources/scenarios ./scenarios
-cp -R ../src/main/resources/properties ./properties
+cp -R ../src/main/resources/scenarios/. ./scenarios/
+cp -R ../src/main/resources/properties/. ./properties/
+cp -R ../src/main/resources/knowledge/. ./knowledge/
+cp -R ../src/main/resources/samples/. ./samples/
 
-jar -uvf "${PACKAGE_NAME}" -C properties ./properties
-jar -uvf "${PACKAGE_NAME}" -C scenarios ./scenarios
+jar -uvf "${PACKAGE_NAME}" -C properties .
+jar -uvf "${PACKAGE_NAME}" -C scenarios .
+jar -uvf "${PACKAGE_NAME}" -C knowledge .
+jar -uvf "${PACKAGE_NAME}" -C samples .
 
-if [ "$1" == "SINGLE" ]
-then
-  java -cp "${PACKAGE_NAME}" runner.EngineRunner
-elif [ "$1" == "MULTI" ]
+if [ "$1" == "MULTI" ]
 then
   java -cp "${PACKAGE_NAME}" runner.MultiEngineRunner
+else
+  java -cp "${PACKAGE_NAME}" runner.EngineRunner
 fi
 
 # NAVIGATE BACK TO COMPILE DIRECTORY

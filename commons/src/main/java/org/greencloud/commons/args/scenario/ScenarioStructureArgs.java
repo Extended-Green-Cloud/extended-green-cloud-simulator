@@ -90,7 +90,7 @@ public class ScenarioStructureArgs implements Serializable {
 	public List<String> getServersForCloudNetworkAgent(final String cloudNetworkAgentName) {
 		return getServerAgentsArgs()
 				.stream()
-				.filter(agent -> agent.getOwnerCloudNetwork().equals(cloudNetworkAgentName))
+				.filter(agent -> agent.getOwnerRegionalManager().equals(cloudNetworkAgentName))
 				.map(AgentArgs::getName)
 				.toList();
 	}
@@ -150,7 +150,7 @@ public class ScenarioStructureArgs implements Serializable {
 				.findFirst()
 				.orElse(null);
 
-		return isNull(serverArgs) ? null : serverArgs.getOwnerCloudNetwork();
+		return isNull(serverArgs) ? null : serverArgs.getOwnerRegionalManager();
 	}
 
 	/**

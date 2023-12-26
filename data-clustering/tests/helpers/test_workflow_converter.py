@@ -32,23 +32,23 @@ class TestConvertWorkflowToDataFrame(TestCase):
             actual[WORKFLOW_FEATURES.WORKFLOW_STEPS_ENCODED])
 
         # then
-        expected_columns = ['uid', 'order_name', 'order_id',
-                            'status', 'order_status',
-                            'argo_status', 'argo_detailed_status', 'argo_output_message',
-                            'processor_name', 'cpu', 'memory', 'ephemeral_storage', 'storage', 'processed_size',
-                            'duration', 'deadline', 'priority',
-                            'initial_steps_no', 'executed_steps_no',
-                            'workflow_steps', 'workflow_steps_encoded',
-                            'nodes_per_step', 'nodes_per_step_encoded',
-                            'status_per_step', 'status_per_step_encoded',
-                            'step_1_cpu', 'step_2_cpu', 'step_3_cpu',
-                            'step_1_memory', 'step_2_memory', 'step_3_memory',
-                            'step_1_ephemeral_storage', 'step_2_ephemeral_storage', 'step_3_ephemeral_storage',
-                            'step_1_duration', 'step_2_duration', 'step_3_duration',
-                            'order_name_code', 'status_code', 'order_status_code',
-                            'argo_status_code', 'argo_detailed_status_code', 'argo_output_message_code', 'processor_name_code',
-                            'workflow_steps_encoded_code', 'nodes_per_step_encoded_code',
-                            'status_per_step_encoded_code']
+        expected_columns = ['uid', 'order_name', 'order_id', 'status', 'order_status',
+       'argo_status', 'argo_detailed_status', 'argo_output_message',
+       'processor_name', 'cpu', 'memory', 'ephemeral_storage', 'storage',
+       'processed_size', 'duration', 'deadline', 'priority',
+       'initial_steps_no', 'executed_steps_no', 'workflow_steps',
+       'workflow_steps_encoded', 'nodes_per_step', 'nodes_per_step_encoded',
+       'status_per_step', 'status_per_step_encoded', 'step_1_cpu',
+       'step_2_cpu', 'step_3_cpu', 'step_1_memory', 'step_2_memory',
+       'step_3_memory', 'step_1_ephemeral_storage', 'step_2_ephemeral_storage',
+       'step_3_ephemeral_storage', 'step_1_duration', 'step_2_duration',
+       'step_3_duration', 'status_code_cancelled', 'status_code_done',
+       'order_status_code_done', 'order_status_code_processing',
+       'argo_status_code_Succeeded', 'argo_detailed_status_code_undefined',
+       'argo_output_message_code_critical error',
+       'argo_output_message_code_product processed successfully',
+       'processor_name_code_test_processor_name_1',
+       'processor_name_code_test_processor_name_2']
         expected_column_order_name = ['test_order_1', 'undefined']
         expected_column_order_status = ['done', 'processing']
         expected_column_step_2_memory = ['50.0', '60.0']

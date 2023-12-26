@@ -121,7 +121,7 @@ public class JobStatusMessageFactory {
 				.jobInstance(jobInstanceId)
 				.changeTime(getCurrentTime())
 				.build();
-		final AID cna = agentProps.getOwnerCloudNetworkAgent();
+		final AID cna = agentProps.getOwnerRegionalManagerAgent();
 
 		if (Objects.equals(conversationId, MessageConversationConstants.FAILED_JOB_ID)) {
 			return MessageBuilder.builder(ruleSet)

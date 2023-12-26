@@ -8,4 +8,7 @@ source ./compile-modules/recompile-GUI.sh
 # RECOMPILE SOCKET-SERVER
 source ./compile-modules/recompile-socket.sh
 
+# INITIALIZE DATA-CLUSTERING
+source ./compile-modules/initialize-data-clustering.sh
+
 echo "Full recompilation completed!"

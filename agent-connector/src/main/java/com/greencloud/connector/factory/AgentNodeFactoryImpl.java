@@ -86,7 +86,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
 		final ServerNodeArgs nodeArgs = ImmutableServerNodeArgs.builder()
 				.name(serverArgs.getName())
-				.cloudNetworkAgent(serverArgs.getOwnerCloudNetwork())
+				.cloudNetworkAgent(serverArgs.getOwnerRegionalManager())
 				.greenEnergyAgents(new HashSet<>())
 				.maxPower((long) serverArgs.getMaxPower())
 				.idlePower((long) serverArgs.getIdlePower())
@@ -101,7 +101,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		final ClientNodeArgs nodeArgs = ImmutableClientNodeArgs.builder()
 				.name(clientArgs.getName())
 				.jobId(clientArgs.getJobId())
-				.processorName(clientArgs.getJob().processType())
+				.processorName(clientArgs.getJob().getProcessorName())
 				.resources(clientArgs.getJob().getResources())
 				.start(clientArgs.formatClientTime(0))
 				.end(clientArgs.formatClientTime(clientArgs.getJob().getDuration()))
@@ -117,7 +117,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 	private CloudNetworkNode createCloudNetworkNode(final CloudNetworkArgs cloudNetworkArgs,
 			final ScenarioStructureArgs scenarioArgs) {
 		final List<ServerArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
-				.filter(serverArgs -> serverArgs.getOwnerCloudNetwork().equals(cloudNetworkArgs.getName()))
+				.filter(serverArgs -> serverArgs.getOwnerRegionalManager().equals(cloudNetworkArgs.getName()))
 				.toList();
 		final List<String> serverList = ownedServers.stream().map(ServerArgs::getName).toList();
 		final CloudNetworkNodeArgs nodeArgs = ImmutableCloudNetworkNodeArgs.builder()
@@ -142,7 +142,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEmptyResource()));
 		final ServerNodeArgs nodeArgs = ImmutableServerNodeArgs.builder()
 				.name(serverAgentArgs.getName())
-				.cloudNetworkAgent(serverAgentArgs.getOwnerCloudNetwork())
+				.cloudNetworkAgent(serverAgentArgs.getOwnerRegionalManager())
 				.greenEnergyAgents(greenSourceNames)
 				.maxPower((long) serverAgentArgs.getMaxPower())
 				.idlePower((long) serverAgentArgs.getIdlePower())

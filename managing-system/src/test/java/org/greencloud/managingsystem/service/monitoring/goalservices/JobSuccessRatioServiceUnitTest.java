@@ -2,13 +2,13 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,6 @@ import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 class JobSuccessRatioServiceUnitTest {
 
@@ -150,18 +150,27 @@ class JobSuccessRatioServiceUnitTest {
 				.currentTraffic(0.7)
 				.successRatio(0.9)
 				.isDisabled(false)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 		final ServerMonitoringData data2 = ImmutableServerMonitoringData.builder()
 				.serverJobs(10)
 				.currentTraffic(0.7)
 				.successRatio(0.75)
 				.isDisabled(false)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 		final ServerMonitoringData data3 = ImmutableServerMonitoringData.builder()
 				.serverJobs(10)
 				.currentTraffic(0.7)
 				.successRatio(0D)
 				.isDisabled(false)
+				.idlePowerConsumption(10)
+				.currentBackUpPowerTraffic(0.6)
+				.currentPowerConsumption(0.7)
 				.build();
 		return List.of(
 				new AgentData(Instant.now(), "test_aid1", SERVER_MONITORING, data1),

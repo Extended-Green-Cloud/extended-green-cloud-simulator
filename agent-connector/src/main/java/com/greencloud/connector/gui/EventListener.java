@@ -23,7 +23,10 @@ import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.ServerCreationEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
+import org.greencloud.gui.messages.domain.GreenSourceCreator;
+import org.greencloud.gui.messages.domain.ServerCreator;
 import org.greencloud.gui.websocket.GuiWebSocketClient;
+import org.greencloud.rulescontroller.ruleset.domain.ModifyAgentRuleSetEvent;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +84,84 @@ public class EventListener extends GuiWebSocketClient {
 		powerShortageEvent.trigger(agentNodes);
 	}
 
+	/**
+	 * Method creates new server based on the passed server data
+	 *
+	 * @param serverCreator data of new server
+	 */
+	public void createNewServer(final ServerCreator serverCreator) {
+		final ServerArgs serverArgs = agentFactory.createServerAgent(serverCreator);
+		final ServerNode serverNode = nodeFactory.createServerNode(serverArgs);
+
+		final AgentController serverAgentController = factory.createAgentController(serverArgs, serverNode);
+		factory.runAgentController(serverAgentController, RUN_AGENT_DELAY);
+	}
+
+	/**
+	 * Method creates new server based on the passed green source data
+	 *
+	 * @param greenSourceCreator data of new green source
+	 */
+	public void createNewGreenSource(final GreenSourceCreator greenSourceCreator) {
+		final String monitoringName = "Monitoring" + greenSourceCreator.getName();
+		final GreenEnergyArgs greenEnergyArgs = agentFactory.createGreenEnergyAgent(greenSourceCreator, monitoringName);
+
+		final MonitoringArgs monitoringArgs = agentFactory.createMonitoringAgent(monitoringName);
+		final MonitoringNode monitoringNode = nodeFactory.createMonitoringNode(monitoringArgs,
+				greenEnergyArgs.getName());
+		final AgentController monitoringAgentController = factory.createAgentController(monitoringArgs,
+				monitoringNode);
+		factory.runAgentController(monitoringAgentController, RUN_AGENT_DELAY);
+
+		final AgentController greenSourceAgentController = factory.createAgentController(greenEnergyArgs);
+		factory.runAgentController(greenSourceAgentController, RUN_AGENT_DELAY);
+	}
+
+	/**
+	 * Method triggers weather drop event
+	 *
+	 * @param weatherDropEvent data related to weather drop
+	 */
+	public void triggerWeatherDrop(final WeatherDropEvent weatherDropEvent) {
+		weatherDropEvent.trigger(agentNodes);
+	}
+
+	/**
+	 * Method disables selected server
+	 *
+	 * @param disableServerEvent data specifying information of server that is to be disabled
+	 */
+	public void switchServerOff(final DisableServerEvent disableServerEvent) {
+		disableServerEvent.trigger(agentNodes);
+	}
+
+	/**
+	 * Method enables selected server
+	 *
+	 * @param enableServerEvent data specifying information of server that is to be enabled
+	 */
+	public void switchServerOn(final EnableServerEvent enableServerEvent) {
+		enableServerEvent.trigger(agentNodes);
+	}
+
+	/**
+	 * Method modifies current rule set of selected system region
+	 *
+	 * @param modifyAgentRuleSetEvent data specifying information about next rule set modification
+	 */
+	public void modifyRuleSet(final ModifyAgentRuleSetEvent modifyAgentRuleSetEvent) {
+		modifyAgentRuleSetEvent.trigger(agentNodes);
+	}
+
+	/**
+	 * Method modifies resources of the selected server
+	 *
+	 * @param serverMaintenanceEvent data specifying information new server resources
+	 */
+	public void performServerMaintenance(final ServerMaintenanceEvent serverMaintenanceEvent) {
+		serverMaintenanceEvent.trigger(agentNodes);
+	}
+
 	@Override
 	public void onOpen(ServerHandshake serverHandshake) {
 		logger.info("Connected to message listener");
@@ -115,29 +196,11 @@ public class EventListener extends GuiWebSocketClient {
 		}
 		if (message.contains("GREEN_SOURCE_CREATION_EVENT")) {
 			final GreenSourceCreationEvent greenSourceCreationEvent = GreenSourceCreationEvent.create(message);
-			final String monitoringName = "Monitoring" + greenSourceCreationEvent.getGreenSourceCreator().getName();
-
-			final GreenEnergyArgs greenEnergyArgs = agentFactory.createGreenEnergyAgent(
-					greenSourceCreationEvent.getGreenSourceCreator(), monitoringName);
-
-			final MonitoringArgs monitoringArgs = agentFactory.createMonitoringAgent(monitoringName);
-			final MonitoringNode monitoringNode = nodeFactory.createMonitoringNode(monitoringArgs,
-					greenEnergyArgs.getName());
-			final AgentController monitoringAgentController = factory.createAgentController(monitoringArgs,
-					monitoringNode);
-			factory.runAgentController(monitoringAgentController, RUN_AGENT_DELAY);
-
-			final AgentController greenSourceAgentController = factory.createAgentController(greenEnergyArgs);
-			factory.runAgentController(greenSourceAgentController, RUN_AGENT_DELAY);
+			createNewGreenSource(greenSourceCreationEvent.getGreenSourceCreator());
 		}
 		if (message.contains("SERVER_CREATION_EVENT")) {
 			final ServerCreationEvent serverCreationEvent = ServerCreationEvent.create(message);
-
-			final ServerArgs serverArgs = agentFactory.createServerAgent(serverCreationEvent.getServerCreator());
-			final ServerNode serverNode = nodeFactory.createServerNode(serverArgs);
-
-			final AgentController serverAgentController = factory.createAgentController(serverArgs, serverNode);
-			factory.runAgentController(serverAgentController, RUN_AGENT_DELAY);
+			createNewServer(serverCreationEvent.getServerCreator());
 		}
 	}
 }

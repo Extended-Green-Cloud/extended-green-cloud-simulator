@@ -158,7 +158,7 @@ public abstract class AbstractScenarioService {
 	private ContainerController runAgentsContainer() {
 		final String platformHost = newPlatform && isNull(containerId) ? localHostIp : mainHostIp;
 		final String containerName =
-				newPlatform || isNull(containerId) ? defaultIfNull(locationId, "CNA") : containerId;
+				newPlatform || isNull(containerId) ? defaultIfNull(locationId, "RMA") : containerId;
 
 		var profile = new ProfileImpl(platformHost, Integer.parseInt(jadeIntraPort), platformId, false);
 		profile.setParameter(Profile.CONTAINER_NAME, containerName);

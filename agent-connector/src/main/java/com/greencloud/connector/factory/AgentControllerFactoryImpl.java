@@ -242,7 +242,7 @@ public class AgentControllerFactoryImpl implements AgentControllerFactory {
 			throws StaleProxyException {
 		return containerController.createNewAgent(serverAgent.getName(),
 				"org.greencloud.agentsystem.agents.server.ServerAgent",
-				new Object[] { serverAgent.getOwnerCloudNetwork(),
+				new Object[] { serverAgent.getOwnerRegionalManager(),
 						serverAgent.getPrice(),
 						serverAgent.getMaxPower(),
 						serverAgent.getIdlePower(),

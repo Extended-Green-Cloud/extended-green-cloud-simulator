@@ -77,7 +77,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 			return null;
 		}
 
-		final String targetCloudNetworkAgent = targetServerArgs.getOwnerCloudNetwork();
+		final String targetCloudNetworkAgent = targetServerArgs.getOwnerRegionalManager();
 		final CloudNetworkArgs cloudNetwork = managingAgent.getGreenCloudStructure().getCloudNetworkAgentsArgs()
 				.stream()
 				.filter(cna -> cna.getName().equals(targetCloudNetworkAgent))
@@ -89,7 +89,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 		}
 
 		final String cloudNetworkLocation = defaultIfNull(cloudNetwork.getLocationId(),
-				targetServerArgs.getOwnerCloudNetwork());
+				targetServerArgs.getOwnerRegionalManager());
 		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
 		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), targetServerArgs.getName());

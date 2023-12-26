@@ -79,7 +79,7 @@ public class HandleJobFinishPriceUpdateRule extends AgentSingleMessageListenerRu
 
 		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
 		final ACLMessage cnaMessage = prepareJobFinishMessageForCNA(job, facts.get(RULE_SET_IDX), finalJobPrice,
-				agentProps.getOwnerCloudNetworkAgent());
+				agentProps.getOwnerRegionalManagerAgent());
 
 		agentProps.getTotalPriceForJob().remove(job.getJobId());
 		agent.send(cnaMessage);

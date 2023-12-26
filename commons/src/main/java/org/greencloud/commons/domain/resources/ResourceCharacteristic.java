@@ -54,19 +54,19 @@ public interface ResourceCharacteristic {
 	 * @return function represented in EL used to book resource characteristic for given task
 	 */
 	@Nullable
-	String getResourceBooker();
+	String getResourceCharacteristicReservation();
 
 	/**
 	 * @return function represented in EL used to remove resource characteristic permanently
 	 */
 	@Nullable
-	String getResourceRemover();
+	String getResourceCharacteristicSubtraction();
 
 	/**
 	 * @return function used to add resources
 	 */
 	@Nullable
-	String getResourceAddition();
+	String getResourceCharacteristicAddition();
 
 	/**
 	 * Method reserve amount resource characteristic for given job
@@ -76,11 +76,11 @@ public interface ResourceCharacteristic {
 	 */
 	default Object reserveResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
 		// when resource characteristic cannot be reserved
-		if (StringUtils.isBlank(getResourceBooker())) {
+		if (StringUtils.isBlank(getResourceCharacteristicReservation())) {
 			return getValue();
 		}
 
-		final Serializable expression = MVEL.compileExpression(getResourceBooker());
+		final Serializable expression = MVEL.compileExpression(getResourceCharacteristicReservation());
 		final Map<String, Object> params = new HashMap<>();
 		final Object amountToReserve = requiredCharacteristic.convertToCommonUnit();
 		final Object ownedAmount = convertToCommonUnit();
@@ -100,11 +100,11 @@ public interface ResourceCharacteristic {
 	 */
 	default Object removeResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
 		// when resource characteristic cannot be removed
-		if (StringUtils.isBlank(getResourceRemover())) {
+		if (StringUtils.isBlank(getResourceCharacteristicSubtraction())) {
 			return getValue();
 		}
 
-		final Serializable expression = MVEL.compileExpression(getResourceRemover());
+		final Serializable expression = MVEL.compileExpression(getResourceCharacteristicSubtraction());
 		final Map<String, Object> params = new HashMap<>();
 		final Object amountToRemove = requiredCharacteristic.convertToCommonUnit();
 		final Object ownedAmount = convertToCommonUnit();
@@ -125,11 +125,11 @@ public interface ResourceCharacteristic {
 	 */
 	default ResourceCharacteristic addResource(final ResourceCharacteristic resource) {
 		// when none of the resource values are incremental
-		if (StringUtils.isBlank(getResourceAddition()) || isNull(resource)) {
+		if (StringUtils.isBlank(getResourceCharacteristicAddition()) || isNull(resource)) {
 			return this;
 		}
 
-		final Serializable expression = MVEL.compileExpression(getResourceAddition());
+		final Serializable expression = MVEL.compileExpression(getResourceCharacteristicAddition());
 		final Map<String, Object> params = new HashMap<>();
 		final Object resource1 = convertToCommonUnit();
 		final Object resource2 = resource.convertToCommonUnit();
@@ -154,11 +154,11 @@ public interface ResourceCharacteristic {
 	default ResourceCharacteristic addResource(final ResourceCharacteristic resource1,
 			final ResourceCharacteristic resource2) {
 		// when none of the resource values are incremental
-		if (StringUtils.isBlank(getResourceAddition())) {
+		if (StringUtils.isBlank(getResourceCharacteristicAddition())) {
 			return this;
 		}
 
-		final Serializable expression = MVEL.compileExpression(getResourceAddition());
+		final Serializable expression = MVEL.compileExpression(getResourceCharacteristicAddition());
 		final Map<String, Object> params = new HashMap<>();
 		final Object resource1Common = resource1.convertToCommonUnit();
 		final Object resource2Common = resource2.convertToCommonUnit();

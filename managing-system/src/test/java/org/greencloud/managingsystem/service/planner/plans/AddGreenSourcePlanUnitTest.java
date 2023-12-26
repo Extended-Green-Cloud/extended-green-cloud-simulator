@@ -4,6 +4,7 @@ import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
 import static com.google.common.collect.ImmutableList.of;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
 import static jade.core.AID.ISGUID;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
@@ -19,7 +20,13 @@ import static org.mockito.Mockito.when;
 import java.util.AbstractMap;
 import java.util.List;
 
+import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
+import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -38,12 +45,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.gui.agents.managing.ManagingAgentNode;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -76,14 +77,20 @@ class AddGreenSourcePlanUnitTest {
 		ServerArgs server1AgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server1")
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.price(5.0)
+				.maxPower(100)
+				.idlePower(10)
+				.resources(TEMPLATE_SERVER_RESOURCES)
 				.build();
 		ServerArgs server2AgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
 				.name("Server2")
-				.ownerCloudNetwork("CNA1")
+				.ownerRegionalManager("CNA1")
 				.price(5.0)
+				.maxPower(100)
+				.idlePower(10)
+				.resources(TEMPLATE_SERVER_RESOURCES)
 				.build();
 		greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(),
 				List.of(server1AgentArgs, server2AgentArgs), emptyList(), emptyList());
@@ -102,7 +109,7 @@ class AddGreenSourcePlanUnitTest {
 		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
 				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue1, backUpPowerValue2));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING)))
-				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue1, backUpPowerValue2).subList(0,1));
+				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue1, backUpPowerValue2).subList(0, 1));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK),
 				MONITOR_SYSTEM_DATA_HEALTH_PERIOD)).thenReturn(generateHealthTestData());
 		// when
@@ -149,12 +156,18 @@ class AddGreenSourcePlanUnitTest {
 						.currentTraffic(CURRENT_TRAFFIC)
 						.isDisabled(false)
 						.serverJobs(10)
+						.idlePowerConsumption(10)
+						.currentBackUpPowerTraffic(backUpPowerValue1)
+						.currentPowerConsumption(0.7)
 						.build()),
 				new AgentData(now(), serverName, SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
 						.currentTraffic(CURRENT_TRAFFIC)
 						.serverJobs(10)
 						.isDisabled(false)
+						.idlePowerConsumption(10)
+						.currentBackUpPowerTraffic(backUpPowerValue1)
+						.currentPowerConsumption(0.7)
 						.build()));
 	}
 

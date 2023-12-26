@@ -11,8 +11,10 @@ echo "Cleaning previous compilation..."
 mvn clean &&
 
 # COPY CONFIGURATION FILES TO STRATEGY FOLDER
-cp -R ./engine/src/main/resources/scenarios ./engine/strategy/scenarios
-cp -R .engine/src/main/resources/properties ./engine/strategy/properties
+cp -R ./engine/src/main/resources/scenarios/. ./engine/runnable/scenarios/
+cp -R ./engine/src/main/resources/properties/. ./engine/runnable/properties/
+cp -R ./engine/src/main/resources/knowledge/. ./engine/runnable/knowledge/
+cp -R ./engine/src/main/resources/samples/. ./engine/runnable/samples/
 
 echo "Installing modified JADE dependency..."
 mvn install:install-file -Dfile='.\lib\jade.jar' -DgroupId='com.tilab.jade' -DartifactId=jade -Dversion='4.6' -Dpackaging=jar &&

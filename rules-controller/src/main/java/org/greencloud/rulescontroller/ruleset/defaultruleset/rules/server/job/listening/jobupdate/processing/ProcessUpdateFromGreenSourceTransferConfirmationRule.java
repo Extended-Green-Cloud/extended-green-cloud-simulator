@@ -77,7 +77,7 @@ public class ProcessUpdateFromGreenSourceTransferConfirmationRule extends AgentB
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Confirming job {} transfer", jobInstance.getJobId());
 		agent.send(prepareJobTransferUpdateMessageForCNA(jobInstance, CONFIRMED_TRANSFER_PROTOCOL,
-				agentProps.getOwnerCloudNetworkAgent(), facts.get(RULE_SET_IDX)));
+				agentProps.getOwnerRegionalManagerAgent(), facts.get(RULE_SET_IDX)));
 
 		facts.put(JOB_START_INFORM, true);
 		facts.put(JOB_FINISH_INFORM, true);

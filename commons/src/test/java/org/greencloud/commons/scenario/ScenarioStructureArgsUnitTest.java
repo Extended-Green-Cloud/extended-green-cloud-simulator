@@ -1,24 +1,27 @@
 package org.greencloud.commons.scenario;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.agent.cloudnetwork.factory.ImmutableCloudNetworkArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
 import org.greencloud.commons.args.agent.scheduler.factory.ImmutableSchedulerArgs;
+import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.resources.ImmutableResource;
+import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;
-import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 
 class ScenarioStructureArgsUnitTest {
 
@@ -124,6 +127,18 @@ class ScenarioStructureArgsUnitTest {
 	}
 
 	private void prepareScenarioStructure() {
+		var mockCPUResource = ImmutableResource.builder()
+				.putCharacteristics(AMOUNT, ImmutableResourceCharacteristic.builder()
+						.value(20D)
+						.unit("cores")
+						.resourceCharacteristicAddition("return resource1 + resource2;")
+						.resourceCharacteristicReservation("return ownedAmount - amountToReserve;")
+						.resourceCharacteristicSubtraction("return ownedAmount - amountToRemove;")
+						.build())
+				.resourceComparator("import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
+				.resourceValidator("requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
+				.build();
+
 		var mockMonitor1 = ImmutableMonitoringArgs.builder()
 				.name("test_monitoring1")
 				.badStubProbability(0.02)
@@ -188,21 +203,30 @@ class ScenarioStructureArgsUnitTest {
 
 		var mockServer1 = ImmutableServerArgs.builder()
 				.name("test_server1")
-				.ownerCloudNetwork("test_cna1")
+				.ownerRegionalManager("test_cna1")
 				.jobProcessingLimit(2)
 				.price(100D)
+				.maxPower(200)
+				.idlePower(10)
+				.putResources(CPU, mockCPUResource)
 				.build();
 		var mockServer2 = ImmutableServerArgs.builder()
 				.name("test_server2")
-				.ownerCloudNetwork("test_cna1")
+				.ownerRegionalManager("test_cna1")
 				.jobProcessingLimit(10)
 				.price(50D)
+				.maxPower(200)
+				.idlePower(10)
+				.putResources(CPU, mockCPUResource)
 				.build();
 		var mockServer3 = ImmutableServerArgs.builder()
 				.name("test_server3")
-				.ownerCloudNetwork("test_cna2")
+				.ownerRegionalManager("test_cna2")
 				.jobProcessingLimit(2)
 				.price(200D)
+				.maxPower(200)
+				.idlePower(10)
+				.putResources(CPU, mockCPUResource)
 				.build();
 
 		var mockCNA1 = ImmutableCloudNetworkArgs.builder()

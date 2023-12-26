@@ -1,6 +1,7 @@
 package org.greencloud.gui.websocket;
 
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
+import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 
 import java.net.URI;
 import java.time.Instant;
@@ -13,13 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class GuiWebSocketClient extends WebSocketClient {
 
-	protected static final ObjectMapper mapper =
-			new ObjectMapper().findAndRegisterModules().registerModule(new JavaTimeModule());
 	private static final Logger logger = LoggerFactory.getLogger(GuiWebSocketClient.class);
 
 	public GuiWebSocketClient(URI serverUri) {
@@ -29,7 +26,7 @@ public class GuiWebSocketClient extends WebSocketClient {
 	public void send(Object message) {
 		try {
 			if (super.isOpen()) {
-				super.send(mapper.writeValueAsString(message));
+				super.send(getMapper().writeValueAsString(message));
 			}
 		} catch (JsonProcessingException e) {
 			throw new IncorrectMessageContentException();
