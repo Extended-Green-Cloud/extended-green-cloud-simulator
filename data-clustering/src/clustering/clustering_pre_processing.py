@@ -2,7 +2,7 @@ import pandas as pd
 
 from enum import Enum
 from typing import Any
-from src.helpers.feature_encoder import WORKFLOW_FEATURES, DETAILED_STATUS, OUTPUT_STATUS, ARGO_STATUS, ORDER_ITEM_STATUS, get_encoded_column_name
+from src.helpers.feature_encoder import WORKFLOW_FEATURES, DETAILED_STATUS, OUTPUT_STATUS, ARGO_STATUS, ORDER_ITEM_STATUS, get_encoded_column_name, get_all_encoded_column_names
 from src.helpers.statistics_operations import filter_out_undefined_workflows
 
 def add_new_error_output_column(df: pd.DataFrame, detailed_name: str, criteria: Any) -> pd.DataFrame:
@@ -18,10 +18,14 @@ def add_new_error_output_column(df: pd.DataFrame, detailed_name: str, criteria: 
     Returns: modified data frame
     '''
     new_column_name = get_encoded_column_name(WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE, detailed_name)
+    other_columns = get_all_encoded_column_names(WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE, df)
 
     df[new_column_name] = 0.0
     df.loc[criteria, [new_column_name, WORKFLOW_FEATURES.ARGO_OUTPUT_MSG]] = [1.0, detailed_name]
-    
+
+    for col in other_columns:
+        df.loc[criteria, col] = 0.0
+
     return df
 
 

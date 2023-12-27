@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from unittest import TestCase, main
 from unittest.mock import patch
@@ -22,20 +23,30 @@ MOCK_VALIDATOR_RESULTS = pd.DataFrame({
 MOCK_DATA = pd.DataFrame({
     WORKFLOW_FEATURES.CPU: ['10', '20', '5', '15'],
     WORKFLOW_FEATURES.MEMORY: ['2', '10', '25', '60'],
-    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS_CODE: ['1', '2', '0', '0'],
-    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'another_detailed_message', 'undefined', 'undefined'],
-    WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE: ['5', '4', '6', '7'],
+    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'leader changed', 'undefined', 'undefined'],
+    'argo_detailed_status_code_stopped with strategy "stop"': [1.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_leader changed': [0.0, 1.0, 0.0, 0.0],
+    'argo_detailed_status_code_undefined': [0.0, 0.0, 1.0, 1.0],
+    'argo_detailed_status_code_no more retries left': [0.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_resource not found': [0.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_request timed out': [0.0, 0.0, 0.0, 0.0],
     WORKFLOW_FEATURES.ARGO_OUTPUT_MSG: ['test_output', 'test_output_2', 'test_output_3', 'test_output_4'],
+    'argo_output_message_code_undefined error': [1.0, 1.0, 1.0, 1.0],
     WORKFLOW_FEATURES.ORDER_NAME: ['name1', 'name2', 'test_order', 'frsdf']
 })
 
 MOCK_NUMERIC_DATA = pd.DataFrame({
     WORKFLOW_FEATURES.CPU: [10.0, 20.0, 5.0, 15.0],
     WORKFLOW_FEATURES.MEMORY: [2.0, 10.0, 25.0, 60.0],
-    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS_CODE: [1.0, 2.0, 0.0, 0.0],
-    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'another_detailed_message', 'undefined', 'undefined'],
-    WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE: [5.0, 4.0, 6.0, 7.0],
+    WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'leader changed', 'undefined', 'undefined'],
+    'argo_detailed_status_code_stopped with strategy "stop"': [1.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_leader changed': [0.0, 1.0, 0.0, 0.0],
+    'argo_detailed_status_code_undefined': [0.0, 0.0, 1.0, 1.0],
+    'argo_detailed_status_code_no more retries left': [0.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_resource not found': [0.0, 0.0, 0.0, 0.0],
+    'argo_detailed_status_code_request timed out': [0.0, 0.0, 0.0, 0.0],
     WORKFLOW_FEATURES.ARGO_OUTPUT_MSG: ['test_output', 'test_output_2', 'test_output_3', 'test_output_4'],
+    'argo_output_message_code_undefined error': [1.0, 1.0, 1.0, 1.0],
     WORKFLOW_FEATURES.ORDER_NAME: ['name1', 'name2', 'test_order', 'frsdf']
 })
 
@@ -165,23 +176,32 @@ class TestClusteringModel(TestCase):
             expected_df = pd.DataFrame({
                 WORKFLOW_FEATURES.CPU: [10.0, 20.0],
                 WORKFLOW_FEATURES.MEMORY: [2.0, 10.0],
-                WORKFLOW_FEATURES.ARGO_STATUS_DETAILS_CODE: [1.0, 2.0],
-                WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'another_detailed_message'],
-                WORKFLOW_FEATURES.ARGO_OUTPUT_MSG_CODE: [11.0, 12.0],
-                WORKFLOW_FEATURES.ARGO_OUTPUT_MSG: ['stopped with strategy "stop"', 'another_detailed_message'],
-                WORKFLOW_FEATURES.ORDER_NAME: ['name1', 'name2']
+                WORKFLOW_FEATURES.ARGO_STATUS_DETAILS: ['stopped with strategy "stop"', 'leader changed'],
+                'argo_detailed_status_code_stopped with strategy "stop"': [1.0, 0.0],
+                'argo_detailed_status_code_leader changed': [0.0, 1.0],
+                'argo_detailed_status_code_undefined': [0.0, 0.0],
+                'argo_detailed_status_code_no more retries left': [0.0, 0.0],
+                'argo_detailed_status_code_resource not found': [0.0, 0.0],
+                'argo_detailed_status_code_request timed out': [0.0, 0.0],
+                WORKFLOW_FEATURES.ARGO_OUTPUT_MSG: ['stopped with strategy "stop"', 'leader changed'],
+                'argo_output_message_code_undefined error': [0.0, 0.0],
+                WORKFLOW_FEATURES.ORDER_NAME: ['name1', 'name2'],
+                'argo_output_message_code_stopped with strategy "stop"': [1.0, 0.0],
+                'argo_output_message_code_leader changed': [0.0, 1.0]
             })
 
             self.assertListEqual(reduced_data, [1, 2, 3])
 
             try:
+                pd.set_option('display.max_rows', 1000)
+                print(clustering.data)
                 assert_frame_equal(clustering.data, expected_df)
             except AssertionError as e:
                 raise self.failureException(
                     f'Method should return {expected_df} but returned {clustering.data}') from e
 
-    @patch("src.clustering.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
-    @patch("src.clustering.clustering.clustering_evaluation.save_validation_metrics")
+    @patch("src.clustering.clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
+    @patch("src.clustering.clustering.save_validation_metrics")
     def test_print_validators_not_fuzzy(self, mock_saver, mock_printer):
         """ Test should call print clustering metrics method for correct validators"""
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
@@ -203,9 +223,9 @@ class TestClusteringModel(TestCase):
             MOCK_VALIDATOR_RESULTS, clustering.name)
 
     @patch('builtins.print')
-    @patch("src.clustering.clustering.Clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
-    @patch("src.clustering.clustering.Clustering.save_validation_metrics")
-    def test_print_validators_not_fuzzy(self, mock_saver, mock_printer, mock_builtin_print):
+    @patch("src.clustering.clustering.print_clustering_metrics", return_value=MOCK_VALIDATOR_RESULTS)
+    @patch("src.clustering.clustering.save_validation_metrics")
+    def test_print_validators_fuzzy(self, mock_saver, mock_printer, mock_builtin_print):
         """ Test should call print clustering metrics method for correct validators"""
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
@@ -216,7 +236,7 @@ class TestClusteringModel(TestCase):
         with patch.object(ClusteringMetrics, 'XIE_BENI', return_value=('Xie-Beni Index', 10)) as mock_xie:
             # when
             test_labels = [0, 1, 1, 0]
-            test_data = ['test_data_array']
+            test_data = np.array(['test_data_array']).reshape(1, -1)
             test_results = [test_labels, 5, 10]
             clustering.print_validators(test_results,
                                         test_labels,
@@ -234,7 +254,7 @@ class TestClusteringModel(TestCase):
             mock_saver.assert_called_once_with(
                 MOCK_VALIDATOR_RESULTS, clustering.name)
 
-    @patch("src.clustering.clustering.run_data_preprocessing", return_value=['test_reduced_data'])
+    @patch("src.clustering.clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
     @patch("src.clustering.cluster_reader.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
     @patch("src.clustering.clustering_visualization.display_clustering_scatter_plot")
     @patch("src.clustering.clustering_visualization.display_data_frame_with_labels")
@@ -273,14 +293,14 @@ class TestClusteringModel(TestCase):
             mock_get_df_with_clusters.assert_not_called()
             mock_run_data_preprocessing.assert_not_called()
 
-    @patch("src.clustering.clustering.run_data_preprocessing", return_value=['test_reduced_data'])
-    @patch("src.clustering.cluster_reader.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
-    @patch("src.clustering.clustering_visualization.display_clustering_scatter_plot")
-    @patch("src.clustering.clustering_visualization.display_data_frame_with_labels")
-    @patch("src.clustering.clustering.print_validators")
-    @patch("src.clustering.clustering_visualization.display_cluster_statistics")
-    @patch("src.clustering.clustering_visualization.display_histograms_per_feature_for_clusters")
-    @patch("src.clustering.clustering_visualization.display_histograms_per_clusters")
+    @patch("src.clustering.clustering.Clustering.run_data_preprocessing", return_value=['test_reduced_data'])
+    @patch("src.clustering.clustering.get_df_with_cluster_labels", return_value=['test_data_with_labels'])
+    @patch("src.clustering.clustering.display_clustering_scatter_plot")
+    @patch("src.clustering.clustering.display_data_frame_with_labels")
+    @patch("src.clustering.clustering.Clustering.print_validators")
+    @patch("src.clustering.clustering.display_cluster_statistics")
+    @patch("src.clustering.clustering.display_histograms_per_feature_for_clusters")
+    @patch("src.clustering.clustering.display_histograms_per_clusters")
     def test_run_not_only_db_no_test(self,
                                      mock_cluster_display,
                                      mock_feature_display,
