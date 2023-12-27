@@ -21,12 +21,6 @@ then
 fi
 
 # COPY CONFIGURATION TO JAR
-
-cp -R ../src/main/resources/scenarios/. ./scenarios/
-cp -R ../src/main/resources/properties/. ./properties/
-cp -R ../src/main/resources/knowledge/. ./knowledge/
-cp -R ../src/main/resources/samples/. ./samples/
-
 jar -uvf "${PACKAGE_NAME}" -C properties .
 jar -uvf "${PACKAGE_NAME}" -C scenarios .
 jar -uvf "${PACKAGE_NAME}" -C knowledge .

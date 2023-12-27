@@ -64,7 +64,8 @@ The system is using _OpenWeatherMap API_ to retrieve weather predictions: https:
 
 ## Synthetic data generation
 
-In order to generate synthetic data streams please refer to the [Data Stream Generation Instruction](config/STREAM_GENERATION_INSTRUCTION.md).
+In order to generate synthetic data streams please refer to
+the [Data Stream Generation Instruction](config/STREAM_GENERATION_INSTRUCTION.md).
 
 ## System configuration and running
 
@@ -73,6 +74,20 @@ found in: [Configuration Instruction](config/CONFIG_INSTRUCTION.md).
 
 Similarly, the scripts used to compile the project are in `./compile`. In order to compile and run the project, refer
 to: [Compilation Instruction](compile/COMPILE_INSTRUCTION.md).
+
+## References
+
+More information about the system can be found in:
+
+```text
+Wrona, Z., Ganzha, M., Paprzycki, M., Krzyżanowski, S. (2023). 
+Extended Green Cloud – Modeling Cloud Infrastructure with Green Energy Sources. 
+In: Mathieu, P., Dignum, F., Novais, P., De la Prieta, F. (eds) 
+Advances in Practical Applications of Agents, Multi-Agent Systems, and Cognitive Mimetics. 
+The PAAMS Collection. PAAMS 2023. 
+Lecture Notes in Computer Science(), vol 13955. Springer, Cham. 
+https://doi.org/10.1007/978-3-031-37616-0_37
+```
 
 
 

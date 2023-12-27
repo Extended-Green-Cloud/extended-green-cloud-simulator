@@ -10,12 +10,6 @@ cd "${PARENT_DIR}/green-cloud" || exit
 echo "Cleaning previous compilation..."
 mvn clean &&
 
-# COPY CONFIGURATION FILES TO STRATEGY FOLDER
-cp -R ./engine/src/main/resources/scenarios/. ./engine/runnable/scenarios/
-cp -R ./engine/src/main/resources/properties/. ./engine/runnable/properties/
-cp -R ./engine/src/main/resources/knowledge/. ./engine/runnable/knowledge/
-cp -R ./engine/src/main/resources/samples/. ./engine/runnable/samples/
-
 echo "Installing modified JADE dependency..."
 mvn install:install-file -Dfile='.\lib\jade.jar' -DgroupId='com.tilab.jade' -DartifactId=jade -Dversion='4.6' -Dpackaging=jar &&
 
@@ -31,14 +25,11 @@ mvn compile &&
 echo "Building packages..."
 mvn package &&
 
-# COPY CONFIGURATION FILES TO STRATEGY FOLDER
-cp -R ./engine/src/main/resources/scenarios ./engine/strategy
-cp -R ./engine/src/main/resources/properties ./engine/strategy
-
-# COPY CONFIGURATION FILES TO STRATEGY FOLDER
-cp -R ./engine/src/main/resources/scenarios .
-cp -R .engine/src/main/resources/properties .
-
+# COPY CONFIGURATION FILES TO RUNNABLE FOLDER
+cp -R ./engine/src/main/resources/scenarios/. ./engine/runnable/scenarios/
+cp -R ./engine/src/main/resources/properties/. ./engine/runnable/properties/
+cp -R ./engine/src/main/resources/knowledge/. ./engine/runnable/knowledge/
+cp -R ./engine/src/main/resources/samples/. ./engine/runnable/samples/
 
 echo "Initialization of the application has finished!"
 
