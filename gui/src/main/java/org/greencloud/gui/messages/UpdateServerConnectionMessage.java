@@ -1,6 +1,6 @@
 package org.greencloud.gui.messages;
 
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.greencloud.gui.messages.domain.ServerConnection;
 import org.immutables.value.Value;
 
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableUpdateServerConnectionMessage.class)
 @JsonDeserialize(as = ImmutableUpdateServerConnectionMessage.class)
 @Value.Immutable
-public interface UpdateServerConnectionMessage extends Message {
+public interface UpdateServerConnectionMessage extends ExternalMessage {
 
 	/**
 	 * @return name of the green source agent

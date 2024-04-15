@@ -1,7 +1,9 @@
 package org.greencloud.gui.event;
 
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
+import static org.greencloud.commons.enums.event.EventTypeEnum.WEATHER_DROP_EVENT;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -9,15 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.constants.TimeConstants;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
+import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.agents.scheduler.SchedulerNode;
 import org.greencloud.gui.agents.server.ServerNode;
-import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.WeatherDropMessage;
+import org.jrba.agentmodel.domain.node.AgentNode;
+import org.jrba.environment.domain.ExternalEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,8 @@ import lombok.Getter;
  * Event simulating long-term power shortage which affects given selected region of the system
  */
 @Getter
-public class WeatherDropEvent extends AbstractEvent {
+@SuppressWarnings("rawtypes")
+public class WeatherDropEvent extends ExternalEvent {
 
 	private static final Logger logger = LoggerFactory.getLogger(WeatherDropEvent.class);
 
@@ -43,12 +46,12 @@ public class WeatherDropEvent extends AbstractEvent {
 	 * @param agentName      name of the agent for which event was triggered
 	 */
 	public WeatherDropEvent(final Instant occurrenceTime, final long duration, final String agentName) {
-		super(EventTypeEnum.WEATHER_DROP_EVENT, occurrenceTime, agentName);
+		super(agentName, WEATHER_DROP_EVENT, occurrenceTime);
 		this.duration = duration;
 	}
 
 	public WeatherDropEvent(WeatherDropMessage weatherDropMessage) {
-		this(getCurrentTime().plusSeconds(TimeConstants.SECONDS_PER_HOUR), weatherDropMessage.getData().getDuration(),
+		this(getCurrentTime().plusSeconds(SECONDS_PER_HOUR), weatherDropMessage.getData().getDuration(),
 				weatherDropMessage.getAgentName());
 	}
 
@@ -72,10 +75,10 @@ public class WeatherDropEvent extends AbstractEvent {
 	}
 
 	@Override
-	public void trigger(final Map<String, EGCSNode> agentNodes) {
+	public <T extends AgentNode> void trigger(final Map<String, T> agentNodes) {
 		final RegionalManagerNode agentNode = (RegionalManagerNode) agentNodes.get(agentName);
 		final SchedulerNode schedulerNode = (SchedulerNode) agentNodes.values().stream()
-				.filter(node -> node.getAgentType().equals(AgentType.SCHEDULER.name()))
+				.filter(node -> node.getAgentType().equals(EGCSAgentType.SCHEDULER.name()))
 				.findFirst().orElseThrow();
 
 		if (Objects.isNull(agentNode)) {
@@ -89,6 +92,7 @@ public class WeatherDropEvent extends AbstractEvent {
 				.map(server -> server.getNodeArgs().getGreenEnergyAgents())
 				.flatMap(Collection::stream)
 				.map(agentNodes::get)
+				.map(EGCSNode.class::cast)
 				.toList();
 
 		greenEnergyNodes.forEach(node -> node.addEvent(this));

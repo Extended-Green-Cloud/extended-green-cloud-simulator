@@ -2,7 +2,7 @@ package org.greencloud.commons.args.adaptation.system;
 
 import java.util.List;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;

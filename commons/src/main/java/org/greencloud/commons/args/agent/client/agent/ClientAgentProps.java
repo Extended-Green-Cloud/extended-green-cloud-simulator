@@ -4,13 +4,13 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.commons.args.agent.AgentType.CLIENT;
+import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.ImmutableClientJob;

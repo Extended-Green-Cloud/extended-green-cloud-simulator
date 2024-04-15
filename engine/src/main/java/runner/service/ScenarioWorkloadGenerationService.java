@@ -12,7 +12,7 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.M
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
 import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.REAL_TIME;
 import static org.greencloud.commons.mapper.JobMapper.mapSyntheticArgoJobToJob;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static runner.configuration.ResourceRequirementConfiguration.cpuRange;
 import static runner.configuration.ResourceRequirementConfiguration.deadlineRange;
 import static runner.configuration.ResourceRequirementConfiguration.durationRange;
@@ -23,7 +23,7 @@ import static runner.configuration.ScenarioConfiguration.clientNumber;
 import static runner.configuration.ScenarioConfiguration.generatorType;
 import static runner.configuration.ScenarioConfiguration.jobTypesNumber;
 import static runner.configuration.ScenarioConfiguration.jobsSampleFilePath;
-import static org.greencloud.commons.utils.filereader.FileReader.readFile;
+import static org.jrba.utils.file.FileReader.readFile;
 
 import java.io.File;
 import java.io.IOException;

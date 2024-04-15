@@ -5,9 +5,11 @@ import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_NAME;
 import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.register;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.function.BooleanSupplier;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.location.ImmutableLocation;
@@ -18,7 +20,7 @@ import org.slf4j.Logger;
 import jade.core.AID;
 
 /**
- * Agent representing the Green Energy Source that produces the power for the Servers
+ * Agent representing the Green Energy Source that produces the power for the Servers.
  */
 public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
@@ -42,12 +44,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 				this.properties = new GreenEnergyAgentProps(getName(), location, energyType, monitoringAgent,
 						ownerServer, pricePerPowerUnit, weatherPredictionError, maximumGeneratorCapacity);
 
-				// Additional argument indicates if the GreenSourceAgent is going to be moved to another container
-				// In such case, its service should be registered after moving
-				if (args.length != 11 || !parseBoolean(args[8].toString())) {
-					register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerServer.getName());
-				}
-
+				completeAgentRegistration(args);
 			} catch (final NumberFormatException e) {
 				logger.info("Couldn't parse one of the numerical arguments");
 				doDelete();
@@ -68,5 +65,14 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 	protected void afterMove() {
 		super.afterMove();
 		register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, properties.getOwnerServer().getName());
+	}
+
+	private void completeAgentRegistration(final Object[] args) {
+		final BooleanSupplier isAgentMoved = () -> args.length != 11 && !parseBoolean(args[8].toString());
+		final String ownerName = properties.getOwnerServer().getName();
+
+		if (isAgentMoved.getAsBoolean()) {
+			register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerName);
+		}
 	}
 }

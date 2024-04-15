@@ -9,7 +9,7 @@ import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;

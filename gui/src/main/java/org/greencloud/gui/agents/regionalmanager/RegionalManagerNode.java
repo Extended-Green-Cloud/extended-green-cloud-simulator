@@ -8,7 +8,7 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkS
 import java.util.Map;
 import java.util.Optional;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.args.agent.regionalmanager.node.RegionalManagerNodeArgs;
 import org.greencloud.commons.domain.resources.Resource;
@@ -16,11 +16,11 @@ import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.job.JobUtils;
 import org.greencloud.gui.agents.egcs.EGCSNetworkNode;
-import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
 import org.greencloud.gui.messages.ImmutableUpdateDefaultResourcesMessage;
 import org.greencloud.gui.messages.ImmutableUpdateResourcesMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
+import org.jrba.environment.domain.ExternalEvent;
 
 import com.database.knowledge.domain.agent.regionalmanager.ImmutableRegionalManagerMonitoringData;
 import com.database.knowledge.domain.agent.regionalmanager.RegionalManagerMonitoringData;
@@ -36,7 +36,7 @@ public class RegionalManagerNode extends EGCSNetworkNode<RegionalManagerNodeArgs
 	 * @param regionalManagerArgs node arguments
 	 */
 	public RegionalManagerNode(final RegionalManagerNodeArgs regionalManagerArgs) {
-		super(regionalManagerArgs, AgentType.REGIONAL_MANAGER);
+		super(regionalManagerArgs, EGCSAgentType.REGIONAL_MANAGER);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class RegionalManagerNode extends EGCSNetworkNode<RegionalManagerNodeArgs
 				.build());
 	}
 
-	public Optional<AbstractEvent> getEvent() {
+	public Optional<ExternalEvent> getEvent() {
 		return ofNullable(eventsQueue.poll());
 	}
 

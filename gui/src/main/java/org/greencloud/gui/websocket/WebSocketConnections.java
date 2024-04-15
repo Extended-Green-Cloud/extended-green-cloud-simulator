@@ -18,10 +18,10 @@ import org.greencloud.gui.websocket.enums.SocketTypeEnum;
  */
 public class WebSocketConnections {
 
-	private static GuiWebSocketClient AGENTS_WEB_SOCKET;
-	private static GuiWebSocketClient CLIENTS_WEB_SOCKET;
-	private static GuiWebSocketClient MANAGING_SYSTEM_SOCKET;
-	private static GuiWebSocketClient CLOUD_NETWORK_SOCKET;
+	private static EGCSWebSocketClient AGENTS_WEB_SOCKET;
+	private static EGCSWebSocketClient CLIENTS_WEB_SOCKET;
+	private static EGCSWebSocketClient MANAGING_SYSTEM_SOCKET;
+	private static EGCSWebSocketClient CLOUD_NETWORK_SOCKET;
 
 	/**
 	 * Method initializes the connection of websockets for the same url
@@ -58,23 +58,23 @@ public class WebSocketConnections {
 		CLOUD_NETWORK_SOCKET.connect();
 	}
 
-	public static GuiWebSocketClient getAgentsWebSocket() {
+	public static EGCSWebSocketClient getAgentsWebSocket() {
 		return AGENTS_WEB_SOCKET;
 	}
 
-	public static GuiWebSocketClient getClientsWebSocket() {
+	public static EGCSWebSocketClient getClientsWebSocket() {
 		return CLIENTS_WEB_SOCKET;
 	}
 
-	public static GuiWebSocketClient getManagingSystemSocket() {
+	public static EGCSWebSocketClient getManagingSystemSocket() {
 		return MANAGING_SYSTEM_SOCKET;
 	}
 
-	public static GuiWebSocketClient getCloudNetworkSocket() {
+	public static EGCSWebSocketClient getCloudNetworkSocket() {
 		return CLOUD_NETWORK_SOCKET;
 	}
 
-	private static GuiWebSocketClient initializeSocket(final GuiWebSocketClient socket, final String url) {
-		return ofNullable(socket).orElse(new GuiWebSocketClient(URI.create(url)));
+	private static EGCSWebSocketClient initializeSocket(final EGCSWebSocketClient socket, final String url) {
+		return ofNullable(socket).orElse(new EGCSWebSocketClient(URI.create(url)));
 	}
 }

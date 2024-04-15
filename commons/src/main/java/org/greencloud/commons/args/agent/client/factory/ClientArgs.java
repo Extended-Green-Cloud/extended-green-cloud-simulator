@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.immutables.value.Value.Immutable;

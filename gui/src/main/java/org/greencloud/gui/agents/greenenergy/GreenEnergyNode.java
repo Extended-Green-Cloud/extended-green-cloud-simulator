@@ -7,17 +7,17 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSock
 import java.io.Serializable;
 import java.util.Optional;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.job.JobUtils;
 import org.greencloud.gui.agents.egcs.EGCSNetworkNode;
-import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
 import org.greencloud.gui.messages.ImmutableUpdateServerConnectionMessage;
 import org.greencloud.gui.messages.domain.ImmutableServerConnection;
+import org.jrba.environment.domain.ExternalEvent;
 
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
@@ -39,7 +39,7 @@ public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenE
 	 * @param greenEnergyNodeArgs arguments provided for green energy agent creation
 	 */
 	public GreenEnergyNode(GreenEnergyNodeArgs greenEnergyNodeArgs) {
-		super(greenEnergyNodeArgs, AgentType.GREEN_ENERGY);
+		super(greenEnergyNodeArgs, EGCSAgentType.GREEN_ENERGY);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenE
 
 	}
 
-	public Optional<AbstractEvent> getEvent() {
+	public Optional<ExternalEvent> getEvent() {
 		return ofNullable(eventsQueue.poll());
 	}
 

@@ -11,8 +11,8 @@ import static org.greencloud.managingsystem.service.executor.logs.ManagingAgentE
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+import org.jrba.utils.messages.MessageBuilder;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.google.common.annotations.VisibleForTesting;
-import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 
 import jade.core.Location;
 import jade.lang.acl.ACLMessage;
@@ -40,14 +40,14 @@ public class ExecutorService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorService.class);
 
-	private AgentControllerFactory factory;
+	private EGCSControllerFactory factory;
 
 	public ExecutorService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
 	}
 
 	@VisibleForTesting
-	protected ExecutorService(ManagingAgent managingAgent, AgentControllerFactory factory) {
+	protected ExecutorService(ManagingAgent managingAgent, EGCSControllerFactory factory) {
 		super(managingAgent);
 		this.factory = factory;
 	}
@@ -75,8 +75,7 @@ public class ExecutorService extends AbstractManagingService {
 
 	private void executeAdaptationActionOnAgent(final AbstractPlan adaptationPlan,
 			final Map<GoalEnum, Double> initialGoalQualities, final AdaptationAction actionToBeExecuted) {
-		final ACLMessage adaptationActionRequest = MessageBuilder.builder(0)
-				.withPerformative(REQUEST)
+		final ACLMessage adaptationActionRequest = MessageBuilder.builder(0, REQUEST)
 				.withConversationId(adaptationPlan.getAdaptationActionEnum().toString())
 				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
 				.withObjectContent(adaptationPlan.getActionParameters())
@@ -118,7 +117,7 @@ public class ExecutorService extends AbstractManagingService {
 				.toList();
 	}
 
-	public void setFactory(AgentControllerFactory factory) {
+	public void setFactory(EGCSControllerFactory factory) {
 		this.factory = factory;
 	}
 }

@@ -1,17 +1,17 @@
 package org.greencloud.agentsystem.agents.client;
 
 import static java.util.Collections.emptyList;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToInstantTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTimeMinusError;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareDF;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.prepareDF;
+import static org.jrba.utils.agent.AgentConnector.connectAgentObject;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.List;
 
-import org.greencloud.agentsystem.agents.AbstractAgent;
-import org.greencloud.agentsystem.utils.AgentConnector;
+import org.greencloud.agentsystem.agents.EGCSAgent;
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.exception.IncorrectTaskDateException;
@@ -28,9 +28,9 @@ public class ClientAgent extends AbstractClientAgent {
 
 	private static final Logger logger = getLogger(ClientAgent.class);
 
-	private static void connectClient(AbstractAgent<?, ?> abstractAgent) {
-		AgentConnector.connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
-		AgentConnector.connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
+	private static void connectClient(EGCSAgent<?, ?> abstractAgent) {
+		connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
+		connectAgentObject(abstractAgent, abstractAgent.getO2AObject());
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package org.greencloud.weatherapi.api;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.FileNotFoundException;

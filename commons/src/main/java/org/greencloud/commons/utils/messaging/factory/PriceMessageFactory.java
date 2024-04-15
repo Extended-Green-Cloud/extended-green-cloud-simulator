@@ -6,7 +6,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 
 import org.greencloud.commons.domain.job.instance.ImmutableJobInstanceWithPrice;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -27,8 +27,7 @@ public class PriceMessageFactory {
 	 */
 	public static ACLMessage preparePriceMessage(final AID receiver, JobInstanceIdentifier jobInstanceId,
 			final double price, final int ruleIdx) {
-		return MessageBuilder.builder(ruleIdx)
-				.withPerformative(INFORM)
+		return MessageBuilder.builder(ruleIdx, INFORM)
 				.withMessageProtocol(EXECUTION_PRICE_MESSAGE)
 				.withReceivers(receiver)
 				.withObjectContent(
@@ -48,8 +47,7 @@ public class PriceMessageFactory {
 	 */
 	public static ACLMessage prepareFinalPriceMessage(final String replyWith, final AID receiver,
 			final JobInstanceIdentifier jobInstanceId, final double price, final int ruleIdx) {
-		return MessageBuilder.builder(ruleIdx)
-				.withPerformative(INFORM)
+		return MessageBuilder.builder(ruleIdx, INFORM)
 				.withMessageProtocol(FINAL_EXECUTION_PRICE_MESSAGE)
 				.withReceivers(receiver)
 				.withReplyWith(replyWith)

@@ -5,8 +5,11 @@ import static jade.wrapper.AgentController.ASYNC;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.greencloud.agentsystem.strategies.RuleSetSelector.selectRuleSetByName;
 import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
+import static org.jrba.rulesengine.rest.RuleSetRestApi.startRulesControllerRest;
+import static org.jrba.utils.file.FileReader.buildResourceFilePath;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.databaseHostIp;
 import static runner.configuration.EngineConfiguration.jadeInterPort;
@@ -20,6 +23,11 @@ import static runner.configuration.EngineConfiguration.platformId;
 import static runner.configuration.EngineConfiguration.runJadeGUI;
 import static runner.configuration.EngineConfiguration.runJadeSniffer;
 import static runner.configuration.EngineConfiguration.websocketAddresses;
+import static runner.configuration.StrategiesConfiguration.RULE_SETS_DIR;
+import static runner.configuration.StrategiesConfiguration.STRATEGIES_DIR;
+import static runner.configuration.StrategiesConfiguration.readScenarioProperties;
+import static runner.configuration.StrategiesConfiguration.ruleSetApiPort;
+import static runner.configuration.StrategiesConfiguration.strategyName;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.constants.EngineConstants.MTP_MULTI_MESSAGE;
 
@@ -36,12 +44,12 @@ import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.InvalidScenarioException;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.exception.JadeControllerException;
-import org.greencloud.rulescontroller.RulesController;
+import org.jrba.rulesengine.RulesController;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.greencloud.connector.factory.AgentControllerFactory;
 import com.greencloud.connector.factory.AgentNodeFactoryImpl;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 import com.greencloud.connector.gui.GuiController;
 import com.greencloud.connector.gui.GuiControllerImpl;
 
@@ -66,7 +74,7 @@ public abstract class AbstractScenarioService {
 	protected final ContainerController mainContainer;
 	protected final ContainerController agentContainer;
 
-	protected AgentControllerFactory factory;
+	protected EGCSControllerFactory factory;
 	protected ScenarioStructureArgs scenario;
 	protected Map<String, Map<String, Object>> systemKnowledge;
 	protected ScenarioWorkloadGenerationService workloadGenerator;
@@ -82,6 +90,7 @@ public abstract class AbstractScenarioService {
 		this.jadeRuntime = instance();
 		this.timescaleDatabase = new TimescaleDatabase(databaseHostIp);
 		this.guiController = new GuiControllerImpl(websocketAddresses);
+		readScenarioProperties();
 
 		if (mainHost) {
 			timescaleDatabase.initDatabase();
@@ -114,6 +123,11 @@ public abstract class AbstractScenarioService {
 			throw new InvalidScenarioException(
 					format("Failed to parse knowledge file \"%s\"", knowledgeFile), e);
 		}
+	}
+
+	protected void startRuleSetAPI() {
+		final String ruleSets = buildResourceFilePath(STRATEGIES_DIR, RULE_SETS_DIR);
+		startRulesControllerRest(selectRuleSetByName(strategyName), ruleSets, ruleSetApiPort);
 	}
 
 	protected AgentController prepareManagingController(final ManagingAgentArgs managingAgentArgs) {

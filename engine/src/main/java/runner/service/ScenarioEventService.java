@@ -2,17 +2,18 @@ package runner.service;
 
 import static java.lang.String.format;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.greencloud.commons.enums.event.EventTypeEnum.CLIENT_CREATION_EVENT;
 import static org.greencloud.commons.enums.event.EventTypeEnum.GREEN_SOURCE_CREATION_EVENT;
 import static org.greencloud.commons.enums.event.EventTypeEnum.SERVER_CREATION_EVENT;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
 import static org.greencloud.commons.utils.event.EventSelector.getEventsForType;
 import static org.greencloud.commons.utils.event.EventValidator.validateClientCreationEvents;
 import static org.greencloud.commons.utils.event.EventValidator.validateGreenSourceEvents;
 import static org.greencloud.commons.utils.event.EventValidator.validateServerEvents;
-import static org.greencloud.commons.utils.filereader.FileReader.readFile;
-import static org.greencloud.rulescontroller.rest.RuleSetRestApi.getAvailableRuleSets;
+import static org.jrba.rulesengine.rest.RuleSetRestApi.getAvailableRuleSets;
+import static org.jrba.utils.file.FileReader.readFile;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static runner.configuration.ScenarioConfiguration.eventFilePath;
 import static runner.constants.EngineConstants.POWER_SHORTAGE_EVENT_DELAY;
 
@@ -40,15 +41,15 @@ import org.greencloud.gui.event.EnableServerEvent;
 import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
-import org.greencloud.rulescontroller.ruleset.RuleSet;
-import org.greencloud.rulescontroller.ruleset.domain.ModifyAgentRuleSetEvent;
+import org.jrba.rulesengine.ruleset.RuleSet;
+import org.jrba.rulesengine.ruleset.domain.ModifyAgentRuleSetEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.greencloud.connector.factory.AgentControllerFactory;
 import com.greencloud.connector.factory.AgentFactory;
 import com.greencloud.connector.factory.AgentFactoryImpl;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 
 import jade.wrapper.AgentController;
 
@@ -111,7 +112,7 @@ public class ScenarioEventService {
 		logger.info("Scheduling scenario events...");
 		final ScheduledExecutorService executor = newSingleThreadScheduledExecutor();
 		eventArgs.forEach(event -> executor.schedule(() -> runEvent(event), event.getOccurrenceTime(), SECONDS));
-		scenarioService.factory.shutdownAndAwaitTermination(executor);
+		scenarioService.factory.shutdownAndAwaitTermination(executor, 1, HOURS);
 	}
 
 	private void runEvent(final EventArgs event) {
@@ -150,7 +151,7 @@ public class ScenarioEventService {
 	}
 
 	private void runNewClientEvent(final EventArgs event) {
-		final AgentControllerFactory factory = scenarioService.factory;
+		final EGCSControllerFactory factory = scenarioService.factory;
 		final NewClientEventArgs newClientEvent = (NewClientEventArgs) event;
 		final ClientArgs clientAgentArgs = agentFactory.createClientAgent(newClientEvent);
 

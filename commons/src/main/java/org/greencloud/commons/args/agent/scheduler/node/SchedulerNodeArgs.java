@@ -1,6 +1,6 @@
 package org.greencloud.commons.args.agent.scheduler.node;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -13,6 +13,7 @@ cp -R ./engine/src/main/resources/scenarios/. ./engine/runnable/scenarios/
 cp -R ./engine/src/main/resources/properties/. ./engine/runnable/properties/
 cp -R ./engine/src/main/resources/knowledge/. ./engine/runnable/knowledge/
 cp -R ./engine/src/main/resources/samples/. ./engine/runnable/samples/
+cp -R ./engine/src/main/resources/strategy/. ./engine/runnable/strategy/
 
 echo "Recompilation of the backend application completed"
 

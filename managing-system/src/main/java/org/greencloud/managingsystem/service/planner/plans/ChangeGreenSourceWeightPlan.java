@@ -2,7 +2,7 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static java.util.Collections.min;
 import static java.util.Comparator.comparingInt;
 import static java.util.List.of;

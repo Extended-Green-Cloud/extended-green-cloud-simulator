@@ -11,7 +11,7 @@ import static org.greencloud.commons.constants.DFServiceConstants.RMA_SERVICE_TY
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.search;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.search;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,10 +30,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import org.greencloud.commons.utils.yellowpages.YellowPagesRegister;
+import org.jrba.utils.yellowpages.YellowPagesRegister;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
@@ -58,7 +58,7 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.regionalmanager.ImmutableRegionalManagerMonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -79,7 +79,7 @@ class ExecutorServiceDatabaseTest {
 	Location location;
 
 	MobilityService mobilityService;
-	AgentControllerFactory agentFactory;
+	EGCSControllerFactory agentFactory;
 	AbstractPlan adaptationPlan;
 	TimescaleDatabase database;
 	MonitoringService monitoringService;
@@ -92,7 +92,7 @@ class ExecutorServiceDatabaseTest {
 		database = spy(TimescaleDatabase.setUpForTests());
 		database.initDatabase();
 
-		agentFactory = mock(AgentControllerFactory.class);
+		agentFactory = mock(EGCSControllerFactory.class);
 		monitoringService = spy(new MonitoringService(managingAgent));
 		executorService = spy(new ExecutorService(managingAgent, agentFactory));
 		yellowPagesService = mockStatic(YellowPagesRegister.class);
@@ -125,32 +125,6 @@ class ExecutorServiceDatabaseTest {
 		verify(monitoringService).getGoalService(MAXIMIZE_JOB_SUCCESS_RATIO);
 	}
 
-	@Test
-	@Disabled
-	void shouldCorrectlyExecuteSystemAdaptationPlan() {
-		// given
-		final AID testAID = new AID("test@address", ISGUID);
-		testAID.addAddresses("test_address");
-		initializeData();
-		when(mobilityService.getContainerLocations("RMA1")).thenReturn(
-				new AbstractMap.SimpleEntry<>(location, testAID));
-		when(location.getName()).thenReturn("Main-Container");
-		doNothing().when(mobilityService).moveContainers(any(), any());
-		yellowPagesService.when(() -> search(any(), any(), eq(RMA_SERVICE_TYPE)))
-				.thenReturn(Set.of(new AID("RMA1", true)));
-		adaptationPlan = new AddServerPlan(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
-		adaptationPlan.isPlanExecutable();
-		adaptationPlan.constructAdaptationPlan();
-
-		// when
-		executorService.executeAdaptationAction(adaptationPlan);
-
-		// then
-		verify(agentFactory, times(3)).createAgentController(any(), any(ScenarioStructureArgs.class));
-		verify(abstractAgentNode).logNewAdaptation(eq(ADD_SERVER), any(Instant.class), eq(Optional.empty()));
-		verify(managingAgent).addBehaviour(any(VerifyAdaptationActionResult.class));
-	}
-
 	private void initializeData() {
 		var serverAgentArgs = ImmutableServerArgs.builder()
 				.jobProcessingLimit(200)
@@ -165,7 +139,7 @@ class ExecutorServiceDatabaseTest {
 				.jobStatusDurationMap(Map.of(ON_BACK_UP, 10L, IN_PROGRESS, 20L))
 				.isFinished(true)
 				.build();
-		var rmaHealthData = new HealthCheck(true, AgentType.REGIONAL_MANAGER);
+		var rmaHealthData = new HealthCheck(true, EGCSAgentType.REGIONAL_MANAGER);
 		var rmaTrafficData = ImmutableRegionalManagerMonitoringData.builder()
 				.successRatio(0.8)
 				.build();

@@ -1,7 +1,8 @@
 package org.greencloud.commons.args.agent.monitoring.agent;
 
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import static org.greencloud.commons.args.agent.EGCSAgentType.MONITORING;
+
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,7 @@ public class MonitoringAgentProps extends EGCSAgentProps {
 	 * @param agentName name of the agent
 	 */
 	public MonitoringAgentProps(final String agentName) {
-		super(AgentType.MONITORING, agentName);
+		super(MONITORING, agentName);
 		this.badStubProbability = BAD_STUB_PROBABILITY;
 		this.offlineMode = false;
 	}

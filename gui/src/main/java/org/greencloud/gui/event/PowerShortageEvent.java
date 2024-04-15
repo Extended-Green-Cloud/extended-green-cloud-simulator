@@ -1,6 +1,7 @@
 package org.greencloud.gui.event;
 
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.greencloud.commons.enums.event.EventTypeEnum.POWER_SHORTAGE_EVENT;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -8,18 +9,22 @@ import java.util.Objects;
 
 import org.greencloud.commons.enums.event.PowerShortageCauseEnum;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
-import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.commons.enums.event.EventTypeEnum;
 import org.greencloud.gui.messages.PowerShortageMessage;
+import org.jrba.agentmodel.domain.node.AgentNode;
+import org.jrba.environment.domain.ExternalEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import lombok.Getter;
+
 /**
  * Event making the given agent exposed to the power shortage
  */
-public class PowerShortageEvent extends AbstractEvent {
+@Getter
+@SuppressWarnings("rawtypes")
+public class PowerShortageEvent extends ExternalEvent {
 
 	private static final Logger logger = LoggerFactory.getLogger(PowerShortageEvent.class);
 
@@ -36,14 +41,14 @@ public class PowerShortageEvent extends AbstractEvent {
 	 */
 	public PowerShortageEvent(Instant occurrenceTime, boolean finished, final PowerShortageCauseEnum cause,
 			final String agentName) {
-		super(EventTypeEnum.POWER_SHORTAGE_EVENT, occurrenceTime, agentName);
+		super(agentName, POWER_SHORTAGE_EVENT, occurrenceTime);
 		this.finished = finished;
 		this.cause = cause;
 	}
 
 	public PowerShortageEvent(PowerShortageMessage powerShortageMessage) {
-		super(EventTypeEnum.POWER_SHORTAGE_EVENT, powerShortageMessage.getData().getOccurrenceTime(),
-				powerShortageMessage.getAgentName());
+		super(powerShortageMessage.getAgentName(), POWER_SHORTAGE_EVENT,
+				powerShortageMessage.getData().getOccurrenceTime());
 		this.finished = Boolean.TRUE.equals(powerShortageMessage.getData().isFinished());
 		this.cause = PowerShortageCauseEnum.PHYSICAL_CAUSE;
 	}
@@ -68,27 +73,13 @@ public class PowerShortageEvent extends AbstractEvent {
 	}
 
 	@Override
-	public void trigger(final Map<String, EGCSNode> agentNodes) {
-		EGCSNode agentNode = agentNodes.get(agentName);
+	public <T extends AgentNode> void trigger(final Map<String, T> agentNodes) {
+		AgentNode agentNode = agentNodes.get(agentName);
 
 		if (Objects.isNull(agentNode)) {
 			logger.error("Agent {} was not found. Power shortage couldn't be triggered", agentName);
 			return;
 		}
 		agentNode.addEvent(this);
-	}
-
-	/**
-	 * @return flag if the power shortage should be finished or started
-	 */
-	public boolean isFinished() {
-		return finished;
-	}
-
-	/**
-	 * @return cause of the power shortage
-	 */
-	public PowerShortageCauseEnum getCause() {
-		return cause;
 	}
 }

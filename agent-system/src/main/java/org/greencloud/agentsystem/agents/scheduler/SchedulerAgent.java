@@ -1,8 +1,8 @@
 package org.greencloud.agentsystem.agents.scheduler;
 
 import static org.greencloud.commons.utils.math.MathOperations.isFibonacci;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.register;
 import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_NAME;
 import static org.greencloud.commons.constants.DFServiceConstants.SCHEDULER_SERVICE_TYPE;
 import static java.lang.Integer.parseInt;

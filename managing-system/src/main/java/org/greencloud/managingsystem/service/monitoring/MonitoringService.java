@@ -2,8 +2,8 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
 import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static org.greencloud.commons.args.agent.AgentType.SCHEDULER;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SCHEDULER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.averagingDouble;
@@ -43,7 +43,7 @@ import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.exception.InvalidGoalIdentifierException;
 import com.google.common.annotations.VisibleForTesting;
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 
 /**
  * Service containing methods connected with monitoring the quality of the system
@@ -182,7 +182,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @param agentType type of the agent
 	 * @return list of alive agent
 	 */
-	public List<String> getAliveAgents(final AgentType agentType) {
+	public List<String> getAliveAgents(final EGCSAgentType agentType) {
 		final List<AgentData> healthAgentData =
 				managingAgent.getAgentNode().getDatabaseClient()
 						.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK),
@@ -267,7 +267,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @param agentsOfInterest list of all agents of interest (their local names)
 	 * @return list of alive agent (AIDs)
 	 */
-	public List<String> getAliveAgentsIntersection(final AgentType agentType, List<String> agentsOfInterest) {
+	public List<String> getAliveAgentsIntersection(final EGCSAgentType agentType, List<String> agentsOfInterest) {
 		return getAliveAgentsIntersection(getAliveAgents(agentType), agentsOfInterest);
 	}
 
@@ -328,7 +328,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return map of agents and assigned to them values
 	 */
 	public <T> Map<String, T> concatLatestAgentDataWithNotRegistered(final List<AgentData> databaseAgentData,
-			final AgentType agentType, final Function<AgentData, T> valueFunction, final T defaultValue) {
+			final EGCSAgentType agentType, final Function<AgentData, T> valueFunction, final T defaultValue) {
 		if (databaseAgentData.isEmpty()) {
 			return emptyMap();
 		}

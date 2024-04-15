@@ -25,13 +25,13 @@ import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
 import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.ServerCreator;
-import org.greencloud.gui.websocket.GuiWebSocketClient;
-import org.greencloud.rulescontroller.ruleset.domain.ModifyAgentRuleSetEvent;
+import org.greencloud.gui.websocket.EGCSWebSocketClient;
+import org.jrba.rulesengine.ruleset.domain.ModifyAgentRuleSetEvent;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 import com.greencloud.connector.factory.AgentFactory;
 import com.greencloud.connector.factory.AgentFactoryImpl;
 import com.greencloud.connector.factory.AgentNodeFactory;
@@ -39,14 +39,14 @@ import com.greencloud.connector.factory.AgentNodeFactoryImpl;
 
 import jade.wrapper.AgentController;
 
-public class EventListener extends GuiWebSocketClient {
+public class EventListener extends EGCSWebSocketClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventListener.class);
 
 	private final Map<String, EGCSNode> agentNodes;
 	private final AgentFactory agentFactory;
 	private final AgentNodeFactory nodeFactory;
-	private AgentControllerFactory factory;
+	private EGCSControllerFactory factory;
 
 	public EventListener(final URI serverUri) {
 		super(serverUri);
@@ -60,7 +60,7 @@ public class EventListener extends GuiWebSocketClient {
 	 *
 	 * @param factory agent factory that is to be connected with the event listener
 	 */
-	public void connectWithAgentFactory(final AgentControllerFactory factory) {
+	public void connectWithAgentFactory(final EGCSControllerFactory factory) {
 		this.factory = factory;
 	}
 

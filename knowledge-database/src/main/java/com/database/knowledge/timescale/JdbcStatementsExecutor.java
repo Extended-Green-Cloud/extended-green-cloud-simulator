@@ -21,7 +21,7 @@ import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_
 import static com.database.knowledge.timescale.DmlQueries.READ_SYSTEM_START_TIME;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 
 import java.sql.Array;
 import java.sql.Connection;

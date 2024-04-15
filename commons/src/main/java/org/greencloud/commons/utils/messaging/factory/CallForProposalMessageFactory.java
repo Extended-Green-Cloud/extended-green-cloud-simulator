@@ -4,7 +4,7 @@ import static jade.lang.acl.ACLMessage.CFP;
 
 import java.util.Collection;
 
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -24,8 +24,7 @@ public class CallForProposalMessageFactory {
 	 */
 	public static ACLMessage prepareCallForProposal(final Object content, final Collection<AID> receiverList,
 			final String protocol, final Integer ruleSetIdx) {
-		return MessageBuilder.builder(ruleSetIdx)
-				.withPerformative(CFP)
+		return MessageBuilder.builder(ruleSetIdx, CFP)
 				.withMessageProtocol(protocol)
 				.withObjectContent(content)
 				.withReceivers(receiverList)

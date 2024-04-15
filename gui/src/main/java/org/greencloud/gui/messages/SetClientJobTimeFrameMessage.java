@@ -1,7 +1,7 @@
 package org.greencloud.gui.messages;
 
 import org.greencloud.gui.messages.domain.JobTimeFrame;
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableSetClientJobTimeFrameMessage.class)
 @JsonDeserialize(as = ImmutableSetClientJobTimeFrameMessage.class)
 @Value.Immutable
-public interface SetClientJobTimeFrameMessage extends Message {
+public interface SetClientJobTimeFrameMessage extends ExternalMessage {
 
 	JobTimeFrame getData();
 

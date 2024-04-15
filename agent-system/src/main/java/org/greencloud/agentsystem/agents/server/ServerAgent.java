@@ -3,13 +3,16 @@ package org.greencloud.agentsystem.agents.server;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_NAME;
+import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_NAME;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.register;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.resources.Resource;
@@ -20,6 +23,7 @@ import jade.core.AID;
 /**
  * Agent representing the Server which executes the clients' jobs
  */
+@SuppressWarnings("unchecked")
 public class ServerAgent extends AbstractServerAgent {
 
 	private static final Logger logger = getLogger(ServerAgent.class);
@@ -35,16 +39,11 @@ public class ServerAgent extends AbstractServerAgent {
 				final int idlePowerConsumption = parseInt(args[3].toString());
 				final int jobProcessingLimit = parseInt(args[4].toString());
 				final Map<String, Resource> resources = (Map<String, Resource>) (args[5]);
+
 				this.properties = new ServerAgentProps(getName(), ownerRegionalManagerAgentAgent, resources,
 						maxPowerConsumption, idlePowerConsumption, pricePerHour, jobProcessingLimit);
 
-				// Additional argument indicates if the ServerAgent is going to be moved to another container
-				// In such case, its service should be registered after moving
-				if (args.length != 9 || !parseBoolean(args[6].toString())) {
-					register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
-							properties.getOwnerRegionalManagerAgent().getName());
-				}
-
+				completeAgentRegistration(args);
 			} catch (final NumberFormatException e) {
 				logger.info("Some of the arguments are not a number!");
 				doDelete();
@@ -65,11 +64,20 @@ public class ServerAgent extends AbstractServerAgent {
 	@Override
 	protected void afterMove() {
 		super.afterMove();
-		register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME,
-				properties.getOwnerRegionalManagerAgent().getName());
+		final String ownerName = properties.getOwnerRegionalManagerAgent().getName();
+		register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME, ownerName);
 
 		// restoring default values
 		properties.setPricePerHour(20);
 		properties.setJobProcessingLimit(20);
+	}
+
+	private void completeAgentRegistration(final Object[] args) {
+		final BooleanSupplier isAgentMoved = () -> args.length != 9 || !parseBoolean(args[6].toString());
+		final String ownerName = properties.getOwnerRegionalManagerAgent().getName();
+
+		if (isAgentMoved.getAsBoolean()) {
+			register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerName);
+		}
 	}
 }

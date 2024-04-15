@@ -1,8 +1,8 @@
 package org.greencloud.agentsystem.agents.regionalmanager;
 
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.deregister;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.prepareDF;
-import static org.greencloud.commons.utils.yellowpages.YellowPagesRegister.register;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.deregister;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.prepareDF;
+import static org.jrba.utils.yellowpages.YellowPagesRegister.register;
 import static org.greencloud.commons.constants.DFServiceConstants.RMA_SERVICE_NAME;
 import static org.greencloud.commons.constants.DFServiceConstants.RMA_SERVICE_TYPE;
 import static java.util.Collections.emptyList;

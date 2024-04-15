@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.ToLongFunction;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
@@ -57,7 +57,7 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	 * @param args arguments provided for client agent creation
 	 */
 	public ClientNode(ClientNodeArgs args) {
-		super(args, AgentType.CLIENT);
+		super(args, EGCSAgentType.CLIENT);
 	}
 
 	/**

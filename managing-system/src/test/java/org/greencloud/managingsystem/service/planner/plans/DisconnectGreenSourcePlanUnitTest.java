@@ -7,8 +7,8 @@ import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVE
 import static java.time.Instant.now;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
@@ -321,24 +321,6 @@ class DisconnectGreenSourcePlanUnitTest {
 	@DisplayName("Test construct adaptation plan for no green sources with servers")
 	void testConstructAdaptationPlanEmptyMap() {
 		assertThat(disconnectGreenSourcePlan.constructAdaptationPlan()).isNull();
-	}
-
-	@Test
-	@Disabled
-	@DisplayName("Test construct adaptation plan")
-	void testConstructAdaptationPlan() {
-		var testMap = Map.of(
-				"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2"),
-				"test_gs2@192.168.56.1:6996/JADE", List.of("test_server2", "test_server3")
-		);
-		disconnectGreenSourcePlan.setGreenSourcesWithServers(testMap);
-
-		var result = disconnectGreenSourcePlan.constructAdaptationPlan();
-
-		assertThat(result.getTargetAgent().getName()).isEqualTo("test_gs2@192.168.56.1:6996/JADE");
-		assertThat(result.getActionParameters())
-				.isInstanceOfSatisfying(ChangeGreenSourceConnectionParameters.class,
-						params -> assertThat(params.getServerName()).isEqualTo("test_server2"));
 	}
 
 	private List<AgentData> prepareAliveGreenSourcesData() {

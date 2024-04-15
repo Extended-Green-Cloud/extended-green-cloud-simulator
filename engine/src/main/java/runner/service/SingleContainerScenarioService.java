@@ -1,12 +1,11 @@
 package runner.service;
 
 import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
-import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
+import static org.jrba.utils.file.FileReader.readFile;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
-import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,9 +13,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import org.greencloud.commons.args.agent.AgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.factory.AgentControllerFactoryImpl;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+
+import com.greencloud.connector.factory.EGCSControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
@@ -39,14 +39,14 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioStructureFile);
 
-		this.factory = new AgentControllerFactoryImpl(mainContainer, timescaleDatabase, guiController, mainDFAddress,
+		this.factory = new EGCSControllerFactoryImpl(mainContainer, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);
 		guiController.connectWithAgentFactory(factory);
 	}
 
 	@Override
 	public void run() {
-		startRulesControllerRest();
+		startRuleSetAPI();
 		if (Objects.nonNull(scenario.getAgentsArgs())) {
 			AGENTS_TO_RUN.add(prepareManagingController(scenario.getManagingAgentArgs()));
 			createAgents(List.of(scenario.getSchedulerAgentArgs()), scenario);

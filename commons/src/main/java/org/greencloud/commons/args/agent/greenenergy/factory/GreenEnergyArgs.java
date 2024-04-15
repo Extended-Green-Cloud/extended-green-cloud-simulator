@@ -4,7 +4,7 @@ import static java.util.Collections.singleton;
 
 import java.util.ArrayList;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.immutables.value.Value;
 

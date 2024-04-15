@@ -24,9 +24,9 @@ import org.greencloud.gui.messages.domain.ImmutableServerCreator;
 import org.greencloud.gui.messages.domain.ServerCreator;
 import org.greencloud.gui.websocket.WebSocketConnections;
 import org.greencloud.gui.websocket.enums.SocketTypeEnum;
-import org.greencloud.rulescontroller.ruleset.domain.ModifyAgentRuleSetEvent;
+import org.jrba.rulesengine.ruleset.domain.ModifyAgentRuleSetEvent;
 
-import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 
 public class GuiControllerImpl implements GuiController {
 
@@ -45,7 +45,7 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void connectWithAgentFactory(final AgentControllerFactory factory) {
+	public void connectWithAgentFactory(final EGCSControllerFactory factory) {
 		eventSocket.connectWithAgentFactory(factory);
 	}
 

@@ -1,18 +1,25 @@
 package org.greencloud.commons.enums.event;
 
-import static org.greencloud.commons.enums.rules.RuleType.ADAPTATION_REQUEST_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.AGENT_CREATION_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.AGENT_MODIFY_RULE_SET_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.POWER_SHORTAGE_ERROR_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.SERVER_MAINTENANCE_RULE;
-import static org.greencloud.commons.enums.rules.RuleType.WEATHER_DROP_ERROR_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.ADAPTATION_REQUEST_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.AGENT_CREATION_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.AGENT_MODIFY_RULE_SET_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.POWER_SHORTAGE_ERROR_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_MAINTENANCE_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.WEATHER_DROP_ERROR_RULE;
 
 import java.io.Serializable;
+
+import org.jrba.environment.types.EventType;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Enum defining types of the environment events
  */
-public enum EventTypeEnum implements Serializable {
+@Getter
+@AllArgsConstructor
+public enum EventTypeEnum implements Serializable, EventType {
 
 	POWER_SHORTAGE_EVENT(POWER_SHORTAGE_ERROR_RULE),
 	DISABLE_SERVER_EVENT(ADAPTATION_REQUEST_RULE),
@@ -25,12 +32,4 @@ public enum EventTypeEnum implements Serializable {
 	WEATHER_DROP_EVENT(WEATHER_DROP_ERROR_RULE);
 
 	final String ruleType;
-
-	EventTypeEnum(final String ruleType) {
-		this.ruleType = ruleType;
-	}
-
-	public String getRuleType() {
-		return ruleType;
-	}
 }

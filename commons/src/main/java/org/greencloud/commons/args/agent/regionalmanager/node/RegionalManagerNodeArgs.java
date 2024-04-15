@@ -3,7 +3,7 @@ package org.greencloud.commons.args.agent.regionalmanager.node;
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 

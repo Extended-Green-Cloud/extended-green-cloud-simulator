@@ -18,12 +18,17 @@
 	<name>agent-connector</name>
 
 	<properties>
-		<junit-jupiter.version>5.9.0</junit-jupiter.version>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.compilerVersion>21</maven.compiler.compilerVersion>
 	</properties>
 
 	<dependencies>
+		<!-- JRBA Dependencies-->
+		<dependency>
+			<groupId>io.github.extended-green-cloud</groupId>
+			<artifactId>jrba</artifactId>
+		</dependency>
 		<!-- Agent system -->
 		<dependency>
 			<groupId>org.greencloud.agentsystem</groupId>
@@ -36,30 +41,28 @@
 			<artifactId>knowledge-database</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<!-- Lombok -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.28</version>
-			<scope>provided</scope>
-		</dependency>
 		<!-- Commons -->
 		<dependency>
 			<groupId>org.greencloud.commons</groupId>
 			<artifactId>commons</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<!-- Rules -->
+		<!-- Database -->
 		<dependency>
-			<groupId>org.greencloud.rulescontroller</groupId>
-			<artifactId>rules-controller</artifactId>
+			<groupId>org.greencloud.knowledge-database</groupId>
+			<artifactId>knowledge-database</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
-		<!-- JADE Dependencies-->
+		<!-- Lombok -->
 		<dependency>
-			<groupId>com.tilab.jade</groupId>
-			<artifactId>jade</artifactId>
-			<version>4.6</version>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<!-- JetBrains Annotations -->
+		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
 		</dependency>
 		<!-- Jackson -->
 		<dependency>
@@ -96,48 +99,26 @@
 			<groupId>org.immutables</groupId>
 			<artifactId>value</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.jetbrains</groupId>
-			<artifactId>annotations</artifactId>
-			<version>17.0.0</version>
-			<scope>compile</scope>
-		</dependency>
 		<!-- Testing -->
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.9.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-params</artifactId>
-			<version>5.9.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>3.23.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-inline</artifactId>
-			<version>4.8.0</version>
-			<scope>test</scope>
+			<artifactId>mockito-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>4.8.0</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
-			<version>4.2.0</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
 		</dependency>
 	</dependencies>
 

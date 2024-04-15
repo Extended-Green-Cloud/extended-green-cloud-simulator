@@ -1,6 +1,6 @@
 package org.greencloud.commons.args.agent.regionalmanager.factory;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.immutables.value.Value.Immutable;
 import org.jetbrains.annotations.Nullable;
 

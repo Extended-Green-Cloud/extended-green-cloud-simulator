@@ -1,32 +1,31 @@
 package org.greencloud.agentsystem.agents.monitoring.behaviour;
 
-import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherDataResponse;
+import static java.lang.Math.max;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.collections4.ListUtils.partition;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_DATA;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.MAX_NUMBER_OF_WEATHER_REQUESTS;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.WEATHER_REQUESTS_IN_BATCH;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_AGENT_NAME;
-import static org.greencloud.commons.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
-import static java.lang.Math.max;
-import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherDataResponse;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_AGENT_NAME;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.collections4.ListUtils;
+import org.greencloud.agentsystem.agents.monitoring.MonitoringAgent;
 import org.greencloud.agentsystem.agents.monitoring.behaviour.logs.WeatherServingLog;
 import org.greencloud.agentsystem.agents.monitoring.behaviour.templates.WeatherServingMessageTemplates;
-import org.slf4j.Logger;
-import org.slf4j.MDC;
-
-import org.greencloud.agentsystem.agents.monitoring.MonitoringAgent;
 import org.greencloud.commons.domain.agent.GreenSourceForecastData;
 import org.greencloud.commons.domain.agent.GreenSourceWeatherData;
 import org.greencloud.commons.domain.weather.MonitoringData;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -55,11 +54,12 @@ public class ServeForecastWeather extends CyclicBehaviour implements Serializabl
 	 */
 	@Override
 	public void action() {
-		final List<ACLMessage> messages = monitoringAgent.receive(WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE,
+		final List<ACLMessage> messages = monitoringAgent.receive(
+				WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE,
 				MAX_NUMBER_OF_WEATHER_REQUESTS);
 
 		if (nonNull(messages)) {
-			ListUtils.partition(messages, WEATHER_REQUESTS_IN_BATCH).stream().parallel()
+			partition(messages, WEATHER_REQUESTS_IN_BATCH).stream().parallel()
 					.forEach(list -> list.forEach(msg -> {
 						final boolean isPeriodicCheck = msg.getConversationId().equals(PERIODIC_WEATHER_CHECK_PROTOCOL);
 						final MonitoringData data = isPeriodicCheck ?
@@ -77,7 +77,7 @@ public class ServeForecastWeather extends CyclicBehaviour implements Serializabl
 		final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
 
 		MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
-		MDC.put(MDC_JOB_ID,requestData.getJobId());
+		MDC.put(MDC_JOB_ID, requestData.getJobId());
 		logger.info(WeatherServingLog.SERVE_FORECAST_FOR_JOB_LOG, requestData.getJobId());
 
 		return monitoringAgent.getProperties().isOfflineMode() ?

@@ -29,11 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentType;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
-import org.greencloud.commons.constants.LoggingConstants;
-import org.greencloud.commons.domain.facts.RuleSetFacts;
+import org.jrba.rulesengine.constants.LoggingConstants;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
@@ -83,7 +83,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	protected boolean hasError;
 
 	public GreenEnergyAgentProps(final String agentName) {
-		super(AgentType.GREEN_ENERGY, agentName);
+		super(EGCSAgentType.GREEN_ENERGY, agentName);
 		this.greenSourceDisconnection = new GreenSourceDisconnectionProps();
 		this.shortagesAccumulator = new AtomicInteger(0);
 		this.weatherShortagesCounter = new AtomicInteger(0);
@@ -326,7 +326,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @implNote Formula: P (Watts) = 0.5 * p * R^2 * Cp * V^3  where:
 	 * <p> p - air density (kg/m^3) </p>
 	 * <p> R - rotor swept area (m^3) </p>
-	 * <p> Cp - coeff. of performance </p>
+	 * <p> Cp - coefficient of performance </p>
 	 * <p> V - wind speed (m/s) </p>
 	 */
 	private double getWindEnergy(WeatherData weather) {

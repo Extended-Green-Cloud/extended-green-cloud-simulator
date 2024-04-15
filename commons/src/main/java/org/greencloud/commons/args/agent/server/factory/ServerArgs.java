@@ -6,7 +6,7 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.C
 import java.security.InvalidParameterException;
 import java.util.Map;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
@@ -39,7 +39,7 @@ public interface ServerArgs extends AgentArgs {
 	Integer getIdlePower();
 
 	/**
-	 * @return amount of hardware resources owned by server
+	 * @return hardware resources owned by server
 	 */
 	Map<String, Resource> getResources();
 

@@ -21,7 +21,7 @@ import java.util.AbstractMap;
 import java.util.List;
 
 import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
@@ -119,36 +119,6 @@ class AddGreenSourcePlanUnitTest {
 		assertThat(result).isEqualTo(expectedResult);
 	}
 
-	@Test
-	@Disabled
-	void shouldConstructPlan() {
-		// given
-		final AID testAID = new AID("test", ISGUID);
-		testAID.addAddresses("test_address");
-		var backUpPowerValue = 30;
-		serverName = "Server2";
-		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
-		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
-				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue, backUpPowerValue + 20));
-
-		doReturn(null).when(mobilityService).getContainerLocations("RMA1");
-		doReturn(new AbstractMap.SimpleImmutableEntry<>(mock(Location.class), testAID)).when(mobilityService)
-				.getContainerLocations("Main-Container");
-
-		addGreenSourcePlan.isPlanExecutable();
-
-		// when
-		var result = addGreenSourcePlan.constructAdaptationPlan();
-
-		// then
-		assertThat(result)
-				.isNotNull()
-				.matches(plan -> plan.getActionParameters() instanceof AddGreenSourceActionParameters);
-		var params = (AddGreenSourceActionParameters) addGreenSourcePlan.getActionParameters();
-		assertThat(params)
-				.matches(p -> ((GreenEnergyArgs) p.getAgentsArguments().get(1)).getOwnerSever().equals("Server2"));
-	}
-
 	private List<AgentData> generateTestDataForTrafficValue(Integer backUpPowerValue1, Integer backUpPowerValue2) {
 		return of(
 				new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
@@ -173,7 +143,7 @@ class AddGreenSourcePlanUnitTest {
 
 	private List<AgentData> generateHealthTestData() {
 		return of(
-				new AgentData(now(), "Server1", HEALTH_CHECK, new HealthCheck(true, AgentType.SERVER)),
-				new AgentData(now(), serverName, HEALTH_CHECK, new HealthCheck(true, AgentType.SERVER)));
+				new AgentData(now(), "Server1", HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)),
+				new AgentData(now(), serverName, HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)));
 	}
 }

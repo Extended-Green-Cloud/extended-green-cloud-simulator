@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.domain.jobstep.JobStep;
 import org.greencloud.commons.domain.resources.Resource;
 import org.immutables.value.Value;

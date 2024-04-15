@@ -11,7 +11,7 @@ import java.util.Map;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.ImmutableServerResources;
 import org.greencloud.commons.domain.resources.Resource;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -32,8 +32,7 @@ public class AgentDiscoveryMessageFactory {
 	public static ACLMessage prepareMessageToManagingAgent(final String containerName, final String agentName,
 			final AID managingAgent) {
 		final String protocol = String.join("_", CONFIRM_SYSTEM_PLAN_MESSAGE, agentName, containerName);
-		return MessageBuilder.builder(0)
-				.withPerformative(INFORM)
+		return MessageBuilder.builder(0, INFORM)
 				.withMessageProtocol(protocol)
 				.withStringContent(protocol)
 				.withReceivers(managingAgent)
@@ -48,8 +47,7 @@ public class AgentDiscoveryMessageFactory {
 	 */
 	public static ACLMessage prepareResourceInformationMessage(final ServerAgentProps serverAgentProps,
 			final AID rma, final int ruleSetIdx) {
-		return MessageBuilder.builder(ruleSetIdx)
-				.withPerformative(INFORM)
+		return MessageBuilder.builder(ruleSetIdx, INFORM)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withObjectContent(ImmutableServerResources.builder()
 						.resources(serverAgentProps.resources())
@@ -66,8 +64,7 @@ public class AgentDiscoveryMessageFactory {
 	 * @return inform ACLMessage
 	 */
 	public static ACLMessage prepareRequestForResourceInformationMessage(final AID server, final int ruleSetIdx) {
-		return MessageBuilder.builder(ruleSetIdx)
-				.withPerformative(REQUEST)
+		return MessageBuilder.builder(ruleSetIdx, REQUEST)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withObjectContent(REGISTER_SERVER_RESOURCES_PROTOCOL)
 				.withReceivers(server)
@@ -82,8 +79,7 @@ public class AgentDiscoveryMessageFactory {
 	 */
 	public static ACLMessage prepareRequestInformingRMAAboutResourceChange(final ServerAgentProps serverAgentProps,
 			final Map<String, Resource> newResources, final int ruleSetIdx) {
-		return MessageBuilder.builder(ruleSetIdx)
-				.withPerformative(REQUEST)
+		return MessageBuilder.builder(ruleSetIdx, REQUEST)
 				.withMessageProtocol(CHANGE_SERVER_RESOURCES_PROTOCOL)
 				.withObjectContent(ImmutableServerResources.builder()
 						.resources(newResources)

@@ -5,26 +5,28 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSoc
 
 import java.util.Objects;
 
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.AgentNodeProps;
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.AgentType;
-import org.greencloud.gui.agents.AgentNode;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.gui.messages.ImmutableRegisterAgentMessage;
 import org.greencloud.gui.messages.ImmutableRemoveAgentMessage;
+import org.jrba.agentmodel.domain.node.AgentNode;
+import org.jrba.agentmodel.domain.props.AgentProps;
+import org.jrba.environment.websocket.GuiWebSocketClient;
 
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class represents abstract generic agent node
  */
 @Getter
+@Setter
 public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extends AgentNode<E>
-		implements EGCSNodeInterface, AgentNodeProps<E> {
+		implements EGCSNodeInterface {
 
 	protected TimescaleDatabase databaseClient;
 	protected T nodeArgs;
@@ -39,7 +41,7 @@ public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extend
 	 * @param nodeArgs  arguments used to create agent node
 	 * @param agentType type of agent node
 	 */
-	protected EGCSNode(T nodeArgs, AgentType agentType) {
+	protected EGCSNode(T nodeArgs, EGCSAgentType agentType) {
 		super(nodeArgs.getName(), agentType.name());
 		this.nodeArgs = nodeArgs;
 	}
@@ -76,6 +78,11 @@ public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extend
 	}
 
 	@Override
+	public GuiWebSocketClient initializeSocket(String url) {
+		return null;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -88,13 +95,5 @@ public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extend
 	@Override
 	public int hashCode() {
 		return Objects.hash(agentName);
-	}
-
-	public TimescaleDatabase getDatabaseClient() {
-		return databaseClient;
-	}
-
-	public void setDatabaseClient(TimescaleDatabase databaseClient) {
-		this.databaseClient = databaseClient;
 	}
 }

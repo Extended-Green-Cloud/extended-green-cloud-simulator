@@ -2,7 +2,7 @@ package org.greencloud.gui.agents.monitoring;
 
 import java.io.Serializable;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
 import org.greencloud.commons.args.agent.monitoring.node.MonitoringNodeArgs;
 import org.greencloud.gui.agents.egcs.EGCSNode;
@@ -18,7 +18,7 @@ public class MonitoringNode extends EGCSNode<MonitoringNodeArgs, MonitoringAgent
 	 * @param nodeArgs arguments of monitoring agent node
 	 */
 	public MonitoringNode(final MonitoringNodeArgs nodeArgs) {
-		super(nodeArgs, AgentType.MONITORING);
+		super(nodeArgs, EGCSAgentType.MONITORING);
 	}
 
 	@Override

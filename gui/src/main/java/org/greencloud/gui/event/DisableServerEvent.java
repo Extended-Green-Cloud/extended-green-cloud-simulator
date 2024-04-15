@@ -1,14 +1,15 @@
 package org.greencloud.gui.event;
 
 import static org.greencloud.commons.enums.event.EventTypeEnum.DISABLE_SERVER_EVENT;
-import static org.greencloud.commons.mapper.JsonMapper.getMapper;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 
 import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.commons.exception.IncorrectMessageContentException;
-import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.SwitchServerOnOffGUIMessage;
+import org.jrba.agentmodel.domain.node.AgentNode;
+import org.jrba.environment.domain.ExternalEvent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -18,7 +19,8 @@ import lombok.Getter;
  * Event simulating server disabling
  */
 @Getter
-public class DisableServerEvent extends AbstractEvent {
+@SuppressWarnings("rawtypes")
+public class DisableServerEvent extends ExternalEvent {
 
 	/**
 	 * Default event constructor
@@ -27,7 +29,7 @@ public class DisableServerEvent extends AbstractEvent {
 	 * @param agentName      name of the agent for which the event is executed
 	 */
 	public DisableServerEvent(final Instant occurrenceTime, final String agentName) {
-		super(DISABLE_SERVER_EVENT, occurrenceTime, agentName);
+		super(agentName, DISABLE_SERVER_EVENT, occurrenceTime);
 	}
 
 	public DisableServerEvent(SwitchServerOnOffGUIMessage switchServerOnOffGUIMessage) {
@@ -55,7 +57,7 @@ public class DisableServerEvent extends AbstractEvent {
 	}
 
 	@Override
-	public void trigger(final Map<String, EGCSNode> agentNodes) {
+	public <T extends AgentNode> void trigger(final Map<String, T> agentNodes) {
 		agentNodes.get(agentName).addEvent(this);
 	}
 }

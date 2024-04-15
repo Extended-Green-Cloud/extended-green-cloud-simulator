@@ -4,7 +4,7 @@ import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.greencloud.commons.args.agent.AgentType.REGIONAL_MANAGER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_ACCEPTED_LOG;
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_FINISH_LOG;
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_PROCESS_LOG;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;

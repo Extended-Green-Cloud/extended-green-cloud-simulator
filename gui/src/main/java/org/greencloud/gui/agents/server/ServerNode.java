@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.args.agent.server.node.ServerNodeArgs;
 import org.greencloud.commons.constants.resource.ResourceTypesConstants;
@@ -19,7 +19,6 @@ import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.job.JobUtils;
 import org.greencloud.gui.agents.egcs.EGCSNetworkNode;
-import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.gui.messages.ImmutableDisableServerMessage;
 import org.greencloud.gui.messages.ImmutableEnableServerMessage;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
@@ -27,6 +26,7 @@ import org.greencloud.gui.messages.ImmutableUpdateDefaultResourcesMessage;
 import org.greencloud.gui.messages.ImmutableUpdateResourcesMessage;
 import org.greencloud.gui.messages.ImmutableUpdateServerMaintenanceMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
+import org.jrba.environment.domain.ExternalEvent;
 
 import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
@@ -49,7 +49,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	 * @param serverNodeArgs aarguments of given server node
 	 */
 	public ServerNode(ServerNodeArgs serverNodeArgs) {
-		super(serverNodeArgs, AgentType.SERVER);
+		super(serverNodeArgs, EGCSAgentType.SERVER);
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.build());
 	}
 
-	public Optional<AbstractEvent> getEvent() {
+	public Optional<ExternalEvent> getEvent() {
 		return Optional.ofNullable(eventsQueue.poll());
 	}
 

@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import org.greencloud.commons.domain.resources.Resource;
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableUpdateResourcesMessage.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Value.Immutable
-public interface UpdateResourcesMessage extends Message {
+public interface UpdateResourcesMessage extends ExternalMessage {
 
 	Map<String, Resource> getResources();
 

@@ -1,13 +1,13 @@
 package org.greencloud.commons.exception;
 
-import org.greencloud.commons.exception.domain.ExceptionMessages;
-
 /**
  * Exception thrown when date of the task (job) execution is invalid
  */
 public class IncorrectTaskDateException extends RuntimeException {
 
+	private static final String INCORRECT_DATE_FORMAT = "The provided execution date has incorrect format";
+
 	public IncorrectTaskDateException() {
-		super(ExceptionMessages.INCORRECT_DATE_FORMAT);
+		super(INCORRECT_DATE_FORMAT);
 	}
 }

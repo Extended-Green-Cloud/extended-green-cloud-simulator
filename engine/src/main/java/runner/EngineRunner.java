@@ -4,7 +4,6 @@ import static runner.configuration.EngineConfiguration.readSystemProperties;
 import static runner.configuration.ScenarioConfiguration.readScenarioProperties;
 import static runner.constants.EngineConstants.GUI_SETUP_MILLISECONDS_DELAY;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ public class EngineRunner {
 	private static final Logger logger = LoggerFactory.getLogger(EngineRunner.class);
 
 	public static void main(String[] args) throws InterruptedException {
-		logger.info("Passed arguments: {}", Arrays.stream(args).toList());
 		readSystemProperties();
 		readScenarioProperties();
 

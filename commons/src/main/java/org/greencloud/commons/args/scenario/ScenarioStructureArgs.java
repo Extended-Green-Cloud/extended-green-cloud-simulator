@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
@@ -28,6 +28,7 @@ public class ScenarioStructureArgs implements Serializable {
 
 	private ManagingAgentArgs managingAgentArgs;
 	private SchedulerArgs schedulerAgentArgs;
+	@Getter
 	private List<RegionalManagerArgs> regionalManagerAgentsArgs;
 	private List<ServerArgs> serverAgentsArgs;
 	private List<MonitoringArgs> monitoringAgentsArgs;
@@ -58,10 +59,6 @@ public class ScenarioStructureArgs implements Serializable {
 		this.serverAgentsArgs = new ArrayList<>(serverAgentsArgs);
 		this.monitoringAgentsArgs = new ArrayList<>(monitoringAgentsArgs);
 		this.greenEnergyAgentsArgs = new ArrayList<>(greenEnergyAgentsArgs);
-	}
-
-	public List<RegionalManagerArgs> getRegionalManagerAgentsArgs() {
-		return regionalManagerAgentsArgs;
 	}
 
 	/**

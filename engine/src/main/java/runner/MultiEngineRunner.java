@@ -7,7 +7,6 @@ import static runner.constants.EngineConstants.GUI_SETUP_MILLISECONDS_DELAY;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ public class MultiEngineRunner {
 	private static final Logger logger = LoggerFactory.getLogger(MultiEngineRunner.class);
 
 	public static void main(String[] args) throws InterruptedException {
-		logger.info("Passed arguments: {}", Arrays.stream(args).toList());
 		retrieveLocalHostIp();
 		readSystemProperties();
 		readScenarioProperties();

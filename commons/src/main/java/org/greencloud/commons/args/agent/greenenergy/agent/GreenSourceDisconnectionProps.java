@@ -5,10 +5,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Class represents parameters set for a Green Source if it is undergoing the disconnection from a given Server
  */
+@Getter
+@Setter
 public class GreenSourceDisconnectionProps {
 
 	private AID serverToBeDisconnected;
@@ -38,20 +42,8 @@ public class GreenSourceDisconnectionProps {
 		this.isBeingDisconnected = new AtomicBoolean(false);
 	}
 
-	public AID getServerToBeDisconnected() {
-		return serverToBeDisconnected;
-	}
-	public ACLMessage getOriginalAdaptationMessage() {
-		return originalAdaptationMessage;
-	}
 	public boolean isBeingDisconnected() {
 		return isBeingDisconnected.get();
-	}
-	public void setServerToBeDisconnected(AID serverToBeDisconnected) {
-		this.serverToBeDisconnected = serverToBeDisconnected;
-	}
-	public void setOriginalAdaptationMessage(ACLMessage originalAdaptationMessage) {
-		this.originalAdaptationMessage = originalAdaptationMessage;
 	}
 	public void setBeingDisconnected(boolean beingDisconnected) {
 		isBeingDisconnected.set(beingDisconnected);

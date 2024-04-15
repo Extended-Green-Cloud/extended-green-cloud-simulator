@@ -9,7 +9,7 @@ import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;

@@ -3,7 +3,7 @@ package runner.configuration;
 import static java.io.File.separator;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
-import static org.greencloud.commons.utils.filereader.FileReader.buildResourceFilePath;
+import static org.jrba.utils.file.FileReader.buildResourceFilePath;
 import static runner.configuration.ResourceRequirementConfiguration.readJobsRequirements;
 import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_EVENTS;
 import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE;

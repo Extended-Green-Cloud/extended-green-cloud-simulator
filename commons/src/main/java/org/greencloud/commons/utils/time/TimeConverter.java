@@ -7,6 +7,7 @@ import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
 import static org.greencloud.commons.constants.TimeConstants.MINUTES_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
+import static org.greencloud.commons.utils.time.TimeSimulation.SYSTEM_START_TIME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -80,10 +81,10 @@ public class TimeConverter {
 	 * @return Instant being a time representing a real time
 	 */
 	public static Instant convertToRealTime(final Instant time) {
-		final long simulationTimeDifference = between(TimeSimulation.SYSTEM_START_TIME, time).toMillis();
+		final long simulationTimeDifference = between(SYSTEM_START_TIME, time).toMillis();
 		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
 		final double realTimeDifference = simulationTimeDifference * realTimeMultiplier;
-		return TimeSimulation.SYSTEM_START_TIME.plusMillis((long) realTimeDifference);
+		return SYSTEM_START_TIME.plusMillis((long) realTimeDifference);
 	}
 
 	/**

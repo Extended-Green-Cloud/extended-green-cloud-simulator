@@ -1,9 +1,0 @@
-[
-	{
-		"type": "POWER_SHORTAGE_EVENT",
-		"occurrenceTime": "5",
-		"agentName": "Server1",
-		"isFinished": false,
-		"cause": "PHYSICAL_CAUSE"
-	}
-]

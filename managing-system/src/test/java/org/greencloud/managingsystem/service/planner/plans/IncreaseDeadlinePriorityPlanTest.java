@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -57,7 +57,7 @@ class IncreaseDeadlinePriorityPlanTest {
 	}
 
 	private void mockHealthCheckData() {
-		var healthCheck = new HealthCheck(true, AgentType.SCHEDULER);
+		var healthCheck = new HealthCheck(true, EGCSAgentType.SCHEDULER);
 		var mockData = List.of(new AgentData(now(), "schedulerTest", HEALTH_CHECK, healthCheck));
 		doReturn(mockData).when(timescaleDatabase)
 				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);

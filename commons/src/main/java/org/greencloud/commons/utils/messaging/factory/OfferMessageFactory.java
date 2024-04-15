@@ -14,7 +14,7 @@ import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.energy.EnergyTypeEnum;
 import org.greencloud.commons.utils.job.JobUtils;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.lang.acl.ACLMessage;
 

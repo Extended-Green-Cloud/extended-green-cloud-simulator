@@ -1,16 +1,16 @@
 package org.greencloud.gui.messages;
 
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 @JsonSerialize(as = ImmutableRegisterAgentMessage.class)
 @JsonDeserialize(as = ImmutableRegisterAgentMessage.class)
 @Value.Immutable
-public interface RegisterAgentMessage extends Message {
+public interface RegisterAgentMessage extends ExternalMessage {
 
 	String getAgentType();
 

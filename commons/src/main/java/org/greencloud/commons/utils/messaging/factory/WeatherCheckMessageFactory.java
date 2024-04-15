@@ -1,5 +1,6 @@
 package org.greencloud.commons.utils.messaging.factory;
 
+import static java.lang.Integer.valueOf;
 import static org.greencloud.commons.utils.job.JobUtils.getTimetableOfJobs;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
@@ -11,7 +12,7 @@ import org.greencloud.commons.domain.agent.ImmutableGreenSourceWeatherData;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.job.basic.ServerJob;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.lang.acl.ACLMessage;
 
@@ -31,8 +32,7 @@ public class WeatherCheckMessageFactory {
 	 */
 	public static ACLMessage prepareWeatherCheckRequest(final GreenEnergyAgentProps props, final ServerJob job,
 			final String conversationId, final String protocol, final Integer ruleSet) {
-		return MessageBuilder.builder(ruleSet)
-				.withPerformative(REQUEST)
+		return MessageBuilder.builder(ruleSet, REQUEST)
 				.withObjectContent(createMessageContent(job, props))
 				.withReceivers(props.getMonitoringAgent())
 				.withMessageProtocol(protocol)
@@ -49,7 +49,7 @@ public class WeatherCheckMessageFactory {
 	 */
 	public static ACLMessage prepareWeatherDataResponse(final MonitoringData monitoringData, final ACLMessage request) {
 		final ACLMessage response = request.createReply();
-		return MessageBuilder.builder(response.getOntology())
+		return MessageBuilder.builder(valueOf(response.getOntology()))
 				.copy(response)
 				.withConversationId(request.getConversationId())
 				.withPerformative(INFORM)

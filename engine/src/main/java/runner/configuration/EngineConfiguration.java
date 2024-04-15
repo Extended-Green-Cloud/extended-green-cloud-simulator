@@ -1,7 +1,7 @@
 package runner.configuration;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.greencloud.commons.utils.filereader.FileReader.buildResourceFilePath;
+import static org.jrba.utils.file.FileReader.buildResourceFilePath;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.AGENTS_WEB_SOCKET;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.CLIENTS_WEB_SOCKET;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;
@@ -26,6 +26,7 @@ import runner.EngineRunner;
 public final class EngineConfiguration extends AbstractConfiguration {
 
 	private static final String PROPERTIES_DIR = "properties";
+	private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
 
 	/**
 	 * Port used for the intra-platform (i.e. inside the platform) agent communication
@@ -125,16 +126,7 @@ public final class EngineConfiguration extends AbstractConfiguration {
 	 * Flag indicates if the JADE Sniffer should be started along with the main container
 	 */
 	public static boolean runJadeSniffer;
-	private static String SYSTEM_PROPERTIES_FILE = "system.properties";
 
-	/**
-	 * Method sets the system properties file
-	 *
-	 * @param systemPropertiesFile name of the system properties file
-	 */
-	public static void setSystemPropertiesFile(final String systemPropertiesFile) {
-		SYSTEM_PROPERTIES_FILE = systemPropertiesFile;
-	}
 
 	/**
 	 * Method reads the properties set for the system set up at the given .properties file

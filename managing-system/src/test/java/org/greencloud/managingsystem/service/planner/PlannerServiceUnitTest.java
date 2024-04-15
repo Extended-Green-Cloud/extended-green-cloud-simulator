@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -280,10 +280,10 @@ class PlannerServiceUnitTest {
 	}
 
 	private void mockHealthCheckData() {
-		var healthCheck1 = new HealthCheck(true, AgentType.GREEN_ENERGY);
-		var healthCheck2 = new HealthCheck(true, AgentType.GREEN_ENERGY);
-		var healthCheck3 = new HealthCheck(true, AgentType.GREEN_ENERGY);
-		var healthCheck4 = new HealthCheck(true, AgentType.SERVER);
+		var healthCheck1 = new HealthCheck(true, EGCSAgentType.GREEN_ENERGY);
+		var healthCheck2 = new HealthCheck(true, EGCSAgentType.GREEN_ENERGY);
+		var healthCheck3 = new HealthCheck(true, EGCSAgentType.GREEN_ENERGY);
+		var healthCheck4 = new HealthCheck(true, EGCSAgentType.SERVER);
 
 		var mockData = List.of(
 				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),

@@ -3,7 +3,7 @@ package runner.service;
 import static com.greencloud.connector.factory.constants.AgentControllerConstants.RUN_AGENT_DELAY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.greencloud.rulescontroller.rest.RuleSetRestApi.startRulesControllerRest;
+import static org.jrba.utils.file.FileReader.readFile;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.locationId;
 import static runner.configuration.EngineConfiguration.mainDFAddress;
@@ -13,7 +13,6 @@ import static runner.configuration.EngineConfiguration.newPlatform;
 import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
 import static runner.configuration.ScenarioConfiguration.scenarioFilePath;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
-import static org.greencloud.commons.utils.filereader.FileReader.readFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,16 +20,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
-import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import com.greencloud.connector.factory.AgentControllerFactoryImpl;
+import com.greencloud.connector.factory.EGCSControllerFactoryImpl;
 
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -57,7 +56,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioFile);
 
-		this.factory = new AgentControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
+		this.factory = new EGCSControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);
 		guiController.connectWithAgentFactory(factory);
 	}
@@ -69,7 +68,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	 */
 	@Override
 	public void run() {
-		startRulesControllerRest();
+		startRuleSetAPI();
 		updateSystemStartTime();
 
 		if (mainHost) {

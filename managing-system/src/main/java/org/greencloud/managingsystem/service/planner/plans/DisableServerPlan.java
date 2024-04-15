@@ -5,7 +5,7 @@ import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
 import static java.util.Collections.max;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableDisableServerActionParameters;
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 

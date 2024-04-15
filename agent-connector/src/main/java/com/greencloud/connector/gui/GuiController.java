@@ -12,9 +12,9 @@ import org.greencloud.gui.event.EnableServerEvent;
 import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
-import org.greencloud.rulescontroller.ruleset.domain.ModifyAgentRuleSetEvent;
+import org.jrba.rulesengine.ruleset.domain.ModifyAgentRuleSetEvent;
 
-import com.greencloud.connector.factory.AgentControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactory;
 
 /**
  * Controller for GUI
@@ -29,7 +29,7 @@ public interface GuiController extends Runnable, Serializable {
 	/**
 	 * Method connects GUI with agent factory
 	 */
-	void connectWithAgentFactory(final AgentControllerFactory factory);
+	void connectWithAgentFactory(final EGCSControllerFactory factory);
 
 	/**
 	 * Method adds next agent node to the graph

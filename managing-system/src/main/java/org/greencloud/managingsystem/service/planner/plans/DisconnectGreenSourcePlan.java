@@ -10,8 +10,8 @@ import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.concat;
-import static org.greencloud.commons.args.agent.AgentType.GREEN_ENERGY;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
-import org.greencloud.commons.args.agent.AgentArgs;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;

@@ -4,12 +4,12 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSock
 
 import java.io.Serializable;
 
-import org.greencloud.commons.args.agent.AgentArgs;
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
 import org.greencloud.gui.messages.ImmutableIsActiveMessage;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+import org.jrba.agentmodel.domain.props.AgentProps;
 
 /**
  * Class represents abstract generic agent node which is a part of regional manager
@@ -26,7 +26,7 @@ public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps>
 	 * @param nodeArgs arguments used to create agent node
 	 * @param nodeType type of agent node
 	 */
-	protected EGCSNetworkNode(final T nodeArgs, final AgentType nodeType) {
+	protected EGCSNetworkNode(final T nodeArgs, final EGCSAgentType nodeType) {
 		super(nodeArgs, nodeType);
 	}
 

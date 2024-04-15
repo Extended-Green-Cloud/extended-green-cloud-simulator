@@ -2,13 +2,13 @@ package org.greencloud.agentsystem.behaviours;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getActionParametersClass;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static org.greencloud.commons.utils.messaging.MessageReader.readMessageContent;
+import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.EXECUTE_ACTION_REQUEST;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
 import static java.util.Objects.nonNull;
 
-import org.greencloud.agentsystem.agents.AbstractAgent;
+import org.greencloud.agentsystem.agents.EGCSAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
@@ -21,9 +21,9 @@ import jade.core.behaviours.CyclicBehaviour;
  */
 public class ListenForAdaptationAction extends CyclicBehaviour {
 
-	final AbstractAgent<?, ?> myAbstractAgent;
+	final EGCSAgent<?, ?> myAbstractAgent;
 
-	public ListenForAdaptationAction(AbstractAgent<?, ?> myAbstractAgent) {
+	public ListenForAdaptationAction(EGCSAgent<?, ?> myAbstractAgent) {
 		this.myAbstractAgent = myAbstractAgent;
 	}
 

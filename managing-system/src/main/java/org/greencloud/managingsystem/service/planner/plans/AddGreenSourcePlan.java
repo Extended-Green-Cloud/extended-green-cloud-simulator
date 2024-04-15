@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
-import static org.greencloud.commons.args.agent.AgentType.SERVER;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingDouble;

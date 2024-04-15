@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.ImmutableIncrementCounterMessage;
@@ -19,6 +18,7 @@ import org.greencloud.gui.messages.ImmutableUpdateSystemIndicatorsMessage;
 import org.greencloud.gui.messages.domain.ImmutableAdaptationAction;
 import org.greencloud.gui.messages.domain.ImmutableAdaptationLog;
 import org.greencloud.gui.messages.domain.ImmutableGoalQuality;
+import org.jrba.agentmodel.domain.props.AgentProps;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.action.AdaptationActionEnum;
@@ -37,7 +37,7 @@ public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 	 * @param args arguments provided for managing agent creation
 	 */
 	public ManagingAgentNode(ManagingAgentArgs args) {
-		super(args, AgentType.MANAGING);
+		super(args, EGCSAgentType.MANAGING);
 	}
 
 	@Override
@@ -120,8 +120,7 @@ public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 	private String getCounterToIncrement(final AdaptationActionTypeEnum actionType) {
 		return switch (actionType) {
 			case RECONFIGURE -> "INCREMENT_WEAK_ADAPTATIONS";
-			case ADD_COMPONENT, REMOVE_COMPONENT ->
-					"INCREMENT_STRONG_ADAPTATIONS";
+			case ADD_COMPONENT, REMOVE_COMPONENT -> "INCREMENT_STRONG_ADAPTATIONS";
 		};
 	}
 

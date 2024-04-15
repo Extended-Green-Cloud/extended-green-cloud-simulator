@@ -1,13 +1,12 @@
 package org.greencloud.managingsystem.agent;
 
-import static org.greencloud.commons.args.agent.AgentType.MANAGING;
+import static org.greencloud.commons.args.agent.EGCSAgentType.MANAGING;
 
 import java.util.List;
 import java.util.Map;
 
-import org.greencloud.agentsystem.agents.AbstractAgent;
-import org.greencloud.commons.args.agent.AgentProps;
-import org.greencloud.commons.args.agent.egcs.agent.EGCSAgentProps;
+import org.greencloud.agentsystem.agents.EGCSAgent;
+import org.greencloud.commons.args.agent.EGCSAgentProps;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.service.analyzer.AnalyzerService;
@@ -15,6 +14,7 @@ import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
+import org.jrba.agentmodel.domain.props.AgentProps;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.greencloud.connector.gui.GuiController;
@@ -26,7 +26,7 @@ import jade.wrapper.ContainerController;
 /**
  * Abstract agent class storing data of the Managing Agent
  */
-public abstract class AbstractManagingAgent extends AbstractAgent<ManagingAgentNode, AgentProps> {
+public abstract class AbstractManagingAgent extends EGCSAgent<ManagingAgentNode, AgentProps> {
 
 	protected ScenarioStructureArgs greenCloudStructure;
 	protected ContainerController greenCloudController;

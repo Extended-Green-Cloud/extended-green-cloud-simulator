@@ -2,7 +2,7 @@ package org.greencloud.gui.messages;
 
 import java.util.Map;
 
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableUpdateSystemIndicatorsMessage.class)
 @JsonDeserialize(as = ImmutableUpdateSystemIndicatorsMessage.class)
 @Value.Immutable
-public interface UpdateSystemIndicatorsMessage extends Message {
+public interface UpdateSystemIndicatorsMessage extends ExternalMessage {
 
 	/**
 	 * @return quality indicator of the entire system

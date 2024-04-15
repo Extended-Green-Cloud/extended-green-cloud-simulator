@@ -4,8 +4,14 @@ import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FINISH_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.POSTPONED_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.RE_SCHEDULED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.STARTED_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_JOB_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.MANUAL_JOB_FINISH_PROTOCOL;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
@@ -19,9 +25,7 @@ import org.greencloud.commons.domain.job.extended.ImmutableJobWithTimeFrames;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithTimeFrames;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
-import org.greencloud.commons.utils.messaging.constants.MessageConversationConstants;
-import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -75,8 +79,7 @@ public class JobStatusMessageFactory {
 	public static ACLMessage preparePostponeJobMessageForClient(final ClientJob job, final Integer ruleSet) {
 		final AID clientAID = new AID(job.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(job.getClientAddress());
-		return prepareJobStatusMessage(job.getJobId(), MessageConversationConstants.POSTPONED_JOB_ID, ruleSet,
-				clientAID);
+		return prepareJobStatusMessage(job.getJobId(), POSTPONED_JOB_ID, ruleSet, clientAID);
 	}
 
 	/**
@@ -90,8 +93,7 @@ public class JobStatusMessageFactory {
 				adjustedJob.getEndTime(), adjustedJob.getJobId());
 		final AID clientAID = new AID(adjustedJob.getClientIdentifier(), ISGUID);
 		clientAID.addAddresses(adjustedJob.getClientAddress());
-		return prepareJobStatusMessage(jobTimeFrames, MessageConversationConstants.RE_SCHEDULED_JOB_ID, ruleSet,
-				clientAID);
+		return prepareJobStatusMessage(jobTimeFrames, RE_SCHEDULED_JOB_ID, ruleSet, clientAID);
 	}
 
 	/**
@@ -123,10 +125,9 @@ public class JobStatusMessageFactory {
 				.build();
 		final AID rma = agentProps.getOwnerRegionalManagerAgent();
 
-		if (Objects.equals(conversationId, MessageConversationConstants.FAILED_JOB_ID)) {
-			return MessageBuilder.builder(ruleSet)
-					.withPerformative(FAILURE)
-					.withMessageProtocol(MessageProtocolConstants.FAILED_JOB_PROTOCOL)
+		if (Objects.equals(conversationId, FAILED_JOB_ID)) {
+			return MessageBuilder.builder(ruleSet, FAILURE)
+					.withMessageProtocol(FAILED_JOB_PROTOCOL)
 					.withObjectContent(jobStatusUpdate)
 					.withReceivers(rma)
 					.build();
@@ -143,9 +144,8 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobAnnouncementMessage(final AID scheduler, final ClientJob job,
 			final Integer ruleSet) {
-		return MessageBuilder.builder(ruleSet)
-				.withPerformative(INFORM)
-				.withMessageProtocol(MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL)
+		return MessageBuilder.builder(ruleSet, INFORM)
+				.withMessageProtocol(ANNOUNCED_JOB_PROTOCOL)
 				.withReceivers(scheduler)
 				.withObjectContent(job)
 				.build();
@@ -161,9 +161,8 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareJobStatusMessage(final Object content, final String conversationId,
 			final Integer ruleSet, final AID... receivers) {
-		final MessageBuilder messageBasis = MessageBuilder.builder(ruleSet)
-				.withPerformative(INFORM)
-				.withMessageProtocol(MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL)
+		final MessageBuilder messageBasis = MessageBuilder.builder(ruleSet, INFORM)
+				.withMessageProtocol(CHANGE_JOB_STATUS_PROTOCOL)
 				.withConversationId(conversationId)
 				.withGeneratedReplyWith()
 				.withReceivers(receivers);
@@ -240,8 +239,7 @@ public class JobStatusMessageFactory {
 	 */
 	public static ACLMessage prepareManualFinishMessageForServer(final JobInstanceIdentifier jobInstanceId,
 			final AID serverAddress, final Integer ruleSet) {
-		return MessageBuilder.builder(ruleSet)
-				.withPerformative(INFORM)
+		return MessageBuilder.builder(ruleSet, INFORM)
 				.withMessageProtocol(MANUAL_JOB_FINISH_PROTOCOL)
 				.withObjectContent(jobInstanceId)
 				.withReceivers(serverAddress)

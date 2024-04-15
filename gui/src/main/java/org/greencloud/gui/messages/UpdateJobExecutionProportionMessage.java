@@ -1,6 +1,6 @@
 package org.greencloud.gui.messages;
 
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 @JsonSerialize(as = ImmutableUpdateJobExecutionProportionMessage.class)
 @JsonDeserialize(as = ImmutableUpdateJobExecutionProportionMessage.class)
-public interface UpdateJobExecutionProportionMessage extends Message {
+public interface UpdateJobExecutionProportionMessage extends ExternalMessage {
 
 	Double getData();
 

@@ -3,13 +3,14 @@ package org.greencloud.commons.utils.messaging.factory;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_RULE_SET_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.REMOVE_RULE_SET_PROTOCOL;
 
 import java.util.Collection;
 
-import org.greencloud.commons.domain.ruleset.ImmutableRuleSetUpdate;
-import org.greencloud.commons.domain.ruleset.RuleSetUpdate;
-import org.greencloud.commons.utils.messaging.MessageBuilder;
-import org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants;
+import org.jrba.rulesengine.ruleset.domain.ImmutableRuleSetUpdate;
+import org.jrba.rulesengine.ruleset.domain.RuleSetUpdate;
+import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
@@ -30,10 +31,12 @@ public class RuleSetAdaptationMessageFactory {
 	 */
 	public static ACLMessage prepareRuleSetAdaptationRequest(final int currentRuleSetIdx, final int newRuleSetIdx,
 			final String ruleSetType, final Collection<AID> receivers) {
-		final RuleSetUpdate updateData = new ImmutableRuleSetUpdate(newRuleSetIdx, ruleSetType);
-		return MessageBuilder.builder(currentRuleSetIdx)
-				.withMessageProtocol(MessageProtocolConstants.CHANGE_RULE_SET_PROTOCOL)
-				.withPerformative(REQUEST)
+		final RuleSetUpdate updateData = ImmutableRuleSetUpdate.builder()
+				.ruleSetIdx(newRuleSetIdx)
+				.ruleSetType(ruleSetType)
+				.build();
+		return MessageBuilder.builder(currentRuleSetIdx, REQUEST)
+				.withMessageProtocol(CHANGE_RULE_SET_PROTOCOL)
 				.withObjectContent(updateData)
 				.withReceivers(receivers)
 				.build();
@@ -63,9 +66,8 @@ public class RuleSetAdaptationMessageFactory {
 	 * @return reply ACLMessage
 	 */
 	public static ACLMessage prepareRuleSetRemovalRequest(final int ruleSetIdx, final Collection<AID> receivers) {
-		return MessageBuilder.builder(ruleSetIdx)
-				.withMessageProtocol(MessageProtocolConstants.REMOVE_RULE_SET_PROTOCOL)
-				.withPerformative(REQUEST)
+		return MessageBuilder.builder(ruleSetIdx, REQUEST)
+				.withMessageProtocol(REMOVE_RULE_SET_PROTOCOL)
 				.withStringContent(valueOf(ruleSetIdx))
 				.withReceivers(receivers)
 				.build();

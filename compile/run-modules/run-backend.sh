@@ -25,6 +25,7 @@ jar -uvf "${PACKAGE_NAME}" -C properties .
 jar -uvf "${PACKAGE_NAME}" -C scenarios .
 jar -uvf "${PACKAGE_NAME}" -C knowledge .
 jar -uvf "${PACKAGE_NAME}" -C samples .
+jar -uvf "${PACKAGE_NAME}" -C strategy .
 
 if [ "$1" == "MULTI" ]
 then

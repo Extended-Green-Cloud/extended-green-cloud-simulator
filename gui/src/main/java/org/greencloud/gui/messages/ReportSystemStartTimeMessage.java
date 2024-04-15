@@ -1,6 +1,6 @@
 package org.greencloud.gui.messages;
 
-import org.greencloud.gui.messages.domain.Message;
+import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableReportSystemStartTimeMessage.class)
 @JsonDeserialize(as = ImmutableReportSystemStartTimeMessage.class)
 @Value.Immutable
-public interface ReportSystemStartTimeMessage extends Message {
+public interface ReportSystemStartTimeMessage extends ExternalMessage {
 
 	/**
 	 * @return unix time instant representing system start time

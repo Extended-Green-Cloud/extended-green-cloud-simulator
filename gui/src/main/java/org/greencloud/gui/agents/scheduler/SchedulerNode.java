@@ -7,16 +7,16 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkS
 import java.util.LinkedList;
 import java.util.Optional;
 
-import org.greencloud.commons.args.agent.AgentType;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.scheduler.agent.SchedulerAgentProps;
 import org.greencloud.commons.args.agent.scheduler.node.SchedulerNodeArgs;
 import org.greencloud.commons.domain.job.instance.ImmutableJobInstanceScheduler;
 import org.greencloud.commons.domain.job.instance.JobInstanceScheduler;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.event.AbstractEvent;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
 import org.greencloud.gui.messages.ImmutableUpdateJobQueueMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
+import org.jrba.environment.domain.ExternalEvent;
 
 /**
  * Agent node class representing the scheduler agent
@@ -29,7 +29,7 @@ public class SchedulerNode extends EGCSNode<SchedulerNodeArgs, SchedulerAgentPro
 	 * @param args arguments provided for scheduler agent creation
 	 */
 	public SchedulerNode(SchedulerNodeArgs args) {
-		super(args, AgentType.SCHEDULER);
+		super(args, EGCSAgentType.SCHEDULER);
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class SchedulerNode extends EGCSNode<SchedulerNodeArgs, SchedulerAgentPro
 				.build());
 	}
 
-	public Optional<AbstractEvent> getEvent() {
+	public Optional<ExternalEvent> getEvent() {
 		return ofNullable(eventsQueue.poll());
 	}
 
