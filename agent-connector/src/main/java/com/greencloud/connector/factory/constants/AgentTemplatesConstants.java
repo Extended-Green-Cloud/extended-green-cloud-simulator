@@ -10,6 +10,8 @@ import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 
 import java.util.Map;
 
+import org.greencloud.commons.domain.location.ImmutableLocation;
+import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.domain.resources.ImmutableResource;
 import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.greencloud.commons.domain.resources.Resource;
@@ -23,8 +25,7 @@ import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
  * <p> TEMPLATE_SERVER_IDLE_POWER - default idle server power </p>
  * <p> TEMPLATE_SERVER_PRICE - default server execution price </p>
  * <p> TEMPLATE_SERVER_JOB_LIMIT - default server job processing limit </p>
- * <p> TEMPLATE_GREEN_ENERGY_LATITUDE - default green source location latitude </p>
- * <p> TEMPLATE_GREEN_ENERGY_LONGITUDE - default green source location longitude </p>
+ * <p> TEMPLATE_GREEN_ENERGY_LOCATION - default green source location </p>
  * <p> TEMPLATE_GREEN_ENERGY_PRICE - default green source execution price </p>
  * <p> TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY - default green source maximal capacity </p>
  * <p> TEMPLATE_GREEN_ENERGY_TYPE - default green source energy type </p>
@@ -47,8 +48,10 @@ public class AgentTemplatesConstants {
 	public static final Integer TEMPLATE_SERVER_JOB_LIMIT = 20;
 
 	// GREEN ENERGY TEMPLATE CONSTANTS
-	public static final String TEMPLATE_GREEN_ENERGY_LATITUDE = "50";
-	public static final String TEMPLATE_GREEN_ENERGY_LONGITUDE = "20";
+	public static final Location TEMPLATE_GREEN_ENERGY_LOCATION = ImmutableLocation.builder()
+			.latitude(50D)
+			.longitude(20D)
+			.build();
 	public static final Long TEMPLATE_GREEN_ENERGY_PRICE = 10L;
 	public static final Long TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY = 200L;
 	public static final GreenEnergySourceTypeEnum TEMPLATE_GREEN_ENERGY_TYPE = WIND;
@@ -57,8 +60,14 @@ public class AgentTemplatesConstants {
 	public static final String TEMPLATE_ADDITION = "return resource1 + resource2;";
 	public static final String TEMPLATE_BOOKER = "return ownedAmount - amountToReserve;";
 	public static final String TEMPLATE_REMOVER = "return ownedAmount - amountToRemove;";
-	public static final String TEMPLATE_COMPARATOR = "import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());";
-	public static final String TEMPLATE_VALIDATOR = "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();";
+	public static final String TEMPLATE_COMPARATOR = """
+			import java.lang.Math;
+			return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());
+			""";
+	public static final String TEMPLATE_VALIDATOR = """
+			requirements.getCharacteristics().containsKey(\"amount\") &&
+			resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();
+			""";
 
 	// RESOURCE TEMPLATES
 	public static final ResourceCharacteristic CPU_CHARACTERISTIC = ImmutableResourceCharacteristic.builder()

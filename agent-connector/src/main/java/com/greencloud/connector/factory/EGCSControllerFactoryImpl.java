@@ -1,21 +1,20 @@
 package com.greencloud.connector.factory;
 
 import static jade.wrapper.AgentController.ASYNC;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static org.jrba.rulesengine.rest.RuleSetRestApi.addAgentNode;
 
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.centralmanager.factory.CentralManagerArgs;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
-import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.JadeControllerException;
+import org.greencloud.commons.exception.UnknownAgentTypeException;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.jrba.rulesengine.RulesController;
@@ -31,6 +30,7 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+@SuppressWarnings("rawtypes")
 public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implements EGCSControllerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(EGCSControllerFactoryImpl.class);
@@ -71,7 +71,7 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 	}
 
 	@Override
-	public AgentController createAgentController(final AgentArgs agentArgs, final EGCSNode<?, ?> agentNode) {
+	public AgentController createAgentController(final AgentArgs agentArgs, final EGCSNode agentNode) {
 		return createController(agentArgs, null, false, null, agentNode);
 	}
 
@@ -87,35 +87,21 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 	}
 
 	private AgentController createController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
-			Boolean isInformer, AID managingAgent, final EGCSNode<?, ?> node) {
-		final EGCSNode<?, ?> agentNode = isNull(node) ? agentNodeFactory.createAgentNode(agentArgs, scenario) : node;
-		var agentController = (AgentController) null;
-
+			Boolean isInformer, AID managingAgent, final EGCSNode node) {
 		try {
-			logger.info("Created {} agent.", agentArgs.getName());
-			if (agentArgs instanceof ClientArgs clientAgent) {
-				agentController = createClientController(clientAgent);
-			} else if (agentArgs instanceof ServerArgs serverAgent) {
-				agentController = createServerController(serverAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof RegionalManagerArgs regionalManagerArgs) {
-				agentController = createRegionalManagerController(regionalManagerArgs, isInformer, managingAgent);
-			} else if (agentArgs instanceof GreenEnergyArgs greenEnergyAgent) {
-				agentController = createGreenSourceController(greenEnergyAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof MonitoringArgs monitoringAgent) {
-				agentController = createMonitoringController(monitoringAgent, isInformer, managingAgent);
-			} else if (agentArgs instanceof SchedulerArgs schedulerAgent) {
-				agentController = createSchedulerController(schedulerAgent, isInformer, managingAgent);
-			}
+			logger.info("Creating {} agent.", agentArgs.getName());
 
-			if (nonNull(agentController)) {
-				final RulesController<?, ?> rulesController = new RulesController<>();
-				agentNode.setDatabaseClient(timescaleDatabase);
-				guiController.addAgentNodeToGraph(agentNode);
-				addAgentNode(agentNode);
-				agentController.putO2AObject(guiController, ASYNC);
-				agentController.putO2AObject(agentNode, ASYNC);
-				agentController.putO2AObject(rulesController, ASYNC);
-			}
+			final EGCSNode agentNode = ofNullable(node).orElse(agentNodeFactory.createAgentNode(agentArgs, scenario));
+			final AgentController agentController = switch (agentArgs) {
+				case ClientArgs client -> createClientController(client);
+				case ServerArgs server -> createServerController(server, isInformer, managingAgent);
+				case RegionalManagerArgs rma -> createRegionalManagerController(rma, isInformer, managingAgent);
+				case GreenEnergyArgs greenEnergy -> createGreenSourceController(greenEnergy, isInformer, managingAgent);
+				case MonitoringArgs monitoring -> createMonitoringController(monitoring, isInformer, managingAgent);
+				case CentralManagerArgs cma -> createSchedulerController(cma, isInformer, managingAgent);
+				default -> throw new UnknownAgentTypeException();
+			};
+			connectToRulesController(agentController, agentNode);
 
 			return agentController;
 		} catch (StaleProxyException e) {
@@ -126,6 +112,17 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 	@Override
 	public TimescaleDatabase getDatabase() {
 		return timescaleDatabase;
+	}
+
+	private void connectToRulesController(final AgentController agentController, final EGCSNode agentNode)
+			throws StaleProxyException {
+		final RulesController<?, ?> rulesController = new RulesController<>();
+		agentNode.setDatabaseClient(timescaleDatabase);
+		guiController.addAgentNodeToGraph(agentNode);
+		addAgentNode(agentNode);
+		agentController.putO2AObject(guiController, ASYNC);
+		agentController.putO2AObject(agentNode, ASYNC);
+		agentController.putO2AObject(rulesController, ASYNC);
 	}
 
 	private AgentController createClientController(final ClientArgs clientAgent)
@@ -146,23 +143,18 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 						ofNullable(systemKnowledge) });
 	}
 
-	private AgentController createSchedulerController(final SchedulerArgs schedulerAgent, Boolean isInformer,
-			AID managingAgent)
-			throws StaleProxyException {
-		return containerController.createNewAgent(schedulerAgent.getName(),
-				"org.greencloud.agentsystem.agents.scheduler.SchedulerAgent",
-				new Object[] { schedulerAgent.getDeadlineWeight(),
-						schedulerAgent.getCpuWeight(),
-						schedulerAgent.getMaximumQueueSize(),
+	private AgentController createSchedulerController(final CentralManagerArgs cmaAgent, final Boolean isInformer,
+			final AID managingAgent) throws StaleProxyException {
+		return containerController.createNewAgent(cmaAgent.getName(),
+				"org.greencloud.agentsystem.agents.centralmanager.CentralManagerAgent",
+				new Object[] { cmaAgent.getMaximumQueueSize(),
 						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });
 	}
 
 	private AgentController createRegionalManagerController(final RegionalManagerArgs regionalManagerArgs,
-			Boolean isInformer,
-			AID managingAgent)
-			throws StaleProxyException {
+			final Boolean isInformer, final AID managingAgent) throws StaleProxyException {
 		return containerController.createNewAgent(regionalManagerArgs.getName(),
 				"org.greencloud.agentsystem.agents.regionalmanager.RegionalManagerAgent",
 				new Object[] { mainDFAddress,
@@ -172,9 +164,8 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 						managingAgent });
 	}
 
-	private AgentController createServerController(final ServerArgs serverAgent, Boolean isInformer,
-			AID managingAgent)
-			throws StaleProxyException {
+	private AgentController createServerController(final ServerArgs serverAgent, final Boolean isInformer,
+			final AID managingAgent) throws StaleProxyException {
 		return containerController.createNewAgent(serverAgent.getName(),
 				"org.greencloud.agentsystem.agents.server.ServerAgent",
 				new Object[] { serverAgent.getOwnerRegionalManager(),
@@ -188,17 +179,15 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 						managingAgent });
 	}
 
-	private AgentController createGreenSourceController(final GreenEnergyArgs greenEnergyAgent, Boolean isInformer,
-			AID managingAgent)
-			throws StaleProxyException {
+	private AgentController createGreenSourceController(final GreenEnergyArgs greenEnergyAgent,
+			final Boolean isInformer, final AID managingAgent) throws StaleProxyException {
 		return containerController.createNewAgent(greenEnergyAgent.getName(),
 				"org.greencloud.agentsystem.agents.greenenergy.GreenEnergyAgent",
 				new Object[] { greenEnergyAgent.getMonitoringAgent(),
 						greenEnergyAgent.getOwnerSever(),
 						greenEnergyAgent.getMaximumCapacity(),
 						greenEnergyAgent.getPricePerPowerUnit(),
-						greenEnergyAgent.getLatitude(),
-						greenEnergyAgent.getLongitude(),
+						greenEnergyAgent.getLocation(),
 						greenEnergyAgent.getEnergyType(),
 						greenEnergyAgent.getWeatherPredictionError(),
 						ofNullable(systemKnowledge),
@@ -206,9 +195,8 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 						managingAgent });
 	}
 
-	private AgentController createMonitoringController(final MonitoringArgs monitoringAgent, Boolean isInformer,
-			AID managingAgent)
-			throws StaleProxyException {
+	private AgentController createMonitoringController(final MonitoringArgs monitoringAgent, final Boolean isInformer,
+			final AID managingAgent) throws StaleProxyException {
 		return containerController.createNewAgent(monitoringAgent.getName(),
 				"org.greencloud.agentsystem.agents.monitoring.MonitoringAgent",
 				new Object[] { monitoringAgent.getBadStubProbability(),

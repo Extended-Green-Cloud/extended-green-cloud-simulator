@@ -1,7 +1,6 @@
 package com.greencloud.connector.factory;
 
-import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LATITUDE;
-import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LONGITUDE;
+import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_LOCATION;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_PRICE;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_GREEN_ENERGY_TYPE;
@@ -10,15 +9,11 @@ import static com.greencloud.connector.factory.constants.AgentTemplatesConstants
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_MAX_POWER;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_PRICE;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
-import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.REAL_TIME;
 import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.SIMULATION;
 
-import java.time.temporal.ValueRange;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
@@ -32,53 +27,41 @@ import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.event.NewClientEventArgs;
 import org.greencloud.commons.args.job.ImmutableJobArgs;
 import org.greencloud.commons.args.job.JobArgs;
-import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
 import org.greencloud.gui.messages.domain.ServerCreator;
+import org.jetbrains.annotations.VisibleForTesting;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class AgentFactoryImpl implements AgentFactory {
 
 	private static AtomicInteger serverAgentsCreated = new AtomicInteger(0);
 	private static AtomicInteger monitoringAgentsCreated = new AtomicInteger(0);
 	private static AtomicInteger greenEnergyAgentsCreated = new AtomicInteger(0);
 
-	public AgentFactoryImpl() {
-		// used in tests and agent's mobility
-	}
-
-	public static void reset() {
+	@VisibleForTesting
+	protected static void reset() {
 		serverAgentsCreated = new AtomicInteger(0);
 		monitoringAgentsCreated = new AtomicInteger(0);
 		greenEnergyAgentsCreated = new AtomicInteger(0);
 	}
 
 	@Override
-	public ServerArgs createDefaultServerAgent(String ownerRMA) {
-		return createServerAgent(ownerRMA, null, null, null, null, null);
-	}
-
-	@Override
-	public ServerArgs createServerAgent(final String ownerRMA,
-			final Map<String, Resource> resources,
-			final Integer maxPower,
-			final Integer idlePower,
-			final Double price,
-			final Integer jobProcessingLimit) {
+	public ServerArgs createDefaultServerAgent(final String ownerRMA) {
 		final String serverAgentName = "ExtraServer" + serverAgentsCreated.incrementAndGet();
 		return ImmutableServerArgs.builder()
 				.name(serverAgentName)
 				.ownerRegionalManager(ownerRMA)
-				.maxPower(isNull(maxPower) ? TEMPLATE_SERVER_MAX_POWER : maxPower)
-				.idlePower(isNull(idlePower) ? TEMPLATE_SERVER_IDLE_POWER : idlePower)
-				.price(isNull(price) ? TEMPLATE_SERVER_PRICE : price)
-				.resources(isNull(resources) ? TEMPLATE_SERVER_RESOURCES : resources)
-				.jobProcessingLimit(isNull(jobProcessingLimit) ? TEMPLATE_SERVER_JOB_LIMIT : jobProcessingLimit)
+				.maxPower(TEMPLATE_SERVER_MAX_POWER)
+				.idlePower(TEMPLATE_SERVER_IDLE_POWER)
+				.price(TEMPLATE_SERVER_PRICE)
+				.resources(TEMPLATE_SERVER_RESOURCES)
+				.jobProcessingLimit(TEMPLATE_SERVER_JOB_LIMIT)
 				.build();
 	}
-
 
 	@Override
 	public ServerArgs createServerAgent(final ServerCreator serverCreator) {
@@ -94,61 +77,34 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public GreenEnergyArgs createDefaultGreenEnergyAgent(String monitoringAgentName, String ownerServerName) {
-		return createGreenEnergyAgent(monitoringAgentName, ownerServerName, null, null, null, null, null, null);
-	}
+	public GreenEnergyArgs createDefaultGreenEnergyAgent(final String monitoringAgentName, final String serverName) {
+		final String monitoringName = ofNullable(monitoringAgentName)
+				.orElseThrow(() -> new IllegalArgumentException("Name of monitoring agent must be specified"));
+		final String ownerServerName = ofNullable(serverName)
+				.orElseThrow(() -> new IllegalArgumentException("Name of owner server agent must be specified"));
 
-	@Override
-	public GreenEnergyArgs createGreenEnergyAgent(final String monitoringAgentName,
-			final String ownerServerName,
-			final Integer latitude,
-			final Integer longitude,
-			final Integer maximumCapacity,
-			final Integer pricePerPowerUnit,
-			final Double weatherPredictionError,
-			final GreenEnergySourceTypeEnum energyType) {
-
-		if (isNull(monitoringAgentName) || isNull(ownerServerName)) {
-			throw new IllegalArgumentException("Name of monitoring agent and owner server must be specified");
-		}
-		if (nonNull(maximumCapacity) && maximumCapacity < 0) {
-			throw new IllegalArgumentException("Maximum capacity value must bre greater than zero");
-		}
-		if (nonNull(pricePerPowerUnit) && pricePerPowerUnit < 0) {
-			throw new IllegalArgumentException("pricePerPowerUnit is invalid");
-		}
-		if (nonNull(latitude) && ValueRange.of(-90, 90).isValidIntValue(latitude)) {
-			throw new IllegalArgumentException("latitude is invalid");
-		}
-		if (nonNull(longitude) && ValueRange.of(-180, 180).isValidIntValue(longitude)) {
-			throw new IllegalArgumentException("longitude is invalid");
-		}
-
-		String greenEnergyAgentName = "ExtraGreenEnergy" + greenEnergyAgentsCreated.incrementAndGet();
+		final String greenEnergyAgentName = "ExtraGreenEnergy" + greenEnergyAgentsCreated.incrementAndGet();
 		return ImmutableGreenEnergyArgs.builder()
 				.name(greenEnergyAgentName)
-				.monitoringAgent(monitoringAgentName)
+				.monitoringAgent(monitoringName)
 				.ownerSever(ownerServerName)
-				.latitude(isNull(latitude) ? TEMPLATE_GREEN_ENERGY_LATITUDE : latitude.toString())
-				.longitude(isNull(longitude) ? TEMPLATE_GREEN_ENERGY_LONGITUDE : longitude.toString())
-				.maximumCapacity(
-						isNull(maximumCapacity) ? TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY : (long) maximumCapacity)
-				.weatherPredictionError(isNull(weatherPredictionError) ? 0.0 : weatherPredictionError)
-				.pricePerPowerUnit(isNull(pricePerPowerUnit) ? TEMPLATE_GREEN_ENERGY_PRICE : (long) pricePerPowerUnit)
-				.energyType(isNull(energyType) ? TEMPLATE_GREEN_ENERGY_TYPE : energyType)
+				.location(TEMPLATE_GREEN_ENERGY_LOCATION)
+				.maximumCapacity(TEMPLATE_GREEN_ENERGY_MAXIMUM_CAPACITY)
+				.weatherPredictionError(0.0)
+				.pricePerPowerUnit(TEMPLATE_GREEN_ENERGY_PRICE)
+				.energyType(TEMPLATE_GREEN_ENERGY_TYPE)
 				.build();
 	}
 
-
 	@Override
-	public GreenEnergyArgs createGreenEnergyAgent(final GreenSourceCreator greenSourceCreator, final String monitoringName) {
+	public GreenEnergyArgs createGreenEnergyAgent(final GreenSourceCreator greenSourceCreator,
+			final String monitoringName) {
 		return ImmutableGreenEnergyArgs.builder()
 				.name(greenSourceCreator.getName())
 				.weatherPredictionError(greenSourceCreator.getWeatherPredictionError())
 				.monitoringAgent(monitoringName)
 				.ownerSever(greenSourceCreator.getServer())
-				.latitude(greenSourceCreator.getLatitude().toString())
-				.longitude(greenSourceCreator.getLongitude().toString())
+				.location(greenSourceCreator.getLocation())
 				.maximumCapacity(greenSourceCreator.getMaximumCapacity())
 				.pricePerPowerUnit(greenSourceCreator.getPricePerPowerUnit().longValue())
 				.energyType(greenSourceCreator.getEnergyType())
@@ -157,7 +113,7 @@ public class AgentFactoryImpl implements AgentFactory {
 
 	@Override
 	public MonitoringArgs createMonitoringAgent() {
-		String monitoringAgentName = "ExtraMonitoring" + monitoringAgentsCreated.incrementAndGet();
+		final String monitoringAgentName = "ExtraMonitoring" + monitoringAgentsCreated.incrementAndGet();
 		return ImmutableMonitoringArgs.builder()
 				.name(monitoringAgentName)
 				.build();

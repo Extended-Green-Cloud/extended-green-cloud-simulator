@@ -21,7 +21,7 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 	 * @param agentArgs agent arguments
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs);
+	AgentController createAgentController(final AgentArgs agentArgs);
 
 	/**
 	 * Method creates the agent controllers
@@ -30,7 +30,7 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 	 * @param agentNode GUI agent node
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs, EGCSNode<?, ?> agentNode);
+	AgentController createAgentController(final AgentArgs agentArgs, final EGCSNode<?, ?> agentNode);
 
 	/**
 	 * Method creates the agent controllers
@@ -39,7 +39,7 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 	 * @param scenario  which has to be passed to managing agent
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs, ScenarioStructureArgs scenario);
+	AgentController createAgentController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario);
 
 	/**
 	 * Method creates the agent controllers
@@ -50,10 +50,10 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 	 * @param managingAgent AID of managing agent with which the given agent should communicate
 	 * @return AgentController that can be started
 	 */
-	AgentController createAgentController(AgentArgs agentArgs,
-			ScenarioStructureArgs scenario,
-			boolean isInformer,
-			AID managingAgent);
+	AgentController createAgentController(final AgentArgs agentArgs,
+			final ScenarioStructureArgs scenario,
+			final boolean isInformer,
+			final AID managingAgent);
 
 	/**
 	 * Method returns database instance
