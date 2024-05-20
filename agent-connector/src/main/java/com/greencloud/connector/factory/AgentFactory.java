@@ -12,13 +12,12 @@ import org.greencloud.gui.messages.domain.JobCreator;
 import org.greencloud.gui.messages.domain.ServerCreator;
 
 /**
- * Interface with a set methods that create extra agents with specified parameters
+ * Interface with a set o methods that create extra agents with specified parameters
  */
 public interface AgentFactory {
 
 	/**
-	 * Method creates new server agent args that can be used to initialize an agent with default maximumCapacity,
-	 * price and jobProcessingLimit.
+	 * Method creates new server agent args that can be used to initialize server agent with default properties.
 	 *
 	 * @param ownerRMA - required argument specifying owner RMA
 	 * @return newly created server agent args
@@ -26,7 +25,7 @@ public interface AgentFactory {
 	ServerArgs createDefaultServerAgent(final String ownerRMA);
 
 	/**
-	 * Method creates new server agent args that can be used to initialize new agent
+	 * Method creates new server agent args that can be used to initialize server agent.
 	 *
 	 * @param serverCreator parameters to create server from GUI
 	 * @return newly server agent args
@@ -34,8 +33,8 @@ public interface AgentFactory {
 	ServerArgs createServerAgent(final ServerCreator serverCreator);
 
 	/**
-	 * Method creates new green energy agent args that can be used to initialize new agent with default latitude,
-	 * longitude, maximumCapacity, pricePerPowerUnit, energyType.
+	 * Method creates new green energy agent args that can be used to initialize green source agent with default
+	 * parameters.
 	 *
 	 * @param monitoringAgentName required argument specifying monitoring agent name
 	 * @param serverName          required argument specifying owner server name
@@ -44,7 +43,7 @@ public interface AgentFactory {
 	GreenEnergyArgs createDefaultGreenEnergyAgent(final String monitoringAgentName, final String serverName);
 
 	/**
-	 * Method creates new green energy agent args that can be used to initialize new agent
+	 * Method creates new green energy agent args that can be used to initialize green source agent.
 	 *
 	 * @param greenSourceCreator parameters to create green source from GUI
 	 * @param monitoringName     name of monitoring agent to connect with
@@ -53,14 +52,15 @@ public interface AgentFactory {
 	GreenEnergyArgs createGreenEnergyAgent(final GreenSourceCreator greenSourceCreator, final String monitoringName);
 
 	/**
-	 * Method creates new monitoring agent args that can be used to initialize new agent
+	 * Method creates new monitoring agent args that can be used to initialize monitoring agent with default
+	 * parameters.
 	 *
 	 * @return newly created monitoring agent args
 	 */
-	MonitoringArgs createMonitoringAgent();
+	MonitoringArgs createDefaultMonitoringAgent();
 
 	/**
-	 * Method creates new monitoring agent args that can be used to initialize new agent
+	 * Method creates new monitoring agent args that can be used to initialize monitoring agent.
 	 *
 	 * @param name name of agent to be created
 	 * @return newly created monitoring agent args
@@ -68,7 +68,7 @@ public interface AgentFactory {
 	MonitoringArgs createMonitoringAgent(final String name);
 
 	/**
-	 * Method creates new client agent args that can be used to initialize new agent
+	 * Method creates new client agent args that can be used to initialize client agent.
 	 *
 	 * @param name     client name
 	 * @param jobId    job identifier
@@ -80,7 +80,7 @@ public interface AgentFactory {
 			final JobArgs jobArgs);
 
 	/**
-	 * Method creates new client agent args that can be used to initialize new agent
+	 * Method creates new client agent args that can be used to initialize client agent.
 	 *
 	 * @param clientEventArgs arguments to generate new client
 	 * @return newly created client agent args
@@ -88,7 +88,7 @@ public interface AgentFactory {
 	ClientArgs createClientAgent(final NewClientEventArgs clientEventArgs);
 
 	/**
-	 * Method creates new client agent args from the arguments passed by the GUI
+	 * Method creates new client agent args from the arguments passed by the GUI.
 	 *
 	 * @param jobCreator   arguments passed by the GUI
 	 * @param clientName   name of the client

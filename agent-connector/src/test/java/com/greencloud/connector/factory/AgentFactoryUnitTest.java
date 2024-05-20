@@ -104,7 +104,7 @@ class AgentFactoryUnitTest {
 
 	@Test
 	void testCreatingMonitoringAgent() {
-		MonitoringArgs result = factory.createMonitoringAgent();
+		MonitoringArgs result = factory.createDefaultMonitoringAgent();
 
 		Assertions.assertThat(result.getName()).isEqualTo("ExtraMonitoring1");
 	}

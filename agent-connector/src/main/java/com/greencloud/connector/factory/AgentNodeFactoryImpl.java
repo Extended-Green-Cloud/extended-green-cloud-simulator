@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.greencloud.commons.args.agent.centralmanager.factory.CentralManagerArgs;
 import org.greencloud.commons.args.agent.centralmanager.node.CentralManagerNodeArgs;
-import org.greencloud.commons.args.agent.centralmanager.node.ImmutableSchedulerNodeArgs;
+import org.greencloud.commons.args.agent.centralmanager.node.ImmutableCentralManagerNodeArgs;
 import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.args.agent.client.node.ImmutableClientNodeArgs;
@@ -35,8 +35,8 @@ import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.gui.agents.monitoring.MonitoringNode;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
-import org.greencloud.gui.agents.scheduler.CMANode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
+import org.greencloud.gui.agents.centralmanager.CMANode;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.agentmodel.domain.args.AgentArgs;
 
@@ -88,8 +88,6 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.jobId(clientArgs.getJobId())
 				.processorName(clientArgs.getJob().getProcessorName())
 				.resources(clientArgs.getJob().getResources())
-				.start(clientArgs.formatClientTime(0))
-				.end(clientArgs.formatClientTime(clientArgs.getJob().getDuration()))
 				.deadline(clientArgs.formatClientDeadline())
 				.duration(clientArgs.getJob().getDuration())
 				.steps(clientArgs.getJob().getJobSteps())
@@ -99,7 +97,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return new ClientNode(nodeArgs);
 	}
 
-	private RegionalManagerNode createRegionalManagerNode(final RegionalManagerArgs regionalManagerArgs,
+	private RMANode createRegionalManagerNode(final RegionalManagerArgs regionalManagerArgs,
 			final ScenarioStructureArgs scenarioArgs) {
 		final List<ServerArgs> ownedServers = scenarioArgs.getServerAgentsArgs().stream()
 				.filter(serverArgs -> serverArgs.getOwnerRegionalManager().equals(regionalManagerArgs.getName()))
@@ -112,7 +110,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 				.name(regionalManagerArgs.getName())
 				.build();
 
-		return new RegionalManagerNode(nodeArgs);
+		return new RMANode(nodeArgs);
 	}
 
 	private ServerNode createServerNode(final ServerArgs serverAgentArgs,
@@ -152,10 +150,10 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return new GreenEnergyNode(nodeArgs);
 	}
 
-	private CMANode createCentralManagerNode(final CentralManagerArgs schedulerArgs) {
-		final CentralManagerNodeArgs nodeArgs = ImmutableSchedulerNodeArgs.builder()
-				.name(schedulerArgs.getName())
-				.maxQueueSize(schedulerArgs.getMaximumQueueSize())
+	private CMANode createCentralManagerNode(final CentralManagerArgs centralManagerArgs) {
+		final CentralManagerNodeArgs nodeArgs = ImmutableCentralManagerNodeArgs.builder()
+				.name(centralManagerArgs.getName())
+				.maxQueueSize(centralManagerArgs.getMaximumQueueSize())
 				.build();
 
 		return new CMANode(nodeArgs);
@@ -171,7 +169,7 @@ public class AgentNodeFactoryImpl implements AgentNodeFactory {
 		return ofNullable(ownerGreenSource)
 				.map(args -> new MonitoringNode(ImmutableMonitoringNodeArgs.builder()
 						.name(monitoringArgs.getName())
-						.greenEnergyAgent(ownerGreenSource.getName())
+						.greenEnergyAgent(args.getName())
 						.build()))
 				.orElse(null);
 	}

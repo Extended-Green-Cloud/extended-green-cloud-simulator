@@ -11,7 +11,7 @@ import org.jrba.environment.domain.ExternalEvent;
 public interface EventListener {
 
 	/**
-	 * Method used to connect new agent node with a listener
+	 * Method used to connect new agent node with a listener.
 	 *
 	 * @param agentNode node that is to be taken into account in event listener
 	 */

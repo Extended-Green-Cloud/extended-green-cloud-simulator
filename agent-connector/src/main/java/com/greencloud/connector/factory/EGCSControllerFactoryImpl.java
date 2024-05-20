@@ -29,12 +29,15 @@ import jade.core.AID;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
+import lombok.Getter;
 
 @SuppressWarnings("rawtypes")
 public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implements EGCSControllerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(EGCSControllerFactoryImpl.class);
+
 	private final AgentNodeFactory agentNodeFactory;
+	@Getter
 	private final TimescaleDatabase timescaleDatabase;
 	private final GuiController guiController;
 	private String mainDFAddress;
@@ -87,7 +90,7 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 	}
 
 	private AgentController createController(final AgentArgs agentArgs, final ScenarioStructureArgs scenario,
-			Boolean isInformer, AID managingAgent, final EGCSNode node) {
+			final Boolean isInformer, final AID managingAgent, final EGCSNode node) {
 		try {
 			logger.info("Creating {} agent.", agentArgs.getName());
 
@@ -98,7 +101,7 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 				case RegionalManagerArgs rma -> createRegionalManagerController(rma, isInformer, managingAgent);
 				case GreenEnergyArgs greenEnergy -> createGreenSourceController(greenEnergy, isInformer, managingAgent);
 				case MonitoringArgs monitoring -> createMonitoringController(monitoring, isInformer, managingAgent);
-				case CentralManagerArgs cma -> createSchedulerController(cma, isInformer, managingAgent);
+				case CentralManagerArgs cma -> createCentralManagerController(cma, isInformer, managingAgent);
 				default -> throw new UnknownAgentTypeException();
 			};
 			connectToRulesController(agentController, agentNode);
@@ -107,11 +110,6 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 		} catch (StaleProxyException e) {
 			throw new JadeControllerException("Failed to run agent controller", e);
 		}
-	}
-
-	@Override
-	public TimescaleDatabase getDatabase() {
-		return timescaleDatabase;
 	}
 
 	private void connectToRulesController(final AgentController agentController, final EGCSNode agentNode)
@@ -127,27 +125,24 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 
 	private AgentController createClientController(final ClientArgs clientAgent)
 			throws StaleProxyException {
-		final String startDate = clientAgent.formatClientTime(0);
-		final String endDate = clientAgent.formatClientTime(clientAgent.getJob().getDuration());
 		final String deadline = clientAgent.formatClientDeadline();
 
 		return containerController.createNewAgent(clientAgent.getName(),
 				"org.greencloud.agentsystem.agents.client.ClientAgent",
 				new Object[] { mainDFAddress,
 						mainHostPlatformId,
-						startDate,
-						endDate,
 						deadline,
 						clientAgent.getJob(),
 						clientAgent.getJobId(),
 						ofNullable(systemKnowledge) });
 	}
 
-	private AgentController createSchedulerController(final CentralManagerArgs cmaAgent, final Boolean isInformer,
+	private AgentController createCentralManagerController(final CentralManagerArgs cmaAgent, final Boolean isInformer,
 			final AID managingAgent) throws StaleProxyException {
 		return containerController.createNewAgent(cmaAgent.getName(),
 				"org.greencloud.agentsystem.agents.centralmanager.CentralManagerAgent",
 				new Object[] { cmaAgent.getMaximumQueueSize(),
+						cmaAgent.getPollingBatchSize(),
 						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });

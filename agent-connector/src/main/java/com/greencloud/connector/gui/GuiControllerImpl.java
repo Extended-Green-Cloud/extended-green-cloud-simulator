@@ -7,6 +7,7 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSoc
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getManagingSystemSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.initialize;
+import static org.greencloud.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;
 
 import java.time.Instant;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class GuiControllerImpl implements GuiController {
 
 	public GuiControllerImpl(final Map<SocketTypeEnum, String> hostUris) {
 		initialize(hostUris);
-		eventSocket = new EventListenerImpl(create(hostUris.get(SocketTypeEnum.EVENTS_WEB_SOCKET) + "event"));
+		eventSocket = new EventListenerImpl(create(hostUris.get(EVENTS_WEB_SOCKET) + "event"));
 	}
 
 	@Override

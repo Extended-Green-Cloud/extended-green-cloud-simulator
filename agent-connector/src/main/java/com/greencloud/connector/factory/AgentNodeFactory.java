@@ -14,7 +14,7 @@ import org.greencloud.gui.agents.server.ServerNode;
 public interface AgentNodeFactory {
 
 	/**
-	 * Method creates the graph node based on the scenario arguments
+	 * Method creates the graph node based on the scenario arguments.
 	 *
 	 * @param agentArgs    current agent arguments
 	 * @param scenarioArgs scenario arguments
@@ -22,7 +22,7 @@ public interface AgentNodeFactory {
 	EGCSNode<?, ?> createAgentNode(final AgentArgs agentArgs, final ScenarioStructureArgs scenarioArgs);
 
 	/**
-	 * Method creates monitoring agent node
+	 * Method creates monitoring agent node.
 	 *
 	 * @param monitoringArgs  monitoring agent arguments
 	 * @param greenSourceName name of the owner green source
@@ -31,7 +31,7 @@ public interface AgentNodeFactory {
 	MonitoringNode createMonitoringNode(final MonitoringArgs monitoringArgs, final String greenSourceName);
 
 	/**
-	 * Method creates server agent node
+	 * Method creates server agent node.
 	 *
 	 * @param serverArgs arguments of server agent
 	 * @return ServerNode

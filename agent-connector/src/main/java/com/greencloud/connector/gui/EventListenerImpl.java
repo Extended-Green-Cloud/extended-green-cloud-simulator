@@ -111,7 +111,7 @@ public class EventListenerImpl extends EGCSWebSocketClient implements EventListe
 
 	private void handleClientCreation(final String message) {
 		final ClientCreationEvent clientCreationEvent = ClientCreationEvent.create(message);
-		final int jobId = factory.getDatabase().getNextClientId();
+		final int jobId = factory.getTimescaleDatabase().getNextClientId();
 
 		final ClientArgs clientArgs = agentFactory.createClientAgent(clientCreationEvent.getJobCreator(),
 				clientCreationEvent.getClientName(), jobId);

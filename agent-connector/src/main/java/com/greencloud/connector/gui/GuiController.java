@@ -16,24 +16,24 @@ import com.greencloud.connector.factory.EGCSControllerFactory;
 public interface GuiController extends Runnable, Serializable {
 
 	/**
-	 * Method creates the GUI
+	 * Method creates the GUI.
 	 */
 	void run();
 
 	/**
-	 * Method connects GUI with agent factory
+	 * Method connects GUI with agent factory.
 	 */
 	void connectWithAgentFactory(final EGCSControllerFactory factory);
 
 	/**
-	 * Method adds next agent node to the graph
+	 * Method adds next agent node to the graph.
 	 *
 	 * @param agent node of the specified agent
 	 */
 	void addAgentNodeToGraph(final EGCSNode agent);
 
 	/**
-	 * Method reports to the socket server time when the system was started
+	 * Method reports to the socket server time when the system was started.
 	 *
 	 * @param time time of system start
 	 */

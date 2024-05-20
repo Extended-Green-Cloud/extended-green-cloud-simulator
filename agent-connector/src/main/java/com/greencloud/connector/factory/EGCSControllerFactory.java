@@ -56,9 +56,9 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 			final AID managingAgent);
 
 	/**
-	 * Method returns database instance
+	 * Method returns database instance.
 	 *
 	 * @return TimeScale Database
 	 */
-	TimescaleDatabase getDatabase();
+	TimescaleDatabase getTimescaleDatabase();
 }

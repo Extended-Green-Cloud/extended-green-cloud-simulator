@@ -112,7 +112,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public MonitoringArgs createMonitoringAgent() {
+	public MonitoringArgs createDefaultMonitoringAgent() {
 		final String monitoringAgentName = "ExtraMonitoring" + monitoringAgentsCreated.incrementAndGet();
 		return ImmutableMonitoringArgs.builder()
 				.name(monitoringAgentName)
@@ -140,7 +140,7 @@ public class AgentFactoryImpl implements AgentFactory {
 	}
 
 	@Override
-	public ClientArgs createClientAgent(NewClientEventArgs clientEventArgs) {
+	public ClientArgs createClientAgent(final NewClientEventArgs clientEventArgs) {
 		return ImmutableClientArgs.builder()
 				.name(clientEventArgs.getName())
 				.jobId(valueOf(clientEventArgs.getJobId()))
@@ -158,6 +158,7 @@ public class AgentFactoryImpl implements AgentFactory {
 				.duration(jobCreator.getDuration() * 60 * 60)
 				.selectionPreference(jobCreator.getSelectionPreference())
 				.resources(jobCreator.getResources())
+				.priority(1)
 				.build();
 
 		return ImmutableClientArgs.builder()
