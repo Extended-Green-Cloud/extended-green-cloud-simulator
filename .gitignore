@@ -106,6 +106,7 @@ weather-api/target/generated-sources/annotations/org/greencloud/weatherapi/domai
 /agent-connector/target/
 /gui/target/
 /weather-api/target/
+/data-analysis-api/target/
 /rules-controller/src/main/resources/*
 /weather-api/src/main/resources/*
 /commons/target

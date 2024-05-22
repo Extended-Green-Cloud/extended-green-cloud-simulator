@@ -29,21 +29,16 @@ class Workflow():
         workflowStatus - dictionary of final workflow status obtained from Argo workflow configuration json
         '''
         self.argo_workflow_status = status['phase']
-        self.argo_detailed_status_message = \
-            self.get_detailed_status_message(status)
+        self.argo_detailed_status_message = self.get_detailed_status_message(status)
         self.argo_output_message = self.get_output_message(status)
-        self.order_item_status = read_value_or_return_default(
-            'status', database_data)
-        self.order_status = read_value_or_return_default(
-            'status.1', database_data)
-        self.priority = read_value_or_return_default(
-            'priority', database_data, 0)
+        self.order_item_status = read_value_or_return_default('status', database_data)
+        self.order_status = read_value_or_return_default('status.1', database_data)
+        self.priority = read_value_or_return_default('priority', database_data, 0)
 
         self.get_task_completion_percentage(status['progress'])
         self.initialize_steps(spec, status)
 
-        self.processingDetails = ProcessingDetails(
-            metadata, spec, status, database_data)
+        self.processingDetails = ProcessingDetails(metadata, spec, status, database_data)
         self.metadata = Metadata(metadata, database_data)
 
     def get_task_completion_percentage(self, progress: str) -> float:

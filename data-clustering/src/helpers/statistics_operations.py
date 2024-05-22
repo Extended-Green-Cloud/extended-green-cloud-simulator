@@ -17,6 +17,16 @@ def calculate_cov_for_column(column) -> float:
     '''
     return float(column['std']) / float(column['mean']) if float(column['mean']) != 0 else 0
 
+def get_number_of_maxima(values: np.ndarray) -> int:
+    '''
+    Method returns number of maximas in the given list.
+
+    Parameters:
+    values - list of values
+
+    Returns: number of maximas
+    '''
+    return len([val for val in values if val == values.max()])
 
 def calculate_jaccard_similarity(set_1: List[int], set_2: List[int]) -> float:
     '''

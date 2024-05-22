@@ -76,8 +76,7 @@ def display_and_save_aggregation_for_feature(df: pd.DataFrame,
     label - label of the cluster
     is_test - flag indicating if the method should use test path
     '''
-    feature_name = ' and '.join([feature.replace("_", " ")
-                                for feature in features])
+    feature_name = ' and '.join([feature.replace("_", " ") for feature in features])
     output_file = f'{dir_name}-cluster-{label}-{"-".join(features)}-statistics.csv'
     aggregated_df = df[features].value_counts().to_frame()
 
@@ -116,8 +115,10 @@ def display_cluster_statistics(data: pd.DataFrame,
         cluster_result_to_store.to_csv(
             PathReader.CLUSTERING_PATH(dir_name, f'{dir_name}-cluster-{label_no}-data.csv', is_test))
 
-        stats = workflows_df_label[features].describe(include="all").apply(
-            FORMATTER).loc[STATISTIC_FIELDS]
+        stats = workflows_df_label[features]\
+            .describe(include="all")\
+            .apply(FORMATTER)\
+                .loc[STATISTIC_FIELDS]
         stats = append_coefficient_of_variance(stats)
 
         # displaying results

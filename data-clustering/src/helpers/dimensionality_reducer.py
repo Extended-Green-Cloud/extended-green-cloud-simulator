@@ -65,3 +65,10 @@ class DimensionalityReducer(Enum):
 
     def UMAP(scaler, data, n_neighbors, min_dist, n_components, plot=False): \
         return apply_UMAP(scaler, data, n_neighbors, min_dist, n_components, plot)
+
+    @classmethod
+    def get_reducer_from_name(cls, name: str):
+        if name == 'PCA': return cls.PCA
+        if name == 'UMAP': return cls.UMAP
+
+        raise AttributeError(f'Dimensionality reduction of type {name} is undefined!')

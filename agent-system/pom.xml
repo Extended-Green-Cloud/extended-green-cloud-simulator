@@ -39,6 +39,12 @@
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Data Analysis API -->
+		<dependency>
+			<groupId>org.greencloud.dataanalysisapi</groupId>
+			<artifactId>data-analysis-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<!-- Weather API -->
 		<dependency>
 			<groupId>org.greencloud.weatherapi</groupId>

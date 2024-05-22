@@ -14,3 +14,5 @@ kaleido
 scikit-fuzzy
 protobuf==3.20.*
 numba==0.56.0
+flask
+python-dotenv

@@ -18,8 +18,7 @@ class WorkflowStep():
         '''
         self.name = stepSpec['name']
 
-        retry_strategy = read_value_or_return_default(
-            'retryStrategy', stepSpec, None)
+        retry_strategy = read_value_or_return_default('retryStrategy', stepSpec, None)
         self.retryLimit = int(retry_strategy['limit']) if retry_strategy else 0
 
         self.initialize_default_step_execution_details()
@@ -28,12 +27,9 @@ class WorkflowStep():
             step_details_resources = stepRetryDetails or stepDetails[0]
 
             self.status = step_details_resources['phase']
-            self.node = read_value_or_return_default(
-                'hostNodeName', stepDetails[0], 'Unspecified')
-            self.startTime = read_date_value_or_return_default(
-                'startedAt', step_details_resources, DateParser.PARSER_ARGO)
-            self.endTime = read_date_value_or_return_default(
-                'finishedAt', step_details_resources, DateParser.PARSER_ARGO)
+            self.node = read_value_or_return_default('hostNodeName', stepDetails[0], 'Unspecified')
+            self.startTime = read_date_value_or_return_default('startedAt', step_details_resources, DateParser.PARSER_ARGO)
+            self.endTime = read_date_value_or_return_default('finishedAt', step_details_resources, DateParser.PARSER_ARGO)
             self.duration = (self.endTime - self.startTime).total_seconds()
 
             self.initialize_step_resources(stepDetails)
@@ -57,15 +53,11 @@ class WorkflowStep():
         stepDetails - processing details of the workflow steps
         '''
         for stepDetail in stepDetails:
-            resource_duration = read_value_or_return_default(
-                'resourcesDuration', stepDetail, None)
+            resource_duration = read_value_or_return_default('resourcesDuration', stepDetail, None)
 
             if not resource_duration:
                 continue
 
-            self.cpu += read_value_or_return_default(
-                'cpu', resource_duration, 0)
-            self.memory += read_value_or_return_default(
-                'memory', resource_duration, 0)
-            self.ephemeralStorage += read_value_or_return_default(
-                'ephemeral-storage', resource_duration, 0)
+            self.cpu += read_value_or_return_default('cpu', resource_duration, 0)
+            self.memory += read_value_or_return_default('memory', resource_duration, 0)
+            self.ephemeralStorage += read_value_or_return_default('ephemeral-storage', resource_duration, 0)

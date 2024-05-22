@@ -10,8 +10,8 @@ from hdbscan import HDBSCAN
 from typing import Tuple, List, Callable
 from enum import Enum
 
-from src.helpers.statistics_operations import calculate_jaccard_similarity, calculate_lof
-from src.clustering.cluster_reader import get_cluster_with_appended_point, get_points_for_cluster, get_data_for_points_in_cluster
+from src.helpers.statistics_operations import calculate_jaccard_similarity, calculate_lof, get_number_of_maxima
+from src.clustering.cluster_reader import create_cluster_with_point_or_append_point, get_points_for_cluster, get_data_for_points_in_cluster
 
 
 def use_k_means_clustering(data: np.ndarray,
@@ -19,7 +19,7 @@ def use_k_means_clustering(data: np.ndarray,
                            run_no: int = 30,
                            max_iter: int = 1000,
                            rand_state: int = 0,
-                           only_labels: bool = False) -> Tuple[KMeans, KMeans, np.ndarray] or np.ndarray:
+                           only_labels: bool = False) -> Tuple[KMeans, KMeans, np.ndarray] | np.ndarray:
     '''
     Method performs k-mean clustering on the given sample of data and returns the obtained clusters.
 
@@ -49,7 +49,7 @@ def use_birch_clustering(data: np.ndarray,
                          cluster_no: int,
                          branching_factor: int = 50,
                          threshold: float = 0.3,
-                         only_labels: bool = False) -> Tuple[Birch, Birch, np.ndarray] or np.ndarray:
+                         only_labels: bool = False) -> Tuple[Birch, Birch, np.ndarray] | np.ndarray:
     '''
     Method performs birch clustering on the given sample of data and returns the obtained clusters.
 
@@ -74,7 +74,7 @@ def use_birch_clustering(data: np.ndarray,
 
 def use_GMM_clustering(data: np.ndarray,
                        cluster_no: int,
-                       only_labels: bool = False) -> Tuple[GaussianMixture, np.ndarray] or np.ndarray:
+                       only_labels: bool = False) -> Tuple[GaussianMixture, np.ndarray] | np.ndarray:
     '''
     Method performs GMM clustering on the given sample of data and returns the obtained clusters.
 
@@ -98,7 +98,7 @@ def use_fuzzy_clustering(data: np.ndarray,
                          error: float = 0.00001,
                          max_iter: int = 2000,
                          dist_metric: str = 'euclidean',
-                         only_labels: bool = False) -> Tuple[np.ndarray, np.ndarray, float, np.ndarray] or np.ndarray:
+                         only_labels: bool = False) -> Tuple[np.ndarray, np.ndarray, float, np.ndarray]:
     '''
     Method performs FCM clustering on the given sample of data and returns the obtained clusters.
 
@@ -126,12 +126,12 @@ def use_fuzzy_clustering(data: np.ndarray,
 
 
 def use_HDBSCAN_clustering(data: np.ndarray,
-                           min_cluster_size: int or str,
-                           min_samples: int or str,
-                           distance_threshold: float or str,
+                           min_cluster_size: int | str,
+                           min_samples: int | str,
+                           distance_threshold: float | str,
                            metric: dict,
                            cluster_selection_method: str = 'leaf',
-                           only_labels: bool = False) -> Tuple[HDBSCAN, HDBSCAN, np.ndarray] or np.ndarray:
+                           only_labels: bool = False) -> Tuple[HDBSCAN, HDBSCAN, np.ndarray] | np.ndarray:
     '''
     Method performs HDBSCAN clustering on the given sample of data and returns the obtained clusters.
 
@@ -156,6 +156,149 @@ def use_HDBSCAN_clustering(data: np.ndarray,
 
     return model, estimator, labels if not only_labels else labels
 
+def perform_ICCM_clustering_for_different_algorithms(algorithms: List[Callable],
+                                                     params_per_algorithm: np.ndarray,
+                                                     data_to_cluster: np.ndarray) -> Tuple[List, List]:
+    '''
+    Method performs 1st step of ICCM algorithm, when unclustered data is clustered using different algorithms.
+
+    Parameters:
+    algorithms - list of algorithms used to cluster the data
+    params_per_algorithm - list of parameters that should be used in individual clustering algorithms
+    data_to_cluster - values of the data that are to be clustered
+
+    Returns: tuple consisting of:
+    1. 2D list of points assigned per each label by each algorithm
+    2. 2D list of labels resulting from each algorithms
+    '''
+    points_per_label_per_algorithm = []
+    labels_per_algorithm = []
+
+    for index, algorithm in enumerate(algorithms):
+        labels = algorithm(data_to_cluster,
+                           *params_per_algorithm[index],
+                           only_labels=True)
+        points_per_label = [get_points_for_cluster(labels, label)
+                                for label in np.unique(labels)]
+
+        points_per_label_per_algorithm.append(points_per_label)
+        labels_per_algorithm.append(labels)
+
+    return points_per_label_per_algorithm, labels_per_algorithm
+
+def select_best_cluster_assignment(points_per_label: List,
+                                   points_per_label_for_reference_algorithm: List):
+    '''
+    Method selects best cluster assignment for each clustering result, by maximizing the Jaccard similarity between
+    the reference clustering results and clustering results of each individual algorithm.
+    
+    Parameters: 
+    points_per_label - points grouped by label assigned by given algorithm
+    points_per_label_for_reference_algorithm - points grouped by label assigned by reference algorithm
+    '''
+    new_cluster_assignment = np.zeros(len(points_per_label))
+
+    for cluster_idx, points in enumerate(points_per_label):
+        clusters_confusion_matrix = [calculate_jaccard_similarity(points, reference_points)
+                                    for reference_points in points_per_label_for_reference_algorithm]
+
+        best_cluster = np.argmax(clusters_confusion_matrix)
+        new_cluster_assignment[cluster_idx] = best_cluster
+
+    return new_cluster_assignment
+
+def get_new_label_value(new_labels_assignment: List, old_label_key) -> int:
+    '''
+    Method returns an index of new label from label assignment map.
+
+    Parameters:
+    new_labels_assignment - map of label assignment
+    old_label_key - key of old label that is to be mapped to a new one
+
+    Returns: new label value
+    '''
+    return int(new_labels_assignment[old_label_key])
+
+def revise_clusters_based_on_similarity_assignment(reference_algorithm_idx: int,
+                                                   points_per_label_per_algorithm: List, 
+                                                   labels_per_algorithm: List,
+                                                   points_per_label_for_reference_algorithm: List) -> np.ndarray:
+    '''
+    Method evaluates best cluster assignment using the between-cluster similarity and recomputes initial assignment.
+
+    Parameters:
+    reference_algorithm_idx - index of the algorithm which was initially used for assignment
+    points_per_label_per_algorithm - list of points assigned per each label by each algorithm
+    labels_per_algorithm - list of labels resulting from each algorithms
+    points_per_label_for_reference_algorithm - list of points assigned per each label by reference algorithm
+
+    Returns: Transpose of modified clustered assignment
+    '''
+    for algorithm_idx, points_per_label in enumerate(points_per_label_per_algorithm):
+
+        if algorithm_idx == reference_algorithm_idx:
+            continue
+
+        new_labels_assignment = select_best_cluster_assignment(points_per_label, points_per_label_for_reference_algorithm)
+        prev_labels_assignment = labels_per_algorithm[algorithm_idx]
+        labels_per_algorithm[algorithm_idx] = np.array([get_new_label_value(new_labels_assignment, old_label) 
+                                                        for old_label in prev_labels_assignment])
+        
+    return np.array(labels_per_algorithm).T
+
+def vote_for_best_cluster_assignment(labels_per_point_per_algorithm: List,
+                                     data_to_cluster: dict,
+                                     data_left_for_next_iteration: dict,
+                                     clusters_assigned_per_iteration: dict) -> Tuple[dict, dict]:
+    '''
+    Method votes for the best cluster assignment of each point.
+
+    Parameters:
+    labels_per_point_per_algorithm - labels assigned to each point by each algorithm
+    data_to_cluster - data that is to be clustered
+    data_left_for_next_iteration - data which required re-clustering
+    clusters_assigned_per_iteration - assignment of clusters in a given iteration
+
+    Returns: updated cluster assignment and updated next iteration data
+    '''
+    for point_idx, labels_for_point in enumerate(labels_per_point_per_algorithm):
+        labels_count = np.bincount(labels_for_point)
+        maxima_no = get_number_of_maxima(labels_count)
+        is_single_maximum = maxima_no == 1
+
+        point = list(data_to_cluster.keys())[point_idx]
+
+        if(is_single_maximum):
+            final_cluster = np.argmax(labels_count)
+            clusters_assigned_per_iteration[final_cluster] = \
+                create_cluster_with_point_or_append_point(point, final_cluster, clusters_assigned_per_iteration)
+        else:
+            data_left_for_next_iteration[point_idx] = point
+
+    return data_left_for_next_iteration, clusters_assigned_per_iteration
+
+def assign_default_clusters_to_leftover_data(data_left_for_next_iteration: dict,
+                                             clusters_assigned_per_iteration: dict,
+                                             labels_per_algorithm: List) -> Tuple[List, dict]:
+    '''
+    Method is executed when there are not enough left data points to perform re-clustering.
+    It assigns default clusters to leftover data.
+
+    Parameters:
+    data_left_for_next_iteration - data that has no assigned clusters yet
+    clusters_assigned_per_iteration - clusters that are assigned in current iteration
+    labels_per_algorithm - labels assigned by each algorithm for each data point
+
+    Returns: updated data for clustering and updated clusters assignment
+    '''
+    for point_idx, point in data_left_for_next_iteration.items():
+        clusters_for_point = labels_per_algorithm[point_idx]
+        labels_count = np.bincount(clusters_for_point)
+        final_cluster = np.argmax(labels_count)
+        clusters_assigned_per_iteration[final_cluster] = \
+            create_cluster_with_point_or_append_point(point, final_cluster, clusters_assigned_per_iteration)
+        
+    return [], clusters_assigned_per_iteration
 
 def cluster_data_points_ICCM(data: np.ndarray,
                              algorithms: List[Callable],
@@ -172,89 +315,35 @@ def cluster_data_points_ICCM(data: np.ndarray,
 
     Returns: sub-clusters and sub-clusters centers for each algorithm iteration
     '''
-    OBJECTIVE_ALGORITHM_IDX = 0
+    REFERENCE_ALGORITHM_IDX = 0
     data_to_cluster = dict((idx, point) for idx, point in enumerate(data))
     sub_clusters = []
 
-    # iterate until there is still data to cluster
     while len(data_to_cluster) > 0:
         data_to_cluster_values = np.ndarray(list(data_to_cluster.values()))
 
-        clusters_per_iteration = dict()
-        labels_per_algorithm = []
-        cluster_assignment_per_algorithm = []
+        points_per_label_per_algorithm, labels_per_algorithm = \
+            perform_ICCM_clustering_for_different_algorithms(algorithms, params_per_algorithm, data_to_cluster_values)
 
-        # 1st step: clustering unclustered data points with different algorithms
-        for i, algorithm in enumerate(algorithms):
-            labels = algorithm(data_to_cluster_values,
-                               *params_per_algorithm[i],
-                               only_labels=True)
-            points_per_label = [get_points_for_cluster(labels, label)
-                                for label in np.unique(labels)]
+        points_per_label_for_reference_algorithm = points_per_label_per_algorithm[REFERENCE_ALGORITHM_IDX]
+        labels_per_point_per_algorithm = \
+            revise_clusters_based_on_similarity_assignment(REFERENCE_ALGORITHM_IDX, points_per_label_per_algorithm, 
+                    labels_per_algorithm, points_per_label_for_reference_algorithm)
 
-            labels_per_algorithm.append(points_per_label)
-            cluster_assignment_per_algorithm.append(labels)
+        data_left_for_next_iteration, clusters_assigned_per_iteration = \
+            vote_for_best_cluster_assignment(labels_per_point_per_algorithm, data_to_cluster, dict(), dict())
 
-        labels_for_objective_algorithm = labels_per_algorithm[OBJECTIVE_ALGORITHM_IDX]
+        too_few_leftovers = len(data_left_for_next_iteration) < max_clusters
 
-        # 2nd step: voting for final partial cluster assignment
-        for algorithm_idx, algorithm_labels in enumerate(labels_per_algorithm):
-
-            # skip algorithm which is used as reference point
-            # (i.e. clustering results with which other results are compared)
-            if algorithm_idx == OBJECTIVE_ALGORITHM_IDX:
-                continue
-
-            new_cluster_assignment = np.zeros(len(algorithm_labels))
-
-            for cluster_idx, cluster in enumerate(algorithm_labels):
-                clusters_confusion_matrix = [calculate_jaccard_similarity(cluster, objective_cluster)
-                                             for objective_cluster in labels_for_objective_algorithm]
-
-                best_cluster = np.argmax(clusters_confusion_matrix)
-                new_cluster_assignment[cluster_idx] = best_cluster
-
-            prev_cluster_assignment = cluster_assignment_per_algorithm[algorithm_idx]
-            cluster_assignment_per_algorithm[algorithm_idx] = np.array([int(new_cluster_assignment[prev_cluster])
-                                                                        for prev_cluster in prev_cluster_assignment])
-
-        cluster_assignment_per_algorithm = np.array(
-            cluster_assignment_per_algorithm).T
-
-        data_for_next_iteration = dict()
-
-        for point_idx, clusters_for_point in enumerate(cluster_assignment_per_algorithm):
-            clusters_count = np.bincount(clusters_for_point)
-            maxima_no = len(
-                [val for val in clusters_count if val == clusters_count.max()])
-
-            point = list(data_to_cluster.keys())[point_idx]
-
-            # if there is single maximum value in clusters count
-            if(maxima_no == 1):
-                final_cluster = np.argmax(clusters_count)
-                clusters_per_iteration[final_cluster] = get_cluster_with_appended_point(
-                    point, final_cluster, clusters_per_iteration)
-            else:
-                data_for_next_iteration[point_idx] = point
-
-        # if number of data points is smaller than desired number of clusters
-        if len(data_for_next_iteration) < max_clusters:
-            for point_idx, point in data_for_next_iteration.items():
-                clusters_for_point = cluster_assignment_per_algorithm[point_idx]
-                labels_count = np.bincount(clusters_for_point)
-                final_cluster = np.argmax(labels_count)
-                clusters_per_iteration[final_cluster] = get_cluster_with_appended_point(
-                    point, final_cluster, clusters_per_iteration)
-            data_to_cluster = []
+        if too_few_leftovers:
+            data_to_cluster, clusters_assigned_per_iteration = \
+                assign_default_clusters_to_leftover_data(data_left_for_next_iteration, clusters_assigned_per_iteration, labels_per_algorithm)
         else:
-            data_to_cluster = data_for_next_iteration
-            print(
-                f"\nData no. in the next iteration: {len(data_for_next_iteration)}")
+            data_to_cluster = data_left_for_next_iteration
+            print(f"\nData no. in the next iteration: {len(data_left_for_next_iteration)}")
 
-        sub_clusters.append(clusters_per_iteration)
+        sub_clusters.append(clusters_assigned_per_iteration)
 
-    # return list of sub-clusters and their centers for all iterations
     sub_clusters = [cluster for cluster_per_iteration in sub_clusters
                     for _, cluster in cluster_per_iteration.items()]
     sub_clusters_points = [list(map(lambda val: data[val], cluster))
@@ -489,3 +578,16 @@ class ClusteringMethod(Enum):
     def ICCM_DATA(data, *args): return cluster_data_points_ICCM(data, *args)
     def ICCM_CLUSTERS(data, *args): return get_ICCM_labels(data, *args)
     def ICLUST(data, *args): return use_iclust_clustering(data, *args)
+
+    @classmethod
+    def get_clustering_by_name(cls, name: str):
+        if name == 'K_MEANS': return cls.K_MEANS
+        if name == 'BIRCH': return cls.BIRCH
+        if name == 'GMM': return cls.GMM
+        if name == 'FUZZY_C_MEANS': return cls.FUZZY_C_MEANS
+        if name == 'HDBSCAN': return cls.HDBSCAN
+        if name == 'ICCM': return cls.ICCM
+        if name == 'ICLUST': return cls.ICLUST
+
+        raise AttributeError(f'Clustering type {name} is undefined!')
+

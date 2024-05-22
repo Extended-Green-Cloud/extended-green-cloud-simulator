@@ -3,6 +3,7 @@ import numpy as np
 
 from typing import List, Tuple
 from src.helpers.scaler import Scaler
+from enum import Enum
 from src.helpers.statistics_operations import convert_fields_to_numeric
 
 from src.clustering.cluster_reader import get_df_with_cluster_labels
@@ -10,10 +11,12 @@ from src.clustering.clustering_methods import ClusteringMethod
 from src.clustering.clustering_evaluation import ClusteringMetrics, print_clustering_metrics, save_validation_metrics
 from src.clustering.clustering_visualization import display_data_frame_with_labels, display_clustering_scatter_plot, display_cluster_statistics, display_histograms_per_clusters, display_histograms_per_feature_for_clusters
 from src.clustering.clustering_pre_processing import ClusteringPreProcessing
+from src.clustering.clustering_parameter_selection import TestingClusteringParameters
+
+from src.helpers.rest_parser import *
 from src.helpers.dimensionality_reducer import DimensionalityReducer
 from src.helpers.feature_encoder import WORKFLOW_FEATURES, ORDER_FEATURES, get_all_column_names_for_features
-from src.clustering.clustering_parameter_selection import TestingClusteringParameters
-from enum import Enum
+from src.helpers.value_reader import read_value_or_return_default
 
 CLUSTERING_WORKFLOW_STATISTICS = [
     [WORKFLOW_FEATURES.ORDER_ITEM_STATUS],
@@ -46,7 +49,6 @@ CLUSTERING_ORDERS_STATISTICS = [
 class ClusteringObjective(Enum):
     ORDERS = CLUSTERING_ORDERS_STATISTICS
     WORKFLOWS = CLUSTERING_WORKFLOW_STATISTICS
-
 
 class Clustering():
     '''
@@ -98,7 +100,8 @@ class Clustering():
             clustering_params: Tuple,
             reduction_params: Tuple,
             test_params: bool = False,
-            save_data: bool = True) -> None:
+            save_data: bool = True,
+            print_results: bool = True) -> pd.DataFrame:
         '''
         Method runs clustering on the data.
 
@@ -107,6 +110,9 @@ class Clustering():
         reduction_params - parameters used in data reduction
         test_params - flag indicating if run should call clustering parameters testing (default: False)
         save_data - flag indicating if the metrics are to be saved in form of csv
+        print_results - flag indicating if the results should be printed
+
+        Returns: data frame with clustering labels
         '''
 
         if test_params:
@@ -118,16 +124,61 @@ class Clustering():
         labels = result[-1]
 
         data_with_labels = get_df_with_cluster_labels(self.data, labels)
-        display_clustering_scatter_plot(reduced_data, labels, self.name)
-        display_data_frame_with_labels(data_with_labels, self.name)
-        self.print_validators(result, labels, reduced_data, save_data)
-        display_cluster_statistics(
-            data_with_labels, labels, self.analyzed_features, self.name,
-            statistics_to_display=self.clustering_objective.value)
-        display_histograms_per_feature_for_clusters(
-            data_with_labels, self.analyzed_features, labels, self.name)
-        display_histograms_per_clusters(
-            data_with_labels, self.analyzed_features, labels, self.name)
+
+        if print_results:
+            display_clustering_scatter_plot(reduced_data, labels, self.name)
+            display_data_frame_with_labels(data_with_labels, self.name)
+            self.print_validators(result, labels, reduced_data, save_data)
+            display_cluster_statistics(
+                data_with_labels, labels, self.analyzed_features, self.name,
+                statistics_to_display=self.clustering_objective.value)
+            display_histograms_per_feature_for_clusters(
+                data_with_labels, self.analyzed_features, labels, self.name)
+            display_histograms_per_clusters(
+                data_with_labels, self.analyzed_features, labels, self.name)
+        
+        return data_with_labels
+    
+    @classmethod
+    def run_workflow_clustering_for_rest(cls, request_data: dict) -> Tuple[pd.DataFrame, List[str]]:
+        '''
+        Method constructs and performs workflows clustering from REST data.
+
+        Parameters:
+        request_data - JSON received in POST /clustering/job request
+
+        Returns: data frame with clustering labels and used features
+        '''
+        rest_parameters = request_data[REST_INPUT.CONFIGURATION]
+        rest_input = request_data[REST_INPUT.DATA]
+        rest_params = rest_parameters[REST_INPUT.PARAMETERS]
+        rest_features = rest_parameters[REST_INPUT.FEATURES]
+        rest_method = rest_parameters[REST_INPUT.METHOD]
+        
+        rest_all_features = read_value_or_return_default(REST_INPUT.ALL_FEATURES, rest_features, [])
+        rest_categorical_features = read_value_or_return_default(REST_INPUT.CATEGORICAL_FEATURES, rest_features, [])
+
+        clustering_name = read_value_or_return_default(REST_INPUT.NAME, rest_parameters, DEFAULT_CLUSTERING_NAME)
+        clustering_params = tuple(read_value_or_return_default(REST_INPUT.CLUSTERING_PARAMETERS, rest_params, [])) 
+        dim_reduction_params = tuple(read_value_or_return_default(REST_INPUT.DIM_REDUCTION_PARAMETERS, rest_params, []))
+
+        clustering_method = parse_clustering_method(rest_method)
+        validation_methods = parse_validation_metrics(rest_method)
+        dim_reduction_method = parse_reduction_method(rest_method)
+    
+        clustering_data = parse_rest_workflows_to_data_frame(rest_input, rest_categorical_features)
+        clustering_features = parse_clustering_features(clustering_data, rest_all_features, rest_categorical_features)
+
+        clustering = cls(clustering_name, 
+                        clustering_data,
+                        clustering_features,
+                        DEFAULT_VISUAL_FEATURES,
+                        clustering_method,
+                        validation_methods,
+                        dim_reduction_method,
+                        ClusteringObjective.WORKFLOWS,
+                        DEFAULT_PRE_PROCESSING)
+        return clustering.run(clustering_params, dim_reduction_params, False, False, False), clustering_features
 
     def print_validators(self,
                          result: Tuple,

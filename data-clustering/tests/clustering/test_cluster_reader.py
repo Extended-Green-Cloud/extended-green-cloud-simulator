@@ -1,7 +1,7 @@
 import pandas as pd
 
 from unittest import TestCase, main
-from src.clustering.cluster_reader import get_points_for_cluster, get_cluster_with_appended_point, get_data_for_points_in_cluster, get_df_with_cluster_labels, get_workflows_for_label
+from src.clustering.cluster_reader import get_points_for_cluster, create_cluster_with_point_or_append_point, get_data_for_points_in_cluster, get_df_with_cluster_labels, get_workflows_for_label
 from src.helpers.feature_encoder import WORKFLOW_FEATURES
 
 
@@ -113,7 +113,7 @@ class TestGetClusterWithAppendedPoint(TestCase):
         test_cluster = 2
 
         # when
-        actual = get_cluster_with_appended_point(
+        actual = create_cluster_with_point_or_append_point(
             test_point, test_cluster, test_clusters)
 
         # then
@@ -134,7 +134,7 @@ class TestGetClusterWithAppendedPoint(TestCase):
         test_cluster = 1
 
         # when
-        actual = get_cluster_with_appended_point(
+        actual = create_cluster_with_point_or_append_point(
             test_point, test_cluster, test_clusters)
 
         # then

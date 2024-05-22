@@ -57,6 +57,15 @@ class ClusteringMetrics(Enum):
 
     def XIE_BENI(data, *args): \
         return 'Xie-Beni Index', calculate_xie_beni_index(data, *args)
+    
+    @classmethod
+    def get_metric_by_name(cls, name: str):
+        if name == 'SILHOUETTE': return cls.SILHOUETTE
+        if name == 'CALINSKI': return cls.CALINSKI
+        if name == 'DAVIES': return cls.DAVIES
+        if name == 'XIE_BENI': return cls.XIE_BENI
+
+        raise AttributeError(f'Metric type {name} is undefined!')
 
 
 def print_clustering_metrics(metrics: List[ClusteringMetrics],
