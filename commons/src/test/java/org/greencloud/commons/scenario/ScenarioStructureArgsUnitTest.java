@@ -9,16 +9,17 @@ import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.jrba.agentmodel.domain.args.AgentArgs;
-import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
+import org.greencloud.commons.args.agent.centralmanager.factory.ImmutableCentralManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
-import org.greencloud.commons.args.agent.scheduler.factory.ImmutableSchedulerArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.commons.domain.resources.ImmutableResource;
 import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,7 +102,7 @@ class ScenarioStructureArgsUnitTest {
 	@DisplayName("Test getting concatenation of agent args for all args present")
 	void testGetAgentsArgsAllArgsPresent() {
 		var expectedAgents = List.of(
-				"test_scheduler",
+				"test_cma",
 				"test_managing",
 				"test_server1",
 				"test_server2",
@@ -135,8 +136,10 @@ class ScenarioStructureArgsUnitTest {
 						.resourceCharacteristicReservation("return ownedAmount - amountToReserve;")
 						.resourceCharacteristicSubtraction("return ownedAmount - amountToRemove;")
 						.build())
-				.resourceComparator("import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
-				.resourceValidator("requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
+				.resourceComparator(
+						"import java.lang.Math; return Math.signum(resource1.getAmountInCommonUnit() - resource2.getAmountInCommonUnit());")
+				.resourceValidator(
+						"requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();")
 				.build();
 
 		var mockMonitor1 = ImmutableMonitoringArgs.builder()
@@ -160,8 +163,7 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_gs1")
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -171,8 +173,7 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_gs2")
 				.monitoringAgent("test_monitoring2")
 				.ownerSever("test_server1")
-				.latitude("10")
-				.longitude("20")
+				.location(ImmutableLocation.builder().latitude(10).longitude(20).build())
 				.pricePerPowerUnit(20L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(100L)
@@ -182,8 +183,7 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_gs3")
 				.monitoringAgent("test_monitoring3")
 				.ownerSever("test_server2")
-				.latitude("15")
-				.longitude("50")
+				.location(ImmutableLocation.builder().latitude(15).longitude(30).build())
 				.pricePerPowerUnit(300L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(500L)
@@ -193,8 +193,7 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_gs4")
 				.monitoringAgent("test_monitoring4")
 				.ownerSever("test_server3")
-				.latitude("1")
-				.longitude("5")
+				.location(ImmutableLocation.builder().latitude(1).longitude(5).build())
 				.pricePerPowerUnit(5L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(50L)
@@ -236,11 +235,10 @@ class ScenarioStructureArgsUnitTest {
 				.name("test_rma2")
 				.build();
 
-		var mockScheduler = ImmutableSchedulerArgs.builder()
-				.name("test_scheduler")
-				.deadlineWeight(1)
-				.cpuWeight(1)
+		var mockCMA = ImmutableCentralManagerArgs.builder()
+				.name("test_cma")
 				.maximumQueueSize(10000)
+				.pollingBatchSize(10)
 				.build();
 
 		var mockManaging = ImmutableManagingAgentArgs.builder()
@@ -250,7 +248,7 @@ class ScenarioStructureArgsUnitTest {
 
 		scenarioStructureArgs = new ScenarioStructureArgs(
 				mockManaging,
-				mockScheduler,
+				mockCMA,
 				List.of(mockRMA1, mockRMA2),
 				List.of(mockServer1, mockServer2, mockServer3),
 				List.of(mockMonitor1, mockMonitor2, mockMonitor3, mockMonitor4),

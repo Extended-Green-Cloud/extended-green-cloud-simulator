@@ -16,6 +16,16 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface RegionalManagerArgs extends AgentArgs {
 
 	/**
+	 * @return preferred maximum scheduled job queue size
+	 */
+	Integer getMaximumQueueSize();
+
+	/**
+	 * @return a size of a batch being the number of jobs drawn from the queue
+	 */
+	Integer getPollingBatchSize();
+
+	/**
 	 * @return location's latitude
 	 */
 	@Nullable

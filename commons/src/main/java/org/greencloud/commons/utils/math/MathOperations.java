@@ -1,15 +1,17 @@
 package org.greencloud.commons.utils.math;
 
-import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
-import static org.greencloud.commons.utils.resources.ResourcesUtilization.divideIntoSubIntervals;
 import static java.lang.Math.max;
 import static java.time.Duration.between;
+import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.divideIntoSubIntervals;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
+import org.apache.commons.text.similarity.HammingDistance;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
 
 /**
@@ -62,16 +64,23 @@ public class MathOperations {
 	}
 
 	/**
-	 * @param n input number
-	 * @return true if the number is in a Fibonacci sequence
+	 * Method computes similarity matrix between two lists of strings using HammingDistances.
+	 *
+	 * @param firstCodesList  first list of string codes
+	 * @param secondCodesList second list of string codes
+	 * @return similarity matrix
 	 */
-	public static boolean isFibonacci(int n) {
-		return isPerfectSquare(5 * n * n + 4) ||
-				isPerfectSquare(5 * n * n - 4);
+	public static List<List<Integer>> computeStringSimilarityMatrix(final Collection<String> firstCodesList,
+			final Collection<String> secondCodesList) {
+		return firstCodesList.stream()
+				.map(firstCode -> getHammingDistancesForStringEncodings(firstCode, secondCodesList))
+				.toList();
 	}
 
-	static boolean isPerfectSquare(int x) {
-		int s = (int) Math.sqrt(x);
-		return (s * s == x);
+	private static List<Integer> getHammingDistancesForStringEncodings(final String firstCode,
+			final Collection<String> secondCodesList) {
+		return secondCodesList.stream()
+				.map(secondCode -> new HammingDistance().apply(secondCode, firstCode))
+				.toList();
 	}
 }

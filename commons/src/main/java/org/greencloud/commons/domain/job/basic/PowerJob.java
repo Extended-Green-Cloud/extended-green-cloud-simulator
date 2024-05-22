@@ -1,7 +1,9 @@
 package org.greencloud.commons.domain.job.basic;
 
+import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
+
 import java.io.Serializable;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +19,14 @@ import org.immutables.value.internal.$processor$.meta.$CriteriaMirrors;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.errorprone.annotations.Var;
 
 /**
  * Object storing the data describing job that is to be executed in Cloud
  */
 @JsonSerialize(as = ImmutablePowerJob.class)
 @JsonDeserialize(as = ImmutablePowerJob.class)
+@Value.Style(underrideHashCode = "hash", underrideEquals = "equalTo")
 @Value.Immutable
 @ImmutableConfig
 public interface PowerJob extends Serializable {
@@ -48,14 +52,9 @@ public interface PowerJob extends Serializable {
 	}
 
 	/**
-	 * @return time when the power delivery should start
+	 * @return job execution duration in milliseconds
 	 */
-	Instant getStartTime();
-
-	/**
-	 * @return time when the power delivery should finish
-	 */
-	Instant getEndTime();
+	Long getDuration();
 
 	/**
 	 * @return time before which job has to end
@@ -74,12 +73,43 @@ public interface PowerJob extends Serializable {
 	List<JobStep> getJobSteps();
 
 	/**
-	 * Method returns duration of the job in milliseconds
-	 *
-	 * @return duration of job execution in milliseconds
+	 * @return time when the job execution started
+	 */
+	@Nullable
+	Instant getStartTime();
+
+	/**
+	 * @return job priority
+	 */
+	@Nullable
+	Integer getPriority();
+
+	/**
+	 * @return expected job finish time (if the job has started)
 	 */
 	@Value.Default
-	default long getJobDurationForSimulated() {
-		return Duration.between(getStartTime(), getEndTime()).toMillis();
+	@Nullable
+	default Instant getExpectedEndTime() {
+		return ofNullable(getStartTime()).map(startTime -> startTime.plusMillis(getDuration())).orElse(null);
+	}
+
+	/**
+	 * @return information if job execution is being conducted
+	 */
+	@Value.Default
+	default boolean isUnderExecution() {
+		return nonNull(getStartTime());
+	}
+
+	default int hash() {
+		@Var int h = 5381;
+		h += (h << 5) + getJobInstanceId().hashCode();
+		return h;
+	}
+
+	default boolean equalTo(ImmutablePowerJob another) {
+		if (this == another)
+			return true;
+		return another != null && getJobInstanceId().equals(another.getJobInstanceId());
 	}
 }

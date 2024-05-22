@@ -9,14 +9,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.jrba.agentmodel.domain.args.AgentArgs;
+import org.greencloud.commons.args.agent.centralmanager.factory.CentralManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
-import org.greencloud.commons.args.agent.scheduler.factory.SchedulerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.jetbrains.annotations.Nullable;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 import lombok.Getter;
 
@@ -27,7 +27,7 @@ import lombok.Getter;
 public class ScenarioStructureArgs implements Serializable {
 
 	private ManagingAgentArgs managingAgentArgs;
-	private SchedulerArgs schedulerAgentArgs;
+	private CentralManagerArgs centralManagerAgentArgs;
 	@Getter
 	private List<RegionalManagerArgs> regionalManagerAgentsArgs;
 	private List<ServerArgs> serverAgentsArgs;
@@ -41,20 +41,20 @@ public class ScenarioStructureArgs implements Serializable {
 	 * Scenario constructor.
 	 *
 	 * @param managingAgentArgs         managing agent
-	 * @param schedulerAgentArgs        scheduler agent
+	 * @param centralManagerAgentArgs   central manager agent
 	 * @param regionalManagerAgentsArgs list of regional manager agents
 	 * @param serverAgentsArgs          list of server agents
 	 * @param monitoringAgentsArgs      list of monitoring agents
 	 * @param greenEnergyAgentsArgs     list of green energy source agents
 	 */
 	public ScenarioStructureArgs(ManagingAgentArgs managingAgentArgs,
-			SchedulerArgs schedulerAgentArgs,
+			CentralManagerArgs centralManagerAgentArgs,
 			List<RegionalManagerArgs> regionalManagerAgentsArgs,
 			List<ServerArgs> serverAgentsArgs,
 			List<MonitoringArgs> monitoringAgentsArgs,
 			List<GreenEnergyArgs> greenEnergyAgentsArgs) {
 		this.managingAgentArgs = managingAgentArgs;
-		this.schedulerAgentArgs = schedulerAgentArgs;
+		this.centralManagerAgentArgs = centralManagerAgentArgs;
 		this.regionalManagerAgentsArgs = new ArrayList<>(regionalManagerAgentsArgs);
 		this.serverAgentsArgs = new ArrayList<>(serverAgentsArgs);
 		this.monitoringAgentsArgs = new ArrayList<>(monitoringAgentsArgs);
@@ -143,11 +143,11 @@ public class ScenarioStructureArgs implements Serializable {
 		var regionalManagerArgs = regionalManagerAgentsArgs.stream().map(AgentArgs.class::cast);
 		var monitoringArgs = monitoringAgentsArgs.stream().map(AgentArgs.class::cast);
 		var greenEnergyArgs = greenEnergyAgentsArgs.stream().map(AgentArgs.class::cast);
-		var schedulerArgs = Stream.of(schedulerAgentArgs).map(AgentArgs.class::cast);
+		var cmaArgs = Stream.of(centralManagerAgentArgs).map(AgentArgs.class::cast);
 		var managingArgs = Stream.of(managingAgentArgs).map(AgentArgs.class::cast);
 
 		return concat(managingArgs,
-				concat(schedulerArgs,
+				concat(cmaArgs,
 						concat(monitoringArgs,
 								concat(greenEnergyArgs,
 										concat(serverArgs, regionalManagerArgs))))).toList();

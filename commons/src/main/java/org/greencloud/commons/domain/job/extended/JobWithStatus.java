@@ -4,7 +4,6 @@ import java.time.Instant;
 
 import javax.annotation.Nullable;
 
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,9 +20,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public interface JobWithStatus {
 
 	/**
-	 * @return job of interest
+	 * @return job identifier
 	 */
-	JobInstanceIdentifier getJobInstance();
+	String getJobId();
+
+	/**
+	 * @return job instance identifier
+	 */
+	String getJobInstanceId();
 
 	/**
 	 * @return time of status change
@@ -41,4 +45,10 @@ public interface JobWithStatus {
 	 */
 	@Nullable
 	Double getPriceForJob();
+
+	/**
+	 * @return expected job execution duration
+	 */
+	@Nullable
+	Double getNewJobExecutionDuration();
 }

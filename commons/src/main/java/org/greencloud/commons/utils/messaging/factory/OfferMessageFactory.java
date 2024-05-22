@@ -4,13 +4,14 @@ import static jade.lang.acl.ACLMessage.PROPOSE;
 import static java.util.Objects.requireNonNull;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 
+import java.time.Instant;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;
 import org.greencloud.commons.domain.agent.ImmutableGreenSourceData;
 import org.greencloud.commons.domain.agent.ImmutableServerData;
-import org.greencloud.commons.domain.agent.ImmutableServerResources;
 import org.greencloud.commons.domain.agent.ServerData;
-import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.energy.EnergyTypeEnum;
 import org.greencloud.commons.utils.job.JobUtils;
@@ -33,16 +34,19 @@ public class OfferMessageFactory {
 	 * @return PROPOSE ACLMessage
 	 */
 	public static ACLMessage prepareServerJobOffer(final ServerAgentProps agentProps, final double servicePrice,
-			final String jobId, final ACLMessage rmaMessage, final Integer ruleSet, final EnergyTypeEnum typeOfEnergy) {
+			final Pair<Instant, Double> executionEstimation, final String jobId, final ACLMessage rmaMessage,
+			final Integer ruleSet, final EnergyTypeEnum typeOfEnergy) {
 		final ClientJob job = requireNonNull(JobUtils.getJobById(jobId, agentProps.getServerJobs()));
-		final double powerConsumption = agentProps.getPowerConsumption(job.getStartTime(), job.getEndTime());
-		final ServerResources serverResources = ImmutableServerResources.builder().resources(agentProps.resources())
-				.price(agentProps.getPricePerHour()).build();
+		final Instant startTime = executionEstimation.getKey();
+		final Double executionTime = executionEstimation.getValue();
+		final double powerConsumption = agentProps.getPowerConsumption(startTime, job.getExpectedEndTime());
 		final ServerData jobOffer = ImmutableServerData.builder()
 				.jobId(jobId)
+				.executionTime(executionTime)
+				.estimatedEarliestJobStartTime(startTime)
 				.priceForJob(servicePrice)
 				.powerConsumption(powerConsumption)
-				.serverResources(serverResources)
+				.availableResources(agentProps.resources())
 				.typeOfEnergy(typeOfEnergy)
 				.build();
 

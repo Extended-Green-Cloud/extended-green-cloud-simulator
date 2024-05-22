@@ -55,6 +55,9 @@ public interface JobArgs {
 	@JsonProperty("steps")
 	List<JobStep> getJobSteps();
 
+	@Nullable
+	Integer getPriority();
+
 	/**
 	 * @return optional server selection preference specified in Expression Language
 	 */

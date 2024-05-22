@@ -39,16 +39,6 @@ public interface ClientNodeArgs extends AgentArgs {
 	Map<String, Resource> getResources();
 
 	/**
-	 * @return estimated job start date
-	 */
-	String getStart();
-
-	/**
-	 * @return estimated job finish date
-	 */
-	String getEnd();
-
-	/**
 	 * @return estimated job deadline
 	 */
 	String getDeadline();

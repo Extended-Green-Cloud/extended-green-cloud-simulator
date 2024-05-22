@@ -1,13 +1,11 @@
 package org.greencloud.commons.utils.time;
 
 import static java.time.OffsetDateTime.now;
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import org.greencloud.commons.constants.TimeConstants;
 import org.greencloud.commons.domain.location.Location;
 import org.shredzone.commons.suncalc.SunTimes;
 
@@ -23,13 +21,6 @@ public class TimeSimulation {
 	 */
 	public static Instant getCurrentTime() {
 		return now(CLOCK).toInstant();
-	}
-
-	/**
-	 * @return current time with possible error delay
-	 */
-	public static Instant getCurrentTimeMinusError() {
-		return getCurrentTime().minus(TimeConstants.TIME_ERROR, MINUTES);
 	}
 
 	/**

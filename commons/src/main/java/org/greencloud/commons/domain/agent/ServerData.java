@@ -1,5 +1,7 @@
 package org.greencloud.commons.domain.agent;
 
+import java.time.Instant;
+
 import org.greencloud.commons.domain.job.extended.JobWithPrice;
 import org.immutables.value.Value;
 
@@ -21,4 +23,8 @@ public interface ServerData extends JobWithPrice {
 	 */
 	double getPowerConsumption();
 
+	/**
+	 * @return estimated earliest possible job start time
+	 */
+	Instant getEstimatedEarliestJobStartTime();
 }

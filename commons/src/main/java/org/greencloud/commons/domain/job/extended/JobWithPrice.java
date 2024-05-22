@@ -1,12 +1,16 @@
 package org.greencloud.commons.domain.job.extended;
 
-import org.greencloud.commons.domain.agent.ServerResources;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.greencloud.commons.domain.ImmutableConfig;
+import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.energy.EnergyTypeEnum;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
 
 /**
  * Object storing the data describing job and the cost of its execution
@@ -25,15 +29,24 @@ public interface JobWithPrice {
 	/**
 	 * @return cost of execution of the given job
 	 */
-	double getPriceForJob();
+	@Nullable
+	Double getPriceForJob();
+
+	/**
+	 * @return estimated job execution time
+	 */
+	@Nullable
+	Double getExecutionTime();
 
 	/**
 	 * @return type of energy with which a given job is to be executed
 	 */
+	@Nullable
 	EnergyTypeEnum getTypeOfEnergy();
 
 	/**
-	 * @return specification of the server that will execute given job
+	 * @return resources available for job execution
 	 */
-	ServerResources getServerResources();
+	@Nullable
+	Map<String, Resource> getAvailableResources();
 }

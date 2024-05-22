@@ -1,6 +1,7 @@
 package org.greencloud.commons.mapper;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
 import static org.greencloud.commons.constants.resource.ResourceConverterConstants.FROM_GI_TO_BYTE_CONVERTER;
 import static org.greencloud.commons.constants.resource.ResourceConverterConstants.FROM_MI_TO_BYTE_CONVERTER;
@@ -9,6 +10,8 @@ import static org.greencloud.commons.constants.resource.ResourceConverterConstan
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.MEMORY;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeMillis;
 
 import java.time.Instant;
 
@@ -34,7 +37,6 @@ import org.greencloud.commons.domain.jobstep.JobStep;
 import org.greencloud.commons.domain.resources.ImmutableResource;
 import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.greencloud.commons.domain.resources.Resource;
-import org.greencloud.commons.utils.time.TimeConverter;
 
 import jade.core.AID;
 
@@ -48,7 +50,8 @@ public class JobMapper {
 	 * @return JobInstanceIdentifier
 	 */
 	public static JobInstanceIdentifier mapClientJobToJobInstanceId(final ClientJob job) {
-		return new ImmutableJobInstanceIdentifier(job.getJobId(), job.getJobInstanceId(), job.getStartTime());
+		return new ImmutableJobInstanceIdentifier(job.getJobId(), job.getJobInstanceId(),
+				requireNonNull(job.getStartTime()));
 	}
 
 	/**
@@ -57,48 +60,7 @@ public class JobMapper {
 	 */
 	public static JobInstanceIdentifier mapToJobInstanceId(final PowerJob powerJob) {
 		return new ImmutableJobInstanceIdentifier(powerJob.getJobId(), powerJob.getJobInstanceId(),
-				powerJob.getStartTime());
-	}
-
-	/**
-	 * @param job       job to be mapped to job
-	 * @param endTime   new job end time
-	 * @param startTime new job start time
-	 * @return ClientJob
-	 */
-	public static ClientJob mapToJobWithNewTime(final ClientJob job, final Instant startTime, final Instant endTime) {
-		return ImmutableClientJob.builder()
-				.jobId(job.getJobId())
-				.jobInstanceId(job.getJobInstanceId())
-				.clientIdentifier(job.getClientIdentifier())
-				.clientAddress(job.getClientAddress())
-				.requiredResources(job.getRequiredResources())
-				.selectionPreference(job.getSelectionPreference())
-				.startTime(startTime)
-				.endTime(endTime)
-				.deadline(job.getDeadline())
-				.jobSteps(job.getJobSteps())
-				.build();
-	}
-
-	/**
-	 * @param job       job to be mapped to job
-	 * @param startTime new job start time
-	 * @return ClientJob
-	 */
-	public static ClientJob mapToJobNewStartTime(final ClientJob job, final Instant startTime) {
-		return ImmutableClientJob.builder()
-				.clientIdentifier(job.getClientIdentifier())
-				.clientAddress(job.getClientAddress())
-				.jobId(job.getJobId())
-				.jobInstanceId(job.getJobInstanceId())
-				.requiredResources(job.getRequiredResources())
-				.selectionPreference(job.getSelectionPreference())
-				.startTime(startTime)
-				.endTime(job.getEndTime())
-				.deadline(job.getDeadline())
-				.jobSteps(job.getJobSteps())
-				.build();
+				requireNonNull(powerJob.getStartTime()));
 	}
 
 	/**
@@ -112,141 +74,118 @@ public class JobMapper {
 				.jobInstanceId(job.getJobInstanceId())
 				.requiredResources(job.getRequiredResources())
 				.energy(energy)
-				.jobSteps(job.getJobSteps())
 				.startTime(job.getStartTime())
-				.endTime(job.getEndTime())
+				.jobSteps(job.getJobSteps())
+				.duration(job.getDuration())
 				.deadline(job.getDeadline())
+				.priority(job.getPriority())
 				.build();
 	}
 
 	/**
-	 * @param job       job extending PowerJob that is to be mapped to job
-	 * @param startTime new job start time
+	 * @param job       job to be mapped
+	 * @param startTime new start time
+	 * @param duration  new duration
 	 * @return job extending PowerJob
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends PowerJob> T mapToNewJobInstanceStartTime(final T job, final Instant startTime) {
+	public static <T extends PowerJob> T mapToJobDurationAndStartAndInstanceId(final T job, final Instant startTime,
+			final long duration) {
 		return job instanceof ClientJob clientJob ?
 				(T) ImmutableClientJob.builder()
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
-						.requiredResources(job.getRequiredResources())
-						.startTime(startTime)
+						.jobInstanceId(job.getJobInstanceId())
+						.requiredResources(clientJob.getRequiredResources())
 						.selectionPreference(clientJob.getSelectionPreference())
-						.endTime(clientJob.getEndTime())
 						.deadline(clientJob.getDeadline())
 						.jobSteps(clientJob.getJobSteps())
+						.priority(job.getPriority())
+						.duration(duration)
+						.startTime(startTime)
 						.build() :
 				(T) ImmutableServerJob.builder()
 						.server(((ServerJob) job).getServer())
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
+						.jobInstanceId(job.getJobInstanceId())
 						.requiredResources(job.getRequiredResources())
+						.deadline(job.getDeadline())
+						.jobSteps(job.getJobSteps())
+						.priority(job.getPriority())
+						.duration(duration)
 						.startTime(startTime)
-						.endTime(job.getEndTime())
-						.deadline(job.getDeadline())
-						.jobSteps(job.getJobSteps())
-						.build();
-	}
-
-	/**
-	 * @param job     job extending PowerJob to be mapped to job
-	 * @param endTime new job end time
-	 * @return job extending PowerJob
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends PowerJob> T mapToNewJobInstanceEndTime(final T job, final Instant endTime) {
-		return job instanceof ClientJob clientJob ?
-				(T) ImmutableClientJob.builder()
-						.clientIdentifier(clientJob.getClientIdentifier())
-						.clientAddress(clientJob.getClientAddress())
-						.jobId(clientJob.getJobId())
-						.requiredResources(job.getRequiredResources())
-						.startTime(clientJob.getStartTime())
-						.selectionPreference(clientJob.getSelectionPreference())
-						.endTime(endTime)
-						.deadline(clientJob.getDeadline())
-						.jobSteps(clientJob.getJobSteps())
-						.build() :
-				(T) ImmutableServerJob.builder()
-						.server(((ServerJob) job).getServer())
-						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
-						.jobId(job.getJobId())
-						.requiredResources(job.getRequiredResources())
-						.startTime(job.getStartTime())
-						.endTime(endTime)
-						.deadline(job.getDeadline())
-						.jobSteps(job.getJobSteps())
 						.build();
 	}
 
 	/**
 	 * @param job         job to be mapped
 	 * @param jobInstance new job instance data
+	 * @param duration    new job duration
 	 * @return job extending PowerJob
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends PowerJob> T mapToJobStartTimeAndInstanceId(final T job,
-			final JobInstanceIdentifier jobInstance) {
+	public static <T extends PowerJob> T mapToJobStartTime(final T job, final JobInstanceIdentifier jobInstance,
+			final long duration) {
 		return job instanceof ClientJob clientJob ?
 				(T) ImmutableClientJob.builder()
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
-						.jobInstanceId(jobInstance.getJobInstanceId())
 						.requiredResources(job.getRequiredResources())
 						.startTime(jobInstance.getStartTime())
-						.endTime(clientJob.getEndTime())
+						.duration(duration)
 						.deadline(clientJob.getDeadline())
 						.jobSteps(job.getJobSteps())
 						.selectionPreference(clientJob.getSelectionPreference())
+						.priority(job.getPriority())
 						.build() :
 				(T) ImmutableServerJob.builder()
 						.server(((ServerJob) job).getServer())
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
-						.jobInstanceId(jobInstance.getJobInstanceId())
 						.requiredResources(job.getRequiredResources())
 						.startTime(jobInstance.getStartTime())
-						.endTime(job.getEndTime())
+						.duration(duration)
 						.deadline(job.getDeadline())
 						.jobSteps(job.getJobSteps())
+						.priority(job.getPriority())
 						.build();
 	}
 
 	/**
-	 * @param job           job to be mapped
-	 * @param jobInstanceId job instance identifier
-	 * @param endTime       new end time
+	 * @param job       job to be mapped
+	 * @param startTime new start time
+	 * @param duration  new duration
 	 * @return job extending PowerJob
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends PowerJob> T mapToJobEndTimeAndInstanceId(final T job,
-			final String jobInstanceId, final Instant endTime) {
+	public static <T extends PowerJob> T mapToJobDurationAndStart(final T job, final Instant startTime,
+			final long duration) {
 		return job instanceof ClientJob clientJob ?
 				(T) ImmutableClientJob.builder()
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
-						.jobInstanceId(jobInstanceId)
-						.requiredResources(job.getRequiredResources())
-						.startTime(clientJob.getStartTime())
-						.endTime(endTime)
+						.requiredResources(clientJob.getRequiredResources())
 						.selectionPreference(clientJob.getSelectionPreference())
 						.deadline(clientJob.getDeadline())
 						.jobSteps(clientJob.getJobSteps())
+						.priority(job.getPriority())
+						.duration(duration)
+						.startTime(startTime)
 						.build() :
 				(T) ImmutableServerJob.builder()
 						.server(((ServerJob) job).getServer())
 						.estimatedEnergy(((ServerJob) job).getEstimatedEnergy())
 						.jobId(job.getJobId())
-						.jobInstanceId(jobInstanceId)
 						.requiredResources(job.getRequiredResources())
-						.startTime(job.getStartTime())
-						.endTime(endTime)
 						.deadline(job.getDeadline())
 						.jobSteps(job.getJobSteps())
+						.priority(job.getPriority())
+						.duration(duration)
+						.startTime(startTime)
 						.build();
 	}
 
@@ -261,10 +200,11 @@ public class JobMapper {
 				.jobInstanceId(serverJob.getJobInstanceId())
 				.requiredResources(serverJob.getRequiredResources())
 				.estimatedEnergy(serverJob.getEstimatedEnergy())
-				.startTime(TimeConverter.convertToRealTime(serverJob.getStartTime()))
-				.endTime(TimeConverter.convertToRealTime(serverJob.getEndTime()))
-				.deadline(TimeConverter.convertToRealTime(serverJob.getDeadline()))
+				.startTime(convertToRealTime(serverJob.getStartTime()))
+				.duration(convertToRealTimeMillis(serverJob.getDuration()))
+				.deadline(convertToRealTime(serverJob.getDeadline()))
 				.jobSteps(serverJob.getJobSteps())
+				.priority(serverJob.getPriority())
 				.build();
 	}
 
@@ -308,9 +248,10 @@ public class JobMapper {
 				.jobInstanceId(energyJob.getJobInstanceId())
 				.requiredResources(energyJob.getRequiredResources())
 				.startTime(energyJob.getStartTime())
-				.endTime(energyJob.getEndTime())
+				.duration(energyJob.getDuration())
 				.deadline(energyJob.getDeadline())
 				.jobSteps(energyJob.getJobSteps())
+				.priority(energyJob.getPriority())
 				.build();
 	}
 
@@ -354,6 +295,7 @@ public class JobMapper {
 				.putResources(CPU, cpuResource)
 				.putResources(MEMORY, memoryResource)
 				.putResources(STORAGE, storageResource)
+				.priority(syntheticJobArgs.getPriority())
 				.jobSteps(syntheticJobArgs.getJobSteps().stream()
 						.map(JobMapper::mapSyntheticArgoJobStepToJobStep).toList())
 				.build();

@@ -8,4 +8,8 @@ public class InvalidPropertiesException extends RuntimeException {
 	public InvalidPropertiesException(String message, Exception e) {
 		super(message, e);
 	}
+
+	public InvalidPropertiesException(final String message) {
+		super(message);
+	}
 }

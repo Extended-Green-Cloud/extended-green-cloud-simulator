@@ -25,8 +25,15 @@ public class ResourceConverterConstants {
 			return value / 1000;
 			""";
 
-	// COMMON BYTE UNIT CONVERTERS
+	// COMMON CU UNIT CONVERTERS
+	public static final String FROM_ACU_TO_NUMERICAL_CONVERTER = """
+			return value / 100;
+			""";
+	public static final String TO_ACU_FROM_NUMERICAL_CONVERTER = """
+			return value * 100;
+			""";
 
+	// COMMON BYTE UNIT CONVERTERS
 	public static final String FROM_KI_TO_BYTE_CONVERTER = """
 			import java.lang.Math;
 			return (double) Math.pow(2, 10) * value;
@@ -173,6 +180,8 @@ public class ResourceConverterConstants {
 			entry("TO_TB_FROM_BYTE_CONVERTER", TO_TB_FROM_BYTE_CONVERTER),
 			entry("TO_PB_FROM_BYTE_CONVERTER", TO_PB_FROM_BYTE_CONVERTER),
 			entry("TO_EB_FROM_BYTE_CONVERTER", TO_EB_FROM_BYTE_CONVERTER),
-			entry("TO_TI_FROM_BYTE_CONVERTER", TO_TI_FROM_BYTE_CONVERTER)
+			entry("TO_TI_FROM_BYTE_CONVERTER", TO_TI_FROM_BYTE_CONVERTER),
+			entry("FROM_ACU_TO_NUMERICAL_CONVERTER", FROM_ACU_TO_NUMERICAL_CONVERTER),
+			entry("TO_ACU_FROM_NUMERICAL_CONVERTER", TO_ACU_FROM_NUMERICAL_CONVERTER)
 	);
 }

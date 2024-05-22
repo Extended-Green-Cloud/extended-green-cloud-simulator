@@ -8,7 +8,7 @@ public class MessageProtocolConstants {
 	/**
 	 * Call for proposals protocols
 	 *
-	 * <p> SCHEDULER_JOB_CFP_PROTOCOL        - protocol used in scheduler's call for proposal message that is
+	 * <p> CMA_JOB_CFP_PROTOCOL        - protocol used in central manager agent's call for proposal message that is
 	 * sent to regional managers while looking for the network for job execution </p>
 	 * <p> RMA_JOB_CFP_PROTOCOL              - protocol used in regional manager's call for proposal message that is sent
 	 * to the servers while looking for the server which will execute the job </p>
@@ -16,7 +16,7 @@ public class MessageProtocolConstants {
 	 * sources while looking for the green source which will supply the
 	 * server with power needed for the job execution </p>
 	 */
-	public static final String SCHEDULER_JOB_CFP_PROTOCOL = "SCHEDULER_JOB_CFP";
+	public static final String CMA_JOB_CFP_PROTOCOL = "CMA_JOB_CFP";
 	public static final String RMA_JOB_CFP_PROTOCOL = "RMA_JOB_CFP";
 	public static final String SERVER_JOB_CFP_PROTOCOL = "SERVER_JOB_CFP";
 
@@ -42,6 +42,7 @@ public class MessageProtocolConstants {
 	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
 	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";
 	public static final String FAILED_SOURCE_TRANSFER_PROTOCOL = "FAILED_SOURCE_TRANSFER_PROTOCOL";
+	public static final String REQUEST_JOB_EXECUTION_TIME = "REQUEST_JOB_EXECUTION_TIME";
 
 	/**
 	 * Agent connections protocols

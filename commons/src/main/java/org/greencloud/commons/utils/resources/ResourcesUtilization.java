@@ -2,12 +2,19 @@ package org.greencloud.commons.utils.resources;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.max;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.SetUtils.union;
 import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
 import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
+import static org.greencloud.commons.utils.resources.domain.JobWithTime.TimeType.END_TIME;
 import static org.greencloud.commons.utils.resources.domain.JobWithTime.TimeType.START_TIME;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -38,6 +45,83 @@ import com.google.common.util.concurrent.AtomicDouble;
  * Class with algorithms used to compute resource utilization
  */
 public class ResourcesUtilization {
+
+	/**
+	 * Method computes estimated earliest possible job execution time
+	 *
+	 * @param jobList              list of the jobs of interest
+	 * @param initialResources     initial owned resources
+	 * @param jobRequiredResources resources required by the job
+	 * @param duration             job duration in milliseconds
+	 */
+	public static <T extends PowerJob> Instant getEarliestPossibleJobStartTime(
+			final Set<T> jobList,
+			final Map<String, Resource> initialResources,
+			final Map<String, Resource> jobRequiredResources,
+			final long duration) {
+		final List<JobWithTime<T>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, null, null);
+
+		final AtomicReference<Instant> earliestPossibleJobStart = new AtomicReference<>();
+
+		if (jobsWithTimeMap.isEmpty()) {
+			return getCurrentTime();
+		}
+
+		jobsWithTimeMap.stream().anyMatch(jobWithTime -> {
+			final Instant startTime = jobWithTime.time;
+			final Instant endTime = startTime.plusMillis(duration);
+			final Map<String, Resource> maxUsedResource =
+					getMaximumUsedResourcesDuringTimeStamp(jobList, initialResources, startTime, endTime);
+			final Map<String, Resource> remainingResources =
+					computeResourceDifference(initialResources, maxUsedResource);
+
+			if(areSufficient(remainingResources, jobRequiredResources)) {
+				earliestPossibleJobStart.set(startTime);
+				return true;
+			}
+			earliestPossibleJobStart.set(endTime);
+			return false;
+		});
+
+		return  earliestPossibleJobStart.get();
+	}
+
+	/**
+	 * Method computes the average CPU usage during given time-stamp
+	 *
+	 * @param jobList   list of the jobs of interest
+	 * @param startTime start time of the interval
+	 * @param endTime   end time of the interval
+	 */
+	public static <T extends PowerJob> Double getAverageCPUUsageDuringTimeStamp(
+			final Set<T> jobList,
+			final Instant startTime,
+			final Instant endTime) {
+		final List<JobWithTime<T>> jobsWithTimeMap = getJobsWithTimesForInterval(jobList, startTime, endTime);
+
+		final List<T> openIntervalJobs = new ArrayList<>();
+		final AtomicDouble lastCPU = new AtomicDouble(0);
+		final List<Double> cpuUsageInInterval = new ArrayList<>();
+
+		if (jobsWithTimeMap.isEmpty()) {
+			return lastCPU.get();
+		}
+
+		jobsWithTimeMap.forEach(jobWithTime -> {
+			final Double requiredCPU = (jobWithTime.job).getRequiredResources().get(CPU).getAmountInCommonUnit();
+
+			if (jobWithTime.timeType.equals(START_TIME)) {
+				openIntervalJobs.add(jobWithTime.job);
+				lastCPU.updateAndGet(prev -> prev + requiredCPU);
+			} else {
+				openIntervalJobs.remove(jobWithTime.job);
+				cpuUsageInInterval.add(lastCPU.get());
+				lastCPU.set(openIntervalJobs.isEmpty() ? 0 : lastCPU.get() - requiredCPU);
+			}
+		});
+
+		return cpuUsageInInterval.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+	}
 
 	/**
 	 * Method computes the maximum resource usage during given time-stamp
@@ -143,7 +227,7 @@ public class ResourcesUtilization {
 	 * @param startTime time interval start time
 	 * @param endTime   time interval end time
 	 * @param length    length of sub-interval
-	 * @return list of sub-intervals represented by their start times
+	 * @return set of sub-intervals represented by their start times
 	 */
 	public static Set<Instant> divideIntoSubIntervals(final Instant startTime, final Instant endTime,
 			final Long length) {
@@ -215,11 +299,14 @@ public class ResourcesUtilization {
 
 	private static <T extends PowerJob> List<JobWithTime<T>> getJobsWithTimesForInterval(final Set<T> jobList,
 			final Instant startTime, final Instant endTime) {
+		final Instant fixedStartTime = ofNullable(startTime).orElse(getCurrentTime());
+
 		final List<T> jobsWithinInterval = jobList.stream()
-				.filter(job -> job.getStartTime().isBefore(endTime) && job.getEndTime().isAfter(startTime))
+				.filter(job -> (isNull(endTime) || requireNonNull(job.getStartTime()).isBefore(endTime)) &&
+						job.getExpectedEndTime().isAfter(fixedStartTime))
 				.toList();
 		return jobsWithinInterval.stream()
-				.map(job -> mapToJobWithTime(job, startTime, endTime))
+				.map(job -> mapToJobWithTime(job, fixedStartTime, endTime))
 				.flatMap(List::stream)
 				.sorted(ResourcesUtilization::compareJobs)
 				.toList();
@@ -227,12 +314,12 @@ public class ResourcesUtilization {
 
 	private static <T extends PowerJob> List<JobWithTime<T>> mapToJobWithTime(final T job, final Instant startTime,
 			final Instant endTime) {
-		final Instant realStart = job.getStartTime().isBefore(startTime) ? startTime : job.getStartTime();
-		final Instant realEnd = job.getEndTime().isAfter(endTime) ? endTime : job.getEndTime();
+		final Instant realStart =
+				requireNonNull(job.getStartTime()).isBefore(startTime) ? startTime : job.getStartTime();
+		final Instant realEnd =
+				nonNull(endTime) && job.getExpectedEndTime().isAfter(endTime) ? endTime : job.getExpectedEndTime();
 
-		return List.of(
-				new JobWithTime<>(job, realStart, START_TIME),
-				new JobWithTime<>(job, realEnd, JobWithTime.TimeType.END_TIME));
+		return List.of(new JobWithTime<>(job, realStart, START_TIME), new JobWithTime<>(job, realEnd, END_TIME));
 	}
 
 	private static <T extends PowerJob> int compareJobs(final JobWithTime<T> job1, final JobWithTime<T> job2) {
@@ -289,28 +376,35 @@ public class ResourcesUtilization {
 	 */
 	public static boolean areSufficient(final Map<String, Resource> resources,
 			final Map<String, Resource> requiredResources) {
+		final Map<String, Resource> filteredResources = requiredResources.entrySet().stream()
+				.filter(resource -> resource.getValue().getIsRequired())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
 		// if server does not own all resources
-		if (!resources.keySet().containsAll(requiredResources.keySet())) {
+		if (!resources.keySet().containsAll(filteredResources.keySet())) {
 			return false;
 		}
 
-		return resources.entrySet().stream()
-				.allMatch(entry -> {
-					// if given resource is not required then it is sufficient
-					if (!requiredResources.containsKey(entry.getKey())) {
-						return true;
-					}
-					final Resource resourceRequirement = requiredResources.get(entry.getKey());
+		return resources.entrySet().stream().allMatch(entry -> {
+			// if given resource is not required then it is sufficient
+			if (!filteredResources.containsKey(entry.getKey())) {
+				return true;
+			}
+			final Resource resourceRequirement = requiredResources.get(entry.getKey());
+			final Set<String> requiredCharacteristics = resourceRequirement.getCharacteristics().entrySet()
+					.stream()
+					.filter(characteristic -> characteristic.getValue().getIsRequired())
+					.map(Map.Entry::getKey)
+					.collect(toSet());
 
-					// if given resource does not define all required characteristics then it is not sufficient
-					if (!entry.getValue().getCharacteristics().keySet()
-							.containsAll(resourceRequirement.getCharacteristics().keySet())) {
-						return false;
-					}
+			// if given resource does not define all required characteristics then it is not sufficient
+			if (!entry.getValue().getCharacteristics().keySet().containsAll(requiredCharacteristics)) {
+				return false;
+			}
 
-					// run resource sufficiency validator
-					return entry.getValue().isSufficient(resourceRequirement);
-				});
+			// run resource sufficiency validator
+			return entry.getValue().isSufficient(resourceRequirement);
+		});
 	}
 
 	/**
@@ -320,7 +414,7 @@ public class ResourcesUtilization {
 	 * @param resources2 second resources
 	 * @return aggregated resources
 	 */
-	public synchronized static Map<String, Resource> addResources(final Map<String, Resource> resources1,
+	public static synchronized Map<String, Resource> addResources(final Map<String, Resource> resources1,
 			final Map<String, Resource> resources2) {
 		final Set<String> resourceKeys = union(resources1.keySet(), resources2.keySet());
 		final Map<String, Resource> aggregatedResources = new HashMap<>();

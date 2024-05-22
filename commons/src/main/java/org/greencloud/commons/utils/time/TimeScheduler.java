@@ -1,7 +1,5 @@
 package org.greencloud.commons.utils.time;
 
-import static java.time.temporal.ChronoUnit.MILLIS;
-
 import java.time.Instant;
 
 /**
@@ -29,17 +27,5 @@ public class TimeScheduler {
 	 */
 	public static Instant alignStartTimeToSelectedTime(final Instant startTime, final Instant relevantTime) {
 		return relevantTime.isAfter(startTime) ? relevantTime : startTime;
-	}
-
-	/**
-	 * Method computes new time by postponing the previous one by given (in real time) minutes amount
-	 *
-	 * @param time    time to be postponed
-	 * @param minutes minutes used to postpone the time
-	 * @return Instant being the postponed time
-	 */
-	public static Instant postponeTime(final Instant time, final long minutes) {
-		final long simulationAdjustment = TimeConverter.convertToSimulationTime(minutes * 60);
-		return time.plus(simulationAdjustment, MILLIS);
 	}
 }

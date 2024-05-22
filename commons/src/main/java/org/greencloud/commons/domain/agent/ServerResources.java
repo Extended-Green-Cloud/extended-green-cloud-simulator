@@ -22,9 +22,4 @@ public interface ServerResources {
 	 * @return resources owned by a given server
 	 */
 	Map<String, Resource> getResources();
-
-	/**
-	 * @return price of executing job on a given server
-	 */
-	Double getPrice();
 }

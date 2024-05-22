@@ -1,5 +1,6 @@
 package org.greencloud.commons.domain.resources;
 
+import static io.micrometer.common.util.StringUtils.isBlank;
 import static java.util.Objects.isNull;
 import static org.greencloud.commons.constants.resource.ResourceConverterConstants.commonConverters;
 
@@ -10,7 +11,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
 import org.immutables.value.Value;
 import org.mvel2.MVEL;
 
@@ -69,6 +69,14 @@ public interface ResourceCharacteristic {
 	String getResourceCharacteristicAddition();
 
 	/**
+	 * @return boolean indicating if given resource characteristic should be taken into account in sufficiency evaluation
+	 */
+	@Value.Default
+	default boolean getIsRequired() {
+		return true;
+	}
+
+	/**
 	 * Method reserve amount resource characteristic for given job
 	 *
 	 * @param requiredCharacteristic amount of the given resource that should be reserved
@@ -76,7 +84,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object reserveResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
 		// when resource characteristic cannot be reserved
-		if (StringUtils.isBlank(getResourceCharacteristicReservation())) {
+		if (isBlank(getResourceCharacteristicReservation())) {
 			return getValue();
 		}
 
@@ -100,7 +108,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object removeResourceCharacteristic(final ResourceCharacteristic requiredCharacteristic) {
 		// when resource characteristic cannot be removed
-		if (StringUtils.isBlank(getResourceCharacteristicSubtraction())) {
+		if (isBlank(getResourceCharacteristicSubtraction())) {
 			return getValue();
 		}
 
@@ -125,7 +133,7 @@ public interface ResourceCharacteristic {
 	 */
 	default ResourceCharacteristic addResource(final ResourceCharacteristic resource) {
 		// when none of the resource values are incremental
-		if (StringUtils.isBlank(getResourceCharacteristicAddition()) || isNull(resource)) {
+		if (isBlank(getResourceCharacteristicAddition()) || isNull(resource)) {
 			return this;
 		}
 
@@ -154,7 +162,7 @@ public interface ResourceCharacteristic {
 	default ResourceCharacteristic addResource(final ResourceCharacteristic resource1,
 			final ResourceCharacteristic resource2) {
 		// when none of the resource values are incremental
-		if (StringUtils.isBlank(getResourceCharacteristicAddition())) {
+		if (isBlank(getResourceCharacteristicAddition())) {
 			return this;
 		}
 
@@ -177,7 +185,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object convertToCommonUnit() {
 		// if conversion is not necessary
-		if (StringUtils.isBlank(getToCommonUnitConverter())) {
+		if (isBlank(getToCommonUnitConverter())) {
 			return getValue();
 		}
 
@@ -196,7 +204,7 @@ public interface ResourceCharacteristic {
 	 */
 	default Object convertFromCommonUnit(final Object value) {
 		// if conversion is not necessary
-		if (StringUtils.isBlank(getFromCommonUnitConverter())) {
+		if (isBlank(getFromCommonUnitConverter())) {
 			return value;
 		}
 
@@ -212,9 +220,8 @@ public interface ResourceCharacteristic {
 
 	@Value.Check
 	default void check() {
-		if (!(!StringUtils.isBlank(getToCommonUnitConverter()) && !StringUtils.isBlank(getFromCommonUnitConverter())
-				|| (StringUtils.isBlank(getToCommonUnitConverter()) && StringUtils.isBlank(
-				getFromCommonUnitConverter())))) {
+		if (!(!isBlank(getToCommonUnitConverter()) && !isBlank(getFromCommonUnitConverter())
+				|| (isBlank(getToCommonUnitConverter()) && isBlank(getFromCommonUnitConverter())))) {
 			throw new InvalidParameterException("Either none or both converters must be specified.");
 		}
 	}

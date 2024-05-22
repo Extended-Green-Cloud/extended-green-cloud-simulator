@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 /**
  * Object storing data allowing to identify given scheduled job
  */
-@JsonSerialize(as = ImmutableJobInstanceScheduler.class)
-@JsonDeserialize(as = ImmutableJobInstanceScheduler.class)
+@JsonSerialize(as = ImmutableJobInstanceCMA.class)
+@JsonDeserialize(as = ImmutableJobInstanceCMA.class)
 @Value.Immutable
-public interface JobInstanceScheduler {
+public interface JobInstanceCMA {
 
 	/**
 	 * @return job identifier

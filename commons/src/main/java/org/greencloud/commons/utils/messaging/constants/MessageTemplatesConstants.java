@@ -8,6 +8,7 @@ import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.and;
 import static jade.lang.acl.MessageTemplate.or;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_SERVER_RESOURCES_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
@@ -60,10 +61,10 @@ public class MessageTemplatesConstants {
 					or(MatchProtocol(EXECUTION_PRICE_MESSAGE), MatchProtocol(ESTIMATED_PRICE_MESSAGE)));
 
 	/**
-	 * SCHEDULER TEMPLATES
+	 * CENTRAL_MANAGER TEMPLATES
 	 */
 	public static final MessageTemplate LISTEN_FOR_NEW_CLIENT_JOB_TEMPLATE = and(
-			MatchPerformative(INFORM), MatchProtocol(MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL));
+			MatchPerformative(INFORM), MatchProtocol(ANNOUNCED_JOB_PROTOCOL));
 	public static final MessageTemplate LISTEN_FOR_JOB_STATUS_UPDATE_TEMPLATE = and(
 			MatchPerformative(INFORM), MatchProtocol(CHANGE_JOB_STATUS_PROTOCOL));
 
@@ -71,7 +72,7 @@ public class MessageTemplatesConstants {
 	 * REGIONAL MANAGER TEMPLATES
 	 */
 	public static final MessageTemplate LISTEN_FOR_NEW_SCHEDULED_JOB_TEMPLATE = and(
-			MatchPerformative(CFP), MatchProtocol(MessageProtocolConstants.SCHEDULER_JOB_CFP_PROTOCOL));
+			MatchPerformative(CFP), MatchProtocol(MessageProtocolConstants.CMA_JOB_CFP_PROTOCOL));
 	public static final MessageTemplate LISTEN_FOR_SERVER_STATUS_CHANGE_TEMPLATE = and(
 			MatchPerformative(REQUEST),
 			or(MatchProtocol(MessageProtocolConstants.DISABLE_SERVER_PROTOCOL), MatchProtocol(
@@ -88,16 +89,11 @@ public class MessageTemplatesConstants {
 	public static final MessageTemplate LISTEN_FOR_SERVER_JOB_STATUS_UPDATE_TEMPLATE = or(
 			and(MatchPerformative(INFORM), MatchProtocol(CHANGE_JOB_STATUS_PROTOCOL)),
 			and(MatchPerformative(FAILURE), MatchProtocol(FAILED_JOB_PROTOCOL)));
-	public static final MessageTemplate LISTEN_FOR_SERVER_TRANSFER_REQUEST_TEMPLATE = and(MatchPerformative(REQUEST),
-			MatchProtocol(NETWORK_ERROR_ALERT_PROTOCOL));
-	public static final MessageTemplate LISTEN_FOR_SERVER_TRANSFER_CONFIRMATION_TEMPLATE = or(
-			and(MatchPerformative(INFORM), MatchProtocol(MessageProtocolConstants.CONFIRMED_TRANSFER_PROTOCOL)),
-			and(MatchPerformative(FAILURE), MatchProtocol(FAILED_TRANSFER_PROTOCOL)));
 
 	/**
 	 * CLIENT TEMPLATES
 	 */
-	public static final MessageTemplate LISTEN_FOR_SCHEDULER_JOB_STATUS_UPDATE_TEMPLATE =
+	public static final MessageTemplate LISTEN_FOR_CMA_JOB_STATUS_UPDATE_TEMPLATE =
 			and(MatchProtocol(CHANGE_JOB_STATUS_PROTOCOL), MatchPerformative(INFORM));
 
 	/**

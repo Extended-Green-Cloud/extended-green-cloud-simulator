@@ -1,7 +1,10 @@
 package org.greencloud.commons.utils.time;
 
 import static java.time.Duration.between;
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.greencloud.commons.constants.TimeConstants.MILLISECOND_MULTIPLIER;
 import static org.greencloud.commons.constants.TimeConstants.MILLIS_IN_MIN;
 import static org.greencloud.commons.constants.TimeConstants.MINUTES_IN_HOUR;
@@ -49,18 +52,26 @@ public class TimeConverter {
 	}
 
 	/**
+	 * Method converts given date into formatted string.
+	 *
+	 * @param instant date to be converted
+	 * @return string in format dd/MM/yyyy HH:mm
+	 */
+	public static String convertInstantToString(final Instant instant) {
+		return ofPattern(DATE_FORMAT).withZone(ZoneId.of("UTC")).format(instant);
+	}
+
+	/**
 	 * Method converts milliseconds to string of the form "x min. y sec. z ms."
 	 *
 	 * @param ms number of milliseconds
 	 * @return formatted string
 	 */
 	public static String convertMillisecondsToTimeString(final long ms) {
-		final long h = TimeUnit.MILLISECONDS.toHours(ms);
-		final long min = TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(h);
-		final long sec =
-				TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(min) - TimeUnit.HOURS.toMinutes(h);
-		final long msRest =
-				ms - (TimeUnit.MINUTES.toMillis(min) + TimeUnit.MINUTES.toMillis(sec) + TimeUnit.HOURS.toMinutes(h));
+		final long h = MILLISECONDS.toHours(ms);
+		final long min = MILLISECONDS.toMinutes(ms) - HOURS.toMinutes(h);
+		final long sec = MILLISECONDS.toSeconds(ms) - MINUTES.toSeconds(min) - HOURS.toMinutes(h);
+		final long msRest = ms - (MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec) + HOURS.toMinutes(h));
 
 		if (h != 0) {
 			return String.format("%02d h %02d min. %02d sec. %02d ms.", h, min, sec, msRest);
@@ -120,14 +131,13 @@ public class TimeConverter {
 	}
 
 	/**
-	 * Method computes difference in hours between two dates
+	 * Method computes difference in hours
 	 *
-	 * @param startTime time interval start time
-	 * @param endTime   time interval end time
+	 * @param duration duration in ms
 	 * @return time in hours
 	 */
-	public static double convertToHourDuration(final Instant startTime, final Instant endTime) {
-		return (double) SECONDS.between(startTime, endTime) / SECONDS_PER_HOUR;
+	public static double convertToHourDuration(final long duration) {
+		return ((double) duration / (MILLISECOND_MULTIPLIER * SECONDS_PER_HOUR));
 	}
 
 	/**

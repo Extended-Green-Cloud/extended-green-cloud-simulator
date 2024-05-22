@@ -1,7 +1,7 @@
 package org.greencloud.commons.utils.rules;
 
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.COMPARE_EXECUTION_PROPOSALS;
-import static org.jrba.rulesengine.enums.ruletype.AgentRuleTypeEnum.BASIC;
+import static org.jrba.rulesengine.types.ruletype.AgentRuleTypeEnum.BASIC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +45,12 @@ public class CustomRulesConstructor {
 				"compare proposals from servers according to custom instructions of job" + jobId);
 		handleProposalsRule.setImports(List.of(
 				"import org.jrba.rulesengine.constants.FactTypeConstants;",
-				"import org.greencloud.commons.domain.job.extended.JobWithPrice;"
+				"import org.greencloud.commons.domain.job.extended.JobWithPrice;",
+				"import org.greencloud.commons.constants.EGCSFactTypeConstants;"
 		));
 		handleProposalsRule.setExecute("""
-				bestP = facts.get("BEST_PROPOSAL_CONTENT");
-				newP = facts.get("NEW_PROPOSAL_CONTENT");
+				bestP = facts.get(EGCSFactTypeConstants.BEST_PROPOSAL_CONTENT);
+				newP = facts.get(EGCSFactTypeConstants.NEW_PROPOSAL_CONTENT);
 				def computeServerComparison(bestProposal, newProposal) { $instruction }
 				MDC.put(LoggingConstants.MDC_JOB_ID, $jobId);
 				MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts));

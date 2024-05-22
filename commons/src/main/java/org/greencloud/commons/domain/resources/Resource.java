@@ -1,7 +1,9 @@
 package org.greencloud.commons.domain.resources;
 
+import static io.micrometer.common.util.StringUtils.isBlank;
 import static java.lang.Double.parseDouble;
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TAKE_FROM_INITIAL_KNOWLEDGE;
@@ -16,7 +18,6 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
 import org.immutables.value.Value;
 import org.mvel2.MVEL;
 
@@ -62,14 +63,22 @@ public interface Resource {
 	String getResourceComparator();
 
 	/**
+	 * @return boolean indicating if given resource should be taken into account in sufficiency evaluation
+	 */
+	@Value.Default
+	default boolean getIsRequired() {
+		return true;
+	}
+
+	/**
 	 * Method returns (if available) amount of the given resource. If the amount is not among resource characteristics,
 	 * then value 0 is returned.
 	 */
 	@JsonIgnore
 	default Double getAmount() {
-		return getCharacteristics().containsKey(AMOUNT) ?
-				parseDouble(getCharacteristics().get(AMOUNT).getValue().toString()) :
-				-1;
+		return ofNullable(getCharacteristics().get(AMOUNT))
+				.map(amount -> parseDouble(amount.getValue().toString()))
+				.orElse(-1D);
 	}
 
 	/**
@@ -78,9 +87,9 @@ public interface Resource {
 	 */
 	@JsonIgnore
 	default Double getAmountInCommonUnit() {
-		return getCharacteristics().containsKey(AMOUNT) ?
-				parseDouble(getCharacteristics().get(AMOUNT).convertToCommonUnit().toString()) :
-				-1;
+		return ofNullable(getCharacteristics().get(AMOUNT))
+				.map(amount -> parseDouble(amount.convertToCommonUnit().toString()))
+				.orElse(-1D);
 	}
 
 	/**
@@ -91,7 +100,7 @@ public interface Resource {
 	 */
 	default boolean isSufficient(final Resource resource) {
 		// when the validation of given resource can be omitted at this step
-		if (StringUtils.isBlank(getResourceValidator())) {
+		if (isBlank(getResourceValidator())) {
 			return true;
 		}
 		if (getResourceValidator().equals(TAKE_FROM_INITIAL_KNOWLEDGE)) {
@@ -115,7 +124,7 @@ public interface Resource {
 	 */
 	default int compareResource(final Resource resource1, final Resource resource2) {
 		// when resources are non-comparable
-		if (StringUtils.isBlank(getResourceComparator())) {
+		if (isBlank(getResourceComparator())) {
 			return 0;
 		}
 
@@ -228,29 +237,24 @@ public interface Resource {
 
 		final Map<String, ResourceCharacteristic> newCharacteristics = getCharacteristics().entrySet().stream()
 				.map(characteristic -> {
-					if (!resource1.getCharacteristics().containsKey(characteristic.getKey())
-							&& !resource2.getCharacteristics().containsKey(characteristic.getKey())) {
-						return new AbstractMap.SimpleEntry<>(characteristic.getKey(),
-								getEmptyResource().getCharacteristics().get(characteristic.getKey()));
-					} else if (resource1.getCharacteristics().containsKey(characteristic.getKey())
-							&& !resource2.getCharacteristics().containsKey(characteristic.getKey())) {
-						return new AbstractMap.SimpleEntry<>(characteristic.getKey(),
-								resource1.getCharacteristics().get(characteristic.getKey()));
-					} else if (!resource1.getCharacteristics().containsKey(characteristic.getKey())
-							&& resource2.getCharacteristics().containsKey(characteristic.getKey())) {
-						return new AbstractMap.SimpleEntry<>(characteristic.getKey(),
-								resource2.getCharacteristics().get(characteristic.getKey()));
+					final Map<String, ResourceCharacteristic> characteristics1 = resource1.getCharacteristics();
+					final Map<String, ResourceCharacteristic> characteristics2 = resource2.getCharacteristics();
+					final String type = characteristic.getKey();
+
+					if (!characteristics1.containsKey(type) && !characteristics2.containsKey(type)) {
+						return new AbstractMap.SimpleEntry<>(type, getEmptyResource().getCharacteristics().get(type));
+					} else if (characteristics1.containsKey(type) && !characteristics2.containsKey(type)) {
+						return new AbstractMap.SimpleEntry<>(type, characteristics1.get(type));
+					} else if (!characteristics1.containsKey(type) && characteristics2.containsKey(type)) {
+						return new AbstractMap.SimpleEntry<>(type, characteristics2.get(type));
 					} else {
-						final ResourceCharacteristic correspondingCharacteristic1 = resource1.getCharacteristics()
-								.get(characteristic.getKey());
-						final ResourceCharacteristic correspondingCharacteristic2 = resource2.getCharacteristics()
-								.get(characteristic.getKey());
+						final ResourceCharacteristic correspondingCharacteristic1 = characteristics1.get(type);
+						final ResourceCharacteristic correspondingCharacteristic2 = characteristics2.get(type);
 						final Object newValue = characteristic.getValue()
 								.addResource(correspondingCharacteristic1, correspondingCharacteristic2).getValue();
 						final ResourceCharacteristic newCharacteristic =
-								ImmutableResourceCharacteristic.copyOf(characteristic.getValue())
-										.withValue(newValue);
-						return new AbstractMap.SimpleEntry<>(characteristic.getKey(), newCharacteristic);
+								ImmutableResourceCharacteristic.copyOf(characteristic.getValue()).withValue(newValue);
+						return new AbstractMap.SimpleEntry<>(type, newCharacteristic);
 					}
 				})
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));

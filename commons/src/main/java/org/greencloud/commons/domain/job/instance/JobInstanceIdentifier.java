@@ -3,11 +3,11 @@ package org.greencloud.commons.domain.job.instance;
 import java.io.Serializable;
 import java.time.Instant;
 
+import org.greencloud.commons.domain.ImmutableConfig;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
 
 /**
  * Object stores the data which allow to identify two instances of the job with the same jobId

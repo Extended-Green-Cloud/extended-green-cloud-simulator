@@ -1,15 +1,12 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
-import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FAILED_TRANSFER_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.NETWORK_ERROR_ALERT_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
 
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.jrba.utils.messages.MessageBuilder;
 
@@ -50,24 +47,6 @@ public class NetworkErrorMessageFactory {
 				.withObjectContent(mapClientJobToJobInstanceId(job))
 				.withMessageProtocol(SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL)
 				.withReceivers(receiver)
-				.build();
-	}
-
-	/**
-	 * Method prepares the message about the job transfer update that is sent to scheduler
-	 *
-	 * @param jobInstanceId   unique job instance
-	 * @param regionalManager Regional Manager to which message is sent
-	 * @param protocol        protocol used in transfer messages
-	 * @return INFORM ACLMessage
-	 */
-	public static ACLMessage prepareJobTransferUpdateMessageForRMA(final JobInstanceIdentifier jobInstanceId,
-			final String protocol, final AID regionalManager, final Integer ruleSet) {
-		final int performative = protocol.equals(FAILED_TRANSFER_PROTOCOL) ? FAILURE : INFORM;
-		return MessageBuilder.builder(ruleSet, performative)
-				.withObjectContent(jobInstanceId)
-				.withReceivers(regionalManager)
-				.withMessageProtocol(protocol)
 				.build();
 	}
 

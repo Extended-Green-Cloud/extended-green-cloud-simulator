@@ -1,5 +1,6 @@
 package org.greencloud.commons.args.agent.regionalmanager.agent;
 
+import static java.util.Comparator.comparingDouble;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
@@ -13,12 +14,13 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
-import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_JOB_STATUSES;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -29,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.SetUtils;
@@ -42,6 +46,7 @@ import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.domain.resources.ResourceCharacteristic;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
@@ -64,16 +69,30 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<AID, ServerResources> ownedServerResources;
 	protected ConcurrentMap<String, Resource> aggregatedResources;
 	protected ConcurrentMap<AID, Integer> weightsForServersMap;
+	protected ConcurrentMap<AID, Long> highestExecutionTimeErrorForServer;
 	protected ConcurrentMap<String, Double> priceForJob;
-	protected AID scheduler;
+	protected ConcurrentMap<ClientJob, RuleSetFacts> priorityFacts;
+	protected PriorityBlockingQueue<ClientJob> jobsToBeExecuted;
+	protected AID cma;
+
+	protected int maximumQueueSize;
+	protected int pollingBatchSize;
+	protected Instant lastPollingTime;
+
+	public RegionalManagerAgentProps(final String agentName) {
+		super(REGIONAL_MANAGER, agentName);
+	}
 
 	/**
 	 * Constructor that initialize Regional Manager Agent state to initial values
 	 *
 	 * @param agentName name of the agent
 	 */
-	public RegionalManagerAgentProps(final String agentName) {
+	public RegionalManagerAgentProps(final String agentName, final int maximumQueueSize, final int pollingBatchSize) {
 		super(REGIONAL_MANAGER, agentName);
+		this.maximumQueueSize = maximumQueueSize;
+		this.pollingBatchSize = pollingBatchSize;
+		this.lastPollingTime = getCurrentTime();
 
 		this.serverForJobMap = new ConcurrentHashMap<>();
 		this.networkJobs = new ConcurrentHashMap<>();
@@ -83,6 +102,8 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 		this.ruleSetForJob = new ConcurrentHashMap<>();
 		this.weightsForServersMap = new ConcurrentHashMap<>();
 		this.priceForJob = new ConcurrentHashMap<>();
+		this.priorityFacts = new ConcurrentHashMap<>();
+		this.highestExecutionTimeErrorForServer = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -129,6 +150,7 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	 */
 	public int removeJob(final ClientJob job) {
 		networkJobs.remove(job);
+		priorityFacts.remove(job);
 		return ruleSetForJob.remove(job.getJobInstanceId());
 	}
 
@@ -140,7 +162,7 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	 * @return available resources
 	 */
 	public synchronized Map<String, Resource> getAvailableResources(final ClientJob job, final AID server) {
-		return getAvailableResources(job.getStartTime(), job.getEndTime(), server);
+		return getAvailableResources(getCurrentTime(), getCurrentTime().plusMillis(job.getDuration()), server);
 	}
 
 	/**
@@ -156,7 +178,7 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 		final Set<ClientJob> jobs = networkJobs.keySet().stream()
 				.filter(job -> isNull(server) || (serverForJobMap.containsKey(job.getJobId()) && serverForJobMap.get(
 						job.getJobId()).equals(server)))
-				.filter(job -> ACCEPTED_JOB_STATUSES.contains(networkJobs.get(job)))
+				.filter(job -> IN_PROGRESS_JOB_STATUSES.contains(networkJobs.get(job)))
 				.collect(toSet());
 
 		final Map<String, Resource> resources = isNull(server) ?
@@ -180,6 +202,13 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 					return areSufficient(availableResources, job.getRequiredResources());
 				})
 				.toList();
+	}
+
+	/**
+	 * Method initializes priority queue
+	 */
+	public void setUpPriorityQueue(final int maxQueueSize, final ToDoubleFunction<ClientJob> getJobPriority) {
+		this.jobsToBeExecuted = new PriorityBlockingQueue<>(maxQueueSize, comparingDouble(getJobPriority));
 	}
 
 	/**

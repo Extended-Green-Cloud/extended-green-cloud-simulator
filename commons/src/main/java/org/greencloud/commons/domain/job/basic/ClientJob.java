@@ -2,12 +2,13 @@ package org.greencloud.commons.domain.job.basic;
 
 import javax.annotation.Nullable;
 
+import org.greencloud.commons.domain.ImmutableConfig;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.greencloud.commons.domain.ImmutableConfig;
+import com.google.errorprone.annotations.Var;
 
 /**
  * Object storing the data describing the client's job
@@ -15,6 +16,7 @@ import org.greencloud.commons.domain.ImmutableConfig;
 @JsonSerialize(as = ImmutableClientJob.class)
 @JsonDeserialize(as = ImmutableClientJob.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Value.Style(underrideHashCode = "hash", underrideEquals = "equalTo")
 @Value.Immutable
 @ImmutableConfig
 public interface ClientJob extends PowerJob {
@@ -35,4 +37,16 @@ public interface ClientJob extends PowerJob {
 	@Nullable
 	String getSelectionPreference();
 
+	@Override
+	default int hash() {
+		@Var int h = 5381;
+		h += (h << 5) + getJobInstanceId().hashCode();
+		return h;
+	}
+
+	default boolean equalTo(ImmutableClientJob another) {
+		if (this == another)
+			return true;
+		return another != null && getJobInstanceId().equals(another.getJobInstanceId());
+	}
 }

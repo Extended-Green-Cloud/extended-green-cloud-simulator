@@ -1,12 +1,20 @@
 package org.greencloud.commons.utils.job;
 
 import static java.util.Arrays.stream;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.RUNNING_JOB_STATUSES;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobDurationAndStartAndInstanceId;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
-import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,15 +27,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import org.greencloud.commons.constants.MonitoringConstants;
 import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobStatusWithTime;
 import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.timer.Timer;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.utils.time.TimeConverter;
-import org.greencloud.commons.utils.time.TimeScheduler;
 import org.jetbrains.annotations.Nullable;
 
 import jade.core.AID;
@@ -97,13 +102,18 @@ public class JobUtils {
 	@Nullable
 	public static <T extends PowerJob> Map.Entry<T, JobExecutionStatusEnum> getCurrentJobInstance(final String jobId,
 			final Map<T, JobExecutionStatusEnum> jobMap) {
-		final Instant currentTime = getCurrentTime();
-		return jobMap.entrySet().stream().filter(jobEntry -> {
-			final T job = jobEntry.getKey();
-			return job.getJobId().equals(jobId) && (
-					(job.getStartTime().isBefore(currentTime) && job.getEndTime().isAfter(currentTime))
-							|| job.getEndTime().equals(currentTime));
-		}).findFirst().orElse(null);
+		final Map<T, JobExecutionStatusEnum> jobsMatchingId = jobMap.entrySet().stream()
+				.filter(job -> job.getKey().getJobId().equals(jobId))
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+		if (jobsMatchingId.entrySet().stream().allMatch(job -> isNull(job.getKey().getStartTime()))) {
+			return jobsMatchingId.entrySet().stream().findFirst().orElse(null);
+		}
+
+		return jobMap.entrySet().stream()
+				.filter(jobEntry -> nonNull(jobEntry.getKey().getStartTime()))
+				.max(comparing(jobEntry -> jobEntry.getKey().getStartTime()))
+				.orElse(null);
 	}
 
 	/**
@@ -145,7 +155,7 @@ public class JobUtils {
 	 * @return boolean indicating if a given job has started
 	 */
 	public static <T extends PowerJob> boolean isJobStarted(final T job, final Map<T, JobExecutionStatusEnum> jobMap) {
-		return JobExecutionStatusEnum.RUNNING_JOB_STATUSES.contains(jobMap.get(job));
+		return RUNNING_JOB_STATUSES.contains(jobMap.get(job));
 	}
 
 	/**
@@ -155,7 +165,7 @@ public class JobUtils {
 	 * @return boolean indicating if a given job has started
 	 */
 	public static boolean isJobStarted(final JobExecutionStatusEnum jobStatus) {
-		return JobExecutionStatusEnum.RUNNING_JOB_STATUSES.contains(jobStatus);
+		return RUNNING_JOB_STATUSES.contains(jobStatus);
 	}
 
 	/**
@@ -178,9 +188,7 @@ public class JobUtils {
 	 * @return double job success ratio or -1 if data is not available
 	 */
 	public static double getJobSuccessRatio(final long acceptedJobs, final long failedJobs) {
-		return acceptedJobs == 0 ?
-				MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR :
-				1 - ((double) failedJobs / acceptedJobs);
+		return acceptedJobs == 0 ? DATA_NOT_AVAILABLE_INDICATOR : 1 - ((double) failedJobs / acceptedJobs);
 	}
 
 	/**
@@ -194,17 +202,17 @@ public class JobUtils {
 	public static <T extends PowerJob> List<Instant> getTimetableOfJobs(final T additionalJob,
 			final Map<T, JobExecutionStatusEnum> jobMap) {
 		var validJobs = jobMap.entrySet().stream()
-				.filter(entry -> JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES.contains(entry.getValue()))
+				.filter(entry -> ACCEPTED_JOB_STATUSES.contains(entry.getValue()))
 				.map(Map.Entry::getKey)
 				.toList();
 
 		return Stream.concat(
 						Stream.of(
-								TimeConverter.convertToRealTime(additionalJob.getStartTime()),
-								TimeConverter.convertToRealTime(additionalJob.getEndTime())),
+								convertToRealTime(additionalJob.getStartTime()),
+								convertToRealTime(additionalJob.getExpectedEndTime())),
 						Stream.concat(
-								validJobs.stream().map(job -> TimeConverter.convertToRealTime(job.getStartTime())),
-								validJobs.stream().map(job -> TimeConverter.convertToRealTime(job.getEndTime()))))
+								validJobs.stream().map(job -> convertToRealTime(job.getStartTime())),
+								validJobs.stream().map(job -> convertToRealTime(job.getExpectedEndTime()))))
 				.distinct()
 				.toList();
 	}
@@ -216,8 +224,25 @@ public class JobUtils {
 	 * @return date of expected job end time
 	 */
 	public static Date calculateExpectedJobEndTime(final PowerJob job) {
-		final Instant endDate = TimeScheduler.alignStartTimeToCurrentTime(job.getEndTime());
+		final Instant endDate = alignStartTimeToCurrentTime(job.getExpectedEndTime());
 		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+	}
+
+	/**
+	 * Method updates job execution time
+	 *
+	 * @param job           job which time is to be updated
+	 * @param executionTime new execution time estimation
+	 * @param startTime     new job start time
+	 * @param jobMap        map with all jobs
+	 */
+	public static <T extends PowerJob> T updateJobStartAndExecutionTime(final T job, final Instant startTime,
+			final long executionTime, final Map<T, JobExecutionStatusEnum> jobMap) {
+		final T jobWithNewExecutionTime = mapToJobDurationAndStartAndInstanceId(job, startTime, executionTime);
+		final JobExecutionStatusEnum currentStatus = jobMap.remove(job);
+		jobMap.put(jobWithNewExecutionTime, currentStatus);
+
+		return jobWithNewExecutionTime;
 	}
 
 	/**

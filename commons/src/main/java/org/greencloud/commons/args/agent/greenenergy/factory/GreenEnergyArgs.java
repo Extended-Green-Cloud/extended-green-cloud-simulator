@@ -4,6 +4,7 @@ import static java.util.Collections.singleton;
 
 import java.util.ArrayList;
 
+import org.greencloud.commons.domain.location.Location;
 import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.immutables.value.Value;
@@ -38,14 +39,9 @@ public interface GreenEnergyArgs extends AgentArgs {
 	}
 
 	/**
-	 * @return location's latitude
+	 * @return location
 	 */
-	String getLatitude();
-
-	/**
-	 * @return location's longitude
-	 */
-	String getLongitude();
+	Location getLocation();
 
 	/**
 	 * @return price for 1kWh

@@ -13,7 +13,7 @@ package org.greencloud.commons.args.agent.greenenergy.agent.domain;
  */
 public class GreenEnergyAgentPropsConstants {
 
-	public static final Long INTERVAL_LENGTH_MIN = 10L;
+	public static final Long INTERVAL_LENGTH_MIN = 30L;
 	public static final Double COEFFICIENT_OF_PERFORMANCE = 0.35;
 	public static final Double ROTOR_SWEPT_AREA = 54D;
 	public static final int TEST_MULTIPLIER = 1;

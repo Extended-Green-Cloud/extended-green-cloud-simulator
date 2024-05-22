@@ -5,6 +5,8 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.C
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.greencloud.commons.exception.InvalidScenarioEventStructure;
 import org.immutables.value.Value;
 
@@ -51,6 +53,9 @@ public interface SyntheticJobArgs {
 	 */
 	@JsonProperty("steps")
 	List<SyntheticJobStepArgs> getJobSteps();
+
+	@Nullable
+	Integer getPriority();
 
 	/**
 	 * Method verifies the correctness of job structure

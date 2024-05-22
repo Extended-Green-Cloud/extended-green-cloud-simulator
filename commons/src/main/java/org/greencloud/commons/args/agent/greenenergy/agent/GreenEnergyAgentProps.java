@@ -15,7 +15,10 @@ import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEner
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_FAILED_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_FINISH_LOG;
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_START_LOG;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobIdentificationEnum.JOB_INSTANCE_ID;
+import static org.greencloud.commons.utils.time.TimeComparator.isWithinTimeStamp;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -29,11 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
-import org.jrba.rulesengine.constants.LoggingConstants;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
@@ -47,9 +48,9 @@ import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.commons.utils.math.MathOperations;
 import org.greencloud.commons.utils.resources.ResourcesUtilization;
-import org.greencloud.commons.utils.time.TimeComparator;
-import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.commons.utils.time.TimeSimulation;
+import org.jrba.rulesengine.constants.LoggingConstants;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.shredzone.commons.suncalc.SunTimes;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -176,11 +177,10 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @return entire power calculation error
 	 */
 	public double computeCombinedPowerError(final ServerJob job) {
-		final Instant realJobStartTime = TimeConverter.convertToRealTime(job.getStartTime());
-		final Instant realJobEndTime = TimeConverter.convertToRealTime(job.getEndTime());
+		final Instant realJobStartTime = convertToRealTime(job.getStartTime());
+		final Instant realJobEndTime = convertToRealTime(job.getExpectedEndTime());
 		final double availablePowerError = MathOperations.computeIncorrectMaximumValProbability(realJobStartTime,
-				realJobEndTime,
-				GreenEnergyAgentPropsConstants.INTERVAL_LENGTH_MIN);
+				realJobEndTime, GreenEnergyAgentPropsConstants.INTERVAL_LENGTH_MIN);
 
 		return min(1, availablePowerError + weatherPredictionError);
 	}
@@ -194,8 +194,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 */
 	public synchronized Optional<Double> getAvailableEnergy(final Instant time, final MonitoringData weather) {
 		final double inUseCapacity = serverJobs.entrySet().stream()
-				.filter(job -> JobExecutionStatusEnum.ACTIVE_JOB_STATUSES.contains(job.getValue())
-						&& TimeComparator.isWithinTimeStamp(job.getKey(), time))
+				.filter(job -> ACTIVE_JOB_STATUSES.contains(job.getValue()) && isWithinTimeStamp(job.getKey(), time))
 				.map(Map.Entry::getKey)
 				.mapToDouble(ServerJob::getEstimatedEnergy)
 				.sum();
@@ -245,15 +244,15 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 			final boolean isNewJob) {
 		final Set<JobExecutionStatusEnum> jobStatuses = isNewJob ?
 				JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES :
-				JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
+				ACTIVE_JOB_STATUSES;
 		final Set<ServerJob> serverJobsOfInterest = serverJobs.entrySet().stream()
 				.filter(job -> jobStatuses.contains(job.getValue()))
 				.map(Map.Entry::getKey)
 				.map(JobMapper::mapToServerJobRealTime)
 				.collect(toSet());
 
-		final Instant realJobStartTime = TimeConverter.convertToRealTime(serverJob.getStartTime());
-		final Instant realJobEndTime = TimeConverter.convertToRealTime(serverJob.getEndTime());
+		final Instant realJobStartTime = convertToRealTime(serverJob.getStartTime());
+		final Instant realJobEndTime = convertToRealTime(serverJob.getExpectedEndTime());
 
 		final double availableEnergy = hasError ? 0.0 :
 				ResourcesUtilization.getMinimalAvailableEnergyDuringTimeStamp(

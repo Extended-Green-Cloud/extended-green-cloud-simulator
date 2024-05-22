@@ -3,6 +3,7 @@ package org.greencloud.commons.args.agent.server.agent;
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
@@ -11,17 +12,30 @@ import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPro
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_PROCESS_LOG;
 import static org.greencloud.commons.args.agent.server.agent.logs.ServerAgentPropsLog.COUNT_JOB_START_LOG;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CU;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.STARTED;
+import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_BACK_UP;
+import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD_SOURCE;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_BY_SERVER_JOB_STATUSES;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobIdentificationEnum.JOB_INSTANCE_ID;
+import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
+import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.BACK_UP_POWER_JOB_ID;
+import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.areSufficient;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.computeResourceDifference;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.getAverageCPUUsageDuringTimeStamp;
+import static org.greencloud.commons.utils.resources.ResourcesUtilization.getEarliestPossibleJobStartTime;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getInUseResourcesForJobs;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.getMaximumUsedResourcesDuringTimeStamp;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -30,11 +44,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.greencloud.commons.args.agent.EGCSAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
@@ -43,8 +60,9 @@ import org.greencloud.commons.domain.job.instance.JobInstanceWithPrice;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
+import org.greencloud.commons.enums.job.JobExecutionStateEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.mapper.JobMapper;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
@@ -71,6 +89,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<String, Double> serverPriceForJob;
 	protected ConcurrentMap<String, Double> totalPriceForJob;
 	protected JobExecutionDuration<ClientJob> jobsExecutionTime;
+	protected ConcurrentLinkedQueue<ClientJob> jobsForExecutionQueue;
 	protected AID ownerRegionalManagerAgent;
 
 	@Accessors(fluent = true)
@@ -118,6 +137,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 		this.energyExecutionCost = new ConcurrentHashMap<>();
 		this.serverPriceForJob = new ConcurrentHashMap<>();
 		this.totalPriceForJob = new ConcurrentHashMap<>();
+		this.jobsForExecutionQueue = new ConcurrentLinkedQueue<>();
 
 		this.jobsExecutionTime = new JobExecutionDuration<>(JOB_INSTANCE_ID);
 		this.currentlyProcessing = new AtomicLong(0L);
@@ -190,9 +210,28 @@ public class ServerAgentProps extends EGCSAgentProps {
 	}
 
 	/**
+	 * Method computes average CPU usage on the given time interval.
+	 *
+	 * @param startDate start date
+	 * @param endDate   end date
+	 * @param statusSet set of statuses
+	 * @return average CPU utilization
+	 */
+	public synchronized double getAverageCPUUsage(final Instant startDate, final Instant endDate,
+			final Set<JobExecutionStatusEnum> statusSet) {
+		final Set<JobExecutionStatusEnum> statuses = isNull(statusSet) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusSet;
+		final Set<ClientJob> jobs = serverJobs.keySet().stream()
+				.filter(job -> statuses.contains(serverJobs.get(job)))
+				.collect(toSet());
+
+		final Double avgCpuUsage = getAverageCPUUsageDuringTimeStamp(jobs, startDate, endDate);
+		return avgCpuUsage / resources.get(CPU).getAmountInCommonUnit();
+	}
+
+	/**
 	 * Method computes CPU utilization
 	 *
-	 * @param statusSet (optional) set of statuses taken into account in caclulations
+	 * @param statusSet (optional) set of statuses taken into account in calculations
 	 * @return CPU utilization
 	 */
 	public synchronized double getCPUUsage(final Set<JobExecutionStatusEnum> statusSet) {
@@ -202,6 +241,40 @@ public class ServerAgentProps extends EGCSAgentProps {
 				.mapToDouble(job -> job.getKey().getRequiredResources().get(CPU).getAmountInCommonUnit())
 				.sum();
 		return cpuInUse / resources.get(CPU).getAmountInCommonUnit();
+	}
+
+	/**
+	 * Method calculates expected job execution time based on estimated CPU usage and the CU value.
+	 *
+	 * @return estimated execution time in milliseconds
+	 * @implNote The method is based on the article:
+	 * [<a href="https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=5771&context=sis_research">
+	 * Execution Duration Estimation</a>]
+	 */
+	public double getJobExecutionDuration(final ClientJob job, final Instant startDate) {
+		final double cpuUsage = getAverageCPUUsage(startDate, startDate.plusMillis(job.getDuration()),
+				ACTIVE_JOB_STATUSES);
+		final double cu = ofNullable(resources.get(CU)).map(Resource::getAmountInCommonUnit).orElse(1.0);
+		final double cpuPerformance = cpuUsage > 1 ? cu / cpuUsage : cu * (1 - cpuUsage);
+
+		return job.getDuration() / cpuPerformance;
+	}
+
+	/**
+	 * Method calculates estimated earliest possible job execution start time and estimated execution duration.
+	 *
+	 * @return earliest possible job execution time and duration
+	 */
+	public Pair<Instant, Double> getEstimatedEarliestJobStartTimeAndDuration(final ClientJob job) {
+		final Set<ClientJob> jobs = serverJobs.keySet().stream()
+				.filter(nextJob -> IN_PROGRESS_JOB_STATUSES.contains(serverJobs.get(nextJob)))
+				.collect(toSet());
+
+		final Instant estimatedStart =
+				getEarliestPossibleJobStartTime(jobs, job.getRequiredResources(), resources, job.getDuration());
+		final Double estimatedDuration = getJobExecutionDuration(job, estimatedStart);
+
+		return Pair.of(estimatedStart, estimatedDuration);
 	}
 
 	/**
@@ -231,9 +304,8 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @return energy required to process the job
 	 */
 	public double estimatePowerForJob(final ClientJob job) {
-		final double cpuUsage =
-				job.getRequiredResources().get(CPU).getAmountInCommonUnit() / resources.get(CPU)
-						.getAmountInCommonUnit();
+		final double cpuUsage = job.getRequiredResources().get(CPU).getAmountInCommonUnit() / resources.get(CPU)
+				.getAmountInCommonUnit();
 		return computePowerConsumption(cpuUsage);
 	}
 
@@ -266,8 +338,8 @@ public class ServerAgentProps extends EGCSAgentProps {
 			final JobInstanceIdentifier jobToExclude, final Set<JobExecutionStatusEnum> statusSet) {
 		final Set<JobExecutionStatusEnum> statuses = isNull(statusSet) ? ACCEPTED_BY_SERVER_JOB_STATUSES : statusSet;
 		final Set<ClientJob> jobs = serverJobs.keySet().stream()
-				.filter(job -> isNull(jobToExclude) || !JobMapper.mapClientJobToJobInstanceId(job).equals(jobToExclude))
 				.filter(job -> statuses.contains(serverJobs.get(job)))
+				.filter(job -> isNull(jobToExclude) || !mapClientJobToJobInstanceId(job).equals(jobToExclude))
 				.collect(toSet());
 
 		final Map<String, Resource> maxResources =
@@ -284,9 +356,9 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @return available resources
 	 */
 	public synchronized Map<String, Resource> getAvailableResources(final ClientJob job,
-			final JobInstanceIdentifier jobToExclude,
-			final Set<JobExecutionStatusEnum> statusSet) {
-		return getAvailableResources(job.getStartTime(), job.getEndTime(), jobToExclude, statusSet);
+			final JobInstanceIdentifier jobToExclude, final Set<JobExecutionStatusEnum> statusSet) {
+		final Instant jobEndTime = job.getExpectedEndTime();
+		return getAvailableResources(job.getStartTime(), jobEndTime, jobToExclude, statusSet);
 	}
 
 	/**
@@ -313,6 +385,26 @@ public class ServerAgentProps extends EGCSAgentProps {
 				.map(ClientJob.class::cast)
 				.toList();
 		return getInUseResourcesForJobs(activeJobs, resources);
+	}
+
+	/**
+	 * Method updates the state of the server after the transfer between Green Sources has failed.
+	 *
+	 * @param job job for which the status is to be updated
+	 * @return conversation id of the message that is to be sent to other cloud network components
+	 */
+	public String updateServerStateAfterFailedJobTransferBetweenGreenSources(final ClientJob job) {
+		final Triple<JobExecutionStateEnum, String, String> stateFields = getFieldsForJobState(job);
+
+		logger.info(stateFields.getMiddle(), job.getJobId());
+		final JobExecutionStatusEnum prevStatus = serverJobs.get(job);
+		final JobExecutionStatusEnum newStatus = stateFields.getLeft().getStatus(true);
+
+		jobsExecutionTime.updateJobExecutionDuration(job, prevStatus, newStatus, getCurrentTime());
+		serverJobs.replace(job, newStatus);
+
+		updateGUI();
+		return stateFields.getRight();
 	}
 
 	/**
@@ -392,6 +484,17 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 */
 	public void enable() {
 		isDisabled = false;
+	}
+
+	private Triple<JobExecutionStateEnum, String, String> getFieldsForJobState(final ClientJob job) {
+		final JobInstanceIdentifier jobInstance = mapToJobInstanceId(job);
+		final Map<String, Resource> availableResources = getAvailableResources(job, jobInstance, null);
+
+		return !areSufficient(availableResources, job.getRequiredResources()) ?
+				new ImmutableTriple<>(EXECUTING_ON_HOLD_SOURCE, "There is not enough resources to process the "
+						+ "job {} with back up power. Putting job on hold", ON_HOLD_JOB_ID) :
+				new ImmutableTriple<>(EXECUTING_ON_BACK_UP, "Putting the job {} on back up power",
+						BACK_UP_POWER_JOB_ID);
 	}
 
 	private void assignWeightsToNewGreenSources(final List<AID> newGreenSources) {

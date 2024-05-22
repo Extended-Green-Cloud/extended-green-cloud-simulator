@@ -49,10 +49,7 @@ public class AgentDiscoveryMessageFactory {
 			final AID rma, final int ruleSetIdx) {
 		return MessageBuilder.builder(ruleSetIdx, INFORM)
 				.withMessageProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL)
-				.withObjectContent(ImmutableServerResources.builder()
-						.resources(serverAgentProps.resources())
-						.price(serverAgentProps.getPricePerHour())
-						.build())
+				.withObjectContent(ImmutableServerResources.builder().resources(serverAgentProps.resources()).build())
 				.withReceivers(rma)
 				.build();
 	}
@@ -81,10 +78,7 @@ public class AgentDiscoveryMessageFactory {
 			final Map<String, Resource> newResources, final int ruleSetIdx) {
 		return MessageBuilder.builder(ruleSetIdx, REQUEST)
 				.withMessageProtocol(CHANGE_SERVER_RESOURCES_PROTOCOL)
-				.withObjectContent(ImmutableServerResources.builder()
-						.resources(newResources)
-						.price(serverAgentProps.getPricePerHour())
-						.build())
+				.withObjectContent(ImmutableServerResources.builder().resources(newResources).build())
 				.withReceivers(serverAgentProps.getOwnerRegionalManagerAgent())
 				.build();
 	}
