@@ -2,8 +2,10 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.propo
 
 import static jade.lang.acl.ACLMessage.INFORM;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_ID;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_CONFIRM_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_RULE;
@@ -21,11 +23,11 @@ import java.util.Optional;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.extended.JobWithProtocol;
-import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -67,7 +69,7 @@ public class ProcessPowerSupplyConfirmationRule
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Sending information regarding job {} acceptance back to server agent", job.getJobId());
-		agentProps.getServerJobs().replace(job, JobExecutionStatusEnum.ACCEPTED);
+		agentProps.getServerJobs().replace(job, ACCEPTED);
 
 		final RuleSetFacts jobManualFinish = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		jobManualFinish.put(JOB, job);
@@ -78,4 +80,13 @@ public class ProcessPowerSupplyConfirmationRule
 				jobWithProtocol.getReplyProtocol()));
 	}
 
+	@Override
+	public AgentRule copy() {
+		return new ProcessPowerSupplyConfirmationRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
+	}
 }

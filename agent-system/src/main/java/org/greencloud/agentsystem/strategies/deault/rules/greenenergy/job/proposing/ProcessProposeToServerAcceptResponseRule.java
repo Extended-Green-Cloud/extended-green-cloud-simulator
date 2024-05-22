@@ -1,7 +1,8 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.proposing;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_RULE;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
@@ -22,11 +23,6 @@ public class ProcessProposeToServerAcceptResponseRule
 		super(controller, EXECUTE_FIRST);
 	}
 
-	/**
-	 * Method initialize default rule metadata
-	 *
-	 * @return rule description
-	 */
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(PROCESS_SCHEDULE_POWER_SUPPLY_RULE,
@@ -43,5 +39,15 @@ public class ProcessProposeToServerAcceptResponseRule
 				new ProcessNotEnoughResourcesBeforePowerSupplyRule(controller),
 				new ProcessPowerSupplyConfirmationRule(controller)
 		);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessProposeToServerAcceptResponseRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

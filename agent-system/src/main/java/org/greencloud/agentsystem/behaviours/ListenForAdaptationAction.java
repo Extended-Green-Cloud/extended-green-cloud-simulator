@@ -11,13 +11,14 @@ import static java.util.Objects.nonNull;
 import org.greencloud.agentsystem.agents.EGCSAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
 
 /**
- * Generic behaviour that listens for adaptation requests
+ * Generic behaviour that listens for adaptation requests.
  */
 public class ListenForAdaptationAction extends CyclicBehaviour {
 
@@ -28,15 +29,15 @@ public class ListenForAdaptationAction extends CyclicBehaviour {
 	}
 
 	/**
-	 * Method listens for adaptation requests and then handles it as specified for a given agent
+	 * Method listens for adaptation requests and then handles it as specified for a given agent.
 	 */
 	@Override
 	public void action() {
-		var message = myAbstractAgent.receive(EXECUTE_ACTION_REQUEST);
+		final ACLMessage message = myAbstractAgent.receive(EXECUTE_ACTION_REQUEST);
 
 		if (nonNull(message)) {
-			final AdaptationActionEnum adaptationActionEnum = AdaptationActionEnum.valueOf(message.getConversationId());
-			final AdaptationAction adaptationAction = getAdaptationAction(adaptationActionEnum).get(0);
+			final AdaptationActionTypeEnum adaptationActionEnum = AdaptationActionTypeEnum.valueOf(message.getConversationId());
+			final AdaptationAction adaptationAction = getAdaptationAction(adaptationActionEnum).getFirst();
 			final AdaptationActionParameters adaptationActionParameters =
 					readMessageContent(message, getActionParametersClass(adaptationActionEnum));
 

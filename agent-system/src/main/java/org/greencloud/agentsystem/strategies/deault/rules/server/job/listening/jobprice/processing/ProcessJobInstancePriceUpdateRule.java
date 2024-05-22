@@ -1,20 +1,22 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.listening.jobprice.processing;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_ENERGY_PRICE_RECEIVER_HANDLER_RULE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_ENERGY_PRICE_RECEIVER_HANDLER_RULE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.instance.JobInstanceWithPrice;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -40,9 +42,18 @@ public class ProcessJobInstancePriceUpdateRule extends AgentBasicRule<ServerAgen
 
 		MDC.put(MDC_JOB_ID, jobId);
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Received information about price for energy related to execution of job {} (instance: {})",
-				jobId, jobInstanceWithPrice.getJobInstanceId());
+		logger.info("Received information about price for energy related to execution of job {}.", jobId);
 		agentProps.updateJobEnergyCost(jobInstanceWithPrice);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobInstancePriceUpdateRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }
 

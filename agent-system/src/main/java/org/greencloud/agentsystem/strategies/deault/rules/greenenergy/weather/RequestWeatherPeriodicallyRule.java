@@ -1,6 +1,15 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.weather;
 
-import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
+import static com.database.knowledge.types.DataType.AVAILABLE_GREEN_ENERGY;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
+import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.PHYSICAL_CAUSE;
+import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.WEATHER_CAUSE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_PERIODICALLY_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.POWER_SHORTAGE_ERROR_RULE;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_CAUSE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_IS_FINISHED;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
@@ -8,27 +17,20 @@ import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
-import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.PHYSICAL_CAUSE;
-import static org.greencloud.commons.enums.event.PowerShortageCauseEnum.WEATHER_CAUSE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_PERIODICALLY_RULE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.POWER_SHORTAGE_ERROR_RULE;
 import static org.jrba.utils.messages.MessageReader.readMessageContent;
-import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
-import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
-import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -96,6 +98,13 @@ public class RequestWeatherPeriodicallyRule extends AgentRequestRule<GreenEnergy
 		}
 	}
 
+	private void reportAvailableEnergyData(final double availableEnergy) {
+		final double energyPercentage = agentProps.getEnergyPercentage(availableEnergy);
+		agentNode.writeMonitoringData(AVAILABLE_GREEN_ENERGY, new AvailableGreenEnergy(energyPercentage),
+				agent.getName());
+		agentNode.updateGreenEnergyAmount(availableEnergy);
+	}
+
 	@Override
 	protected void handleRefuse(final ACLMessage refuse, final RuleSetFacts facts) {
 		MDC.put(MDC_JOB_ID, null);
@@ -107,10 +116,13 @@ public class RequestWeatherPeriodicallyRule extends AgentRequestRule<GreenEnergy
 		// case does not apply here
 	}
 
-	private void reportAvailableEnergyData(final double availableEnergy) {
-		final double energyPercentage = agentProps.getEnergyPercentage(availableEnergy);
-		agentNode.writeMonitoringData(AVAILABLE_GREEN_ENERGY, new AvailableGreenEnergy(energyPercentage),
-				agent.getName());
-		agentNode.updateGreenEnergyAmount(availableEnergy);
+	@Override
+	public AgentRule copy() {
+		return new RequestWeatherPeriodicallyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

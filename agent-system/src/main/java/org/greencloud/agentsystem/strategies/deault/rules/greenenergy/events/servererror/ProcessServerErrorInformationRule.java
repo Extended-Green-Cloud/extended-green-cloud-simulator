@@ -1,7 +1,8 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.servererror;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_SERVER_ERROR_HANDLER_RULE;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
@@ -35,5 +36,15 @@ public class ProcessServerErrorInformationRule extends AgentCombinedRule<GreenEn
 				new ProcessInternalServerErrorFinishRule(controller),
 				new ProcessPutJobOnHoldRule(controller)
 		);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessServerErrorInformationRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

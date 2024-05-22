@@ -1,13 +1,16 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.initial;
 
+import static io.micrometer.common.util.StringUtils.isBlank;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_CHARACTERISTIC_ADDITION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_CHARACTERISTIC_RESERVATION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_CHARACTERISTIC_SUBTRACTION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_COMPARATOR;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_VALIDATOR;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TAKE_FROM_INITIAL_KNOWLEDGE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.INITIALIZE_SERVER_RESOURCE_KNOWLEDGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
@@ -22,6 +25,7 @@ import org.greencloud.commons.domain.resources.ResourceCharacteristic;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -29,7 +33,8 @@ import org.slf4j.Logger;
 public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
 	private static final Logger logger = getLogger(InitializeResourceKnowledge.class);
-	private final Predicate<String> useDefaultMethod = method -> method.equals(TAKE_FROM_INITIAL_KNOWLEDGE);
+	private final Predicate<String> useDefaultMethod = method -> !isBlank(method) &&
+			method.equals(TAKE_FROM_INITIAL_KNOWLEDGE);
 
 	public InitializeResourceKnowledge(final RulesController<ServerAgentProps, ServerNode> rulesController) {
 		super(rulesController);
@@ -37,7 +42,7 @@ public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps
 
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
-		return new AgentRuleDescription("INITIALIZE_SERVER_RESOURCE_KNOWLEDGE",
+		return new AgentRuleDescription(INITIALIZE_SERVER_RESOURCE_KNOWLEDGE,
 				"initialize knowledge on how to handle resources",
 				"rule takes from the agent's knowledge indicated information about resource handlers");
 	}
@@ -47,6 +52,16 @@ public class InitializeResourceKnowledge extends AgentBasicRule<ServerAgentProps
 		fillRemainingResourcesInformation();
 		logger.info("Initialization of Server resources was completed!");
 		agentNode.updateDefaultResources(agentProps.resources());
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new InitializeResourceKnowledge(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 
 	private void fillRemainingResourcesInformation() {

@@ -1,27 +1,30 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.execution;
 
 import static java.lang.String.valueOf;
+import static java.util.Optional.ofNullable;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.Date;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentScheduledRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -50,7 +53,9 @@ public class HandleJobFinishRule extends AgentScheduledRule<ServerAgentProps, Se
 	@Override
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
-		final Instant endDate = getCurrentTime().isAfter(job.getEndTime()) ? getCurrentTime() : job.getEndTime();
+		final Instant endDate = ofNullable(job.getExpectedEndTime())
+				.filter(end -> !getCurrentTime().isAfter(end))
+				.orElse(getCurrentTime());
 		return Date.from(endDate);
 	}
 
@@ -61,9 +66,19 @@ public class HandleJobFinishRule extends AgentScheduledRule<ServerAgentProps, Se
 
 		MDC.put(MDC_JOB_ID, jobId);
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Finished executing the job {} at {}", job.getJobId(), job.getEndTime());
+		logger.info("Finished executing the job {} at {}", job.getJobId(), getCurrentTime());
 
 		facts.put(RULE_TYPE, PROCESS_FINISH_JOB_EXECUTION_RULE);
 		controller.fire(facts);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new HandleJobFinishRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

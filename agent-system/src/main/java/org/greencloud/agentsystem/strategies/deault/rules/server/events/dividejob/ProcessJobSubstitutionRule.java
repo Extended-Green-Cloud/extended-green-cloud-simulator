@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.events.dividejob;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_FINISH_INFORM;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_IS_STARTED;
@@ -22,6 +23,7 @@ import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
@@ -78,5 +80,15 @@ public class ProcessJobSubstitutionRule extends AgentBasicRule<ServerAgentProps,
 
 		agentProps.getServerPriceForJob().put(newJobInstance.getJobInstanceId(), jobPrice);
 		agentProps.getServerPriceForJob().remove(prevJob.getJobInstanceId());
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobSubstitutionRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

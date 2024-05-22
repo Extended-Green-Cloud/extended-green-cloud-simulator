@@ -1,12 +1,12 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.weather;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_FOR_NEW_POWER_SUPPLY_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
-import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
@@ -16,6 +16,7 @@ import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Optional;
@@ -27,6 +28,7 @@ import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateProposal;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -129,5 +131,15 @@ public class RequestWeatherForNewPowerSupplyRule extends AgentRequestRule<GreenE
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case does not apply here
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new RequestWeatherForNewPowerSupplyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

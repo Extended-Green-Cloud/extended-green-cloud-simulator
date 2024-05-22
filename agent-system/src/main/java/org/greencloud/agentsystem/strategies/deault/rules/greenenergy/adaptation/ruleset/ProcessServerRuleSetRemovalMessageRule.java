@@ -2,17 +2,19 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.adaptatio
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_RULE_SET_REMOVAL_HANDLER_RULE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_RULE_SET_REMOVAL_HANDLER_RULE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -47,5 +49,15 @@ public class ProcessServerRuleSetRemovalMessageRule extends AgentBasicRule<Green
 		MDC.put(MDC_RULE_SET_ID, valueOf(ruleSetIdx));
 		logger.info("Received rule set removal request from the Server. Removing rule set with id {}.", ruleSetIdx);
 		controller.getRuleSets().remove(ruleSetIdx);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessServerRuleSetRemovalMessageRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

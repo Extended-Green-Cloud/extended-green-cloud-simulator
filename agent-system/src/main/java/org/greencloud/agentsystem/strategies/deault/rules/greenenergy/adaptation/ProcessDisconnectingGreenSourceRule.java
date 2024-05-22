@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.adaptatio
 
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.jrba.rulesengine.constants.FactTypeConstants.AGENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -12,6 +13,7 @@ import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.jrba.utils.messages.MessageBuilder;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
@@ -70,5 +72,15 @@ public class ProcessDisconnectingGreenSourceRule extends AgentRequestRule<GreenE
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case does not occur
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessDisconnectingGreenSourceRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

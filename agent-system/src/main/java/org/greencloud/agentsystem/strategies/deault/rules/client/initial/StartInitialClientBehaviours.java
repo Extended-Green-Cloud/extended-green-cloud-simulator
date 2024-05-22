@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.client.initial;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SEARCH_OWNED_AGENTS_RULE;
 
@@ -10,6 +11,7 @@ import org.greencloud.gui.agents.client.ClientNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.listen.ListenForMessages;
 import org.jrba.rulesengine.behaviour.search.SearchForAgents;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.simple.AgentBehaviourRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
@@ -31,5 +33,15 @@ public class StartInitialClientBehaviours extends AgentBehaviourRule<ClientAgent
 						SEARCH_OWNED_AGENTS_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller, true)
 		);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new StartInitialClientBehaviours(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return CLIENT.getName();
 	}
 }

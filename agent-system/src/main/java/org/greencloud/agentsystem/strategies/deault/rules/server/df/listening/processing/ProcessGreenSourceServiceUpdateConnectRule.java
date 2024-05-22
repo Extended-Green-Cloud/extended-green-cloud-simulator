@@ -1,20 +1,22 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.df.listening.processing;
 
 import static java.util.Collections.singletonList;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.GREEN_SOURCE_STATUS_CHANGE_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.GREEN_SOURCE_STATUS_CHANGE_HANDLE_CONNECT_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
@@ -55,5 +57,15 @@ public class ProcessGreenSourceServiceUpdateConnectRule extends AgentBasicRule<S
 			agentProps.connectNewGreenSourcesToServer(singletonList(greenSource));
 			agent.send(prepareInformReply(message));
 		}
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessGreenSourceServiceUpdateConnectRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

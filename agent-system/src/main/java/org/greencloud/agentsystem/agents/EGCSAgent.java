@@ -3,13 +3,10 @@ package org.greencloud.agentsystem.agents;
 import static java.util.Objects.nonNull;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.args.agent.EGCSAgentType.MANAGING;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.ADAPTATION_REQUEST_RULE;
+import static org.greencloud.commons.utils.facts.FactsFactory.constructFactsForAdaptationRequest;
 import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
-import static org.jrba.rulesengine.constants.FactTypeConstants.ADAPTATION_PARAMS;
-import static org.jrba.rulesengine.constants.FactTypeConstants.ADAPTATION_TYPE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_AGENT_NAME;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_CLIENT_NAME;
 
@@ -22,17 +19,17 @@ import java.util.function.Predicate;
 import org.greencloud.agentsystem.behaviours.ListenForAdaptationAction;
 import org.greencloud.agentsystem.behaviours.ReportHealthCheck;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.jrba.agentmodel.behaviour.ListenForControllerObjects;
 import org.jrba.agentmodel.domain.AbstractAgent;
 import org.jrba.agentmodel.domain.props.AgentProps;
+import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import com.database.knowledge.domain.action.AdaptationActionEnum;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -43,7 +40,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Abstract class representing agent which has the connection with GUI controller
+ * Abstract class representing agent which has the connection with GUI controller.
  */
 @SuppressWarnings("unchecked")
 @Getter
@@ -57,19 +54,17 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 	protected ParallelBehaviour mainBehaviour;
 
 	/**
-	 * Abstract method invoked when the agent is the target of adaptation
+	 * Abstract method invoked when the agent is the target of adaptation.
 	 *
 	 * @param adaptationActionEnum adaptation action type
 	 * @param actionParameters     parameters related with given adaptation
 	 * @return flag indicating if adaptation was successful
 	 */
-	public boolean executeAction(final AdaptationActionEnum adaptationActionEnum,
+	public boolean executeAction(final AdaptationActionTypeEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters) {
 		if (nonNull(rulesController)) {
-			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
-			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
-			facts.put(ADAPTATION_PARAMS, actionParameters);
-			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
+			final RuleSetFacts facts = constructFactsForAdaptationRequest(
+					rulesController.getLatestLongTermRuleSetIdx().get(), adaptationActionEnum, actionParameters);
 			rulesController.fire(facts);
 			return facts.get(RESULT);
 		} else {
@@ -80,25 +75,33 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 
 	/**
 	 * Abstract method invoked when the agent is the target of adaptation and the adaptation requires communicating
-	 * with other agents (i.e. cannot be executed on the spot)
+	 * with other agents (i.e. cannot be executed on the spot).
 	 *
 	 * @param adaptationActionEnum adaptation action type
 	 * @param actionParameters     parameters related with given adaptation
 	 * @param adaptationMessage    message with adaptation request
 	 */
-	public void executeAction(final AdaptationActionEnum adaptationActionEnum,
+	public void executeAction(final AdaptationActionTypeEnum adaptationActionEnum,
 			final AdaptationActionParameters actionParameters,
 			final ACLMessage adaptationMessage) {
 		if (nonNull(rulesController)) {
-			final RuleSetFacts facts = new RuleSetFacts(rulesController.getLatestLongTermRuleSetIdx().get());
+			final RuleSetFacts facts = constructFactsForAdaptationRequest(
+					rulesController.getLatestLongTermRuleSetIdx().get(), adaptationActionEnum, actionParameters);
 			facts.put(MESSAGE, adaptationMessage);
-			facts.put(RULE_TYPE, ADAPTATION_REQUEST_RULE);
-			facts.put(ADAPTATION_PARAMS, actionParameters);
-			facts.put(ADAPTATION_TYPE, adaptationActionEnum);
 			rulesController.fire(facts);
 		} else {
 			logger.info("Cannot execute adaptation - rules controller has not been initialized.");
 		}
+	}
+
+	@Override
+	public void setRulesController(RulesController<E, T> rulesController) {
+		this.rulesController = rulesController;
+		properties.setAgentName(getName());
+		if (nonNull(agentNode)) {
+			properties.setAgentNode(agentNode);
+		}
+		rulesController.setAgent(this, properties, agentNode, getDefaultRuleSet());
 	}
 
 	@Override
@@ -124,15 +127,12 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 	@Override
 	protected void setup() {
 		logger.info("Setting up Agent {}", getName());
-		if (properties.getAgentType().equals(CLIENT.name())) {
-			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
-		} else {
-			MDC.put(MDC_AGENT_NAME, super.getLocalName());
-		}
+		setUpLogger();
+
 		final Object[] arguments = getArguments();
 		super.setup();
 
-		if (arguments.length >= 3 && !isCloudAgent.test(properties)) {
+		if (arguments.length >= 3 && isCloudAgent.test(properties)) {
 			updateKnowledgeMap(arguments);
 		}
 
@@ -144,11 +144,7 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 
 	@Override
 	protected void takeDown() {
-		if (properties.getAgentType().equals(CLIENT.name())) {
-			MDC.put(MDC_CLIENT_NAME, super.getLocalName());
-		} else {
-			MDC.put(MDC_AGENT_NAME, super.getLocalName());
-		}
+		setUpLogger();
 		super.takeDown();
 	}
 
@@ -161,6 +157,11 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 		}
 	}
 
+	private void setUpLogger() {
+		final String loggerName = properties.getAgentType().equals(CLIENT.name()) ? MDC_CLIENT_NAME : MDC_AGENT_NAME;
+		MDC.put(loggerName, super.getLocalName());
+	}
+
 	private Consumer<List<Behaviour>> initializeBehavioursWhenAgentIsConnected() {
 		return initialBehaviours -> {
 			final ParallelBehaviour behaviour = new ParallelBehaviour();
@@ -169,6 +170,7 @@ public abstract class EGCSAgent<T extends EGCSNode<?, E>, E extends AgentProps> 
 			behaviour.addSubBehaviour(new ListenForAdaptationAction(this));
 			addBehaviour(behaviour);
 			setMainBehaviour(behaviour);
+			runInitialBehavioursForRuleSet();
 		};
 	}
 

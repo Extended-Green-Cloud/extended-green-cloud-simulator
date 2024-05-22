@@ -20,7 +20,7 @@ import jade.core.behaviours.Behaviour;
 
 /**
  * Agent representing weather station that is responsible for retrieving the weather and sending the data to the
- * Green Source Agent
+ * Green Source Agent.
  */
 public class MonitoringAgent extends AbstractMonitoringAgent {
 	private static final Logger logger = getLogger(MonitoringAgent.class);

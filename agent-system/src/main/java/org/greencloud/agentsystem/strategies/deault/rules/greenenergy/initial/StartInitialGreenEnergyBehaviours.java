@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.initial;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_RULE_SET_REMOVAL_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_RULE_SET_UPDATE_RULE;
@@ -13,12 +14,13 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SENSE_EVENT
 import java.util.Set;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.listen.ListenForMessages;
 import org.jrba.rulesengine.behaviour.schedule.SchedulePeriodically;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.simple.AgentBehaviourRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 import jade.core.behaviours.Behaviour;
 
@@ -48,5 +50,15 @@ public class StartInitialGreenEnergyBehaviours extends AgentBehaviourRule<GreenE
 				ListenForMessages.create(agent, LISTEN_FOR_RULE_SET_UPDATE_RULE, controller),
 				ListenForMessages.create(agent, LISTEN_FOR_RULE_SET_REMOVAL_RULE, controller)
 		);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new StartInitialGreenEnergyBehaviours(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

@@ -1,25 +1,27 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.errorhandling.weatherdrop;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
+import static org.greencloud.commons.enums.rules.EGCSRuleSetTypes.WEATHER_DROP_RULE_SET;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_TYPE;
-import static org.greencloud.commons.enums.rules.EGCSRuleSetTypes.WEATHER_DROP_RULE_SET;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
 
 import java.time.Instant;
 import java.util.Date;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateRequest;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentScheduledRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
-public class ScheduleWeatherDropAdaptation extends AgentScheduledRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class ScheduleWeatherDropAdaptation extends AgentScheduledRule<RegionalManagerAgentProps, RMANode> {
 
 	public ScheduleWeatherDropAdaptation(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller);
 	}
 
@@ -41,5 +43,15 @@ public class ScheduleWeatherDropAdaptation extends AgentScheduledRule<RegionalMa
 		final RuleSetFacts handlerFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		handlerFacts.put(RULE_SET_TYPE, WEATHER_DROP_RULE_SET);
 		agent.addBehaviour(InitiateRequest.create(agent, handlerFacts, REQUEST_RULE_SET_UPDATE_RULE, controller));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ScheduleWeatherDropAdaptation(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

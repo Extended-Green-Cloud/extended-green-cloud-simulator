@@ -1,15 +1,17 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.monitor;
 
-import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
+import static com.database.knowledge.types.DataType.SHORTAGES;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REPORT_DATA_RULE;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentPeriodicRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 import com.database.knowledge.domain.agent.greensource.Shortages;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
@@ -49,5 +51,15 @@ public class ReportWeatherPeriodicallyRule extends AgentPeriodicRule<GreenEnergy
 		if (accumulatedShortages > 0) {
 			agentNode.writeMonitoringData(SHORTAGES, new Shortages(accumulatedShortages), agent.getName());
 		}
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ReportWeatherPeriodicallyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

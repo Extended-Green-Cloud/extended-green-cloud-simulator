@@ -1,20 +1,22 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.adaptation;
 
 import static java.lang.Integer.parseInt;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
+import static org.greencloud.commons.enums.rules.EGCSRuleSetTypes.WEATHER_PRE_DROP_RULE_SET;
+import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetAdaptationRequest;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_TYPE;
-import static org.greencloud.commons.enums.rules.EGCSRuleSetTypes.WEATHER_PRE_DROP_RULE_SET;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
-import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetAdaptationRequest;
 import static org.jrba.utils.rules.RuleSetSelector.SELECT_BY_FACTS_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -22,12 +24,12 @@ import org.slf4j.Logger;
 
 import jade.lang.acl.ACLMessage;
 
-public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<RegionalManagerAgentProps, RMANode> {
 
 	private static final Logger logger = getLogger(UpdateRuleSetForWeatherDropRule.class);
 
 	public UpdateRuleSetForWeatherDropRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller);
 	}
 
@@ -55,7 +57,7 @@ public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<RegionalMa
 
 		if (facts.get(RULE_SET_TYPE).equals(WEATHER_PRE_DROP_RULE_SET)) {
 			logger.info("Scheduling adaptation for time when weather drop will start!");
-			agent.addBehaviour(ScheduleOnce.create(agent, new RuleSetFacts(indexOfNewRuleSet), 
+			agent.addBehaviour(ScheduleOnce.create(agent, new RuleSetFacts(indexOfNewRuleSet),
 					"ADAPT_TO_WEATHER_DROP_RULE", controller, SELECT_BY_FACTS_IDX));
 		}
 	}
@@ -73,5 +75,15 @@ public class UpdateRuleSetForWeatherDropRule extends AgentRequestRule<RegionalMa
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case should not occur
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new UpdateRuleSetForWeatherDropRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

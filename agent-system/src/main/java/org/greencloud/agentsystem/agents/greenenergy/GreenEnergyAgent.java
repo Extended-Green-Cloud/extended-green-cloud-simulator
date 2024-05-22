@@ -12,7 +12,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.function.BooleanSupplier;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.slf4j.Logger;
@@ -28,18 +27,16 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		if (args.length >= 11) {
+		if (args.length >= 10) {
 			final AID monitoringAgent = new AID(args[0].toString(), AID.ISLOCALNAME);
 			final AID ownerServer = new AID(args[1].toString(), AID.ISLOCALNAME);
 
 			try {
-				final double latitude = parseDouble(args[4].toString());
-				final double longitude = parseDouble(args[5].toString());
 				final int maximumGeneratorCapacity = parseInt(args[2].toString());
 				final double pricePerPowerUnit = parseDouble(args[3].toString());
-				final double weatherPredictionError = parseDouble(args[7].toString());
-				final Location location = new ImmutableLocation(latitude, longitude);
-				final GreenEnergySourceTypeEnum energyType = (GreenEnergySourceTypeEnum) args[6];
+				final double weatherPredictionError = parseDouble(args[6].toString());
+				final Location location = (Location) args[4];
+				final GreenEnergySourceTypeEnum energyType = (GreenEnergySourceTypeEnum) args[5];
 
 				this.properties = new GreenEnergyAgentProps(getName(), location, energyType, monitoringAgent,
 						ownerServer, pricePerPowerUnit, weatherPredictionError, maximumGeneratorCapacity);
@@ -68,7 +65,7 @@ public class GreenEnergyAgent extends AbstractGreenEnergyAgent {
 	}
 
 	private void completeAgentRegistration(final Object[] args) {
-		final BooleanSupplier isAgentMoved = () -> args.length != 11 && !parseBoolean(args[8].toString());
+		final BooleanSupplier isAgentMoved = () -> args.length != 10 || !parseBoolean(args[7].toString());
 		final String ownerName = properties.getOwnerServer().getName();
 
 		if (isAgentMoved.getAsBoolean()) {

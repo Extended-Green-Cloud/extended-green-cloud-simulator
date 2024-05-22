@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.weatherdrop;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_WEATHER_DROP_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_WEATHER_DROP_START_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.WEATHER_DROP_ERROR_RULE;
@@ -14,6 +15,7 @@ import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -46,5 +48,15 @@ public class HandleGreenSourceWeatherDropEventRule extends AgentBasicRule<GreenE
 				ScheduleOnce.create(agent, handlersFacts, HANDLE_WEATHER_DROP_START_RULE, controller, SELECT_LATEST));
 		agent.addBehaviour(
 				ScheduleOnce.create(agent, handlersFacts, HANDLE_WEATHER_DROP_FINISH_RULE, controller, SELECT_LATEST));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new HandleGreenSourceWeatherDropEventRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.listening.manualfinish;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageTemplatesConstants.LISTEN_FOR_MANUAL_FINISH_REQUEST_TEMPLATE;
@@ -8,6 +9,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentMessageListenerRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
@@ -25,5 +27,15 @@ public class ListenForJobManualFinishRule extends AgentMessageListenerRule<Serve
 		return new AgentRuleDescription(JOB_MANUAL_FINISH_RULE,
 				"listen for job manual finish",
 				"listening for message about Job manual finish sent by Green Source");
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ListenForJobManualFinishRule(controller, getRuleSet());
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

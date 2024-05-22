@@ -4,11 +4,11 @@ import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.MatchReplyWith;
 import static jade.lang.acl.MessageTemplate.and;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINAL_PRICE_RECEIVER_RULE;
-import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.FINAL_EXECUTION_PRICE_MESSAGE;
@@ -22,11 +22,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.instance.JobInstanceWithPrice;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jeasy.rules.api.Facts;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentSingleMessageListenerRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -68,41 +68,50 @@ public class HandleJobFinishPriceUpdateRule extends AgentSingleMessageListenerRu
 	protected void handleMessageProcessing(final ACLMessage message, final RuleSetFacts facts) {
 		final JobInstanceWithPrice jobWithPrice = readMessageContent(message, JobInstanceWithPrice.class);
 		final ClientJob job = facts.get(JOB);
+		final String jobId = job.getJobId();
 
-		MDC.put(MDC_JOB_ID, job.getJobId());
+		MDC.put(MDC_JOB_ID, jobId);
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Received final energy cost {} related to execution of job {}", jobWithPrice.getPrice(),
-				job.getJobId());
+		logger.info("Received final energy cost {} related to execution of job {}", jobWithPrice.getPrice(), jobId);
 		agentProps.updateJobEnergyCost(jobWithPrice);
 		agentProps.updateJobExecutionCost(job);
 		updateStateAfterJobIsDone(facts);
 
-		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(job.getJobId());
+		final Double finalJobPrice = agentProps.getTotalPriceForJob().get(jobId);
 		final ACLMessage rmaMessage = prepareJobFinishMessageForRMA(job, facts.get(RULE_SET_IDX), finalJobPrice,
 				agentProps.getOwnerRegionalManagerAgent());
 
-		agentProps.getTotalPriceForJob().remove(job.getJobId());
+		agentProps.getTotalPriceForJob().remove(jobId);
 		agent.send(rmaMessage);
 	}
 
 	private void updateStateAfterJobIsDone(final Facts facts) {
 		final ClientJob job = facts.get(JOB);
-		final JobInstanceIdentifier jobInstance = mapClientJobToJobInstanceId(job);
 
 		if (isJobStarted(job, agentProps.getServerJobs())) {
-			agentProps.incrementJobCounter(jobInstance, FINISH);
+			agentProps.incrementJobCounter(job.getJobId(), FINISH);
 		}
 
 		agentProps.getGreenSourceForJobMap().remove(job.getJobId());
 		agentNode.updateClientNumber(getJobCount(agentProps.getServerJobs(), ACCEPTED_JOB_STATUSES));
 		agentProps.removeJob(job);
 
-		if (agentProps.isDisabled() && agentProps.getServerJobs().size() == 0) {
+		if (agentProps.isDisabled() && agentProps.getServerJobs().isEmpty()) {
 			logger.info("Server completed all planned jobs and is fully disabled.");
 			agentNode.disableServer();
 		}
 
 		agentProps.updateGUI();
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new HandleJobFinishPriceUpdateRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 
 }

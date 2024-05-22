@@ -154,6 +154,8 @@ public class EGCSControllerFactoryImpl extends AgentControllerFactoryImpl implem
 				"org.greencloud.agentsystem.agents.regionalmanager.RegionalManagerAgent",
 				new Object[] { mainDFAddress,
 						mainHostPlatformId,
+						regionalManagerArgs.getPollingBatchSize(),
+						regionalManagerArgs.getMaximumQueueSize(),
 						ofNullable(systemKnowledge),
 						isInformer,
 						managingAgent });

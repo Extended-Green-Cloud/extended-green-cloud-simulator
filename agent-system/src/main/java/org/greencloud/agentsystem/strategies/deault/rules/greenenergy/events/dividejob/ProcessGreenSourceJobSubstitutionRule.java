@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.dividejob;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_IS_STARTED;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_PREVIOUS;
@@ -18,6 +19,7 @@ import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
@@ -58,5 +60,15 @@ public class ProcessGreenSourceJobSubstitutionRule extends AgentBasicRule<GreenE
 		jobManualFinish.put(JOB, newJobInstance);
 		agent.addBehaviour(
 				ScheduleOnce.create(agent, jobManualFinish, JOB_MANUAL_FINISH_RULE, controller, SELECT_BY_FACTS_IDX));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessGreenSourceJobSubstitutionRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

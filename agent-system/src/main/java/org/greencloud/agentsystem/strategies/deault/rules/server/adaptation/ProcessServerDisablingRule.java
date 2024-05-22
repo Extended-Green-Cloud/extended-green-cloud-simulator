@@ -2,21 +2,23 @@ package org.greencloud.agentsystem.strategies.deault.rules.server.adaptation;
 
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.util.Objects.nonNull;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SERVER_DISABLING_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.DISABLE_SERVER_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
-import org.jrba.utils.messages.MessageBuilder;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
+import org.jrba.utils.messages.MessageBuilder;
 import org.slf4j.Logger;
 
 import jade.lang.acl.ACLMessage;
@@ -76,5 +78,15 @@ public class ProcessServerDisablingRule extends AgentRequestRule<ServerAgentProp
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case does not occur
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessServerDisablingRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

@@ -1,24 +1,26 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.events.dividejob;
 
 import static java.util.Objects.nonNull;
-import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE;
 
 import java.time.Instant;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class ProcessJobNewInstanceCreationRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -52,5 +54,15 @@ public class ProcessJobNewInstanceCreationRule extends AgentBasicRule<ServerAgen
 		}
 		agentProps.updateGUI();
 		facts.put(RESULT, newFacts.get(JOB_DIVIDED));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobNewInstanceCreationRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

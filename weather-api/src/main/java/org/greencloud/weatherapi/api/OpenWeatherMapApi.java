@@ -1,6 +1,7 @@
 package org.greencloud.weatherapi.api;
 
 import static java.lang.String.format;
+import static java.lang.System.getenv;
 import static java.util.Optional.ofNullable;
 import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -48,8 +49,7 @@ public class OpenWeatherMapApi {
 			logger.error("Could not load properties file {}", exception.toString());
 		}
 
-		this.apiKey = ofNullable(System.getenv("GC_WEATHER_API_KEY"))
-				.orElse(properties.getProperty("weather.api.key"));
+		this.apiKey = ofNullable(getenv("GC_WEATHER_API_KEY")).orElse(properties.getProperty("weather.api.key"));
 		this.client = new OkHttpClient();
 	}
 

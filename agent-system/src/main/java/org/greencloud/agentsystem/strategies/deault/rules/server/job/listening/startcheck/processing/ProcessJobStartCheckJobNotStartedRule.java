@@ -1,24 +1,26 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.listening.startcheck.processing;
 
 import static jade.lang.acl.ACLMessage.REFUSE;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_ID;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_HANDLE_NOT_STARTED_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class ProcessJobStartCheckJobNotStartedRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -43,5 +45,15 @@ public class ProcessJobStartCheckJobNotStartedRule extends AgentBasicRule<Server
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
 		agent.send(prepareStringReply(facts.get(MESSAGE), "JOB HAS NOT STARTED", REFUSE));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobStartCheckJobNotStartedRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

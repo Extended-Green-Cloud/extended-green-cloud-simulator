@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.deault.rules.server.events.shortag
 
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static java.util.Objects.isNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_JOB_TRANSFER_HANDLER_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
@@ -9,13 +10,13 @@ import static org.greencloud.commons.utils.messaging.constants.MessageContentCon
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
 import org.greencloud.agentsystem.strategies.deault.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestGreenSourceRule;
 import org.greencloud.agentsystem.strategies.deault.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestJobFinishedRule;
-import org.greencloud.agentsystem.strategies.deault.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestTransferRMARule;
+import org.greencloud.agentsystem.strategies.deault.rules.server.events.shortagegreensource.processing.ProcessPowerShortageTransferRequestNoGreenSourcesRule;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
@@ -44,8 +45,8 @@ public class ProcessPowerShortageTransferRequestCombinedRule extends AgentCombin
 	protected List<AgentRule> constructRules() {
 		return List.of(
 				new ProcessPowerShortageTransferRequestJobFinishedRule(controller),
-				new ProcessPowerShortageTransferRequestTransferRMARule(controller),
-				new ProcessPowerShortageTransferRequestGreenSourceRule(controller)
+				new ProcessPowerShortageTransferRequestGreenSourceRule(controller),
+				new ProcessPowerShortageTransferRequestNoGreenSourcesRule(controller)
 		);
 	}
 
@@ -61,5 +62,15 @@ public class ProcessPowerShortageTransferRequestCombinedRule extends AgentCombin
 
 		facts.put(JOB, job);
 		return true;
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessPowerShortageTransferRequestCombinedRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

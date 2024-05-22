@@ -1,7 +1,8 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.transfer.processing;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REFUSED_TRANSFER_JOB_RULE;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
@@ -33,5 +34,15 @@ public class ProcessTransferRefuseCombinedRule extends AgentCombinedRule<GreenEn
 				new ProcessTransferRefuseJobAlreadyFinishedRule(controller),
 				new ProcessTransferRefuseExistingJobRule(controller)
 		);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessTransferRefuseCombinedRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

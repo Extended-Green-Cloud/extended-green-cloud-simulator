@@ -1,26 +1,19 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.announcing;
 
+import static jade.lang.acl.ACLMessage.ACCEPT_PROPOSAL;
 import static jade.lang.acl.ACLMessage.REJECT_PROPOSAL;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.COMPARE_EXECUTION_PROPOSALS;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LOOK_FOR_JOB_EXECUTOR_RULE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
-import static org.jrba.utils.messages.MessageReader.readMessageContent;
+import static org.greencloud.commons.utils.facts.ProposalsFactsFactory.constructFactsForProposalsComparison;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.RMA_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.CallForProposalMessageFactory.prepareCallForProposal;
-import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
-import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
-import static org.jrba.rulesengine.constants.FactTypeConstants.AGENTS;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.ORIGINAL_MESSAGE;
+import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
-import static org.jrba.utils.mapper.FactsMapper.mapToRuleSetFacts;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Collection;
@@ -29,10 +22,9 @@ import java.util.List;
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.domain.agent.ServerData;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.mapper.JobMapper;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.behaviour.initiate.InitiateProposal;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentCFPRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -42,20 +34,15 @@ import org.slf4j.MDC;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
-public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManagerAgentProps, RMANode> {
 
 	private static final Logger logger = getLogger(LookForServerForJobExecutionRule.class);
 
 	public LookForServerForJobExecutionRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller);
 	}
 
-	/**
-	 * Method initialize default rule metadata
-	 *
-	 * @return rule description
-	 */
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(LOOK_FOR_JOB_EXECUTOR_RULE,
@@ -65,7 +52,7 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 
 	@Override
 	protected ACLMessage createCFPMessage(final RuleSetFacts facts) {
-		final List<AID> consideredServers = facts.get(AGENTS);
+		final List<AID> consideredServers = agentProps.getOwnedActiveServers();
 		return prepareCallForProposal(facts.get(JOB), consideredServers, RMA_JOB_CFP_PROTOCOL, facts.get(RULE_SET_IDX));
 	}
 
@@ -73,17 +60,10 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 	protected int compareProposals(final RuleSetFacts facts, final ACLMessage bestProposal,
 			final ACLMessage newProposal) {
 		final ClientJob job = facts.get(JOB);
-		final ServerData bestOfferContent = readMessageContent(bestProposal, ServerData.class);
-		final ServerData newOfferContent = readMessageContent(newProposal, ServerData.class);
 
-		final RuleSetFacts comparatorFacts = new RuleSetFacts(
-				agentProps.getRuleSetForJob().get(job.getJobInstanceId()));
-		comparatorFacts.put(RULE_TYPE, COMPARE_EXECUTION_PROPOSALS);
+		final RuleSetFacts comparatorFacts = constructFactsForProposalsComparison(
+				agentProps.getRuleSetForJob().get(job.getJobInstanceId()), bestProposal, newProposal, ServerData.class);
 		comparatorFacts.put(JOB, job);
-		comparatorFacts.put("BEST_PROPOSAL", bestProposal);
-		comparatorFacts.put("NEW_PROPOSAL", newProposal);
-		comparatorFacts.put("BEST_PROPOSAL_CONTENT", bestOfferContent);
-		comparatorFacts.put("NEW_PROPOSAL_CONTENT", newOfferContent);
 		controller.fire(comparatorFacts);
 
 		return comparatorFacts.get(RESULT) instanceof Double doubleVal ?
@@ -93,8 +73,7 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 
 	@Override
 	protected void handleRejectProposal(final ACLMessage proposalToReject, final RuleSetFacts facts) {
-		agent.send(
-				prepareReply(proposalToReject, JobMapper.mapClientJobToJobInstanceId(facts.get(JOB)), REJECT_PROPOSAL));
+		agent.send(prepareStringReply(proposalToReject, ((ClientJob) facts.get(JOB)).getJobId(), REJECT_PROPOSAL));
 	}
 
 	@Override
@@ -102,8 +81,8 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 		final ClientJob job = facts.get(JOB);
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("No responses from servers were retrieved");
-		handleRejectedJob(facts);
+		logger.info("No responses from servers were retrieved.");
+		agentProps.getJobsToBeExecuted().add(job);
 	}
 
 	@Override
@@ -111,9 +90,8 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 		final ClientJob job = facts.get(JOB);
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("All servers refused to execute the job - sending REFUSE response");
-		handleRejectedJob(facts);
-
+		logger.info("All servers refused to execute the job. Putting the job back to the queue.");
+		agentProps.getJobsToBeExecuted().add(job);
 	}
 
 	@Override
@@ -122,23 +100,19 @@ public class LookForServerForJobExecutionRule extends AgentCFPRule<RegionalManag
 		final ClientJob job = facts.get(JOB);
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-		logger.info("Chosen Server for the job {}: {}. Sending job execution offer to Scheduler Agent",
-				job.getJobId(), bestProposal.getSender().getName());
+		logger.info("Chosen Server for the job {}: {}.", job.getJobId(), bestProposal.getSender().getName());
 		agentProps.getServerForJobMap().put(job.getJobId(), bestProposal.getSender());
 
-		facts.put(ORIGINAL_MESSAGE, facts.get(MESSAGE));
-		facts.put(MESSAGE, bestProposal);
-		agent.addBehaviour(
-				InitiateProposal.create(agent, mapToRuleSetFacts(facts), PROPOSE_TO_EXECUTE_JOB_RULE, controller));
+		agent.send(prepareStringReply(bestProposal, job.getJobId(), ACCEPT_PROPOSAL));
 	}
 
-	private void handleRejectedJob(final RuleSetFacts facts) {
-		final RuleSetFacts jobRemovalFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		jobRemovalFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		jobRemovalFacts.put(JOB, facts.get(JOB));
-		controller.fire(jobRemovalFacts);
+	@Override
+	public AgentRule copy() {
+		return new LookForServerForJobExecutionRule(controller);
+	}
 
-		agentProps.updateGUI();
-		agent.send(prepareRefuseReply(facts.get(MESSAGE)));
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

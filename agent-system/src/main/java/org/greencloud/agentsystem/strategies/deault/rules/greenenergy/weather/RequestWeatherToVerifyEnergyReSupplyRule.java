@@ -4,15 +4,11 @@ import static jade.lang.acl.ACLMessage.FAILURE;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_FOR_RE_SUPPLY_RULE;
-import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.NOT_ENOUGH_GREEN_POWER_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.RE_SUPPLY_SUCCESSFUL_MESSAGE;
@@ -21,18 +17,24 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
+import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -123,5 +125,15 @@ public class RequestWeatherToVerifyEnergyReSupplyRule extends AgentRequestRule<G
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case does not apply here
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new RequestWeatherToVerifyEnergyReSupplyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

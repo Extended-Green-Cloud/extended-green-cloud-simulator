@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.execu
 
 import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
@@ -29,6 +30,7 @@ import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateRequest;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -101,5 +103,15 @@ public class ProcessPowerSupplyRemoveRule extends AgentBasicRule<GreenEnergyAgen
 			agent.addBehaviour(
 					InitiateRequest.create(agent, disconnectionFacts, PROCESS_SERVER_DISCONNECTION_RULE, controller));
 		}
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessPowerSupplyRemoveRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

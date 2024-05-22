@@ -1,24 +1,26 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.dividejob;
 
 import static java.util.Objects.nonNull;
-import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_NEW_INSTANCE_CREATION_RULE;
 
 import java.time.Instant;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class ProcessGreenSourceJobNewInstanceCreationRule
 		extends AgentBasicRule<GreenEnergyAgentProps, GreenEnergyNode> {
@@ -54,5 +56,15 @@ public class ProcessGreenSourceJobNewInstanceCreationRule
 		}
 		agentProps.updateGUI();
 		facts.put(RESULT, newFacts.get(JOB_DIVIDED));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessGreenSourceJobNewInstanceCreationRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

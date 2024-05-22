@@ -1,7 +1,7 @@
 package org.greencloud.agentsystem.agents.monitoring.management.logs;
 
 /**
- * Class contains all constants dedicated to logging messages in Monitoring management services
+ * Class contains all constants dedicated to logging messages in Monitoring management services.
  */
 public class MonitoringManagementLog {
 

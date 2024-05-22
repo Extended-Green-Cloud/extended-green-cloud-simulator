@@ -3,8 +3,6 @@ package org.greencloud.agentsystem.agents.server;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
-import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_NAME;
-import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_NAME;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
 import static org.jrba.utils.yellowpages.YellowPagesRegister.deregister;
@@ -21,7 +19,7 @@ import org.slf4j.Logger;
 import jade.core.AID;
 
 /**
- * Agent representing the Server which executes the clients' jobs
+ * Agent representing the Server which executes the clients' jobs.
  */
 @SuppressWarnings("unchecked")
 public class ServerAgent extends AbstractServerAgent {
@@ -77,7 +75,7 @@ public class ServerAgent extends AbstractServerAgent {
 		final String ownerName = properties.getOwnerRegionalManagerAgent().getName();
 
 		if (isAgentMoved.getAsBoolean()) {
-			register(this, getDefaultDF(), GS_SERVICE_TYPE, GS_SERVICE_NAME, ownerName);
+			register(this, getDefaultDF(), SA_SERVICE_TYPE, SA_SERVICE_NAME, ownerName);
 		}
 	}
 }

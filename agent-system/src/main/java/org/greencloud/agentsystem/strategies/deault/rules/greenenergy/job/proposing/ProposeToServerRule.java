@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.proposing;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_ID;
@@ -9,7 +10,6 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndServer;
-import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.greencloud.commons.utils.messaging.factory.OfferMessageFactory.prepareGreenEnergyPowerSupplyOffer;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToHourDuration;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
@@ -18,6 +18,7 @@ import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.utils.messages.MessageReader.readMessageContent;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Optional;
@@ -28,6 +29,7 @@ import org.greencloud.commons.domain.job.extended.JobWithProtocol;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentProposalRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -55,8 +57,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 	protected ACLMessage createProposalMessage(final RuleSetFacts facts) {
 		final ServerJob job = facts.get(JOB);
 		final double availablePower = facts.get(RESULT);
-		final double energyCost =
-				convertToHourDuration(job.getStartTime(), job.getEndTime()) * agentProps.getPricePerPowerUnit();
+		final double energyCost = convertToHourDuration(job.getDuration()) * agentProps.getPricePerPowerUnit();
 		agentProps.getPriceForJob().put(job, agentProps.getPricePerPowerUnit());
 		return prepareGreenEnergyPowerSupplyOffer(energyCost, availablePower,
 				agentProps.computeCombinedPowerError(job), job.getJobId(), facts.get(MESSAGE));
@@ -72,7 +73,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 		if (nonNull(job)) {
 			final Optional<Double> averageAvailablePower = agentProps.getAvailableEnergy(job, facts.get(RESOURCES),
 					true);
-			agentProps.incrementJobCounter(jobInstance, ACCEPTED);
+			agentProps.incrementJobCounter(job.getJobId(), ACCEPTED);
 
 			final RuleSetFacts acceptFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 			acceptFacts.put(JOB, job);
@@ -101,5 +102,15 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());
 		logger.info("Server rejected the job proposal");
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProposeToServerRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

@@ -1,20 +1,22 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.price;
 
 import static java.util.Optional.ofNullable;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
+import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.COMPUTE_PRICE_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToHourDuration;
 import static org.jrba.rulesengine.constants.FactTypeConstants.INPUT_DATA;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.COMPUTE_PRICE_RULE;
-import static org.greencloud.commons.utils.job.JobUtils.getJobById;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToHourDuration;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class CalculateServerPriceRule extends AgentBasicRule<ServerAgentProps, ServerNode> {
 
@@ -31,12 +33,26 @@ public class CalculateServerPriceRule extends AgentBasicRule<ServerAgentProps, S
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		final GreenSourceData data = facts.get(INPUT_DATA);
+		final ClientJob clientJob = ofNullable((ClientJob) facts.get(JOB))
+				.filter(job -> agentProps.getServerJobs().containsKey(job))
+				.orElseThrow();
 
-		final ClientJob job = ofNullable(getJobById(data.getJobId(), agentProps.getServerJobs())).orElseThrow();
-		final double computationCost =
-				convertToHourDuration(job.getStartTime(), job.getEndTime()) * agentProps.getPricePerHour();
+		final double computationCost = convertToHourDuration(clientJob.getDuration()) * agentProps.getPricePerHour();
+		final double totalCost = ofNullable(facts.get(INPUT_DATA))
+				.map(GreenSourceData.class::cast)
+				.map(greenSourceData -> computationCost + greenSourceData.getPriceForEnergySupply())
+				.orElse(computationCost);
 
-		facts.put(RESULT, data.getPriceForEnergySupply() + computationCost);
+		facts.put(RESULT, totalCost);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new CalculateServerPriceRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

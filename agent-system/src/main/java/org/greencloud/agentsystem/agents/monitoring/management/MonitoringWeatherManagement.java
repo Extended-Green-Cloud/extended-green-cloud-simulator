@@ -22,7 +22,7 @@ import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.domain.weather.WeatherData;
 
 /**
- * Set of methods used in weather management
+ * Set of methods used in weather management.
  */
 public class MonitoringWeatherManagement implements Serializable {
 
@@ -32,7 +32,7 @@ public class MonitoringWeatherManagement implements Serializable {
 	private final transient WeatherCache cache;
 
 	/**
-	 * Default constructor
+	 * Default constructor.
 	 */
 	public MonitoringWeatherManagement() {
 		this.api = new OpenWeatherMapApi();
@@ -40,7 +40,7 @@ public class MonitoringWeatherManagement implements Serializable {
 	}
 
 	/**
-	 * Method retrieves weather for given location at current moment
+	 * Method retrieves weather for given location at current moment.
 	 *
 	 * @param data information about location
 	 * @return weather for current moment
@@ -53,7 +53,7 @@ public class MonitoringWeatherManagement implements Serializable {
 	}
 
 	/**
-	 * Method retrieves weather for given location at given time
+	 * Method retrieves weather for given location at given time.
 	 *
 	 * @param requestData information about location and time
 	 * @return weather for given time

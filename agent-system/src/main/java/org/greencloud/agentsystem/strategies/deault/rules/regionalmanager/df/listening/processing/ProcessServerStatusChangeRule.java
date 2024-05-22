@@ -1,13 +1,14 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.df.listening.processing;
 
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_STATUS_CHANGE_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_STATUS_CHANGE_HANDLE_CHANGE_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareInformReply;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.addResources;
 import static org.greencloud.commons.utils.resources.ResourcesUtilization.removeResources;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.HashMap;
@@ -15,22 +16,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.domain.agent.ServerResources;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
-public class ProcessServerStatusChangeRule extends AgentBasicRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class ProcessServerStatusChangeRule extends AgentBasicRule<RegionalManagerAgentProps, RMANode> {
 
 	private static final Logger logger = getLogger(ProcessServerStatusChangeRule.class);
 
 	public ProcessServerStatusChangeRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller, 1);
 	}
 
@@ -72,5 +74,15 @@ public class ProcessServerStatusChangeRule extends AgentBasicRule<RegionalManage
 
 		agentProps.getOwnedServers().replace(server, newStatus);
 		agent.send(prepareInformReply(request));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessServerStatusChangeRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

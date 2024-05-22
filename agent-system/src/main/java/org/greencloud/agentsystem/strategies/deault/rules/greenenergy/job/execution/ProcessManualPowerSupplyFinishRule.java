@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.execution;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
@@ -23,6 +24,7 @@ import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentScheduledRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -67,7 +69,7 @@ public class ProcessManualPowerSupplyFinishRule extends AgentScheduledRule<Green
 				mapToJobInstanceId(job));
 
 		if (isJobStarted(job, agentProps.getServerJobs())) {
-			agentProps.incrementJobCounter(mapToJobInstanceId(job), FINISH);
+			agentProps.incrementJobCounter(job.getJobId(), FINISH);
 		}
 		final RuleSetFacts factsJobEnd = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		factsJobEnd.put(JOB, job);
@@ -78,5 +80,15 @@ public class ProcessManualPowerSupplyFinishRule extends AgentScheduledRule<Green
 		agentProps.updateGUI();
 		agent.send(
 				prepareManualFinishMessageForServer(mapToJobInstanceId(job), job.getServer(), facts.get(RULE_SET_IDX)));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessManualPowerSupplyFinishRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

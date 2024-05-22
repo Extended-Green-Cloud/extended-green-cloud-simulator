@@ -1,22 +1,24 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.events.resupply;
 
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.POWER_SHORTAGE_SOURCE_STATUSES;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_AFFECTED_JOBS_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_SINGLE_AFFECTED_JOB_RULE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 
 import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentPeriodicRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class HandleJobsAffectedByPowerShortageRule extends AgentPeriodicRule<ServerAgentProps, ServerNode> {
 
@@ -33,9 +35,6 @@ public class HandleJobsAffectedByPowerShortageRule extends AgentPeriodicRule<Ser
 				"rule verifies if there are jobs on power shortage and handles them according to appropriate rule set");
 	}
 
-	/**
-	 * Method specify period after which behaviour is to be executed
-	 */
 	@Override
 	protected long specifyPeriod() {
 		return SERVER_CHECK_POWER_SHORTAGE_JOBS;
@@ -55,5 +54,15 @@ public class HandleJobsAffectedByPowerShortageRule extends AgentPeriodicRule<Ser
 			handlerFacts.put(JOB, job);
 			controller.fire(handlerFacts);
 		});
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new HandleJobsAffectedByPowerShortageRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

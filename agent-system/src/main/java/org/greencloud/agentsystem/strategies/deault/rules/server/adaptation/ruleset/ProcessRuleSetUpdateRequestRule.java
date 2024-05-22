@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.adaptation.ruleset;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_RULE_SET_UPDATE_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
@@ -14,6 +15,7 @@ import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateRequest;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.jrba.rulesengine.ruleset.domain.RuleSetUpdate;
@@ -50,5 +52,15 @@ public class ProcessRuleSetUpdateRequestRule extends AgentBasicRule<ServerAgentP
 		handlerFacts.put(RULE_SET_TYPE, updateData.getRuleSetType());
 		handlerFacts.put(NEXT_RULE_SET_TYPE, updateData.getRuleSetIdx());
 		agent.addBehaviour(InitiateRequest.create(agent, handlerFacts, REQUEST_RULE_SET_UPDATE_RULE, controller));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessRuleSetUpdateRequestRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

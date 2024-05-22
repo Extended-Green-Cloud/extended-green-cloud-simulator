@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.transfer;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.TRANSFER_INSTANT;
@@ -8,7 +9,6 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REFUSED_TRANSFER_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.TRANSFER_JOB_RULE;
-import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
@@ -29,6 +29,7 @@ import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -79,7 +80,7 @@ public class TransferInServersRule extends AgentRequestRule<GreenEnergyAgentProp
 					jobId);
 
 			if (isJobStarted(job, agentProps.getServerJobs())) {
-				agentProps.incrementJobCounter(mapToJobInstanceId(job), FINISH);
+				agentProps.incrementJobCounter(jobId, FINISH);
 			}
 
 			final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
@@ -109,5 +110,15 @@ public class TransferInServersRule extends AgentRequestRule<GreenEnergyAgentProp
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case does not apply here
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new TransferInServersRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

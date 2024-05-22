@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.df;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.DFServiceConstants.GS_SERVICE_TYPE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE;
 import static org.jrba.utils.yellowpages.YellowPagesRegister.prepareSubscription;
@@ -8,11 +9,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentSubscriptionRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
@@ -51,5 +53,15 @@ public class SubscribeGreenSourceServiceRule extends AgentSubscriptionRule<Serve
 	protected void handleAddedAgents(final Map<AID, Boolean> addedAgents) {
 		logger.info("Received message that {} new Green Source registered its service", addedAgents.size());
 		agentProps.connectNewGreenSourcesToServer(addedAgents.keySet().stream().toList());
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new SubscribeGreenSourceServiceRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

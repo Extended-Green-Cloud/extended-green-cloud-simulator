@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.proposing.processing;
 
 import static java.lang.String.valueOf;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_ID;
@@ -31,6 +32,7 @@ import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -84,8 +86,18 @@ public class ProcessNotEnoughResourcesBeforePowerSupplyRule
 		final JobInstanceIdentifier jobInstanceId = jobWithProtocol.getJobInstanceIdentifier();
 		final String responseProtocol = getResponseProtocol(jobWithProtocol.getReplyProtocol());
 
-		agentProps.incrementJobCounter(jobInstanceId, FAILED);
+		agentProps.incrementJobCounter(job.getJobId(), FAILED);
 		agent.send(prepareFailureReply(proposal, jobInstanceId, responseProtocol));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessNotEnoughResourcesBeforePowerSupplyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 
 	private String getResponseProtocol(final String replyProtocol) {

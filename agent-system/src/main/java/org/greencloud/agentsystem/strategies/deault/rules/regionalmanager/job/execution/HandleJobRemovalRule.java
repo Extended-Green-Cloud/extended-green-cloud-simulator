@@ -1,21 +1,23 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.execution;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.utils.messaging.factory.RuleSetAdaptationMessageFactory.prepareRuleSetRemovalRequest;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
-public class HandleJobRemovalRule extends AgentBasicRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class HandleJobRemovalRule extends AgentBasicRule<RegionalManagerAgentProps, RMANode> {
 
 	public HandleJobRemovalRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> rulesController) {
+			final RulesController<RegionalManagerAgentProps, RMANode> rulesController) {
 		super(rulesController);
 	}
 
@@ -35,5 +37,15 @@ public class HandleJobRemovalRule extends AgentBasicRule<RegionalManagerAgentPro
 		if (controller.removeRuleSet(agentProps.getRuleSetForJob(), ruleSetIdx)) {
 			agent.send(prepareRuleSetRemovalRequest(ruleSetIdx, agentProps.getOwnedServers().keySet()));
 		}
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new HandleJobRemovalRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

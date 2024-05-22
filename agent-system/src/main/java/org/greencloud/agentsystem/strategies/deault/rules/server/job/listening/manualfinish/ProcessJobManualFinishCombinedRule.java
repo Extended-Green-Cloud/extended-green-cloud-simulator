@@ -1,11 +1,12 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.job.listening.manualfinish;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_HANDLER_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceId;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
@@ -52,5 +53,15 @@ public class ProcessJobManualFinishCombinedRule extends AgentCombinedRule<Server
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobManualFinishCombinedRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

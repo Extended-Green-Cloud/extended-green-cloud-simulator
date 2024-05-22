@@ -6,7 +6,7 @@ import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
 import org.greencloud.gui.agents.monitoring.MonitoringNode;
 
 /**
- * Abstract agent class storing data of the Monitoring Agent
+ * Abstract agent class storing data of the Monitoring Agent.
  */
 public abstract class AbstractMonitoringAgent extends EGCSAgent<MonitoringNode, MonitoringAgentProps> {
 

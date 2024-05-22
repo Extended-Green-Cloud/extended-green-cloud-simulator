@@ -2,6 +2,8 @@ package org.greencloud.agentsystem.strategies.deault.rules.server.events.shortag
 
 import static java.lang.String.valueOf;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_POWER_SHORTAGE_RULE;
@@ -33,6 +35,7 @@ import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateCallForProposal;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
@@ -65,7 +68,9 @@ public class ProcessPowerShortageTransferRequestGreenSourceRule
 		final AID sender = ((ACLMessage) facts.get(MESSAGE)).getSender();
 		final List<AID> greenSources = agentProps.getRemainingAgents(sender, agentProps.getOwnedActiveGreenSources());
 
-		return !greenSources.isEmpty() && job.getEndTime().isAfter(getCurrentTime());
+		return !greenSources.isEmpty() &&
+				nonNull(job.getExpectedEndTime()) &&
+				job.getExpectedEndTime().isAfter(getCurrentTime());
 	}
 
 	@Override
@@ -103,5 +108,15 @@ public class ProcessPowerShortageTransferRequestGreenSourceRule
 		final RuleSetFacts divisionFacts = agentProps.constructDivisionFacts(transfer, job, facts.get(RULE_SET_IDX));
 		controller.fire(divisionFacts);
 		return divisionFacts.get(RESULT);
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessPowerShortageTransferRequestGreenSourceRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

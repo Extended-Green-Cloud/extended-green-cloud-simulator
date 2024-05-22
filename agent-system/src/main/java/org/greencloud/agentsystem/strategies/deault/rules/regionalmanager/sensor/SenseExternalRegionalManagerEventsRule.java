@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.sensor;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SENSE_EVENTS_RULE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_DURATION;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
@@ -9,21 +10,22 @@ import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import java.util.Optional;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.greencloud.gui.event.WeatherDropEvent;
 import org.jrba.environment.domain.ExternalEvent;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentPeriodicRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 public class SenseExternalRegionalManagerEventsRule
-		extends AgentPeriodicRule<RegionalManagerAgentProps, RegionalManagerNode> {
+		extends AgentPeriodicRule<RegionalManagerAgentProps, RMANode> {
 
 	private static final long REGIONAL_MANAGER_ENVIRONMENT_SENSOR_TIMEOUT = 100;
 
 	public SenseExternalRegionalManagerEventsRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller);
 	}
 
@@ -56,5 +58,15 @@ public class SenseExternalRegionalManagerEventsRule
 			}
 			controller.fire(facts);
 		});
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new SenseExternalRegionalManagerEventsRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

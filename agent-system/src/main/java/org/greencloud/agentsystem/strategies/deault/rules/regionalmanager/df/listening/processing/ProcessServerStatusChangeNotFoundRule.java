@@ -1,29 +1,31 @@
 package org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.df.listening.processing;
 
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_STATUS_CHANGE_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_STATUS_CHANGE_HANDLE_NOT_FOUND_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
-public class ProcessServerStatusChangeNotFoundRule extends AgentBasicRule<RegionalManagerAgentProps, RegionalManagerNode> {
+public class ProcessServerStatusChangeNotFoundRule extends AgentBasicRule<RegionalManagerAgentProps, RMANode> {
 
 	private static final Logger logger = getLogger(ProcessServerStatusChangeNotFoundRule.class);
 
 	public ProcessServerStatusChangeNotFoundRule(
-			final RulesController<RegionalManagerAgentProps, RegionalManagerNode> controller) {
+			final RulesController<RegionalManagerAgentProps, RMANode> controller) {
 		super(controller, 2);
 	}
 
@@ -49,5 +51,15 @@ public class ProcessServerStatusChangeNotFoundRule extends AgentBasicRule<Region
 
 		logger.info("RMA didn't find the Server {} for {}.", type, server.getLocalName());
 		agent.send(prepareRefuseReply(request));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessServerStatusChangeNotFoundRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return REGIONAL_MANAGER.getName();
 	}
 }

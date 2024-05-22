@@ -1,7 +1,8 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.df.listening;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.GREEN_SOURCE_STATUS_CHANGE_HANDLER_RULE;
-import static org.jrba.rulesengine.enums.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
+import static org.jrba.rulesengine.types.rulecombinationtype.AgentCombinedRuleTypeEnum.EXECUTE_FIRST;
 
 import java.util.List;
 
@@ -37,4 +38,13 @@ public class ProcessGreenSourceServiceUpdateCombinedRule extends AgentCombinedRu
 		);
 	}
 
+	@Override
+	public AgentRule copy() {
+		return new ProcessGreenSourceServiceUpdateCombinedRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
+	}
 }

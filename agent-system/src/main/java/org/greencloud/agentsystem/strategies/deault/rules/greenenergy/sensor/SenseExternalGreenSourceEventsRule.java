@@ -1,6 +1,7 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.sensor;
 
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SENSE_EVENTS_RULE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_CAUSE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_DURATION;
@@ -17,6 +18,7 @@ import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
 import org.jrba.environment.domain.ExternalEvent;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentPeriodicRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
@@ -66,5 +68,15 @@ public class SenseExternalGreenSourceEventsRule extends AgentPeriodicRule<GreenE
 
 			controller.fire(facts);
 		});
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new SenseExternalGreenSourceEventsRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

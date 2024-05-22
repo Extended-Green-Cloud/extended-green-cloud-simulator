@@ -1,10 +1,13 @@
 package org.greencloud.agentsystem.strategies;
 
+import static org.greencloud.agentsystem.strategies.domain.EGCSRuleSetTypes.EXECUTION_TIME_PRIORITIZATION_RULE_SET;
 import static org.jrba.rulesengine.constants.RuleSetTypeConstants.DEFAULT_RULE_SET;
+import static org.jrba.utils.rules.RuleSetConstructor.modifyRuleSetForName;
 
 import java.security.InvalidParameterException;
 
 import org.greencloud.agentsystem.strategies.deault.DefaultCloudRuleSet;
+import org.greencloud.agentsystem.strategies.executiontimebased.ExecutionTimeBasedPrioritizationRuleSet;
 import org.jrba.rulesengine.ruleset.RuleSet;
 
 /**
@@ -21,6 +24,8 @@ public class RuleSetSelector {
 	public static RuleSet selectRuleSetByName(final String ruleSetName) {
 		return switch (ruleSetName) {
 			case DEFAULT_RULE_SET -> new DefaultCloudRuleSet();
+			case EXECUTION_TIME_PRIORITIZATION_RULE_SET -> modifyRuleSetForName(new DefaultCloudRuleSet(),
+					new ExecutionTimeBasedPrioritizationRuleSet());
 			default -> throw new InvalidParameterException("Incorrect rule set name");
 		};
 	}

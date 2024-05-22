@@ -2,11 +2,8 @@ package org.greencloud.agentsystem.strategies.deault.rules.server.events.resuppl
 
 import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
-import static org.jrba.rulesengine.constants.FactTypeConstants.AGENT;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_BACK_UP;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_GREEN;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD_SOURCE;
@@ -17,16 +14,20 @@ import static org.greencloud.commons.utils.messaging.constants.MessageConversati
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareGreenPowerSupplyRequest;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.jrba.rulesengine.constants.FactTypeConstants.AGENT;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -42,11 +43,6 @@ public class ProcessJobResupplyWithGreenEnergyRule extends AgentRequestRule<Serv
 		super(controller);
 	}
 
-	/**
-	 * Method initialize default rule metadata
-	 *
-	 * @return rule description
-	 */
 	@Override
 	public AgentRuleDescription initializeRuleDescription() {
 		return new AgentRuleDescription(RESUPPLY_JOB_WITH_GREEN_POWER_RULE,
@@ -80,8 +76,7 @@ public class ProcessJobResupplyWithGreenEnergyRule extends AgentRequestRule<Serv
 				agentProps.getServerJobs().replace(job, newStatus);
 
 				if (Boolean.TRUE.equals(isActive)) {
-					agent.send(prepareJobStatusMessageForRMA(JobMapper.mapClientJobToJobInstanceId(job),
-							GREEN_POWER_JOB_ID, agentProps,
+					agent.send(prepareJobStatusMessageForRMA(job, GREEN_POWER_JOB_ID, agentProps,
 							facts.get(RULE_SET_IDX)));
 				}
 			}
@@ -108,5 +103,15 @@ public class ProcessJobResupplyWithGreenEnergyRule extends AgentRequestRule<Serv
 	@Override
 	protected void handleFailure(final ACLMessage failure, final RuleSetFacts facts) {
 		// case is omitted (it should not occur)
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobResupplyWithGreenEnergyRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

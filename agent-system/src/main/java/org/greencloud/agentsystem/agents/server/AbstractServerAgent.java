@@ -5,7 +5,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.gui.agents.server.ServerNode;
 
 /**
- * Abstract agent class storing data of the Server Agent
+ * Abstract agent class storing data of the Server Agent.
  */
 public abstract class AbstractServerAgent extends EGCSAgent<ServerNode, ServerAgentProps> {
 

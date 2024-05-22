@@ -5,7 +5,7 @@ import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.gui.agents.client.ClientNode;
 
 /**
- * Abstract agent class representing Client Agent
+ * Abstract agent class representing Client Agent.
  */
 public abstract class AbstractClientAgent extends EGCSAgent<ClientNode, ClientAgentProps> {
 

@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.events.dividejob;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_FINISH_INFORM;
@@ -22,11 +23,11 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.job.transfer.JobDivided;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.mapper.JobMapper;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
@@ -60,7 +61,7 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 
 		agent.addBehaviour(
 				ScheduleOnce.create(agent, jobStartFacts, START_JOB_EXECUTION_RULE, controller, SELECT_BY_FACTS_IDX));
-		agentProps.incrementJobCounter(JobMapper.mapClientJobToJobInstanceId(affectedJob), ACCEPTED);
+		agentProps.incrementJobCounter(affectedJob.getJobId(), ACCEPTED);
 
 		final RuleSetFacts jobFinishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 
@@ -106,5 +107,15 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 		agentProps.getServerPriceForJob().remove(prevJob.getJobInstanceId());
 		agentProps.getJobsExecutionTime().removeDurationMap(prevJob);
 		agentProps.getEnergyExecutionCost().remove(prevJob.getJobInstanceId());
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessJobDivisionRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return SERVER.getName();
 	}
 }

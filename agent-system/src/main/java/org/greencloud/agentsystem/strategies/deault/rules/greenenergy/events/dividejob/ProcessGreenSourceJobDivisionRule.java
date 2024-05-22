@@ -1,12 +1,12 @@
 package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.dividejob;
 
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_PREVIOUS;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_DIVISION_RULE;
-import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.utils.rules.RuleSetSelector.SELECT_BY_FACTS_IDX;
@@ -22,6 +22,7 @@ import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.schedule.ScheduleOnce;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
@@ -60,11 +61,21 @@ public class ProcessGreenSourceJobDivisionRule extends AgentBasicRule<GreenEnerg
 
 		agentProps.getPriceForJob().remove(previousJob);
 		agentProps.getJobsExecutionTime().removeDurationMap(previousJob);
-		agentProps.incrementJobCounter(mapToJobInstanceId(affectedJob), ACCEPTED);
+		agentProps.incrementJobCounter(affectedJob.getJobId(), ACCEPTED);
 
 		final RuleSetFacts jobManualFinish = new RuleSetFacts(facts.get(RULE_SET_IDX));
 		jobManualFinish.put(JOB, nonAffectedJob);
 		agent.addBehaviour(
 				ScheduleOnce.create(agent, jobManualFinish, JOB_MANUAL_FINISH_RULE, controller, SELECT_BY_FACTS_IDX));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessGreenSourceJobDivisionRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }

@@ -2,27 +2,29 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.se
 
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static java.util.Objects.isNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_FOR_RE_SUPPLY_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.LISTEN_FOR_SERVER_RE_SUPPLY_HANDLER_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndServer;
 import static org.greencloud.commons.utils.messaging.constants.MessageContentConstants.JOB_NOT_FOUND_CAUSE_MESSAGE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareStringReply;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
-import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.behaviour.initiate.InitiateRequest;
-import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.AgentBasicRule;
+import org.jrba.rulesengine.rule.AgentRule;
+import org.jrba.rulesengine.rule.AgentRuleDescription;
+import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -75,5 +77,15 @@ public class ProcessReSupplyRequestRule extends AgentBasicRule<GreenEnergyAgentP
 		weatherCheckFacts.put(MESSAGE, message);
 		agent.addBehaviour(
 				InitiateRequest.create(agent, weatherCheckFacts, CHECK_WEATHER_FOR_RE_SUPPLY_RULE, controller));
+	}
+
+	@Override
+	public AgentRule copy() {
+		return new ProcessReSupplyRequestRule(controller);
+	}
+
+	@Override
+	public String getAgentType() {
+		return GREEN_ENERGY.getName();
 	}
 }
