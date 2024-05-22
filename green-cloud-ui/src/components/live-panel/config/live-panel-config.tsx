@@ -12,7 +12,6 @@ import {
    getAgentClientsChart,
    getAgentJobsOnHoldChart,
    getAgentQueueCapacityChart,
-   getAgentSchedulerPrioritiesChart,
    getAgentSuccessRatioChart,
    getAgentTrafficChart,
    getAgentTrafficDistributionChart,
@@ -55,7 +54,6 @@ export const CHARTS = {
    agentJobsOnHold: getAgentJobsOnHoldChart,
    agentAvailableGreenPower: getAgentUsedGreenEnergyChart,
    agentTrafficDistribution: getAgentTrafficDistributionChart,
-   agentSchedulerPriorities: getAgentSchedulerPrioritiesChart,
    agentQueueCapacity: getAgentQueueCapacityChart,
    clientJobCpuChart: getClientJobCPURequirementChart,
    clientJobStatusTime: getClientJobExecutionTimeChart,
@@ -167,8 +165,8 @@ export const CHART_MODALS: LiveChartDashboard = {
       disableChartDashboard: false,
       valueFields: []
    },
-   [`agent${AgentType.SCHEDULER}`]: {
-      name: 'Scheduler Agent reports',
+   [`agent${AgentType.CENTRAL_MANAGER}`]: {
+      name: 'Central Manager Agent reports',
       charts: [CHARTS.agentQueueCapacity],
       disableChartDashboard: true,
       mainChartId: 0,

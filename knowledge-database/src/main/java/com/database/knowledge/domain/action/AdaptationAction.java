@@ -1,67 +1,44 @@
 package com.database.knowledge.domain.action;
 
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Map;
 
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Object describing adaptation action that can be executed by the Managing Agent over Green Cloud
  */
+@Getter
+@AllArgsConstructor
 public class AdaptationAction {
 
 	private final Integer actionId;
-	private final AdaptationActionEnum action;
-	private final GoalEnum goal;
-	// describes delta for each adaptation goal value that given action caused
-	private final Map<GoalEnum, ActionResult> actionResults;
+	private final AdaptationActionTypeEnum action;
+	private final GoalType goal;
+	private final Map<GoalType, ActionResult> actionResults;
 	private final Boolean isAvailable;
-	private final AdaptationActionTypeEnum type;
+	private final AdaptationActionCategoryEnum type;
 	private Integer runs;
 	private Double executionDuration;
 
-	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type,
-			GoalEnum goal) {
+	public AdaptationAction(final Integer actionId, final AdaptationActionTypeEnum action,
+			final AdaptationActionCategoryEnum type, final GoalType goal) {
 		this.actionId = actionId;
 		this.action = action;
 		this.type = type;
 		this.goal = goal;
-		this.actionResults = stream(GoalEnum.values())
-				.collect(toMap(goalEnum -> goalEnum, goalEnum -> new ActionResult(0.0D, 0)));
+		this.actionResults = stream(GoalType.values()).collect(toMap(g -> g, g -> new ActionResult()));
 		this.isAvailable = true;
 		this.runs = 0;
 		this.executionDuration = 0.0;
-	}
-
-	public AdaptationAction(Integer actionId, AdaptationActionEnum action, AdaptationActionTypeEnum type,
-			GoalEnum goal, Map<GoalEnum, ActionResult> actionResults, Boolean isAvailable, Integer runs,
-			Double executionDuration) {
-		this.actionId = actionId;
-		this.action = action;
-		this.type = type;
-		this.goal = goal;
-		this.isAvailable = isAvailable;
-		this.actionResults = actionResults;
-		this.runs = runs;
-		this.executionDuration = executionDuration;
-	}
-
-	public Integer getActionId() {
-		return actionId;
-	}
-
-	public AdaptationActionEnum getAction() {
-		return action;
-	}
-
-	public GoalEnum getGoal() {
-		return goal;
-	}
-
-	public Map<GoalEnum, ActionResult> getActionResults() {
-		return actionResults;
 	}
 
 	/**
@@ -69,19 +46,8 @@ public class AdaptationAction {
 	 *
 	 * @return map of actions along with corresponding quality differences
 	 */
-	public Map<GoalEnum, Double> getActionResultDifferences() {
-		return actionResults.entrySet().stream()
-				.collect(toMap(Map.Entry::getKey, result -> result.getValue().diff()));
-	}
-
-	/**
-	 * Method updates the average time of action execution
-	 *
-	 * @param newExecutionDuration the latest action execution duration
-	 */
-	public void updateAvgExecutionDuration(long newExecutionDuration) {
-		executionDuration =
-				runs == 0 ? newExecutionDuration : (runs * executionDuration + newExecutionDuration) / (runs + 1);
+	public Map<GoalType, Double> getActionResultDifferences() {
+		return actionResults.entrySet().stream().collect(toMap(Map.Entry::getKey, result -> result.getValue().diff()));
 	}
 
 	/**
@@ -89,47 +55,29 @@ public class AdaptationAction {
 	 * NOT TO BE CALLED EXPLICITLY, method is only used by the Timescale Database internally when saving the object
 	 * into database.
 	 *
-	 * @param newActionResults new action results provided by Managing Agent when saved to database
+	 * @param newActionResults  new action results provided by Managing Agent when saved to database
+	 * @param executionDuration execution duration of a given action
 	 */
-	public void mergeActionResults(Map<GoalEnum, Double> newActionResults) {
+	public void mergeActionResults(final Map<GoalType, Double> newActionResults, final long executionDuration) {
 		newActionResults.forEach((goalEnum, diff) -> {
-			if (runs == 0) {
-				actionResults.put(goalEnum, new ActionResult(diff, 1));
-			} else {
-				var actionResult = actionResults.get(goalEnum);
-				actionResults.put(goalEnum,
-						new ActionResult(getUpdatedGoalChange(actionResult, diff), actionResult.runs() + 1));
-			}
+			final ActionResult newResult = ofNullable(actionResults.get(goalEnum))
+					.map(result -> new ActionResult(getUpdatedDiff(result, diff), result.runs() + 1))
+					.orElse(new ActionResult(diff, 1));
+			actionResults.put(goalEnum, newResult);
 		});
+
+		updateAvgExecutionDuration(executionDuration);
+		runs += 1;
 	}
 
-	public Boolean getAvailable() {
-		return isAvailable;
+	private void updateAvgExecutionDuration(final long newExecutionDuration) {
+		executionDuration = runs == 0 ?
+				newExecutionDuration :
+				(runs * executionDuration + newExecutionDuration) / (runs + 1);
 	}
 
-	public Integer getRuns() {
-		return runs;
-	}
-
-	public AdaptationActionTypeEnum getType() {
-		return type;
-	}
-
-	/**
-	 * Updates the number of how many times action was run.
-	 * NOT TO BE CALLED EXPLICITLY, method is only used by the Timescale Database internally when saving the object
-	 * into database
-	 */
-	public void increaseRuns() {
-		this.runs += 1;
-	}
-
-	private double getUpdatedGoalChange(final ActionResult actionResult, final Double newDiff) {
+	private double getUpdatedDiff(final ActionResult actionResult, final Double newDiff) {
 		return (actionResult.diff() * actionResult.runs() + newDiff) / (actionResult.runs() + 1);
-	}
-
-	public double getExecutionDuration() {
-		return executionDuration;
 	}
 
 	@Override

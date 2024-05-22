@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.google.common.collect.ImmutableList.of;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
 import static java.time.Instant.now;

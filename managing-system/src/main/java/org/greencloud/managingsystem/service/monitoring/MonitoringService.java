@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.monitoring;
 
-import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static org.greencloud.commons.args.agent.EGCSAgentType.SCHEDULER;
+import static com.database.knowledge.types.DataType.HEALTH_CHECK;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -34,14 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
-import com.database.knowledge.exception.InvalidGoalIdentifierException;
+import com.database.knowledge.types.GoalType;
+import org.greencloud.commons.exception.InvalidGoalIdentifierException;
 import com.google.common.annotations.VisibleForTesting;
 import org.greencloud.commons.args.agent.EGCSAgentType;
 
@@ -81,7 +81,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @param goal goal for the service
 	 * @return Service for the given goal
 	 */
-	public AbstractGoalService getGoalService(GoalEnum goal) {
+	public AbstractGoalService getGoalService(GoalType goal) {
 		return switch (goal) {
 			case MAXIMIZE_JOB_SUCCESS_RATIO -> jobSuccessRatioService;
 			case MINIMIZE_USED_BACKUP_POWER -> backUpPowerUsageService;
@@ -95,7 +95,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return list indicating goals' fulfillment
 	 */
 	public List<Boolean> getGoalsFulfillment() {
-		return Arrays.stream(GoalEnum.values())
+		return Arrays.stream(GoalType.values())
 				.map(goal -> getGoalService(goal).evaluateAndUpdate())
 				.toList();
 	}
@@ -106,7 +106,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @param goalEnum goal type
 	 * @return adaptation goal data
 	 */
-	public AdaptationGoal getAdaptationGoal(final GoalEnum goalEnum) {
+	public AdaptationGoal getAdaptationGoal(final GoalType goalEnum) {
 		return managingAgent.getAdaptationGoalList().stream()
 				.filter(goal -> goal.id().equals(goalEnum.getAdaptationGoalId()))
 				.findFirst()
@@ -119,7 +119,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return quality indicator
 	 */
 	public double computeSystemIndicator() {
-		return Arrays.stream(GoalEnum.values())
+		return Arrays.stream(GoalType.values())
 				.mapToDouble(goal -> {
 					final AdaptationGoal adaptationGoal = getAdaptationGoal(goal);
 					final double lastMeasuredQuality = getGoalService(goal).readLastMeasuredGoalQuality();
@@ -136,8 +136,8 @@ public class MonitoringService extends AbstractManagingService {
 	 *
 	 * @return map containing adaptation goal qualities
 	 */
-	public Map<GoalEnum, Double> getLastMeasuredGoalQualities() {
-		return Arrays.stream(GoalEnum.values())
+	public Map<GoalType, Double> getLastMeasuredGoalQualities() {
+		return Arrays.stream(GoalType.values())
 				.collect(toMap(goal -> goal, goal -> getGoalService(goal).readLastMeasuredGoalQuality()));
 	}
 
@@ -146,8 +146,8 @@ public class MonitoringService extends AbstractManagingService {
 	 *
 	 * @return map containing adaptation goal qualities
 	 */
-	public Map<GoalEnum, Double> getCurrentGoalQualities() {
-		return Arrays.stream(GoalEnum.values())
+	public Map<GoalType, Double> getCurrentGoalQualities() {
+		return Arrays.stream(GoalType.values())
 				.collect(toMap(goal -> goal, goal -> getGoalService(goal).computeCurrentGoalQuality()));
 	}
 
@@ -157,7 +157,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @param quality system quality
 	 * @return boolean indicating verification result
 	 */
-	public boolean isQualityInBounds(final double quality, final GoalEnum goalEnum) {
+	public boolean isQualityInBounds(final double quality, final GoalType goalEnum) {
 		final AdaptationGoal goal = managingAgent.monitor().getAdaptationGoal(goalEnum);
 		return goal.isAboveThreshold() ?
 				quality >= goal.threshold() :
@@ -237,12 +237,12 @@ public class MonitoringService extends AbstractManagingService {
 	}
 
 	/**
-	 * Method retrieves alive scheduler agent.
+	 * Method retrieves alive central manager agent.
 	 *
-	 * @return scheduler AID or null if no scheduler agent is alive
+	 * @return central manager AID or null if no central manager agent is alive
 	 */
-	public String getAliveScheduler() {
-		return getAliveAgents(SCHEDULER).stream()
+	public String getAliveCentralManager() {
+		return getAliveAgents(CENTRAL_MANAGER).stream()
 				.findFirst()
 				.orElse(null);
 	}

@@ -5,8 +5,8 @@ import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.goal.GoalEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import com.database.knowledge.types.GoalType;
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.AID;
@@ -17,10 +17,10 @@ import jade.core.AID;
 public abstract class AbstractPlan {
 
 	protected final ManagingAgent managingAgent;
-	protected final AdaptationActionEnum adaptationActionEnum;
+	protected final AdaptationActionTypeEnum adaptationActionEnum;
 	protected AdaptationActionParameters actionParameters;
 	protected AID targetAgent;
-	protected GoalEnum violatedGoal;
+	protected GoalType violatedGoal;
 
 	protected Runnable postActionHandler;
 
@@ -30,7 +30,7 @@ public abstract class AbstractPlan {
 	 * @param actionEnum    type of adaptation action
 	 * @param managingAgent managing agent executing the action
 	 */
-	protected AbstractPlan(AdaptationActionEnum actionEnum, ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	protected AbstractPlan(AdaptationActionTypeEnum actionEnum, ManagingAgent managingAgent, GoalType violatedGoal) {
 		this.adaptationActionEnum = actionEnum;
 		this.managingAgent = managingAgent;
 		this.violatedGoal = violatedGoal;
@@ -81,7 +81,7 @@ public abstract class AbstractPlan {
 		return targetAgent;
 	}
 
-	public AdaptationActionEnum getAdaptationActionEnum() {
+	public AdaptationActionTypeEnum getAdaptationActionEnum() {
 		return adaptationActionEnum;
 	}
 
@@ -93,7 +93,7 @@ public abstract class AbstractPlan {
 		return postActionHandler;
 	}
 
-	public GoalEnum getViolatedGoal() {
+	public GoalType getViolatedGoal() {
 		return violatedGoal;
 	}
 }

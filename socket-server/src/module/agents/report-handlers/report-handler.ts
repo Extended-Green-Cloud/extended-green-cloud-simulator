@@ -1,11 +1,11 @@
 import { AGENT_TYPES, EVENT_TYPE } from "../../../constants";
 import { getCurrentTime } from "../../../utils";
 import { AGENTS_REPORTS_STATE, AGENTS_STATE } from "../agents-state";
-import { RegionalManagerAgent, GreenEnergyAgent, SchedulerAgent } from "../types";
+import { RegionalManagerAgent, GreenEnergyAgent, CentralManagerAgent } from "../types";
 import { ServerAgent } from "../types/server-agent";
-import { reportRegionalManagerData } from "./report-hadnler-cloud-network";
+import { reportRegionalManagerData } from "./report-handler-cloud-network";
 import { reportGreenSourceData } from "./report-handler-green-energy-source";
-import { reportSchedulerData } from "./report-handler-scheduler";
+import { reportCentralManagerData } from "./report-handler-central-manager";
 import { reportServerData } from "./report-handler-server";
 
 const changeRegionalManagerCapacityEvent = (rmaName, serverName, cpu, isAdded, isNew) => {
@@ -33,8 +33,8 @@ const updateAgentsReportsState = (time) => {
 			reportServerData(agent as ServerAgent, time);
 		} else if (agent.type === AGENT_TYPES.GREEN_ENERGY) {
 			reportGreenSourceData(agent as GreenEnergyAgent, time);
-		} else if (agent.type === AGENT_TYPES.SCHEDULER) {
-			reportSchedulerData(agent as SchedulerAgent, time);
+		} else if (agent.type === AGENT_TYPES.CENTRAL_MANAGER) {
+			reportCentralManagerData(agent as CentralManagerAgent, time);
 		}
 	});
 };

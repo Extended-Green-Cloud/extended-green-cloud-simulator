@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
@@ -55,11 +55,11 @@ public class MonitorSystemState extends TickerBehaviour {
 			return;
 		}
 
-		final GoalEnum worstGoal = getGoalWithWorstQuality();
+		final GoalType worstGoal = getGoalWithWorstQuality();
 		myManagingAgent.analyze().trigger(worstGoal);
 	}
 
-	private GoalEnum getGoalWithWorstQuality() {
+	private GoalType getGoalWithWorstQuality() {
 		return myManagingAgent.monitor().getLastMeasuredGoalQualities().entrySet()
 				.stream()
 				.min(Comparator.comparingDouble(this::getGoalQuality))
@@ -67,7 +67,7 @@ public class MonitorSystemState extends TickerBehaviour {
 				.getKey();
 	}
 
-	private double getGoalQuality(final Map.Entry<GoalEnum, Double> goalEntry) {
+	private double getGoalQuality(final Map.Entry<GoalType, Double> goalEntry) {
 		final AdaptationGoal goal = myManagingAgent.monitor().getAdaptationGoal(goalEntry.getKey());
 		final double quality = goalEntry.getValue();
 		final double difference = quality - goal.threshold();

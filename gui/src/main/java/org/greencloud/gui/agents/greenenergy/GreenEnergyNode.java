@@ -19,7 +19,7 @@ import org.greencloud.gui.messages.ImmutableUpdateServerConnectionMessage;
 import org.greencloud.gui.messages.domain.ImmutableServerConnection;
 import org.jrba.environment.domain.ExternalEvent;
 
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 

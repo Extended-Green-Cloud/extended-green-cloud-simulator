@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
-import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static com.database.knowledge.types.DataType.SHORTAGES;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.google.common.collect.ImmutableList.of;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
@@ -26,10 +26,11 @@ import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeigh
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
-import org.jrba.utils.yellowpages.YellowPagesRegister;
+import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
+import org.jrba.utils.yellowpages.YellowPagesRegister;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,8 +93,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 		GreenEnergyArgs greenEnergyAgentArgs1 = ImmutableGreenEnergyArgs.builder()
 				.weatherPredictionError(0.2)
 				.energyType(WIND)
-				.latitude("50")
-				.longitude("50")
+				.location(ImmutableLocation.builder().latitude(50).longitude(50).build())
 				.maximumCapacity(100L)
 				.name("Wind1")
 				.pricePerPowerUnit(5L)

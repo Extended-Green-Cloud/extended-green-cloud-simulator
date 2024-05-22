@@ -22,6 +22,8 @@ export interface Client {
 	isActive: boolean;
 	adaptation: string;
 	finalPrice: number;
+	expectedExecutionTime: number;
+	finalEndTime: number;
 	estimatedPrice: number;
 	executor: string;
 	job: Job;

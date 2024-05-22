@@ -7,7 +7,7 @@ import MenuElement from './menu-element/menu-element'
 import { ICON_SIZE, MENU_BUTTONS } from './menu-config'
 import { MenuTab } from '@types'
 
-const header = 'Green cloud network'
+const header = 'Extended Green Cloud Simulator'
 
 interface Props {
    changeTab: (tab: MenuTab) => void

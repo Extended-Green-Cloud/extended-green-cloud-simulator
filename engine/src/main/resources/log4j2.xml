@@ -141,14 +141,6 @@
 			<AppenderRef ref="RoutingByRuleSetId" />
 			<AppenderRef ref="RoutingByClient" />
 		</Logger>
-		<Logger name="org.greencloud.rulescontroller" level="debug" additivity="false">
-			<AppenderRef ref="ConsoleWithJobId" />
-			<AppenderRef ref="RoutingByAgent" />
-			<AppenderRef ref="RoutingByJobId" />
-			<AppenderRef ref="RoutingByRuleSetId" />
-			<AppenderRef ref="RoutingByClient" />
-		</Logger>
-
 		<Logger name="org.greencloud.commons" level="debug" additivity="false">
 			<AppenderRef ref="ConsoleWithJobId" />
 			<AppenderRef ref="RoutingByAgent" />

@@ -24,7 +24,7 @@ import org.greencloud.managingsystem.service.planner.plans.SystemPlan;
 import org.slf4j.Logger;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import org.greencloud.commons.domain.timer.Timer;
 
 import jade.lang.acl.ACLMessage;
@@ -41,11 +41,11 @@ public class WaitForSystemPlanExecutionConfirmation extends MsgReceiver {
 	private final ManagingAgent myManagingAgent;
 	private final Timer actionExecutionTimer;
 	private final SystemPlan plan;
-	private final Map<GoalEnum, Double> initialGoalQualities;
+	private final Map<GoalType, Double> initialGoalQualities;
 	private final AdaptationAction actionToBeExecuted;
 
 	private WaitForSystemPlanExecutionConfirmation(final ManagingAgent agent, final MessageTemplate template,
-			final SystemPlan systemAdaptationPlan, final Map<GoalEnum, Double> initialGoalQualities,
+			final SystemPlan systemAdaptationPlan, final Map<GoalType, Double> initialGoalQualities,
 			final AdaptationAction actionToBeExecuted) {
 		super(agent, template, SYSTEM_ADAPTATION_PLAN_CONFIRMATION_TIMEOUT + currentTimeMillis(), null, null);
 
@@ -68,7 +68,7 @@ public class WaitForSystemPlanExecutionConfirmation extends MsgReceiver {
 	 */
 	public static WaitForSystemPlanExecutionConfirmation create(final ManagingAgent agent, final String agentName,
 			final String containerName, final SystemPlan systemAdaptationPlan,
-			final Map<GoalEnum, Double> initialGoalQualities, final AdaptationAction actionToBeExecuted) {
+			final Map<GoalType, Double> initialGoalQualities, final AdaptationAction actionToBeExecuted) {
 		final String protocol = String.join("_", CONFIRM_SYSTEM_PLAN_MESSAGE, agentName, containerName);
 		final MessageTemplate template = and(MatchPerformative(INFORM), MatchProtocol(protocol));
 		return new WaitForSystemPlanExecutionConfirmation(agent, template, systemAdaptationPlan,

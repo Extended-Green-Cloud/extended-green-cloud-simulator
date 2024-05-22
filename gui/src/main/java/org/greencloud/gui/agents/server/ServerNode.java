@@ -3,6 +3,7 @@ package org.greencloud.gui.agents.server;
 import static java.util.Collections.singleton;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
@@ -28,7 +29,7 @@ import org.greencloud.gui.messages.ImmutableUpdateServerMaintenanceMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
 import org.jrba.environment.domain.ExternalEvent;
 
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 
@@ -181,7 +182,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	public void updateGUI(final ServerAgentProps props) {
 		final double successRatio = JobUtils.getJobSuccessRatio(props.getJobCounters().get(ACCEPTED).getCount(),
 				props.getJobCounters().get(FAILED).getCount());
-		final double backUpTraffic = props.getCPUUsage(singleton(JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY));
+		final double backUpTraffic = props.getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
 		final Map<String, Resource> inUseResources = props.getInUseResources();
 		final double powerConsumption = props.getCurrentPowerConsumption();
 		final double powerConsumptionBackUp = props.getCurrentPowerConsumptionBackUp();
@@ -206,7 +207,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	@Override
 	public void saveMonitoringData(final ServerAgentProps props) {
 		final double greenPowerUsage = props.getCPUUsage(null);
-		final double backPowerUsage = props.getCPUUsage(singleton(JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY));
+		final double backPowerUsage = props.getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
 		final int jobsNo = props.getServerJobs().size() - JobUtils.getJobCount(props.getServerJobs(),
 				JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES);
 		final double successRatio = JobUtils.getJobSuccessRatio(props.getJobCounters().get(
@@ -228,6 +229,6 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 
 	private boolean getIsActiveState(final ServerAgentProps props) {
 		return props.getCPUUsage(null) > 0 || props.getCPUUsage(singleton(
-				JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY)) > 0;
+				IN_PROGRESS_BACKUP_ENERGY)) > 0;
 	}
 }

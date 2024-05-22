@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
@@ -24,9 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
-import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
@@ -423,8 +424,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server1")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -435,8 +435,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server1")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -447,8 +446,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server2")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -459,8 +457,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server3")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -471,8 +468,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server3")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)
@@ -483,8 +479,7 @@ class ConnectGreenSourcePlanUnitTest {
 				.monitoringAgent("test_monitoring1")
 				.ownerSever("test_server1")
 				.connectedServers(new ArrayList<>(List.of("test_server4")))
-				.latitude("50")
-				.longitude("30")
+				.location(ImmutableLocation.builder().latitude(50).longitude(30).build())
 				.pricePerPowerUnit(10L)
 				.weatherPredictionError(0.02)
 				.maximumCapacity(150L)

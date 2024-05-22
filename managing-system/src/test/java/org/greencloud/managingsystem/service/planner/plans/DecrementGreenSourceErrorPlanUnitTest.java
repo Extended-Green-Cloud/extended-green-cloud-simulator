@@ -1,9 +1,9 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;

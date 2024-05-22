@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingDouble;
@@ -10,6 +9,7 @@ import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 
 import java.util.List;
@@ -17,16 +17,16 @@ import java.util.Map;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
+import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
-import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
-import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.args.adaptation.system.AddServerActionParameters;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -39,7 +39,7 @@ public class AddServerPlan extends SystemPlan {
 
 	private List<AgentData> serversData;
 
-	public AddServerPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public AddServerPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(ADD_SERVER, managingAgent, violatedGoal);
 		serversData = emptyList();
 	}
@@ -57,7 +57,7 @@ public class AddServerPlan extends SystemPlan {
 	public boolean isPlanExecutable() {
 		serversData = getLastServerData();
 
-		if(serversData.stream().anyMatch(server -> ((ServerMonitoringData)server.monitoringData()).isDisabled())) {
+		if (serversData.stream().anyMatch(server -> ((ServerMonitoringData) server.monitoringData()).isDisabled())) {
 			return false;
 		}
 
@@ -91,7 +91,8 @@ public class AddServerPlan extends SystemPlan {
 				comparingDouble(Map.Entry::getValue))
 				.getKey();
 
-		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs()
+		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure()
+				.getRegionalManagerAgentsArgs()
 				.stream()
 				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))
 				.findFirst()
@@ -101,12 +102,14 @@ public class AddServerPlan extends SystemPlan {
 			return null;
 		}
 
-		final String regionalManagerLocation = defaultIfNull(regionalManager.getLocationId(), targetRegionalManagerAgent);
+		final String regionalManagerLocation = defaultIfNull(regionalManager.getLocationId(),
+				targetRegionalManagerAgent);
 		final ServerArgs extraServerArguments = agentFactory.createDefaultServerAgent(targetRegionalManagerAgent);
-		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
+		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createDefaultMonitoringAgent();
 		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), extraServerArguments.getName());
-		final Map.Entry<Location, AID> targetLocation = managingAgent.move().findTargetLocation(regionalManagerLocation);
+		final Map.Entry<Location, AID> targetLocation = managingAgent.move()
+				.findTargetLocation(regionalManagerLocation);
 
 		if (isNull(targetLocation)) {
 			return null;

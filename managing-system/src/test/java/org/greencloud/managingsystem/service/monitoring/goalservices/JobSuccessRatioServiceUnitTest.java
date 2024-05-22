@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.monitoring.goalservices;
 
-import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
@@ -39,7 +39,7 @@ import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 class JobSuccessRatioServiceUnitTest {
@@ -94,7 +94,7 @@ class JobSuccessRatioServiceUnitTest {
 	@MethodSource("parametersForSuccessRatioTest")
 	@DisplayName("Test is job success ratio correct for clients")
 	void testIsClientJobSuccessRatioCorrect(AdaptationGoal goal) {
-		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
+		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalType.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareClientData()).when(mockDatabase).readLastMonitoringDataForDataTypes(eq(singletonList(
 				CLIENT_MONITORING)), anyDouble());
 
@@ -114,7 +114,7 @@ class JobSuccessRatioServiceUnitTest {
 	@MethodSource("parametersForSuccessRatioTest")
 	@DisplayName("Test is job success ratio correct for components")
 	void testIsComponentJobSuccessRatioCorrect(AdaptationGoal goal) {
-		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO);
+		doReturn(goal).when(mockMonitoringService).getAdaptationGoal(GoalType.MAXIMIZE_JOB_SUCCESS_RATIO);
 		doReturn(prepareComponentData()).when(mockDatabase).readLastMonitoringDataForDataTypes(
 				eq(NETWORK_AGENT_DATA_TYPES), anyDouble());
 

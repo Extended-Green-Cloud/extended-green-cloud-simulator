@@ -19,14 +19,33 @@
 		<module>agent-connector</module>
 		<module>weather-api</module>
 		<module>gui</module>
+		<module>data-analysis-api</module>
 	</modules>
 
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 		<maven.compiler.compilerVersion>21</maven.compiler.compilerVersion>
+		<io.jrba.version>1.3.9</io.jrba.version>
+		<org.apache.math.version>3.6.1</org.apache.math.version>
+		<org.apache.lang.version>3.14.0</org.apache.lang.version>
+		<org.apache.collection.version>4.4</org.apache.collection.version>
+		<org.apache.io.version>2.15.1</org.apache.io.version>
+		<org.suncalc.version>3.10</org.suncalc.version>
+		<org.annotations.version>24.0.1</org.annotations.version>
+		<org.okhttp.version>4.12.0</org.okhttp.version>
+		<org.immutables.version>2.9.2</org.immutables.version>
+		<org.lombok.version>1.18.30</org.lombok.version>
+		<net.bytebuddy.version>1.14.11</net.bytebuddy.version>
+		<org.mockito.version>5.10.0</org.mockito.version>
+		<org.awaitility.version>4.2.0</org.awaitility.version>
+		<org.assertj.version>3.25.3</org.assertj.version>
+		<org.slf4j.version>2.0.12</org.slf4j.version>
+		<org.jackson.version>2.16.1</org.jackson.version>
+		<org.guava.version>33.1.0-jre</org.guava.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<org.apache.text.version>1.12.0</org.apache.text.version>
 	</properties>
 
 	<dependencyManagement>
@@ -35,140 +54,150 @@
 			<dependency>
 				<groupId>io.github.extended-green-cloud</groupId>
 				<artifactId>jrba</artifactId>
-				<version>1.3</version>
+				<version>${io.jrba.version}</version>
 			</dependency>
 			<!-- Apache -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-math3</artifactId>
-				<version>3.6.1</version>
+				<version>${org.apache.math.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.12.0</version>
+				<version>${org.apache.lang.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
-				<version>4.4</version>
+				<version>${org.apache.collection.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.15.1</version>
+				<version>${org.apache.io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>${org.apache.text.version}</version>
 			</dependency>
 			<!-- sunrise & sunset calculation -->
 			<dependency>
 				<groupId>org.shredzone.commons</groupId>
 				<artifactId>commons-suncalc</artifactId>
-				<version>3.10</version>
+				<version>${org.suncalc.version}</version>
 			</dependency>
 			<!-- JetBrains Annotations -->
 			<dependency>
 				<groupId>org.jetbrains</groupId>
 				<artifactId>annotations</artifactId>
-				<version>24.0.1</version>
+				<version>${org.annotations.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<!-- okHttp -->
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.12.0</version>
+				<version>${org.okhttp.version}</version>
 			</dependency>
 			<!-- Immutables -->
 			<dependency>
 				<groupId>org.immutables</groupId>
 				<artifactId>value</artifactId>
-				<version>2.9.2</version>
+				<version>${org.immutables.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<!-- Lombok -->
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
-				<version>1.18.30</version>
+				<version>${org.lombok.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<!-- Testing -->
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.14.11</version>
+				<version>${net.bytebuddy.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy-agent</artifactId>
-				<version>1.14.11</version>
+				<version>${net.bytebuddy.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>5.10.0</version>
+				<version>${org.mockito.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-junit-jupiter</artifactId>
-				<version>5.10.0</version>
+				<version>${org.mockito.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter</artifactId>
-				<version>5.10.0</version>
+				<version>${org.mockito.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
-				<version>4.2.0</version>
-				<scope>test</scope>
+				<version>${org.awaitility.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.25.3</version>
+				<version>${org.assertj.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<!-- Logging -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.version}</version>
 			</dependency>
 			<!-- Jackson -->
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>2.16.1</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.16.1</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.16.1</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.dataformat</groupId>
 				<artifactId>jackson-dataformat-xml</artifactId>
-				<version>2.16.1</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-jsr310</artifactId>
-				<version>2.16.1</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-guava</artifactId>
-				<version>2.17.0</version>
+				<version>${org.jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>33.1.0-jre</version>
+				<version>${org.guava.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -194,6 +223,11 @@
 								<fileSet>
 									<sourceFile>config/weather-api/api.properties</sourceFile>
 									<destinationFile>weather-api/src/main/resources/api.properties</destinationFile>
+								</fileSet>
+								<!-- Copying configuration of data-analysis-api module -->
+								<fileSet>
+									<sourceFile>config/data-analysis-api/api.properties</sourceFile>
+									<destinationFile>data-analysis-api/src/main/resources/api.properties</destinationFile>
 								</fileSet>
 								<!-- Copying configuration of agent-system module -->
 								<fileSet>
@@ -227,49 +261,17 @@
 				<version>3.3.1</version>
 				<executions>
 					<execution>
-						<id>copy-rule-sets</id>
+						<id>copy-rule-set-api</id>
 						<phase>generate-sources</phase>
 						<inherited>false</inherited>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>engine/src/main/resources/strategy/rulesets</outputDirectory>
+							<outputDirectory>engine/src/main/resources/strategy</outputDirectory>
 							<resources>
 								<resource>
-									<directory>config/engine/strategy/rulesets</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-rule-set-api-properties</id>
-						<phase>generate-sources</phase>
-						<inherited>false</inherited>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>engine/src/main/resources/strategy/strategy.properties</outputDirectory>
-							<resources>
-								<resource>
-									<directory>config/engine/strategy/strategy.properties</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-spring-file</id>
-						<phase>generate-sources</phase>
-						<inherited>false</inherited>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>rules-controller/src/main/resources/META-INF</outputDirectory>
-							<resources>
-								<resource>
-									<directory>config/rules-controller/META-INF</directory>
+									<directory>config/engine/strategy</directory>
 								</resource>
 							</resources>
 						</configuration>

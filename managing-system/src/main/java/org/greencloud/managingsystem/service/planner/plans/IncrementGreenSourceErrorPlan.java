@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
@@ -27,7 +27,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 import jade.core.AID;
@@ -42,7 +42,7 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 	private static final int MAXIMUM_PREDICTION_ERROR = 1;
 	private Map<String, Integer> greenSourcesPowerShortages;
 
-	public IncrementGreenSourceErrorPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public IncrementGreenSourceErrorPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(INCREASE_GREEN_SOURCE_ERROR, managingAgent, violatedGoal);
 		this.greenSourcesPowerShortages = new HashMap<>();
 	}

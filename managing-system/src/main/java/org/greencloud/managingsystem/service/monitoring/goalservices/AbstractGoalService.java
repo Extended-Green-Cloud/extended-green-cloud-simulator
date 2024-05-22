@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.monitoring.goalservices;
 
-import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
+import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
 import static java.util.List.of;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 
@@ -12,7 +12,7 @@ import org.greencloud.managingsystem.service.AbstractManagingService;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.util.concurrent.AtomicDouble;
 
 /**
@@ -21,14 +21,14 @@ import com.google.common.util.concurrent.AtomicDouble;
 public abstract class AbstractGoalService extends AbstractManagingService {
 
 	protected final AtomicDouble currentGoalQuality;
-	protected final GoalEnum goal;
+	protected final GoalType goal;
 
 	/**
 	 * Default constructor
 	 *
 	 * @param managingAgent agent using the service to monitor the system
 	 */
-	protected AbstractGoalService(AbstractManagingAgent managingAgent, GoalEnum goal) {
+	protected AbstractGoalService(AbstractManagingAgent managingAgent, GoalType goal) {
 		super(managingAgent);
 		this.currentGoalQuality = new AtomicDouble(0);
 		this.goal = goal;

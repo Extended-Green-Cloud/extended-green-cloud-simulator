@@ -5,4 +5,8 @@ package com.database.knowledge.domain.action;
  * of runs in which given difference in quality was measured)
  */
 public record ActionResult(Double diff, Integer runs) {
+
+	public ActionResult() {
+		this(0.0, 0);
+	}
 }

@@ -1,6 +1,7 @@
 package runner.service;
 
 import static java.lang.String.format;
+import static java.time.Instant.now;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -35,12 +36,18 @@ import org.greencloud.commons.args.event.PowerShortageEventArgs;
 import org.greencloud.commons.args.event.ServerMaintenanceEventArgs;
 import org.greencloud.commons.args.event.WeatherDropEventArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.location.ImmutableLocation;
+import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.exception.InvalidScenarioException;
 import org.greencloud.gui.event.DisableServerEvent;
 import org.greencloud.gui.event.EnableServerEvent;
 import org.greencloud.gui.event.PowerShortageEvent;
 import org.greencloud.gui.event.ServerMaintenanceEvent;
 import org.greencloud.gui.event.WeatherDropEvent;
+import org.greencloud.gui.messages.domain.GreenSourceCreator;
+import org.greencloud.gui.messages.domain.ImmutableGreenSourceCreator;
+import org.greencloud.gui.messages.domain.ImmutableServerCreator;
+import org.greencloud.gui.messages.domain.ServerCreator;
 import org.jrba.rulesengine.ruleset.RuleSet;
 import org.jrba.rulesengine.ruleset.domain.ModifyAgentRuleSetEvent;
 import org.slf4j.Logger;
@@ -130,24 +137,36 @@ public class ScenarioEventService {
 	}
 
 	private void runNewGreenSourceEvent(final NewGreenSourceCreationEventArgs event) {
-		scenarioService.guiController.createNewGreenSourceEvent(event.getName(),
-				event.getServer(),
-				event.getLatitude(),
-				event.getLongitude(),
-				event.getPricePerPowerUnit(),
-				event.getWeatherPredictionError(),
-				event.getMaximumCapacity(),
-				event.getEnergyType());
+		final Location location = ImmutableLocation.builder()
+				.latitude(event.getLatitude())
+				.longitude(event.getLongitude())
+				.build();
+		final GreenSourceCreator greenSourceCreator = ImmutableGreenSourceCreator.builder()
+				.occurrenceTime(now())
+				.name(event.getName())
+				.server(event.getServer())
+				.location(location)
+				.pricePerPowerUnit(event.getPricePerPowerUnit())
+				.weatherPredictionError(event.getWeatherPredictionError())
+				.maximumCapacity(event.getMaximumCapacity())
+				.energyType(event.getEnergyType())
+				.build();
+		scenarioService.guiController.triggerEvent(greenSourceCreator);
 	}
 
 	private void runNewServerEvent(final NewServerCreationEventArgs event) {
-		scenarioService.guiController.createNewServerEvent(event.getName(),
-				event.getRegionalManager(),
-				event.getMaxPower(),
-				event.getIdlePower(),
-				event.getResources(),
-				event.getJobProcessingLimit(),
-				event.getPrice());
+		final ServerCreator serverCreator = ImmutableServerCreator.builder()
+				.regionalManager(event.getRegionalManager())
+				.name(event.getName())
+				.occurrenceTime(now())
+				.isFinished(false)
+				.resources(event.getResources())
+				.maxPower(event.getMaxPower())
+				.idlePower(event.getIdlePower())
+				.jobProcessingLimit(event.getJobProcessingLimit())
+				.price(event.getPrice())
+				.build();
+		scenarioService.guiController.triggerEvent(serverCreator);
 	}
 
 	private void runNewClientEvent(final EventArgs event) {
@@ -161,43 +180,42 @@ public class ScenarioEventService {
 	}
 
 	private void triggerPowerShortage(final PowerShortageEventArgs event) {
-		final Instant eventOccurrence = Instant.now().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
+		final Instant eventOccurrence = now().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
 		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence,
 				event.isFinished(),
 				event.getCause(),
 				event.getAgentName());
-		scenarioService.guiController.triggerPowerShortageEvent(eventData);
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void triggerWeatherDrop(final WeatherDropEventArgs event) {
-		final WeatherDropEvent eventData = new WeatherDropEvent(Instant.now(),
+		final WeatherDropEvent eventData = new WeatherDropEvent(now(),
 				event.getDuration(),
 				event.getAgentName());
-		scenarioService.guiController.triggerWeatherDropEvent(eventData);
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void disableServer(final DisableServerEventArgs event) {
-		final DisableServerEvent eventData = new DisableServerEvent(Instant.now(), event.getName());
-		scenarioService.guiController.disableServerEvent(eventData);
+		final DisableServerEvent eventData = new DisableServerEvent(now(), event.getName());
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void enableServer(final EnableServerEventArgs event) {
-		final EnableServerEvent eventData = new EnableServerEvent(Instant.now(), event.getName());
-		scenarioService.guiController.enableServerEvent(eventData);
+		final EnableServerEvent eventData = new EnableServerEvent(now(), event.getName());
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void modifyRuleSet(final ModifyRuleSetEventArgs event) {
 		final RuleSet ruleSet = getAvailableRuleSets().get(event.getRuleSetName());
 		final ModifyAgentRuleSetEvent eventData = new ModifyAgentRuleSetEvent(
 				event.getFullReplace(), ruleSet, event.getAgentName());
-
-		scenarioService.guiController.modifySystemRuleSetEvent(eventData);
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void modifyServerResources(final ServerMaintenanceEventArgs event) {
 		final ServerMaintenanceEvent eventData =
-				new ServerMaintenanceEvent(Instant.now(), event.getName(), event.getResources());
-		scenarioService.guiController.modifyServerResources(eventData);
+				new ServerMaintenanceEvent(now(), event.getName(), event.getResources());
+		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 }

@@ -11,8 +11,6 @@ import static org.greencloud.managingsystem.service.executor.logs.ManagingAgentE
 import java.util.List;
 import java.util.Map;
 
-import org.jrba.agentmodel.domain.args.AgentArgs;
-import org.jrba.utils.messages.MessageBuilder;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.managingsystem.agent.ManagingAgent;
@@ -21,11 +19,13 @@ import org.greencloud.managingsystem.agent.behaviour.executor.WaitForSystemPlanE
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.SystemPlan;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+import org.jrba.utils.messages.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 import com.greencloud.connector.factory.EGCSControllerFactory;
 
@@ -60,7 +60,7 @@ public class ExecutorService extends AbstractManagingService {
 	public void executeAdaptationAction(final AbstractPlan adaptationPlan) {
 		final AdaptationAction actionToBeExecuted = getAdaptationAction(adaptationPlan.getAdaptationActionEnum(),
 				adaptationPlan.getViolatedGoal());
-		final Map<GoalEnum, Double> initialGoalQualities = managingAgent.monitor().getCurrentGoalQualities();
+		final Map<GoalType, Double> initialGoalQualities = managingAgent.monitor().getCurrentGoalQualities();
 
 		logger.info(EXECUTING_ADAPTATION_ACTION_LOG, actionToBeExecuted.getAction());
 
@@ -74,7 +74,7 @@ public class ExecutorService extends AbstractManagingService {
 	}
 
 	private void executeAdaptationActionOnAgent(final AbstractPlan adaptationPlan,
-			final Map<GoalEnum, Double> initialGoalQualities, final AdaptationAction actionToBeExecuted) {
+			final Map<GoalType, Double> initialGoalQualities, final AdaptationAction actionToBeExecuted) {
 		final ACLMessage adaptationActionRequest = MessageBuilder.builder(0, REQUEST)
 				.withConversationId(adaptationPlan.getAdaptationActionEnum().toString())
 				.withMessageProtocol(EXECUTE_ACTION_PROTOCOL)
@@ -88,7 +88,7 @@ public class ExecutorService extends AbstractManagingService {
 	}
 
 	private void executeAdaptationActionOnSystem(final SystemPlan systemAdaptationPlan,
-			final AdaptationAction actionToBeExecuted, final Map<GoalEnum, Double> initialGoalQualities) {
+			final AdaptationAction actionToBeExecuted, final Map<GoalType, Double> initialGoalQualities) {
 		final List<AgentController> createdAgents = createAgents(systemAdaptationPlan);
 		final Location location = systemAdaptationPlan.getSystemAdaptationActionParameters().getAgentsTargetLocation();
 

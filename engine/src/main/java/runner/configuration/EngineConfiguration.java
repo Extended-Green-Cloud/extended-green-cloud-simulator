@@ -38,7 +38,7 @@ public final class EngineConfiguration extends AbstractConfiguration {
 	public static String jadeInterPort;
 	/**
 	 * Boolean value denoting if the container is the main one
-	 * (i.e. is the main container of the entire system containing SchedulerAgent and ManagingAgent)
+	 * (i.e. is the main container of the entire system containing CentralManagerAgent and ManagingAgent)
 	 */
 	public static boolean mainHost;
 	/**

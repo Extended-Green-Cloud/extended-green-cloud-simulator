@@ -1,16 +1,14 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ENABLE_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISABLE_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISCONNECT_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ENABLE_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static java.util.Objects.nonNull;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.CONSTRUCTING_PLAN_FOR_ACTION_LOG;
 import static org.greencloud.managingsystem.service.planner.logs.ManagingAgentPlannerLog.COULD_NOT_CONSTRUCT_PLAN_LOG;
@@ -34,15 +32,13 @@ import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceE
 import org.greencloud.managingsystem.service.planner.plans.DisableServerPlan;
 import org.greencloud.managingsystem.service.planner.plans.DisconnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.EnableServerPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.goal.GoalEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -52,7 +48,7 @@ public class PlannerService extends AbstractManagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlannerService.class);
 
-	private Map<AdaptationActionEnum, AbstractPlan> planForActionMap;
+	private Map<AdaptationActionTypeEnum, AbstractPlan> planForActionMap;
 
 	public PlannerService(AbstractManagingAgent managingAgent) {
 		super(managingAgent);
@@ -64,7 +60,7 @@ public class PlannerService extends AbstractManagingService {
 	 * @param adaptationActions set of available adaptation actions with computed qualities
 	 * @param violatedGoal      goal that has been violated
 	 */
-	public void trigger(final Map<AdaptationAction, Double> adaptationActions, final GoalEnum violatedGoal) {
+	public void trigger(final Map<AdaptationAction, Double> adaptationActions, final GoalType violatedGoal) {
 		initializePlansForActions(violatedGoal);
 		final Map<AdaptationAction, Double> executableActions = getPlansWhichCanBeExecuted(adaptationActions);
 
@@ -104,7 +100,7 @@ public class PlannerService extends AbstractManagingService {
 	protected Map<AdaptationAction, Double> getPlansWhichCanBeExecuted(
 			final Map<AdaptationAction, Double> adaptationActions) {
 		return adaptationActions.entrySet().stream()
-				.filter(entry -> entry.getKey().getAvailable())
+				.filter(entry -> entry.getKey().getIsAvailable())
 				.filter(entry -> planForActionMap.containsKey(entry.getKey().getAction()))
 				.filter(entry -> planForActionMap.get(entry.getKey().getAction()).isPlanExecutable())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -115,8 +111,8 @@ public class PlannerService extends AbstractManagingService {
 		return planForActionMap.getOrDefault(action.getAction(), null);
 	}
 
-	protected void initializePlansForActions(final GoalEnum violatedGoal) {
-		planForActionMap = new EnumMap<>(AdaptationActionEnum.class);
+	protected void initializePlansForActions(final GoalType violatedGoal) {
+		planForActionMap = new EnumMap<>(AdaptationActionTypeEnum.class);
 
 		planForActionMap.put(ADD_SERVER,
 				new AddServerPlan(managingAgent, violatedGoal));
@@ -126,10 +122,6 @@ public class PlannerService extends AbstractManagingService {
 				new ConnectGreenSourcePlan(managingAgent, violatedGoal));
 		planForActionMap.put(DISCONNECT_GREEN_SOURCE,
 				new DisconnectGreenSourcePlan(managingAgent, violatedGoal));
-		planForActionMap.put(INCREASE_DEADLINE_PRIORITY,
-				new IncreaseDeadlinePriorityPlan(managingAgent, violatedGoal));
-		planForActionMap.put(INCREASE_POWER_PRIORITY,
-				new IncreaseJobDivisionPowerPriorityPlan(managingAgent, violatedGoal));
 		planForActionMap.put(INCREASE_GREEN_SOURCE_ERROR,
 				new IncrementGreenSourceErrorPlan(managingAgent, violatedGoal));
 		planForActionMap.put(CHANGE_GREEN_SOURCE_WEIGHT,
@@ -143,7 +135,7 @@ public class PlannerService extends AbstractManagingService {
 	}
 
 	@VisibleForTesting
-	protected void setPlanForActionMap(Map<AdaptationActionEnum, AbstractPlan> planForActionMap) {
+	protected void setPlanForActionMap(Map<AdaptationActionTypeEnum, AbstractPlan> planForActionMap) {
 		this.planForActionMap = planForActionMap;
 	}
 }

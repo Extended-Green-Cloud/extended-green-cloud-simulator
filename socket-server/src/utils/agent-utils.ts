@@ -4,11 +4,11 @@ import {
 	INITIAL_SWITCH_ON_OFF_STATE,
 	INITIAL_WEATHER_DROP_STATE,
 	JOB_STATUSES,
-	AGENT_TYPES
+	AGENT_TYPES,
 } from "../constants/constants";
 import { AGENTS_REPORTS_STATE, Client, AGENTS_STATE } from "../module";
 import { changeRegionalManagerCapacityEvent } from "../module/agents/report-handlers/report-handler";
-import { RegionalManagerAgent, GreenEnergyAgent, SchedulerAgent } from "../module/agents/types";
+import { RegionalManagerAgent, GreenEnergyAgent, CentralManagerAgent } from "../module/agents/types";
 import { ServerAgent } from "../module/agents/types/server-agent";
 import { Resource, ResourceCharacteristic, ResourceMap } from "../types";
 
@@ -90,6 +90,8 @@ const registerClient = (data): Client => {
 		events: [],
 		name,
 		finalPrice: 0,
+		expectedExecutionTime: jobData.duration,
+		finalEndTime: null,
 		estimatedPrice: 0,
 		isActive: false,
 		adaptation: "inactive",
@@ -99,10 +101,10 @@ const registerClient = (data): Client => {
 	};
 };
 
-const registerScheduler = (data): SchedulerAgent => {
+const registerCentralManager = (data): CentralManagerAgent => {
 	AGENTS_REPORTS_STATE.agentsReports.push({
 		name: data.name,
-		type: AGENT_TYPES.SCHEDULER,
+		type: AGENT_TYPES.CENTRAL_MANAGER,
 		reports: {
 			deadlinePriorityReport: [],
 			cpuPriorityReport: [],
@@ -113,7 +115,7 @@ const registerScheduler = (data): SchedulerAgent => {
 		events: [],
 	});
 	return {
-		type: AGENT_TYPES.SCHEDULER,
+		type: AGENT_TYPES.CENTRAL_MANAGER,
 		scheduledJobs: [],
 		events: [],
 		isActive: true,
@@ -257,8 +259,8 @@ const registerAgent = (data, type) => {
 			return registerMonitoring(data);
 		case AGENT_TYPES.SERVER:
 			return registerServer(data);
-		case AGENT_TYPES.SCHEDULER:
-			return registerScheduler(data);
+		case AGENT_TYPES.CENTRAL_MANAGER:
+			return registerCentralManager(data);
 	}
 };
 
@@ -267,7 +269,7 @@ export {
 	getAgentsByName,
 	getAgentNodeById,
 	registerClient,
-	registerScheduler,
+	registerCentralManager,
 	registerRegionalManager,
 	registerGreenEnergy,
 	registerServer,

@@ -69,6 +69,11 @@
 			<groupId>org.immutables</groupId>
 			<artifactId>value</artifactId>
 		</dependency>
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.mockito</groupId>

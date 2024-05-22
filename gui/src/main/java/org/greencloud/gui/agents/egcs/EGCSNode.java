@@ -13,7 +13,7 @@ import org.jrba.agentmodel.domain.node.AgentNode;
 import org.jrba.agentmodel.domain.props.AgentProps;
 import org.jrba.environment.websocket.GuiWebSocketClient;
 
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
 

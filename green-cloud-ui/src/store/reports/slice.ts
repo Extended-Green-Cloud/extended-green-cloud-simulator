@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import {
-   AgentSchedulerStatisticReports,
+   AgentCentralManagerStatisticReports,
    AgentStatisticReport,
    AgentType,
    FetchClientReportsMessage,
@@ -44,9 +44,9 @@ export const reportsSlice = createSlice({
          Object.assign(state, action.payload)
       },
       updateAgentsReports(state, action: PayloadAction<AgentStatisticReport[]>) {
-         const reports = action.payload.filter((reports) => reports.type === AgentType.SCHEDULER)[0]?.reports
+         const reports = action.payload.filter((reports) => reports.type === AgentType.CENTRAL_MANAGER)[0]?.reports
          const systemTraffic = reports
-            ? (reports as AgentSchedulerStatisticReports).trafficReport
+            ? (reports as AgentCentralManagerStatisticReports).trafficReport
             : state.systemTrafficReport
          Object.assign(state, { ...state, agentsReports: action.payload, systemTrafficReport: systemTraffic })
       },

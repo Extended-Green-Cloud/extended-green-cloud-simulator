@@ -1,11 +1,11 @@
 package org.greencloud.managingsystem.domain;
 
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 
 import java.util.List;
 
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 
 /**
  * Class stores all constants related with the Managing System:

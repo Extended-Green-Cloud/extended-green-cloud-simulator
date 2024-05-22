@@ -1,5 +1,5 @@
 export * from './agent-statistic-reports'
-export * from './agent-scheduler-reports'
+export * from './agent-central-manager-reports'
 export * from './agent-server-reports'
 export * from './agent-green-source-reports'
 export * from './agent-cloud-network-reports'

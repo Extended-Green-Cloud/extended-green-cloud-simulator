@@ -1,203 +1,211 @@
 {
-  "managingAgentArgs": {
-    "name": "ManagingSystem",
-    "systemQualityThreshold": 0.7
+  "managingAgentArgs" : {
+    "name" : "ManagingSystem",
+    "systemQualityThreshold" : 0.7
   },
-  "schedulerAgentArgs": {
-    "name": "Scheduler",
-    "deadlineWeight": 5,
-    "cpuWeight": 1,
-    "maximumQueueSize": 10000000
+  "centralManagerAgentArgs" : {
+    "name" : "CentralManager",
+    "maximumQueueSize" : 10000000
   },
-  "monitoringAgentsArgs": [
+  "monitoringAgentsArgs" : [
     {
-      "name": "Weather1"
+      "name" : "Weather1"
     },
     {
-      "name": "Weather2"
+      "name" : "Weather2"
     },
     {
-      "name": "Weather3"
+      "name" : "Weather3"
     },
     {
-      "name": "Weather4"
+      "name" : "Weather4"
     }
   ],
-  "greenEnergyAgentsArgs": [
+  "greenEnergyAgentsArgs" : [
     {
-      "name": "Wind1",
-      "monitoringAgent": "Weather1",
-      "ownerSever": "Server1",
-      "latitude": 30,
-      "longitude": 20.1,
-      "pricePerPowerUnit": 10,
-      "maximumCapacity": 400,
-      "energyType": "WIND",
-      "weatherPredictionError": 0.02
+      "name" : "Wind1",
+      "monitoringAgent" : "Weather1",
+      "ownerSever" : "Server1",
+      "location" : {
+        "latitude" : 30,
+        "longitude" : 20.1
+      },
+      "pricePerPowerUnit" : 10,
+      "maximumCapacity" : 400,
+      "energyType" : "WIND",
+      "weatherPredictionError" : 0.02
     },
     {
-      "name": "Wind2",
-      "monitoringAgent": "Weather2",
-      "ownerSever": "Server1",
-      "latitude": 50,
-      "longitude": 88.1,
-      "pricePerPowerUnit": 10,
-      "maximumCapacity": 400,
-      "energyType": "WIND",
-      "weatherPredictionError": 0.02
+      "name" : "Wind2",
+      "monitoringAgent" : "Weather2",
+      "ownerSever" : "Server1",
+      "location" : {
+        "latitude" : 50,
+        "longitude" : 88.1
+      },
+      "pricePerPowerUnit" : 10,
+      "maximumCapacity" : 400,
+      "energyType" : "WIND",
+      "weatherPredictionError" : 0.02
     },
     {
-      "name": "Solar1",
-      "monitoringAgent": "Weather3",
-      "ownerSever": "Server1",
-      "latitude": 50,
-      "longitude": 30.1,
-      "pricePerPowerUnit": 10,
-      "maximumCapacity": 200,
-      "energyType": "SOLAR",
-      "weatherPredictionError": 0.02
+      "name" : "Solar1",
+      "monitoringAgent" : "Weather3",
+      "ownerSever" : "Server1",
+      "location" : {
+        "latitude" : 50,
+        "longitude" : 30.1
+      },
+      "pricePerPowerUnit" : 10,
+      "maximumCapacity" : 200,
+      "energyType" : "SOLAR",
+      "weatherPredictionError" : 0.02
     },
     {
-      "name": "Wind3",
-      "monitoringAgent": "Weather4",
-      "ownerSever": "Server2",
-      "latitude": 10,
-      "longitude": 88.1,
-      "pricePerPowerUnit": 10,
-      "maximumCapacity": 400,
-      "energyType": "WIND",
-      "weatherPredictionError": 0.02
+      "name" : "Wind3",
+      "monitoringAgent" : "Weather4",
+      "ownerSever" : "Server2",
+      "location" : {
+        "latitude" : 10,
+        "longitude" : 88.1
+      },
+      "pricePerPowerUnit" : 10,
+      "maximumCapacity" : 400,
+      "energyType" : "WIND",
+      "weatherPredictionError" : 0.02
     }
   ],
-  "serverAgentsArgs": [
+  "serverAgentsArgs" : [
     {
-      "name": "Server1",
-      "ownerRegionalManager": "RMA1",
-      "jobProcessingLimit": 50,
-      "price": 10.5,
-      "containerId": "Servers1",
-      "maxPower": 120,
-      "idlePower": 47,
-      "resources": {
-        "cpu": {
-          "characteristics": {
-            "amount": {
-              "value": 40,
-              "unit": "core",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+      "name" : "Server1",
+      "ownerRegionalManager" : "RMA1",
+      "jobProcessingLimit" : 50,
+      "price" : 10.5,
+      "containerId" : "Servers1",
+      "maxPower" : 120,
+      "idlePower" : 47,
+      "resources" : {
+        "cpu" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 40,
+              "unit" : "core",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         },
-        "gpu": {
-          "characteristics": {
-            "amount": {
-              "value": 4,
-              "unit": "GB",
-              "resourceCharacteristicReservation": "return ownedAmount - amountToReserve;",
-              "toCommonUnitConverter": "FROM_GB_TO_BYTE_CONVERTER",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "fromCommonUnitConverter": "TO_GB_FROM_BYTE_CONVERTER"
+        "gpu" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 4,
+              "unit" : "GB",
+              "resourceCharacteristicReservation" : "return ownedAmount - amountToReserve;",
+              "toCommonUnitConverter" : "FROM_GB_TO_BYTE_CONVERTER",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "fromCommonUnitConverter" : "TO_GB_FROM_BYTE_CONVERTER"
             }
           },
-          "resourceValidator": "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "requirements.getCharacteristics().containsKey(\"amount\") && resource.getAmountInCommonUnit() >= requirements.getAmountInCommonUnit();",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         },
-        "memory": {
-          "characteristics": {
-            "amount": {
-              "value": 400,
-              "unit": "Gi",
-              "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
-              "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+        "memory" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 400,
+              "unit" : "Gi",
+              "toCommonUnitConverter" : "FROM_GI_TO_BYTE_CONVERTER",
+              "fromCommonUnitConverter" : "TO_GI_FROM_BYTE_CONVERTER",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         },
-        "storage": {
-          "characteristics": {
-            "amount": {
-              "value": 1000,
-              "unit": "Gi",
-              "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
-              "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+        "storage" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 1000,
+              "unit" : "Gi",
+              "toCommonUnitConverter" : "FROM_GI_TO_BYTE_CONVERTER",
+              "fromCommonUnitConverter" : "TO_GI_FROM_BYTE_CONVERTER",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         }
       }
     },
     {
-      "name": "Server2",
-      "ownerRegionalManager": "RMA1",
-      "jobProcessingLimit": 50,
-      "price": 10.5,
-      "containerId": "Servers2",
-      "maxPower": 120,
-      "idlePower": 47,
-      "resources": {
-        "cpu": {
-          "characteristics": {
-            "amount": {
-              "value": 16,
-              "unit": "core",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE"
+      "name" : "Server2",
+      "ownerRegionalManager" : "RMA1",
+      "jobProcessingLimit" : 50,
+      "price" : 10.5,
+      "containerId" : "Servers2",
+      "maxPower" : 120,
+      "idlePower" : 47,
+      "resources" : {
+        "cpu" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 16,
+              "unit" : "core",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         },
-        "memory": {
-          "characteristics": {
-            "amount": {
-              "value": 150,
-              "unit": "Gi",
-              "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
-              "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+        "memory" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 150,
+              "unit" : "Gi",
+              "toCommonUnitConverter" : "FROM_GI_TO_BYTE_CONVERTER",
+              "fromCommonUnitConverter" : "TO_GI_FROM_BYTE_CONVERTER",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         },
-        "storage": {
-          "characteristics": {
-            "amount": {
-              "value": 2000,
-              "unit": "Gi",
-              "toCommonUnitConverter": "FROM_GI_TO_BYTE_CONVERTER",
-              "fromCommonUnitConverter": "TO_GI_FROM_BYTE_CONVERTER",
-              "resourceCharacteristicSubtraction": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicAddition": "TAKE_FROM_INITIAL_KNOWLEDGE",
-              "resourceCharacteristicReservation": "TAKE_FROM_INITIAL_KNOWLEDGE"
+        "storage" : {
+          "characteristics" : {
+            "amount" : {
+              "value" : 2000,
+              "unit" : "Gi",
+              "toCommonUnitConverter" : "FROM_GI_TO_BYTE_CONVERTER",
+              "fromCommonUnitConverter" : "TO_GI_FROM_BYTE_CONVERTER",
+              "resourceCharacteristicSubtraction" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicAddition" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+              "resourceCharacteristicReservation" : "TAKE_FROM_INITIAL_KNOWLEDGE"
             }
           },
-          "resourceValidator": "TAKE_FROM_INITIAL_KNOWLEDGE",
-          "resourceComparator": "TAKE_FROM_INITIAL_KNOWLEDGE"
+          "resourceValidator" : "TAKE_FROM_INITIAL_KNOWLEDGE",
+          "resourceComparator" : "TAKE_FROM_INITIAL_KNOWLEDGE"
         }
       }
     }
   ],
-  "regionalManagerAgentsArgs": [
+  "regionalManagerAgentsArgs" : [
     {
-      "name": "RMA1",
-      "locationId": "RMA1"
+      "name" : "RMA1",
+      "locationId" : "RMA1",
+      "maximumQueueSize" : 10000000,
+      "pollingBatchSize": 3
     }
   ]
 }

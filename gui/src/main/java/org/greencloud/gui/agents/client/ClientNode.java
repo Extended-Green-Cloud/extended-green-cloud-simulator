@@ -1,8 +1,12 @@
 package org.greencloud.gui.agents.client;
 
-import static java.time.Duration.between;
+import static com.database.knowledge.types.DataType.CLIENT_JOB_EXECUTION;
+import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
@@ -17,24 +21,23 @@ import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.args.agent.client.node.ClientNodeArgs;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
 import org.greencloud.commons.enums.job.JobClientStatusEnum;
-import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.commons.utils.time.TimeSimulation;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.ImmutableSetClientJobDurationMapMessage;
 import org.greencloud.gui.messages.ImmutableSetClientJobStatusMessage;
-import org.greencloud.gui.messages.ImmutableSetClientJobTimeFrameMessage;
 import org.greencloud.gui.messages.ImmutableUpdateEstimatedCostForClientMessage;
+import org.greencloud.gui.messages.ImmutableUpdateEstimatedTimeForClientMessage;
 import org.greencloud.gui.messages.ImmutableUpdateFinalCostForClientMessage;
+import org.greencloud.gui.messages.ImmutableUpdateFinalExecutionDateForClientMessage;
 import org.greencloud.gui.messages.ImmutableUpdateJobExecutionProportionMessage;
 import org.greencloud.gui.messages.ImmutableUpdateServerForClientMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
-import org.greencloud.gui.messages.domain.ImmutableJobTimeFrame;
 
-import com.database.knowledge.domain.agent.DataType;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientJobExecutionData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientStatisticsData;
+import com.database.knowledge.types.DataType;
 
 /**
  * Agent node class representing the client
@@ -147,6 +150,18 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	}
 
 	/**
+	 * Function updates job execution finish date
+	 *
+	 * @param executionFinishDate job execution finish ate
+	 */
+	public void updateJobExecutionFinishDate(final Instant executionFinishDate) {
+		getClientsWebSocket().send(ImmutableUpdateFinalExecutionDateForClientMessage.builder()
+				.finalExecutionDate(executionFinishDate)
+				.agentName(agentName)
+				.build());
+	}
+
+	/**
 	 * Function updates estimated cost of job execution
 	 *
 	 * @param estimatedPrice estimated cost of job execution
@@ -159,17 +174,13 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	}
 
 	/**
-	 * Function informs about the job time frame change for a job
+	 * Function updates estimated time of job execution
 	 *
-	 * @param jobStart new job start time
-	 * @param jobEnd   new job end time
+	 * @param executionTime estimated time of job execution in seconds
 	 */
-	public void updateJobTimeFrame(final Instant jobStart, final Instant jobEnd) {
-		getClientsWebSocket().send(ImmutableSetClientJobTimeFrameMessage.builder()
-				.data(ImmutableJobTimeFrame.builder()
-						.start(jobStart)
-						.end(jobEnd)
-						.build())
+	public void updateEstimatedExecutionTime(final Double executionTime) {
+		getClientsWebSocket().send(ImmutableUpdateEstimatedTimeForClientMessage.builder()
+				.estimatedTime(executionTime)
 				.agentName(agentName)
 				.build());
 	}
@@ -181,9 +192,7 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	 */
 	public void updateJobDurationMap(final ClientAgentProps agentProps) {
 		final ToLongFunction<Map.Entry<JobClientStatusEnum, Long>> getRealDuration = entry ->
-				SIMULATION_STATUSES.contains(entry.getKey()) ?
-						entry.getValue() :
-						TimeConverter.convertToRealTime(entry.getValue());
+				SIMULATION_STATUSES.contains(entry.getKey()) ? entry.getValue() : convertToRealTime(entry.getValue());
 
 		final Map<JobClientStatusEnum, Long> durationMap = agentProps.getJobDurationMap().entrySet().stream()
 				.collect(toMap(Map.Entry::getKey, getRealDuration::applyAsLong));
@@ -230,7 +239,7 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	@Override
 	public void saveMonitoringData(final ClientAgentProps props) {
 		final Map<JobClientStatusEnum, Long> jobDurationMap = props.getJobDurationMap().entrySet().stream()
-				.collect(filtering(entry -> List.of(JobClientStatusEnum.ON_BACK_UP, JobClientStatusEnum.IN_PROGRESS)
+				.collect(filtering(entry -> List.of(ON_BACK_UP, IN_PROGRESS)
 								.contains(entry.getKey()),
 						toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
@@ -240,7 +249,7 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 				.jobStatusDurationMap(jobDurationMap)
 				.build();
 
-		writeMonitoringData(DataType.CLIENT_MONITORING, data, props.getAgentName());
+		writeMonitoringData(CLIENT_MONITORING, data, props.getAgentName());
 		updateJobDurationMap(props);
 
 		if (isFinished) {
@@ -250,12 +259,11 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 
 	private void writeJobExecutionPercentage(final ClientAgentProps props) {
 		final long executionTime =
-				props.getJobDurationMap().get(JobClientStatusEnum.IN_PROGRESS) + props.getJobDurationMap().get(
-						JobClientStatusEnum.ON_BACK_UP);
-		final long expectedExecution = between(props.getJobSimulatedStart(), props.getJobSimulatedEnd()).toMillis();
+				props.getJobDurationMap().get(IN_PROGRESS) + props.getJobDurationMap().get(ON_BACK_UP);
+		final long expectedExecution = props.getExpectedExecutionDuration();
 		final double executedPercentage = expectedExecution == 0 ? 0 : (double) executionTime / expectedExecution;
 
-		writeMonitoringData(DataType.CLIENT_JOB_EXECUTION, ImmutableClientJobExecutionData.builder()
+		writeMonitoringData(CLIENT_JOB_EXECUTION, ImmutableClientJobExecutionData.builder()
 				.jobExecutionPercentage(executedPercentage)
 				.build(), props.getAgentName());
 		updateJobExecutionPercentage(executedPercentage);

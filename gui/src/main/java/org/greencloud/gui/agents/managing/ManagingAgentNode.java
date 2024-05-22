@@ -21,8 +21,8 @@ import org.greencloud.gui.messages.domain.ImmutableGoalQuality;
 import org.jrba.agentmodel.domain.props.AgentProps;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
 import com.database.knowledge.domain.action.AdaptationActionsDefinitions;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 
@@ -100,7 +100,7 @@ public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 	 * @param adaptationTime time when the action was performed
 	 * @param agentName      optional parameter indicating the agent on which the adaptation was performed
 	 */
-	public void logNewAdaptation(final AdaptationActionEnum action, final Instant adaptationTime,
+	public void logNewAdaptation(final AdaptationActionTypeEnum action, final Instant adaptationTime,
 			final Optional<String> agentName) {
 		var adaptationAction = AdaptationActionsDefinitions.getAdaptationAction(action).get(0);
 
@@ -117,7 +117,7 @@ public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 				.build());
 	}
 
-	private String getCounterToIncrement(final AdaptationActionTypeEnum actionType) {
+	private String getCounterToIncrement(final AdaptationActionCategoryEnum actionType) {
 		return switch (actionType) {
 			case RECONFIGURE -> "INCREMENT_WEAK_ADAPTATIONS";
 			case ADD_COMPONENT, REMOVE_COMPONENT -> "INCREMENT_STRONG_ADAPTATIONS";

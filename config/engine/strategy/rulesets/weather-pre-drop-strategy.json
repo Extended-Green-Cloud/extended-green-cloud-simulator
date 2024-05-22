@@ -2,7 +2,7 @@
   "name": "WEATHER_PRE_DROP_RULE_SET",
   "rules": [
     {
-      "agentType": "SCHEDULER",
+      "agentType": "CENTRAL_MANAGER",
       "type": "LOOK_FOR_JOB_EXECUTOR_HANDLE_FAILURE_RULE",
       "priority": "3",
       "name": "handle cases when there is no RMA for job execution",
@@ -20,10 +20,9 @@
         "import org.greencloud.rulescontroller.ruleset.RuleSetSelector;"
       ],
       "execute": "job = facts.get(\"job\"); jobPostponeCounter.putIfAbsent(job.getJobInstanceId(), 0); MDC.put(LoggingConstants.MDC_JOB_ID, job.getJobId()); MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts)); if ((jobPostponeCounter[job.getJobInstanceId()] < 3) && (agentProps.postponeJobExecution(job, 10))) { logger.info(\"All Regional Manager Agents refused to the call for proposal. Job postponed and scheduled for next execution.\"); jobPostponeCounter[job.getJobInstanceId()] = jobPostponeCounter[job.getJobInstanceId()] + 1; agent.send(JobStatusMessageFactory.preparePostponeJobMessageForClient(job, facts.get(\"rule-set-idx\"))); } else { logger.info(\"All Regional Manager Agents refused to the call for proposal. Scheduling job execution in cloud.\"); agentProps.getClientJobs().replace(job, JobExecutionStatusEnum.PROCESSING, JobExecutionStatusEnum.ACCEPTED); agentNode.announceClientJob(); executionFacts = new RuleSetFacts(facts.get(\"rule-set-idx\")); executionFacts.put(\"job\", job); agent.addBehaviour(ScheduleOnce.create(agent, executionFacts, RuleType.START_JOB_EXECUTION_RULE, controller, RuleSetSelector.SELECT_BY_FACTS_IDX)); }"
-
     },
     {
-      "agentType": "SCHEDULER",
+      "agentType": "CENTRAL_MANAGER",
       "type": "JOB_STATUS_RECEIVER_HANDLER_RULE",
       "subType": "JOB_STATUS_RECEIVER_HANDLE_FAILED_JOB_RULE",
       "priority": "3",
@@ -43,7 +42,7 @@
       "evaluate": "type = facts.get(\"message-type\"); return type.equals(MessageConversationConstants.FAILED_JOB_ID);"
     },
     {
-      "agentType": "SCHEDULER",
+      "agentType": "CENTRAL_MANAGER",
       "type": "FINISH_JOB_EXECUTION_RULE",
       "name": "finish of job execution in central cloud",
       "description": "rule initiates finish of Job execution in the central cloud",
@@ -57,10 +56,9 @@
       ],
       "specifyTime": "job = facts.get(\"job\"); endDate = TimeSimulation.getCurrentTime().isAfter(job.getEndTime()) ? TimeSimulation.getCurrentTime() : job.getEndTime(); return Date.from(endDate);",
       "handleActionTrigger": "job = facts.get(\"job\"); MDC.put(LoggingConstants.MDC_JOB_ID, job.getJobId()); MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts)); logger.info(\"Client job {} execution has finished in cloud.\", job.getJobId()); agentNode.addFinishedInCloudJob(); agentNode.removePlannedJob(); ruleSetIdx = agentProps.removeJob(job); controller.removeRuleSet(agentProps.getRuleSetForJob(), ruleSetIdx); agent.send(JobStatusMessageFactory.prepareJobStatusMessageForClient(job, MessageConversationConstants.FINISH_JOB_ID, facts.get(\"rule-set-idx\")));"
-
     },
     {
-      "agentType": "SCHEDULER",
+      "agentType": "CENTRAL_MANAGER",
       "type": "START_JOB_EXECUTION_RULE",
       "name": "start of job execution in central cloud",
       "description": "rule initiates start of Job execution in the central cloud",
@@ -78,14 +76,13 @@
       ],
       "specifyTime": "job = facts.get(\"job\"); startDate = TimeSimulation.getCurrentTime().isAfter(job.getStartTime()) ? TimeSimulation.getCurrentTime() : job.getStartTime(); return Date.from(startDate);",
       "handleActionTrigger": "job = facts.get(\"job\"); MDC.put(LoggingConstants.MDC_JOB_ID, job.getJobId()); MDC.put(LoggingConstants.MDC_RULE_SET_ID, LoggingConstants.getIdxFromFacts.apply(facts)); if (JobExecutionStatusEnum.PLANNED_JOB_STATUSES.contains(agentProps.getClientJobs().getOrDefault(job, JobExecutionStatusEnum.ACCEPTED))) { logger.info(\"Start execution of the job {} in cloud.\", job.getJobId()); agentNode.addStartedInCloudJob(); executionFacts = new RuleSetFacts(facts.get(\"rule-set-idx\")); executionFacts.put(\"job\", job); agent.addBehaviour(ScheduleOnce.create(agent, executionFacts, RuleType.FINISH_JOB_EXECUTION_RULE, controller, RuleSetSelector.SELECT_BY_FACTS_IDX)); agentProps.getClientJobs().replace(job, JobExecutionStatusEnum.ACCEPTED, JobExecutionStatusEnum.IN_PROGRESS_CLOUD); agent.send(JobStatusMessageFactory.prepareJobStatusMessageForClient(job, MessageConversationConstants.STARTED_IN_CLOUD_ID, facts.get(\"rule-set-idx\"))); } else { logger.info(\"The execution of specific job {} instance has already started\", job.getJobId()); }"
-
     },
     {
       "agentType": "REGIONAL_MANAGER",
       "type": "NEW_JOB_RECEIVER_HANDLER_RULE",
       "subType": "NEW_JOB_RECEIVER_HANDLE_NEW_JOB_RULE",
       "name": "handles new scheduled jobs before weather drop",
-      "description": "rule run when RMA processes new job received from Scheduler when weather drop will occur in 24h",
+      "description": "rule run when RMA processes new job received from CMA when weather drop will occur in 24h",
       "agentRuleType": "BASIC",
       "imports": [
         "import java.time.Duration;",

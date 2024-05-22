@@ -5,13 +5,13 @@ import { SCHEDULER_CONFIGURATION } from './scheduler-statistics-config'
 import DetailsField from 'components/common/details-field/details-field'
 import { Header, ModalButton } from 'components/common'
 import ScheduleModal from './scheduler-modal/scheduler-modal-connected'
-import { SchedulerAgent } from '@types'
+import { CentralManagerAgent } from '@types'
 import { styles } from './scheduler-statistics-styles'
 
 const modalButtonText = 'Schedule'
 
 interface Props {
-   scheduler: SchedulerAgent | null
+   centralManager: CentralManagerAgent | null
 }
 
 /**
@@ -19,7 +19,7 @@ interface Props {
  *
  * @returns JSX Element
  */
-export const SchedulerStatistics = ({ scheduler }: Props) => {
+export const SchedulerStatistics = ({ centralManager }: Props) => {
    const [isOpen, setIsOpen] = useState(false)
 
    const parseValue = (val: any, key: string) =>
@@ -28,7 +28,7 @@ export const SchedulerStatistics = ({ scheduler }: Props) => {
    const mapStatisticsToFields = () => {
       return SCHEDULER_CONFIGURATION.map((field) => {
          const { key, label } = field
-         const value = { ...scheduler }[key] ?? 0
+         const value = { ...centralManager }[key] ?? 0
          return <DetailsField {...{ label, value: parseValue(value, key), key }} />
       })
    }

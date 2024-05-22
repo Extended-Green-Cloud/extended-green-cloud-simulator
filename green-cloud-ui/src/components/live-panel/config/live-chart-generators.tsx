@@ -2,7 +2,7 @@
 import {
    AgentRegionalManagerStatisticReports,
    AgentGreenSourceStatisticReports,
-   AgentSchedulerStatisticReports,
+   AgentCentralManagerStatisticReports,
    AgentServerStatisticReports,
    AgentStatisticReport,
    CommonAgentReports,
@@ -23,7 +23,6 @@ import {
    JobCompletedLiveChart,
    JobExecutionLiveChart,
    QueueCapacityLiveChart,
-   SchedulerPriorityLiveChart,
    SuccessRatioChart,
    TrafficDistributionLiveChart,
    TrafficLiveChart
@@ -113,19 +112,9 @@ const getAgentTrafficDistributionChart: LiveChartGenerator = (reports, _) => (
    <TrafficDistributionLiveChart {...{ reports: reports as ReportsStore }} />
 )
 
-const getAgentSchedulerPrioritiesChart: LiveChartGenerator = (_, agentReports) => {
-   const reportsMapped = agentReports as AgentStatisticReport
-   const { cpuPriorityReport, deadlinePriorityReport } = reportsMapped.reports as AgentSchedulerStatisticReports
-   return (
-      <SchedulerPriorityLiveChart
-         {...{ title: `${reportsMapped.name} job priority over time`, cpuPriorityReport, deadlinePriorityReport }}
-      />
-   )
-}
-
 const getAgentQueueCapacityChart: LiveChartGenerator = (_, agentReports) => {
    const reportsMapped = agentReports as AgentStatisticReport
-   const { queueCapacityReport } = reportsMapped.reports as AgentSchedulerStatisticReports
+   const { queueCapacityReport } = reportsMapped.reports as AgentCentralManagerStatisticReports
    return (
       <QueueCapacityLiveChart
          {...{ title: `${reportsMapped.name} number of jobs in queue over time`, queueCapacityReport }}
@@ -194,7 +183,6 @@ export {
    getClientProcessorTypeChart,
    getAgentJobsOnHoldChart,
    getAgentQueueCapacityChart,
-   getAgentSchedulerPrioritiesChart,
    getAgentSuccessRatioChart,
    getAgentTrafficChart,
    getAgentTrafficDistributionChart,

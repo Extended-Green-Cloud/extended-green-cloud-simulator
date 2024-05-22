@@ -1,10 +1,10 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static java.time.Instant.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -33,7 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +41,7 @@ class VerifyAdaptationActionResultUnitTest {
 
 	private static final Instant ACTION_TIMESTAMP = parse("2022-01-01T10:30:00.000Z");
 	private static final AdaptationAction ACTION = getAdaptationAction(ADD_SERVER).get(0);
-	private static final Map<GoalEnum, Double> INITIAL_QUALITIES = Map.of(
+	private static final Map<GoalType, Double> INITIAL_QUALITIES = Map.of(
 			MINIMIZE_USED_BACKUP_POWER, 0.1,
 			MAXIMIZE_JOB_SUCCESS_RATIO, 0.8,
 			DISTRIBUTE_TRAFFIC_EVENLY, 0.5);
@@ -101,7 +101,7 @@ class VerifyAdaptationActionResultUnitTest {
 				MINIMIZE_USED_BACKUP_POWER, 0.1,
 				DISTRIBUTE_TRAFFIC_EVENLY, -0.2
 		);
-		final ArgumentCaptor<Map<GoalEnum, Double>> mapCaptor = forClass(Map.class);
+		final ArgumentCaptor<Map<GoalType, Double>> mapCaptor = forClass(Map.class);
 
 		verify(database).updateAdaptationAction(eq(ACTION.getActionId()), mapCaptor.capture(), eq(7L));
 		verify(database).setAdaptationActionAvailability(ACTION.getActionId(), true);

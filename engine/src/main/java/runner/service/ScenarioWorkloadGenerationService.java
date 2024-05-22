@@ -169,6 +169,7 @@ public class ScenarioWorkloadGenerationService {
 				.duration(randomDuration)
 				.deadline(randomDeadline)
 				.jobSteps(randomSteps)
+				.priority(1)
 				.build();
 	}
 

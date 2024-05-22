@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DISCONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISCONNECT_GREEN_SOURCE;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingDouble;
@@ -30,7 +30,7 @@ import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 import jade.core.AID;
@@ -43,7 +43,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 
 	private Map<String, List<String>> greenSourcesWithServers;
 
-	public DisconnectGreenSourcePlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public DisconnectGreenSourcePlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(DISCONNECT_GREEN_SOURCE, managingAgent, violatedGoal);
 		this.greenSourcesWithServers = new HashMap<>();
 	}
@@ -203,12 +203,6 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 	@VisibleForTesting
 	protected Map<String, List<String>> getGreenSourcesWithServers() {
 		return greenSourcesWithServers;
-	}
-
-	@VisibleForTesting
-	protected void setGreenSourcesWithServers(
-			Map<String, List<String>> greenSourcesWithServers) {
-		this.greenSourcesWithServers = greenSourcesWithServers;
 	}
 
 	private String getAIDByName(List<String> aidList, String name) {

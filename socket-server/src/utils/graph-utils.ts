@@ -46,10 +46,10 @@ const getNodeState = (agent) => {
 };
 
 const createRegionalManagerEdges = (agent) => {
-	const scheduler = AGENTS_STATE.agents.find((agent) => agent.type === AGENT_TYPES.SCHEDULER);
-	const schedulerEdge = createEdge(agent.name, scheduler.name);
+	const centralManager = AGENTS_STATE.agents.find((agent) => agent.type === AGENT_TYPES.CENTRAL_MANAGER);
+	const centralManagerEdge = createEdge(agent.name, centralManager.name);
 
-	return [schedulerEdge];
+	return [centralManagerEdge];
 };
 
 const createServerEdges = (agent) => {

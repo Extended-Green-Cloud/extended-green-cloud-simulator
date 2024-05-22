@@ -11,13 +11,14 @@ export const CLIENT_STATISTICS_RESOURCES_MAPPER = [{ label: 'Required amount', m
 export const CLIENT_STATISTICS_RESOURCES = [{ key: 'resources', label: '-' }]
 
 export const CLIENT_STATISTICS_TIMELINE = [
-   { key: 'duration', label: 'Duration' },
-   { key: 'start', label: 'Start date' },
-   { key: 'end', label: 'End date' }
+   { key: 'duration', label: 'Initial estimated job execution duration' },
+   { key: 'deadline', label: 'Job execution deadline' }
 ]
 
 export const CLIENT_STATISTICS_EXECUTION = [
    { key: 'executor', label: 'Server executing job' },
+   { key: 'expectedExecutionTime', label: 'Expected job execution duration' },
+   { key: 'finalEndTime', label: 'Job execution time finish' },
    { key: 'estimatedPrice', label: 'Estimated job execution price' },
    { key: 'finalPrice', label: 'Final job execution price' },
    { key: 'steps', label: 'Job steps' },

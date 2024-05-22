@@ -48,10 +48,9 @@ class DisableAdaptationActionsDatabaseTest {
 	}
 
 	@Test
-	@Disabled
 	@DisplayName("Test disabling adaptation actions")
 	void testAction() {
-		var actionsToDisable = List.of("ADD_SERVER", "INCREASE_DEADLINE_PRIORITY", "INCREASE_POWER_PRIORITY");
+		var actionsToDisable = List.of("ADD_SERVER", "CHANGE_GREEN_SOURCE_WEIGHT");
 
 		final DisableAdaptationActions disableAdaptationActions = new DisableAdaptationActions(mockManagingAgent,
 				actionsToDisable);
@@ -64,7 +63,7 @@ class DisableAdaptationActionsDatabaseTest {
 		assertThat(database.readAdaptationActions())
 				.usingRecursiveFieldByFieldElementComparator()
 				.allMatch(action -> !actionsToDisable.contains(action.getAction().toString()) ||
-						(actionsToDisable.contains(action.getAction().toString()) && !action.getAvailable()));
+						(actionsToDisable.contains(action.getAction().toString()) && !action.getIsAvailable()));
 	}
 
 }

@@ -1,28 +1,27 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_GREEN_SOURCE;
-import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingDouble;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_GREEN_SOURCE;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.DoublePredicate;
 
+import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
-
-import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
-import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.commons.args.adaptation.system.AddGreenSourceActionParameters;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.AID;
 import jade.core.Location;
@@ -37,7 +36,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 
 	private Map<String, Double> serversData;
 
-	public AddGreenSourcePlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public AddGreenSourcePlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(ADD_GREEN_SOURCE, managingAgent, violatedGoal);
 		serversData = emptyMap();
 	}
@@ -79,7 +78,8 @@ public class AddGreenSourcePlan extends SystemPlan {
 		}
 
 		final String targetRegionalManagerAgent = targetServerArgs.getOwnerRegionalManager();
-		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs()
+		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure()
+				.getRegionalManagerAgentsArgs()
 				.stream()
 				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))
 				.findFirst()
@@ -91,7 +91,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 
 		final String regionalManagerLocation = defaultIfNull(regionalManager.getLocationId(),
 				targetServerArgs.getOwnerRegionalManager());
-		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createMonitoringAgent();
+		final MonitoringArgs extraMonitoringAgentArguments = agentFactory.createDefaultMonitoringAgent();
 		final GreenEnergyArgs extraGreenEnergyArguments = agentFactory.createDefaultGreenEnergyAgent(
 				extraMonitoringAgentArguments.getName(), targetServerArgs.getName());
 		final Map.Entry<Location, AID> targetLocation = managingAgent.move()

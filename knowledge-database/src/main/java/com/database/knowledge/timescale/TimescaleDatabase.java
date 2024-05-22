@@ -37,10 +37,10 @@ import java.util.Properties;
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.AMSData;
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.database.knowledge.timescale.exception.ClosingDatabaseException;
 import com.database.knowledge.timescale.exception.ConnectDatabaseException;
@@ -153,13 +153,11 @@ public class TimescaleDatabase implements Closeable, Serializable {
 	 * @param executionDuration time to execute adaptation action
 	 * @return updated {@link AdaptationAction}
 	 */
-	public AdaptationAction updateAdaptationAction(Integer actionId, Map<GoalEnum, Double> goalChanges,
+	public AdaptationAction updateAdaptationAction(Integer actionId, Map<GoalType, Double> goalChanges,
 			long executionDuration) {
 		try {
 			var action = readAdaptationAction(actionId);
-			action.mergeActionResults(goalChanges);
-			action.updateAvgExecutionDuration(executionDuration);
-			action.increaseRuns();
+			action.mergeActionResults(goalChanges, executionDuration);
 			statementsExecutor.executeUpdateActionStatement(action);
 			return readAdaptationAction(actionId);
 		} catch (SQLException | JsonProcessingException exception) {

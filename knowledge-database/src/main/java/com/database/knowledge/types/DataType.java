@@ -1,5 +1,7 @@
-package com.database.knowledge.domain.agent;
+package com.database.knowledge.types;
 
+import com.database.knowledge.domain.agent.HealthCheck;
+import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.client.ClientJobExecutionData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ClientStatisticsData;
@@ -11,6 +13,11 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.monitoring.ProcessedApiRequest;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum DataType {
 
 	DEFAULT(MonitoringData.class),
@@ -27,12 +34,4 @@ public enum DataType {
 	PROCESSED_API_REQUEST(ProcessedApiRequest.class);
 
 	private final Class<? extends MonitoringData> dataTypeClass;
-
-	DataType(Class<? extends MonitoringData> dataTypeClass) {
-		this.dataTypeClass = dataTypeClass;
-	}
-
-	public Class<? extends MonitoringData> getDataTypeClass() {
-		return dataTypeClass;
-	}
 }

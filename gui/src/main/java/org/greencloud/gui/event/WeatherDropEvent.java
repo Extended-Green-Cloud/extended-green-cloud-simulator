@@ -1,5 +1,7 @@
 package org.greencloud.gui.event;
 
+import static java.util.Objects.isNull;
+import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
 import static org.greencloud.commons.enums.event.EventTypeEnum.WEATHER_DROP_EVENT;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
@@ -9,13 +11,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.gui.agents.centralmanager.CMANode;
 import org.greencloud.gui.agents.egcs.EGCSNode;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
-import org.greencloud.gui.agents.scheduler.SchedulerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.greencloud.gui.messages.WeatherDropMessage;
 import org.jrba.agentmodel.domain.node.AgentNode;
@@ -76,12 +76,12 @@ public class WeatherDropEvent extends ExternalEvent {
 
 	@Override
 	public <T extends AgentNode> void trigger(final Map<String, T> agentNodes) {
-		final RegionalManagerNode agentNode = (RegionalManagerNode) agentNodes.get(agentName);
-		final SchedulerNode schedulerNode = (SchedulerNode) agentNodes.values().stream()
-				.filter(node -> node.getAgentType().equals(EGCSAgentType.SCHEDULER.name()))
+		final RMANode agentNode = (RMANode) agentNodes.get(agentName);
+		final CMANode cmaNode = (CMANode) agentNodes.values().stream()
+				.filter(node -> node.getAgentType().equals(CENTRAL_MANAGER.name()))
 				.findFirst().orElseThrow();
 
-		if (Objects.isNull(agentNode)) {
+		if (isNull(agentNode)) {
 			logger.error("Agent {} was not found. Weather drop couldn't be triggered", agentName);
 			return;
 		}
@@ -96,7 +96,7 @@ public class WeatherDropEvent extends ExternalEvent {
 				.toList();
 
 		greenEnergyNodes.forEach(node -> node.addEvent(this));
-		schedulerNode.addEvent(this);
+		cmaNode.addEvent(this);
 		agentNode.addEvent(this);
 	}
 }

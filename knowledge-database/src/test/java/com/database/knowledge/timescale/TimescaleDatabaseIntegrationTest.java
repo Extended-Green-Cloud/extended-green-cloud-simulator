@@ -1,14 +1,14 @@
 package com.database.knowledge.timescale;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
-import static com.database.knowledge.domain.agent.DataType.CLIENT_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.PROCESSED_API_REQUEST;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.PROCESSED_API_REQUEST;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
+import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
@@ -39,7 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
@@ -50,7 +50,7 @@ import com.database.knowledge.domain.agent.monitoring.ImmutableProcessedApiReque
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 
 @ExtendWith(MockitoExtension.class)
@@ -256,7 +256,7 @@ class TimescaleDatabaseIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("actionResultsProvider")
-	void shouldCorrectlyUpdateAdaptationAction(List<Map<GoalEnum, Double>> actionResults,
+	void shouldCorrectlyUpdateAdaptationAction(List<Map<GoalType, Double>> actionResults,
 			Map<Integer, Double> expectedActionResults) {
 		// given
 		int actionId = 1;
@@ -303,10 +303,10 @@ class TimescaleDatabaseIntegrationTest {
 				.as("final action results should have the expected values")
 				.usingRecursiveComparison()
 				.isEqualTo(actionResults);
-		assertThat(blockedAction.getAvailable())
+		assertThat(blockedAction.getIsAvailable())
 				.as("After update action should be unavailable")
 				.isFalse();
-		assertThat(releasedAction.getAvailable())
+		assertThat(releasedAction.getIsAvailable())
 				.as("After release action should be available")
 				.isTrue();
 	}

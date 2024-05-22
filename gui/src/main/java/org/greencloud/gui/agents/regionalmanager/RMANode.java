@@ -1,14 +1,14 @@
 package org.greencloud.gui.agents.regionalmanager;
 
-import static com.database.knowledge.domain.agent.DataType.REGIONAL_MANAGER_MONITORING;
+import static com.database.knowledge.types.DataType.REGIONAL_MANAGER_MONITORING;
 import static java.util.Optional.ofNullable;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
 import java.util.Map;
 import java.util.Optional;
 
-import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAgentProps;
 import org.greencloud.commons.args.agent.regionalmanager.node.RegionalManagerNodeArgs;
 import org.greencloud.commons.domain.resources.Resource;
@@ -28,15 +28,15 @@ import com.database.knowledge.domain.agent.regionalmanager.RegionalManagerMonito
 /**
  * Agent node class representing the regional manager
  */
-public class RegionalManagerNode extends EGCSNetworkNode<RegionalManagerNodeArgs, RegionalManagerAgentProps> {
+public class RMANode extends EGCSNetworkNode<RegionalManagerNodeArgs, RegionalManagerAgentProps> {
 
 	/**
 	 * Regional manager node constructor
 	 *
 	 * @param regionalManagerArgs node arguments
 	 */
-	public RegionalManagerNode(final RegionalManagerNodeArgs regionalManagerArgs) {
-		super(regionalManagerArgs, EGCSAgentType.REGIONAL_MANAGER);
+	public RMANode(final RegionalManagerNodeArgs regionalManagerArgs) {
+		super(regionalManagerArgs, REGIONAL_MANAGER);
 	}
 
 	/**

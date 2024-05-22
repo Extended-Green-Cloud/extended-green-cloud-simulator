@@ -1,19 +1,17 @@
 package org.greencloud.managingsystem.service.planner;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_DEADLINE_PRIORITY;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.INCREASE_POWER_PRIORITY;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.HEALTH_CHECK;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.HEALTH_CHECK;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,8 +47,6 @@ import org.greencloud.managingsystem.service.planner.plans.AddServerPlan;
 import org.greencloud.managingsystem.service.planner.plans.ChangeGreenSourceWeightPlan;
 import org.greencloud.managingsystem.service.planner.plans.ConnectGreenSourcePlan;
 import org.greencloud.managingsystem.service.planner.plans.DecrementGreenSourceErrorPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseDeadlinePriorityPlan;
-import org.greencloud.managingsystem.service.planner.plans.IncreaseJobDivisionPowerPriorityPlan;
 import org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -64,7 +60,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
@@ -72,6 +67,7 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 
 import jade.core.AID;
 
@@ -96,8 +92,6 @@ class PlannerServiceUnitTest {
 		return Stream.of(
 				arguments(ADD_SERVER, AddServerPlan.class),
 				arguments(CONNECT_GREEN_SOURCE, ConnectGreenSourcePlan.class),
-				arguments(INCREASE_DEADLINE_PRIORITY, IncreaseDeadlinePriorityPlan.class),
-				arguments(INCREASE_POWER_PRIORITY, IncreaseJobDivisionPowerPriorityPlan.class),
 				arguments(INCREASE_GREEN_SOURCE_ERROR, IncrementGreenSourceErrorPlan.class),
 				arguments(CHANGE_GREEN_SOURCE_WEIGHT, ChangeGreenSourceWeightPlan.class)
 		);
@@ -124,7 +118,6 @@ class PlannerServiceUnitTest {
 	void testPlannerTriggerForExecutorNotCalled() {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER).get(0), 30.0,
-				getAdaptationAction(INCREASE_DEADLINE_PRIORITY).get(0), 12.0,
 				getAdaptationAction(CONNECT_GREEN_SOURCE).get(0), 5.0
 		);
 
@@ -146,7 +139,6 @@ class PlannerServiceUnitTest {
 
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER).get(0), 30.0,
-				getAdaptationAction(INCREASE_DEADLINE_PRIORITY).get(0), 12.0,
 				getAdaptationAction(CONNECT_GREEN_SOURCE).get(0), 5.0
 		);
 		plannerService.setPlanForActionMap(Map.of(
@@ -299,7 +291,7 @@ class PlannerServiceUnitTest {
 	@ParameterizedTest
 	@MethodSource("parametersGetPlanTest")
 	@DisplayName("Test getting plan for adaptation action")
-	void testGetPlanForAdaptationAction(final AdaptationActionEnum adaptation, final Class<?> expectedPlan) {
+	void testGetPlanForAdaptationAction(final AdaptationActionTypeEnum adaptation, final Class<?> expectedPlan) {
 		plannerService.initializePlansForActions(MAXIMIZE_JOB_SUCCESS_RATIO);
 		assertThat(plannerService.getPlanForAdaptationAction(getAdaptationAction(adaptation).get(0)))
 				.isInstanceOf(expectedPlan);
@@ -319,7 +311,7 @@ class PlannerServiceUnitTest {
 				return this;
 			}
 		};
-		final AbstractPlan plan2 = new AbstractPlan(INCREASE_DEADLINE_PRIORITY, managingAgent,
+		final AbstractPlan plan2 = new AbstractPlan(CHANGE_GREEN_SOURCE_WEIGHT, managingAgent,
 				MAXIMIZE_JOB_SUCCESS_RATIO) {
 			@Override
 			public boolean isPlanExecutable() {
@@ -331,11 +323,11 @@ class PlannerServiceUnitTest {
 				return this;
 			}
 		};
-		plannerService.setPlanForActionMap(Map.of(ADD_SERVER, plan1, INCREASE_DEADLINE_PRIORITY, plan2));
+		plannerService.setPlanForActionMap(Map.of(ADD_SERVER, plan1, CHANGE_GREEN_SOURCE_WEIGHT, plan2));
 
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER).get(0), 10.0,
-				getAdaptationAction(INCREASE_DEADLINE_PRIORITY).get(0), 12.0,
+				getAdaptationAction(CHANGE_GREEN_SOURCE_WEIGHT).get(0), 12.0,
 				getAdaptationAction(CONNECT_GREEN_SOURCE).get(0), 5.0
 		);
 
@@ -346,7 +338,7 @@ class PlannerServiceUnitTest {
 				.hasSize(1)
 				.as("Result should contain correct field")
 				.allSatisfy((entry) -> {
-					assertThat(entry.getKey()).isEqualTo(getAdaptationAction(INCREASE_DEADLINE_PRIORITY).get(0));
+					assertThat(entry.getKey()).isEqualTo(getAdaptationAction(CHANGE_GREEN_SOURCE_WEIGHT).get(0));
 					assertThat(entry.getValue()).isEqualTo(12.0);
 				});
 	}
@@ -356,7 +348,6 @@ class PlannerServiceUnitTest {
 	void testSelectBestAction() {
 		final Map<AdaptationAction, Double> testActions = Map.of(
 				getAdaptationAction(ADD_SERVER).get(0), 30.0,
-				getAdaptationAction(INCREASE_DEADLINE_PRIORITY).get(0), 12.0,
 				getAdaptationAction(CONNECT_GREEN_SOURCE).get(0), 5.0
 		);
 

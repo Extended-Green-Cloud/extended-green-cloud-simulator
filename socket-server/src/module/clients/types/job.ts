@@ -10,9 +10,7 @@ export interface Job {
 	jobId: string;
 	processorName: string;
 	resources: ResourceMap;
-	start: string;
-	end: string;
 	deadline: string;
-	duration: string;
+	duration: number;
 	steps: JobStep[];
 }

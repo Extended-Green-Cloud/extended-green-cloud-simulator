@@ -1,8 +1,8 @@
 package org.greencloud.managingsystem.service.monitoring;
 
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
@@ -26,8 +26,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
-import com.database.knowledge.exception.InvalidGoalIdentifierException;
+import com.database.knowledge.types.GoalType;
+import org.greencloud.commons.exception.InvalidGoalIdentifierException;
 
 class MonitoringServiceUnitTest {
 
@@ -84,14 +84,14 @@ class MonitoringServiceUnitTest {
 	@ParameterizedTest
 	@MethodSource("parametersForGetAdaptationGoal")
 	@DisplayName("Test get adaptation goal for valid goal type")
-	void testGetAdaptationGoal(final GoalEnum type, final AdaptationGoal expectedResult) {
+	void testGetAdaptationGoal(final GoalType type, final AdaptationGoal expectedResult) {
 		assertThat(monitoringService.getAdaptationGoal(type)).isEqualTo(expectedResult);
 	}
 
 	@Test
 	@DisplayName("Test get adaptation goal for invalid goal type")
 	void testGetAdaptationGoalForInvalid() {
-		final GoalEnum mockEnum = mock(GoalEnum.class);
+		final GoalType mockEnum = mock(GoalType.class);
 		doReturn(14).when(mockEnum).getAdaptationGoalId();
 
 		assertThatThrownBy(() -> monitoringService.getAdaptationGoal(mockEnum))

@@ -21,13 +21,13 @@ import java.util.Objects;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import com.database.knowledge.exception.DatabaseConnectionNotAvailable;
+import org.greencloud.commons.exception.DatabaseConnectionNotAvailable;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -47,7 +47,7 @@ public class AnalyzerService extends AbstractManagingService {
 	 *
 	 * @param violatedGoal adaptation goal for which the system analysis is triggered
 	 */
-	public void trigger(final GoalEnum violatedGoal) {
+	public void trigger(final GoalType violatedGoal) {
 		final String adaptationInfo =
 				managingAgent.monitor().computeSystemIndicator() > managingAgent.getSystemQualityThreshold() ?
 						SYSTEM_QUALITY_INDICATOR_VIOLATED_LOG :
@@ -71,7 +71,7 @@ public class AnalyzerService extends AbstractManagingService {
 	}
 
 	@VisibleForTesting
-	protected List<AdaptationAction> getAdaptationActionsForGoal(final GoalEnum violatedGoal) {
+	protected List<AdaptationAction> getAdaptationActionsForGoal(final GoalType violatedGoal) {
 		if (Objects.nonNull(managingAgent.getAgentNode())) {
 			return managingAgent.getAgentNode().getDatabaseClient().readAdaptationActions().stream()
 					.filter(action -> action.getGoal().equals(violatedGoal))
@@ -88,7 +88,7 @@ public class AnalyzerService extends AbstractManagingService {
 				.sum();
 	}
 
-	private boolean shouldAdaptationBeTriggered(final GoalEnum goal) {
+	private boolean shouldAdaptationBeTriggered(final GoalType goal) {
 		final double systemQualityForGoal = managingAgent.monitor().getLastMeasuredGoalQualities().get(goal);
 
 		if (!managingAgent.monitor().isQualityInBounds(systemQualityForGoal, goal)) {

@@ -1,5 +1,6 @@
 package org.greencloud.gui.messages.domain;
 
+import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.immutables.value.Value;
 
@@ -17,9 +18,7 @@ public interface GreenSourceCreator extends EventData {
 
 	String getServer();
 
-	Double getLatitude();
-
-	Double getLongitude();
+	Location getLocation();
 
 	Double getPricePerPowerUnit();
 

@@ -2,8 +2,8 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.goal.GoalEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import com.database.knowledge.types.GoalType;
 import org.greencloud.commons.args.adaptation.system.SystemAdaptationActionParameters;
 import com.greencloud.connector.factory.AgentFactory;
 import com.greencloud.connector.factory.AgentFactoryImpl;
@@ -24,7 +24,7 @@ public abstract class SystemPlan extends AbstractPlan {
 	 * @param managingAgent managing agent executing the action
 	 * @param violatedGoal  violated goal
 	 */
-	protected SystemPlan(AdaptationActionEnum actionEnum, ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	protected SystemPlan(AdaptationActionTypeEnum actionEnum, ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(actionEnum, managingAgent, violatedGoal);
 		agentFactory = new AgentFactoryImpl();
 	}

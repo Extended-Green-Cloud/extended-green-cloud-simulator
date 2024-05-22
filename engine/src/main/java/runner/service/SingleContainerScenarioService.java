@@ -49,7 +49,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 		startRuleSetAPI();
 		if (Objects.nonNull(scenario.getAgentsArgs())) {
 			AGENTS_TO_RUN.add(prepareManagingController(scenario.getManagingAgentArgs()));
-			createAgents(List.of(scenario.getSchedulerAgentArgs()), scenario);
+			createAgents(List.of(scenario.getCentralManagerAgentArgs()), scenario);
 			createAgents(scenario.getMonitoringAgentsArgs(), scenario);
 			createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);
 			createAgents(scenario.getServerAgentsArgs(), scenario);

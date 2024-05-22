@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CHANGE_GREEN_SOURCE_WEIGHT;
-import static com.database.knowledge.domain.agent.DataType.SHORTAGES;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static com.database.knowledge.types.DataType.SHORTAGES;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static java.util.Collections.min;
 import static java.util.Comparator.comparingInt;
@@ -17,7 +17,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.collect.Maps;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
@@ -34,7 +34,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 
 	private final Map<String, Integer> recentShortages;
 
-	public ChangeGreenSourceWeightPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public ChangeGreenSourceWeightPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(CHANGE_GREEN_SOURCE_WEIGHT, managingAgent, violatedGoal);
 		recentShortages = new HashMap<>();
 	}

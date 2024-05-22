@@ -89,11 +89,11 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 	}
 
 	private void runCommonAgentContainers(final ScenarioStructureArgs scenario) {
-		final AgentController schedulerController = factory.createAgentController(scenario.getSchedulerAgentArgs(),
+		final AgentController cmaController = factory.createAgentController(scenario.getCentralManagerAgentArgs(),
 				scenario);
 		final AgentController managingAgentController = prepareManagingController(scenario.getManagingAgentArgs());
 
-		factory.runAgentController(schedulerController, RUN_AGENT_DELAY);
+		factory.runAgentController(cmaController, RUN_AGENT_DELAY);
 		factory.runAgentController(managingAgentController, RUN_AGENT_DELAY);
 	}
 

@@ -1,7 +1,7 @@
 import { AgentType } from 'types/enum'
 import { AgentRegionalManagerStatisticReports } from './agent-cloud-network-reports'
 import { AgentGreenSourceStatisticReports } from './agent-green-source-reports'
-import { AgentSchedulerStatisticReports } from './agent-scheduler-reports'
+import { AgentCentralManagerStatisticReports } from './agent-central-manager-reports'
 import { AgentServerStatisticReports } from './agent-server-reports'
 import { ReportEvents } from '../report-events'
 
@@ -10,7 +10,7 @@ export interface AgentStatisticReport {
    type: AgentType
    reports:
       | AgentRegionalManagerStatisticReports
-      | AgentSchedulerStatisticReports
+      | AgentCentralManagerStatisticReports
       | AgentServerStatisticReports
       | AgentGreenSourceStatisticReports
    events: ReportEvents[]

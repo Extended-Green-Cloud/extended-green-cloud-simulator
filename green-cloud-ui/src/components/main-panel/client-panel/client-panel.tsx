@@ -71,6 +71,8 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
                ...(selectedClient.job as any),
                executor: selectedClient?.executor ?? '',
                status: selectedClient.status as any,
+               finalEndTime: selectedClient.finalEndTime as any,
+               expectedExecutionTime: selectedClient.expectedExecutionTime as any,
                estimatedPrice: `${((selectedClient?.estimatedPrice ?? 0) as number).toFixed(2)} $`,
                finalPrice: `${((selectedClient?.finalPrice ?? 0) as number).toFixed(2)} $`,
                durationMap: selectedClient.durationMap as any,
@@ -92,9 +94,10 @@ export const ClientPanel = ({ clients, selectedClient, setSelectedClient, update
       if (key === 'status') return <Badge text={value} color={STATUS_COLOR[value as JobStatus]} />
       if (key === 'durationMap') return durationButton
       if (key === 'steps') return stepsButton
-      if (key === 'start' || key === 'end') return typeof value === 'number' ? convertTimeToString(value) : value
+      if (key === 'finalEndTime') return value ? convertTimeToString(value) : '-'
       if (key === 'jobExecutionProportion') return `${Math.round(value * 100)}%`
       if (key === 'duration') return convertSecondsToString(value)
+      if (key === 'expectedExecutionTime') return convertSecondsToString(value)
       if (key === 'resources') return collectResourcesToMultiMap(value, CLIENT_STATISTICS_RESOURCES_MAPPER)
       return value
    }

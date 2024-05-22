@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.goal.GoalEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.AID;
 import jade.core.Agent;
@@ -37,7 +37,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	private final ManagingAgentNode managingAgentNode;
 	private final AdaptationAction adaptationAction;
 	private final AID targetAgent;
-	private final Map<GoalEnum, Double> initialGoalQualities;
+	private final Map<GoalType, Double> initialGoalQualities;
 	private final Runnable postActionHandler;
 	private final Runnable enablePlanAction;
 	private final Timer timer;
@@ -53,7 +53,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 	 *                             given plan
 	 * @param adaptationAction     - action that is to be executed
 	 */
-	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Map<GoalEnum, Double> initialGoalQualities,
+	public InitiateAdaptationActionRequest(Agent agent, ACLMessage message, Map<GoalType, Double> initialGoalQualities,
 			Runnable postActionHandler, Runnable enablePlanAction, AdaptationAction adaptationAction) {
 		super(agent, message);
 		this.timer = new Timer();
@@ -81,7 +81,7 @@ public class InitiateAdaptationActionRequest extends AchieveREInitiator {
 		var actionExecutionTime = getCurrentTime();
 		final long executionDuration = timer.stopTimeMeasure(actionExecutionTime);
 		final String formattedDuration = convertMillisecondsToTimeString(executionDuration);
-		final AdaptationActionEnum actionType = adaptationAction.getAction();
+		final AdaptationActionTypeEnum actionType = adaptationAction.getAction();
 		logger.info(COMPLETED_ACTION_LOG, adaptationAction.getAction(), actionType, targetAgent, formattedDuration);
 
 		if (Objects.nonNull(postActionHandler)) {

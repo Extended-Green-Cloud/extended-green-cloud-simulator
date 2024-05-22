@@ -5,7 +5,7 @@ import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSock
 import java.io.Serializable;
 
 import org.greencloud.commons.args.agent.EGCSAgentType;
-import org.greencloud.gui.agents.regionalmanager.RegionalManagerNode;
+import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.greencloud.gui.messages.ImmutableIsActiveMessage;
 import org.greencloud.gui.messages.ImmutableSetNumericValueMessage;
 import org.jrba.agentmodel.domain.args.AgentArgs;
@@ -49,7 +49,7 @@ public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps>
 	 * @param isActive information if the network node is active
 	 */
 	public void updateIsActive(final boolean isActive) {
-		if (!(this instanceof RegionalManagerNode)) {
+		if (!(this instanceof RMANode)) {
 			getAgentsWebSocket().send(ImmutableIsActiveMessage.builder()
 					.data(isActive)
 					.agentName(agentName)
@@ -76,7 +76,7 @@ public abstract class EGCSNetworkNode<T extends AgentArgs, E extends AgentProps>
 	 * @param value number of jobs that are on hold
 	 */
 	public void updateJobsOnHoldCount(final int value) {
-		if (!(this instanceof RegionalManagerNode)) {
+		if (!(this instanceof RMANode)) {
 			getAgentsWebSocket().send(ImmutableSetNumericValueMessage.builder()
 					.data(value)
 					.agentName(agentName)

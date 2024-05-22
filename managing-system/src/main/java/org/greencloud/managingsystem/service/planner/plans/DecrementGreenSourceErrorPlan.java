@@ -1,10 +1,10 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DECREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.WEATHER_SHORTAGES;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -39,7 +39,7 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 import jade.core.AID;
@@ -54,7 +54,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 	private static final double MINIMUM_PREDICTION_ERROR = 0.02;
 	private Map<AgentsBackUpPower, List<AgentsPowerShortages>> greenSourcesPerServers;
 
-	public DecrementGreenSourceErrorPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public DecrementGreenSourceErrorPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(DECREASE_GREEN_SOURCE_ERROR, managingAgent, violatedGoal);
 		this.greenSourcesPerServers = new HashMap<>();
 	}

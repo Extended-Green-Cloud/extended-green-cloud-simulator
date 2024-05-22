@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ENABLE_SERVER;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ENABLE_SERVER;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingInt;
@@ -15,7 +15,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.AID;
 
@@ -28,7 +28,7 @@ public class EnableServerPlan extends AbstractPlan {
 
 	private Map<String, Integer> consideredServers;
 
-	public EnableServerPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public EnableServerPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(ENABLE_SERVER, managingAgent, violatedGoal);
 		consideredServers = emptyMap();
 	}

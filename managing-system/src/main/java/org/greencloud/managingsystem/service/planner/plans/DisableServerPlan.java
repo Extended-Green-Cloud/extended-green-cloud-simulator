@@ -1,7 +1,7 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.DISABLE_SERVER;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISABLE_SERVER;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.max;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
@@ -20,7 +20,7 @@ import org.greencloud.managingsystem.agent.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 
 import jade.core.AID;
 
@@ -34,7 +34,7 @@ public class DisableServerPlan extends AbstractPlan {
 
 	private final Map<String, Integer> idleServers;
 
-	public DisableServerPlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public DisableServerPlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(DISABLE_SERVER, managingAgent, violatedGoal);
 		idleServers = new HashMap<>();
 	}

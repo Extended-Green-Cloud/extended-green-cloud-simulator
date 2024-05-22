@@ -10,16 +10,6 @@ const handleSetClientJobStatus = (msg) => {
 	}
 };
 
-const handleSetClientJobTimeFrame = (msg) => {
-	const agent = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
-	const { start, end } = msg.data;
-
-	if (agent) {
-		agent.job.start = start;
-		agent.job.end = end;
-	}
-};
-
 const handleSetClientJobDurationMap = (msg) => {
 	const agent = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
 
@@ -64,12 +54,31 @@ const handleUpdateJobEstimatedPrice = (msg) => {
 	}
 };
 
+const handleUpdateJobEstimatedTime = (msg) => {
+	const agent: Client = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
+	const { estimatedTime } = msg;
+
+	if (agent) {
+		agent.expectedExecutionTime = estimatedTime;
+	}
+};
+
+const handleUpdateJobFinishDate = (msg) => {
+	const agent: Client = getAgentByName(CLIENTS_STATE.clients, msg.agentName);
+	const { finalExecutionDate } = msg;
+
+	if (agent) {
+		agent.finalEndTime = finalExecutionDate;
+	}
+};
+
 export {
 	handleSetClientJobStatus,
-	handleSetClientJobTimeFrame,
 	handleSetClientJobDurationMap,
 	handleUpdateJobExecutionProportion,
 	handleUpdateJobExecutor,
 	handleUpdateJobFinalPrice,
 	handleUpdateJobEstimatedPrice,
+	handleUpdateJobEstimatedTime,
+	handleUpdateJobFinishDate,
 };

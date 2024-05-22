@@ -130,7 +130,7 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
       }
    },
    {
-      selector: "node[type = 'SCHEDULER']",
+      selector: "node[type = 'CENTRAL_MANAGER']",
       style: {
          'background-width': '23',
          'background-height': '23',
@@ -139,9 +139,9 @@ const IMAGE_STYLESHEET: Array<cytoscape.Stylesheet> = [
    }
 ]
 
-const SCHEDULER_STYLESHEET: Array<cytoscape.Stylesheet> = [
+const CENTRAL_MANAGER_STYLESHEET: Array<cytoscape.Stylesheet> = [
    {
-      selector: "node[type = 'SCHEDULER']",
+      selector: "node[type = 'CENTRAL_MANAGER']",
       style: {
          width: '60',
          height: '60',
@@ -276,7 +276,7 @@ export const GRAPH_STYLESHEET: Array<cytoscape.Stylesheet> = COMMON_STYLESHEET.c
    .concat(SERVER_STYLESHEET)
    .concat(GREEN_ENERGY_STYLESHEET)
    .concat(MONITORING_STYLESHEET)
-   .concat(SCHEDULER_STYLESHEET)
+   .concat(CENTRAL_MANAGER_STYLESHEET)
    .concat(IMAGE_STYLESHEET)
 
 export const GRAPH_LAYOUT: Cytoscape.LayoutOptions = {

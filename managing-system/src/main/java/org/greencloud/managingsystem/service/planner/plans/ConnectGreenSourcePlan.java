@@ -1,9 +1,9 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.agent.DataType.AVAILABLE_GREEN_ENERGY;
-import static com.database.knowledge.domain.agent.DataType.GREEN_SOURCE_MONITORING;
-import static com.database.knowledge.domain.agent.DataType.SERVER_MONITORING;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
+import static com.database.knowledge.types.DataType.AVAILABLE_GREEN_ENERGY;
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toList;
@@ -27,7 +27,7 @@ import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.AvailableGreenEnergy;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 import jade.core.AID;
@@ -43,7 +43,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 
 	private Map<AgentsGreenPower, List<AgentsTraffic>> connectableServersForGreenSource;
 
-	public ConnectGreenSourcePlan(ManagingAgent managingAgent, GoalEnum violatedGoal) {
+	public ConnectGreenSourcePlan(ManagingAgent managingAgent, GoalType violatedGoal) {
 		super(CONNECT_GREEN_SOURCE, managingAgent, violatedGoal);
 		connectableServersForGreenSource = new HashMap<>();
 	}

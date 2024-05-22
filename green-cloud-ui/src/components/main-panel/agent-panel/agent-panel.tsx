@@ -2,7 +2,7 @@ import React from 'react'
 
 import { styles } from './agent-panel-styles'
 
-import { Agent, AgentType, SchedulerAgent } from '@types'
+import { Agent, AgentType, CentralManagerAgent } from '@types'
 import AgentStatisticsPanel from './agent-statistics/agent-statistics'
 import { SchedulerStatistics } from './scheduler-statistics/scheduler-statistics'
 
@@ -20,8 +20,8 @@ export const AgentPanel = ({ selectedAgent }: Props) => {
    const { containerStyle } = styles
 
    const selectedPanel =
-      selectedAgent && selectedAgent?.type === AgentType.SCHEDULER ? (
-         <SchedulerStatistics {...{ scheduler: selectedAgent as SchedulerAgent }} />
+      selectedAgent && selectedAgent?.type === AgentType.CENTRAL_MANAGER ? (
+         <SchedulerStatistics {...{ centralManager: selectedAgent as CentralManagerAgent }} />
       ) : (
          <AgentStatisticsPanel {...{ selectedAgent }} />
       )

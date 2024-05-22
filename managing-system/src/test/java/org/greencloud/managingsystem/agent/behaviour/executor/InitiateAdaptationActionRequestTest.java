@@ -1,9 +1,9 @@
 package org.greencloud.managingsystem.agent.behaviour.executor;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static jade.core.AID.ISGUID;
 import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.time.Instant.now;
@@ -29,8 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.database.knowledge.domain.action.AdaptationActionEnum;
-import com.database.knowledge.domain.goal.GoalEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 import jade.core.AID;
@@ -40,11 +40,11 @@ import jade.lang.acl.ACLMessage;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InitiateAdaptationActionRequestTest {
 
-	private static final Map<GoalEnum, Double> GOAL_QUALITIES = Map.of(
+	private static final Map<GoalType, Double> GOAL_QUALITIES = Map.of(
 			MINIMIZE_USED_BACKUP_POWER, 0.5,
 			MAXIMIZE_JOB_SUCCESS_RATIO, 0.3,
 			DISTRIBUTE_TRAFFIC_EVENLY, 0.6);
-	private static final AdaptationActionEnum ADAPTATION_ACTION_TYPE = AdaptationActionEnum.ADD_SERVER;
+	private static final AdaptationActionTypeEnum ADAPTATION_ACTION_TYPE = AdaptationActionTypeEnum.ADD_SERVER;
 	private static final AID TEST_AID = new AID("test", ISGUID);
 	private static final long DURATION = 7;
 

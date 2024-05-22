@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.GoalEnum;
+import com.database.knowledge.types.GoalType;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 import jade.core.AID;
@@ -38,11 +38,11 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	private final long executionDuration;
 	private final Integer adaptationActionId;
 	private final AID targetAgent;
-	private final Map<GoalEnum, Double> initialGoalQualities;
+	private final Map<GoalType, Double> initialGoalQualities;
 	private final Runnable enablePlanAction;
 
 	protected VerifyAdaptationActionResult(Agent agent, Instant executionTime, long executionDuration, int actionId,
-			AID targetAgent, Map<GoalEnum, Double> initialGoalQualities, Runnable enablePlanAction,
+			AID targetAgent, Map<GoalType, Double> initialGoalQualities, Runnable enablePlanAction,
 			int delayInSeconds) {
 		super(agent, delayInSeconds * 1000L);
 
@@ -72,7 +72,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	 */
 	public static VerifyAdaptationActionResult createForAgentAction(Agent agent, Instant executionTime,
 			long executionDuration, AdaptationAction adaptationAction, AID targetAgent,
-			Map<GoalEnum, Double> initialGoalQualities, Runnable enablePlanAction) {
+			Map<GoalType, Double> initialGoalQualities, Runnable enablePlanAction) {
 		final int actionId = adaptationAction.getActionId();
 		return new VerifyAdaptationActionResult(agent, executionTime, executionDuration, actionId, targetAgent,
 				initialGoalQualities, enablePlanAction, VERIFY_ADAPTATION_ACTION_DELAY_IN_SECONDS);
@@ -91,7 +91,7 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 	 * @return VerifyAdaptationActionResult behaviour
 	 */
 	public static VerifyAdaptationActionResult createForSystemAction(Agent agent,
-			AdaptationAction adaptationAction, Map<GoalEnum, Double> initialGoalQualities,
+			AdaptationAction adaptationAction, Map<GoalType, Double> initialGoalQualities,
 			Runnable enablePlanAction, long executionDuration) {
 		final int actionId = adaptationAction.getActionId();
 		return new VerifyAdaptationActionResult(agent, getCurrentTime(), executionDuration, actionId, null,
@@ -115,13 +115,13 @@ public class VerifyAdaptationActionResult extends WakerBehaviour {
 		logger.info(VERIFY_ACTION_END_LOG, performedAction, actionResults);
 	}
 
-	private Map<GoalEnum, Double> getActionResults() {
-		return Arrays.stream(GoalEnum.values())
+	private Map<GoalType, Double> getActionResults() {
+		return Arrays.stream(GoalType.values())
 				.filter(goal -> initialGoalQualities.get(goal) != DATA_NOT_AVAILABLE_INDICATOR)
 				.collect(toMap(goal -> goal, this::getGoalQualityDelta));
 	}
 
-	private double getGoalQualityDelta(GoalEnum goalEnum) {
+	private double getGoalQualityDelta(GoalType goalEnum) {
 		final int elapsedTime = (int) Duration.between(executionTime, getCurrentTime()).toSeconds();
 		final double initialGoalQuality = initialGoalQualities.get(goalEnum);
 		final double currentGoalQuality = myManagingAgent.monitor().getGoalService(goalEnum)

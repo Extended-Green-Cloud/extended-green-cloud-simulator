@@ -1,6 +1,7 @@
 package com.database.knowledge.timescale;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.getAdaptationActionEnumByName;
+import static com.database.knowledge.types.GoalType.getByGoalId;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.getAdaptationActionEnumByName;
 import static com.database.knowledge.timescale.DmlQueries.DISABLE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
@@ -34,13 +35,12 @@ import java.util.List;
 import org.postgresql.util.PGobject;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.action.AdaptationActionTypeEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
 import com.database.knowledge.domain.agent.AMSData;
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.domain.agent.DataType;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.domain.goal.GoalEnum;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -87,7 +87,7 @@ public class JdbcStatementsExecutor {
 			statement.setString(3, adaptationAction.getType().toString());
 			statement.setInt(4, adaptationAction.getGoal().getAdaptationGoalId());
 			statement.setObject(5, jsonObject);
-			statement.setBoolean(6, adaptationAction.getAvailable());
+			statement.setBoolean(6, adaptationAction.getIsAvailable());
 			statement.setInt(7, adaptationAction.getRuns());
 			statement.setDouble(8, adaptationAction.getExecutionDuration());
 			statement.executeUpdate();
@@ -272,12 +272,11 @@ public class JdbcStatementsExecutor {
 			throws SQLException, JsonProcessingException {
 		return new AdaptationAction(
 				resultSet.getInt(1), // action id
-				getAdaptationActionEnumByName(resultSet.getString(2)), // action name
-				AdaptationActionTypeEnum.valueOf(resultSet.getObject(3).toString()), // action type
-				GoalEnum.getByGoalId(resultSet.getInt(4)), // action's goal id
-				getMapper().readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
-				}), // action_results
+				getAdaptationActionEnumByName(resultSet.getString(2)), // action
+				getByGoalId(resultSet.getInt(4)), // action's goal
+				getMapper().readValue(resultSet.getObject(5).toString(), new TypeReference<>() {}), // action_results
 				resultSet.getBoolean(6), // availability
+				AdaptationActionCategoryEnum.valueOf(resultSet.getObject(3).toString()), // action type
 				resultSet.getInt(7), // runs
 				resultSet.getDouble(8) // execution duration
 		);

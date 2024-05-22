@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * Live chart that displays the scheduler's queue capacity over time
+ * Live chart that displays the central manager's queue capacity over time
  *
  * @param {LiveChartEntry}[queueCapacityReport] - number of jobs present in the queue
  * @param {string}[title] - title of the report

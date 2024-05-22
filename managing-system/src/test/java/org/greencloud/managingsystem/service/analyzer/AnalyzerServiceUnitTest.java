@@ -1,11 +1,11 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static com.database.knowledge.domain.action.AdaptationActionEnum.ADD_SERVER;
-import static com.database.knowledge.domain.action.AdaptationActionEnum.CONNECT_GREEN_SOURCE;
-import static com.database.knowledge.domain.action.AdaptationActionTypeEnum.RECONFIGURE;
-import static com.database.knowledge.domain.goal.GoalEnum.DISTRIBUTE_TRAFFIC_EVENLY;
-import static com.database.knowledge.domain.goal.GoalEnum.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.domain.goal.GoalEnum.MINIMIZE_USED_BACKUP_POWER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum.RECONFIGURE;
+import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -40,19 +40,31 @@ class AnalyzerServiceUnitTest {
 
 	private static Stream<Arguments> parametersForQualityCalculationTest() {
 		final AdaptationAction action1 =
-				new AdaptationAction(1, CONNECT_GREEN_SOURCE, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO,
+				new AdaptationAction(1,
+						CONNECT_GREEN_SOURCE,
+						MAXIMIZE_JOB_SUCCESS_RATIO,
 						Map.of(
 								MAXIMIZE_JOB_SUCCESS_RATIO, new ActionResult(0.3, 1),
 								MINIMIZE_USED_BACKUP_POWER, new ActionResult(0.5, 1),
 								DISTRIBUTE_TRAFFIC_EVENLY, new ActionResult(0.4, 1)
-						), true, 1, 7.0);
+						),
+						true,
+						RECONFIGURE,
+						1,
+						7.0);
 		final AdaptationAction action2 =
-				new AdaptationAction(2, ADD_SERVER, RECONFIGURE, MAXIMIZE_JOB_SUCCESS_RATIO,
+				new AdaptationAction(2,
+						ADD_SERVER,
+						MAXIMIZE_JOB_SUCCESS_RATIO,
 						Map.of(
 								MAXIMIZE_JOB_SUCCESS_RATIO, new ActionResult(0.7, 1),
 								MINIMIZE_USED_BACKUP_POWER, new ActionResult(0.4, 1),
 								DISTRIBUTE_TRAFFIC_EVENLY, new ActionResult(0.3, 1)
-						), true, 1, 7.0);
+						),
+						true,
+						RECONFIGURE,
+						1,
+						7.0);
 
 		return Stream.of(
 				Arguments.of(action1, 0.34),

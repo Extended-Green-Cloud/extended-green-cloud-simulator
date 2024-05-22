@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.greencloud.managingsystem.agent.ManagingAgent;
 
-import com.database.knowledge.domain.action.AdaptationActionEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import com.database.knowledge.domain.action.AdaptationActionsDefinitions;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
@@ -38,7 +38,7 @@ public class DisableAdaptationActions extends OneShotBehaviour {
 		final TimescaleDatabase database = managingAgent.getAgentNode().getDatabaseClient();
 
 		actionsToDisable.stream()
-				.map(AdaptationActionEnum::valueOf)
+				.map(AdaptationActionTypeEnum::valueOf)
 				.map(AdaptationActionsDefinitions::getAdaptationAction)
 				.flatMap(Collection::stream)
 				.forEach(action -> database.setAdaptationActionAvailability(action.getActionId(), false));
