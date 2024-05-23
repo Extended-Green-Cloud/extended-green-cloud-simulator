@@ -14,7 +14,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_JOB_STATUS_CHECK_RULE;
 import static org.greencloud.commons.mapper.JobStatusMapper.mapToJobWithStatusForCurrentTime;
-import static org.greencloud.commons.utils.facts.FactsFactory.constructFactsForJobRemoval;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemoval;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
 import static org.greencloud.commons.utils.job.JobUtils.updateJobStartAndExecutionTime;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.DELAYED_JOB_ID;

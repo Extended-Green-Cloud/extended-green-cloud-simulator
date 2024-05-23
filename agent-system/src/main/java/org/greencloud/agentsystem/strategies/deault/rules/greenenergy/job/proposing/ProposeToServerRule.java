@@ -2,13 +2,12 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.propo
 
 import static java.util.Objects.nonNull;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithPrice;
 import static org.greencloud.commons.utils.job.JobUtils.getJobByInstanceIdAndServer;
 import static org.greencloud.commons.utils.messaging.factory.OfferMessageFactory.prepareGreenEnergyPowerSupplyOffer;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToHourDuration;
@@ -93,11 +92,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 				reject.getSender(), agentProps.getServerJobs());
 
 		if (nonNull(serverJob)) {
-			final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-			finishFacts.put(JOB, facts.get(JOB));
-			finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-			finishFacts.put(COMPUTE_FINAL_PRICE, false);
-			controller.fire(finishFacts);
+			controller.fire(constructFactsForJobRemovalWithPrice(facts.get(RULE_SET_IDX), facts.get(JOB), false));
 		}
 
 		MDC.put(MDC_JOB_ID, jobInstanceId.getJobId());

@@ -2,14 +2,13 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.events.tr
 
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.TRANSFER_INSTANT;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REFUSED_TRANSFER_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.TRANSFER_JOB_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToPowerShortageJob;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithPrice;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.factory.NetworkErrorMessageFactory.prepareJobTransferRequest;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
@@ -82,12 +81,7 @@ public class TransferInServersRule extends AgentRequestRule<GreenEnergyAgentProp
 			if (isJobStarted(job, agentProps.getServerJobs())) {
 				agentProps.incrementJobCounter(jobId, FINISH);
 			}
-
-			final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-			finishFacts.put(JOB, job);
-			finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-			finishFacts.put(COMPUTE_FINAL_PRICE, true);
-			controller.fire(finishFacts);
+			controller.fire(constructFactsForJobRemovalWithPrice(facts.get(RULE_SET_IDX), job, true));
 		} else {
 			logger.info("The job instance with id {} was finished upon transfer.", job.getJobInstanceId());
 		}

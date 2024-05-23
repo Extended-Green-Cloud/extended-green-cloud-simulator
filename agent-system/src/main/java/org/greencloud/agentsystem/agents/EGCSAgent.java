@@ -3,7 +3,7 @@ package org.greencloud.agentsystem.agents;
 import static java.util.Objects.nonNull;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.args.agent.EGCSAgentType.MANAGING;
-import static org.greencloud.commons.utils.facts.FactsFactory.constructFactsForAdaptationRequest;
+import static org.greencloud.commons.utils.facts.AdaptationFactsFactory.constructFactsForAdaptationRequest;
 import static org.greencloud.commons.utils.messaging.factory.AgentDiscoveryMessageFactory.prepareMessageToManagingAgent;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;

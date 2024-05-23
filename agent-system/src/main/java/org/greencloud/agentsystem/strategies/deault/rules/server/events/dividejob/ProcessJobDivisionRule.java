@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.deault.rules.server.events.dividejob;
 
+import static java.util.Objects.requireNonNull;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
@@ -10,6 +11,7 @@ import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_DIVISION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.START_JOB_EXECUTION_RULE;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithFinishUpdate;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
@@ -48,7 +50,7 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 	public void executeRule(final RuleSetFacts facts) {
 		final JobDivided<ClientJob> jobInstances = facts.get(JOB_DIVIDED);
 		final ClientJob affectedJob = jobInstances.getSecondInstance();
-		final ClientJob nonAffectedJob = jobInstances.getFirstInstance();
+		final ClientJob nonAffectedJob = requireNonNull(jobInstances.getFirstInstance());
 		final ClientJob prevJob = facts.get(JOB_PREVIOUS);
 		updateJobExecutionData(prevJob, nonAffectedJob, affectedJob);
 
@@ -63,14 +65,10 @@ public class ProcessJobDivisionRule extends AgentBasicRule<ServerAgentProps, Ser
 				ScheduleOnce.create(agent, jobStartFacts, START_JOB_EXECUTION_RULE, controller, SELECT_BY_FACTS_IDX));
 		agentProps.incrementJobCounter(affectedJob.getJobId(), ACCEPTED);
 
-		final RuleSetFacts jobFinishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-
-		jobFinishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		jobFinishFacts.put(JOB, nonAffectedJob);
-		jobFinishFacts.put(JOB_FINISH_INFORM, false);
-
-		agent.addBehaviour(
-				ScheduleOnce.create(agent, jobFinishFacts, FINISH_JOB_EXECUTION_RULE, controller, SELECT_BY_FACTS_IDX));
+		final RuleSetFacts jobFinishFacts = constructFactsForJobRemovalWithFinishUpdate(facts.get(RULE_SET_IDX),
+				nonAffectedJob, false);
+		agent.addBehaviour(ScheduleOnce.create(agent, jobFinishFacts, FINISH_JOB_EXECUTION_RULE, controller,
+				SELECT_BY_FACTS_IDX));
 
 		if (!isJobStarted(nonAffectedJob, agentProps.getServerJobs())) {
 			agentProps.getJobsExecutionTime().addDurationMap(nonAffectedJob);

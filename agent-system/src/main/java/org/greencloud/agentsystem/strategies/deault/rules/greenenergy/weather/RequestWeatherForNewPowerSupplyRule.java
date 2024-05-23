@@ -2,18 +2,16 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.weather;
 
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATHER_FOR_NEW_POWER_SUPPLY_RULE;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithPrice;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESOURCES;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.jrba.utils.messages.MessageReader.readMessageContent;
@@ -119,12 +117,7 @@ public class RequestWeatherForNewPowerSupplyRule extends AgentRequestRule<GreenE
 	}
 
 	private void handleRefusal(final ServerJob job, final RuleSetFacts facts) {
-		final RuleSetFacts finishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		finishFacts.put(JOB, job);
-		finishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		finishFacts.put(COMPUTE_FINAL_PRICE, false);
-		controller.fire(finishFacts);
-
+		controller.fire(constructFactsForJobRemovalWithPrice(facts.get(RULE_SET_IDX), job, false));
 		agent.send(prepareRefuseReply(facts.get(MESSAGE)));
 	}
 

@@ -5,7 +5,7 @@ import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_VERIFY_DEADLINE_RULE;
 import static org.greencloud.commons.mapper.JobStatusMapper.mapToJobWithStatusForCurrentTime;
-import static org.greencloud.commons.utils.facts.FactsFactory.constructFactsForJobRemoval;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemoval;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FAILED_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCMA;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;

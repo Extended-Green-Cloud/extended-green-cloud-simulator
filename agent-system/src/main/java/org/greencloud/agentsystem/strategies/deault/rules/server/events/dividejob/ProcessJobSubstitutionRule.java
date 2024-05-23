@@ -9,6 +9,7 @@ import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_START_I
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_SUBSTITUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.START_JOB_EXECUTION_RULE;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithFinishUpdate;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.utils.rules.RuleSetSelector.SELECT_BY_FACTS_IDX;
@@ -48,15 +49,11 @@ public class ProcessJobSubstitutionRule extends AgentBasicRule<ServerAgentProps,
 		updateJobExecutionData(prevJob, newJobInstance);
 
 		if (hasStarted) {
-			final RuleSetFacts jobFinishFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
 			final ConcurrentMap<JobExecutionStatusEnum, JobStatusWithTime> prevExecutionTime =
 					agentProps.getJobsExecutionTime().getForJob(prevJob);
 			agentProps.getJobsExecutionTime().addDurationMap(newJobInstance, prevExecutionTime);
-
-			jobFinishFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-			jobFinishFacts.put(JOB, newJobInstance);
-			jobFinishFacts.put(JOB_FINISH_INFORM, true);
-
+			final RuleSetFacts jobFinishFacts = constructFactsForJobRemovalWithFinishUpdate(facts.get(RULE_SET_IDX),
+					newJobInstance, true);
 			agent.addBehaviour(ScheduleOnce.create(agent, jobFinishFacts, FINISH_JOB_EXECUTION_RULE, controller,
 					SELECT_BY_FACTS_IDX));
 		} else {

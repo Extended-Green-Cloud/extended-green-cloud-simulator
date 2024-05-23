@@ -2,18 +2,16 @@ package org.greencloud.agentsystem.strategies.deault.rules.greenenergy.job.execu
 
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_MANUAL_FINISH_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobInstanceId;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemovalWithPrice;
 import static org.greencloud.commons.utils.job.JobUtils.calculateExpectedJobEndTime;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareManualFinishMessageForServer;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -71,12 +69,7 @@ public class ProcessManualPowerSupplyFinishRule extends AgentScheduledRule<Green
 		if (isJobStarted(job, agentProps.getServerJobs())) {
 			agentProps.incrementJobCounter(job.getJobId(), FINISH);
 		}
-		final RuleSetFacts factsJobEnd = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		factsJobEnd.put(JOB, job);
-		factsJobEnd.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		factsJobEnd.put(COMPUTE_FINAL_PRICE, true);
-		controller.fire(factsJobEnd);
-
+		controller.fire(constructFactsForJobRemovalWithPrice(facts.get(RULE_SET_IDX), job, true));
 		agentProps.updateGUI();
 		agent.send(
 				prepareManualFinishMessageForServer(mapToJobInstanceId(job), job.getServer(), facts.get(RULE_SET_IDX)));

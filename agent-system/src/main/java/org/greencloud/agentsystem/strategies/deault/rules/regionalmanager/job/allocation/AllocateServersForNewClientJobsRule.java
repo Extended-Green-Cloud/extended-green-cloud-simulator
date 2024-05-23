@@ -4,10 +4,9 @@ import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
-import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_NEW_JOB_ALLOCATION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_ALLOCATION_RULE;
+import static org.greencloud.commons.utils.facts.JobAllocationFactsFactory.constructFactsForJobsAllocationHandling;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
-import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -47,12 +46,7 @@ public class AllocateServersForNewClientJobsRule extends AgentBasicRule<Regional
 
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Allocating servers for the next jobs batch for jobs with ids: {}.", indexes);
-
-		final RuleSetFacts processingFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		processingFacts.put(JOBS, facts.get(JOBS));
-		processingFacts.put(RULE_TYPE, HANDLE_NEW_JOB_ALLOCATION_RULE);
-
-		controller.fire(processingFacts);
+		controller.fire(constructFactsForJobsAllocationHandling(facts.get(RULE_SET_IDX), jobs));
 	}
 
 	@Override

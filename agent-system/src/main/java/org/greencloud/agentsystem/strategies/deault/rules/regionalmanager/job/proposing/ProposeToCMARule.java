@@ -6,7 +6,8 @@ import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROPOSE_TO_EXECUTE_JOB_RULE;
-import static org.greencloud.commons.utils.facts.FactsFactory.constructFactsForJobRemoval;
+import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobRemoval;
+import static org.greencloud.commons.utils.facts.PriorityFactsFactory.constructFactsForPriorityPreEvaluation;
 import static org.greencloud.commons.utils.facts.ProposalsFactsFactory.constructFactsForProposalMessage;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
@@ -62,9 +63,8 @@ public class ProposeToCMARule extends AgentProposalRule<RegionalManagerAgentProp
 		if (nonNull(job)) {
 			MDC.put(MDC_JOB_ID, jobId);
 			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("RMA was selected for job execution. Putting job into queue.");
-
-			agentProps.getJobsToBeExecuted().put(job);
+			logger.info("RMA was selected for job execution. Job is being pre-processed before adding to the queue.");
+			controller.fire(constructFactsForPriorityPreEvaluation(facts.get(RULE_SET_IDX), job));
 		}
 	}
 

@@ -95,6 +95,7 @@ import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.li
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.polling.PollNextClientJobForAllocationRule;
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.polling.ProcessPollNextClientJobAllocationCombinedRule;
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.polling.processing.ProcessPollNextClientJobAfterDeadlineRule;
+import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.priority.PreEvaluateJobPriorityForRMARule;
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.proposing.ProposeToCMARule;
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.job.proposing.prepare.PrepareProposalForCMA;
 import org.greencloud.agentsystem.strategies.deault.rules.regionalmanager.resource.ListenForServerResourceInformationRule;
@@ -247,7 +248,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessPollNextClientJobAllocationCombinedRule(null, this),
 				new AllocateServersForNewClientJobsRule(null),
 				new ProcessServerAllocationRule(null),
-				new ProcessPollNextClientJobAfterDeadlineRule(null)
+				new ProcessPollNextClientJobAfterDeadlineRule(null),
+				new PreEvaluateJobPriorityForRMARule(null)
 		);
 	}
 
