@@ -2,6 +2,8 @@ package org.greencloud.commons.utils.messaging.factory;
 
 import static jade.lang.acl.ACLMessage.PROPOSE;
 import static java.util.Objects.requireNonNull;
+import static org.greencloud.commons.mapper.AgentDataMapper.mapToServerData;
+import static org.greencloud.commons.utils.job.JobUtils.getJobById;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 
 import java.time.Instant;
@@ -10,11 +12,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.agent.GreenSourceData;
 import org.greencloud.commons.domain.agent.ImmutableGreenSourceData;
-import org.greencloud.commons.domain.agent.ImmutableServerData;
 import org.greencloud.commons.domain.agent.ServerData;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.enums.energy.EnergyTypeEnum;
-import org.greencloud.commons.utils.job.JobUtils;
 import org.jrba.utils.messages.MessageBuilder;
 
 import jade.lang.acl.ACLMessage;
@@ -36,19 +36,11 @@ public class OfferMessageFactory {
 	public static ACLMessage prepareServerJobOffer(final ServerAgentProps agentProps, final double servicePrice,
 			final Pair<Instant, Double> executionEstimation, final String jobId, final ACLMessage rmaMessage,
 			final Integer ruleSet, final EnergyTypeEnum typeOfEnergy) {
-		final ClientJob job = requireNonNull(JobUtils.getJobById(jobId, agentProps.getServerJobs()));
+		final ClientJob job = requireNonNull(getJobById(jobId, agentProps.getServerJobs()));
 		final Instant startTime = executionEstimation.getKey();
-		final Double executionTime = executionEstimation.getValue();
 		final double powerConsumption = agentProps.getPowerConsumption(startTime, job.getExpectedEndTime());
-		final ServerData jobOffer = ImmutableServerData.builder()
-				.jobId(jobId)
-				.executionTime(executionTime)
-				.estimatedEarliestJobStartTime(startTime)
-				.priceForJob(servicePrice)
-				.powerConsumption(powerConsumption)
-				.availableResources(agentProps.resources())
-				.typeOfEnergy(typeOfEnergy)
-				.build();
+		final ServerData jobOffer = mapToServerData(job, executionEstimation, agentProps.resources(), powerConsumption,
+				servicePrice, typeOfEnergy);
 
 		return MessageBuilder.builder(ruleSet)
 				.copy(rmaMessage.createReply())

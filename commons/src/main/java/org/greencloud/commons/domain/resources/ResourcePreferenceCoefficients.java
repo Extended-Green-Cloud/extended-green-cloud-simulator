@@ -62,4 +62,14 @@ public interface ResourcePreferenceCoefficients {
 	 * @return weight put on executor satisfaction
 	 */
 	Double executorSatisfactionWeight();
+
+	/**
+	 * @return
+	 */
+	Double getMinimalJobSatisfaction();
+
+	/**
+	 * @return required minimal satisfaction of the executor
+	 */
+	Double getMinimalExecutorSatisfaction();
 }

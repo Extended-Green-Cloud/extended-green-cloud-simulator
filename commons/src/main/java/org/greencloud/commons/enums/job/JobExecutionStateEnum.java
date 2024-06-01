@@ -39,7 +39,6 @@ public enum JobExecutionStateEnum {
 	 *
 	 * @param jobsMap map of jobs in which the status is to be updated
 	 * @param job     job for which status is to be updated
-	 *
 	 * @return new status
 	 */
 	public static <T extends PowerJob> JobExecutionStatusEnum replaceStatusToActive(

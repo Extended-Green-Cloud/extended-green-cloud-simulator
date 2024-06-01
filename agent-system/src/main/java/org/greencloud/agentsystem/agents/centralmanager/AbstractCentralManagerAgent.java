@@ -1,8 +1,11 @@
 package org.greencloud.agentsystem.agents.centralmanager;
 
+import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.utils.facts.PriorityFactsFactory.constructFactsForPriorityEstimation;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.function.ToDoubleFunction;
@@ -13,6 +16,7 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.gui.agents.centralmanager.CMANode;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 /**
  * Abstract agent class storing the data regarding Central Manager Agent.
@@ -40,6 +44,9 @@ public abstract class AbstractCentralManagerAgent extends EGCSAgent<CMANode, Cen
 			fireOnFacts(facts);
 
 			final double result = ofNullable(facts.get(RESULT)).map(Double.class::cast).orElse(0D);
+
+			MDC.put(MDC_JOB_ID, clientJob.getJobId());
+			MDC.put(MDC_RULE_SET_ID, valueOf(index));
 			logger.info("Priority for job {} was computed and is equal to {}.", clientJob.getJobId(), result);
 
 			return result;

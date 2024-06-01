@@ -1,6 +1,8 @@
 package org.greencloud.gui.agents.server;
 
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
@@ -29,9 +31,11 @@ import org.greencloud.gui.messages.ImmutableUpdateServerMaintenanceMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
 import org.jrba.environment.domain.ExternalEvent;
 
-import com.database.knowledge.types.DataType;
+import com.database.knowledge.domain.agent.AgentData;
+import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
+import com.database.knowledge.types.DataType;
 
 import jade.util.leap.Serializable;
 
@@ -47,7 +51,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	/**
 	 * Server node constructor
 	 *
-	 * @param serverNodeArgs aarguments of given server node
+	 * @param serverNodeArgs arguments of given server node
 	 */
 	public ServerNode(ServerNodeArgs serverNodeArgs) {
 		super(serverNodeArgs, EGCSAgentType.SERVER);
@@ -172,6 +176,21 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.data(1)
 				.type("UPDATE_CURRENT_PLANNED_JOBS")
 				.build());
+	}
+
+	/**
+	 * Method returns current success ratio of the component.
+	 *
+	 * @return currently recorded success ratio
+	 */
+	public double getComponentSuccessRatio(final String agentAID) {
+		return databaseClient.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING)).stream()
+				.filter(agentData -> agentData.aid().equals(agentAID))
+				.map(AgentData::monitoringData)
+				.map(ServerMonitoringData.class::cast)
+				.findFirst()
+				.map(NetworkComponentMonitoringData::getSuccessRatio)
+				.orElse(1.0D);
 	}
 
 	public Optional<ExternalEvent> getEvent() {

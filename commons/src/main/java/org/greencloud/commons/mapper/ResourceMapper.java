@@ -1,11 +1,15 @@
 package org.greencloud.commons.mapper;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.COST_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.CPU_COEFFICIENT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.EXECUTOR_SATISFACTION_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.JOB_SATISFACTION_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MEMORY_COEFFICIENT;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MINIMAL_EXECUTOR_SATISFACTION;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MINIMAL_JOB_SATISFACTION;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.PERFORMANCE_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RELIABILITY_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.STORAGE_COEFFICIENT;
@@ -47,15 +51,17 @@ public class ResourceMapper {
 	public static ResourcePreferenceCoefficients mapToResourcePreferencesCoefficients(
 			final Map<String, Object> preferenceMap) {
 		return ImmutableResourcePreferenceCoefficients.builder()
-				.cpuExperienceCoefficient((Double) preferenceMap.get(CPU_COEFFICIENT))
-				.memoryExperienceCoefficient((Double) preferenceMap.get(MEMORY_COEFFICIENT))
-				.storageExperienceCoefficient((Double) preferenceMap.get(STORAGE_COEFFICIENT))
-				.costWeights((Double) preferenceMap.get(COST_WEIGHT))
-				.reliabilityWeight((Double) preferenceMap.get(RELIABILITY_WEIGHT))
-				.timeWeight((Double) preferenceMap.get(TIME_WEIGHT))
-				.performanceWeight((Double) preferenceMap.get(PERFORMANCE_WEIGHT))
-				.jobSatisfactionWeight((Double) preferenceMap.get(JOB_SATISFACTION_WEIGHT))
-				.executorSatisfactionWeight((Double) preferenceMap.get(EXECUTOR_SATISFACTION_WEIGHT))
+				.cpuExperienceCoefficient(parseDouble(valueOf(preferenceMap.get(CPU_COEFFICIENT))))
+				.memoryExperienceCoefficient(parseDouble(valueOf(preferenceMap.get(MEMORY_COEFFICIENT))))
+				.storageExperienceCoefficient(parseDouble(valueOf(preferenceMap.get(STORAGE_COEFFICIENT))))
+				.costWeights(parseDouble(valueOf(preferenceMap.get(COST_WEIGHT))))
+				.reliabilityWeight(parseDouble(valueOf(preferenceMap.get(RELIABILITY_WEIGHT))))
+				.timeWeight(parseDouble(valueOf(preferenceMap.get(TIME_WEIGHT))))
+				.performanceWeight(parseDouble(valueOf(preferenceMap.get(PERFORMANCE_WEIGHT))))
+				.jobSatisfactionWeight(parseDouble(valueOf(preferenceMap.get(JOB_SATISFACTION_WEIGHT))))
+				.executorSatisfactionWeight(parseDouble(valueOf(preferenceMap.get(EXECUTOR_SATISFACTION_WEIGHT))))
+				.minimalExecutorSatisfaction(parseDouble(valueOf(preferenceMap.get(MINIMAL_EXECUTOR_SATISFACTION))))
+				.minimalJobSatisfaction(parseDouble(valueOf(preferenceMap.get(MINIMAL_JOB_SATISFACTION))))
 				.build();
 
 	}

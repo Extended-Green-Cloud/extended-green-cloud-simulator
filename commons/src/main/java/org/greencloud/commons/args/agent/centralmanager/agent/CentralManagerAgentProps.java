@@ -71,6 +71,19 @@ public class CentralManagerAgentProps extends EGCSAgentProps {
 	}
 
 	/**
+	 * Method finds RMA by name
+	 *
+	 * @param rmaName RMA name
+	 * @return RMA AID
+	 */
+	public AID getRMAByName(final String rmaName) {
+		return availableRegionalManagers.stream()
+				.filter(rmaAID -> rmaAID.getName().equals(rmaName))
+				.findFirst()
+				.orElseThrow();
+	}
+
+	/**
 	 * Method adds new client job
 	 *
 	 * @param job     job that is to be added

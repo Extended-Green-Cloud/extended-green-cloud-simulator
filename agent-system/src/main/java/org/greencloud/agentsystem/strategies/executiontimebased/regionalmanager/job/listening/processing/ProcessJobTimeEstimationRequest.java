@@ -2,7 +2,7 @@ package org.greencloud.agentsystem.strategies.executiontimebased.regionalmanager
 
 import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
+import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJob;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -38,10 +38,8 @@ public class ProcessJobTimeEstimationRequest extends AgentBasicRule<RegionalMana
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Asking Servers about information of fastest execution time of job {}.", job.getJobId());
 
-		final RuleSetFacts requestFacts = new RuleSetFacts(facts.get(RULE_SET_IDX));
-		requestFacts.put(JOB, job);
+		final RuleSetFacts requestFacts = constructFactsWithJob(facts.get(RULE_SET_IDX), job);
 		requestFacts.put(MESSAGE, facts.get(MESSAGE));
-
 		agent.addBehaviour(InitiateRequest.create(agent, requestFacts, "ASK_FOR_FASTEST_EXECUTION_TIME", controller));
 	}
 

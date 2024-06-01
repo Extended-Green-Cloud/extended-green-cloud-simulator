@@ -8,9 +8,11 @@ import static jade.lang.acl.MessageTemplate.MatchPerformative;
 import static jade.lang.acl.MessageTemplate.MatchProtocol;
 import static jade.lang.acl.MessageTemplate.and;
 import static jade.lang.acl.MessageTemplate.or;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ALLOCATION_DATA_REQUEST;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ANNOUNCED_JOB_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_JOB_STATUS_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CHANGE_SERVER_RESOURCES_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CMA_JOB_ALLOCATION_PROTOCOl;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.CONNECT_GREEN_SOURCE_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.DEACTIVATE_GREEN_SOURCE_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.DISCONNECT_GREEN_SOURCE_PROTOCOL;
@@ -28,6 +30,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.POWER_SHORTAGE_JOB_CONFIRMATION_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.REGISTER_SERVER_RESOURCES_PROTOCOL;
+import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.RMA_JOB_ALLOCATION_PROTOCOl;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.RMA_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_JOB_CFP_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.SERVER_POWER_SHORTAGE_RE_SUPPLY_PROTOCOL;
@@ -73,6 +76,10 @@ public class MessageTemplatesConstants {
 	 */
 	public static final MessageTemplate LISTEN_FOR_NEW_SCHEDULED_JOB_TEMPLATE = and(
 			MatchPerformative(CFP), MatchProtocol(MessageProtocolConstants.CMA_JOB_CFP_PROTOCOL));
+	public static final MessageTemplate LISTEN_FOR_NEW_ALLOCATED_JOBS_TEMPLATE = and(
+			MatchPerformative(REQUEST), MatchProtocol(CMA_JOB_ALLOCATION_PROTOCOl));
+	public static final MessageTemplate LISTEN_FOR_ALLOCATION_DATA_REQUEST_TEMPLATE = and(
+			MatchPerformative(REQUEST), MatchProtocol(ALLOCATION_DATA_REQUEST));
 	public static final MessageTemplate LISTEN_FOR_SERVER_STATUS_CHANGE_TEMPLATE = and(
 			MatchPerformative(REQUEST),
 			or(MatchProtocol(MessageProtocolConstants.DISABLE_SERVER_PROTOCOL), MatchProtocol(
@@ -103,6 +110,8 @@ public class MessageTemplatesConstants {
 			MatchPerformative(CFP), MatchProtocol(RMA_JOB_CFP_PROTOCOL));
 	public static final MessageTemplate LISTEN_FOR_RMA_RESOURCE_REQUEST_TEMPLATE = and(
 			MatchPerformative(REQUEST), MatchProtocol(REGISTER_SERVER_RESOURCES_PROTOCOL));
+	public static final MessageTemplate LISTEN_FOR_RMA_NEW_ALLOCATED_JOBS_TEMPLATE = and(
+			MatchPerformative(REQUEST), MatchProtocol(RMA_JOB_ALLOCATION_PROTOCOl));
 	public static final MessageTemplate LISTEN_FOR_GREEN_SOURCE_UPDATE_TEMPLATE = and(MatchPerformative(REQUEST),
 			or(or(MatchProtocol(DEACTIVATE_GREEN_SOURCE_PROTOCOL), MatchProtocol(DISCONNECT_GREEN_SOURCE_PROTOCOL)),
 					MatchProtocol(CONNECT_GREEN_SOURCE_PROTOCOL)));

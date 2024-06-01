@@ -1,10 +1,11 @@
 package org.greencloud.commons.utils.facts;
 
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.COMPUTE_FINAL_PRICE;
-import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_ADD_JOB_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_VERIFICATION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_VERIFY_DEADLINE_RULE;
+import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJob;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
@@ -27,9 +28,8 @@ public class JobUpdateFactsFactory {
 	 * @return RuleSetFacts
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForJobRemoval(final int index, final T job) {
-		final RuleSetFacts jobRemovalFacts = new RuleSetFacts(index);
+		final RuleSetFacts jobRemovalFacts = constructFactsWithJob(index, job);
 		jobRemovalFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		jobRemovalFacts.put(JOB, job);
 
 		return jobRemovalFacts;
 	}
@@ -44,9 +44,8 @@ public class JobUpdateFactsFactory {
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForJobRemovalWithPrice(final int index, final T job,
 			final boolean computePrice) {
-		final RuleSetFacts jobRemovalFacts = new RuleSetFacts(index);
+		final RuleSetFacts jobRemovalFacts = constructFactsWithJob(index, job);
 		jobRemovalFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		jobRemovalFacts.put(JOB, job);
 		jobRemovalFacts.put(COMPUTE_FINAL_PRICE, computePrice);
 
 		return jobRemovalFacts;
@@ -62,9 +61,8 @@ public class JobUpdateFactsFactory {
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForJobRemovalWithFinishUpdate(final int index,
 			final T job, final boolean informAboutFinish) {
-		final RuleSetFacts jobRemovalFacts = new RuleSetFacts(index);
+		final RuleSetFacts jobRemovalFacts = constructFactsWithJob(index, job);
 		jobRemovalFacts.put(RULE_TYPE, FINISH_JOB_EXECUTION_RULE);
-		jobRemovalFacts.put(JOB, job);
 		jobRemovalFacts.put(COMPUTE_FINAL_PRICE, informAboutFinish);
 
 		return jobRemovalFacts;
@@ -97,8 +95,7 @@ public class JobUpdateFactsFactory {
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForJobDeadlineVerification(final int index,
 			final T job) {
-		final RuleSetFacts timeFrameFacts = new RuleSetFacts(index);
-		timeFrameFacts.put(JOB, job);
+		final RuleSetFacts timeFrameFacts = constructFactsWithJob(index, job);
 		timeFrameFacts.put(RULE_TYPE, NEW_JOB_VERIFY_DEADLINE_RULE);
 
 		return timeFrameFacts;
@@ -112,10 +109,25 @@ public class JobUpdateFactsFactory {
 	 * @return RuleSetFacts
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForAddingNewJob(final int index, final T job) {
-		final RuleSetFacts addingJobFacts = new RuleSetFacts(index);
+		final RuleSetFacts addingJobFacts = constructFactsWithJob(index, job);
 		addingJobFacts.put(RULE_TYPE, NEW_JOB_ADD_JOB_RULE);
-		addingJobFacts.put(JOB, job);
 
 		return addingJobFacts;
+	}
+
+	/**
+	 * Method construct facts passed to rules responsible for job execution possibilities verification
+	 *
+	 * @param index index of a rule set
+	 * @param job   new job which execution possibilities are to be verified
+	 * @return RuleSetFacts
+	 */
+	public static <T extends PowerJob> RuleSetFacts constructFactsForJobVerification(final int index,
+			final T job, final ACLMessage allocatorMessage) {
+		final RuleSetFacts facts = constructFactsWithJob(index, job);
+		facts.put(RULE_TYPE, NEW_JOB_VERIFICATION_RULE);
+		facts.put(MESSAGE, allocatorMessage);
+
+		return facts;
 	}
 }

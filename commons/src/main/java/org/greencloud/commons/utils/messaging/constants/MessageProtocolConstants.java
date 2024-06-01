@@ -21,6 +21,14 @@ public class MessageProtocolConstants {
 	public static final String SERVER_JOB_CFP_PROTOCOL = "SERVER_JOB_CFP";
 
 	/**
+	 * Job allocation protocols
+	 * <p>CMA_JOB_ALLOCATION_PROTOCOl - protocol used when CMA sends a REQUEST to RMA to execute jobs</p>
+	 */
+	public static final String CMA_JOB_ALLOCATION_PROTOCOl = "CMA_JOB_ALLOCATION_PROTOCOL";
+	public static final String RMA_JOB_ALLOCATION_PROTOCOl = "RMA_JOB_ALLOCATION_PROTOCOl";
+	public static final String ALLOCATION_DATA_REQUEST = "ALLOCATION_DATA_REQUEST";
+
+	/**
 	 * Job state protocols
 	 *
 	 * <p> ANNOUNCED_JOB_PROTOCOL		   - protocol used in messages informing that the job has been announced in network </p>
@@ -38,7 +46,6 @@ public class MessageProtocolConstants {
 	public static final String MANUAL_JOB_FINISH_PROTOCOL = "MANUAL_FINISH";
 	public static final String JOB_START_STATUS_PROTOCOL = "START_STATUS_PROTOCOL";
 	public static final String CHANGE_JOB_STATUS_PROTOCOL = "CHANGE_JOB_STATUS_PROTOCOL";
-	public static final String CONFIRMED_TRANSFER_PROTOCOL = "CONFIRMED_TRANSFER_PROTOCOL";
 	public static final String FAILED_JOB_PROTOCOL = "FAILED_JOB_PROTOCOL";
 	public static final String FAILED_TRANSFER_PROTOCOL = "FAILED_TRANSFER_PROTOCOL";
 	public static final String FAILED_SOURCE_TRANSFER_PROTOCOL = "FAILED_SOURCE_TRANSFER_PROTOCOL";

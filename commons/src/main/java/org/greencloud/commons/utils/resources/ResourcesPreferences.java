@@ -1,20 +1,27 @@
 package org.greencloud.commons.utils.resources;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.IntStream.range;
 import static org.apache.commons.lang3.BooleanUtils.toInteger;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.BUDGET;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.DURATION;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.ID;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.MEMORY;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.RELIABILITY;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
 
+import java.time.temporal.ValueRange;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
@@ -28,8 +35,10 @@ import org.greencloud.commons.domain.resources.ResourcePreferenceMatch;
  * @implNote Formulas used from articles:
  * [<a href="https://www.sciencedirect.com/science/article/abs/pii/S0020025520304588">Intent-based allocation</a>]
  */
+@SuppressWarnings("unchecked")
 public class ResourcesPreferences {
 
+	public static final Random random = new Random();
 	private static final Double DEFAULT_RESOURCE_RELIABILITY = 0.8;
 	private static final NaturalRanking ranking = new NaturalRanking();
 
@@ -58,14 +67,15 @@ public class ResourcesPreferences {
 	 */
 	public static double computeExecutorMatchingPreference(final Map<String, Object> jobResources,
 			final Map<String, Object> executorResources) {
-		final Double budgetLimit = (Double) jobResources.get(BUDGET);
-		final Double requiredReliability = ofNullable((Double) jobResources.get(RELIABILITY))
-				.orElse(DEFAULT_RESOURCE_RELIABILITY);
-		final Double estimatedExecutionCost = (Double) executorResources.get(BUDGET);
-		final Long estimatedDuration = (Long) executorResources.get(DURATION);
+		final String jobId = (String) jobResources.get(ID);
 
-		return ofNullable(budgetLimit)
-				.map(limit -> (limit * estimatedDuration) / requiredReliability)
+		final Double requiredReliability = parseDouble(valueOf(ofNullable(jobResources.get(RELIABILITY))
+				.orElse(DEFAULT_RESOURCE_RELIABILITY)));
+		final Double estimatedExecutionCost = ((Map<String, Double>) executorResources.get(BUDGET)).get(jobId);
+		final Integer estimatedDuration = ((Map<String, Integer>) executorResources.get(DURATION)).get(jobId);
+
+		return ofNullable(jobResources.get(BUDGET))
+				.map(limit -> (parseDouble(valueOf(limit)) * estimatedDuration) / requiredReliability)
 				.orElse(estimatedExecutionCost / requiredReliability);
 	}
 
@@ -80,15 +90,17 @@ public class ResourcesPreferences {
 	public static double computeJobMatchingPreference(final Map<String, Object> jobResources,
 			final Map<String, Object> executorResources,
 			final ResourcePreferenceCoefficients preferenceCoefficients) {
-		final Double budgetLimit = (Double) jobResources.get(BUDGET);
-		final Double estimatedExecutionCost = (Double) executorResources.get(BUDGET);
+		final String jobId = (String) jobResources.get(ID);
 
-		final Double requiredReliability = ofNullable((Double) jobResources.get(RELIABILITY))
-				.orElse(DEFAULT_RESOURCE_RELIABILITY);
-		final Double resourceSuccessRate = (Double) executorResources.get(RELIABILITY);
+		final String budgetLimit = ofNullable(jobResources.get(BUDGET)).map(String::valueOf).orElse(null);
+		final Double estimatedExecutionCost = ((Map<String, Double>) executorResources.get(BUDGET)).get(jobId);
 
-		final Long expectedDuration = (Long) jobResources.get(DURATION);
-		final Long estimatedDuration = (Long) executorResources.get(DURATION);
+		final Double requiredReliability = parseDouble(valueOf(ofNullable(jobResources.get(RELIABILITY))
+				.orElse(DEFAULT_RESOURCE_RELIABILITY)));
+		final Double resourceSuccessRate = parseDouble(valueOf(executorResources.get(RELIABILITY)));
+
+		final int expectedDuration = parseInt(valueOf(jobResources.get(DURATION)));
+		final Integer estimatedDuration = ((Map<String, Integer>) executorResources.get(DURATION)).get(jobId);
 
 		final double costPreference = preferenceCoefficients.getCostWeights() *
 				determineCostPreference(budgetLimit, estimatedExecutionCost);
@@ -118,10 +130,13 @@ public class ResourcesPreferences {
 		final double[] jobsRanks = ranking.rank(matchingPreferences.stream()
 				.mapToDouble(ResourcePreferenceMatch::getJobPreference).toArray());
 
-		final double minimalJobSatisfaction =
-				computeSatisfaction(jobsClusterSize * 0.05, jobsClusterSize);
-		final double minimalExecutorSatisfaction =
-				computeSatisfaction(executorsClusterSize * 0.05, jobsClusterSize);
+		final int minJobSatisfaction =
+				clampMinimalSatisfaction(jobsClusterSize, coefficients.getMinimalJobSatisfaction());
+		final int minExecutorSatisfaction =
+				clampMinimalSatisfaction(executorsClusterSize, coefficients.getMinimalExecutorSatisfaction());
+
+		final double minimalJobSatisfaction = computeSatisfaction(minJobSatisfaction, jobsClusterSize);
+		final double minimalExecutorSatisfaction = computeSatisfaction(minExecutorSatisfaction, executorsClusterSize);
 
 		return range(0, executorsClusterSize).mapToObj(
 				index -> {
@@ -133,7 +148,7 @@ public class ResourcesPreferences {
 					if (Stream.of(jobSatisfaction, executorSatisfaction).allMatch(Objects::nonNull))
 						return coefficients.jobSatisfactionWeight() * jobSatisfaction +
 								coefficients.executorSatisfactionWeight() * executorSatisfaction;
-					return null;
+					return -1.0;
 				}).toList();
 	}
 
@@ -150,16 +165,26 @@ public class ResourcesPreferences {
 
 	private static Double computeTruncatedSatisfaction(final double rank, final int clusterSize,
 			final double minimalSatisfaction) {
-		final double satisfaction = sqrt((clusterSize + 1 - rank) / clusterSize);
+		final double satisfaction = computeSatisfaction(rank, clusterSize);
 		return satisfaction >= minimalSatisfaction ? satisfaction : null;
 	}
 
 	private static double computeSatisfaction(final double rank, final int clusterSize) {
-		return sqrt((clusterSize + 1 - rank) / clusterSize);
+		return pow((clusterSize + 1 - rank) / clusterSize, 2);
 	}
 
-	private static double determineCostPreference(final Double budgetLimit, final Double estimatedExecutionCost) {
+	private static int clampMinimalSatisfaction(final int clusterSize, final Double minimalInitialSatisfaction) {
+		final ValueRange minExecutorSatisfactionRange = ValueRange.of(clusterSize, (long) clusterSize + 1);
+		final int minExecutorCoeff = minimalInitialSatisfaction.intValue();
+
+		return minExecutorSatisfactionRange.isValidIntValue(minExecutorCoeff) ?
+				minExecutorCoeff :
+				random.nextInt(clusterSize, clusterSize + 1) + clusterSize;
+	}
+
+	private static double determineCostPreference(final String budgetLimit, final Double estimatedExecutionCost) {
 		return ofNullable(budgetLimit)
+				.map(Double::parseDouble)
 				.filter(limit -> limit >= estimatedExecutionCost)
 				.map(limit -> (limit - estimatedExecutionCost) / limit)
 				.orElse(0D);
@@ -175,7 +200,7 @@ public class ResourcesPreferences {
 		return toInteger(expectedDuration >= estimatedTaskDuration);
 	}
 
-	private static int determineComprehensiveResourcePreference(final Map<String, Object> jobResources,
+	private static double determineComprehensiveResourcePreference(final Map<String, Object> jobResources,
 			final Map<String, Object> executorResources,
 			final double cpuExperienceCoeff,
 			final double memoryExperienceCoeff,
@@ -185,7 +210,10 @@ public class ResourcesPreferences {
 		final double executorResourcePreference = computeBasicComprehensiveResourcePreference(executorResources,
 				cpuExperienceCoeff, memoryExperienceCoeff, storageExperienceCoeff);
 
-		return toInteger(executorResourcePreference >= jobResourcePreference);
+		return Optional.of(executorResourcePreference)
+				.filter(executorPreference -> executorPreference >= jobResourcePreference)
+				.map(executorPreference -> (executorPreference - jobResourcePreference) / executorPreference)
+				.orElse(0.0D);
 	}
 
 	private static double computeBasicComprehensiveResourcePreference(final Map<String, Object> resources,

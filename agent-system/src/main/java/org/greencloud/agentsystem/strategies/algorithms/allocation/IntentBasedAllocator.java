@@ -6,14 +6,18 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_PREFERENCES;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.BUDGET;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.DURATION;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.ID;
 import static org.greencloud.commons.mapper.ResourceMapper.mapToResourcePreferencesCoefficients;
 import static org.greencloud.commons.utils.datastructures.MapConstructor.constructBooleanMap;
 import static org.greencloud.commons.utils.math.MathOperations.computeStringSimilarityMatrix;
 import static org.greencloud.commons.utils.resources.ResourcesPreferences.constructCoefficientMatrix;
+import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -32,10 +36,14 @@ import org.greencloud.commons.domain.resources.ResourceMatch;
 import org.greencloud.commons.domain.resources.ResourcePreferenceCoefficients;
 import org.greencloud.commons.exception.InvalidPropertiesException;
 import org.greencloud.dataanalysisapi.domain.ClusteringEncodingResponse;
+import org.greencloud.dataanalysisapi.domain.ImmutableClusteringEncodingResponse;
 import org.greencloud.dataanalysisapi.service.DataClusteringService;
 import org.greencloud.dataanalysisapi.service.DataClusteringServiceImpl;
 import org.jrba.agentmodel.domain.props.AgentProps;
 import org.slf4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Class with method performing intent based resource allocation
@@ -79,7 +87,8 @@ public class IntentBasedAllocator {
 		final ClusteringEncodingResponse jobsClustering =
 				clusteringService.clusterBasicResourcesAndEncodeDataWithKMeans(jobsResources, clusterNoJobs);
 		final ClusteringEncodingResponse executorsClustering =
-				clusteringService.clusterBasicResourcesAndEncodeDataWithKMeans(executorsResources, clusterNoExecutors);
+				mapExecutorsAfterClustering(clusteringService.clusterBasicResourcesAndEncodeDataWithKMeans(
+						mapExecutorsForClustering(executorsResources), clusterNoExecutors), executorsResources);
 		final Map<String, String> jobsEncoding = jobsClustering.getEncoding();
 		final Map<String, String> executorsEncoding = executorsClustering.getEncoding();
 
@@ -134,7 +143,7 @@ public class IntentBasedAllocator {
 				final IntStream jobClustersToBeMatched = range(0, jobClustersNumber);
 
 				jobClustersToBeMatched.boxed()
-						.filter(jobCluster -> jobClustersMatchingStatuses.get(jobCluster.toString()).get())
+						.filter(jobCluster -> !jobClustersMatchingStatuses.get(jobCluster.toString()).get())
 						.filter(jobCluster -> clusterSimilarityMatrix.get(jobCluster).contains(acceptableSimilarity))
 						.map(jobCluster -> getMatchingExecutors(jobCluster, acceptableSimilarity,
 								clusterSimilarityMatrix.get(jobCluster)))
@@ -157,6 +166,53 @@ public class IntentBasedAllocator {
 			});
 		}
 		return executorsClustersAllocation;
+	}
+
+	private static List<Map<String, Object>> mapExecutorsForClustering(final List<Map<String, Object>> executors) {
+		return executors.stream()
+				.map(resourceMap -> resourceMap.entrySet().stream()
+						.collect(toMap(Map.Entry::getKey,
+								entry -> {
+									try {
+										return List.of(DURATION, BUDGET).contains(entry.getKey()) ?
+												getMapper().writeValueAsString(entry.getValue()) :
+												entry.getValue();
+									} catch (final JsonProcessingException e) {
+										return entry.getValue();
+									}
+								})))
+				.toList();
+	}
+
+	private static ClusteringEncodingResponse mapExecutorsAfterClustering(
+			final ClusteringEncodingResponse encodingResponse, final List<Map<String, Object>> executors) {
+		final Map<String, List<Map<String, Object>>> clustering = encodingResponse.getClustering().entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> mapResourcesAfterClustering(entry.getValue())));
+
+		return ImmutableClusteringEncodingResponse.builder()
+				.clustering(clustering)
+				.encoding(encodingResponse.getEncoding())
+				.build();
+	}
+
+	private static List<Map<String, Object>> mapResourcesAfterClustering(final List<Map<String, Object>> resources) {
+		return resources.stream()
+				.map(clusteringResources -> clusteringResources.entrySet().stream()
+						.collect(toMap(Map.Entry::getKey, entry -> {
+							final TypeReference<?> typeRef = switch (entry.getKey()) {
+								case BUDGET -> new TypeReference<Map<String, Double>>() {};
+								case DURATION -> new TypeReference<Map<String, Integer>>() {};
+								default -> null;
+								};
+							try {
+								return List.of(DURATION, BUDGET).contains(entry.getKey()) ?
+										getMapper().readValue((String) entry.getValue(), typeRef) :
+										entry.getValue();
+							} catch (final JsonProcessingException e) {
+								return entry.getValue();
+							}
+						})))
+				.toList();
 	}
 
 	private static int getMatchingExecutorsCount(final Object matchingClusters) {

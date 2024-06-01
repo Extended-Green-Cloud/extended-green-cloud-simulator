@@ -6,4 +6,5 @@ package org.greencloud.commons.constants.resource;
 public class ResourceCharacteristicConstants {
 
 	public static final String AMOUNT = "amount";
+	public static final String JOBS_MAP = "jobs-map";
 }

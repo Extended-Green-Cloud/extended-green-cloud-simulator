@@ -8,6 +8,8 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_REC
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.POLL_NEXT_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SEARCH_OWNER_AGENT_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SENSE_EVENTS_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_RESOURCE_INFORMATION_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_RESOURCE_UPDATE_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SERVER_STATUS_CHANGE_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.SUBSCRIBE_OWNED_AGENTS_SERVICE_RULE;
 
@@ -48,8 +50,8 @@ public class StartInitialRegionalManagerBehaviours extends AgentBehaviourRule<Re
 				SchedulePeriodically.create(agent, new RuleSetFacts(controller.getLatestLongTermRuleSetIdx().get()),
 						POLL_NEXT_JOB_RULE, controller),
 				ListenForMessages.create(agent, JOB_STATUS_RECEIVER_RULE, controller),
-				ListenForMessages.create(agent, "SERVER_RESOURCE_INFORMATION_RULE", controller, true),
-				ListenForMessages.create(agent, "SERVER_RESOURCE_UPDATE_RULE", controller, true),
+				ListenForMessages.create(agent, SERVER_RESOURCE_INFORMATION_RULE, controller, true),
+				ListenForMessages.create(agent, SERVER_RESOURCE_UPDATE_RULE, controller, true),
 				ListenForMessages.create(agent, NEW_JOB_RECEIVER_RULE, controller, true),
 				ListenForMessages.create(agent, SERVER_STATUS_CHANGE_RULE, controller, true),
 				ListenForMessages.create(agent, JOB_ENERGY_PRICE_RECEIVER_RULE, controller, true),

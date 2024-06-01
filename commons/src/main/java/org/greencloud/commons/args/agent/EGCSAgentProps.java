@@ -15,8 +15,10 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_SUBSTITUTION_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobDurationAndStart;
 import static org.greencloud.commons.mapper.JobMapper.mapToJobStartTime;
+import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJob;
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -273,9 +275,8 @@ public class EGCSAgentProps extends AgentProps {
 	 */
 	public <T extends PowerJob> RuleSetFacts constructDivisionFacts(final T job, final Instant powerShortageStart,
 			final Integer strategyIdx) {
-		final RuleSetFacts divisionFacts = new RuleSetFacts(strategyIdx);
-		divisionFacts.put(FactTypeConstants.EVENT_TIME, powerShortageStart);
-		divisionFacts.put(JOB, job);
+		final RuleSetFacts divisionFacts = constructFactsWithJob(strategyIdx, job);
+		divisionFacts.put(EVENT_TIME, powerShortageStart);
 		divisionFacts.put(RULE_TYPE, PROCESS_JOB_NEW_INSTANCE_CREATION_RULE);
 		return divisionFacts;
 	}

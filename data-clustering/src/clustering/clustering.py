@@ -169,6 +169,10 @@ class Clustering():
         clustering_data = parse_rest_workflows_to_data_frame(rest_input, rest_categorical_features)
         clustering_features = parse_clustering_features(clustering_data, rest_all_features, rest_categorical_features)
 
+        if len(clustering_data) <= MIN_CLUSTERING_SIZE:
+            clustering_data['label'] = range(1, len(clustering_data) + 1)
+            return clustering_data, clustering_features
+
         clustering = cls(clustering_name, 
                         clustering_data,
                         clustering_features,

@@ -5,6 +5,7 @@ import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_PRIORITY_FACTS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.COMPUTE_JOB_PRIORITY_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PRE_EVALUATE_JOB_PRIORITY_RULE;
+import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJob;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 
 import javax.annotation.Nullable;
@@ -45,9 +46,8 @@ public class PriorityFactsFactory {
 	 */
 	public static <T extends PowerJob> RuleSetFacts constructFactsForPriorityPreEvaluation(final int index,
 			final T job) {
-		final RuleSetFacts preprocessingFacts = new RuleSetFacts(index);
+		final RuleSetFacts preprocessingFacts = constructFactsWithJob(index, job);
 		preprocessingFacts.put(RULE_TYPE, PRE_EVALUATE_JOB_PRIORITY_RULE);
-		preprocessingFacts.put(JOB, job);
 
 		return preprocessingFacts;
 	}

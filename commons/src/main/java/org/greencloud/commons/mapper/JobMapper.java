@@ -14,15 +14,23 @@ import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeMillis;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.math3.util.Pair;
 import org.greencloud.commons.args.job.ImmutableJobArgs;
 import org.greencloud.commons.args.job.JobArgs;
 import org.greencloud.commons.args.job.SyntheticJobArgs;
 import org.greencloud.commons.args.job.SyntheticJobStepArgs;
+import org.greencloud.commons.domain.allocation.AllocatedJobs;
+import org.greencloud.commons.domain.allocation.ImmutableAllocatedJobs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.basic.ClientJobWithServer;
 import org.greencloud.commons.domain.job.basic.EnergyJob;
 import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
+import org.greencloud.commons.domain.job.basic.ImmutableClientJobWithServer;
 import org.greencloud.commons.domain.job.basic.ImmutableEnergyJob;
 import org.greencloud.commons.domain.job.basic.ImmutableServerJob;
 import org.greencloud.commons.domain.job.basic.PowerJob;
@@ -61,6 +69,91 @@ public class JobMapper {
 	public static JobInstanceIdentifier mapToJobInstanceId(final PowerJob powerJob) {
 		return new ImmutableJobInstanceIdentifier(powerJob.getJobId(), powerJob.getJobInstanceId(),
 				requireNonNull(powerJob.getStartTime()));
+	}
+
+	/**
+	 * @param clientJob job that is to mapped with server
+	 * @param server    agent identifier of the server
+	 * @return ClientJobWithServer
+	 */
+	public static <T extends ClientJob> ClientJobWithServer mapToJobWithServer(final T clientJob,
+			final @Nullable String server) {
+		return ImmutableClientJobWithServer.builder()
+				.jobId(clientJob.getJobId())
+				.ruleSetId(clientJob.getRuleSetId())
+				.jobInstanceId(clientJob.getJobInstanceId())
+				.duration(clientJob.getDuration())
+				.deadline(clientJob.getDeadline())
+				.requiredResources(clientJob.getRequiredResources())
+				.jobSteps(clientJob.getJobSteps())
+				.startTime(clientJob.getStartTime())
+				.priority(clientJob.getPriority())
+				.clientIdentifier(clientJob.getClientIdentifier())
+				.clientAddress(clientJob.getClientAddress())
+				.selectionPreference(clientJob.getSelectionPreference())
+				.server(server)
+				.build();
+
+	}
+
+	/**
+	 * @param jobWithServer job that is to mapped
+	 * @return ClientJobWithServer
+	 */
+	public static ClientJob mapToClientJob(final ClientJobWithServer jobWithServer) {
+		return ImmutableClientJob.builder()
+				.jobId(jobWithServer.getJobId())
+				.ruleSetId(jobWithServer.getRuleSetId())
+				.jobInstanceId(jobWithServer.getJobInstanceId())
+				.duration(jobWithServer.getDuration())
+				.deadline(jobWithServer.getDeadline())
+				.requiredResources(jobWithServer.getRequiredResources())
+				.jobSteps(jobWithServer.getJobSteps())
+				.startTime(jobWithServer.getStartTime())
+				.priority(jobWithServer.getPriority())
+				.clientIdentifier(jobWithServer.getClientIdentifier())
+				.clientAddress(jobWithServer.getClientAddress())
+				.selectionPreference(jobWithServer.getSelectionPreference())
+				.build();
+
+	}
+
+	/**
+	 * @param jobs jobs that are to be sent for allocation
+	 * @return AllocatedJobs
+	 */
+	public static <T extends ClientJob> AllocatedJobs mapToAllocatedJobs(final List<T> jobs) {
+		return ImmutableAllocatedJobs.builder()
+				.allocationJobs(jobs.stream()
+						.map(Optional::of)
+						.map(job -> job.filter(ClientJobWithServer.class::isInstance)
+								.map(ClientJobWithServer.class::cast)
+								.orElse(mapToJobWithServer(job.orElseThrow(), null)))
+						.toList())
+				.build();
+	}
+
+	/**
+	 * @param acceptedJobs jobs that are to be allocated
+	 * @param rejectedJobs jobs which allocation was rejected
+	 * @return AllocatedJobs
+	 */
+	public static <T extends ClientJob> AllocatedJobs mapToAllocatedJobsWithRejection(final List<T> acceptedJobs,
+			final List<T> rejectedJobs) {
+		return ImmutableAllocatedJobs.builder()
+				.allocationJobs(acceptedJobs.stream()
+						.map(Optional::of)
+						.map(job -> job.filter(ClientJobWithServer.class::isInstance)
+								.map(ClientJobWithServer.class::cast)
+								.orElse(mapToJobWithServer(job.orElseThrow(), null)))
+						.toList())
+				.rejectedAllocationJobs(rejectedJobs.stream()
+						.map(Optional::of)
+						.map(job -> job.filter(ClientJobWithServer.class::isInstance)
+								.map(ClientJobWithServer.class::cast)
+								.orElse(mapToJobWithServer(job.orElseThrow(), null)))
+						.toList())
+				.build();
 	}
 
 	/**

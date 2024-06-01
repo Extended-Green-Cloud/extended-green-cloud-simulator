@@ -8,11 +8,16 @@ public class EGCSFactTypeConstants {
 	// FACTS
 	public static final String INITIAL_FACTS = "initial-facts";
 
-	// TRANSFER FACT
+	// TRANSFER FACTS
 	public static final String TRANSFER_INSTANT = "transfer-instant";
+
+	// ALLOCATION FACTS
+	public static final String ALLOCATION = "allocation";
 
 	// JOB FACTS
 	public static final String JOB = "job";
+	public static final String JOB_ACCEPTED = "job-accepted";
+	public static final String JOB_REFUSED = "job-refused";
 	public static final String JOB_PRIORITY_FACTS = "job-priority-facts";
 	public static final String JOB_DIVIDED = "job-divided";
 	public static final String JOB_PREVIOUS = "job-previous";
@@ -34,6 +39,7 @@ public class EGCSFactTypeConstants {
 
 	// RESOURCE FACTS
 	public static final String PREVIOUS_RESOURCES =	"previous-resources";
+	public static final String RESOURCES_SUFFICIENCY =	"resources-sufficiency";
 
 	// ENERGY FACTS
 	public static final String ENERGY_TYPE = "energy-type";

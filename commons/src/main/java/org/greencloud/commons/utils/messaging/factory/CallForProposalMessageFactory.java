@@ -1,9 +1,13 @@
 package org.greencloud.commons.utils.messaging.factory;
 
 import static jade.lang.acl.ACLMessage.CFP;
+import static jade.lang.acl.ACLMessage.REQUEST;
+import static org.greencloud.commons.mapper.JobMapper.mapToAllocatedJobs;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.jrba.utils.messages.MessageBuilder;
 
 import jade.core.AID;
@@ -28,6 +32,22 @@ public class CallForProposalMessageFactory {
 				.withMessageProtocol(protocol)
 				.withObjectContent(content)
 				.withReceivers(receiverList)
+				.build();
+	}
+
+	/**
+	 * Method creates a message requesting allocated jobs execution
+	 *
+	 * @param jobs  jobs that are to asked for execution
+	 * @param agent agent to which the jobs are allocated
+	 * @return REQUEST message
+	 */
+	public static <T extends ClientJob> ACLMessage prepareExecutionRequest(final List<T> jobs, final AID agent,
+			final int ruleSetIdx, final String protocol) {
+		return MessageBuilder.builder(ruleSetIdx, REQUEST)
+				.withMessageProtocol(protocol)
+				.withObjectContent(mapToAllocatedJobs(jobs))
+				.withReceivers(agent)
 				.build();
 	}
 }

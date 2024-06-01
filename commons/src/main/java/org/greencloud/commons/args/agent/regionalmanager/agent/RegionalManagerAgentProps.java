@@ -107,6 +107,19 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	}
 
 	/**
+	 * Method finds RMA server by name
+	 *
+	 * @param serverName server name
+	 * @return server AID
+	 */
+	public AID getServerByName(final String serverName) {
+		return ownedServers.keySet().stream()
+				.filter(serverAID -> serverAID.getName().equals(serverName))
+				.findFirst()
+				.orElseThrow();
+	}
+
+	/**
 	 * Method retrieves list of owned servers that are active
 	 *
 	 * @return list of server AIDs
