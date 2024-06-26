@@ -10,6 +10,7 @@ import static org.greencloud.gui.websocket.WebSocketConnections.initialize;
 import static org.greencloud.gui.websocket.enums.SocketTypeEnum.EVENTS_WEB_SOCKET;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,6 +49,15 @@ public class GuiControllerImpl implements GuiController {
 		getManagingSystemSocket().reportSystemStartTime(time);
 		getCloudNetworkSocket().reportSystemStartTime(time);
 		eventSocket.reportSystemStartTime(time);
+	}
+
+	@Override
+	public void reportStrategyParameters(final String resourceAllocationStrategy,
+			final String prioritizationStrategy,
+			final List<String> appliedModifications,
+			final int numberOfAllocationSteps) {
+		getCloudNetworkSocket().reportStrategyParameters(resourceAllocationStrategy, prioritizationStrategy,
+				appliedModifications, numberOfAllocationSteps);
 	}
 
 	@Override

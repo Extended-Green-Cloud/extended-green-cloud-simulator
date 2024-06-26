@@ -2,6 +2,7 @@ package com.greencloud.connector.gui;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.domain.EventData;
@@ -38,6 +39,19 @@ public interface GuiController extends Runnable, Serializable {
 	 * @param time time of system start
 	 */
 	void reportSystemStartTime(final Instant time);
+
+	/**
+	 * Method reports to the socket server the parameters of strategy allocation strategy.
+	 *
+	 * @param resourceAllocationStrategy name of the resource allocation algorithm
+	 * @param prioritizationStrategy     name of the tasks' prioritization algorithm
+	 * @param appliedModifications       list of applied modifications (possibly empty when no modifications were applied)
+	 * @param numberOfAllocationSteps    number of steps of resource allocation algorithm
+	 */
+	void reportStrategyParameters(final String resourceAllocationStrategy,
+			final String prioritizationStrategy,
+			final List<String> appliedModifications,
+			final int numberOfAllocationSteps);
 
 	/**
 	 * Method triggers agent event.
