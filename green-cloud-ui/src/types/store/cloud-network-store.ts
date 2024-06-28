@@ -6,6 +6,10 @@ export type CloudNetworkStore = {
    finishedJobsNo: number
    finishedJobsInCloudNo: number
    failedJobsNo: number
+   allocationStrategy: string
+   prioritizationStrategy: string
+   allocationStepsNumber: number
+   modifications: string[]
    isNetworkSocketConnected?: boolean | null
    isAgentSocketConnected?: boolean | null
    isClientSocketConnected?: boolean | null

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -20,4 +21,6 @@ public interface AllocationData {
 
 	@Nullable
 	Map<String, List<String>> getServersPerRMA();
+
+	List<AllocationModificationEnum> getModifications();
 }

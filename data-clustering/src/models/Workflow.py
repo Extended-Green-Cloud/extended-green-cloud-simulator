@@ -111,6 +111,10 @@ class Workflow():
                 return 'stopped with strategy "stop"'
             elif lower_case_message.__contains__('cannot get resource'):
                 return 'resource not found'
+            elif lower_case_message.__contains__('not found'):
+                return 'product not found'
+            elif lower_case_message.__contains__('order invalid'):
+                return 'production order invalid'
 
             return 'undefined'
         else:
@@ -130,7 +134,7 @@ class Workflow():
         if is_output_available:
             final_state = read_first_or_return_default(
                 status['outputs']['parameters'], self.FINAL_STATE_PREDICATE)
-            final_state_val = final_state['value'] if final_state else None
+            final_state_val = read_value_or_return_default('value', final_state, None) if final_state else None
             final_state = read_json_or_return_default(final_state_val)
 
             if not final_state or 'message' not in final_state or str(final_state['message']) == '':

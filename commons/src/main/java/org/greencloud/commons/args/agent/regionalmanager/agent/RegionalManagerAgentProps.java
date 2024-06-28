@@ -10,6 +10,9 @@ import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.Regio
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_FINISH_LOG;
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_PROCESS_LOG;
 import static org.greencloud.commons.args.agent.regionalmanager.agent.logs.RegionalManagerAgentPropsLog.COUNT_JOB_START_LOG;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.AMOUNT;
+import static org.greencloud.commons.constants.resource.ResourceCharacteristicConstants.JOBS_MAP;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.ID;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FINISH;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.domain.agent.RegionResources;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
@@ -126,6 +130,22 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	 */
 	public List<AID> getOwnedActiveServers() {
 		return ownedServers.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).toList();
+	}
+
+	/**
+	 * Method maps the resources obtained from servers data.
+	 *
+	 * @param serverResources list of server resources
+	 * @return list with servers' resources
+	 */
+	public List<Map<String, Object>> getServerResources(final Map<String, ServerResources> serverResources) {
+		final List<String> uniqueResourceTypes = serverResources.entrySet().stream()
+				.flatMap(resources -> resources.getValue().getResources().keySet().stream())
+				.toList();
+
+		return serverResources.entrySet().stream()
+				.map(serverResourceEntry -> mapServerResources(serverResourceEntry, uniqueResourceTypes))
+				.toList();
 	}
 
 	/**
@@ -329,6 +349,19 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 								jobCounters.get(ACCEPTED).getCount())), FINISH, new JobCounter(
 						jobId -> logger.info(COUNT_JOB_FINISH_LOG, jobId, jobCounters.get(FINISH).getCount(),
 								jobCounters.get(STARTED).getCount()))));
+	}
+
+	private Map<String, Object> mapServerResources(final Map.Entry<String, ServerResources> serverResources,
+			final List<String> uniqueResourceTypes) {
+		final Map<String, Object> resources = serverResources.getValue().getResources().entrySet().stream()
+				.collect(toMap(Map.Entry::getKey,
+						entry -> entry.getValue().getCharacteristics().containsKey(AMOUNT) ?
+								entry.getValue().getAmountInCommonUnit() :
+								entry.getValue().getCharacteristics().get(JOBS_MAP).getValue()));
+
+		uniqueResourceTypes.forEach(type -> resources.putIfAbsent(type, 0));
+		resources.put(ID, serverResources.getKey());
+		return resources;
 	}
 
 	@Override

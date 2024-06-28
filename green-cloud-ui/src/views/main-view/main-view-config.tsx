@@ -21,5 +21,8 @@ export const VIEW_TABS: ViewTabConfig = {
    },
    [MenuTab.CREATOR]: {
       useDoublePanelView: false
+   },
+   [MenuTab.STRATEGY]: {
+      useDoublePanelView: true
    }
 }

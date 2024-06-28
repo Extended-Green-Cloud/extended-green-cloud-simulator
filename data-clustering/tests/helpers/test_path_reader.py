@@ -131,7 +131,7 @@ class TestGetFilePathToArgoData(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # when
-        actual = get_file_path_to_argo_data(True)
+        actual = get_file_path_to_argo_data(is_test=True)
 
         # then
         expected_end = 'data-clustering\\tests\\mocks\\mock-input'
@@ -150,7 +150,7 @@ class TestGetFilePathToDatabaseData(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # when
-        actual = get_file_path_to_database_data(True)
+        actual = get_file_path_to_database_data(is_test=True)
 
         # then
         expected_end = 'data-clustering\\tests\\mocks\\mock-input\\database.csv'

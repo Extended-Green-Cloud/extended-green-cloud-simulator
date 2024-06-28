@@ -17,7 +17,7 @@ class TestImportWorkflowDataDatabase(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # when
-        test_workflow_db = import_workflow_data_database(True)
+        test_workflow_db = import_workflow_data_database(is_test=True)
 
         # then
         self.assertEqual(3, len(
@@ -39,7 +39,7 @@ class TestImportWorkflowData(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # when
-        test_workflows = import_workflow_data(True)
+        test_workflows = import_workflow_data(is_test=True)
         workflows_statuses = [
             workflow.argo_workflow_status for workflow in test_workflows]
 
@@ -60,7 +60,7 @@ class TestImportOrdersFromWorkflows(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows = import_workflow_data(True)
+        test_workflows = import_workflow_data(is_test=True)
 
         # when
         actual = import_orders_from_workflows(test_workflows)
@@ -97,8 +97,8 @@ class TestSaveParsedWorkflowData(TestCase):
             output_file, True)), f'Initially (for test), saved workflow data file should not exist')
 
         # when
-        test_workflows = import_workflow_data(True)
-        save_parsed_workflow_data(test_workflows, True)
+        test_workflows = import_workflow_data(is_test=True)
+        save_parsed_workflow_data(test_workflows, is_test=True)
 
         # then
         self.assertTrue(path.exists(get_data_file_path(
@@ -115,7 +115,7 @@ class TestSaveParsedOrderData(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows = import_workflow_data(True)
+        test_workflows = import_workflow_data(is_test=True)
         test_orders = import_orders_from_workflows(test_workflows)
 
         output_file = path.join(INPUT_DIR, ORDERS_INPUT_FILE)
@@ -126,7 +126,7 @@ class TestSaveParsedOrderData(TestCase):
             output_file, True)), f'Initially (for test), saved order data file should not exist')
 
         # when
-        save_parsed_order_data(test_orders, True)
+        save_parsed_order_data(test_orders, is_test=True)
 
         # then
         self.assertTrue(path.exists(get_data_file_path(
@@ -143,11 +143,11 @@ class TestImportWorkflowsFromCsv(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows = import_workflow_data(True)
-        save_parsed_workflow_data(test_workflows, True)
+        test_workflows = import_workflow_data(is_test=True)
+        save_parsed_workflow_data(test_workflows, is_test=True)
 
         # when
-        test_workflows = import_workflows_from_csv(True)
+        test_workflows = import_workflows_from_csv(is_test=True)
         workflows_statuses = list(
             test_workflows[WORKFLOW_FEATURES.ARGO_STATUS])
 
@@ -168,12 +168,12 @@ class TestImportOrdersFromCsv(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows = import_workflow_data(True)
+        test_workflows = import_workflow_data(is_test=True)
         test_orders = import_orders_from_workflows(test_workflows)
-        save_parsed_order_data(test_orders, True)
+        save_parsed_order_data(test_orders, is_test=True)
 
         # when
-        actual = import_orders_from_csv(True)
+        actual = import_orders_from_csv(is_test=True)
 
         # then
         self.assertEqual(1, len(actual))
@@ -240,7 +240,7 @@ class TestImportWorkflowsFromJson(TestCase):
             output_file, True)), f'Initially (for test), saved workflow data file should not exist')
 
         # when
-        test_workflows, _ = import_workflows_from_json(True)
+        test_workflows, _ = import_workflows_from_json(is_test=True)
         workflows_statuses = list(
             test_workflows[WORKFLOW_FEATURES.ARGO_STATUS])
 

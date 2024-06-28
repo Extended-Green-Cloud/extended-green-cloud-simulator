@@ -12,7 +12,7 @@ import org.greencloud.commons.args.agent.centralmanager.agent.CentralManagerAgen
 import org.greencloud.commons.args.agent.centralmanager.node.CentralManagerNodeArgs;
 import org.greencloud.commons.domain.job.instance.ImmutableJobInstanceCMA;
 import org.greencloud.commons.domain.job.instance.JobInstanceCMA;
-import org.greencloud.gui.agents.egcs.EGCSNode;
+import org.greencloud.gui.agents.egcs.EGCSNetworkNode;
 import org.greencloud.gui.messages.ImmutableUpdateJobQueueMessage;
 import org.greencloud.gui.messages.ImmutableUpdateSingleValueMessage;
 import org.jrba.environment.domain.ExternalEvent;
@@ -20,7 +20,7 @@ import org.jrba.environment.domain.ExternalEvent;
 /**
  * Agent node class representing the Central Manager Agent.
  */
-public class CMANode extends EGCSNode<CentralManagerNodeArgs, CentralManagerAgentProps> {
+public class CMANode extends EGCSNetworkNode<CentralManagerNodeArgs, CentralManagerAgentProps> {
 
 	/**
 	 * CMA node constructor

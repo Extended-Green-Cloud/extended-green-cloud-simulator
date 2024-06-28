@@ -6,6 +6,8 @@ import static java.util.stream.Collectors.filtering;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
+import static org.greencloud.commons.enums.job.JobClientStatusEnum.SCHEDULED;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
@@ -39,19 +41,28 @@ import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientStatisticsData;
 import com.database.knowledge.types.DataType;
 
+import lombok.Setter;
+
 /**
  * Agent node class representing the client
  */
 public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 
 	private static final List<JobClientStatusEnum> SIMULATION_STATUSES = List.of(JobClientStatusEnum.SCHEDULED,
-			JobClientStatusEnum.PROCESSED, JobClientStatusEnum.CREATED);
+			PROCESSED, JobClientStatusEnum.CREATED);
 
 	private boolean isFinished;
+
+	@Setter
+	private boolean isWithinDeadline;
+	@Setter
+	private boolean isWithinBudget;
 
 	public ClientNode() {
 		super();
 		this.isFinished = false;
+		this.isWithinBudget = false;
+		this.isWithinDeadline = false;
 	}
 
 	/**
@@ -239,12 +250,14 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	@Override
 	public void saveMonitoringData(final ClientAgentProps props) {
 		final Map<JobClientStatusEnum, Long> jobDurationMap = props.getJobDurationMap().entrySet().stream()
-				.collect(filtering(entry -> List.of(ON_BACK_UP, IN_PROGRESS)
+				.collect(filtering(entry -> List.of(ON_BACK_UP, IN_PROGRESS, SCHEDULED, PROCESSED)
 								.contains(entry.getKey()),
 						toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
 		final ClientMonitoringData data = ImmutableClientMonitoringData.builder()
 				.isFinished(isFinished)
+				.isWithinDeadline(isWithinDeadline)
+				.isWithinBudget(isWithinBudget)
 				.currentJobStatus(props.getJobStatus())
 				.jobStatusDurationMap(jobDurationMap)
 				.build();
@@ -260,7 +273,7 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	private void writeJobExecutionPercentage(final ClientAgentProps props) {
 		final long executionTime =
 				props.getJobDurationMap().get(IN_PROGRESS) + props.getJobDurationMap().get(ON_BACK_UP);
-		final long expectedExecution = props.getExpectedExecutionDuration();
+		final long expectedExecution = props.getExpectedExecutionDuration() / 1000;
 		final double executedPercentage = expectedExecution == 0 ? 0 : (double) executionTime / expectedExecution;
 
 		writeMonitoringData(CLIENT_JOB_EXECUTION, ImmutableClientJobExecutionData.builder()

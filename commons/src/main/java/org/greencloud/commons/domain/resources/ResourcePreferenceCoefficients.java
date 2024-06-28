@@ -44,6 +44,11 @@ public interface ResourcePreferenceCoefficients {
 	Double getReliabilityWeight();
 
 	/**
+	 * @return preference set towards matching with respect to energy utilization
+	 */
+	Double getEnergyWeight();
+
+	/**
 	 * @return preference set towards matching with respect to job execution time
 	 */
 	Double getTimeWeight();
@@ -64,7 +69,7 @@ public interface ResourcePreferenceCoefficients {
 	Double executorSatisfactionWeight();
 
 	/**
-	 * @return
+	 * @return minimal satisfaction of the job
 	 */
 	Double getMinimalJobSatisfaction();
 

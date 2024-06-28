@@ -1,0 +1,1490 @@
+[
+  {
+    "resources" : {
+      "cpu" : 5209,
+      "memory" : 238044,
+      "ephemeral_storage" : 16,
+      "storage" : 80
+    },
+    "duration" : 757,
+    "processed_size" : 4946672593,
+    "deadline" : 0,
+    "priority" : 1,
+    "processor_name" : "card_bs",
+    "steps" : [
+      {
+        "duration" : 32,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 50,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 30,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 17,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 57,
+        "resources" : {
+          "cpu" : 30,
+          "memory" : 228,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 52,
+        "resources" : {
+          "cpu" : 29,
+          "memory" : 228,
+          "storage" : 0
+        },
+        "name" : "copdem-setup"
+      },
+      {
+        "duration" : 52,
+        "resources" : {
+          "cpu" : 27,
+          "memory" : 74,
+          "storage" : 3
+        },
+        "name" : "copdem-process"
+      },
+      {
+        "duration" : 333,
+        "resources" : {
+          "cpu" : 4891,
+          "memory" : 235480,
+          "storage" : 13
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 137,
+        "resources" : {
+          "cpu" : 190,
+          "memory" : 1918,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 31,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 29,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 33,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 20,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1136,
+      "memory" : 36527,
+      "ephemeral_storage" : 49,
+      "storage" : 5
+    },
+    "duration" : 916,
+    "processed_size" : 1299633129,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 92,
+        "resources" : {
+          "cpu" : 31,
+          "memory" : 235,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 571,
+        "resources" : {
+          "cpu" : 992,
+          "memory" : 35573,
+          "storage" : 49
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 103,
+        "resources" : {
+          "cpu" : 65,
+          "memory" : 592,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 32,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1113,
+      "memory" : 35755,
+      "ephemeral_storage" : 48,
+      "storage" : 5
+    },
+    "duration" : 903,
+    "processed_size" : 1270308009,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 91,
+        "resources" : {
+          "cpu" : 30,
+          "memory" : 231,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 560,
+        "resources" : {
+          "cpu" : 971,
+          "memory" : 34814,
+          "storage" : 48
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 102,
+        "resources" : {
+          "cpu" : 64,
+          "memory" : 582,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 31,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1167,
+      "memory" : 37616,
+      "ephemeral_storage" : 50,
+      "storage" : 5
+    },
+    "duration" : 933,
+    "processed_size" : 1341013006,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 93,
+        "resources" : {
+          "cpu" : 31,
+          "memory" : 241,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 586,
+        "resources" : {
+          "cpu" : 1022,
+          "memory" : 36643,
+          "storage" : 50
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 103,
+        "resources" : {
+          "cpu" : 66,
+          "memory" : 605,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 32,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 384,
+      "memory" : 10600,
+      "ephemeral_storage" : 14,
+      "storage" : 5
+    },
+    "duration" : 505,
+    "processed_size" : 314909185,
+    "deadline" : 0,
+    "priority" : 974,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 35,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 47,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 33,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 18,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 68,
+        "resources" : {
+          "cpu" : 18,
+          "memory" : 107,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 207,
+        "resources" : {
+          "cpu" : 288,
+          "memory" : 10103,
+          "storage" : 14
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 86,
+        "resources" : {
+          "cpu" : 34,
+          "memory" : 271,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 30,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 24,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1070,
+      "memory" : 34269,
+      "ephemeral_storage" : 46,
+      "storage" : 5
+    },
+    "duration" : 880,
+    "processed_size" : 1213877009,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 90,
+        "resources" : {
+          "cpu" : 30,
+          "memory" : 224,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 539,
+        "resources" : {
+          "cpu" : 931,
+          "memory" : 33355,
+          "storage" : 46
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 101,
+        "resources" : {
+          "cpu" : 62,
+          "memory" : 564,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 31,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1144,
+      "memory" : 36816,
+      "ephemeral_storage" : 49,
+      "storage" : 5
+    },
+    "duration" : 920,
+    "processed_size" : 1310605039,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 92,
+        "resources" : {
+          "cpu" : 31,
+          "memory" : 237,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 575,
+        "resources" : {
+          "cpu" : 1000,
+          "memory" : 35857,
+          "storage" : 49
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 103,
+        "resources" : {
+          "cpu" : 65,
+          "memory" : 595,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 32,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 372,
+      "memory" : 10166,
+      "ephemeral_storage" : 13,
+      "storage" : 5
+    },
+    "duration" : 498,
+    "processed_size" : 298425942,
+    "deadline" : 0,
+    "priority" : 974,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 35,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 47,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 33,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 17,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 68,
+        "resources" : {
+          "cpu" : 18,
+          "memory" : 105,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 201,
+        "resources" : {
+          "cpu" : 276,
+          "memory" : 9676,
+          "storage" : 13
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 86,
+        "resources" : {
+          "cpu" : 34,
+          "memory" : 266,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 30,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 24,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1078,
+      "memory" : 34549,
+      "ephemeral_storage" : 46,
+      "storage" : 5
+    },
+    "duration" : 884,
+    "processed_size" : 1224528332,
+    "deadline" : 0,
+    "priority" : 971,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 51,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 19,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 90,
+        "resources" : {
+          "cpu" : 30,
+          "memory" : 225,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 543,
+        "resources" : {
+          "cpu" : 939,
+          "memory" : 33630,
+          "storage" : 46
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 101,
+        "resources" : {
+          "cpu" : 63,
+          "memory" : 567,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 31,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 833,
+      "memory" : 26076,
+      "ephemeral_storage" : 35,
+      "storage" : 5
+    },
+    "duration" : 750,
+    "processed_size" : 902701251,
+    "deadline" : 0,
+    "priority" : 972,
+    "processor_name" : "grd_cog",
+    "steps" : [
+      {
+        "duration" : 37,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 50,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 35,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 18,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 82,
+        "resources" : {
+          "cpu" : 26,
+          "memory" : 184,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 424,
+        "resources" : {
+          "cpu" : 708,
+          "memory" : 25306,
+          "storage" : 35
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 96,
+        "resources" : {
+          "cpu" : 52,
+          "memory" : 463,
+          "storage" : 0
+        },
+        "name" : "upload"
+      },
+      {
+        "duration" : 36,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 31,
+          "storage" : 0
+        },
+        "name" : "set-metadata"
+      },
+      {
+        "duration" : 38,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 25,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 91417,
+      "memory" : 10953650,
+      "ephemeral_storage" : 53,
+      "storage" : 199
+    },
+    "duration" : 6709,
+    "processed_size" : 768614969,
+    "deadline" : 0,
+    "priority" : 70,
+    "processor_name" : "card_coh12_public",
+    "steps" : [
+      {
+        "duration" : 34,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 64,
+          "storage" : 0
+        },
+        "name" : "find-products"
+      },
+      {
+        "duration" : 202,
+        "resources" : {
+          "cpu" : 11,
+          "memory" : 33,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 195,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 17,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 86,
+        "resources" : {
+          "cpu" : 40,
+          "memory" : 339,
+          "storage" : 0
+        },
+        "name" : "copdem-setup"
+      },
+      {
+        "duration" : 71,
+        "resources" : {
+          "cpu" : 22,
+          "memory" : 78,
+          "storage" : 3
+        },
+        "name" : "copdem-process"
+      },
+      {
+        "duration" : 247,
+        "resources" : {
+          "cpu" : 375,
+          "memory" : 3898,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 5425,
+        "resources" : {
+          "cpu" : 90862,
+          "memory" : 10948361,
+          "storage" : 49
+        },
+        "name" : "process-product"
+      },
+      {
+        "duration" : 121,
+        "resources" : {
+          "cpu" : 54,
+          "memory" : 489,
+          "storage" : 0
+        },
+        "name" : "upload-and-metadata"
+      },
+      {
+        "duration" : 49,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 56,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 7943,
+      "memory" : 189118,
+      "ephemeral_storage" : 1300,
+      "storage" : 20
+    },
+    "duration" : 2839,
+    "processed_size" : 1208994557,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 46,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 23,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 45,
+        "resources" : {
+          "cpu" : 23,
+          "memory" : 171,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2638,
+        "resources" : {
+          "cpu" : 7806,
+          "memory" : 188047,
+          "storage" : 1300
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 80,
+        "resources" : {
+          "cpu" : 84,
+          "memory" : 809,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 6443,
+      "memory" : 153596,
+      "ephemeral_storage" : 1058,
+      "storage" : 20
+    },
+    "duration" : 2335,
+    "processed_size" : 359157861,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 45,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 44,
+        "resources" : {
+          "cpu" : 15,
+          "memory" : 85,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2155,
+        "resources" : {
+          "cpu" : 6353,
+          "memory" : 153016,
+          "storage" : 1058
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 60,
+        "resources" : {
+          "cpu" : 46,
+          "memory" : 406,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 5995,
+      "memory" : 143010,
+      "ephemeral_storage" : 985,
+      "storage" : 20
+    },
+    "duration" : 2185,
+    "processed_size" : 105883292,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 45,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 25,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 44,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 60,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2011,
+        "resources" : {
+          "cpu" : 5919,
+          "memory" : 142576,
+          "storage" : 985
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 55,
+        "resources" : {
+          "cpu" : 35,
+          "memory" : 285,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 8316,
+      "memory" : 197940,
+      "ephemeral_storage" : 1360,
+      "storage" : 20
+    },
+    "duration" : 2965,
+    "processed_size" : 1420039435,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 46,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 10,
+          "memory" : 23,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 45,
+        "resources" : {
+          "cpu" : 25,
+          "memory" : 193,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2758,
+        "resources" : {
+          "cpu" : 8167,
+          "memory" : 196747,
+          "storage" : 1360
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 84,
+        "resources" : {
+          "cpu" : 94,
+          "memory" : 909,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 7884,
+      "memory" : 187727,
+      "ephemeral_storage" : 1290,
+      "storage" : 20
+    },
+    "duration" : 2820,
+    "processed_size" : 1175707130,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 46,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 23,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 45,
+        "resources" : {
+          "cpu" : 23,
+          "memory" : 168,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2619,
+        "resources" : {
+          "cpu" : 7749,
+          "memory" : 186675,
+          "storage" : 1290
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 79,
+        "resources" : {
+          "cpu" : 83,
+          "memory" : 793,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 6205,
+      "memory" : 147976,
+      "ephemeral_storage" : 1019,
+      "storage" : 20
+    },
+    "duration" : 2256,
+    "processed_size" : 224707958,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 45,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 25,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 44,
+        "resources" : {
+          "cpu" : 13,
+          "memory" : 72,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2078,
+        "resources" : {
+          "cpu" : 6123,
+          "memory" : 147474,
+          "storage" : 1019
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 57,
+        "resources" : {
+          "cpu" : 40,
+          "memory" : 342,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 6298,
+      "memory" : 150164,
+      "ephemeral_storage" : 1034,
+      "storage" : 20
+    },
+    "duration" : 2287,
+    "processed_size" : 277042266,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 45,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 44,
+        "resources" : {
+          "cpu" : 14,
+          "memory" : 77,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2108,
+        "resources" : {
+          "cpu" : 6212,
+          "memory" : 149631,
+          "storage" : 1034
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 59,
+        "resources" : {
+          "cpu" : 42,
+          "memory" : 367,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 7096,
+      "memory" : 169070,
+      "ephemeral_storage" : 1163,
+      "storage" : 20
+    },
+    "duration" : 2555,
+    "processed_size" : 729360131,
+    "deadline" : 0,
+    "priority" : 0,
+    "processor_name" : "sen2cor",
+    "steps" : [
+      {
+        "duration" : 27,
+        "resources" : {
+          "cpu" : 12,
+          "memory" : 46,
+          "storage" : 0
+        },
+        "name" : "create-product"
+      },
+      {
+        "duration" : 26,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 23,
+          "storage" : 0
+        },
+        "name" : "can-process"
+      },
+      {
+        "duration" : 45,
+        "resources" : {
+          "cpu" : 18,
+          "memory" : 123,
+          "storage" : 0
+        },
+        "name" : "download"
+      },
+      {
+        "duration" : 2365,
+        "resources" : {
+          "cpu" : 6986,
+          "memory" : 168276,
+          "storage" : 1163
+        },
+        "name" : "processing"
+      },
+      {
+        "duration" : 69,
+        "resources" : {
+          "cpu" : 63,
+          "memory" : 581,
+          "storage" : 0
+        },
+        "name" : "upload-and-set-metadata"
+      },
+      {
+        "duration" : 24,
+        "resources" : {
+          "cpu" : 9,
+          "memory" : 22,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  },
+  {
+    "resources" : {
+      "cpu" : 1163363,
+      "memory" : 12284566,
+      "ephemeral_storage" : 0,
+      "storage" : 0
+    },
+    "duration" : 583782,
+    "processed_size" : 1359453981,
+    "deadline" : 0,
+    "priority" : 1,
+    "processor_name" : "download",
+    "steps" : [
+      {
+        "duration" : 54,
+        "resources" : {
+          "cpu" : 18,
+          "memory" : 49,
+          "storage" : 0
+        },
+        "name" : "compose-unprocessable-product-message"
+      },
+      {
+        "duration" : 583705,
+        "resources" : {
+          "cpu" : 1163339,
+          "memory" : 12284513,
+          "storage" : 0
+        },
+        "name" : "wait-until-product-is-downloaded"
+      },
+      {
+        "duration" : 21,
+        "resources" : {
+          "cpu" : 6,
+          "memory" : 3,
+          "storage" : 0
+        },
+        "name" : "on-exit"
+      }
+    ]
+  }
+]

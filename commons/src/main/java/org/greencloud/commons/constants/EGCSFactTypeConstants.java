@@ -13,6 +13,7 @@ public class EGCSFactTypeConstants {
 
 	// ALLOCATION FACTS
 	public static final String ALLOCATION = "allocation";
+	public static final String ALLOCATION_TIMER = "allocation-timer";
 
 	// JOB FACTS
 	public static final String JOB = "job";

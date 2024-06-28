@@ -5,3 +5,4 @@ export { default as TrafficDistributionLiveChart } from './traffic-distribution-
 export * from './cloud-network-charts'
 export * from './agent-charts/'
 export * from './client-charts'
+export * from './allocation-charts'

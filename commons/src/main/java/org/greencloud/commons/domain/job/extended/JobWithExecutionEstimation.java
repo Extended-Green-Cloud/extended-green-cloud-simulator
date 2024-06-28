@@ -1,5 +1,9 @@
 package org.greencloud.commons.domain.job.extended;
 
+import java.time.Instant;
+
+import javax.annotation.Nullable;
+
 import org.greencloud.commons.domain.ImmutableConfig;
 import org.immutables.value.Value;
 
@@ -18,4 +22,7 @@ public interface JobWithExecutionEstimation {
 	Long getEstimatedDuration();
 
 	Double getEstimatedPrice();
+
+	@Nullable
+	Instant getEarliestStartTime();
 }

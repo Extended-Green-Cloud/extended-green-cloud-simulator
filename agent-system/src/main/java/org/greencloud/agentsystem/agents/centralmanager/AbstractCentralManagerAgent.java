@@ -43,11 +43,15 @@ public abstract class AbstractCentralManagerAgent extends EGCSAgent<CMANode, Cen
 					constructFactsForPriorityEstimation(index, properties.getPriorityFacts().get(clientJob), clientJob);
 			fireOnFacts(facts);
 
-			final double result = ofNullable(facts.get(RESULT)).map(Double.class::cast).orElse(0D);
+			final double result = ofNullable(facts.get(RESULT)).map(Double.class::cast)
+					.orElse(ofNullable(clientJob.getPriority()).map(Integer::doubleValue).orElse(0.0));
 
 			MDC.put(MDC_JOB_ID, clientJob.getJobId());
 			MDC.put(MDC_RULE_SET_ID, valueOf(index));
 			logger.info("Priority for job {} was computed and is equal to {}.", clientJob.getJobId(), result);
+
+			properties.getPriorityPerJob().computeIfPresent(clientJob.getJobId(), (k, v) -> result);
+			properties.getPriorityPerJob().putIfAbsent(clientJob.getJobId(), result);
 
 			return result;
 		};

@@ -7,6 +7,7 @@ from enum import Enum
 
 DATE_PARSER_ARGO = "%Y-%m-%dT%H:%M:%SZ"
 DATE_PARSER_DB = "%Y-%m-%d %H:%M:%S.%f %z"
+DATE_PARSER_DB_2 = "%Y-%m-%d %H:%M:%S.%f"
 
 
 def FORMATTER(s): return s.apply('{0:.0f}'.format)
@@ -17,10 +18,19 @@ class DateParser(Enum):
     def PARSER_ARGO(
         date_string) -> datetime: return datetime.strptime(date_string, DATE_PARSER_ARGO)
     def PARSER_DATABASE(
-        date_string) -> datetime: return datetime.strptime(date_string, DATE_PARSER_DB)
+        date_string) -> datetime: parse_date(date_string)
 
+def parse_date(date_string: str):
+    try:
+        return datetime.strptime(date_string, DATE_PARSER_DB)
+    except ValueError as v:
+        ulr = len(v.args[0].partition('unconverted data remains: ')[2])
+        if ulr:
+            return datetime.strptime(date_string[:-ulr], date_string)
+        else:
+            return datetime.strptime(date_string, DATE_PARSER_DB_2)
 
-def read_value_or_return_default(key: str, object: dict or None, default: Any = 'undefined') -> Any:
+def read_value_or_return_default(key: str, object: dict | None, default: Any = 'undefined') -> Any:
     '''
     Method returns value for a given key or returns default value when key or key value is not present.
 
@@ -37,7 +47,7 @@ def read_value_or_return_default(key: str, object: dict or None, default: Any = 
     return object[key] if key in object and (type(object[key]) == list or not pd.isna(object[key])) else default
 
 
-def read_date_value_or_return_default(key: str, date_object: dict or None, parser: DateParser = DateParser.PARSER_DATABASE) -> datetime:
+def read_date_value_or_return_default(key: str, date_object: dict | None, parser: DateParser = DateParser.PARSER_DATABASE) -> datetime:
     '''
     Method returns date object parsed for a given key or returns None when key or key value is not present.
 
@@ -52,7 +62,7 @@ def read_date_value_or_return_default(key: str, date_object: dict or None, parse
     return parser(date_string) if date_string else None
 
 
-def read_json_or_return_default(object_to_read: str or None) -> object:
+def read_json_or_return_default(object_to_read: str | None) -> object:
     '''
     Method returns parsed json object or returns None when object is None.
 

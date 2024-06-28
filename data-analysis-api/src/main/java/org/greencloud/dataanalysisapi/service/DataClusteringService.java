@@ -19,6 +19,48 @@ public interface DataClusteringService {
 	 * @return resource encoding
 	 * @implNote used method: [<a href="https://www.sciencedirect.com/science/article/pii/S0020025520304588">Intent-based allocation</a>]
 	 */
-	ClusteringEncodingResponse clusterBasicResourcesAndEncodeDataWithKMeans(final List<Map<String, Object>> resources,
+	ClusteringEncodingResponse clusterBasicResourcesAndEncodeDataWithFuzzy(final List<Map<String, Object>> resources,
 			final int clusterNumber);
+
+	/**
+	 * Method cluster resources (CPU, Memory and Storage) using modified K-Means clustering.
+	 *
+	 * @param featureList   features that are to be used in clustering
+	 * @param resources     resources to be clustered
+	 * @param clusterNumber number of resulting clusters
+	 * @return clustered resources
+	 * @implNote used method: [<a href="https://www.sciencedirect.com/science/article/pii/S1110866519303330">Priority-based allocation</a>]
+	 */
+	Map<String, List<Map<String, Object>>> clusterResourcesWithModifiedKMeans(
+			final List<String> featureList, final List<Map<String, Object>> resources, final int clusterNumber);
+
+	/**
+	 * Method clusters job resources using initial type encoding.
+	 *
+	 * @param jobsResources job resources to be clustered
+	 * @param encoding      initial encoding
+	 * @return clustered resources
+	 */
+	Map<String, List<Map<String, Object>>> clusterResourcesBasedOnPredefinedTypeLabels(
+			final List<Map<String, Object>> jobsResources, final Map<String, String> encoding);
+
+	/**
+	 * Method clusters job resources using initial type encoding.
+	 *
+	 * @param jobsResources job resources to be clustered
+	 * @param encoding      initial encoding
+	 * @param clusterNo     number of clusters
+	 * @return clustered resources
+	 */
+	Map<String, List<Map<String, Object>>> clusterResourcesBasedOnPredefinedTypeLabels(
+			final List<Map<String, Object>> jobsResources, final Map<String, String> encoding, final int clusterNo);
+
+	/**
+	 * Method clamps clusters number accordingly to the data size.
+	 *
+	 * @param dataSize      size of the data
+	 * @param clusterNumber number of clusters
+	 * @return final clusters number
+	 */
+	public int clampClusterNumber(final int dataSize, final int clusterNumber);
 }

@@ -1,6 +1,10 @@
 package org.greencloud.commons.utils.time;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Instant;
+
+import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 
 /**
  * Class contain methods used to postpone selected time
@@ -27,5 +31,16 @@ public class TimeScheduler {
 	 */
 	public static Instant alignStartTimeToSelectedTime(final Instant startTime, final Instant relevantTime) {
 		return relevantTime.isAfter(startTime) ? relevantTime : startTime;
+	}
+
+	/**
+	 * Methods computes the finish time of the job.
+	 *
+	 * @param executionEstimation estimation of job execution
+	 * @return expected completion time
+	 */
+	public static Instant computeFinishTime(final JobWithExecutionEstimation executionEstimation) {
+		return requireNonNull(executionEstimation.getEarliestStartTime())
+				.plusMillis(executionEstimation.getEstimatedDuration());
 	}
 }

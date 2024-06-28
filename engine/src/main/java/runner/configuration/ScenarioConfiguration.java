@@ -7,9 +7,11 @@ import static org.jrba.utils.file.FileReader.buildResourceFilePath;
 import static runner.configuration.ResourceRequirementConfiguration.readJobsRequirements;
 import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_EVENTS;
 import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE;
+import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE_WITH_BUDGET;
 import static runner.constants.EngineConstants.PROPERTIES_DIR;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -27,7 +29,7 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 	private static final String SCENARIOS_DIR = "scenarios";
 	private static final String KNOWLEDGE_DIR = "knowledge";
 	private static final String SAMPLE_DIR = "samples";
-	private static final String SCENARIO_PROPERTIES_FILE = "scenario.properties";
+	private static final String SCENARIO_PROPERTIES_FILE = "scenario1.properties";
 
 	/**
 	 * Type of workload generation
@@ -84,7 +86,7 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 			eventFilePath = generatorType.equals(FROM_EVENTS)
 					? Optional.of(buildResourceFilePath(scenarioPath, props.getProperty("scenario.events")))
 					: Optional.empty();
-			jobsSampleFilePath = generatorType.equals(FROM_SAMPLE)
+			jobsSampleFilePath = List.of(FROM_SAMPLE_WITH_BUDGET, FROM_SAMPLE).contains(generatorType)
 					? Optional.of(buildResourceFilePath(SAMPLE_DIR, props.getProperty("scenario.jobssample")))
 					: Optional.empty();
 			clientNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("scenario.clients.number"), "0"));

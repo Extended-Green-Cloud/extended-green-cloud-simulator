@@ -18,7 +18,7 @@ export const styles: Styles = {
       width: '130px'
    },
    menuContainer: {
-      marginTop: '70px',
+      marginTop: '50px',
       display: 'flex',
       flexDirection: 'column'
    },

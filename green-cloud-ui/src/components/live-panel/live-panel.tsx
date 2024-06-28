@@ -84,7 +84,7 @@ export const LivePanel = ({
          ) : (
             <>
                {getLiveModal()}
-               {chartsData.charts[chartsData.mainChartId](reports, agentReports)}
+               {chartsData.charts[chartsData.displayedElementId](reports, agentReports)}
             </>
          )}
       </Card>

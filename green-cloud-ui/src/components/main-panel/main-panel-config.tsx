@@ -4,8 +4,16 @@ import CloudPanel from 'components/main-panel/cloud-panel/cloud-panel-connected'
 import AgentPanel from './agent-panel/agent-panel-connected'
 import { MenuTab } from '@types'
 import CreatorPanel from './creator-panel/creator-panel-connected'
+import StrategyPanel from './strategy-panel/strategy-panel-connected'
 
-export const PANEL_TABS = [
+type PanelTab = {
+   header: string
+   id: MenuTab
+   panel: JSX.Element
+   removeScroll: boolean
+}
+
+export const PANEL_TABS: PanelTab[] = [
    {
       header: 'Cloud network statistics',
       id: MenuTab.CLOUD_SUMMARY,
@@ -31,9 +39,15 @@ export const PANEL_TABS = [
       removeScroll: false
    },
    {
-      header: 'Agent creator panel',
+      header: 'Agent creator',
       id: MenuTab.CREATOR,
       panel: <CreatorPanel />,
       removeScroll: true
+   },
+   {
+      header: 'Orchestration strategy',
+      id: MenuTab.STRATEGY,
+      panel: <StrategyPanel />,
+      removeScroll: false
    }
 ]

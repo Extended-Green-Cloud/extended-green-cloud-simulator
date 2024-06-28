@@ -85,6 +85,12 @@ public interface PowerJob extends Serializable {
 	Integer getPriority();
 
 	/**
+	 * @return budget limit
+	 */
+	@Nullable
+	Double getBudgetLimit();
+
+	/**
 	 * @return expected job finish time (if the job has started)
 	 */
 	@Value.Default

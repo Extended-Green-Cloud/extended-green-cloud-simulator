@@ -1,0 +1,10 @@
+package org.greencloud.agentsystem.strategies.domain;
+
+public class PrioritizationAlgorithmTypes {
+
+	public static final String DEADLINE_BASED_PRIORITY = "DEADLINE_BASED_PRIORITY";
+	public static final String DURATION_BASED_PRIORITY = "DURATION_BASED_PRIORITY";
+	public static final String ESTIMATED_DURATION_BASED_PRIORITY = "ESTIMATED_DURATION_BASED_PRIORITY";
+	public static final String ESTIMATED_DURATION_WITH_ERROR_BASED_PRIORITY = "ESTIMATED_DURATION_WITH_ERROR_BASED_PRIORITY";
+	public static final String ESTIMATED_DURATION_WITH_REPETITION_BASED_PRIORITY = "ESTIMATED_DURATION_WITH_REPETITION_BASED_PRIORITY";
+}

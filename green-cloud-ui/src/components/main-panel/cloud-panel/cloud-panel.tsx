@@ -1,9 +1,10 @@
 import React from 'react'
 import { CURRENT_CLOUD_STATISTICS } from './cloud-config'
 import { DetailsField } from 'components'
+import { CloudNetworkStatistics } from '@types'
 
 interface Props {
-   cloudStatistics: any
+   cloudStatistics: CloudNetworkStatistics
 }
 
 /**

@@ -88,6 +88,7 @@ public class JobMapper {
 				.jobSteps(clientJob.getJobSteps())
 				.startTime(clientJob.getStartTime())
 				.priority(clientJob.getPriority())
+				.jobType(clientJob.getJobType())
 				.clientIdentifier(clientJob.getClientIdentifier())
 				.clientAddress(clientJob.getClientAddress())
 				.selectionPreference(clientJob.getSelectionPreference())
@@ -107,6 +108,7 @@ public class JobMapper {
 				.jobInstanceId(jobWithServer.getJobInstanceId())
 				.duration(jobWithServer.getDuration())
 				.deadline(jobWithServer.getDeadline())
+				.jobType(jobWithServer.getJobType())
 				.requiredResources(jobWithServer.getRequiredResources())
 				.jobSteps(jobWithServer.getJobSteps())
 				.startTime(jobWithServer.getStartTime())
@@ -190,6 +192,7 @@ public class JobMapper {
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
 						.jobInstanceId(job.getJobInstanceId())
+						.jobType(clientJob.getJobType())
 						.requiredResources(clientJob.getRequiredResources())
 						.selectionPreference(clientJob.getSelectionPreference())
 						.deadline(clientJob.getDeadline())
@@ -229,6 +232,7 @@ public class JobMapper {
 						.requiredResources(job.getRequiredResources())
 						.startTime(jobInstance.getStartTime())
 						.duration(duration)
+						.jobType(clientJob.getJobType())
 						.deadline(clientJob.getDeadline())
 						.jobSteps(job.getJobSteps())
 						.selectionPreference(clientJob.getSelectionPreference())
@@ -261,6 +265,7 @@ public class JobMapper {
 						.clientIdentifier(clientJob.getClientIdentifier())
 						.clientAddress(clientJob.getClientAddress())
 						.jobId(clientJob.getJobId())
+						.jobType(clientJob.getJobType())
 						.requiredResources(clientJob.getRequiredResources())
 						.selectionPreference(clientJob.getSelectionPreference())
 						.deadline(clientJob.getDeadline())
@@ -350,9 +355,11 @@ public class JobMapper {
 
 	/**
 	 * @param syntheticJobArgs argo job parsed from synthetic workflows
+	 * @param budgetLimit      optional budget limit
 	 * @return job arguments
 	 */
-	public static JobArgs mapSyntheticArgoJobToJob(final SyntheticJobArgs syntheticJobArgs) {
+	public static JobArgs mapSyntheticArgoJobToJob(final SyntheticJobArgs syntheticJobArgs,
+			@Nullable final Double budgetLimit) {
 		final Double cpuInCores = (double) (syntheticJobArgs.getResources().get(CPU)) / syntheticJobArgs.getDuration();
 		final Double memoryInMi =
 				(double) (syntheticJobArgs.getResources().get(MEMORY) * 100) / syntheticJobArgs.getDuration();

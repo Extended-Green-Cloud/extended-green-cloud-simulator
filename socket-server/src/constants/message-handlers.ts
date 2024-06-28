@@ -10,6 +10,7 @@ import {
 	handleSystemTimeMessage,
 	handleUpdateIndicators,
 	handleCurrentClientsNumber,
+	handleUpdateStrategyProperties,
 	handleExecutedJobs,
 	handlePlannedJobs,
 	handleUpdateAdaptationAction,
@@ -21,6 +22,8 @@ import {
 	handleUpdateJobEstimatedPrice,
 	handleUpdateJobEstimatedTime,
 	handleUpdateJobFinishDate,
+	handleUpdateAllocationData,
+	handleUpdateAllocationAcceptance,
 } from "../module";
 import {
 	handleUpdateJobQueue,
@@ -86,4 +89,7 @@ export const MESSAGE_HANDLERS = {
 	UPDATE_ESTIMATED_COST_FOR_CLIENT: handleUpdateJobEstimatedPrice,
 	UPDATE_ESTIMATED_TIME_FOR_CLIENT: handleUpdateJobEstimatedTime,
 	UPDATE_FINAL_EXECUTION_DATE_FOR_CLIENT: handleUpdateJobFinishDate,
+	UPDATE_STRATEGY_PARAMETERS: handleUpdateStrategyProperties,
+	UPDATE_ALLOCATION_RESULT: handleUpdateAllocationData,
+	UPDATE_ALLOCATION_ACCEPTANCE_RATIO: handleUpdateAllocationAcceptance,
 };

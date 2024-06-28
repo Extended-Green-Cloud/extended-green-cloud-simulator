@@ -27,4 +27,9 @@ public interface ServerJobsEstimation {
 	 * @return current success ratio of the server
 	 */
 	Double getServerReliability();
+
+	/**
+	 * @return average green energy utilization
+	 */
+	Double getAverageGreenEnergyUtilization();
 }

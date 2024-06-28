@@ -21,7 +21,7 @@ WORKFLOW_NON_RESOURCE_FEATURES = [
 
 
 def filter_workflows_by_label(workflow_df: pd.DataFrame,
-                              label: str or int) -> pd.DataFrame:
+                              label: str | int) -> pd.DataFrame:
     '''
     Method returns data frame that contains only workflows for given label.
 

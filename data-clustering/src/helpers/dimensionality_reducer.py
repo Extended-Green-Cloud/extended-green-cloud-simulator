@@ -60,15 +60,18 @@ def apply_UMAP(scaler: Scaler, data: pd.DataFrame, n_neighbors: int, min_dist: f
 
 
 class DimensionalityReducer(Enum):
-    def PCA(scaler, data, plot=False): \
+    def NONE(scaler: Scaler, data: pd.DataFrame, plot=False): \
+        return data.to_numpy()
+    def PCA(scaler: Scaler, data: pd.DataFrame, plot=False): \
         return apply_PCA(scaler, data, plot)
 
-    def UMAP(scaler, data, n_neighbors, min_dist, n_components, plot=False): \
+    def UMAP(scaler, data: pd.DataFrame, n_neighbors, min_dist, n_components, plot=False): \
         return apply_UMAP(scaler, data, n_neighbors, min_dist, n_components, plot)
 
     @classmethod
     def get_reducer_from_name(cls, name: str):
         if name == 'PCA': return cls.PCA
         if name == 'UMAP': return cls.UMAP
+        if name == 'NONE': return cls.NONE
 
         raise AttributeError(f'Dimensionality reduction of type {name} is undefined!')

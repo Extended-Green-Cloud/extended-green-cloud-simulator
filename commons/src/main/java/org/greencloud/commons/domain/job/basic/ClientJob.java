@@ -32,6 +32,11 @@ public interface ClientJob extends PowerJob {
 	String getClientAddress();
 
 	/**
+	 * @return name of the job type
+	 */
+	String getJobType();
+
+	/**
 	 * @return optional server selection preference specified in Expression Language
 	 */
 	@Nullable

@@ -62,7 +62,7 @@ class TestDisplayDataFrameWithLabels(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows, _ = import_workflows_from_json(True)
+        test_workflows, _ = import_workflows_from_json(is_test=True)
         test_workflows['label'] = 0
         test_name = 'data_frame_with_labels_test'
 
@@ -93,7 +93,7 @@ class TestDisplayClusterStatistics(TestCase):
         print(f'\nTEST ({self._testMethodName}): {self.shortDescription()}')
 
         # given
-        test_workflows, _ = import_workflows_from_json(True)
+        test_workflows, _ = import_workflows_from_json(is_test=True)
         test_features = [WORKFLOW_FEATURES.CPU,
                          WORKFLOW_FEATURES.MEMORY,
                          WORKFLOW_FEATURES.DURATION]

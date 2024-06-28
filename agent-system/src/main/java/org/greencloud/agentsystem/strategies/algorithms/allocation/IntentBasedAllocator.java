@@ -1,7 +1,9 @@
 package org.greencloud.agentsystem.strategies.algorithms.allocation;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingInt;
+import static java.util.Optional.ofNullable;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -9,10 +11,16 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.IntStream.rangeClosed;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.ALLOCATION_PARAMETERS;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.RESOURCE_PREFERENCES;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TYPES_ENCODING;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.TYPES_ENCODING_CLUSTERS;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.BUDGET;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.DURATION;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.ID;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.SUFFICIENCY;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.TYPE;
+import static org.greencloud.commons.enums.allocation.AllocationModificationEnum.PRE_CLUSTERED_RESOURCES;
 import static org.greencloud.commons.mapper.ResourceMapper.mapToResourcePreferencesCoefficients;
 import static org.greencloud.commons.utils.datastructures.MapConstructor.constructBooleanMap;
 import static org.greencloud.commons.utils.math.MathOperations.computeStringSimilarityMatrix;
@@ -25,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
@@ -34,6 +43,7 @@ import org.greencloud.commons.domain.resources.ImmutableResourceMatch;
 import org.greencloud.commons.domain.resources.ResourceClustersMatch;
 import org.greencloud.commons.domain.resources.ResourceMatch;
 import org.greencloud.commons.domain.resources.ResourcePreferenceCoefficients;
+import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
 import org.greencloud.commons.exception.InvalidPropertiesException;
 import org.greencloud.dataanalysisapi.domain.ClusteringEncodingResponse;
 import org.greencloud.dataanalysisapi.domain.ImmutableClusteringEncodingResponse;
@@ -59,8 +69,9 @@ public class IntentBasedAllocator {
 	/**
 	 * Method performs intent-based resource allocation.
 	 * It follows (modified version) of the algorithms specified in article
-	 * [<a href="https://www.sciencedirect.com/science/article/abs/pii/S0020025520304588">Intent-based allocation</a>].
+	 * [<a href="https://www.sciencedirect.com/science/article/pii/S1110866519303330">Intent-based allocation</a>].
 	 *
+	 * @param modifications      possible modifications of the algorithm
 	 * @param jobsResources      resources (CPU, MEMORY, STORAGE) required for job execution
 	 * @param executorsResources resources (CPU, MEMORY, STORAGE) owned by job executors
 	 * @param clusterNoJobs      number of desired jobs classes
@@ -68,14 +79,21 @@ public class IntentBasedAllocator {
 	 * @return mapping between executors identifiers and resource identifiers
 	 */
 	public static <T extends AgentProps> Map<String, List<String>> intentBasedResourceAllocation(
+			final List<AllocationModificationEnum> modifications,
 			final List<Map<String, Object>> jobsResources,
 			final List<Map<String, Object>> executorsResources, final T properties,
 			final int clusterNoJobs, final int clusterNoExecutors) {
-
-		if (clusterNoExecutors < clusterNoJobs) {
-			logger.info("Number of classes for executors must be smaller or equal to the number of classes of jobs.");
-			throw new InvalidPropertiesException("Incorrect number of executors and jobs classes.");
-		}
+		final boolean isPreClustering = modifications.contains(PRE_CLUSTERED_RESOURCES);
+		final int jobTypesNumber = isPreClustering ?
+				(int) jobsResources.stream().map(map -> (String) map.get(TYPE)).distinct().count() :
+				0;
+		final int finalJobsClustersNo = isPreClustering ?
+				clusteringService.clampClusterNumber(jobTypesNumber, getPredefinedClustersNo(properties)) :
+				clusteringService.clampClusterNumber(jobsResources.size(), clusterNoJobs);
+		final int finalExecutorClustersNo =
+				Optional.of(clusteringService.clampClusterNumber(executorsResources.size(), clusterNoExecutors))
+						.filter(clusterNo -> clusterNo >= finalJobsClustersNo)
+						.orElseGet(() -> alignExecutorClustersNumberToJobClusters(finalJobsClustersNo));
 
 		if (!properties.getSystemKnowledge().containsKey(RESOURCE_PREFERENCES)) {
 			logger.info("To complete this algorithm, system must specify preferences towards resources!");
@@ -84,11 +102,12 @@ public class IntentBasedAllocator {
 
 		final ResourcePreferenceCoefficients coefficients =
 				mapToResourcePreferencesCoefficients(properties.getSystemKnowledge().get(RESOURCE_PREFERENCES));
-		final ClusteringEncodingResponse jobsClustering =
-				clusteringService.clusterBasicResourcesAndEncodeDataWithKMeans(jobsResources, clusterNoJobs);
+		final ClusteringEncodingResponse jobsClustering = isPreClustering ?
+				prepareClustersBasedOnInitialKnowledge(jobsResources, properties) :
+				clusteringService.clusterBasicResourcesAndEncodeDataWithFuzzy(jobsResources, finalJobsClustersNo);
 		final ClusteringEncodingResponse executorsClustering =
-				mapExecutorsAfterClustering(clusteringService.clusterBasicResourcesAndEncodeDataWithKMeans(
-						mapExecutorsForClustering(executorsResources), clusterNoExecutors), executorsResources);
+				mapExecutorsAfterClustering(clusteringService.clusterBasicResourcesAndEncodeDataWithFuzzy(
+						mapExecutorsForClustering(executorsResources), finalExecutorClustersNo), executorsResources);
 		final Map<String, String> jobsEncoding = jobsClustering.getEncoding();
 		final Map<String, String> executorsEncoding = executorsClustering.getEncoding();
 
@@ -96,21 +115,24 @@ public class IntentBasedAllocator {
 				performMatchingBetweenJobAndExecutorClusters(jobsEncoding, executorsEncoding);
 
 		return executorsClustersAllocation.stream()
-				.map(clusterMatch ->
-						matchClusterJobsToExecutors(clusterMatch, executorsClustering, jobsClustering, coefficients))
+				.map(clusterMatch -> matchClusterJobsToExecutors(modifications, clusterMatch, executorsClustering,
+						jobsClustering, coefficients))
 				.flatMap(Collection::stream)
 				.collect(groupingBy(ResourceMatch::getExecutorId, mapping(ResourceMatch::getJobId, toList())));
 
 	}
 
-	private static List<ResourceMatch> matchClusterJobsToExecutors(final ResourceClustersMatch clusterMatch,
+	private static List<ResourceMatch> matchClusterJobsToExecutors(final List<AllocationModificationEnum> modifications,
+			final ResourceClustersMatch clusterMatch,
 			final ClusteringEncodingResponse executorsClustering,
 			final ClusteringEncodingResponse jobsClustering,
 			final ResourcePreferenceCoefficients coefficients) {
-		final List<Map<String, Object>> executors =
-				executorsClustering.getClustering().get(clusterMatch.getExecutorClusterIdx());
-		final List<Map<String, Object>> jobs = jobsClustering.getClustering().get(clusterMatch.getJobClusterIdx());
-		final List<List<Double>> coefficientMatrix = constructCoefficientMatrix(jobs, executors, coefficients);
+		final List<Map<String, Object>> executors = ofNullable(
+				executorsClustering.getClustering().get(clusterMatch.getExecutorClusterIdx())).orElse(emptyList());
+		final List<Map<String, Object>> jobs = ofNullable(
+				jobsClustering.getClustering().get(clusterMatch.getJobClusterIdx())).orElse(emptyList());
+		final List<List<Double>> coefficientMatrix =
+				constructCoefficientMatrix(jobs, executors, coefficients, modifications);
 
 		return range(0, coefficientMatrix.size())
 				.filter(jobIndex -> coefficientMatrix.get(jobIndex).stream().allMatch(Objects::nonNull))
@@ -130,13 +152,13 @@ public class IntentBasedAllocator {
 
 		final Map<String, AtomicBoolean> jobClustersMatchingStatuses =
 				constructBooleanMap(jobsEncoding.keySet(), false);
-		final Map<String, AtomicBoolean> executorClustersAvailability =
-				constructBooleanMap(executorsEncoding.keySet(), true);
+
 		final List<ResourceClustersMatch> executorsClustersAllocation = new ArrayList<>();
 		final int jobClustersNumber = jobsEncoding.size();
 
 		while (jobClustersMatchingStatuses.values().stream().anyMatch(not(AtomicBoolean::get))) {
-			resetExecutorsAvailability(executorClustersAvailability);
+			final Map<String, AtomicBoolean> executorClustersAvailability =
+					constructBooleanMap(executorsEncoding.keySet(), true);
 			final IntStream possibleSimilarityDifference = rangeClosed(0, MAX_SIMILARITY_DIFF);
 
 			possibleSimilarityDifference.forEach(acceptableSimilarity -> {
@@ -168,13 +190,34 @@ public class IntentBasedAllocator {
 		return executorsClustersAllocation;
 	}
 
+	private static <T extends AgentProps> int getPredefinedClustersNo(final T properties) {
+		final Map<String, Object> parameters = properties.getSystemKnowledge().get(ALLOCATION_PARAMETERS);
+		verifyAllocationParameters(parameters);
+
+		return ((Map<String, String>) parameters.get(TYPES_ENCODING_CLUSTERS)).size();
+	}
+
+	private static <T extends AgentProps> ClusteringEncodingResponse prepareClustersBasedOnInitialKnowledge(
+			final List<Map<String, Object>> jobsResources, final T properties) {
+		final Map<String, Object> parameters = properties.getSystemKnowledge().get(ALLOCATION_PARAMETERS);
+		verifyAllocationParameters(parameters);
+
+		final Map<String, String> typesEncoding = (Map<String, String>) parameters.get(TYPES_ENCODING);
+		final Map<String, String> jobTypesClusters = (Map<String, String>) parameters.get(TYPES_ENCODING_CLUSTERS);
+
+		return ImmutableClusteringEncodingResponse.builder()
+				.clustering(clusteringService.clusterResourcesBasedOnPredefinedTypeLabels(jobsResources, typesEncoding))
+				.encoding(jobTypesClusters)
+				.build();
+	}
+
 	private static List<Map<String, Object>> mapExecutorsForClustering(final List<Map<String, Object>> executors) {
 		return executors.stream()
 				.map(resourceMap -> resourceMap.entrySet().stream()
 						.collect(toMap(Map.Entry::getKey,
 								entry -> {
 									try {
-										return List.of(DURATION, BUDGET).contains(entry.getKey()) ?
+										return List.of(DURATION, BUDGET, SUFFICIENCY).contains(entry.getKey()) ?
 												getMapper().writeValueAsString(entry.getValue()) :
 												entry.getValue();
 									} catch (final JsonProcessingException e) {
@@ -200,12 +243,16 @@ public class IntentBasedAllocator {
 				.map(clusteringResources -> clusteringResources.entrySet().stream()
 						.collect(toMap(Map.Entry::getKey, entry -> {
 							final TypeReference<?> typeRef = switch (entry.getKey()) {
-								case BUDGET -> new TypeReference<Map<String, Double>>() {};
-								case DURATION -> new TypeReference<Map<String, Integer>>() {};
-								default -> null;
+								case BUDGET -> new TypeReference<Map<String, Double>>() {
 								};
+								case DURATION -> new TypeReference<Map<String, Integer>>() {
+								};
+								case SUFFICIENCY -> new TypeReference<Map<String, Boolean>>() {
+								};
+								default -> null;
+							};
 							try {
-								return List.of(DURATION, BUDGET).contains(entry.getKey()) ?
+								return List.of(DURATION, BUDGET, SUFFICIENCY).contains(entry.getKey()) ?
 										getMapper().readValue((String) entry.getValue(), typeRef) :
 										entry.getValue();
 							} catch (final JsonProcessingException e) {
@@ -219,10 +266,6 @@ public class IntentBasedAllocator {
 		return ((Pair<String, List<String>>) matchingClusters).getRight().size();
 	}
 
-	private static void resetExecutorsAvailability(final Map<String, AtomicBoolean> executorsAvailability) {
-		executorsAvailability.values().forEach(availability -> availability.set(true));
-	}
-
 	private static Pair<String, List<String>> getMatchingExecutors(final int jobClusterIdx,
 			final int acceptableSimilarity, final List<Integer> executorSimilarities) {
 		final List<String> matchingExecutorIndexes = range(0, executorSimilarities.size())
@@ -230,5 +273,19 @@ public class IntentBasedAllocator {
 				.map(String::valueOf)
 				.toList();
 		return Pair.of(String.valueOf(jobClusterIdx), matchingExecutorIndexes);
+	}
+
+	private static int alignExecutorClustersNumberToJobClusters(final int jobClustersNumber) {
+		logger.info("Number of classes for executors must be smaller or equal to the number of "
+				+ "classes of jobs. Aligning number of executor clusters to the number of jobs clusters.");
+
+		return jobClustersNumber;
+	}
+
+	private static void verifyAllocationParameters(final Map<String, Object> parameters) {
+		if (!parameters.containsKey(TYPES_ENCODING) || !parameters.containsKey(TYPES_ENCODING_CLUSTERS)) {
+			logger.info("Initial job types encoding must be specified in systems knowledge!");
+			throw new InvalidPropertiesException("Job types encoding was not specified.");
+		}
 	}
 }

@@ -27,6 +27,7 @@ import org.greencloud.dataanalysisapi.domain.ClusteringRequest;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -43,6 +44,7 @@ public class DataClusteringApi {
 	private static final Logger logger = getLogger(DataClusteringApi.class);
 
 	private static final String CLUSTERING_ENCODED_JOBS_ENDPOINT = "clustering/encoded_jobs";
+	private static final String CLUSTERING_JOBS_ENDPOINT = "clustering/jobs";
 
 	private final OkHttpClient client;
 	private final String address;
@@ -68,16 +70,9 @@ public class DataClusteringApi {
 	 */
 	public ClusteringEncodingResponse getCodeForResources(final List<Map<String, Object>> resources,
 			final ClusteringFeatures features, final ClusteringMethod methods, final ClusteringParameters parameters) {
-		if (resources.stream().anyMatch(resource -> !resource.containsKey(ID))) {
-			logger.warn("All resources must contain their individual identifiers!");
-			throw new InvalidPropertiesException("Missing identifiers");
-		}
-		final ClusteringConfiguration configuration = mapToClusteringConfig(features, methods, parameters);
-		final ClusteringRequest clusteringRequest = mapToClusteringRequest(resources, configuration);
-
-		final String url = join("/", List.of(address, CLUSTERING_ENCODED_JOBS_ENDPOINT));
-		final RequestBody requestBody = constructRequestBodyForConfiguration(clusteringRequest);
-		final Request request = new Request.Builder().url(url).post(requireNonNull(requestBody)).build();
+		validateForIdentifier(resources);
+		final Request request = prepareDataRequest(resources, features, methods, parameters,
+				CLUSTERING_ENCODED_JOBS_ENDPOINT);
 
 		try (final Response response = client.newCall(request).execute()) {
 			final ResponseBody responseBody =
@@ -86,6 +81,51 @@ public class DataClusteringApi {
 		} catch (final IOException | NullPointerException | IncorrectMessageContentException e) {
 			logger.error("Error while communicating with data analysis server.", e);
 			throw new IncorrectMessageContentException();
+		}
+	}
+
+	/**
+	 * Method performs clustering of given resources.
+	 *
+	 * @param resources  resources to be clustered
+	 * @param features   features used in clustering
+	 * @param methods    methods used in clustering
+	 * @param parameters parameters used in clustering
+	 * @return map of identifiers and encoded vectors
+	 */
+	public Map<String, List<Map<String, Object>>> getClusteredResources(final List<Map<String, Object>> resources,
+			final ClusteringFeatures features, final ClusteringMethod methods, final ClusteringParameters parameters) {
+		validateForIdentifier(resources);
+		final Request request = prepareDataRequest(resources, features, methods, parameters, CLUSTERING_JOBS_ENDPOINT);
+
+		try (final Response response = client.newCall(request).execute()) {
+			final ResponseBody responseBody =
+					ofNullable(response.body()).orElseThrow(IncorrectMessageContentException::new);
+			final TypeReference<Map<String, List<Map<String, Object>>>> requiredType = new TypeReference<>() {
+			};
+			return getMapper().readValue(responseBody.string(), requiredType);
+		} catch (final IOException | NullPointerException | IncorrectMessageContentException e) {
+			logger.error("Error while communicating with data analysis server.", e);
+			throw new IncorrectMessageContentException();
+		}
+	}
+
+	private Request prepareDataRequest(final List<Map<String, Object>> resources,
+			final ClusteringFeatures features, final ClusteringMethod methods, final ClusteringParameters parameters,
+			final String endpoint) {
+		final ClusteringConfiguration configuration = mapToClusteringConfig(features, methods, parameters);
+		final ClusteringRequest clusteringRequest = mapToClusteringRequest(resources, configuration);
+
+		final String url = join("/", List.of(address, endpoint));
+		final RequestBody requestBody = constructRequestBodyForConfiguration(clusteringRequest);
+
+		return new Request.Builder().url(url).post(requireNonNull(requestBody)).build();
+	}
+
+	private void validateForIdentifier(final List<Map<String, Object>> resources) {
+		if (resources.stream().anyMatch(resource -> !resource.containsKey(ID))) {
+			logger.warn("All resources must contain their individual identifiers!");
+			throw new InvalidPropertiesException("Missing identifiers");
 		}
 	}
 

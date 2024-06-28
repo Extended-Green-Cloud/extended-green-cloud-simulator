@@ -8,6 +8,13 @@ interface NetworkState {
 	currActiveJobsNo: number;
 	currActiveInCloudJobsNo: number;
 	currClientsNo: number;
+	allocationStrategy: string;
+	prioritizationStrategy: string;
+	allocationStepsNumber: number;
+	modifications: string[];
+	avgAllocationTime: number;
+	avgAllocationSuccessRatio: number;
+	avgAllocationAcceptanceRatio: number;
 }
 
 interface NetworkReportsState {
@@ -17,6 +24,9 @@ interface NetworkReportsState {
 	failJobsReport: ReportEntry[];
 	finishJobsReport: ReportEntry[];
 	clientsReport: ReportEntry[];
+	allocationTimeReport: ReportEntry[];
+	allocationSuccessRatioReport: ReportEntry[];
+	allocationAcceptanceRatioReport: ReportEntry[];
 }
 
 let NETWORK_STATE: NetworkState = {
@@ -27,6 +37,13 @@ let NETWORK_STATE: NetworkState = {
 	currActiveJobsNo: 0,
 	currActiveInCloudJobsNo: 0,
 	currClientsNo: 0,
+	allocationStrategy: "",
+	prioritizationStrategy: "",
+	allocationStepsNumber: 0,
+	modifications: [],
+	avgAllocationAcceptanceRatio: 1,
+	avgAllocationTime: 0,
+	avgAllocationSuccessRatio: 1,
 };
 
 let NETWORK_REPORTS_STATE: NetworkReportsState = {
@@ -35,6 +52,9 @@ let NETWORK_REPORTS_STATE: NetworkReportsState = {
 	failJobsReport: [],
 	finishJobsReport: [],
 	clientsReport: [],
+	allocationTimeReport: [],
+	allocationSuccessRatioReport: [],
+	allocationAcceptanceRatioReport: [],
 };
 
 const resetNetworkState = () =>
@@ -46,6 +66,13 @@ const resetNetworkState = () =>
 		currActiveJobsNo: 0,
 		currActiveInCloudJobsNo: 0,
 		currClientsNo: 0,
+		allocationStrategy: "",
+		prioritizationStrategy: "",
+		allocationStepsNumber: 0,
+		modifications: [],
+		avgAllocationAcceptanceRatio: 1,
+		avgAllocationTime: 0,
+		avgAllocationSuccessRatio: 1,
 	});
 
 const resetNetworkReportsState = () =>
@@ -55,6 +82,9 @@ const resetNetworkReportsState = () =>
 		failJobsReport: [],
 		finishJobsReport: [],
 		clientsReport: [],
+		allocationTimeReport: [],
+		allocationSuccessRatioReport: [],
+		allocationAcceptanceRatioReport: [],
 	});
 
 export { NETWORK_STATE, NETWORK_REPORTS_STATE, NetworkReportsState, resetNetworkState, resetNetworkReportsState };

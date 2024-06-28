@@ -10,6 +10,7 @@ from src.helpers.path_reader import PathReader, parse_file_name
 from src.helpers.statistics_operations import filter_out_unused_step_features, append_coefficient_of_variance
 from src.clustering.cluster_reader import get_workflows_for_label
 
+STATISTIC_FIELDS = ['count', 'mean', 'std', 'min', 'max']
 
 def display_clustering_scatter_plot(data: np.ndarray,
                                     labels: List[int],
@@ -85,7 +86,6 @@ def display_and_save_aggregation_for_feature(df: pd.DataFrame,
     aggregated_df.to_csv(
         PathReader.CLUSTERING_PATH(dir_name, output_file, is_test))
 
-
 def display_cluster_statistics(data: pd.DataFrame,
                                labels: List[int],
                                features: List[str],
@@ -103,8 +103,6 @@ def display_cluster_statistics(data: pd.DataFrame,
     statistic_to_display - list of feature statistics which should be printed during the clustering analysis
     is_test - flag indicating if the method should use test path
     '''
-    STATISTIC_FIELDS = ['count', 'mean', 'std', 'min', 'max']
-
     for label in np.unique(labels):
         workflows_df_label = get_workflows_for_label(data, label)
         cluster_result_to_store = filter_out_unused_step_features(
@@ -116,9 +114,7 @@ def display_cluster_statistics(data: pd.DataFrame,
             PathReader.CLUSTERING_PATH(dir_name, f'{dir_name}-cluster-{label_no}-data.csv', is_test))
 
         stats = workflows_df_label[features]\
-            .describe(include="all")\
-            .apply(FORMATTER)\
-                .loc[STATISTIC_FIELDS]
+            .describe(include="all").apply(FORMATTER).loc[STATISTIC_FIELDS]
         stats = append_coefficient_of_variance(stats)
 
         # displaying results

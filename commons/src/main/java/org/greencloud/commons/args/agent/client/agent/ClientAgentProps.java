@@ -3,6 +3,7 @@ package org.greencloud.commons.args.agent.client.agent;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
@@ -76,8 +77,10 @@ public class ClientAgentProps extends EGCSAgentProps {
 				.requiredResources(jobArgs.getResources())
 				.jobSteps(jobArgs.getJobSteps())
 				.priority(jobArgs.getPriority())
+				.jobType(jobArgs.getProcessorName())
 				.duration(convertToSimulationTime(jobArgs.getDuration()))
 				.selectionPreference(jobArgs.getSelectionPreference())
+				.budgetLimit(jobArgs.getBudgetLimit())
 				.build();
 
 		this.jobType = jobArgs.getProcessorName();
@@ -102,5 +105,17 @@ public class ClientAgentProps extends EGCSAgentProps {
 		jobExecutionTimer.startTimeMeasure(time);
 		jobDurationMap.computeIfPresent(jobStatus, (key, val) -> val + elapsedTime);
 		jobStatus = newStatus;
+	}
+
+	/**
+	 * Method estimates if job execution is within the budget limit.
+	 *
+	 * @param jobPrice price of job execution
+	 * @return information if job is within a budget
+	 */
+	public boolean isJobWithinBudget(final Double jobPrice) {
+		return ofNullable(job.getBudgetLimit())
+				.map(limit -> ofNullable(jobPrice).orElse(0D) <= limit * expectedExecutionDuration)
+				.orElse(true);
 	}
 }

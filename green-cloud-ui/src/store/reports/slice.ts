@@ -30,7 +30,10 @@ const INITIAL_STATE: ReportsStore = {
    clientsStatusReport: [],
    avgClientsExecutionPercentage: [],
    minClientsExecutionPercentage: [],
-   maxClientsExecutionPercentage: []
+   maxClientsExecutionPercentage: [],
+   allocationTimeReport: [],
+   allocationSuccessRatioReport: [],
+   allocationAcceptanceRatioReport: []
 }
 
 /**

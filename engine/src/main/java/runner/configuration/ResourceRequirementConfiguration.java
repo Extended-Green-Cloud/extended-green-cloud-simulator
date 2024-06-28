@@ -1,6 +1,7 @@
 package runner.configuration;
 
 import static com.google.common.collect.Range.closed;
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
@@ -44,6 +45,11 @@ public class ResourceRequirementConfiguration extends AbstractConfiguration {
 	public static Range<Integer> stepsNumberRange;
 
 	/**
+	 * Range of budget limit requirement values of random jobs
+	 */
+	public static Range<Double> budgetRange;
+
+	/**
 	 * Method reads the properties set for the jobs requirements
 	 */
 	public static void readJobsRequirements(Properties props) {
@@ -77,6 +83,10 @@ public class ResourceRequirementConfiguration extends AbstractConfiguration {
 		final Integer maxSteps = parseInt(
 				ifNotBlankThenGetOrElse(props.getProperty("scenario.jobs.steps.maxnumber"), "1"));
 		stepsNumberRange = closed(minSteps, maxSteps);
+
+		final Double minBudget = parseDouble(ifNotBlankThenGetOrElse(props.getProperty("scenario.jobs.minBudget"), "0"));
+		final Double maxBudget = parseDouble(ifNotBlankThenGetOrElse(props.getProperty("scenario.jobs.maxBudget"), "0"));
+		budgetRange = closed(minBudget, maxBudget);
 
 	}
 }

@@ -1,6 +1,7 @@
 package org.greencloud.commons.utils.facts;
 
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION;
+import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION_TIMER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_NEW_JOB_ALLOCATION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_ALLOCATION_REQUEST_DATA;
@@ -22,6 +23,7 @@ import org.greencloud.commons.domain.allocation.AllocatedJobs;
 import org.greencloud.commons.domain.allocation.AllocationData;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.PowerJob;
+import org.greencloud.commons.domain.timer.Timer;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
 
 import jade.lang.acl.ACLMessage;
@@ -69,9 +71,10 @@ public class JobAllocationFactsFactory {
 	 * @return RuleSetFacts
 	 */
 	public static RuleSetFacts constructFactsForJobsAllocationDataRequest(final int index,
-			final List<ClientJob> jobs) {
+			final List<ClientJob> jobs, final Timer timer) {
 		final RuleSetFacts facts = new RuleSetFacts(index);
 		facts.put(JOBS, jobs);
+		facts.put(ALLOCATION_TIMER, timer);
 		facts.put(RULE_TYPE, NEW_JOB_ALLOCATION_REQUEST_DATA);
 
 		return facts;
@@ -83,13 +86,15 @@ public class JobAllocationFactsFactory {
 	 * @param index          index of a rule set
 	 * @param jobs           jobs that are to be allocated
 	 * @param allocationData data used in allocation algorithm
+	 * @param timer          allocation timer
 	 * @return RuleSetFacts
 	 */
 	public static RuleSetFacts constructFactsForJobsAllocationPreparation(final int index,
-			final List<ClientJob> jobs, final AllocationData allocationData) {
+			final List<ClientJob> jobs, final AllocationData allocationData, final Timer timer) {
 		final RuleSetFacts facts = new RuleSetFacts(index);
 		facts.put(JOBS, jobs);
 		facts.put(RESULT, allocationData);
+		facts.put(ALLOCATION_TIMER, timer);
 		facts.put(RULE_TYPE, PROCESS_NEW_JOB_ALLOCATION_RULE);
 
 		return facts;

@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
@@ -240,8 +241,8 @@ public class JobUtils {
 			final long executionTime, final Map<T, JobExecutionStatusEnum> jobMap) {
 		final T jobWithNewExecutionTime = mapToJobDurationAndStartAndInstanceId(job, startTime, executionTime);
 		final JobExecutionStatusEnum currentStatus = jobMap.remove(job);
-		jobMap.put(jobWithNewExecutionTime, currentStatus);
 
+		ofNullable(currentStatus).ifPresent(status -> jobMap.put(jobWithNewExecutionTime, currentStatus));
 		return jobWithNewExecutionTime;
 	}
 

@@ -55,8 +55,17 @@ public interface JobArgs {
 	@JsonProperty("steps")
 	List<JobStep> getJobSteps();
 
+	/**
+	 * @return optional pre-assigned job priority
+	 */
 	@Nullable
 	Integer getPriority();
+
+	/**
+	 * @return optional limit put on the budget
+	 */
+	@Nullable
+	Double getBudgetLimit();
 
 	/**
 	 * @return optional server selection preference specified in Expression Language

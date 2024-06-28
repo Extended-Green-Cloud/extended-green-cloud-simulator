@@ -1,4 +1,4 @@
-import { IconClients, IconCloudMenu, IconGear, IconNetwork, IconPen } from '@assets'
+import { IconClients, IconStrategyMap, IconCloudMenu, IconGear, IconNetwork, IconPen } from '@assets'
 import { MenuTab } from '@types'
 
 export const ICON_SIZE = '45px'
@@ -10,6 +10,12 @@ export const MENU_BUTTONS = [
       icon: <IconCloudMenu size={ICON_SIZE} />,
       iconOffset: ICON_OFFSET,
       id: MenuTab.CLOUD_SUMMARY
+   },
+   {
+      header: 'STRATEGY',
+      icon: <IconStrategyMap size={ICON_SIZE} />,
+      iconOffset: ICON_OFFSET,
+      id: MenuTab.STRATEGY
    },
    {
       header: 'AGENTS',

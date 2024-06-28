@@ -3,7 +3,8 @@ import {
    LiveIndicatorConfiguration,
    LiveIndicatorAvgGeneratorType,
    LiveChartDashboard,
-   TimeOptions
+   TimeOptions,
+   LiveChartElementType
 } from '@types'
 import { PercentageIndicator, ValueIndicator } from 'components/common'
 import { IconChip, IconClients, IconGear } from '@assets'
@@ -27,7 +28,8 @@ import {
    getAgentBackUpUsageChart,
    getClientProcessorTypeChart,
    getClientJobCPURequirementChart,
-   getSystemJobTypeChart
+   getSystemJobTypeChart,
+   getAllocationRatioChart
 } from './live-chart-generators'
 import {
    getAverageBackUpPowerConsumption,
@@ -60,7 +62,8 @@ export const CHARTS = {
    clientProcessorTypes: getClientProcessorTypeChart,
    clientJobExecutionPercentage: getClientJobExecutionPercentageChart,
    managingGoalQualities: getManagingGoalQualitiesChart,
-   managingGoalContribution: getManagingGoalContributionChart
+   managingGoalContribution: getManagingGoalContributionChart,
+   allocationRatio: getAllocationRatioChart
 }
 
 interface AvgOptions {
@@ -139,8 +142,15 @@ export const CHART_MODALS: LiveChartDashboard = {
          CHARTS.systemTraffic,
          CHARTS.systemTrafficDistribution
       ],
-      mainChartId: 3,
+      displayedElementId: 3,
+      displayedElementType: LiveChartElementType.CHART,
       valueFields: [AVG_INDICATORS.systemAvgTraffic, AVG_INDICATORS.systemAvgClients, AVG_INDICATORS.systemAvgJobs]
+   },
+   strategy: {
+      name: 'Orchestration strategy reports',
+      charts: [CHARTS.allocationRatio],
+      displayedElementId: 0,
+      displayedElementType: LiveChartElementType.CHART
    },
    clients: {
       name: 'Clients statistics reports',
@@ -150,7 +160,8 @@ export const CHART_MODALS: LiveChartDashboard = {
          CHARTS.clientJobCpuChart,
          CHARTS.clientProcessorTypes
       ],
-      mainChartId: 0,
+      displayedElementId: 0,
+      displayedElementType: LiveChartElementType.CHART,
       disableChartDashboard: false,
       valueFields: [
          AVG_INDICATORS.jobExecutionAvgPercentage,
@@ -161,7 +172,8 @@ export const CHART_MODALS: LiveChartDashboard = {
    adaptation: {
       name: 'Managing system reports',
       charts: [CHARTS.managingGoalQualities, CHARTS.managingGoalContribution],
-      mainChartId: 0,
+      displayedElementId: 0,
+      displayedElementType: LiveChartElementType.CHART,
       disableChartDashboard: false,
       valueFields: []
    },
@@ -169,25 +181,29 @@ export const CHART_MODALS: LiveChartDashboard = {
       name: 'Central Manager Agent reports',
       charts: [CHARTS.agentQueueCapacity],
       disableChartDashboard: true,
-      mainChartId: 0,
+      displayedElementId: 0,
+      displayedElementType: LiveChartElementType.CHART,
       valueFields: []
    },
    [`agent${AgentType.REGIONAL_MANAGER}`]: {
       name: 'Regional Manager Agent reports',
       charts: [CHARTS.agentClients, CHARTS.agentSuccessRatio, CHARTS.agentTraffic, CHARTS.agentTrafficDistribution],
-      mainChartId: 2,
+      displayedElementId: 2,
+      displayedElementType: LiveChartElementType.CHART,
       valueFields: []
    },
    [`agent${AgentType.SERVER}`]: {
       name: 'Server Agent reports',
       charts: [CHARTS.agentSuccessRatio, CHARTS.agentTraffic, CHARTS.agentBackUpUsage, CHARTS.agentTrafficDistribution],
-      mainChartId: 1,
+      displayedElementId: 1,
+      displayedElementType: LiveChartElementType.CHART,
       valueFields: [AVG_INDICATORS.serverInUseCpu, AVG_INDICATORS.serverAvgBackUpPowerConsumption]
    },
    [`agent${AgentType.GREEN_ENERGY}`]: {
       name: 'Green Energy Agent reports',
       charts: [CHARTS.agentSuccessRatio, CHARTS.agentTraffic, CHARTS.agentJobsOnHold, CHARTS.agentAvailableGreenPower],
-      mainChartId: 3,
+      displayedElementId: 3,
+      displayedElementType: LiveChartElementType.CHART,
       valueFields: []
    }
 }

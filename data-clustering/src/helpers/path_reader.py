@@ -42,7 +42,7 @@ def get_data_file_path(file_name: str, is_test: bool = False) -> str:
     return path.join(file_absolute_path, file_name)
 
 
-def get_file_path_to_argo_data(is_test: bool = False) -> str:
+def get_file_path_to_argo_data(sub_directory: str = None, is_test: bool = False) -> str:
     '''
     Method returns the full path to the directory storing argo files data.
 
@@ -53,19 +53,21 @@ def get_file_path_to_argo_data(is_test: bool = False) -> str:
     '''
 
     load_dotenv()
-    return getenv('DATA_DIRECTORY') if not is_test else path.abspath(getenv('TEST_DATA_DIRECTORY'))
+    argo_path = getenv('DATA_DIRECTORY') if not is_test else path.abspath(getenv('TEST_DATA_DIRECTORY'))
+    return argo_path if sub_directory == None else path.join(argo_path, sub_directory)
 
 
-def get_file_path_to_database_data(is_test: bool = False) -> str:
+def get_file_path_to_database_data(sub_directory: str = None, is_test: bool = False) -> str:
     '''
     Method returns the full path to the file with workflows database data.
 
     Parameters:
+    sub_directory - sub directory in which the data is to be looked for
     is_test - flag indicating if the method should use test path
 
     Returns: path to the workflows database file
     '''
-    workflows_data_dir = get_file_path_to_argo_data(is_test)
+    workflows_data_dir = get_file_path_to_argo_data(sub_directory, is_test)
     return path.join(workflows_data_dir, WORKFLOWS_DATABASE_FILE)
 
 
@@ -155,8 +157,8 @@ class PathReader(Enum):
     def INPUT_PATH(is_test, file_name=WORKFLOWS_INPUT_FILE): return get_file_path_to_input_data(
         is_test, file_name)
 
-    def ARGO_PATH(is_test): return get_file_path_to_argo_data(is_test)
-    def DATABASE_PATH(is_test): return get_file_path_to_database_data(is_test)
+    def ARGO_PATH(sub_directory: str, is_test): return get_file_path_to_argo_data(sub_directory, is_test)
+    def DATABASE_PATH(sub_directory, is_test): return get_file_path_to_database_data(sub_directory, is_test)
 
     def CLUSTERING_PATH(dir_name, file_name, is_test=False): return get_file_path_to_clustering_results(
         dir_name, file_name, is_test)

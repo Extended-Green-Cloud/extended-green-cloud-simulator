@@ -18,6 +18,9 @@ export type NetworkReports = {
    failJobsReport: LiveChartEntry[]
    executedInServersReport: LiveChartEntry[]
    executedInCloudReport: LiveChartEntry[]
+   allocationTimeReport: LiveChartEntry[]
+   allocationSuccessRatioReport: LiveChartEntry[]
+   allocationAcceptanceRatioReport: LiveChartEntry[]
 }
 
 export type ManagingSystemReports = {

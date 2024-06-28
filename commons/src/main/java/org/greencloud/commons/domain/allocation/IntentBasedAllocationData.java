@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Interface representing data needed by the intent-based allocation algorithms
+ * Interface representing data needed by the intent-based allocation algorithm
  */
 @JsonSerialize(as = ImmutableIntentBasedAllocationData.class)
 @JsonDeserialize(as = ImmutableIntentBasedAllocationData.class)

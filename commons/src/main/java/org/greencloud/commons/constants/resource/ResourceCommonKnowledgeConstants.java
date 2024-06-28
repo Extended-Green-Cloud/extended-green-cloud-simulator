@@ -17,6 +17,7 @@ public class ResourceCommonKnowledgeConstants {
 	public static final String MEMORY_COEFFICIENT = "MEMORY_COEFFICIENT";
 	public static final String STORAGE_COEFFICIENT = "STORAGE_COEFFICIENT";
 	public static final String COST_WEIGHT = "COST_WEIGHT";
+	public static final String ENERGY_WEIGHT = "ENERGY_WEIGHT";
 	public static final String RELIABILITY_WEIGHT = "RELIABILITY_WEIGHT";
 	public static final String TIME_WEIGHT = "TIME_WEIGHT";
 	public static final String PERFORMANCE_WEIGHT = "PERFORMANCE_WEIGHT";
@@ -26,7 +27,11 @@ public class ResourceCommonKnowledgeConstants {
 	public static final String MINIMAL_EXECUTOR_SATISFACTION = "MINIMAL_EXECUTOR_SATISFACTION";
 
 	public static final String ALLOCATION_PARAMETERS = "ALLOCATION_PARAMETERS";
+	public static final String MODIFICATIONS = "MODIFICATIONS";
 	public static final String CLUSTER_EXECUTORS = "CLUSTER_EXECUTORS";
 	public static final String CLUSTER_NO_JOBS = "CLUSTER_NO_JOBS";
 	public static final String MINIMAL_RELIABILITY = "MINIMAL_RELIABILITY";
+	public static final String MINIMAL_GREEN_ENERGY_UTILIZATION = "MINIMAL_GREEN_ENERGY_UTILIZATION";
+	public static final String TYPES_ENCODING = "TYPES_ENCODING";
+	public static final String TYPES_ENCODING_CLUSTERS = "TYPES_ENCODING_CLUSTERS";
 }

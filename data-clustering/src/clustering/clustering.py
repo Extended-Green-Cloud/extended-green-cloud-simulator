@@ -116,6 +116,9 @@ class Clustering():
         '''
 
         if test_params:
+            for process_data in self.preprocessing_operations:
+                self.data = process_data(self.data)
+
             self.tester.test(self.data[self.features], *clustering_params)
             return
 

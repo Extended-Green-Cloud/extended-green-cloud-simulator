@@ -12,7 +12,9 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.M
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
 import static org.greencloud.commons.enums.agent.ClientTimeTypeEnum.REAL_TIME;
 import static org.greencloud.commons.mapper.JobMapper.mapSyntheticArgoJobToJob;
+import static org.jrba.utils.file.FileReader.readFile;
 import static org.jrba.utils.mapper.JsonMapper.getMapper;
+import static runner.configuration.ResourceRequirementConfiguration.budgetRange;
 import static runner.configuration.ResourceRequirementConfiguration.cpuRange;
 import static runner.configuration.ResourceRequirementConfiguration.deadlineRange;
 import static runner.configuration.ResourceRequirementConfiguration.durationRange;
@@ -23,7 +25,7 @@ import static runner.configuration.ScenarioConfiguration.clientNumber;
 import static runner.configuration.ScenarioConfiguration.generatorType;
 import static runner.configuration.ScenarioConfiguration.jobTypesNumber;
 import static runner.configuration.ScenarioConfiguration.jobsSampleFilePath;
-import static org.jrba.utils.file.FileReader.readFile;
+import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE_WITH_BUDGET;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +70,7 @@ public class ScenarioWorkloadGenerationService {
 	public void generateWorkloadForSimulation() {
 		switch (generatorType) {
 			case RANDOM -> runClientAgents(emptyList());
-			case FROM_SAMPLE -> runJobsDrawnFromSample();
+			case FROM_SAMPLE, FROM_SAMPLE_WITH_BUDGET -> runJobsDrawnFromSample();
 			case FROM_EVENTS -> eventService.runScenarioEvents();
 		}
 	}
@@ -113,8 +115,11 @@ public class ScenarioWorkloadGenerationService {
 			final SyntheticJobArgs syntheticJob = clientJobs.isEmpty() ?
 					generateRandomJob() :
 					clientJobs.get((int) idx - 1);
-			final JobArgs job = mapSyntheticArgoJobToJob(syntheticJob);
-
+			final Double budgetLimit = generatorType.equals(FROM_SAMPLE_WITH_BUDGET) ?
+					random.nextDouble(budgetRange.lowerEndpoint(), budgetRange.upperEndpoint()) *
+							syntheticJob.getDuration() :
+					null;
+			final JobArgs job = mapSyntheticArgoJobToJob(syntheticJob, budgetLimit);
 			final ClientArgs clientArgs = agentFactory.createClientAgent(
 					clientName, valueOf(jobId), REAL_TIME, job);
 			final AgentController agentController = scenarioService.factory.createAgentController(clientArgs,

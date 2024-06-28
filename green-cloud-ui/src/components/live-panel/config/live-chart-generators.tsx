@@ -12,6 +12,7 @@ import {
    ReportsStore
 } from '@types'
 import {
+   AllocationRatioChart,
    AvailableGreenPowerLiveChart,
    ClientJobCPUChart,
    ClientJobExecutionPercentageChart,
@@ -172,6 +173,11 @@ const getManagingGoalContributionChart: LiveChartGenerator = (reports, _) => {
    return <GoalContributionLiveChart />
 }
 
+const getAllocationRatioChart: LiveChartGenerator = (reports, _) => {
+   const { allocationSuccessRatioReport, allocationAcceptanceRatioReport } = reports as ReportsStore
+   return <AllocationRatioChart {...{ allocationAcceptanceRatioReport, allocationSuccessRatioReport }} />
+}
+
 export {
    getAgentClientsChart,
    getJobCompletionChart,
@@ -192,5 +198,6 @@ export {
    getManagingGoalContributionChart,
    getClientJobExecutionTimeChart,
    getClientJobExecutionPercentageChart,
-   getSystemJobTypeChart
+   getSystemJobTypeChart,
+   getAllocationRatioChart
 }

@@ -55,6 +55,7 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		final File initialKnowledgeFile = readFile(knowledgeFilePath);
 		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioFile);
+		updateStrategyInformation();
 
 		this.factory = new EGCSControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);

@@ -5,6 +5,7 @@ import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.COST_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.CPU_COEFFICIENT;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.ENERGY_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.EXECUTOR_SATISFACTION_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.JOB_SATISFACTION_WEIGHT;
 import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MEMORY_COEFFICIENT;
@@ -55,6 +56,7 @@ public class ResourceMapper {
 				.memoryExperienceCoefficient(parseDouble(valueOf(preferenceMap.get(MEMORY_COEFFICIENT))))
 				.storageExperienceCoefficient(parseDouble(valueOf(preferenceMap.get(STORAGE_COEFFICIENT))))
 				.costWeights(parseDouble(valueOf(preferenceMap.get(COST_WEIGHT))))
+				.energyWeight(parseDouble(valueOf(preferenceMap.getOrDefault(ENERGY_WEIGHT, "0.0"))))
 				.reliabilityWeight(parseDouble(valueOf(preferenceMap.get(RELIABILITY_WEIGHT))))
 				.timeWeight(parseDouble(valueOf(preferenceMap.get(TIME_WEIGHT))))
 				.performanceWeight(parseDouble(valueOf(preferenceMap.get(PERFORMANCE_WEIGHT))))

@@ -3,9 +3,12 @@ package runner.service;
 import static jade.core.Runtime.instance;
 import static jade.wrapper.AgentController.ASYNC;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.greencloud.agentsystem.strategies.RuleSetSelector.selectRuleSetByName;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.ALLOCATION_PARAMETERS;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MODIFICATIONS;
 import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
 import static org.jrba.rulesengine.rest.RuleSetRestApi.startRulesControllerRest;
 import static org.jrba.utils.file.FileReader.buildResourceFilePath;
@@ -25,15 +28,18 @@ import static runner.configuration.EngineConfiguration.runJadeSniffer;
 import static runner.configuration.EngineConfiguration.websocketAddresses;
 import static runner.configuration.StrategiesConfiguration.RULE_SETS_DIR;
 import static runner.configuration.StrategiesConfiguration.STRATEGIES_DIR;
+import static runner.configuration.StrategiesConfiguration.allocationStepsNumber;
+import static runner.configuration.StrategiesConfiguration.allocationStrategyName;
+import static runner.configuration.StrategiesConfiguration.prioritizationStrategyName;
 import static runner.configuration.StrategiesConfiguration.readScenarioProperties;
 import static runner.configuration.StrategiesConfiguration.ruleSetApiPort;
-import static runner.configuration.StrategiesConfiguration.strategyName;
 import static runner.configuration.enums.ContainerTypeEnum.CLIENTS_CONTAINER_ID;
 import static runner.constants.EngineConstants.MTP_MULTI_MESSAGE;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -65,6 +71,7 @@ import jade.wrapper.StaleProxyException;
  * It handles creation of Main and Agent's Containers as well as Agent's Controllers.
  * It is also responsible for running Agent's and Agent's clients.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractScenarioService {
 
 	protected static final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -127,7 +134,10 @@ public abstract class AbstractScenarioService {
 
 	protected void startRuleSetAPI() {
 		final String ruleSets = buildResourceFilePath(STRATEGIES_DIR, RULE_SETS_DIR);
-		startRulesControllerRest(selectRuleSetByName(strategyName), ruleSets, ruleSetApiPort);
+		startRulesControllerRest(
+				selectRuleSetByName(allocationStrategyName, prioritizationStrategyName, allocationStepsNumber),
+				ruleSets,
+				ruleSetApiPort);
 	}
 
 	protected AgentController prepareManagingController(final ManagingAgentArgs managingAgentArgs) {
@@ -206,6 +216,13 @@ public abstract class AbstractScenarioService {
 		final Instant systemStart = timescaleDatabase.readSystemStartTime();
 		setSystemStartTime(systemStart);
 		guiController.reportSystemStartTime(systemStart);
+	}
+
+	protected void updateStrategyInformation() {
+		final List<String> modifications = (List<String>) systemKnowledge.get(ALLOCATION_PARAMETERS)
+				.getOrDefault(MODIFICATIONS, emptyList());
+		guiController.reportStrategyParameters(allocationStrategyName, prioritizationStrategyName, modifications,
+				allocationStepsNumber);
 	}
 
 }

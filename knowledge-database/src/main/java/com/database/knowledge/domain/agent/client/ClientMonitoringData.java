@@ -25,6 +25,16 @@ public interface ClientMonitoringData extends MonitoringData {
 	boolean getIsFinished();
 
 	/**
+	 * @return flag indicating if the client execution was completed within deadline
+	 */
+	boolean getIsWithinDeadline();
+
+	/**
+	 * @return flag indicating if the client execution was completed within budget
+	 */
+	boolean getIsWithinBudget();
+
+	/**
 	 * @return current status of job execution
 	 */
 	JobClientStatusEnum getCurrentJobStatus();

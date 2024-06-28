@@ -1,11 +1,14 @@
 package org.greencloud.gui.agents.server;
 
+import static com.database.knowledge.types.DataType.JOB_ENERGY_UTILIZATION;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_CLOUD;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
@@ -18,6 +21,7 @@ import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.args.agent.server.node.ServerNodeArgs;
 import org.greencloud.commons.constants.resource.ResourceTypesConstants;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.job.JobUtils;
@@ -34,6 +38,7 @@ import org.jrba.environment.domain.ExternalEvent;
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
+import com.database.knowledge.domain.agent.server.JobEnergyUtilization;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
 import com.database.knowledge.types.DataType;
 
@@ -191,6 +196,38 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.findFirst()
 				.map(NetworkComponentMonitoringData::getSuccessRatio)
 				.orElse(1.0D);
+	}
+
+	/**
+	 * Method saves in the database the information about energy used for job execution.
+	 *
+	 * @param jobExecutionDuration job execution time
+	 */
+	public void reportJobEnergyUtilization(final ServerAgentProps props,
+			final ConcurrentMap<JobExecutionStatusEnum, JobStatusWithTime> jobExecutionDuration) {
+		final long greenPowerDuration = jobExecutionDuration.get(IN_PROGRESS).getDuration().longValue();
+		final long nonGreenPowerDuration =
+				jobExecutionDuration.get(IN_PROGRESS_BACKUP_ENERGY).getDuration().longValue() +
+						jobExecutionDuration.get(IN_PROGRESS_CLOUD).getDuration().longValue();
+		final double greenPowerPercentage = (double) greenPowerDuration / (greenPowerDuration + nonGreenPowerDuration);
+		final JobEnergyUtilization data = new JobEnergyUtilization(greenPowerPercentage);
+
+		writeMonitoringData(JOB_ENERGY_UTILIZATION, data, props.getAgentName());
+	}
+
+	/**
+	 * Method retrieves from the database the average green energy utilization.
+	 *
+	 * @return average green energy utilization
+	 */
+	public double getAverageJobEnergyUtilization(final ServerAgentProps props) {
+		return databaseClient.readLatestNRowsMonitoringDataForDataTypeAndAID(JOB_ENERGY_UTILIZATION,
+						singletonList(props.getAgentName()), 100).stream()
+				.map(AgentData::monitoringData)
+				.map(JobEnergyUtilization.class::cast)
+				.mapToDouble(JobEnergyUtilization::greenEnergyUtilization)
+				.average()
+				.orElse(1.0);
 	}
 
 	public Optional<ExternalEvent> getEvent() {

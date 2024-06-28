@@ -4,6 +4,7 @@ import { IconProps } from 'types/assets/icon-props'
 interface Styles {
    collapseStyle: React.CSSProperties
    collapseContentStyle: React.CSSProperties
+   dropdownDisabledWrapper: React.CSSProperties
    triggerIcon: IconProps
 }
 
@@ -25,5 +26,8 @@ export const styles: Styles = {
    triggerIcon: {
       size: '20px',
       color: 'var(--gray-3)'
+   },
+   dropdownDisabledWrapper: {
+      opacity: '50%'
    }
 }

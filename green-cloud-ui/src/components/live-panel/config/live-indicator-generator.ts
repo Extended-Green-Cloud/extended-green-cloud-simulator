@@ -55,6 +55,12 @@ const getAverageBackUpPowerConsumption: LiveIndicatorAvgGenerator = (reports) =>
       )
    )
 
+const getAverageAllocationSuccess: LiveIndicatorAvgGenerator = (reports) =>
+   (reports as ReportsStore).allocationSuccessRatioReport[-1].value
+
+const getAverageAllocationAcceptance: LiveIndicatorAvgGenerator = (reports) =>
+   (reports as ReportsStore).allocationAcceptanceRatioReport[-1].value
+
 export {
    getSystemAvgClientsIndicator,
    getSystemAvgJobsIndicator,
@@ -63,5 +69,7 @@ export {
    getAvgInProgressJobTime,
    getAvgInUseCpuIndicator,
    getAverageCpu,
-   getAverageBackUpPowerConsumption
+   getAverageBackUpPowerConsumption,
+   getAverageAllocationAcceptance,
+   getAverageAllocationSuccess
 }

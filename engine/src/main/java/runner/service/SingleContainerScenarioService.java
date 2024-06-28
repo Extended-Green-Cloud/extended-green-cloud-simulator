@@ -38,6 +38,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 		final File initialKnowledgeFile = readFile(knowledgeFilePath);
 		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioStructureFile);
+		updateStrategyInformation();
 
 		this.factory = new EGCSControllerFactoryImpl(mainContainer, timescaleDatabase, guiController, mainDFAddress,
 				mainHostPlatformId, systemKnowledge);

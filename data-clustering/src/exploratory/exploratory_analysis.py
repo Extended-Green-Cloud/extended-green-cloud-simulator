@@ -2,17 +2,18 @@ import pandas as pd
 import numpy as np
 import plotly.express as ptx
 import plotly.io as pio
+import seaborn as sns
 
 from IPython.display import display
 from typing import List
 
 from src.helpers.value_reader import FORMATTER, FORMATTER_CORR
 from src.helpers.path_reader import PathReader
-from src.helpers.feature_encoder import WORKFLOW_FEATURES, DB_FEATURES
+from src.helpers.feature_encoder import WORKFLOW_FEATURES, DB_FEATURES, FEATURES_DISPLAY_NAMES
 from src.helpers.statistics_operations import get_column_count, filter_out_undefined_workflows, convert_fields_to_numeric, append_coefficient_of_variance
 from src.helpers.subplot_maker import initialize_subplot, add_feature_trace, display_and_save_multiplot
 
-from src.exploratory.exploratory_constants import STATUS_FIELDS, STATS_FOR_WORKFLOWS_WITHOUT_ARGO_FILES, ARGO_ORDER_AGGREGATION, CATEGORICAL_FIELDS, DB_ORDER_AGGREGATION
+from src.exploratory.exploratory_constants import STATUS_FIELDS, STATS_FOR_WORKFLOWS_WITHOUT_ARGO_FILES, ARGO_ORDER_AGGREGATION, DB_ORDER_NAME_AGGREGATION, DB_ORDER_AGGREGATION
 
 
 class ExploratoryAnalysis():
@@ -53,7 +54,7 @@ class ExploratoryAnalysis():
         self.analyze_categorical_features()
         self.analyze_workflow_steps()
         self.analyze_workflows_without_db_records()
-        self.analyze_workflows_without_argo_files()
+        # self.analyze_workflows_without_argo_files()
         self.analyze_workflows_statuses()
         self.display_statistics_summary()
         self.univariate_analysis('box')
@@ -71,6 +72,9 @@ class ExploratoryAnalysis():
         data = filter_out_undefined_workflows(self.data_argo)
         unique_orders = get_column_count(data, DB_ORDER_AGGREGATION, False)
         self.display_column_count(unique_orders, WORKFLOW_FEATURES.ORDER_STATUS)
+
+        unique_orders = get_column_count(data, DB_ORDER_NAME_AGGREGATION, False)
+        self.display_column_count(unique_orders, WORKFLOW_FEATURES.ORDER_NAME)
         
     def analyze_workflow_steps(self) -> None:
         '''
@@ -204,6 +208,8 @@ class ExploratoryAnalysis():
         '''
         correlation_metrics = self.data_argo[self.features].corr().apply(
             FORMATTER_CORR)
+        
+        sns.heatmap(correlation_metrics ,annot=True)
 
         fig = ptx.imshow(correlation_metrics.to_numpy(),
                          x=self.features,
@@ -237,9 +243,10 @@ class ExploratoryAnalysis():
         data - data frame
         column_name - name of the column taken into account
         '''
-        grouped_values = data.groupby([column_name]).size().to_frame().reset_index()
+        displayed_name = FEATURES_DISPLAY_NAMES[column_name] if column_name in FEATURES_DISPLAY_NAMES else column_name
+        grouped_values = data.groupby([displayed_name]).size().to_frame().reset_index()
 
-        name = column_name.replace('_', ' ').capitalize()
+        name = displayed_name.replace('_', ' ').capitalize()
         grouped_values.columns = [name, 'Count']
 
         sorted_result = grouped_values.sort_values(by=['Count'], ascending=False)

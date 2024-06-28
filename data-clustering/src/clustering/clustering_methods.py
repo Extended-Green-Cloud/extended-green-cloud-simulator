@@ -44,6 +44,42 @@ def use_k_means_clustering(data: np.ndarray,
 
     return model, estimator, labels if not only_labels else labels
 
+def use_modified_k_means_clustering(data: np.ndarray,
+                                    cluster_no: int,
+                                    run_no: int = 30,
+                                    max_iter: int = 1000,
+                                    rand_state: int = 0,
+                                    only_labels: bool = False) -> Tuple[KMeans, KMeans, np.ndarray] | np.ndarray:
+    '''
+    Method performs a modified version k-mean clustering on the given sample of data and returns the obtained clusters.
+    The algorithm initializes cluster centers according to the method proposed in [https://www.sciencedirect.com/science/article/pii/S1110866519303330].
+    In particular, it partitions the initial data set into p equal parts and then the centroid points are selected by using an arithmetic mean on each part.
+
+    Parameters:
+    data - data sample
+    cluster_no - number of clusters
+    run_no - number of k-means iterations for different seeds (default: 30)
+    max_iter - the boundary of k-means iterations (default: 1000)
+    rand_state - random number generation for centroid (default: 0)
+    only_labels - flag indicating if only clustering labels should be returned (default: False)
+
+    Returns: job clusters
+    '''
+    split_data = np.array_split(data, cluster_no)
+    initial_centroids = np.array([np.mean(partition, axis=0) for partition in split_data])
+
+    model = KMeans(n_clusters=cluster_no,
+                   algorithm="lloyd",
+                   tol=1e-8,
+                   n_init=run_no,
+                   init=initial_centroids,
+                   max_iter=max_iter,
+                   random_state=rand_state)
+    estimator = model.fit(data)
+    labels = model.predict(data)
+
+    return model, estimator, labels if not only_labels else labels
+
 
 def use_birch_clustering(data: np.ndarray,
                          cluster_no: int,
@@ -561,6 +597,9 @@ def use_ICCM_clustering(data: np.ndarray,
 class ClusteringMethod(Enum):
     def K_MEANS(data, *args, only_labels=False): \
         return use_k_means_clustering(data, *args, only_labels=only_labels)
+    
+    def MODIFIED_K_MEANS(data, *args, only_labels=False): \
+        return use_modified_k_means_clustering(data, *args, only_labels=only_labels)
 
     def BIRCH(data, *args, only_labels=False): \
         return use_birch_clustering(data, *args, only_labels=only_labels)
@@ -582,6 +621,7 @@ class ClusteringMethod(Enum):
     @classmethod
     def get_clustering_by_name(cls, name: str):
         if name == 'K_MEANS': return cls.K_MEANS
+        if name == 'MODIFIED_K_MEANS': return cls.MODIFIED_K_MEANS
         if name == 'BIRCH': return cls.BIRCH
         if name == 'GMM': return cls.GMM
         if name == 'FUZZY_C_MEANS': return cls.FUZZY_C_MEANS

@@ -3,7 +3,6 @@ package runner.configuration;
 import static java.lang.Integer.parseInt;
 import static org.jrba.rulesengine.constants.RuleSetTypeConstants.DEFAULT_RULE_SET;
 import static org.jrba.utils.file.FileReader.buildResourceFilePath;
-import static runner.constants.EngineConstants.PROPERTIES_DIR;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -27,9 +26,19 @@ public class StrategiesConfiguration extends AbstractConfiguration {
 	public static int ruleSetApiPort;
 
 	/**
-	 * Name of the default strategy that is to be run.
+	 * Name of the default resource allocation strategy that is to be run.
 	 */
-	public static String strategyName;
+	public static String allocationStrategyName;
+
+	/**
+	 * Name of the default tasks prioritization strategy that is to be run.
+	 */
+	public static String prioritizationStrategyName;
+
+	/**
+	 * Number of resource allocation steps.
+	 */
+	public static Integer allocationStepsNumber;
 
 	/**
 	 * Method reads the properties set for the given strategies execution
@@ -41,7 +50,11 @@ public class StrategiesConfiguration extends AbstractConfiguration {
 			props.load(EngineRunner.class.getClassLoader().getResourceAsStream(pathToStrategy));
 
 			ruleSetApiPort = parseInt(ifNotBlankThenGetOrElse(props.getProperty("api.port"), "5000"));
-			strategyName = ifNotBlankThenGetOrElse(props.getProperty("strategy.default"), DEFAULT_RULE_SET);
+			allocationStepsNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("strategy.steps"), "1"));
+			prioritizationStrategyName = ifNotBlankThenGetOrElse(props.getProperty("strategy.prioritization"),
+					DEFAULT_RULE_SET);
+			allocationStrategyName = ifNotBlankThenGetOrElse(props.getProperty("strategy.allocation"),
+					DEFAULT_RULE_SET);
 
 		} catch (final IOException e) {
 			throw new InvalidPropertiesException("Could not read properties file:", e);

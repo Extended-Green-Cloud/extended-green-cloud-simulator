@@ -19,9 +19,9 @@ class TestExploratoryAnalysisClass(TestCase):
     '''
 
     def initialize_test_data(self) -> ExploratoryAnalysis:
-        save_parsed_workflow_data(import_workflow_data(True), True)
-        test_workflows = import_workflows_from_csv(True)
-        test_workflow_db = import_workflow_data_database(True)
+        save_parsed_workflow_data(import_workflow_data(is_test=True), is_test=True)
+        test_workflows = import_workflows_from_csv(is_test=True)
+        test_workflow_db = import_workflow_data_database(is_test=True)
         test_features = [WORKFLOW_FEATURES.CPU, WORKFLOW_FEATURES.MEMORY]
 
         return ExploratoryAnalysis(test_workflows, test_workflow_db, test_features, is_test=True)
