@@ -1,6 +1,7 @@
 package org.greencloud.commons.args.agent;
 
 import static java.time.Duration.between;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
@@ -8,6 +9,8 @@ import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_DIVIDED;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_IS_STARTED;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB_PREVIOUS;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.ALLOCATION_PARAMETERS;
+import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeConstants.MODIFICATIONS;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_ON_HOLD;
 import static org.greencloud.commons.enums.job.JobExecutionStateEnum.EXECUTING_TRANSFER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_JOB_DIVISION_RULE;
@@ -34,6 +37,7 @@ import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.instance.JobInstanceIdentifier;
 import org.greencloud.commons.domain.job.transfer.ImmutableJobDivided;
 import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
+import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.jrba.agentmodel.domain.props.AgentProps;
@@ -69,6 +73,18 @@ public class EGCSAgentProps extends AgentProps {
 	public EGCSAgentProps(final AgentType agentType, final String agentName) {
 		super(agentType, agentName);
 		this.jobCounters = getJobCountersMap();
+	}
+
+	/**
+	 * Methods retrieves modifications stored in global knowledge.
+	 *
+	 * @return list of modifications
+	 */
+	public List<AllocationModificationEnum> getModifications() {
+		return ((List<String>) getSystemKnowledge().get(ALLOCATION_PARAMETERS)
+				.getOrDefault(MODIFICATIONS, emptyList())).stream()
+				.map(AllocationModificationEnum::valueOf)
+				.toList();
 	}
 
 	/**

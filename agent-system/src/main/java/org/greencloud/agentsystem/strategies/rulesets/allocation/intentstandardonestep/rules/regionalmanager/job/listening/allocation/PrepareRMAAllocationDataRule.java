@@ -4,8 +4,8 @@ import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_REQUEST_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_RULE;
-import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
-import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.greencloud.commons.utils.facts.ValidatorFactsFactory.constructFactsForRMAValidation;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -38,14 +38,8 @@ public class PrepareRMAAllocationDataRule extends AgentBasicRule<RegionalManager
 
 	@Override
 	public boolean evaluateRule(RuleSetFacts facts) {
-		if (agentProps.getOwnedActiveServers().isEmpty()) {
-			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("There are no active servers for job execution. Sending refuse response.");
-
-			agent.send(prepareRefuseReply(facts.get(MESSAGE)));
-			return false;
-		}
-		return true;
+		controller.fire(constructFactsForRMAValidation(facts));
+		return facts.get(RESULT);
 	}
 
 	@Override

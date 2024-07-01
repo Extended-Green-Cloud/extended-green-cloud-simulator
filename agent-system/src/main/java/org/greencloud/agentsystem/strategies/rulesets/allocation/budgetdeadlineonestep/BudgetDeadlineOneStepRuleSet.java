@@ -8,8 +8,11 @@ import java.util.List;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.budgetdeadlineonestep.rules.centralmanager.job.allocation.RequestServerJobExecutionDataRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.budgetdeadlineonestep.rules.regionalmanager.job.listening.allocation.RequestServersForJobExecutionEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.budgetdeadlineonestep.rules.server.job.listening.allocation.PrepareServerJobEstimationDataRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.regionalmanager.PrepareServerResourcesRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.server.PrepareSingleJobExecutionEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.centralmanager.job.allocation.PrepareServerResourcesDataRequestRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.regionalmanager.job.listening.allocation.PrepareRMAAllocationDataRule;
+import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
 
@@ -37,13 +40,15 @@ public class BudgetDeadlineOneStepRuleSet extends RuleSet {
 	protected List<AgentRule> rmaRules() {
 		return List.of(
 				new PrepareRMAAllocationDataRule(null),
-				new RequestServersForJobExecutionEstimationRule(null)
+				new RequestServersForJobExecutionEstimationRule(null),
+				new PrepareServerResourcesRule<>(null, JobWithExecutionEstimation.class)
 		);
 	}
 
 	protected List<AgentRule> serverRules() {
 		return List.of(
-				new PrepareServerJobEstimationDataRule(null)
+				new PrepareServerJobEstimationDataRule(null),
+				new PrepareSingleJobExecutionEstimationRule(null)
 		);
 	}
 }

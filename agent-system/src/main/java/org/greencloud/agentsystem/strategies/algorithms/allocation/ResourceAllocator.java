@@ -1,5 +1,6 @@
 package org.greencloud.agentsystem.strategies.algorithms.allocation;
 
+import static org.greencloud.agentsystem.strategies.algorithms.allocation.AntColonyBasedAllocator.acoBasedAllocation;
 import static org.greencloud.agentsystem.strategies.algorithms.allocation.BudgetDeadlineAllocator.budgetDeadlineConstrainedAllocation;
 import static org.greencloud.agentsystem.strategies.algorithms.allocation.IntentBasedAllocator.intentBasedResourceAllocation;
 import static org.greencloud.agentsystem.strategies.algorithms.allocation.LeastConnectionAllocator.leastConnectionAllocation;
@@ -8,6 +9,7 @@ import static org.greencloud.agentsystem.strategies.algorithms.allocation.Priori
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.domain.allocation.ACOAllocationData;
 import org.greencloud.commons.domain.allocation.AllocationData;
 import org.greencloud.commons.domain.allocation.BudgetDealdineAllocationData;
 import org.greencloud.commons.domain.allocation.IntentBasedAllocationData;
@@ -41,6 +43,7 @@ public class ResourceAllocator {
 					budgetDeadlineAllocation(budgetDeadlineAllocationData);
 			case LeastConnectionAllocationData leastConnectionAllocationData ->
 					leastConnectionAllocator(leastConnectionAllocationData);
+			case ACOAllocationData acoAllocationData -> acoAllocator(acoAllocationData);
 			default -> throw new AllocationAlgorithmNotFoundException();
 		};
 	}
@@ -83,6 +86,17 @@ public class ResourceAllocator {
 		return leastConnectionAllocation(
 				allocationData.getJobsToAllocate(),
 				allocationData.getRMAConnections()
+		);
+	}
+
+	private static Map<String, List<String>> acoAllocator(
+			final ACOAllocationData acoAllocationData
+	) {
+		return acoBasedAllocation(
+				acoAllocationData.getAntParams(),
+				acoAllocationData.getJobsToAllocate(),
+				acoAllocationData.getExecutorsResources(),
+				acoAllocationData.getModifications()
 		);
 	}
 }

@@ -5,11 +5,15 @@ import static org.greencloud.agentsystem.strategies.domain.ResourceAllocationAlg
 
 import java.util.List;
 
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.centralmanager.ParseServerResourcesRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.regionalmanager.PrepareServerResourcesRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.server.PrepareJobPriceEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.centralmanager.job.allocation.PrepareServerResourcesDataRequestRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.regionalmanager.job.listening.allocation.PrepareRMAAllocationDataRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.prioritystadardonestep.rules.centralmanager.job.allocation.RequestServerPriceEstimationDataRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.prioritystadardonestep.rules.regionalmanager.job.listening.allocation.RequestServersForPriceEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.prioritystadardonestep.rules.server.job.listening.allocation.PrepareServerPriceEstimationDataRule;
+import org.greencloud.commons.domain.agent.ServerPriceEstimation;
 import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
 
@@ -30,6 +34,7 @@ public class PriorityBasedOneStepRuleSet extends RuleSet {
 	protected List<AgentRule> cmaRules() {
 		return List.of(
 				new PrepareServerResourcesDataRequestRule(null),
+				new ParseServerResourcesRule(null),
 				new RequestServerPriceEstimationDataRule(null)
 		);
 	}
@@ -37,13 +42,15 @@ public class PriorityBasedOneStepRuleSet extends RuleSet {
 	protected List<AgentRule> rmaRules() {
 		return List.of(
 				new PrepareRMAAllocationDataRule(null),
-				new RequestServersForPriceEstimationRule(null)
+				new RequestServersForPriceEstimationRule(null),
+				new PrepareServerResourcesRule<>(null, ServerPriceEstimation.class)
 		);
 	}
 
 	protected List<AgentRule> serverRules() {
 		return List.of(
-				new PrepareServerPriceEstimationDataRule(null)
+				new PrepareServerPriceEstimationDataRule(null),
+				new PrepareJobPriceEstimationRule(null)
 		);
 	}
 }

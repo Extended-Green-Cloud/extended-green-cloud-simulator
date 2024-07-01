@@ -5,11 +5,15 @@ import static org.greencloud.agentsystem.strategies.domain.ResourceAllocationAlg
 
 import java.util.List;
 
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.centralmanager.ParseServerResourcesRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.regionalmanager.PrepareServerResourcesRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.server.PrepareJobsExecutionEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.centralmanager.job.allocation.PrepareServerResourcesDataRequestRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.centralmanager.job.allocation.RequestServerResourcesDataRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.regionalmanager.job.listening.allocation.PrepareRMAAllocationDataRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.regionalmanager.job.listening.allocation.RequestServersForJobsExecutionEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.server.listening.allocation.PrepareServerAllocationDataRule;
+import org.greencloud.commons.domain.agent.ServerJobsEstimation;
 import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
 
@@ -30,6 +34,7 @@ public class IntentBasedOneStepRuleSet extends RuleSet {
 	protected List<AgentRule> cmaRules() {
 		return List.of(
 				new PrepareServerResourcesDataRequestRule(null),
+				new ParseServerResourcesRule(null),
 				new RequestServerResourcesDataRule(null)
 		);
 	}
@@ -37,13 +42,15 @@ public class IntentBasedOneStepRuleSet extends RuleSet {
 	protected List<AgentRule> rmaRules() {
 		return List.of(
 				new PrepareRMAAllocationDataRule(null),
-				new RequestServersForJobsExecutionEstimationRule(null)
+				new RequestServersForJobsExecutionEstimationRule(null),
+				new PrepareServerResourcesRule<>(null, ServerJobsEstimation.class)
 		);
 	}
 
 	protected List<AgentRule> serverRules() {
 		return List.of(
-				new PrepareServerAllocationDataRule(null)
+				new PrepareServerAllocationDataRule(null),
+				new PrepareJobsExecutionEstimationRule(null)
 		);
 	}
 }

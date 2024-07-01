@@ -1,21 +1,26 @@
 package org.greencloud.commons.utils.facts;
 
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION;
+import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION_DATA;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION_TIMER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_NEW_JOB_ALLOCATION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_ALLOCATION_REQUEST_DATA;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_ALLOCATION_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PARSE_SERVER_RESOURCES_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_RULE;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_SERVER_RESOURCES_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_NEW_JOB_ALLOCATION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_NEW_JOB_UNSUCCESSFUL_ALLOCATION_RULE;
 import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJob;
 import static org.greencloud.commons.utils.facts.JobFactsFactory.constructFactsWithJobs;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGES;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -156,4 +161,41 @@ public class JobAllocationFactsFactory {
 
 		return facts;
 	}
+
+	/**
+	 * Method construct facts passed to rules responsible for prepares servers data for RMA
+	 *
+	 * @param index            index of a rule set
+	 * @param jobs             all jobs that are to be allocated
+	 * @param allocationFields fields of resources that are to be included
+	 * @return RuleSetFacts
+	 */
+	public static RuleSetFacts constructFactsForRMADataPreparation(final int index,
+			final List<String> allocationFields,
+			final Collection<ACLMessage> messages,
+			final List<AllocatedJobs> jobs) {
+		final RuleSetFacts facts = new RuleSetFacts(index);
+		facts.put(JOBS, jobs);
+		facts.put(MESSAGES, messages);
+		facts.put(ALLOCATION_DATA, allocationFields);
+		facts.put(RULE_TYPE, PREPARE_SERVER_RESOURCES_RULE);
+
+		return facts;
+	}
+
+	/**
+	 * Method construct facts passed to rules responsible for parsing RMAs data
+	 *
+	 * @param messages messages received from RMAs
+	 * @return RuleSetFacts
+	 */
+	public static RuleSetFacts constructFactsForRMADataParsing(final int index,
+			final Collection<ACLMessage> messages) {
+		final RuleSetFacts facts = new RuleSetFacts(index);
+		facts.put(MESSAGES, messages);
+		facts.put(RULE_TYPE, PARSE_SERVER_RESOURCES_RULE);
+
+		return facts;
+	}
+
 }

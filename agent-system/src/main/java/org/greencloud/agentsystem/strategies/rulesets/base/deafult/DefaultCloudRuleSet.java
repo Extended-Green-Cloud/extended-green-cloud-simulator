@@ -6,6 +6,7 @@ import static org.jrba.rulesengine.constants.RuleSetTypeConstants.DEFAULT_RULE_S
 import java.util.ArrayList;
 import java.util.List;
 
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.validator.regionalmanager.ValidateRegionalServersRule;
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.centralmanager.adaptation.UpdateRuleSetInCMAForWeatherDropRule;
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.centralmanager.df.SubscribeRegionalManagerAgentsRule;
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.centralmanager.initial.PrepareInitialCMABehavioursRule;
@@ -161,6 +162,7 @@ import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.server.
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.server.job.proposing.ProposeToRMARule;
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.server.job.proposing.prepare.PrepareProposalForRMA;
 import org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.server.sensor.SenseExternalServerEventsRule;
+import org.greencloud.agentsystem.strategies.rulesets.allocation.common.validator.server.ValidateServerErrorRule;
 import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
 
@@ -249,7 +251,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new AllocateServersForNewClientJobsRule(null),
 				new ProcessServerAllocationRule(null),
 				new ProcessPollNextClientJobAfterDeadlineRule(null),
-				new PreEvaluateJobPriorityForRMARule(null)
+				new PreEvaluateJobPriorityForRMARule(null),
+				new ValidateRegionalServersRule(null)
 		);
 	}
 
@@ -312,7 +315,8 @@ public class DefaultCloudRuleSet extends RuleSet {
 				new ProcessPollNextClientJobForExecutionCombinedRule(null, this),
 				new PrepareProposalForRMA(null),
 				new ListenForUpdatesFromGreenSourceRule(null, this),
-				new ProcessUpdateFromGreenSourceCombinedRule(null)
+				new ProcessUpdateFromGreenSourceCombinedRule(null),
+				new ValidateServerErrorRule(null)
 		);
 	}
 

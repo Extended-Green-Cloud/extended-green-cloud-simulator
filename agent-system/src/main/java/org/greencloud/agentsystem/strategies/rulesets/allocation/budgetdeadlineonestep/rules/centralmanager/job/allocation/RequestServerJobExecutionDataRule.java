@@ -1,6 +1,5 @@
 package org.greencloud.agentsystem.strategies.rulesets.allocation.budgetdeadlineonestep.rules.centralmanager.job.allocation;
 
-import static jade.lang.acl.ACLMessage.REQUEST;
 import static java.lang.String.valueOf;
 import static java.time.Instant.ofEpochSecond;
 import static java.util.Collections.emptyList;
@@ -18,9 +17,8 @@ import static org.greencloud.commons.constants.resource.ResourceTypesConstants.D
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.START_TIME;
 import static org.greencloud.commons.enums.allocation.AllocationModificationEnum.PRE_CLUSTERED_RESOURCES;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_REQUEST_RULE;
-import static org.greencloud.commons.mapper.JobMapper.mapToAllocatedJobs;
 import static org.greencloud.commons.utils.facts.JobAllocationFactsFactory.constructFactsForJobsAllocationPreparation;
-import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.ALLOCATION_DATA_REQUEST;
+import static org.greencloud.commons.utils.messaging.factory.RequestMessageFactory.requestDataForAllocation;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.jrba.utils.messages.MessageReader.readMessageContent;
@@ -47,7 +45,6 @@ import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.rule.AgentRuleDescription;
 import org.jrba.rulesengine.rule.template.AgentRequestRule;
 import org.jrba.rulesengine.ruleset.RuleSetFacts;
-import org.jrba.utils.messages.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -71,11 +68,7 @@ public class RequestServerJobExecutionDataRule extends AgentRequestRule<CentralM
 
 	@Override
 	protected ACLMessage createRequestMessage(final RuleSetFacts facts) {
-		return MessageBuilder.builder((int) facts.get(RULE_SET_IDX), REQUEST)
-				.withMessageProtocol(ALLOCATION_DATA_REQUEST)
-				.withObjectContent(mapToAllocatedJobs(facts.get(JOBS)))
-				.withReceivers(agentProps.getAvailableRegionalManagers())
-				.build();
+		return requestDataForAllocation(facts, agentProps.getAvailableRegionalManagers());
 	}
 
 	@Override
@@ -93,16 +86,11 @@ public class RequestServerJobExecutionDataRule extends AgentRequestRule<CentralM
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 		final Map<String, List<String>> serversPerRMA = informs.stream()
 				.collect(toMap(response -> response.getSender().getName(), this::getServersPerRMA));
-		final List<AllocationModificationEnum> modifications =
-				((List<String>) agentProps.getSystemKnowledge().get(ALLOCATION_PARAMETERS)
-						.getOrDefault(MODIFICATIONS, emptyList())).stream()
-						.map(AllocationModificationEnum::valueOf)
-						.toList();
 
 		final BudgetDealdineAllocationData allocationData = ImmutableBudgetDealdineAllocationData.builder()
-				.modifications(modifications)
+				.modifications(agentProps.getModifications())
 				.jobForAllocation(jobs.getFirst())
-				.jobPriority(modifications.contains(PRE_CLUSTERED_RESOURCES) ?
+				.jobPriority(agentProps.getModifications().contains(PRE_CLUSTERED_RESOURCES) ?
 						getPriorityFromCommonKnowledge(jobs.getFirst()) :
 						agentProps.getPriorityPerJob().get(jobs.getFirst().getJobId()))
 				.executorsEstimations(serversEstimations)

@@ -4,23 +4,20 @@ import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_RULE;
-import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareRefuseReply;
+import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_JOB_EXECUTION_ESTIMATION_RULE;
+import static org.greencloud.commons.utils.facts.ValidatorFactsFactory.constructFactsForServerValidation;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToHourDuration;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.time.Instant;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
 import org.greencloud.commons.domain.allocation.AllocatedJobs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
-import org.greencloud.commons.domain.job.extended.ImmutableJobWithExecutionEstimation;
-import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
@@ -47,14 +44,8 @@ public class PrepareServerJobEstimationDataRule extends AgentBasicRule<ServerAge
 
 	@Override
 	public boolean evaluateRule(RuleSetFacts facts) {
-		if (agentProps.isHasError()) {
-			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
-			logger.info("Server has an ongoing error. Refusing to consider jobs for execution.");
-
-			agent.send(prepareRefuseReply(facts.get(MESSAGE)));
-			return false;
-		}
-		return true;
+		controller.fire(constructFactsForServerValidation(facts));
+		return facts.get(RESULT);
 	}
 
 	@Override
@@ -65,16 +56,10 @@ public class PrepareServerJobEstimationDataRule extends AgentBasicRule<ServerAge
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Estimated job {} execution in response to scheduled allocation.", job.getJobId());
 
-		final Pair<Instant, Double> execution = agentProps.getEstimatedEarliestJobStartTimeAndDuration(job);
-		final Double price = convertToHourDuration(execution.getValue().longValue()) * agentProps.getPricePerHour();
+		facts.put(RULE_TYPE, PREPARE_JOB_EXECUTION_ESTIMATION_RULE);
+		controller.fire(facts);
 
-		final JobWithExecutionEstimation jobsEstimation = ImmutableJobWithExecutionEstimation.builder()
-				.estimatedDuration(execution.getValue().longValue())
-				.estimatedPrice(price)
-				.earliestStartTime(execution.getKey())
-				.build();
-
-		agent.send(prepareReply(facts.get(MESSAGE), jobsEstimation, facts.get(MESSAGE_TYPE)));
+		agent.send(prepareReply(facts.get(MESSAGE), facts.get(RESULT), facts.get(MESSAGE_TYPE)));
 	}
 
 	@Override
