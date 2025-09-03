@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,7 @@ import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
@@ -78,7 +77,7 @@ public class AddServerPlan extends SystemPlan {
 	 */
 	@Override
 	public AbstractPlan constructAdaptationPlan() {
-		final Map<String, Double> regionalManagerAgentsTraffic = managingAgent.getGreenCloudStructure()
+		final Map<String, Double> regionalManagerAgentsTraffic = managingAgent.getProperties().getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
 				.collect(groupingBy(ServerArgs::getOwnerRegionalManager,
 						flatMapping(this::getServerTrafficByName, averagingDouble(Double::doubleValue))));
@@ -91,7 +90,7 @@ public class AddServerPlan extends SystemPlan {
 				comparingDouble(Map.Entry::getValue))
 				.getKey();
 
-		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure()
+		final RegionalManagerArgs regionalManager = managingAgent.getProperties().getGreenCloudStructure()
 				.getRegionalManagerAgentsArgs()
 				.stream()
 				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))
@@ -124,7 +123,8 @@ public class AddServerPlan extends SystemPlan {
 
 	private List<AgentData> getLastServerData() {
 		return managingAgent.getAgentNode().getDatabaseClient()
-				.readLastMonitoringDataForDataTypes(List.of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readLastMonitoringDataForDataTypes(List.of(SERVER_MONITORING),
+						managingAgent.getProperties().getConfig().getShortTermDataTimeFrame());
 	}
 
 	private Stream<Double> getServerTrafficByName(final ServerArgs serverArgs) {

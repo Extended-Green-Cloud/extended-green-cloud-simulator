@@ -3,9 +3,11 @@ package com.database.knowledge.timescale;
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationActions;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_AGENTS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_AMS_AGENTS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_CLIENT_SEQUENCE;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_HYPERTABLE;
+import static com.database.knowledge.timescale.DdlCommands.CREATE_JOBS;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_DATA;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_MONITORING_INDEX;
 import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_CONSTANTS;
@@ -13,15 +15,16 @@ import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY
 import static com.database.knowledge.timescale.DdlCommands.CREATE_SYSTEM_QUALITY_HYPERTABLE;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_ACTIONS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_ADAPTATION_GOALS;
+import static com.database.knowledge.timescale.DdlCommands.DROP_AGENTS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_AMS_AGENTS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_CLIENT_SEQUENCE;
+import static com.database.knowledge.timescale.DdlCommands.DROP_JOBS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_MONITORING_DATA;
 import static com.database.knowledge.timescale.DdlCommands.DROP_SYSTEM_CONSTANTS;
 import static com.database.knowledge.timescale.DdlCommands.DROP_SYSTEM_QUALITY;
 import static com.database.knowledge.timescale.DdlCommands.INSERT_ADAPTATION_GOALS;
 import static com.database.knowledge.timescale.DdlCommands.SET_HYPERTABLE_CHUNK_TO_5_SEC;
 import static com.database.knowledge.timescale.DdlCommands.SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC;
-import static com.database.knowledge.timescale.DmlQueries.INSERT_DEFAULT_SYSTEM_CONSTANTS;
 import static java.lang.String.format;
 
 import java.io.Closeable;
@@ -34,19 +37,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.jrba.agentmodel.domain.args.AgentArgs;
+
 import com.database.knowledge.domain.action.AdaptationAction;
 import com.database.knowledge.domain.agent.AMSData;
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 import com.database.knowledge.timescale.exception.ClosingDatabaseException;
 import com.database.knowledge.timescale.exception.ConnectDatabaseException;
 import com.database.knowledge.timescale.exception.InitDatabaseException;
 import com.database.knowledge.timescale.exception.ReadDataException;
 import com.database.knowledge.timescale.exception.WriteDataException;
+import com.database.knowledge.types.DataType;
+import com.database.knowledge.types.GoalType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TimescaleDatabase implements Closeable, Serializable {
@@ -91,11 +97,13 @@ public class TimescaleDatabase implements Closeable, Serializable {
 
 	/**
 	 * Initializes the database, must be used only by the EngineRunner when the system is started.
+	 *
+	 * @param startTime constant system start time, which is used to initialize the database
 	 */
-	public void initDatabase() {
+	public void initDatabase(final String startTime) {
 		try {
 			dropTableIfExists(sqlConnection);
-			createSchema(sqlConnection);
+			createSchema(sqlConnection, startTime);
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new InitDatabaseException(exception);
 		}
@@ -111,6 +119,39 @@ public class TimescaleDatabase implements Closeable, Serializable {
 	public void writeMonitoringData(String aid, DataType dataType, MonitoringData data) {
 		try {
 			statementsExecutor.executeWriteStatement(aid, dataType, data);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides writing capability to the TimeScaleDB for agents.
+	 *
+	 * @param time     time of data monitoring
+	 * @param aid      aid of the agent writing to the database
+	 * @param dataType type of the data to be written
+	 * @param data     data to be written, must be serializable to JSON
+	 */
+	public void writeMonitoringData(Instant time, String aid, DataType dataType, MonitoringData data) {
+		try {
+			statementsExecutor.executeWriteStatement(time, aid, dataType, data);
+		} catch (SQLException | JsonProcessingException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides writing capability to the TimeScaleDB to insert information about agent's configuration
+	 *
+	 * @param agentName name of the agent
+	 * @param address   address of the agent
+	 * @param agentType type of the agent
+	 * @param agentData configuration of the agent
+	 */
+	public void writeAgentData(String agentName, String address, String agentType,
+			AgentArgs agentData) {
+		try {
+			statementsExecutor.executeWriteStatement(agentName, address, agentType, agentData);
 		} catch (SQLException | JsonProcessingException exception) {
 			throw new WriteDataException(exception);
 		}
@@ -141,6 +182,20 @@ public class TimescaleDatabase implements Closeable, Serializable {
 		try {
 			statementsExecutor.executeWriteStatement(amsName, amsAddress);
 		} catch (SQLException exception) {
+			throw new WriteDataException(exception);
+		}
+	}
+
+	/**
+	 * Provides writing capability to the TimeScaleDB to insert information about job data
+	 *
+	 * @param clientAID aid of the client agent that handles the job
+	 * @param job       job data
+	 */
+	public void writeJobData(String clientAID, ClientJob job) {
+		try {
+			statementsExecutor.executeWriteStatement(clientAID, job);
+		} catch (SQLException | JsonProcessingException exception) {
 			throw new WriteDataException(exception);
 		}
 	}
@@ -382,10 +437,13 @@ public class TimescaleDatabase implements Closeable, Serializable {
 			statement.execute(DROP_SYSTEM_CONSTANTS);
 			statement.execute(DROP_AMS_AGENTS);
 			statement.execute(DROP_CLIENT_SEQUENCE);
+			statement.execute(DROP_JOBS);
+			statement.execute(DROP_AGENTS);
 		}
 	}
 
-	private void createSchema(Connection sqlConnection) throws SQLException, JsonProcessingException {
+	private void createSchema(Connection sqlConnection, final String startTime)
+			throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.createStatement()) {
 			statement.execute(CREATE_MONITORING_DATA);
 			statement.execute(CREATE_ADAPTATION_GOALS);
@@ -398,9 +456,12 @@ public class TimescaleDatabase implements Closeable, Serializable {
 			statement.execute(SET_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.execute(CREATE_MONITORING_INDEX);
 			statement.execute(CREATE_SYSTEM_QUALITY_HYPERTABLE);
+			statement.execute(CREATE_JOBS);
+			statement.execute(CREATE_AGENTS);
 			statement.execute(SET_SYSTEM_QUALITY_HYPERTABLE_CHUNK_TO_5_SEC);
 			statement.executeUpdate(INSERT_ADAPTATION_GOALS);
-			statement.executeUpdate(INSERT_DEFAULT_SYSTEM_CONSTANTS);
+			statementsExecutor.executeWriteStatement(startTime);
+
 			for (var action : getAdaptationActions()) {
 				statementsExecutor.executeWriteStatement(action);
 			}

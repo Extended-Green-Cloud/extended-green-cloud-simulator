@@ -9,10 +9,12 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 
 import jade.core.AID;
 import jade.wrapper.AgentController;
+import jade.wrapper.StaleProxyException;
 
 /**
  * Factory used to create and run agent controllers
  */
+@SuppressWarnings("rawtypes")
 public interface EGCSControllerFactory extends AgentControllerFactory {
 
 	/**
@@ -54,6 +56,15 @@ public interface EGCSControllerFactory extends AgentControllerFactory {
 			final ScenarioStructureArgs scenario,
 			final boolean isInformer,
 			final AID managingAgent);
+
+	/**
+	 * Method adds external services to JADE agent.
+	 *
+	 * @param agentController initialized agent controller
+	 * @param agentNode       agent node
+	 */
+	void connectAgentControllerToRulesController(final AgentController agentController, final EGCSNode agentNode)
+			throws StaleProxyException;
 
 	/**
 	 * Method returns database instance.

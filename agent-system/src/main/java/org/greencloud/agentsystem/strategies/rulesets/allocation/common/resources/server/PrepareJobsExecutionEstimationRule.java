@@ -60,7 +60,7 @@ public class PrepareJobsExecutionEstimationRule extends AgentBasicRule<ServerAge
 
 	private JobWithExecutionEstimation getJobEstimation(final ClientJob job) {
 		final long executionTime = agentProps.getEstimatedEarliestJobStartTimeAndDuration(job).getValue().longValue();
-		final Double price = convertToHourDuration(executionTime) * agentProps.getPricePerHour();
+		final Double price = convertToHourDuration(executionTime) * agentProps.getConfig().getPrice();
 
 		return ImmutableJobWithExecutionEstimation.builder()
 				.estimatedDuration(executionTime)

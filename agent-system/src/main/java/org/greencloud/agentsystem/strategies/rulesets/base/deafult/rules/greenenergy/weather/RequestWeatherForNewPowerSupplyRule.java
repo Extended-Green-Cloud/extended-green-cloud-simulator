@@ -80,12 +80,14 @@ public class RequestWeatherForNewPowerSupplyRule extends AgentRequestRule<GreenE
 				MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 				logger.info("Too bad weather conditions, sending refuse message to server for job with id {}.", jobId);
 				handleRefusal(job, facts);
+				agentNode.reportDecisionAboutGreenEnergySupplyForJob(agentProps, data, job, false);
 			} else if (energyForJob > availablePower.get()) {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 				logger.info("Refusing job with id {} - not enough available energy. Needed {}, available {}", jobId,
 						energyForJob, availablePower.get());
 				handleRefusal(job, facts);
+				agentNode.reportDecisionAboutGreenEnergySupplyForJob(agentProps, data, job, false);
 			} else {
 				MDC.put(MDC_JOB_ID, job.getJobId());
 				MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));

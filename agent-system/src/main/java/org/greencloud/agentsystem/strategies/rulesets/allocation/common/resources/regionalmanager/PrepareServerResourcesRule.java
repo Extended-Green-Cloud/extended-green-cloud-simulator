@@ -33,6 +33,7 @@ import org.greencloud.commons.domain.agent.RegionResources;
 import org.greencloud.commons.domain.agent.ServerJobsEstimation;
 import org.greencloud.commons.domain.agent.ServerPriceEstimation;
 import org.greencloud.commons.domain.agent.ServerResources;
+import org.greencloud.commons.domain.agent.ServerSingleJobEstimation;
 import org.greencloud.commons.domain.allocation.ImmutableAllocatedJobs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.ClientJobWithServer;
@@ -111,11 +112,14 @@ public class PrepareServerResourcesRule<T> extends AgentBasicRule<RegionalManage
 					.value(requireNonNull(priceEstimation.getAverageGreenEnergyUtilization())).build();
 			case ServerJobsEstimation jobsEstimation -> ImmutableResourceCharacteristic.builder()
 					.value(jobsEstimation.getAverageGreenEnergyUtilization()).build();
+			case ServerSingleJobEstimation jobsEstimation -> ImmutableResourceCharacteristic.builder()
+					.value(jobsEstimation.getAverageGreenEnergyUtilization()).build();
 			default -> ImmutableResourceCharacteristic.builder().value(0.0).build();
 		};
+		final String characteristicName = tClass.equals(ServerSingleJobEstimation.class) ? AMOUNT : JOBS_MAP;
 
 		return ImmutableResource.builder()
-				.putCharacteristics(JOBS_MAP, energyCharacteristic)
+				.putCharacteristics(characteristicName, energyCharacteristic)
 				.build();
 	}
 
@@ -145,8 +149,8 @@ public class PrepareServerResourcesRule<T> extends AgentBasicRule<RegionalManage
 
 	private Resource constructDurationResource(final T serverData) {
 		final ResourceCharacteristic durationCharacteristic = switch (serverData) {
-			case JobWithExecutionEstimation jobsEstimation -> ImmutableResourceCharacteristic.builder()
-					.value(jobsEstimation.getEstimatedDuration().doubleValue()).build();
+			case ServerSingleJobEstimation jobsEstimation -> ImmutableResourceCharacteristic.builder()
+					.value(jobsEstimation.getJobEstimation().getEstimatedDuration().doubleValue()).build();
 			case ServerJobsEstimation jobsEstimation -> {
 				final Map<String, Long> jobsDurationMap = jobsEstimation.getJobsEstimation().entrySet().stream()
 						.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEstimatedDuration()));
@@ -154,7 +158,7 @@ public class PrepareServerResourcesRule<T> extends AgentBasicRule<RegionalManage
 			}
 			default -> ImmutableResourceCharacteristic.builder().value(0.0).build();
 		};
-		final String characteristicName = tClass.equals(JobWithExecutionEstimation.class) ? AMOUNT : JOBS_MAP;
+		final String characteristicName = tClass.equals(ServerSingleJobEstimation.class) ? AMOUNT : JOBS_MAP;
 
 		return ImmutableResource.builder()
 				.putCharacteristics(characteristicName, durationCharacteristic)
@@ -170,12 +174,12 @@ public class PrepareServerResourcesRule<T> extends AgentBasicRule<RegionalManage
 						.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getEstimatedPrice()));
 				yield ImmutableResourceCharacteristic.builder().value(jobsBudgetMap).build();
 			}
-			case JobWithExecutionEstimation jobWithExecutionEstimation -> ImmutableResourceCharacteristic.builder()
-					.value(jobWithExecutionEstimation.getEstimatedPrice())
+			case ServerSingleJobEstimation jobWithExecutionEstimation -> ImmutableResourceCharacteristic.builder()
+					.value(jobWithExecutionEstimation.getJobEstimation().getEstimatedPrice())
 					.build();
 			default -> ImmutableResourceCharacteristic.builder().value(0.0).build();
 		};
-		final String characteristicName = tClass.equals(JobWithExecutionEstimation.class) ? AMOUNT : JOBS_MAP;
+		final String characteristicName = tClass.equals(ServerSingleJobEstimation.class) ? AMOUNT : JOBS_MAP;
 
 		return ImmutableResource.builder()
 				.putCharacteristics(characteristicName, budgetCharacteristic)

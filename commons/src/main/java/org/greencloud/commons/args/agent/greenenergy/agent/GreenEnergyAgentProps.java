@@ -1,12 +1,15 @@
 package org.greencloud.commons.args.agent.greenenergy.agent;
 
+import static jade.core.AID.ISLOCALNAME;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Comparator.comparingLong;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
+import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.COEFFICIENT_OF_PERFORMANCE;
 import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.ROTOR_SWEPT_AREA;
 import static org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants.TEST_MULTIPLIER;
@@ -17,8 +20,10 @@ import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEner
 import static org.greencloud.commons.args.agent.greenenergy.agent.logs.GreenEnergyAgentPropsLog.POWER_JOB_START_LOG;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACTIVE_JOB_STATUSES;
 import static org.greencloud.commons.enums.job.JobIdentificationEnum.JOB_INSTANCE_ID;
+import static org.greencloud.commons.utils.energy.EnergyEstimator.estimateSolarEnergyFromCloudCover;
+import static org.greencloud.commons.utils.energy.EnergyEstimator.estimateSolarEnergyFromRadiation;
 import static org.greencloud.commons.utils.time.TimeComparator.isWithinTimeStamp;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -33,8 +38,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.greencloud.commons.args.agent.EGCSAgentProps;
-import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.greenenergy.agent.domain.GreenEnergyAgentPropsConstants;
+import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.domain.job.basic.ServerJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
@@ -42,7 +47,6 @@ import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.domain.weather.WeatherData;
-import org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.mapper.JobMapper;
@@ -64,27 +68,33 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GreenEnergyAgentProps extends EGCSAgentProps {
+public class GreenEnergyAgentProps extends EGCSAgentProps<GreenEnergyArgs> {
 
 	private static final Logger logger = getLogger(GreenEnergyAgentProps.class);
+
 	private final AtomicInteger shortagesAccumulator;
 	private final AtomicInteger weatherShortagesCounter;
+
 	protected GreenSourceDisconnectionProps greenSourceDisconnection;
 	protected ConcurrentMap<ServerJob, JobExecutionStatusEnum> serverJobs;
 	protected ConcurrentMap<ServerJob, Integer> ruleSetForJob;
 	protected JobExecutionDuration<ServerJob> jobsExecutionTime;
 	protected ConcurrentMap<ServerJob, Double> priceForJob;
-	protected Location location;
-	protected GreenEnergySourceTypeEnum energyType;
-	protected AID monitoringAgent;
-	protected AID ownerServer;
-	protected double pricePerPowerUnit;
-	protected double weatherPredictionError;
-	protected int maximumGeneratorCapacity;
+	protected double currentWeatherPredictionError;
 	protected boolean hasError;
+	protected AID ownerServerAgent;
 
-	public GreenEnergyAgentProps(final String agentName) {
-		super(EGCSAgentType.GREEN_ENERGY, agentName);
+	/**
+	 * Constructor
+	 *
+	 * @param agentName       name of the agent
+	 * @param greenEnergyArgs green energy agent controller arguments
+	 */
+	public GreenEnergyAgentProps(final String agentName, final GreenEnergyArgs greenEnergyArgs) {
+		super(GREEN_ENERGY, agentName, greenEnergyArgs);
+
+		this.ownerServerAgent = new AID(greenEnergyArgs.getOwnerSever(), ISLOCALNAME);
+		this.currentWeatherPredictionError = config.getWeatherPredictionError();
 		this.greenSourceDisconnection = new GreenSourceDisconnectionProps();
 		this.shortagesAccumulator = new AtomicInteger(0);
 		this.weatherShortagesCounter = new AtomicInteger(0);
@@ -93,32 +103,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		this.ruleSetForJob = new ConcurrentHashMap<>();
 		this.jobsExecutionTime = new JobExecutionDuration<>(JOB_INSTANCE_ID);
 		this.priceForJob = new ConcurrentHashMap<>();
-	}
 
-	/**
-	 * Constructor
-	 *
-	 * @param agentName                name of the agent
-	 * @param location                 location of the Green Source
-	 * @param energyType               type of the Green Source
-	 * @param monitoringAgent          agent with which Green Source communicate to retrieve weather
-	 * @param ownerServer              Server Agent to which initially the Green Source is connected
-	 * @param pricePerPowerUnit        price for energy production (per kWh)
-	 * @param weatherPredictionError   estimated error in prediction of weather conditions
-	 * @param maximumGeneratorCapacity capacity of energy generator
-	 */
-	public GreenEnergyAgentProps(final String agentName, final Location location,
-			final GreenEnergySourceTypeEnum energyType, final AID monitoringAgent, final AID ownerServer,
-			final double pricePerPowerUnit, final double weatherPredictionError, final int maximumGeneratorCapacity) {
-		this(agentName);
-
-		this.location = location;
-		this.energyType = energyType;
-		this.monitoringAgent = monitoringAgent;
-		this.ownerServer = ownerServer;
-		this.pricePerPowerUnit = pricePerPowerUnit;
-		this.weatherPredictionError = weatherPredictionError;
-		this.maximumGeneratorCapacity = maximumGeneratorCapacity;
 	}
 
 	/**
@@ -177,12 +162,12 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @return entire power calculation error
 	 */
 	public double computeCombinedPowerError(final ServerJob job) {
-		final Instant realJobStartTime = convertToRealTime(job.getStartTime());
-		final Instant realJobEndTime = convertToRealTime(job.getExpectedEndTime());
+		final Instant realJobStartTime = convertToRealTimeElapsing(job.getStartTime());
+		final Instant realJobEndTime = convertToRealTimeElapsing(job.getExpectedEndTime());
 		final double availablePowerError = MathOperations.computeIncorrectMaximumValProbability(realJobStartTime,
 				realJobEndTime, GreenEnergyAgentPropsConstants.INTERVAL_LENGTH_MIN);
 
-		return min(1, availablePowerError + weatherPredictionError);
+		return min(1, availablePowerError + config.getWeatherPredictionError());
 	}
 
 	/**
@@ -200,7 +185,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 				.sum();
 		final Double availablePower = (hasError ? 0 : getAvailableGreenEnergy(weather, time)) - inUseCapacity;
 		final String power = format("%.2f", availablePower);
-		logger.info(CURRENT_AVAILABLE_POWER_LOG, energyType, power, time);
+		logger.info(CURRENT_AVAILABLE_POWER_LOG, config.getEnergyType(), power, time);
 
 		return Optional.of(availablePower).filter(powerVal -> powerVal >= 0.0);
 	}
@@ -212,7 +197,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	 * @return energy percentage
 	 */
 	public double getEnergyPercentage(final double availableEnergy) {
-		return maximumGeneratorCapacity == 0 ? 0 : availableEnergy / (double) maximumGeneratorCapacity;
+		return config.getMaximumCapacity() == 0 ? 0 : availableEnergy / (double) config.getMaximumCapacity();
 	}
 
 	/**
@@ -229,7 +214,7 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		final WeatherData weather = monitoringData.getDataForTimestamp(dateTime)
 				.orElse(getNearestWeather(monitoringData, dateTime));
 		final double availableEnergy = getEnergyForSourceType(weather, dateTime.atZone(UTC));
-		return min(availableEnergy, maximumGeneratorCapacity);
+		return min(availableEnergy, config.getMaximumCapacity());
 	}
 
 	/**
@@ -251,8 +236,8 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 				.map(JobMapper::mapToServerJobRealTime)
 				.collect(toSet());
 
-		final Instant realJobStartTime = convertToRealTime(serverJob.getStartTime());
-		final Instant realJobEndTime = convertToRealTime(serverJob.getExpectedEndTime());
+		final Instant realJobStartTime = convertToRealTimeElapsing(serverJob.getStartTime());
+		final Instant realJobEndTime = convertToRealTimeElapsing(serverJob.getExpectedEndTime());
 
 		final double availableEnergy = hasError ? 0.0 :
 				ResourcesUtilization.getMinimalAvailableEnergyDuringTimeStamp(
@@ -265,8 +250,8 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 		final String power = format("%.2f", availableEnergy);
 
 		MDC.put(LoggingConstants.MDC_JOB_ID, serverJob.getJobId());
-		logger.info("Calculated available {} average energy {} between {} and {}", energyType, power, realJobStartTime,
-				realJobEndTime);
+		logger.info("Calculated available {} average energy {} between {} and {}", config.getEnergyType(), power,
+				realJobStartTime, realJobEndTime);
 		return Optional.of(availableEnergy).filter(powerVal -> powerVal > 0.0);
 	}
 
@@ -315,8 +300,8 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 	}
 
 	private double getEnergyForSourceType(final WeatherData weather, final ZonedDateTime dateTime) {
-		return switch (energyType) {
-			case SOLAR -> getSolarEnergy(weather, dateTime, location);
+		return switch (config.getEnergyType()) {
+			case SOLAR -> getSolarEnergy(weather, dateTime, config.getLocation());
 			case WIND -> getWindEnergy(weather);
 		};
 	}
@@ -345,8 +330,9 @@ public class GreenEnergyAgentProps extends EGCSAgentProps {
 			return 0;
 		}
 
-		return maximumGeneratorCapacity * min(weather.getCloudCover() / 100 + 0.1, 1)
-				* TEST_MULTIPLIER;
+		return ofNullable(weather.getCloudCover())
+				.map(cloudCover -> estimateSolarEnergyFromCloudCover(cloudCover, getConfig().getMaximumCapacity()))
+				.orElseGet(() -> estimateSolarEnergyFromRadiation(weather));
 	}
 
 	private WeatherData getNearestWeather(final MonitoringData monitoringData, final Instant timestamp) {

@@ -37,7 +37,7 @@ public class CalculateServerPriceRule extends AgentBasicRule<ServerAgentProps, S
 				.filter(job -> agentProps.getServerJobs().containsKey(job))
 				.orElseThrow();
 
-		final double computationCost = convertToHourDuration(clientJob.getDuration()) * agentProps.getPricePerHour();
+		final double computationCost = convertToHourDuration(clientJob.getDuration()) * agentProps.getConfig().getPrice();
 		final double totalCost = ofNullable(facts.get(INPUT_DATA))
 				.map(GreenSourceData.class::cast)
 				.map(greenSourceData -> computationCost + greenSourceData.getPriceForEnergySupply())

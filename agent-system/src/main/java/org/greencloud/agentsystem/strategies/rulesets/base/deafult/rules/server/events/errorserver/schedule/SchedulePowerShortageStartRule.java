@@ -5,6 +5,7 @@ import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ON_HOLD;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_POWER_SHORTAGE_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -47,7 +48,7 @@ public class SchedulePowerShortageStartRule extends AgentScheduledRule<ServerAge
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final Instant shortageStart = facts.get(EVENT_TIME);
 		final Instant startTime = getCurrentTime().isAfter(shortageStart) ? getCurrentTime() : shortageStart;
-		return Date.from(startTime);
+		return Date.from(convertToRealTime(startTime));
 	}
 
 	@Override

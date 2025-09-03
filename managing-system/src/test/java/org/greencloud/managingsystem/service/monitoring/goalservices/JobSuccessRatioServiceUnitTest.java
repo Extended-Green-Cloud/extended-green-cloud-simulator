@@ -9,21 +9,21 @@ import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,9 +38,8 @@ import com.database.knowledge.domain.agent.client.ClientMonitoringData;
 import com.database.knowledge.domain.agent.client.ImmutableClientMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
-import com.database.knowledge.types.GoalType;
 import com.database.knowledge.timescale.TimescaleDatabase;
+import com.database.knowledge.types.GoalType;
 
 class JobSuccessRatioServiceUnitTest {
 
@@ -85,7 +84,7 @@ class JobSuccessRatioServiceUnitTest {
 	@DisplayName("Test is job success ratio correct for clients when data is not available")
 	void testIsClientJobSuccessRatioCorrectNotAvailable() {
 		doReturn(Collections.emptyList()).when(mockDatabase).readLastMonitoringDataForDataTypes(singletonList(
-				CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				CLIENT_MONITORING), 10);
 
 		assertThat(jobSuccessRatioService.evaluateAndUpdate()).isTrue();
 	}
@@ -105,7 +104,7 @@ class JobSuccessRatioServiceUnitTest {
 	@DisplayName("Test is job success ratio correct for components when ratio is not available")
 	void testIsClientJobSuccessRatioCorrectForNotAvailable() {
 		doReturn(Collections.emptyList()).when(mockDatabase).readLastMonitoringDataForDataTypes(
-				NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				NETWORK_AGENT_DATA_TYPES, 10);
 
 		assertThat(jobSuccessRatioService.evaluateComponentSuccessRatio()).isTrue();
 	}
@@ -138,9 +137,9 @@ class JobSuccessRatioServiceUnitTest {
 				.jobStatusDurationMap(Map.of(CREATED, 10L, PROCESSED, 15L))
 				.build();
 		return List.of(
-				new AgentData(Instant.now(), "test_aid1", CLIENT_MONITORING, data1),
-				new AgentData(Instant.now(), "test_aid2", CLIENT_MONITORING, data2),
-				new AgentData(Instant.now(), "test_aid3", CLIENT_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_aid1", CLIENT_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_aid2", CLIENT_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_aid3", CLIENT_MONITORING, data3)
 		);
 	}
 
@@ -173,9 +172,9 @@ class JobSuccessRatioServiceUnitTest {
 				.currentPowerConsumption(0.7)
 				.build();
 		return List.of(
-				new AgentData(Instant.now(), "test_aid1", SERVER_MONITORING, data1),
-				new AgentData(Instant.now(), "test_aid2", SERVER_MONITORING, data2),
-				new AgentData(Instant.now(), "test_aid3", SERVER_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_aid1", SERVER_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_aid2", SERVER_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_aid3", SERVER_MONITORING, data3)
 
 		);
 	}

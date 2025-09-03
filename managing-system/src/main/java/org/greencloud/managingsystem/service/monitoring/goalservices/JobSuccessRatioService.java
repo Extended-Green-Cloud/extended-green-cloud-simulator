@@ -3,20 +3,13 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 import static org.greencloud.managingsystem.domain.ManagingSystemConstants.NETWORK_AGENT_DATA_TYPES;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENTS_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_COMPONENTS_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_CLIENT_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG;
 
 import java.util.List;
 
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
@@ -27,25 +20,28 @@ import com.database.knowledge.domain.agent.client.ClientMonitoringData;
  */
 public class JobSuccessRatioService extends AbstractGoalService {
 
-	private static final Logger logger = LoggerFactory.getLogger(JobSuccessRatioService.class);
+	private static final LogBuilder log = constructLogBuilder(JobSuccessRatioService.class);
 
-	public JobSuccessRatioService(AbstractManagingAgent managingAgent) {
+	public JobSuccessRatioService(ManagingAgent managingAgent) {
 		super(managingAgent, MAXIMIZE_JOB_SUCCESS_RATIO);
 	}
 
 	@Override
 	public boolean evaluateAndUpdate() {
-		logger.info(READ_SUCCESS_RATIO_CLIENTS_LOG);
+		log.messageInfo("Reading success ratio for clients from the database...");
+
 		final double currentSuccessRatio = computeCurrentGoalQuality();
-		final double aggregatedSuccessRatio = computeCurrentGoalQuality(MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+		final double aggregatedSuccessRatio = computeCurrentGoalQuality(
+				managingAgent.getProperties().getConfig().getQualityGoalsEvaluationTimeFrame());
 
 		if (currentSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR
 				|| aggregatedSuccessRatio == DATA_NOT_AVAILABLE_INDICATOR) {
-			logger.info(READ_SUCCESS_RATIO_CLIENT_NO_DATA_YET_LOG);
+			log.messageInfo("There is no client success ratio data available yet.");
 			return true;
 		}
 
-		logger.info(SUCCESS_RATIO_CLIENT_LOG, currentSuccessRatio, aggregatedSuccessRatio);
+		log.messageInfo("Current job success ratio: {}, Aggregated job success ratio: {}.", currentSuccessRatio,
+				aggregatedSuccessRatio);
 		updateGoalQuality(currentSuccessRatio);
 		return false;
 	}
@@ -60,8 +56,7 @@ public class JobSuccessRatioService extends AbstractGoalService {
 
 		final long allCount = clientsData.size();
 		final long failCount = clientsData.stream()
-				.filter(data -> data.getIsFinished() &&
-						data.getCurrentJobStatus().equals(FAILED))
+				.filter(data -> data.getIsFinished() && data.getCurrentJobStatus().equals(FAILED))
 				.count();
 
 		return 1 - ((double) failCount / allCount);
@@ -73,12 +68,14 @@ public class JobSuccessRatioService extends AbstractGoalService {
 	 * @return boolean indicating current state of job success ratio for components
 	 */
 	public boolean evaluateComponentSuccessRatio() {
-		logger.info(READ_SUCCESS_RATIO_COMPONENTS_LOG);
+		log.messageInfo("Reading success ratio for individual components from the database...");
+
 		final List<AgentData> componentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readLastMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES, MONITOR_SYSTEM_DATA_AGGREGATED_PERIOD);
+				.readLastMonitoringDataForDataTypes(NETWORK_AGENT_DATA_TYPES,
+						managingAgent.getProperties().getConfig().getQualityGoalsEvaluationTimeFrame());
 
 		if (componentsData.isEmpty()) {
-			logger.info(READ_SUCCESS_RATIO_NETWORK_DATA_YET_LOG);
+			log.messageInfo("There is no regional manager success ratio data available yet.");
 			return true;
 		}
 		return componentsData.stream().allMatch(this::verifySuccessRatioForComponent);
@@ -91,7 +88,9 @@ public class JobSuccessRatioService extends AbstractGoalService {
 
 		if (!result) {
 			final String name = component.aid().split("@")[0];
-			logger.info(SUCCESS_RATIO_UNSATISFIED_COMPONENT_LOG, name, successRatio);
+			log.messageInfo(
+					"Component {} does not satisfy job success ratio threshold! Job success ratio for component: {}.",
+					name, successRatio);
 		}
 
 		return result;

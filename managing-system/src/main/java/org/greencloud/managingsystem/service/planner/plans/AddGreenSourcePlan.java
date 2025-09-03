@@ -17,7 +17,7 @@ import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
@@ -67,7 +67,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 			return null;
 		}
 
-		final ServerArgs targetServerArgs = managingAgent.getGreenCloudStructure()
+		final ServerArgs targetServerArgs = managingAgent.getProperties().getGreenCloudStructure()
 				.getServerAgentsArgs().stream()
 				.filter(serverAgentArgs -> targetServer.contains(serverAgentArgs.getName()))
 				.findFirst()
@@ -78,7 +78,7 @@ public class AddGreenSourcePlan extends SystemPlan {
 		}
 
 		final String targetRegionalManagerAgent = targetServerArgs.getOwnerRegionalManager();
-		final RegionalManagerArgs regionalManager = managingAgent.getGreenCloudStructure()
+		final RegionalManagerArgs regionalManager = managingAgent.getProperties().getGreenCloudStructure()
 				.getRegionalManagerAgentsArgs()
 				.stream()
 				.filter(rma -> rma.getName().equals(targetRegionalManagerAgent))

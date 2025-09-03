@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.immutables.value.Value.Immutable;
+import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,8 +21,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Immutable
 public interface FutureWeather extends AbstractWeather {
 
+	@Nullable
 	List<Weather> getWeather();
 
+	@Nullable
 	Double getVisibility();
 
 	/**

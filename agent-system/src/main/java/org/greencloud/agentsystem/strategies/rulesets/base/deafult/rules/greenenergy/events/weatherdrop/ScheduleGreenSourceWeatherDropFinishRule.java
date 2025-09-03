@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.greene
 
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_WEATHER_DROP_FINISH_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_DURATION;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
@@ -41,7 +42,7 @@ public class ScheduleGreenSourceWeatherDropFinishRule
 		final Instant start = facts.get(EVENT_TIME);
 		final long duration = facts.get(EVENT_DURATION);
 		final Instant finishTime = alignStartTimeToCurrentTime(start.plusSeconds(duration));
-		return Date.from(finishTime);
+		return Date.from(convertToRealTime(finishTime));
 	}
 
 	@Override

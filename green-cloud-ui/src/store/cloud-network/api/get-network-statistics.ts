@@ -26,6 +26,7 @@ export function* fetchNetworkState() {
             yield put(
                reportsActions.updateSystemTime({
                   time: data.simulation.systemStartTime,
+                  timeDifference: data.simulation.timeDifference,
                   secondsPerHour: data.simulation.secondsPerHour
                })
             )

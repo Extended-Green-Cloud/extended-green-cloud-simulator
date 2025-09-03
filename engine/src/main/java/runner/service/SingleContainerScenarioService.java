@@ -35,8 +35,6 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 			throws StaleProxyException, ExecutionException, InterruptedException {
 		super();
 		final File scenarioStructureFile = readFile(scenarioFilePath);
-		final File initialKnowledgeFile = readFile(knowledgeFilePath);
-		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioStructureFile);
 		updateStrategyInformation();
 
@@ -49,7 +47,7 @@ public class SingleContainerScenarioService extends AbstractScenarioService impl
 	public void run() {
 		startRuleSetAPI();
 		if (Objects.nonNull(scenario.getAgentsArgs())) {
-			AGENTS_TO_RUN.add(prepareManagingController(scenario.getManagingAgentArgs()));
+//			AGENTS_TO_RUN.add(prepareManagingController(scenario.getManagingAgentArgs()));
 			createAgents(List.of(scenario.getCentralManagerAgentArgs()), scenario);
 			createAgents(scenario.getMonitoringAgentsArgs(), scenario);
 			createAgents(scenario.getGreenEnergyAgentsArgs(), scenario);

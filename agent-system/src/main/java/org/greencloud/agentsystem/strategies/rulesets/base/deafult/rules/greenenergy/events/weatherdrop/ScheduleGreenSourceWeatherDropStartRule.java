@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.greene
 
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_WEATHER_DROP_START_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -39,7 +40,7 @@ public class ScheduleGreenSourceWeatherDropStartRule
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final Instant start = facts.get(EVENT_TIME);
 		final Instant startTime = alignStartTimeToCurrentTime(start);
-		return Date.from(startTime);
+		return Date.from(convertToRealTime(startTime));
 	}
 
 	@Override

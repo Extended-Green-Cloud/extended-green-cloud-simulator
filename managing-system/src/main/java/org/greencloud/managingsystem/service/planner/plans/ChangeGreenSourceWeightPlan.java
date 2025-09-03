@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.Shortages;
@@ -92,7 +92,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 				comparingInt(Map.Entry::getValue));
 		greenSourceExecutedActions.replace(targetGreenSource.getKey(), targetGreenSource.getValue() + 1);
 		actionParameters = new ChangeGreenSourceWeights(targetGreenSource.getKey());
-		var targetServer = managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+		var targetServer = managingAgent.getProperties().getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 				.filter(args -> targetGreenSource.getKey().contains(args.getName()))
 				.map(GreenEnergyArgs::getOwnerSever)
 				.findFirst()
@@ -137,7 +137,7 @@ public class ChangeGreenSourceWeightPlan extends AbstractPlan {
 
 	private Predicate<String> filterGreenSourcesConnectedToActiveServer() {
 		final List<String> activeServers = managingAgent.monitor().getActiveServers();
-		return name -> managingAgent.getGreenCloudStructure().getServersConnectedToGreenSource(name)
+		return name -> managingAgent.getProperties().getGreenCloudStructure().getServersConnectedToGreenSource(name)
 				.stream()
 				.anyMatch(activeServers::contains);
 	}

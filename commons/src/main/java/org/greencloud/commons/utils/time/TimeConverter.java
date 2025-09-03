@@ -2,6 +2,7 @@ package org.greencloud.commons.utils.time;
 
 import static java.time.Duration.between;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -11,6 +12,7 @@ import static org.greencloud.commons.constants.TimeConstants.MINUTES_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_IN_HOUR;
 import static org.greencloud.commons.constants.TimeConstants.SECONDS_PER_HOUR;
 import static org.greencloud.commons.utils.time.TimeSimulation.SYSTEM_START_TIME;
+import static org.greencloud.commons.utils.time.TimeSimulation.TIME_DIFFERENCE_MILLIS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
@@ -86,12 +88,12 @@ public class TimeConverter {
 	}
 
 	/**
-	 * Method converts the current simulation time into the real time
+	 * Method converts the elapsed time from simulation seconds to the real seconds
 	 *
 	 * @param time time which is representing simulation time
 	 * @return Instant being a time representing a real time
 	 */
-	public static Instant convertToRealTime(final Instant time) {
+	public static Instant convertToRealTimeElapsing(final Instant time) {
 		final long simulationTimeDifference = between(SYSTEM_START_TIME, time).toMillis();
 		final double realTimeMultiplier = (double) SECONDS_IN_HOUR / SECONDS_PER_HOUR;
 		final double realTimeDifference = simulationTimeDifference * realTimeMultiplier;
@@ -101,10 +103,20 @@ public class TimeConverter {
 	/**
 	 * Method converts the current simulation time into the real time
 	 *
+	 * @param time time which is representing simulation time
+	 * @return Instant being a time representing a real time
+	 */
+	public static Instant convertToRealTime(final Instant time) {
+		return time.plus(TIME_DIFFERENCE_MILLIS, MILLIS);
+	}
+
+	/**
+	 * Method converts the elapsed time from simulation seconds to the real seconds
+	 *
 	 * @param millis time in milliseconds
 	 * @return time in minutes of real time
 	 */
-	public static long convertToRealTime(final long millis) {
+	public static long convertToRealTimeElapsing(final long millis) {
 		final double realTimeMultiplier = (double) MINUTES_IN_HOUR / (SECONDS_PER_HOUR * MILLISECOND_MULTIPLIER);
 		final double realTimeDifference = millis * realTimeMultiplier;
 		return (long) realTimeDifference;
@@ -117,7 +129,7 @@ public class TimeConverter {
 	 * @return time in millis of real time
 	 */
 	public static long convertToRealTimeMillis(final long millis) {
-		return convertToRealTime(millis) * MILLIS_IN_MIN;
+		return convertToRealTimeElapsing(millis) * MILLIS_IN_MIN;
 	}
 
 	/**

@@ -1,14 +1,13 @@
 package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
-import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +54,7 @@ class BackUpPowerUsageServiceUnitTest {
 	}
 
 	private static AgentData buildMonitoringData(long inProgress, long backUp) {
-		return new AgentData(now(), "test", CLIENT_MONITORING, ImmutableClientMonitoringData.builder()
+		return new AgentData(getCurrentTime(), "test", CLIENT_MONITORING, ImmutableClientMonitoringData.builder()
 				.isFinished(true)
 				.currentJobStatus(FINISHED)
 				.jobStatusDurationMap(Map.of(IN_PROGRESS, inProgress, ON_BACK_UP, backUp))
@@ -77,8 +76,7 @@ class BackUpPowerUsageServiceUnitTest {
 	@MethodSource("monitoringDataProvider")
 	void shouldCorrectlyReadCurrentGoalQuality(List<AgentData> agentData, double expectedQuality) {
 		// given
-		when(database.readLastMonitoringDataForDataTypes(of(CLIENT_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
-				.thenReturn(agentData);
+		when(database.readLastMonitoringDataForDataTypes(of(CLIENT_MONITORING), 10)).thenReturn(agentData);
 
 		// when
 		var result = backUpPowerUsageService.computeCurrentGoalQuality();

@@ -5,14 +5,10 @@ import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
 import static com.google.common.collect.ImmutableList.of;
 import static com.greencloud.connector.factory.constants.AgentTemplatesConstants.TEMPLATE_SERVER_RESOURCES;
-import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +19,7 @@ import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,12 +93,12 @@ class AddGreenSourcePlanUnitTest {
 	void shouldReturnThatPlanIsNotExecutable(int backUpPowerValue1, int backUpPowerValue2, boolean expectedResult) {
 		// given
 		serverName = "Server1";
-		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), MONITOR_SYSTEM_DATA_TIME_PERIOD))
+		when(timescaleDatabase.readMonitoringDataForDataTypes(of(SERVER_MONITORING), 10))
 				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue1, backUpPowerValue2));
 		when(timescaleDatabase.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING)))
 				.thenReturn(generateTestDataForTrafficValue(backUpPowerValue1, backUpPowerValue2).subList(0, 1));
-		when(timescaleDatabase.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK),
-				MONITOR_SYSTEM_DATA_HEALTH_PERIOD)).thenReturn(generateHealthTestData());
+		when(timescaleDatabase.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500))
+				.thenReturn(generateHealthTestData());
 		// when
 		boolean result = addGreenSourcePlan.isPlanExecutable();
 
@@ -112,7 +108,7 @@ class AddGreenSourcePlanUnitTest {
 
 	private List<AgentData> generateTestDataForTrafficValue(Integer backUpPowerValue1, Integer backUpPowerValue2) {
 		return of(
-				new AgentData(now(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
+				new AgentData(getCurrentTime(), "Server1", SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
 						.currentTraffic(CURRENT_TRAFFIC)
 						.isDisabled(false)
@@ -121,7 +117,7 @@ class AddGreenSourcePlanUnitTest {
 						.currentBackUpPowerTraffic(backUpPowerValue1)
 						.currentPowerConsumption(0.7)
 						.build()),
-				new AgentData(now(), serverName, SERVER_MONITORING, ImmutableServerMonitoringData.builder()
+				new AgentData(getCurrentTime(), serverName, SERVER_MONITORING, ImmutableServerMonitoringData.builder()
 						.successRatio(1.0)
 						.currentTraffic(CURRENT_TRAFFIC)
 						.serverJobs(10)
@@ -134,7 +130,7 @@ class AddGreenSourcePlanUnitTest {
 
 	private List<AgentData> generateHealthTestData() {
 		return of(
-				new AgentData(now(), "Server1", HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)),
-				new AgentData(now(), serverName, HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)));
+				new AgentData(getCurrentTime(), "Server1", HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)),
+				new AgentData(getCurrentTime(), serverName, HEALTH_CHECK, new HealthCheck(true, EGCSAgentType.SERVER)));
 	}
 }

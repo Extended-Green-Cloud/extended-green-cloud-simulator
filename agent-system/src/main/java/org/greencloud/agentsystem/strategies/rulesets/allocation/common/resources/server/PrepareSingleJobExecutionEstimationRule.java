@@ -11,10 +11,11 @@ import java.time.Instant;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.server.agent.ServerAgentProps;
+import org.greencloud.commons.domain.agent.ImmutableServerSingleJobEstimation;
+import org.greencloud.commons.domain.agent.ServerSingleJobEstimation;
 import org.greencloud.commons.domain.allocation.AllocatedJobs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithExecutionEstimation;
-import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 import org.greencloud.gui.agents.server.ServerNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
@@ -47,12 +48,16 @@ public class PrepareSingleJobExecutionEstimationRule extends AgentBasicRule<Serv
 		final ClientJob job = jobs.getAllocationJobs().getFirst();
 
 		final Pair<Instant, Double> execution = agentProps.getEstimatedEarliestJobStartTimeAndDuration(job);
-		final Double price = convertToHourDuration(execution.getValue().longValue()) * agentProps.getPricePerHour();
+		final Double price = convertToHourDuration(execution.getValue().longValue()) * agentProps.getConfig().getPrice();
 
-		final JobWithExecutionEstimation jobsEstimation = ImmutableJobWithExecutionEstimation.builder()
-				.estimatedDuration(execution.getValue().longValue())
-				.estimatedPrice(price)
-				.earliestStartTime(execution.getKey())
+		final ServerSingleJobEstimation jobsEstimation = ImmutableServerSingleJobEstimation.builder()
+				.jobEstimation(ImmutableJobWithExecutionEstimation.builder()
+						.estimatedDuration(execution.getValue().longValue())
+						.estimatedPrice(price)
+						.earliestStartTime(execution.getKey())
+						.build())
+				.averageGreenEnergyUtilization(agentNode.getAverageJobEnergyUtilization(agentProps))
+				.serverReliability(agentNode.getComponentSuccessRatio(agent.getAID().getName()))
 				.build();
 
 		facts.put(RESULT, jobsEstimation);

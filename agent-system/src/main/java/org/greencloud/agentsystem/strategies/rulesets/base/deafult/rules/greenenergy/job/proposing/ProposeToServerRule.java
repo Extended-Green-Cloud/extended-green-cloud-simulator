@@ -57,8 +57,10 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 	protected ACLMessage createProposalMessage(final RuleSetFacts facts) {
 		final ServerJob job = facts.get(JOB);
 		final double availablePower = facts.get(RESULT);
-		final double energyCost = convertToHourDuration(job.getDuration()) * agentProps.getPricePerPowerUnit();
-		agentProps.getPriceForJob().put(job, agentProps.getPricePerPowerUnit());
+		final double energyCost =
+				convertToHourDuration(job.getDuration()) * agentProps.getConfig().getPricePerPowerUnit();
+
+		agentProps.getPriceForJob().put(job, energyCost);
 		return prepareGreenEnergyPowerSupplyOffer(energyCost, availablePower,
 				agentProps.computeCombinedPowerError(job), job.getJobId(), facts.get(MESSAGE));
 	}
@@ -79,6 +81,7 @@ public class ProposeToServerRule extends AgentProposalRule<GreenEnergyAgentProps
 			acceptFacts.put(RESULT, averageAvailablePower);
 			acceptFacts.put(JOB_ID, jobWithProtocol);
 			acceptFacts.put(MESSAGE, accept);
+			acceptFacts.put(RESOURCES, facts.get(RESOURCES));
 			acceptFacts.put(RULE_TYPE, PROCESS_SCHEDULE_POWER_SUPPLY_RULE);
 
 			controller.fire(acceptFacts);

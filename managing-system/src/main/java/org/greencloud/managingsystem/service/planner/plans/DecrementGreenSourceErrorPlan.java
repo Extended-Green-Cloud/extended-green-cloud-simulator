@@ -1,6 +1,5 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
@@ -17,8 +16,7 @@ import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
-import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -31,7 +29,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsPowerShortages;
 
@@ -151,7 +149,7 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 	protected Map.Entry<AgentsBackUpPower, List<AgentsPowerShortages>> getValidGreenSourcesForServer(
 			final AgentsBackUpPower server, final List<String> aliveGreenSources) {
 
-		final List<String> greenSourcesForServer = managingAgent.getGreenCloudStructure()
+		final List<String> greenSourcesForServer = managingAgent.getProperties().getGreenCloudStructure()
 				.getGreenSourcesForServerAgent(server.name().split("@")[0]);
 		final List<String> consideredGreenSources = getGreenSourcesWithErrorInBounds(
 				managingAgent.monitor().getAliveAgentsIntersection(aliveGreenSources, greenSourcesForServer));
@@ -166,11 +164,11 @@ public class DecrementGreenSourceErrorPlan extends AbstractPlan {
 		final ToIntFunction<AgentData> getShortageCount = data ->
 				((WeatherShortages) data.monitoringData()).weatherShortagesNumber();
 		final Predicate<Map.Entry<String, Integer>> isPowerShortageCountCorrect = entry ->
-				entry.getValue() < POWER_SHORTAGE_THRESHOLD;
+				entry.getValue() < managingAgent.getProperties().getConfig().getPowerShortageThreshold();
 
 		final List<AgentData> weatherShortagesForAgents = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, consideredGreenSources,
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+						managingAgent.getProperties().getConfig().getShortTermDataTimeFrame());
 		final Stream<AgentsPowerShortages> agentsWithoutPowerShortages = managingAgent.monitor()
 				.getAgentsNotPresentInTheDatabase(weatherShortagesForAgents, consideredGreenSources).stream()
 				.map(agent -> new AgentsPowerShortages(agent, 0));

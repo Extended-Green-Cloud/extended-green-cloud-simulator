@@ -1,5 +1,9 @@
 package org.greencloud.commons.args.agent;
 
+import java.util.List;
+import java.util.function.Predicate;
+
+import org.jrba.agentmodel.domain.props.AgentProps;
 import org.jrba.agentmodel.types.AgentType;
 
 import lombok.AllArgsConstructor;
@@ -18,4 +22,16 @@ public enum EGCSAgentType implements AgentType {
 	MANAGING("MANAGING");
 
 	final String name;
+
+	/**
+	 * Function evaluating if the agent belongs to cloud infrastructure
+	 */
+	public static final Predicate<AgentProps> isCloudAgent = props ->
+			!List.of(CLIENT.name(), MANAGING.name()).contains(props.getAgentType());
+
+	/**
+	 * Function evaluating if the agent represents cloud client
+	 */
+	public static final Predicate<AgentProps> isClient = props -> props.getAgentType().equals(CLIENT.name());
+
 }

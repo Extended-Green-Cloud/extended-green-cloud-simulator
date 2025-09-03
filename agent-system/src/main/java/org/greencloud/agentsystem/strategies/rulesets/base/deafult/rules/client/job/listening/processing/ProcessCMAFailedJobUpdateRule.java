@@ -6,7 +6,7 @@ import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_HANDLE_FAILED_JOB_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FAILED_JOB_ID;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
@@ -16,6 +16,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.gui.agents.client.ClientNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
@@ -59,7 +60,7 @@ public class ProcessCMAFailedJobUpdateRule extends AgentBasicRule<ClientAgentPro
 
 		agentNode.updateJobStatus(FAILED);
 		agentProps.updateJobStatusDuration(FAILED, jobUpdate.getChangeTime());
-		agentNode.updateJobExecutionFinishDate(convertToRealTime(jobUpdate.getChangeTime()));
+		agentNode.updateJobExecutionFinishDate(convertToRealTimeElapsing(jobUpdate.getChangeTime()));
 		agentNode.removeClient();
 		agentNode.announceFailedJob();
 		agentNode.setWithinBudget(false);

@@ -49,7 +49,7 @@ import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.monitoring.ImmutableProcessedApiRequest;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 
@@ -140,7 +140,7 @@ class TimescaleDatabaseIntegrationTest {
 	@BeforeEach
 	void init() {
 		database = TimescaleDatabase.setUpForTests();
-		database.initDatabase();
+		database.initDatabase("2025-06-22 22:10:25");
 	}
 
 	@AfterEach
@@ -544,9 +544,9 @@ class TimescaleDatabaseIntegrationTest {
 
 	@Test
 	void testReadSystemStartTime() {
-		var currentTime = now();
+		var currentTime = "2025-06-22 22:10:25";
 
-		database.initDatabase();
+		database.initDatabase("2025-06-22 22:10:25");
 		var result = database.readSystemStartTime();
 		assertThat(result).isCloseTo(currentTime, within(10, SECONDS));
 	}

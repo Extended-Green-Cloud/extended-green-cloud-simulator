@@ -1,15 +1,15 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static com.database.knowledge.types.DataType.SHORTAGES;
 import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.google.common.collect.ImmutableList.of;
-import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.DFServiceConstants.SA_SERVICE_TYPE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.WIND;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.utils.yellowpages.YellowPagesRegister.search;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,10 +25,11 @@ import java.util.stream.Stream;
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceWeights;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.jrba.utils.yellowpages.YellowPagesRegister;
 import org.junit.jupiter.api.AfterEach;
@@ -57,6 +58,8 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	@Mock
 	private ManagingAgent managingAgent;
 	@Mock
+	private ManagingAgentProps managingAgentProps;
+	@Mock
 	private ManagingAgentNode managingAgentNode;
 	@Mock
 	private TimescaleDatabase timescaleDatabase;
@@ -80,7 +83,7 @@ class ChangeGreenSourceWeightPlanUnitTest {
 	}
 
 	private static AgentData generateTestData(String agentName, int numberOfShortages) {
-		return new AgentData(now(), agentName, SHORTAGES, new Shortages(numberOfShortages));
+		return new AgentData(getCurrentTime(), agentName, SHORTAGES, new Shortages(numberOfShortages));
 	}
 
 	@BeforeEach
@@ -108,9 +111,10 @@ class ChangeGreenSourceWeightPlanUnitTest {
 		greenCloudStructure = new ScenarioStructureArgs(null, null, emptyList(), emptyList(), emptyList(),
 				List.of(greenEnergyAgentArgs1, greenEnergyAgentArgs2));
 
+		when(managingAgent.getProperties()).thenReturn(managingAgentProps);
 		when(managingAgent.getAgentNode()).thenReturn(managingAgentNode);
 		when(managingAgentNode.getDatabaseClient()).thenReturn(timescaleDatabase);
-		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
+		when(managingAgentProps.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 		when(managingAgent.monitor()).thenReturn(mockMonitoring);
 
 		when(mockMonitoring.getActiveServers()).thenReturn(List.of("Server1"));

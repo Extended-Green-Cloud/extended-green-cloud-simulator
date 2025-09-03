@@ -25,10 +25,11 @@ import java.util.Set;
 
 import org.greencloud.commons.args.adaptation.singleagent.ChangeGreenSourceConnectionParameters;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.domain.location.ImmutableLocation;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
@@ -47,6 +48,8 @@ class ConnectGreenSourcePlanUnitTest {
 	@Mock
 	private ManagingAgent mockManagingAgent;
 	@Mock
+	private ManagingAgentProps mockManagingAgentProps;
+	@Mock
 	private ScenarioStructureArgs mockStructure;
 	@Mock
 	private ConnectGreenSourcePlan connectGreenSourcePlan;
@@ -57,9 +60,11 @@ class ConnectGreenSourcePlanUnitTest {
 	void init() {
 		mockManagingAgent = spy(ManagingAgent.class);
 		mockStructure = mock(ScenarioStructureArgs.class);
+		mockManagingAgentProps = mock(ManagingAgentProps.class);
 		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
 
-		doReturn(mockStructure).when(mockManagingAgent).getGreenCloudStructure();
+		doReturn(mockManagingAgentProps).when(mockManagingAgent).getProperties();
+		doReturn(mockStructure).when(mockManagingAgentProps).getGreenCloudStructure();
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();
 		connectGreenSourcePlan = spy(new ConnectGreenSourcePlan(mockManagingAgent, MAXIMIZE_JOB_SUCCESS_RATIO));
 	}

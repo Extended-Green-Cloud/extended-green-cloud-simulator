@@ -12,6 +12,7 @@ import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resource
 import org.greencloud.agentsystem.strategies.rulesets.allocation.common.resources.server.PrepareSingleJobExecutionEstimationRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.centralmanager.job.allocation.PrepareServerResourcesDataRequestRule;
 import org.greencloud.agentsystem.strategies.rulesets.allocation.intentstandardonestep.rules.regionalmanager.job.listening.allocation.PrepareRMAAllocationDataRule;
+import org.greencloud.commons.domain.agent.ServerSingleJobEstimation;
 import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 import org.jrba.rulesengine.rule.AgentRule;
 import org.jrba.rulesengine.ruleset.RuleSet;
@@ -41,7 +42,7 @@ public class BudgetDeadlineOneStepRuleSet extends RuleSet {
 		return List.of(
 				new PrepareRMAAllocationDataRule(null),
 				new RequestServersForJobExecutionEstimationRule(null),
-				new PrepareServerResourcesRule<>(null, JobWithExecutionEstimation.class)
+				new PrepareServerResourcesRule<>(null, ServerSingleJobEstimation.class)
 		);
 	}
 

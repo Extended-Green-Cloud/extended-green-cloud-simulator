@@ -201,7 +201,7 @@ public class ResourcesUtilization {
 		final Set<Instant> subIntervals = divideIntoSubIntervals(startTime, endTime, intervalLength * MILLIS_IN_MIN);
 
 		final AtomicReference<Double> minimumAvailableEnergy = new AtomicReference<>(
-				(double) agentProps.getMaximumGeneratorCapacity());
+				(double) agentProps.getConfig().getMaximumCapacity());
 		final AtomicReference<Map.Entry<Instant, Double>> lastOpenedPowerInterval = new AtomicReference<>(null);
 
 		subIntervals.forEach(time -> {

@@ -1,34 +1,25 @@
 package org.greencloud.managingsystem.service.analyzer;
 
-import static org.greencloud.commons.utils.math.MathOperations.computeKendallTau;
 import static java.lang.Math.sqrt;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.AGGREGATION_SIZE;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.COMPUTE_ADAPTATION_ACTION_QUALITY_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_ABOVE_THRESHOLD_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_QUALITY_BELOW_THRESHOLD_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_STATISTIC_ANALYSIS_RESULT_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_TREND_FOUND_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.GOAL_TREND_NOT_FOUND_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.NO_ACTIONS_AVAILABLE_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.SYSTEM_QUALITY_INDICATOR_NOT_VIOLATED_LOG;
-import static org.greencloud.managingsystem.service.analyzer.logs.ManagingAgentAnalyzerLog.SYSTEM_QUALITY_INDICATOR_VIOLATED_LOG;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
+import static org.greencloud.commons.utils.math.MathOperations.computeKendallTau;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
 import org.greencloud.commons.exception.DatabaseConnectionNotAvailable;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.types.GoalType;
 import com.database.knowledge.domain.systemquality.SystemQuality;
+import com.database.knowledge.timescale.TimescaleDatabase;
+import com.database.knowledge.types.GoalType;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -36,9 +27,9 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class AnalyzerService extends AbstractManagingService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AnalyzerService.class);
+	private static final LogBuilder log = constructLogBuilder(AnalyzerService.class);
 
-	public AnalyzerService(AbstractManagingAgent managingAgent) {
+	public AnalyzerService(final ManagingAgent managingAgent) {
 		super(managingAgent);
 	}
 
@@ -48,36 +39,33 @@ public class AnalyzerService extends AbstractManagingService {
 	 * @param violatedGoal adaptation goal for which the system analysis is triggered
 	 */
 	public void trigger(final GoalType violatedGoal) {
-		final String adaptationInfo =
-				managingAgent.monitor().computeSystemIndicator() > managingAgent.getSystemQualityThreshold() ?
-						SYSTEM_QUALITY_INDICATOR_VIOLATED_LOG :
-						SYSTEM_QUALITY_INDICATOR_NOT_VIOLATED_LOG;
-		logger.info(adaptationInfo);
+		logAdaptationInformation();
 
-		if (shouldAdaptationBeTriggered(violatedGoal)) {
-			final List<AdaptationAction> availableActions = getAdaptationActionsForGoal(violatedGoal);
-
-			if (availableActions.isEmpty()) {
-				logger.info(NO_ACTIONS_AVAILABLE_LOG);
-				return;
-			}
-
-			logger.info(COMPUTE_ADAPTATION_ACTION_QUALITY_LOG);
-			final Map<AdaptationAction, Double> actionsQualityMap = availableActions.stream()
-					.collect(toMap(action -> action, this::computeQualityOfAdaptationAction));
-
-			managingAgent.plan().trigger(actionsQualityMap, violatedGoal);
+		if (!shouldAdaptationBeTriggered(violatedGoal)) {
+			// break the loop if the severity of violation is negligible
+			return;
 		}
+		final List<AdaptationAction> availableActions = getAdaptationActionsForGoal(violatedGoal);
+
+		if (availableActions.isEmpty()) {
+			log.messageInfo("There are no adaptation actions available! Adaptation not possible. "
+					+ "Consider adding adaptation actions.");
+			return;
+		}
+
+		log.messageInfo("Computing qualities of available adaptation actions...");
+		final Map<AdaptationAction, Double> actionsQualityMap = availableActions.stream()
+				.collect(toMap(action -> action, this::computeQualityOfAdaptationAction));
+		managingAgent.plan().trigger(actionsQualityMap, violatedGoal);
 	}
 
 	@VisibleForTesting
 	protected List<AdaptationAction> getAdaptationActionsForGoal(final GoalType violatedGoal) {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			return managingAgent.getAgentNode().getDatabaseClient().readAdaptationActions().stream()
-					.filter(action -> action.getGoal().equals(violatedGoal))
-					.toList();
-		}
-		throw new DatabaseConnectionNotAvailable("Agent node doesn't exist - couldn't retrieve adaptation actions");
+		return ofNullable(managingAgent.getDatabase())
+				.map(TimescaleDatabase::readAdaptationActions)
+				.map(actions -> actions.stream().filter(action -> action.getGoal().equals(violatedGoal)).toList())
+				.orElseThrow(() -> new DatabaseConnectionNotAvailable(
+						"Agent node doesn't exist - couldn't retrieve adaptation actions"));
 	}
 
 	@VisibleForTesting
@@ -92,21 +80,22 @@ public class AnalyzerService extends AbstractManagingService {
 		final double systemQualityForGoal = managingAgent.monitor().getLastMeasuredGoalQualities().get(goal);
 
 		if (!managingAgent.monitor().isQualityInBounds(systemQualityForGoal, goal)) {
-			logger.info(GOAL_QUALITY_BELOW_THRESHOLD_LOG, goal);
+			log.messageInfo("Goal {} quality has violated given threshold! Analyzing adaptation actions.", goal);
 			return true;
 		}
-		logger.info(GOAL_QUALITY_ABOVE_THRESHOLD_LOG, goal);
+		log.messageInfo("Goal {} quality comply with the given threshold. Performing the trend analysis.", goal);
 
-		final List<SystemQuality> systemQualities = managingAgent.getAgentNode().getDatabaseClient()
-				.readSystemQualityData(goal.getAdaptationGoalId(), AGGREGATION_SIZE);
+		final int windowSize = managingAgent.getProperties().getConfig().getQualityGoalsWindowSize();
+		final List<SystemQuality> systemState = managingAgent.getDatabase()
+				.readSystemQualityData(goal.getAdaptationGoalId(), windowSize);
 		final boolean shouldIncrease = managingAgent.monitor().getAdaptationGoal(goal).isAboveThreshold();
-		final int testResult = testAdaptationQualitiesForTrend(systemQualities);
+		final int testResult = testAdaptationQualitiesForTrend(systemState);
 
 		if ((testResult < 0 && shouldIncrease) || (testResult > 0 && !shouldIncrease)) {
-			logger.info(GOAL_TREND_FOUND_LOG);
+			log.messageInfo("The negative trend was found in goal quality. Adapting the system in advance.");
 			return true;
 		}
-		logger.info(GOAL_TREND_NOT_FOUND_LOG);
+		log.messageInfo("The goal is not tending to violate the threshold. Finishing analysis");
 		return false;
 	}
 
@@ -114,7 +103,6 @@ public class AnalyzerService extends AbstractManagingService {
 	 * Method uses two-tailed p-value test with:
 	 * - null hypothesis equal to no correlation (no trend)
 	 * - alternate hypothesis equal to existence of some correlation (trend)
-	 *
 	 * Method uses z-score as a statistics is approximated to a standard normal.
 	 * Test params: CI = 95%, p-value < 0.05 speaks for rejection
 	 *
@@ -136,9 +124,18 @@ public class AnalyzerService extends AbstractManagingService {
 		final int N = qualityInstants.size();
 		final double zScore = (3 * tau * sqrt(N * (double) (N - 1))) / (sqrt(2 * (double) (2 * N + 5)));
 		final double probability = new NormalDistribution().cumulativeProbability(zScore);
-		logger.info(GOAL_STATISTIC_ANALYSIS_RESULT_LOG, tau);
+		log.messageInfo("The analysis has finished. Correlation rank: {}", tau);
 
 		final boolean isRejected = (zScore > 0 ? 1 - probability : probability) < 0.05;
 		return !isRejected ? 0 : (tau > 0) ? 1 : -1;
+	}
+
+	private void logAdaptationInformation() {
+		final double systemQuality = managingAgent.monitor().computeSystemIndicator();
+		final double acceptableQuality = managingAgent.getProperties().getConfig().getSystemQualityThreshold();
+		final String adaptationInfo = systemQuality > acceptableQuality ?
+				"Overall system quality has dropped below a desired threshold! Analyzing system to increase overall quality..." :
+				"System quality fulfills the desired threshold. Analyzing system to optimize overall quality...";
+		log.messageInfo(adaptationInfo);
 	}
 }

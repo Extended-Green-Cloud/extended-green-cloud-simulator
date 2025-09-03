@@ -1,7 +1,10 @@
 package runner.service;
 
+import static jade.core.Profile.ACCEPT_FOREIGN_AGENTS;
+import static jade.core.Profile.CONTAINER_NAME;
+import static jade.core.Profile.EXPORT_HOST;
+import static jade.core.Profile.MTPS;
 import static jade.core.Runtime.instance;
-import static jade.wrapper.AgentController.ASYNC;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -12,6 +15,7 @@ import static org.greencloud.commons.constants.resource.ResourceCommonKnowledgeC
 import static org.greencloud.commons.utils.time.TimeSimulation.setSystemStartTime;
 import static org.jrba.rulesengine.rest.RuleSetRestApi.startRulesControllerRest;
 import static org.jrba.utils.file.FileReader.buildResourceFilePath;
+import static org.jrba.utils.file.FileReader.readFile;
 import static org.jrba.utils.mapper.JsonMapper.getMapper;
 import static runner.configuration.EngineConfiguration.containerId;
 import static runner.configuration.EngineConfiguration.databaseHostIp;
@@ -19,13 +23,17 @@ import static runner.configuration.EngineConfiguration.jadeInterPort;
 import static runner.configuration.EngineConfiguration.jadeIntraPort;
 import static runner.configuration.EngineConfiguration.localHostIp;
 import static runner.configuration.EngineConfiguration.locationId;
+import static runner.configuration.EngineConfiguration.mainDFAddress;
 import static runner.configuration.EngineConfiguration.mainHost;
 import static runner.configuration.EngineConfiguration.mainHostIp;
+import static runner.configuration.EngineConfiguration.mainHostPlatformId;
 import static runner.configuration.EngineConfiguration.newPlatform;
 import static runner.configuration.EngineConfiguration.platformId;
 import static runner.configuration.EngineConfiguration.runJadeGUI;
 import static runner.configuration.EngineConfiguration.runJadeSniffer;
 import static runner.configuration.EngineConfiguration.websocketAddresses;
+import static runner.configuration.ScenarioConfiguration.knowledgeFilePath;
+import static runner.configuration.ScenarioConfiguration.simulationStartTime;
 import static runner.configuration.StrategiesConfiguration.RULE_SETS_DIR;
 import static runner.configuration.StrategiesConfiguration.STRATEGIES_DIR;
 import static runner.configuration.StrategiesConfiguration.allocationStepsNumber;
@@ -45,17 +53,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.agent.managing.factory.ManagingAgentArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.InvalidScenarioException;
 import org.greencloud.commons.exception.JadeContainerException;
 import org.greencloud.commons.exception.JadeControllerException;
-import org.jrba.rulesengine.RulesController;
+import org.greencloud.gui.agents.egcs.EGCSNode;
 
 import com.database.knowledge.timescale.TimescaleDatabase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.greencloud.connector.factory.AgentNodeFactoryImpl;
 import com.greencloud.connector.factory.EGCSControllerFactory;
+import com.greencloud.connector.factory.EGCSControllerFactoryImpl;
 import com.greencloud.connector.gui.GuiController;
 import com.greencloud.connector.gui.GuiControllerImpl;
 
@@ -100,12 +109,14 @@ public abstract class AbstractScenarioService {
 		readScenarioProperties();
 
 		if (mainHost) {
-			timescaleDatabase.initDatabase();
+			timescaleDatabase.initDatabase(simulationStartTime);
 		}
-
 		executorService.execute(guiController);
-		mainContainer = (newPlatform || mainHost) ? runMainContainer() : null;
-		agentContainer = mainHost ? null : runAgentsContainer();
+
+		this.mainContainer = (newPlatform || mainHost) ? runMainContainer() : null;
+		this.agentContainer = mainHost ? null : runAgentsContainer();
+		this.systemKnowledge = parseKnowledgeStructure(readFile(knowledgeFilePath));
+		this.factory = prepareControllerFactory();
 
 		if (runJadeGUI && (mainHost || newPlatform)) {
 			runJadeGui();
@@ -132,6 +143,12 @@ public abstract class AbstractScenarioService {
 		}
 	}
 
+	private EGCSControllerFactoryImpl prepareControllerFactory() {
+		final ContainerController container = mainHost ? mainContainer : agentContainer;
+		return new EGCSControllerFactoryImpl(container, timescaleDatabase, guiController, mainDFAddress,
+				mainHostPlatformId, systemKnowledge);
+	}
+
 	protected void startRuleSetAPI() {
 		final String ruleSets = buildResourceFilePath(STRATEGIES_DIR, RULE_SETS_DIR);
 		startRulesControllerRest(
@@ -142,25 +159,12 @@ public abstract class AbstractScenarioService {
 
 	protected AgentController prepareManagingController(final ManagingAgentArgs managingAgentArgs) {
 		try {
-			var managingNode = new AgentNodeFactoryImpl().createAgentNode(managingAgentArgs, scenario);
-			var managingAgent = mainContainer.createNewAgent(managingAgentArgs.getName(),
-					"org.greencloud.managingsystem.agent.ManagingAgent",
-					new Object[] { managingAgentArgs.getSystemQualityThreshold(),
-							scenario,
-							mainContainer,
-							guiController,
-							managingAgentArgs.getPowerShortageThreshold(),
-							managingAgentArgs.getDisabledActions()
-					});
-
-			final RulesController rulesController = new RulesController();
-			managingNode.setDatabaseClient(timescaleDatabase);
-			guiController.addAgentNodeToGraph(managingNode);
-			managingAgent.putO2AObject(guiController, ASYNC);
-			managingAgent.putO2AObject(managingNode, ASYNC);
-			managingAgent.putO2AObject(rulesController, ASYNC);
-
-			return managingAgent;
+			final EGCSNode<?, ?> managingNode = new AgentNodeFactoryImpl().createAgentNode(managingAgentArgs, scenario);
+			final AgentController managingAgentController = mainContainer.createNewAgent(managingAgentArgs.getName(),
+					"org.greencloud.managingsystem.agents.ManagingAgent",
+					new Object[] { managingAgentArgs, scenario, factory });
+			factory.connectAgentControllerToRulesController(managingAgentController, managingNode);
+			return managingAgentController;
 		} catch (StaleProxyException e) {
 			throw new JadeControllerException("Failed to run managing agent controller", e);
 		}
@@ -168,12 +172,12 @@ public abstract class AbstractScenarioService {
 
 	private ContainerController runMainContainer() throws ExecutionException, InterruptedException {
 		final Profile profile = new ProfileImpl(localHostIp, Integer.parseInt(jadeIntraPort), platformId, true);
-		profile.setParameter(Profile.ACCEPT_FOREIGN_AGENTS, "true");
+		profile.setParameter(ACCEPT_FOREIGN_AGENTS, "true");
 		profile.setParameter(MTP_MULTI_MESSAGE, newPlatform ? "false" : "true");
 
 		if (localHostIp != null) {
 			final String platformAddress = format("http://%s:%s/acc", localHostIp, jadeInterPort);
-			profile.setParameter(Profile.MTPS, format("jade.mtp.http.MessageTransportProtocol(%s)", platformAddress));
+			profile.setParameter(MTPS, format("jade.mtp.http.MessageTransportProtocol(%s)", platformAddress));
 			timescaleDatabase.writeAMSData("ams@" + platformId, platformAddress);
 		}
 		return executorService.submit(() -> jadeRuntime.createMainContainer(profile)).get();
@@ -185,10 +189,10 @@ public abstract class AbstractScenarioService {
 				newPlatform || isNull(containerId) ? defaultIfNull(locationId, "RMA") : containerId;
 
 		var profile = new ProfileImpl(platformHost, Integer.parseInt(jadeIntraPort), platformId, false);
-		profile.setParameter(Profile.CONTAINER_NAME, containerName);
-		profile.setParameter(Profile.ACCEPT_FOREIGN_AGENTS, "true");
+		profile.setParameter(CONTAINER_NAME, containerName);
+		profile.setParameter(ACCEPT_FOREIGN_AGENTS, "true");
 		profile.setParameter(MTP_MULTI_MESSAGE, "false");
-		profile.setParameter(Profile.EXPORT_HOST, localHostIp);
+		profile.setParameter(EXPORT_HOST, localHostIp);
 
 		try {
 			return executorService.submit(() -> jadeRuntime.createAgentContainer(profile)).get();
@@ -214,8 +218,8 @@ public abstract class AbstractScenarioService {
 
 	protected void updateSystemStartTime() {
 		final Instant systemStart = timescaleDatabase.readSystemStartTime();
-		setSystemStartTime(systemStart);
-		guiController.reportSystemStartTime(systemStart);
+		final long timeDifference = setSystemStartTime(systemStart);
+		guiController.reportSystemStartTime(systemStart, timeDifference);
 	}
 
 	protected void updateStrategyInformation() {

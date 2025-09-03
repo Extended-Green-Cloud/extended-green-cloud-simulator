@@ -7,13 +7,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Offset;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.goalservices.BackUpPowerUsageService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.JobSuccessRatioService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.TrafficDistributionService;
@@ -25,7 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 
-import com.database.knowledge.domain.goal.AdaptationGoal;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import com.database.knowledge.types.GoalType;
 import org.greencloud.commons.exception.InvalidGoalIdentifierException;
 
@@ -37,6 +39,8 @@ class MonitoringServiceUnitTest {
 
 	@Mock
 	private static ManagingAgent mockManagingAgent;
+	@Mock
+	private static ManagingAgentProps mockManagingAgentProps;
 	@Mock
 	private static JobSuccessRatioService mockJobSuccessRatioService;
 	@Mock
@@ -69,16 +73,19 @@ class MonitoringServiceUnitTest {
 		TRAFFIC = new AdaptationGoal(3, "Distribute traffic evenly", 0.7, false, 0.2);
 
 		mockManagingAgent = mock(ManagingAgent.class);
+		mockManagingAgentProps = spy(ManagingAgentProps.class);
 		mockJobSuccessRatioService = mock(JobSuccessRatioService.class);
 		mockBackUpPowerUsageService = mock(BackUpPowerUsageService.class);
 		mockTrafficDistributionService = mock(TrafficDistributionService.class);
+
+		doReturn(mockManagingAgentProps).when(mockManagingAgent).getProperties();
 
 		monitoringService = new MonitoringService(mockManagingAgent);
 		monitoringService.setJobSuccessRatioService(mockJobSuccessRatioService);
 		monitoringService.setBackUpPowerUsageService(mockBackUpPowerUsageService);
 		monitoringService.setTrafficDistributionService(mockTrafficDistributionService);
 
-		doReturn(List.of(SUCCESS_RATIO, BACK_UP_POWER, TRAFFIC)).when(mockManagingAgent).getAdaptationGoalList();
+		doReturn(List.of(SUCCESS_RATIO, BACK_UP_POWER, TRAFFIC)).when(mockManagingAgentProps).getAdaptationGoalList();
 	}
 
 	@ParameterizedTest

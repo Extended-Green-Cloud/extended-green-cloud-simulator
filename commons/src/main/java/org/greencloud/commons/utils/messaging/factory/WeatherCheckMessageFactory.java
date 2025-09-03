@@ -1,19 +1,21 @@
 package org.greencloud.commons.utils.messaging.factory;
 
-import static java.lang.Integer.valueOf;
-import static org.greencloud.commons.utils.job.JobUtils.getTimetableOfJobs;
+import static jade.core.AID.ISLOCALNAME;
 import static jade.lang.acl.ACLMessage.INFORM;
 import static jade.lang.acl.ACLMessage.REFUSE;
 import static jade.lang.acl.ACLMessage.REQUEST;
+import static java.lang.Integer.valueOf;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.job.JobUtils.getTimetableOfJobs;
 
+import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.agent.ImmutableGreenSourceForecastData;
 import org.greencloud.commons.domain.agent.ImmutableGreenSourceWeatherData;
-import org.greencloud.commons.domain.weather.MonitoringData;
-import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.weather.MonitoringData;
 import org.jrba.utils.messages.MessageBuilder;
 
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
 /**
@@ -34,7 +36,7 @@ public class WeatherCheckMessageFactory {
 			final String conversationId, final String protocol, final Integer ruleSet) {
 		return MessageBuilder.builder(ruleSet, REQUEST)
 				.withObjectContent(createMessageContent(job, props))
-				.withReceivers(props.getMonitoringAgent())
+				.withReceivers(new AID(props.getConfig().getMonitoringAgent(), ISLOCALNAME))
 				.withMessageProtocol(protocol)
 				.withConversationId(conversationId)
 				.build();
@@ -63,8 +65,9 @@ public class WeatherCheckMessageFactory {
 	private static Object createMessageContent(final ServerJob job, final GreenEnergyAgentProps props) {
 		final boolean requestForJobInProcessing = nonNull(job);
 		return requestForJobInProcessing ?
-				new ImmutableGreenSourceForecastData(props.getLocation(),
+				new ImmutableGreenSourceForecastData(props.getConfig().getLocation(),
 						getTimetableOfJobs(job, props.getServerJobs()), job.getJobId()) :
-				new ImmutableGreenSourceWeatherData(props.getLocation(), props.getWeatherPredictionError());
+				new ImmutableGreenSourceWeatherData(props.getConfig().getLocation(),
+						props.getCurrentWeatherPredictionError());
 	}
 }

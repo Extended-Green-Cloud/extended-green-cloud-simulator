@@ -2,61 +2,57 @@ package org.greencloud.managingsystem.service.monitoring;
 
 import static com.database.knowledge.types.DataType.HEALTH_CHECK;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
-import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
-import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.averagingDouble;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_ADAPTATION_GOALS_LOG;
+import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.commons.args.agent.EGCSAgentType;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
+import org.greencloud.commons.exception.InvalidGoalIdentifierException;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.AbstractGoalService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.BackUpPowerUsageService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.JobSuccessRatioService;
 import org.greencloud.managingsystem.service.monitoring.goalservices.TrafficDistributionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
+import com.database.knowledge.types.DataType;
 import com.database.knowledge.types.GoalType;
-import org.greencloud.commons.exception.InvalidGoalIdentifierException;
 import com.google.common.annotations.VisibleForTesting;
-import org.greencloud.commons.args.agent.EGCSAgentType;
 
 /**
  * Service containing methods connected with monitoring the quality of the system
  */
 public class MonitoringService extends AbstractManagingService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
+	private static final LogBuilder log = constructLogBuilder(MonitoringService.class);
 
 	private JobSuccessRatioService jobSuccessRatioService;
 	private BackUpPowerUsageService backUpPowerUsageService;
 	private TrafficDistributionService trafficDistributionService;
 
-	public MonitoringService(AbstractManagingAgent managingAgent) {
+	public MonitoringService(ManagingAgent managingAgent) {
 		super(managingAgent);
 		this.jobSuccessRatioService = new JobSuccessRatioService(managingAgent);
 		this.backUpPowerUsageService = new BackUpPowerUsageService(managingAgent);
@@ -67,11 +63,12 @@ public class MonitoringService extends AbstractManagingService {
 	 * Method is used to read from the database, the system's adaptation goals
 	 */
 	public void readSystemAdaptationGoals() {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
-			logger.info(READ_ADAPTATION_GOALS_LOG);
-			managingAgent.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
-			managingAgent.getAgentNode().registerManagingAgent(
-					managingAgent.getAdaptationGoalList());
+		if (nonNull(managingAgent.getAgentNode())) {
+			log.messageInfo("Reading adaptation goals from the database...");
+			managingAgent.getProperties()
+					.setAdaptationGoalList(managingAgent.getAgentNode().getDatabaseClient().readAdaptationGoals());
+			managingAgent.getAgentNode()
+					.registerManagingAgent(managingAgent.getProperties().getAdaptationGoalList());
 		}
 	}
 
@@ -107,7 +104,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * @return adaptation goal data
 	 */
 	public AdaptationGoal getAdaptationGoal(final GoalType goalEnum) {
-		return managingAgent.getAdaptationGoalList().stream()
+		return managingAgent.getProperties().getAdaptationGoalList().stream()
 				.filter(goal -> goal.id().equals(goalEnum.getAdaptationGoalId()))
 				.findFirst()
 				.orElseThrow(() -> new InvalidGoalIdentifierException(goalEnum.getAdaptationGoalId()));
@@ -168,7 +165,7 @@ public class MonitoringService extends AbstractManagingService {
 	 * Method updates system statistics in GUI
 	 */
 	public void updateSystemStatistics() {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
+		if (nonNull(managingAgent.getAgentNode())) {
 			final Map<Integer, Double> qualityMap = getLastMeasuredGoalQualities().entrySet().stream()
 					.collect(toMap(entry -> entry.getKey().getAdaptationGoalId(), Map.Entry::getValue));
 			managingAgent.getAgentNode().updateQualityIndicators(computeSystemIndicator(),
@@ -184,9 +181,9 @@ public class MonitoringService extends AbstractManagingService {
 	 */
 	public List<String> getAliveAgents(final EGCSAgentType agentType) {
 		final List<AgentData> healthAgentData =
-				managingAgent.getAgentNode().getDatabaseClient()
-						.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK),
-								MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				managingAgent.getAgentNode().getDatabaseClient().readLastMonitoringDataForDataTypes(
+						singletonList(HEALTH_CHECK),
+						managingAgent.getProperties().getConfig().getHealthCheckTimeFrame());
 
 		final Predicate<MonitoringData> isAgentAlive = data -> {
 			var healthData = ((HealthCheck) data);
@@ -234,17 +231,6 @@ public class MonitoringService extends AbstractManagingService {
 				.readLastMonitoringDataForDataTypes(singletonList(SERVER_MONITORING)).stream()
 				.filter(isServerActive)
 				.toList();
-	}
-
-	/**
-	 * Method retrieves alive central manager agent.
-	 *
-	 * @return central manager AID or null if no central manager agent is alive
-	 */
-	public String getAliveCentralManager() {
-		return getAliveAgents(CENTRAL_MANAGER).stream()
-				.findFirst()
-				.orElse(null);
 	}
 
 	/**
@@ -306,7 +292,8 @@ public class MonitoringService extends AbstractManagingService {
 		}
 
 		final List<AgentData> agentsData = managingAgent.getAgentNode().getDatabaseClient()
-				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest, MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(dataType, agentsOfInterest,
+						managingAgent.getProperties().getConfig().getLongTermDataTimeFrame());
 
 		final Map<String, Double> agentsWithRecordsMap = agentsData.stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, averagingDouble(averagingFunc)));
@@ -335,7 +322,7 @@ public class MonitoringService extends AbstractManagingService {
 		final List<String> aliveServers = managingAgent.monitor().getAliveAgents(agentType);
 		final Map<String, T> agentsNotPresentInDatabase = managingAgent.monitor()
 				.getAgentsNotPresentInTheDatabase(databaseAgentData, aliveServers).stream()
-				.collect(toMap(aid -> aid, aid -> defaultValue));
+				.collect(toMap(aid -> aid, _ -> defaultValue));
 
 		final Map<String, T> agentsWithDataInDatabase =
 				databaseAgentData.stream().collect(toMap(AgentData::aid, valueFunction));

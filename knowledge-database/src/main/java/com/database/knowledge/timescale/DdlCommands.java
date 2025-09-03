@@ -39,9 +39,33 @@ public final class DdlCommands {
 			"CREATE INDEX monitoring_data_aid ON monitoring_data (aid, data_type, time DESC)";
 
 	/**
+	 * Agents configuration data
+	 */
+	static final String DROP_JOBS = "DROP TABLE IF EXISTS jobs";
+	static final String CREATE_JOBS = """
+			CREATE TABLE jobs (
+			client_aid VARCHAR(50) NOT NULL,
+			job_id VARCHAR(50) NOT NULL,
+			type VARCHAR(50) NOT NULL,
+			budget DOUBLE PRECISION NOT NULL,
+			resource_requirements JSON NOT NULL)
+			""";
+
+	/**
+	 * Agents configuration data
+	 */
+	static final String DROP_AGENTS = "DROP TABLE IF EXISTS agents";
+	static final String CREATE_AGENTS = """
+			CREATE TABLE agents (
+			aid VARCHAR(50) NOT NULL,
+			address VARCHAR(50) NOT NULL,
+			data_type VARCHAR(50) NOT NULL,
+			data JSON NOT NULL)
+			""";
+
+	/**
 	 * System AMS agents table
 	 */
-
 	static final String DROP_AMS_AGENTS = "DROP TABLE IF EXISTS ams_agents";
 	static final String CREATE_AMS_AGENTS = """
 			CREATE TABLE ams_agents (

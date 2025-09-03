@@ -12,6 +12,7 @@ import {
 
 const INITIAL_STATE: ReportsStore = {
    systemStartTime: null,
+   systemTimeDifference: null,
    secondsPerHour: null,
    finishJobsReport: [],
    failJobsReport: [],
@@ -64,6 +65,7 @@ export const reportsSlice = createSlice({
       },
       updateSystemTime(state, action: PayloadAction<SystemTimeMessage>) {
          state.secondsPerHour = action.payload.secondsPerHour
+         state.systemTimeDifference = action.payload.timeDifference
          state.systemStartTime = action.payload.time
       },
       resetReports(state) {

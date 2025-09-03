@@ -1,15 +1,21 @@
 package org.greencloud.gui.agents.greenenergy;
 
+import static com.database.knowledge.types.DataType.GREEN_SOURCE_SUPPLY_DECISION;
+import static java.sql.Timestamp.from;
 import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Optional;
 
 import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
+import org.greencloud.commons.domain.job.basic.ServerJob;
+import org.greencloud.commons.domain.weather.MonitoringData;
+import org.greencloud.commons.domain.weather.WeatherData;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
 import org.greencloud.commons.utils.job.JobUtils;
@@ -19,9 +25,10 @@ import org.greencloud.gui.messages.ImmutableUpdateServerConnectionMessage;
 import org.greencloud.gui.messages.domain.ImmutableServerConnection;
 import org.jrba.environment.domain.ExternalEvent;
 
-import com.database.knowledge.types.DataType;
+import com.database.knowledge.domain.agent.greensource.GreenEnergySupplyDecisionData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
+import com.database.knowledge.types.DataType;
 
 /**
  * Agent node class representing the green energy source
@@ -98,6 +105,33 @@ public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenE
 
 	}
 
+	/**
+	 * Function saves decision about green energy supply for given job in the database
+	 *
+	 * @param props                properties of the green energy agent
+	 * @param monitoringData       weather monitoring data at the moment of decision
+	 * @param job                  job for which the decision was made
+	 * @param isEnergyToBeSupplied flag indicating if the energy is to be supplied for the job
+	 */
+	public void reportDecisionAboutGreenEnergySupplyForJob(final GreenEnergyAgentProps props,
+			final MonitoringData monitoringData, final ServerJob job, final boolean isEnergyToBeSupplied) {
+		final WeatherData weatherData = monitoringData.getWeatherData().stream()
+				.min(Comparator.comparing(WeatherData::getTime))
+				.orElseThrow();
+
+		final GreenEnergySupplyDecisionData supplyDecision = new GreenEnergySupplyDecisionData(
+				weatherData.getWindSpeed(),
+				weatherData.getTemperature(),
+				weatherData.getRadiation(),
+				props.getConfig().getEnergyType().name(),
+				job.getJobId(),
+				!isEnergyToBeSupplied,
+				from(weatherData.getTime())
+		);
+
+		writeMonitoringData(GREEN_SOURCE_SUPPLY_DECISION, supplyDecision, props.getAgentName());
+	}
+
 	public Optional<ExternalEvent> getEvent() {
 		return ofNullable(eventsQueue.poll());
 	}
@@ -108,7 +142,7 @@ public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenE
 				props.getJobCounters().get(JobExecutionResultEnum.ACCEPTED).getCount(),
 				props.getJobCounters().get(FAILED).getCount());
 		final double energyInUse = props.getCurrentEnergyInUse();
-		final double traffic = energyInUse / props.getMaximumGeneratorCapacity();
+		final double traffic = energyInUse / props.getConfig().getMaximumCapacity();
 		final int jobsOnHold = JobUtils.getJobCount(props.getServerJobs(), JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES);
 		final boolean isActive =
 				props.getCurrentEnergyInUse() > 0
@@ -130,9 +164,9 @@ public class GreenEnergyNode extends EGCSNetworkNode<GreenEnergyNodeArgs, GreenE
 				props.getJobCounters().get(FAILED).getCount());
 
 		final GreenSourceMonitoringData greenSourceMonitoring = ImmutableGreenSourceMonitoringData.builder()
-				.weatherPredictionError(props.getWeatherPredictionError())
+				.weatherPredictionError(props.getCurrentWeatherPredictionError())
 				.successRatio(successRatio)
-				.currentTraffic(props.getCurrentEnergyInUse() / props.getMaximumGeneratorCapacity())
+				.currentTraffic(props.getCurrentEnergyInUse() / props.getConfig().getMaximumCapacity())
 				.isBeingDisconnected(props.getGreenSourceDisconnection().isBeingDisconnected())
 				.build();
 		writeMonitoringData(DataType.GREEN_SOURCE_MONITORING, greenSourceMonitoring, props.getAgentName());

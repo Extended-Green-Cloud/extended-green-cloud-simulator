@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableEnableServerActionParameters;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;

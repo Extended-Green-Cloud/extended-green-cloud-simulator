@@ -1,20 +1,18 @@
 package org.greencloud.agentsystem.agents.monitoring;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.Double.parseDouble;
 import static java.util.Collections.singletonList;
-import static java.util.Objects.nonNull;
-import static org.slf4j.LoggerFactory.getLogger;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 
-import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
 
+import org.greencloud.agentsystem.agents.EGCSAgent;
 import org.greencloud.agentsystem.agents.monitoring.behaviour.ServeForecastWeather;
 import org.greencloud.agentsystem.agents.monitoring.management.MonitoringWeatherManagement;
-import org.slf4j.Logger;
-
+import org.greencloud.commons.args.agent.EGCSAgentControllerArgs;
 import org.greencloud.commons.args.agent.monitoring.agent.MonitoringAgentProps;
+import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.gui.agents.monitoring.MonitoringNode;
 
 import jade.core.behaviours.Behaviour;
 
@@ -22,17 +20,27 @@ import jade.core.behaviours.Behaviour;
  * Agent representing weather station that is responsible for retrieving the weather and sending the data to the
  * Green Source Agent.
  */
-public class MonitoringAgent extends AbstractMonitoringAgent {
-	private static final Logger logger = getLogger(MonitoringAgent.class);
+public class MonitoringAgent extends EGCSAgent<MonitoringNode, MonitoringAgentProps, MonitoringArgs> {
+
+	private static final LogBuilder log = constructLogBuilder(MonitoringAgent.class);
+
+	protected MonitoringWeatherManagement weatherManagement;
+
+	public MonitoringAgent() {
+		super();
+	}
 
 	@Override
 	protected void initializeAgent(final Object[] args) {
-		this.properties = new MonitoringAgentProps(getName());
+		try {
+			final EGCSAgentControllerArgs<MonitoringArgs> controllerArgs = parseAgentArguments(args);
+			this.properties = new MonitoringAgentProps(getName(), controllerArgs.getAgentArgs());
 
-		if (args.length > 3 && nonNull(args[0])) {
-			this.properties.setBadStubProbability(parseDouble(String.valueOf(args[0])));
+			this.weatherManagement = new MonitoringWeatherManagement(this);
+		} catch (final Exception e) {
+			log.messageError("Incorrect arguments: some parameters for Monitoring Agent are incorrect: {}.", e);
+			doDelete();
 		}
-		readOfflineMode();
 	}
 
 	@Override
@@ -43,17 +51,10 @@ public class MonitoringAgent extends AbstractMonitoringAgent {
 	@Override
 	protected void afterMove() {
 		super.afterMove();
-		this.weatherManagement = new MonitoringWeatherManagement();
+		this.weatherManagement = new MonitoringWeatherManagement(this);
 	}
 
-	private void readOfflineMode() {
-		final Properties properties = new Properties();
-
-		try (final InputStream res = getClass().getClassLoader().getResourceAsStream("config.properties")) {
-			properties.load(res);
-			this.properties.setOfflineMode(parseBoolean(properties.getProperty("offline.mode")));
-		} catch (Exception exception) {
-			logger.warn("Could not load properties file {}. Setting offline mode to false.", exception.toString());
-		}
+	public MonitoringWeatherManagement weather() {
+		return weatherManagement;
 	}
 }

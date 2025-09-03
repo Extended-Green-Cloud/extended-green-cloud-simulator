@@ -9,7 +9,7 @@ import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS_C
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_HANDLER_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.JOB_STATUS_RECEIVER_HANDLE_FINISHED_JOB_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FINISH_JOB_ID;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
@@ -21,6 +21,7 @@ import java.time.Instant;
 
 import org.greencloud.commons.args.agent.client.agent.ClientAgentProps;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.gui.agents.client.ClientNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
@@ -60,7 +61,7 @@ public class ProcessCMAFinishedJobUpdateRule extends AgentBasicRule<ClientAgentP
 		agentNode.measureTimeToRetrieveTheMessage(jobUpdate, agentProps);
 		agentNode.updateJobStatus(FINISHED);
 		agentNode.updateFinalExecutionCost(jobUpdate.getPriceForJob());
-		agentNode.updateJobExecutionFinishDate(convertToRealTime(jobUpdate.getChangeTime()));
+		agentNode.updateJobExecutionFinishDate(convertToRealTimeElapsing(jobUpdate.getChangeTime()));
 		agentProps.updateJobStatusDuration(FINISHED, jobUpdate.getChangeTime());
 		agentNode.setWithinBudget(agentProps.isJobWithinBudget(jobUpdate.getPriceForJob()));
 
@@ -90,7 +91,7 @@ public class ProcessCMAFinishedJobUpdateRule extends AgentBasicRule<ClientAgentP
 
 		if (endTime.isAfter(jobDeadline)) {
 			final long deadlineDifference = MILLIS.between(endTime, jobDeadline);
-			final long delay = convertToRealTime(deadlineDifference);
+			final long delay = convertToRealTimeElapsing(deadlineDifference);
 			agentNode.setWithinDeadline(false);
 			logger.info("The execution of my job finished with a delay equal to {} min! :(", delay);
 		} else {

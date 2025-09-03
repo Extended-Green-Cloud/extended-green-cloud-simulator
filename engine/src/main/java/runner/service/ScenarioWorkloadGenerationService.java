@@ -78,7 +78,10 @@ public class ScenarioWorkloadGenerationService {
 	private void runJobsDrawnFromSample() {
 		if (jobsSampleFilePath.isPresent()) {
 			final File jobSamplesFile = readFile(jobsSampleFilePath.get());
-			final List<SyntheticJobArgs> sampleJobs = parseJobSamples(jobSamplesFile);
+			final List<SyntheticJobArgs> sampleJobs = parseJobSamples(jobSamplesFile).stream()
+					.filter(job -> job.getProcessorName().equals("card_coh12_public") || job.getProcessorName()
+							.equals("acri-Sentinel-3-L0-SY_2_VG1") || job.getProcessorName().equals("sen2cor"))
+					.toList();
 			final List<SyntheticJobArgs> selectedJobs = pickFromJobSamples(sampleJobs);
 			runClientAgents(selectedJobs);
 		}

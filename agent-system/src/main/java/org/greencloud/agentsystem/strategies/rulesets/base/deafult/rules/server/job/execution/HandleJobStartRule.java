@@ -9,6 +9,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.PLANNED_JO
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.START_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.mapper.JobMapper.mapClientJobToJobInstanceId;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
@@ -51,7 +52,7 @@ public class HandleJobStartRule extends AgentScheduledRule<ServerAgentProps, Ser
 		final Instant startDate = ofNullable(job.getStartTime())
 				.filter(start -> !getCurrentTime().isAfter(start))
 				.orElse(getCurrentTime());
-		return Date.from(startDate);
+		return Date.from(convertToRealTime(startDate));
 	}
 
 	@Override

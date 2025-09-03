@@ -10,7 +10,7 @@ import static org.greencloud.commons.constants.resource.ResourceConverterConstan
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.CPU;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.MEMORY;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.STORAGE;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeMillis;
 
 import java.time.Instant;
@@ -45,6 +45,7 @@ import org.greencloud.commons.domain.jobstep.JobStep;
 import org.greencloud.commons.domain.resources.ImmutableResource;
 import org.greencloud.commons.domain.resources.ImmutableResourceCharacteristic;
 import org.greencloud.commons.domain.resources.Resource;
+import org.greencloud.commons.utils.time.TimeConverter;
 
 import jade.core.AID;
 
@@ -298,9 +299,9 @@ public class JobMapper {
 				.jobInstanceId(serverJob.getJobInstanceId())
 				.requiredResources(serverJob.getRequiredResources())
 				.estimatedEnergy(serverJob.getEstimatedEnergy())
-				.startTime(convertToRealTime(serverJob.getStartTime()))
+				.startTime(convertToRealTimeElapsing(serverJob.getStartTime()))
 				.duration(convertToRealTimeMillis(serverJob.getDuration()))
-				.deadline(convertToRealTime(serverJob.getDeadline()))
+				.deadline(convertToRealTimeElapsing(serverJob.getDeadline()))
 				.jobSteps(serverJob.getJobSteps())
 				.priority(serverJob.getPriority())
 				.build();

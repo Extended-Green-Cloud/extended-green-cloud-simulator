@@ -3,6 +3,7 @@ package com.database.knowledge.domain.agent.server;
 import org.immutables.value.Value;
 
 import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

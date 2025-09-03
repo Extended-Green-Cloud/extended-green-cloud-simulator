@@ -3,7 +3,7 @@ package org.greencloud.managingsystem.service.common;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
 import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 
 import org.greencloud.commons.args.adaptation.AdaptationActionParameters;

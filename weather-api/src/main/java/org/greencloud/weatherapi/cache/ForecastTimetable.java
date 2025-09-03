@@ -4,7 +4,7 @@ import static java.time.Duration.between;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Comparator.comparingLong;
 import static java.util.Optional.empty;
-import static org.slf4j.LoggerFactory.getLogger;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -13,17 +13,19 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.weatherapi.api.OpenWeatherMapApi;
 import org.greencloud.weatherapi.domain.AbstractWeather;
 import org.greencloud.weatherapi.domain.CurrentWeather;
 import org.greencloud.weatherapi.domain.Forecast;
-import org.slf4j.Logger;
 
 /**
  * Class represents table of forecast's data mapped to specific time intervals
  */
 public class ForecastTimetable {
 
-	private static final Logger logger = getLogger(ForecastTimetable.class);
+	private static final LogBuilder log = constructLogBuilder(OpenWeatherMapApi.class);
+
 	private static final Duration EXPIRATION_TIME = Duration.of(4, HOURS);
 
 	private final Map<Instant, AbstractWeather> timetable;
@@ -73,13 +75,24 @@ public class ForecastTimetable {
 	 * @return weather closest to given time
 	 */
 	public Optional<AbstractWeather> getFutureWeather(Instant timestamp) {
-		final Instant nearestTimestamp = timetable.keySet().stream()
-				.min(comparingLong(i -> Math.abs(i.getEpochSecond() - timestamp.getEpochSecond())))
-				.orElseThrow(() -> new NoSuchElementException("No value present"));
+		Instant nearestTimestamp = null;
+		long minDiff = Long.MAX_VALUE;
+
+		for (Instant key : timetable.keySet()) {
+			long diff = Math.abs(key.getEpochSecond() - timestamp.getEpochSecond());
+			if (diff < minDiff) {
+				minDiff = diff;
+				nearestTimestamp = key;
+			}
+		}
+
+		if (nearestTimestamp == null) {
+			throw new NoSuchElementException("No value present");
+		}
 
 		if (between(timestamp, nearestTimestamp).abs().compareTo(EXPIRATION_TIME) > 0) {
-			logger.debug("Stale forecast timetable!");
-			return empty();
+			log.messageDebug("Stale forecast timetable!");
+			return Optional.empty();
 		}
 
 		return Optional.of(timetable.get(nearestTimestamp));

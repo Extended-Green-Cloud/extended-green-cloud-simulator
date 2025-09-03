@@ -2,11 +2,13 @@ package org.greencloud.commons.domain.weather;
 
 import java.time.Instant;
 
+import org.checkerframework.checker.units.qual.N;
 import org.immutables.value.Value;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.greencloud.commons.domain.ImmutableConfig;
+import org.jetbrains.annotations.Nullable;
 
 @JsonSerialize(as = ImmutableWeatherData.class)
 @JsonDeserialize(as = ImmutableWeatherData.class)
@@ -25,7 +27,7 @@ public interface WeatherData {
 	Double getTemperature();
 
 	/**
-	 * @return temperature at given location for given time period
+	 * @return air density at given location for given time period
 	 */
 	Double getAirDensity();
 
@@ -37,6 +39,12 @@ public interface WeatherData {
 	/**
 	 * @return cloudiness at given location for given time period
 	 */
+	@Nullable
 	Double getCloudCover();
+
+	/**
+	 * @return radiation at given location for given time period
+	 */
+	Double getRadiation();
 
 }

@@ -15,6 +15,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageConversati
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.ON_HOLD_JOB_ID;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 
 import java.time.Instant;
@@ -34,6 +35,7 @@ import org.greencloud.commons.domain.job.extended.ImmutableJobStatusWithTime;
 import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.timer.Timer;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.greencloud.commons.utils.time.TimeConverter;
 import org.jetbrains.annotations.Nullable;
 
 import jade.core.AID;
@@ -209,11 +211,11 @@ public class JobUtils {
 
 		return Stream.concat(
 						Stream.of(
-								convertToRealTime(additionalJob.getStartTime()),
-								convertToRealTime(additionalJob.getExpectedEndTime())),
+								convertToRealTimeElapsing(additionalJob.getStartTime()),
+								convertToRealTimeElapsing(additionalJob.getExpectedEndTime())),
 						Stream.concat(
-								validJobs.stream().map(job -> convertToRealTime(job.getStartTime())),
-								validJobs.stream().map(job -> convertToRealTime(job.getExpectedEndTime()))))
+								validJobs.stream().map(job -> convertToRealTimeElapsing(job.getStartTime())),
+								validJobs.stream().map(job -> convertToRealTimeElapsing(job.getExpectedEndTime()))))
 				.distinct()
 				.toList();
 	}
@@ -226,7 +228,7 @@ public class JobUtils {
 	 */
 	public static Date calculateExpectedJobEndTime(final PowerJob job) {
 		final Instant endDate = alignStartTimeToCurrentTime(job.getExpectedEndTime());
-		return Date.from(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS));
+		return Date.from(convertToRealTime(endDate.plus(MAX_ERROR_IN_JOB_FINISH, ChronoUnit.MILLIS)));
 	}
 
 	/**

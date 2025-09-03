@@ -16,6 +16,7 @@ public interface Wind {
 
 	Double getSpeed();
 
+	@Nullable
 	Double getDeg();
 
 	@Nullable

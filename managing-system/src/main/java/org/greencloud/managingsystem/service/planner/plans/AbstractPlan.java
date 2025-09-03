@@ -2,18 +2,20 @@ package org.greencloud.managingsystem.service.planner.plans;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
 
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import com.database.knowledge.types.GoalType;
-import org.greencloud.commons.args.adaptation.AdaptationActionParameters;
 
 import jade.core.AID;
+import lombok.Getter;
 
 /**
  * Abstract class which should be extended by each adaptation plan class
  */
+@Getter
 public abstract class AbstractPlan {
 
 	protected final ManagingAgent managingAgent;
@@ -29,8 +31,11 @@ public abstract class AbstractPlan {
 	 *
 	 * @param actionEnum    type of adaptation action
 	 * @param managingAgent managing agent executing the action
+	 * @param violatedGoal  goal that has been violated and requires adaptation
 	 */
-	protected AbstractPlan(AdaptationActionTypeEnum actionEnum, ManagingAgent managingAgent, GoalType violatedGoal) {
+	protected AbstractPlan(final AdaptationActionTypeEnum actionEnum,
+			final ManagingAgent managingAgent,
+			final GoalType violatedGoal) {
 		this.adaptationActionEnum = actionEnum;
 		this.managingAgent = managingAgent;
 		this.violatedGoal = violatedGoal;
@@ -75,25 +80,5 @@ public abstract class AbstractPlan {
 			managingAgent.getAgentNode().getDatabaseClient()
 					.setAdaptationActionAvailability(action.getActionId(), true);
 		};
-	}
-
-	public AID getTargetAgent() {
-		return targetAgent;
-	}
-
-	public AdaptationActionTypeEnum getAdaptationActionEnum() {
-		return adaptationActionEnum;
-	}
-
-	public AdaptationActionParameters getActionParameters() {
-		return actionParameters;
-	}
-
-	public Runnable getPostActionHandler() {
-		return postActionHandler;
-	}
-
-	public GoalType getViolatedGoal() {
-		return violatedGoal;
 	}
 }

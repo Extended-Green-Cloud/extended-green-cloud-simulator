@@ -106,7 +106,7 @@ public class AgentFactoryImpl implements AgentFactory {
 				.ownerSever(greenSourceCreator.getServer())
 				.location(greenSourceCreator.getLocation())
 				.maximumCapacity(greenSourceCreator.getMaximumCapacity())
-				.pricePerPowerUnit(greenSourceCreator.getPricePerPowerUnit().longValue())
+				.pricePerPowerUnit(greenSourceCreator.getPricePerPowerUnit())
 				.energyType(greenSourceCreator.getEnergyType())
 				.build();
 	}

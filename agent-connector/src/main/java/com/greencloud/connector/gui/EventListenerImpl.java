@@ -49,10 +49,10 @@ public class EventListenerImpl extends EGCSWebSocketClient implements EventListe
 
 	private final Map<String, Consumer<String>> handlerMap;
 	private final Map<String, EGCSNode> agentNodes;
-	private final AgentFactory agentFactory;
-	private final AgentNodeFactory nodeFactory;
 	@Setter
 	private EGCSControllerFactory factory;
+	private final AgentFactory agentFactory;
+	private final AgentNodeFactory nodeFactory;
 
 	public EventListenerImpl(final URI serverUri) {
 		super(serverUri);

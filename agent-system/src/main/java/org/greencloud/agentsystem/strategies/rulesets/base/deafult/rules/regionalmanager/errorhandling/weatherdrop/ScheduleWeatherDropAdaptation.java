@@ -3,6 +3,7 @@ package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.region
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.REQUEST_RULE_SET_UPDATE_RULE;
 import static org.greencloud.commons.enums.rules.EGCSRuleSetTypes.WEATHER_DROP_RULE_SET;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_TYPE;
 
@@ -35,7 +36,7 @@ public class ScheduleWeatherDropAdaptation extends AgentScheduledRule<RegionalMa
 	@Override
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final Instant weatherDropTime = agentProps.getAgentKnowledge().get("WEATHER_DROP_START");
-		return Date.from(weatherDropTime);
+		return Date.from(convertToRealTime(weatherDropTime));
 	}
 
 	@Override

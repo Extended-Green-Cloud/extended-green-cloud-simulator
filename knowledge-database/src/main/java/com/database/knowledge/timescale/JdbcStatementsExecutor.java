@@ -1,7 +1,5 @@
 package com.database.knowledge.timescale;
 
-import static com.database.knowledge.types.GoalType.getByGoalId;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.getAdaptationActionEnumByName;
 import static com.database.knowledge.timescale.DmlQueries.DISABLE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.GET_ADAPTATION_ACTIONS;
@@ -16,32 +14,47 @@ import static com.database.knowledge.timescale.DmlQueries.GET_NEXT_CLIENT_ID;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES;
 import static com.database.knowledge.timescale.DmlQueries.GET_UNIQUE_LAST_RECORDS_DATA_FOR_DATA_TYPES_AND_TIME;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_ADAPTATION_ACTION;
+import static com.database.knowledge.timescale.DmlQueries.INSERT_AGENT_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_AMS_DATA;
+import static com.database.knowledge.timescale.DmlQueries.INSERT_DEFAULT_SYSTEM_CONSTANTS;
+import static com.database.knowledge.timescale.DmlQueries.INSERT_JOB_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_MONITORING_DATA;
 import static com.database.knowledge.timescale.DmlQueries.INSERT_SYSTEM_QUALITY_DATA;
 import static com.database.knowledge.timescale.DmlQueries.READ_SYSTEM_START_TIME;
 import static com.database.knowledge.timescale.DmlQueries.RELEASE_ADAPTATION_ACTION;
 import static com.database.knowledge.timescale.DmlQueries.UPDATE_ADAPTATION_ACTION;
+import static com.database.knowledge.types.GoalType.getByGoalId;
+import static java.sql.Timestamp.from;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.getAdaptationActionEnumByName;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.utils.mapper.JsonMapper.getMapper;
 
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
+import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.postgresql.util.PGobject;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
 import com.database.knowledge.domain.agent.AMSData;
 import com.database.knowledge.domain.agent.AgentData;
-import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.domain.systemquality.SystemQuality;
+import com.database.knowledge.types.DataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -70,9 +83,24 @@ public class JdbcStatementsExecutor {
 		jsonObject.setType("json");
 		jsonObject.setValue(getMapper().writeValueAsString(data));
 		try (var statement = sqlConnection.prepareStatement(INSERT_MONITORING_DATA)) {
-			statement.setString(1, aid);
-			statement.setString(2, dataType.toString());
-			statement.setObject(3, jsonObject);
+			statement.setTimestamp(1, from(convertToRealTimeElapsing(getCurrentTime())));
+			statement.setString(2, aid);
+			statement.setString(3, dataType.toString());
+			statement.setObject(4, jsonObject);
+			statement.executeUpdate();
+		}
+	}
+
+	void executeWriteStatement(Instant time, String aid, DataType dataType, MonitoringData data) throws SQLException,
+			JsonProcessingException {
+		var jsonObject = new PGobject();
+		jsonObject.setType("json");
+		jsonObject.setValue(getMapper().writeValueAsString(data));
+		try (var statement = sqlConnection.prepareStatement(INSERT_MONITORING_DATA)) {
+			statement.setTimestamp(1, from(time));
+			statement.setString(2, aid);
+			statement.setString(3, dataType.toString());
+			statement.setObject(4, jsonObject);
 			statement.executeUpdate();
 		}
 	}
@@ -94,10 +122,18 @@ public class JdbcStatementsExecutor {
 		}
 	}
 
+	void executeWriteStatement(final String startTime) throws SQLException {
+		try (var statement = sqlConnection.prepareStatement(INSERT_DEFAULT_SYSTEM_CONSTANTS)) {
+			statement.setTimestamp(1, Timestamp.valueOf(startTime));
+			statement.executeUpdate();
+		}
+	}
+
 	void executeWriteStatement(Integer adaptationGoalId, Double quality) throws SQLException {
 		try (var statement = sqlConnection.prepareStatement(INSERT_SYSTEM_QUALITY_DATA)) {
-			statement.setInt(1, adaptationGoalId);
-			statement.setDouble(2, quality);
+			statement.setTimestamp(1, from(getCurrentTime()));
+			statement.setInt(2, adaptationGoalId);
+			statement.setDouble(3, quality);
 			statement.executeUpdate();
 		}
 	}
@@ -106,6 +142,39 @@ public class JdbcStatementsExecutor {
 		try (var statement = sqlConnection.prepareStatement(INSERT_AMS_DATA)) {
 			statement.setString(1, amsName);
 			statement.setString(2, amsAddress);
+			statement.executeUpdate();
+		}
+	}
+
+	void executeWriteStatement(String clientAID, ClientJob job) throws SQLException, JsonProcessingException {
+		var requirements = job.getRequiredResources().entrySet().stream()
+				.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getAmountInCommonUnit()));
+
+		var jsonObject = new PGobject();
+		jsonObject.setType("json");
+		jsonObject.setValue(getMapper().writeValueAsString(requirements));
+
+		try (var statement = sqlConnection.prepareStatement(INSERT_JOB_DATA)) {
+			statement.setString(1, clientAID);
+			statement.setString(2, job.getJobId());
+			statement.setString(3, job.getJobType());
+			statement.setDouble(4, ofNullable(job.getBudgetLimit()).orElse(0.0));
+			statement.setObject(5, jsonObject);
+			statement.executeUpdate();
+		}
+	}
+
+	void executeWriteStatement(String agentName, String address, String agentType,
+			AgentArgs agentData) throws SQLException, JsonProcessingException {
+		var jsonObject = new PGobject();
+		jsonObject.setType("json");
+		jsonObject.setValue(getMapper().writeValueAsString(agentData));
+
+		try (var statement = sqlConnection.prepareStatement(INSERT_AGENT_DATA)) {
+			statement.setString(1, agentName);
+			statement.setString(2, address);
+			statement.setString(3, agentType);
+			statement.setObject(4, jsonObject);
 			statement.executeUpdate();
 		}
 	}
@@ -143,6 +212,7 @@ public class JdbcStatementsExecutor {
 
 	List<AgentData> executeReadMonitoringDataStatement() throws SQLException, JsonProcessingException {
 		try (var statement = sqlConnection.prepareStatement(GET_LAST_1_SEC_DATA)) {
+			statement.setTimestamp(1, from(getCurrentTime().minusSeconds(1)));
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
@@ -154,7 +224,7 @@ public class JdbcStatementsExecutor {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
-			statement.setDouble(2, seconds);
+			statement.setTimestamp(2, from(getCurrentTime().minusSeconds((int) seconds)));
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
@@ -166,7 +236,7 @@ public class JdbcStatementsExecutor {
 			final Object[] dataTypeNames = dataTypes.stream().map(DataType::toString).toArray();
 			final Array array = statement.getConnection().createArrayOf("text", dataTypeNames);
 			statement.setArray(1, array);
-			statement.setDouble(2, seconds);
+			statement.setTimestamp(2, from(getCurrentTime().minus((int) seconds, SECONDS)));
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
@@ -189,7 +259,7 @@ public class JdbcStatementsExecutor {
 			final Array array = statement.getConnection().createArrayOf("text", aid.toArray());
 			statement.setString(1, type.toString());
 			statement.setArray(2, array);
-			statement.setDouble(3, seconds);
+			statement.setTimestamp(3, from(getCurrentTime().minusSeconds((int) seconds)));
 			var resultSet = statement.executeQuery();
 			return readAgentDataFromResultSet(resultSet);
 		}
@@ -274,7 +344,8 @@ public class JdbcStatementsExecutor {
 				resultSet.getInt(1), // action id
 				getAdaptationActionEnumByName(resultSet.getString(2)), // action
 				getByGoalId(resultSet.getInt(4)), // action's goal
-				getMapper().readValue(resultSet.getObject(5).toString(), new TypeReference<>() {}), // action_results
+				getMapper().readValue(resultSet.getObject(5).toString(), new TypeReference<>() {
+				}), // action_results
 				resultSet.getBoolean(6), // availability
 				AdaptationActionCategoryEnum.valueOf(resultSet.getObject(3).toString()), // action type
 				resultSet.getInt(7), // runs

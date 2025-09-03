@@ -8,7 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.greencloud.commons.args.agent.EGCSAgentType;
-import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
+import org.greencloud.commons.args.agent.managing.factory.ManagingAgentArgs;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
+import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import org.greencloud.gui.agents.egcs.EGCSNode;
 import org.greencloud.gui.messages.ImmutableIncrementCounterMessage;
 import org.greencloud.gui.messages.ImmutableLogAdaptationActionMessage;
@@ -18,18 +22,14 @@ import org.greencloud.gui.messages.ImmutableUpdateSystemIndicatorsMessage;
 import org.greencloud.gui.messages.domain.ImmutableAdaptationAction;
 import org.greencloud.gui.messages.domain.ImmutableAdaptationLog;
 import org.greencloud.gui.messages.domain.ImmutableGoalQuality;
-import org.jrba.agentmodel.domain.props.AgentProps;
 
 import com.database.knowledge.domain.action.AdaptationAction;
-import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
-import org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum;
 import com.database.knowledge.domain.action.AdaptationActionsDefinitions;
-import com.database.knowledge.domain.goal.AdaptationGoal;
 
 /**
  * Agent node class representing the managing agent
  */
-public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
+public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, ManagingAgentProps> {
 
 	/**
 	 * Managing agent node constructor
@@ -125,12 +125,12 @@ public class ManagingAgentNode extends EGCSNode<ManagingAgentArgs, AgentProps> {
 	}
 
 	@Override
-	public void updateGUI(final AgentProps props) {
+	public void updateGUI(final ManagingAgentProps props) {
 		// no updates to GUI
 	}
 
 	@Override
-	public void saveMonitoringData(final AgentProps props) {
+	public void saveMonitoringData(final ManagingAgentProps props) {
 		// managing agent does not report data
 	}
 }

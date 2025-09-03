@@ -77,11 +77,11 @@ public class ProcessPowerSupplyRemoveRule extends AgentBasicRule<GreenEnergyAgen
 			logger.info("Execution of the job {} (job instance: {}) cost {} in Green Source.",
 					job.getJobId(), job.getJobInstanceId(), finalPrice);
 
+			final AID serverAID = agentProps.getOwnerServerAgent();
+			final int ruleIdx = facts.get(RULE_SET_IDX);
 			final ACLMessage priceMessage = nonNull(message)
-					? prepareFinalPriceMessage(message.getReplyWith(), agentProps.getOwnerServer(), jobInstanceId,
-					finalPrice, facts.get(RULE_SET_IDX))
-					: preparePriceMessage(agentProps.getOwnerServer(), jobInstanceId, finalPrice,
-					facts.get(RULE_SET_IDX));
+					? prepareFinalPriceMessage(message.getReplyWith(), serverAID, jobInstanceId, finalPrice, ruleIdx)
+					: preparePriceMessage(serverAID, jobInstanceId, finalPrice, ruleIdx);
 			agent.send(priceMessage);
 		}
 		agentProps.removeJob(job);

@@ -62,7 +62,7 @@ public class PrepareProposalForRMA extends AgentBasicRule<ServerAgentProps, Serv
 		logger.info("Estimated earliest job start time: {}. The estimated execution time will be {}.",
 				executionEstimation.getLeft(), executionEstimation.getRight());
 
-		agentProps.getServerPriceForJob().put(job.getJobInstanceId(), agentProps.getPricePerHour());
+		agentProps.getServerPriceForJob().put(job.getJobInstanceId(), agentProps.getConfig().getPrice());
 
 		final ACLMessage offerMessage = prepareServerJobOffer(agentProps, estimatedPrice, executionEstimation,
 				job.getJobId(), facts.get(MESSAGE), facts.get(RULE_SET_IDX), UNKNOWN);

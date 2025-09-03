@@ -38,6 +38,7 @@ public class AnnounceNewJobToCMARule extends AgentBasicRule<ClientAgentProps, Cl
 		final AID cma = facts.get(AGENT);
 		logger.info("Sending job announcement information to Central Manager Agent.");
 		agent.send(prepareJobAnnouncementMessage(cma, agentProps.getJob(), facts.get(RULE_SET_IDX)));
+		agentNode.writeJobData(agentProps);
 	}
 
 	@Override

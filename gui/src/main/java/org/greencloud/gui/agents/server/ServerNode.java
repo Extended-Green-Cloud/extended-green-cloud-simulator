@@ -2,13 +2,19 @@ package org.greencloud.gui.agents.server;
 
 import static com.database.knowledge.types.DataType.JOB_ENERGY_UTILIZATION;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_PROCESSING;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.ACCEPTED;
 import static org.greencloud.commons.enums.job.JobExecutionResultEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_BACKUP_ENERGY;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRESS_CLOUD;
+import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES;
+import static org.greencloud.commons.utils.job.JobUtils.getJobCount;
+import static org.greencloud.commons.utils.job.JobUtils.getJobSuccessRatio;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
@@ -24,7 +30,6 @@ import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.JobStatusWithTime;
 import org.greencloud.commons.domain.resources.Resource;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
-import org.greencloud.commons.utils.job.JobUtils;
 import org.greencloud.gui.agents.egcs.EGCSNetworkNode;
 import org.greencloud.gui.messages.ImmutableDisableServerMessage;
 import org.greencloud.gui.messages.ImmutableEnableServerMessage;
@@ -40,7 +45,7 @@ import com.database.knowledge.domain.agent.NetworkComponentMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
 import com.database.knowledge.domain.agent.server.JobEnergyUtilization;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
-import com.database.knowledge.types.DataType;
+import com.database.knowledge.domain.agent.server.ServerProcessingData;
 
 import jade.util.leap.Serializable;
 
@@ -216,6 +221,27 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	}
 
 	/**
+	 * Method saves server processing data when analysing given job
+	 *
+	 * @param props current processing data of Server agent
+	 * @param jobId job identifier
+	 */
+	public void reportProcessingData(final ServerAgentProps props, final String jobId) {
+		final Map<String, Resource> inUseResourcesByJobs = props.getInUseResources();
+		final Map<String, Double> inUseResources = props.resources().keySet().stream()
+				.collect(toMap(key -> key,
+						key -> inUseResourcesByJobs.containsKey(key) ? inUseResourcesByJobs.get(key).getAmount() : 0D));
+		final Map<String, Double> inUseResourcePercentage = inUseResources.entrySet().stream()
+				.collect(toMap(Map.Entry::getKey,
+						entry -> entry.getValue() / props.resources().get(entry.getKey()).getAmount()));
+
+		final ServerProcessingData serverProcessingData =
+				new ServerProcessingData(jobId, inUseResources, inUseResourcePercentage);
+
+		writeMonitoringData(SERVER_PROCESSING, serverProcessingData, props.getAgentName());
+	}
+
+	/**
 	 * Method retrieves from the database the average green energy utilization.
 	 *
 	 * @return average green energy utilization
@@ -231,12 +257,12 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	}
 
 	public Optional<ExternalEvent> getEvent() {
-		return Optional.ofNullable(eventsQueue.poll());
+		return ofNullable(eventsQueue.poll());
 	}
 
 	@Override
 	public void updateGUI(final ServerAgentProps props) {
-		final double successRatio = JobUtils.getJobSuccessRatio(props.getJobCounters().get(ACCEPTED).getCount(),
+		final double successRatio = getJobSuccessRatio(props.getJobCounters().get(ACCEPTED).getCount(),
 				props.getJobCounters().get(FAILED).getCount());
 		final double backUpTraffic = props.getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
 		final Map<String, Resource> inUseResources = props.getInUseResources();
@@ -247,9 +273,9 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 		updateTraffic(props.getCPUUsage(null));
 		updateBackUpTraffic(backUpTraffic);
 		updateResources(inUseResources, powerConsumption, powerConsumptionBackUp);
-		updateJobsCount(JobUtils.getJobCount(jobs));
-		updateJobsOnHoldCount(JobUtils.getJobCount(jobs, JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES));
-		updateClientNumber(JobUtils.getJobCount(jobs, JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES));
+		updateJobsCount(getJobCount(jobs));
+		updateJobsOnHoldCount(getJobCount(jobs, JOB_ON_HOLD_STATUSES));
+		updateClientNumber(getJobCount(jobs, JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES));
 		updateIsActive(getIsActiveState(props));
 		updateCurrentJobSuccessRatio(successRatio);
 		saveMonitoringData(props);
@@ -264,14 +290,14 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 	public void saveMonitoringData(final ServerAgentProps props) {
 		final double greenPowerUsage = props.getCPUUsage(null);
 		final double backPowerUsage = props.getCPUUsage(singleton(IN_PROGRESS_BACKUP_ENERGY));
-		final int jobsNo = props.getServerJobs().size() - JobUtils.getJobCount(props.getServerJobs(),
-				JobExecutionStatusEnum.JOB_ON_HOLD_STATUSES);
-		final double successRatio = JobUtils.getJobSuccessRatio(props.getJobCounters().get(
-						ACCEPTED).getCount(),
-				props.getJobCounters().get(FAILED).getCount());
+		final int jobsNo = props.getServerJobs().size() - getJobCount(props.getServerJobs(), JOB_ON_HOLD_STATUSES);
+		final double successRatio = getJobSuccessRatio(
+				props.getJobCounters().get(ACCEPTED).getCount(),
+				props.getJobCounters().get(FAILED).getCount()
+		);
 
 		final ServerMonitoringData serverMonitoringData = ImmutableServerMonitoringData.builder()
-				.idlePowerConsumption(props.getIdlePowerConsumption())
+				.idlePowerConsumption(props.getConfig().getIdlePower())
 				.currentPowerConsumption(props.getCurrentPowerConsumption())
 				.currentTraffic(greenPowerUsage)
 				.currentBackUpPowerTraffic(backPowerUsage)
@@ -280,7 +306,7 @@ public class ServerNode extends EGCSNetworkNode<ServerNodeArgs, ServerAgentProps
 				.isDisabled(props.isDisabled())
 				.build();
 
-		writeMonitoringData(DataType.SERVER_MONITORING, serverMonitoringData, props.getAgentName());
+		writeMonitoringData(SERVER_MONITORING, serverMonitoringData, props.getAgentName());
 	}
 
 	private boolean getIsActiveState(final ServerAgentProps props) {

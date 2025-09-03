@@ -18,7 +18,7 @@ import org.greencloud.commons.args.agent.client.node.ImmutableClientNodeArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.greenenergy.node.GreenEnergyNodeArgs;
 import org.greencloud.commons.args.agent.greenenergy.node.ImmutableGreenEnergyNodeArgs;
-import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.agent.managing.factory.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.monitoring.node.ImmutableMonitoringNodeArgs;
 import org.greencloud.commons.args.agent.monitoring.node.MonitoringNodeArgs;

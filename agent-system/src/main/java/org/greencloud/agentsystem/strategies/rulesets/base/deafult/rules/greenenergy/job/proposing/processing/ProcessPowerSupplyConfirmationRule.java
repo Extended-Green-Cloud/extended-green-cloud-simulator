@@ -11,6 +11,7 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCH
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_SCHEDULE_POWER_SUPPLY_RULE;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareReply;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RESOURCES;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
@@ -78,6 +79,7 @@ public class ProcessPowerSupplyConfirmationRule
 
 		agent.send(prepareReply(proposal, jobWithProtocol.getJobInstanceIdentifier(), INFORM,
 				jobWithProtocol.getReplyProtocol()));
+		agentNode.reportDecisionAboutGreenEnergySupplyForJob(agentProps, facts.get(RESOURCES), job, true);
 	}
 
 	@Override

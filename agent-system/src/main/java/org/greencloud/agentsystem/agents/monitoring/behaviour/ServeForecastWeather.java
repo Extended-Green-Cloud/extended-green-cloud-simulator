@@ -4,30 +4,28 @@ import static java.lang.Math.max;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.collections4.ListUtils.partition;
-import static org.greencloud.agentsystem.agents.monitoring.behaviour.logs.WeatherServingLog.SERVE_FORECAST_FOR_JOB_LOG;
-import static org.greencloud.agentsystem.agents.monitoring.behaviour.logs.WeatherServingLog.SERVE_FORECAST_LOG;
 import static org.greencloud.agentsystem.agents.monitoring.behaviour.templates.WeatherServingMessageTemplates.SERVE_FORECAST_TEMPLATE;
-import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.BAD_STUB_DATA;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.MAX_NUMBER_OF_REQUESTS;
-import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.STUB_DATA;
 import static org.greencloud.agentsystem.agents.monitoring.domain.MonitoringAgentConstants.WEATHER_REQUESTS_IN_BATCH;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherDataResponse;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_AGENT_NAME;
-import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.greencloud.weatherapi.constants.MockWeatherConstants.CURRENT_WEATHER_BAD_STUB;
+import static org.greencloud.weatherapi.mapper.WeatherMapper.mapToWeatherData;
 import static org.jrba.utils.messages.MessageReader.readMessageContent;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.greencloud.agentsystem.agents.monitoring.MonitoringAgent;
 import org.greencloud.commons.domain.agent.GreenSourceForecastData;
 import org.greencloud.commons.domain.agent.GreenSourceWeatherData;
+import org.greencloud.commons.domain.weather.ImmutableMonitoringData;
 import org.greencloud.commons.domain.weather.MonitoringData;
-import org.slf4j.Logger;
-import org.slf4j.MDC;
+import org.greencloud.commons.utils.logger.LogBuilder;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -37,7 +35,7 @@ import jade.lang.acl.ACLMessage;
  */
 public class ServeForecastWeather extends CyclicBehaviour implements Serializable {
 
-	private static final Logger logger = getLogger(ServeForecastWeather.class);
+	private static final LogBuilder log = constructLogBuilder(ServeForecastWeather.class);
 	private static final Random STUB_DATA_RANDOM = new Random();
 	private final MonitoringAgent monitoringAgent;
 
@@ -77,28 +75,26 @@ public class ServeForecastWeather extends CyclicBehaviour implements Serializabl
 	private MonitoringData getWeatherForecast(final ACLMessage message) {
 		final GreenSourceForecastData requestData = readMessageContent(message, GreenSourceForecastData.class);
 
-		MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
-		MDC.put(MDC_JOB_ID, requestData.getJobId());
-		logger.info(SERVE_FORECAST_FOR_JOB_LOG, requestData.getJobId());
+		log.withJobId(requestData.getJobId())
+				.withAgentName(myAgent.getLocalName())
+				.messageInfo("Sending message with the weather data for job {}", requestData.getJobId());
 
-		return monitoringAgent.getProperties().isOfflineMode() ?
-				STUB_DATA :
-				monitoringAgent.weather().getForecast(requestData);
+		return monitoringAgent.weather().getForecast(requestData);
 	}
 
 	private MonitoringData getWeatherDataForPeriodicCheck(final ACLMessage message) {
 		final GreenSourceWeatherData requestData = readMessageContent(message, GreenSourceWeatherData.class);
-		MDC.clear();
-		MDC.put(MDC_AGENT_NAME, myAgent.getLocalName());
-		logger.info(SERVE_FORECAST_LOG);
+		log.clearContext()
+				.withAgentName(myAgent.getLocalName())
+				.messageInfo("Sending message with the weather data");
 
-		return of(monitoringAgent.getProperties().getBadStubProbability())
+		return of(monitoringAgent.getProperties().getConfig().getBadStubProbability())
 				.map(probability -> max(probability - requestData.getPredictionError(), 0))
 				.filter(this::isBadStubbingProbability)
-				.map(probability -> BAD_STUB_DATA)
-				.orElse(monitoringAgent.getProperties().isOfflineMode() ?
-						STUB_DATA :
-						monitoringAgent.weather().getWeather(requestData));
+				.map(_ -> mapToWeatherData(CURRENT_WEATHER_BAD_STUB, getCurrentTime()))
+				.map(weatherData -> ImmutableMonitoringData.builder().addWeatherData(weatherData).build())
+				.map(MonitoringData.class::cast)
+				.orElse(monitoringAgent.weather().getWeather(requestData));
 	}
 
 	private boolean isBadStubbingProbability(final double probability) {

@@ -40,6 +40,7 @@ import org.greencloud.commons.domain.job.transfer.JobPowerShortageTransfer;
 import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
 import org.greencloud.commons.enums.job.JobExecutionResultEnum;
 import org.greencloud.commons.enums.job.JobExecutionStatusEnum;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.jrba.agentmodel.domain.props.AgentProps;
 import org.jrba.agentmodel.types.AgentType;
 import org.jrba.rulesengine.constants.FactTypeConstants;
@@ -57,21 +58,23 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class EGCSAgentProps extends AgentProps {
+public class EGCSAgentProps<T extends AgentArgs> extends AgentProps {
 
 	private static final Logger logger = getLogger(EGCSAgentProps.class);
-
 	protected final ConcurrentMap<JobExecutionResultEnum, JobCounter> jobCounters;
+	protected T config;
 	protected AID parentDFAddress;
 
 	/**
 	 * Default constructor that sets the type of the agent
 	 *
-	 * @param agentType type of the agent
-	 * @param agentName name of the agent
+	 * @param agentType     type of the agent
+	 * @param agentName     name of the agent
+	 * @param configuration configuration of the agent
 	 */
-	public EGCSAgentProps(final AgentType agentType, final String agentName) {
+	public EGCSAgentProps(final AgentType agentType, final String agentName, final T configuration) {
 		super(agentType, agentName);
+		this.config = configuration;
 		this.jobCounters = getJobCountersMap();
 	}
 

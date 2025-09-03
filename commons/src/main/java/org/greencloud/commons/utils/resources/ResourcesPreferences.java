@@ -65,6 +65,7 @@ public class ResourcesPreferences {
 	 * @implNote following formula from
 	 * [<a href="https://link.springer.com/article/10.1007/s10586-020-03176-1">Budget-deadline-based allocation</a>]
 	 */
+	//TODO: Add green energy utilization
 	public static double computeBiFactor(final double priority,
 			final JobWithExecutionEstimation executionEstimation,
 			final Long optimisticSpareDeadline, final Double optimisticSpareBudget) {

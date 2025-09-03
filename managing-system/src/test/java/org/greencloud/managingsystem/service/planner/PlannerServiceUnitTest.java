@@ -1,21 +1,20 @@
 package org.greencloud.managingsystem.service.planner;
 
 import static com.database.knowledge.domain.action.AdaptationActionsDefinitions.getAdaptationAction;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.HEALTH_CHECK;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
 import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
-import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CHANGE_GREEN_SOURCE_WEIGHT;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.managingsystem.service.common.TestAdaptationPlanFactory.getTestAdaptationPlan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -37,9 +36,12 @@ import java.util.stream.Stream;
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.agent.EGCSAgentType;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
+import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
@@ -65,9 +67,7 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
-import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 
 import jade.core.AID;
 
@@ -77,6 +77,8 @@ class PlannerServiceUnitTest {
 
 	@Mock
 	private static ManagingAgent managingAgent;
+	@Mock
+	private static ManagingAgentProps mockManagingAgentProps;
 	@Mock
 	private static ExecutorService executorService;
 	@Mock
@@ -100,13 +102,15 @@ class PlannerServiceUnitTest {
 	@BeforeEach
 	void init() {
 		managingAgent = mock(ManagingAgent.class);
+		mockManagingAgentProps = mock(ManagingAgentProps.class);
 		plannerService = spy(new PlannerService(managingAgent));
 		database = mock(TimescaleDatabase.class);
 		agentNode = mock(ManagingAgentNode.class);
 		monitoringService = spy(new MonitoringService(managingAgent));
 
 		var testStructure = new ScenarioStructureArgs(null, null, emptyList(), emptyList(), emptyList(), emptyList());
-		doReturn(testStructure).when(managingAgent).getGreenCloudStructure();
+		doReturn(mockManagingAgentProps).when(managingAgent).getProperties();
+		doReturn(testStructure).when(mockManagingAgentProps).getGreenCloudStructure();
 		doReturn(executorService).when(managingAgent).execute();
 		doReturn(monitoringService).when(managingAgent).monitor();
 		doReturn(database).when(agentNode).getDatabaseClient();
@@ -215,7 +219,7 @@ class PlannerServiceUnitTest {
 	private void prepareGreenSourceStructure() {
 		var structure = mock(ScenarioStructureArgs.class);
 		doReturn(List.of("test_gs3")).when(structure).getGreenSourcesForServerAgent("test_server1");
-		doReturn(structure).when(managingAgent).getGreenCloudStructure();
+		doReturn(structure).when(mockManagingAgentProps).getGreenCloudStructure();
 	}
 
 	private List<AgentData> prepareServerData() {
@@ -230,7 +234,7 @@ class PlannerServiceUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_server1", SERVER_MONITORING, data1)
+				new AgentData(getCurrentTime(), "test_server1", SERVER_MONITORING, data1)
 		);
 	}
 
@@ -255,19 +259,19 @@ class PlannerServiceUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
 		);
 	}
 
 	private List<AgentData> preparePowerShortageData() {
 		return List.of(
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(2, 1000)),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(1, 1000))
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(2, 1000)),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(1, 1000))
 		);
 	}
 
@@ -278,14 +282,14 @@ class PlannerServiceUnitTest {
 		var healthCheck4 = new HealthCheck(true, EGCSAgentType.SERVER);
 
 		var mockData = List.of(
-				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
-				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
-				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3),
-				new AgentData(now(), "test_server1", HEALTH_CHECK, healthCheck4)
+				new AgentData(getCurrentTime(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(getCurrentTime(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(getCurrentTime(), "test_gs3", HEALTH_CHECK, healthCheck3),
+				new AgentData(getCurrentTime(), "test_server1", HEALTH_CHECK, healthCheck4)
 		);
 
-		doReturn(mockData).when(database).readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-				MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+		doReturn(mockData).when(database)
+				.readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK), 500);
 	}
 
 	@ParameterizedTest

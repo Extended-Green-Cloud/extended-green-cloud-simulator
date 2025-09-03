@@ -1,7 +1,6 @@
 package org.greencloud.managingsystem.service;
 
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 /**
  * Abstract service inherited by all services used in managing agent
@@ -15,7 +14,7 @@ public abstract class AbstractManagingService {
 	 *
 	 * @param managingAgent agent using the service to monitor the system
 	 */
-	protected AbstractManagingService(AbstractManagingAgent managingAgent) {
+	protected AbstractManagingService(final ManagingAgent managingAgent) {
 		this.managingAgent = (ManagingAgent) managingAgent;
 	}
 }

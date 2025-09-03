@@ -1,5 +1,6 @@
 package org.greencloud.commons.utils.facts;
 
+import static java.util.Optional.ofNullable;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION_DATA;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.ALLOCATION_TIMER;
@@ -98,7 +99,7 @@ public class JobAllocationFactsFactory {
 			final List<ClientJob> jobs, final AllocationData allocationData, final Timer timer) {
 		final RuleSetFacts facts = new RuleSetFacts(index);
 		facts.put(JOBS, jobs);
-		facts.put(RESULT, allocationData);
+		ofNullable(allocationData).ifPresent(data -> facts.put(RESULT, allocationData));
 		facts.put(ALLOCATION_TIMER, timer);
 		facts.put(RULE_TYPE, PROCESS_NEW_JOB_ALLOCATION_RULE);
 
@@ -173,7 +174,7 @@ public class JobAllocationFactsFactory {
 	public static RuleSetFacts constructFactsForRMADataPreparation(final int index,
 			final List<String> allocationFields,
 			final Collection<ACLMessage> messages,
-			final List<AllocatedJobs> jobs) {
+			final AllocatedJobs jobs) {
 		final RuleSetFacts facts = new RuleSetFacts(index);
 		facts.put(JOBS, jobs);
 		facts.put(MESSAGES, messages);

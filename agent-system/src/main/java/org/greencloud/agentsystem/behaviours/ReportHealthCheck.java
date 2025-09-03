@@ -1,10 +1,16 @@
 package org.greencloud.agentsystem.behaviours;
 
 import static com.database.knowledge.types.DataType.HEALTH_CHECK;
+import static java.lang.Long.parseLong;
 import static java.util.Objects.nonNull;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
+
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.greencloud.agentsystem.agents.EGCSAgent;
 import org.greencloud.commons.args.agent.EGCSAgentType;
+import org.greencloud.commons.utils.logger.LogBuilder;
 
 import com.database.knowledge.domain.agent.HealthCheck;
 
@@ -15,22 +21,32 @@ import jade.core.behaviours.TickerBehaviour;
  */
 public class ReportHealthCheck extends TickerBehaviour {
 
-	/**
-	 * The period defined in MS on how often agents should report their health check. When setting the value, it is
-	 * important to take into account the pressure it puts on the environment - every created agent reports data
-	 * according to that metric.
-	 */
-	private static final long HEALTH_CHECK_PERIOD = 250;
-	private final EGCSAgent<?, ?> myAbstractAgent;
+	private static final LogBuilder log = constructLogBuilder(ReportHealthCheck.class);
+	private static final long DEFAULT_HEALTH_PERIOD = 300;
+	private final EGCSAgent<?, ?, ?> myAbstractAgent;
 
 	/**
 	 * Behaviour constructor.
 	 *
 	 * @param agent agent executing the behaviour
 	 */
-	public ReportHealthCheck(final EGCSAgent<?, ?> agent) {
-		super(agent, HEALTH_CHECK_PERIOD);
+	public ReportHealthCheck(final EGCSAgent<?, ?, ?> agent) {
+		super(agent, readHealthCheckPeriod(agent));
 		myAbstractAgent = agent;
+	}
+
+	private static long readHealthCheckPeriod(final EGCSAgent<?, ?, ?> agent) {
+		final Properties properties = new Properties();
+
+		try (InputStream res = ReportHealthCheck.class.getClassLoader().getResourceAsStream("config.properties")) {
+			properties.load(res);
+			return parseLong(properties.getProperty("reporting.health.period"));
+		} catch (Exception exception) {
+			log.withAgentName(agent.getLocalName())
+					.messageWarn("Could not load properties file {}. Setting default health period equal {} ms.",
+							exception.toString(), DEFAULT_HEALTH_PERIOD);
+			return DEFAULT_HEALTH_PERIOD;
+		}
 	}
 
 	/**
