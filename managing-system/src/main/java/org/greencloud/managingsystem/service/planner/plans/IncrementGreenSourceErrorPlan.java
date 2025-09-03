@@ -1,6 +1,5 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
 import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
 import static java.util.Collections.singletonList;
@@ -8,8 +7,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
-import static org.greencloud.managingsystem.service.planner.plans.domain.AdaptationPlanVariables.POWER_SHORTAGE_THRESHOLD;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,7 +20,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableAdjustGreenSourceErrorParameters;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
@@ -117,11 +115,12 @@ public class IncrementGreenSourceErrorPlan extends AbstractPlan {
 
 		final Map<String, Integer> powerShortageMap = managingAgent.getAgentNode().getDatabaseClient()
 				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, agentsOfInterest.stream().toList(),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD).stream()
+						managingAgent.getProperties().getConfig().getShortTermDataTimeFrame()).stream()
 				.collect(groupingBy(AgentData::aid, TreeMap::new, summingInt(getPowerShortageCount)));
 
 		return powerShortageMap.entrySet().stream()
-				.filter(entry -> entry.getValue() >= POWER_SHORTAGE_THRESHOLD)
+				.filter(entry -> entry.getValue() >=
+						managingAgent.getProperties().getConfig().getPowerShortageThreshold())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 }

@@ -10,11 +10,12 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +31,8 @@ class DisableServerPlanTest {
 
 	@Mock
 	ManagingAgent managingAgent;
-
+	@Mock
+	ManagingAgentProps managingAgentProps;
 	@Mock
 	ManagingAgentNode managingAgentNode;
 
@@ -47,6 +49,7 @@ class DisableServerPlanTest {
 		managingAgentNode = mock(ManagingAgentNode.class);
 
 		disableServerPlan = new DisableServerPlan(managingAgent, DISTRIBUTE_TRAFFIC_EVENLY);
+		doReturn(managingAgentProps).when(managingAgent).getProperties();
 		doReturn(timescaleDatabase).when(managingAgentNode).getDatabaseClient();
 		doReturn(managingAgentNode).when(managingAgent).getAgentNode();
 		doReturn(monitoringService).when(managingAgent).monitor();
@@ -149,6 +152,6 @@ class DisableServerPlanTest {
 				emptyList()
 		);
 
-		doReturn(networkStructure).when(managingAgent).getGreenCloudStructure();
+		doReturn(networkStructure).when(managingAgentProps).getGreenCloudStructure();
 	}
 }

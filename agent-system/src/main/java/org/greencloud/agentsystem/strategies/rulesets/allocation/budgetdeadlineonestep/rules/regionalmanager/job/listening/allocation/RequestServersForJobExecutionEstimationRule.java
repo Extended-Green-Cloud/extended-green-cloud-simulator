@@ -5,6 +5,7 @@ import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.BUDGET;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.DURATION;
+import static org.greencloud.commons.constants.resource.ResourceTypesConstants.ENERGY;
 import static org.greencloud.commons.constants.resource.ResourceTypesConstants.START_TIME;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PREPARE_DATA_FOR_JOB_ALLOCATION_REQUEST_RULE;
 import static org.greencloud.commons.utils.facts.JobAllocationFactsFactory.constructFactsForRMADataPreparation;
@@ -60,7 +61,7 @@ public class RequestServersForJobExecutionEstimationRule extends AgentRequestRul
 		logger.info("Preparing information about regional job execution estimations.");
 
 		final RuleSetFacts dataFacts = constructFactsForRMADataPreparation(facts.get(RULE_SET_IDX),
-				List.of(BUDGET, DURATION, START_TIME), informs, facts.get(JOBS));
+				List.of(BUDGET, DURATION, ENERGY, START_TIME), informs, facts.get(JOBS));
 		controller.fire(dataFacts);
 
 		agent.send(prepareReply(facts.get(MESSAGE), dataFacts.get(RESULT), facts.get(MESSAGE_TYPE)));

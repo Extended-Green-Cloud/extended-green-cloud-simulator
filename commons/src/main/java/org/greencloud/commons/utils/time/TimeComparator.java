@@ -1,7 +1,7 @@
 package org.greencloud.commons.utils.time;
 
 import static java.util.Objects.requireNonNull;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 
 import java.time.Instant;
 
@@ -46,7 +46,7 @@ public class TimeComparator {
 	 * @return true or false value
 	 */
 	public static boolean isWithinTimeStamp(final PowerJob job, final Instant timeToCheck) {
-		return !timeToCheck.isBefore(convertToRealTime(job.getStartTime()))
-				&& timeToCheck.isBefore(convertToRealTime(job.getExpectedEndTime()));
+		return !timeToCheck.isBefore(convertToRealTimeElapsing(job.getStartTime()))
+				&& timeToCheck.isBefore(convertToRealTimeElapsing(job.getExpectedEndTime()));
 	}
 }

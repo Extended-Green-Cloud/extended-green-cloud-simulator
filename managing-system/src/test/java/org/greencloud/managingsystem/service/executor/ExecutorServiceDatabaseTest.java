@@ -22,12 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.EGCSAgentType;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.jrba.utils.yellowpages.YellowPagesRegister;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
-import org.greencloud.managingsystem.agent.behaviour.executor.InitiateAdaptationActionRequest;
+import org.greencloud.managingsystem.agents.ManagingAgent;
+import org.greencloud.managingsystem.behaviours.executor.InitiateAdaptationActionRequest;
 import org.greencloud.managingsystem.service.common.TestPlanParameters;
 import org.greencloud.managingsystem.service.mobility.MobilityService;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
@@ -63,6 +64,8 @@ class ExecutorServiceDatabaseTest {
 	@Mock
 	ManagingAgent managingAgent;
 	@Mock
+	ManagingAgentProps managingAgentProps;
+	@Mock
 	ManagingAgentNode abstractAgentNode;
 	@Mock
 	Location location;
@@ -90,6 +93,7 @@ class ExecutorServiceDatabaseTest {
 		when(managingAgent.getAgentNode()).thenReturn(abstractAgentNode);
 		when(abstractAgentNode.getDatabaseClient()).thenReturn(database);
 		when(managingAgent.move()).thenReturn(mobilityService);
+		when(managingAgent.getProperties()).thenReturn(managingAgentProps);
 
 		adaptationPlan = getTestAdaptationPlan(managingAgent, TEST_AID, new TestPlanParameters(TEST_VALUE));
 	}
@@ -133,7 +137,7 @@ class ExecutorServiceDatabaseTest {
 				.successRatio(0.8)
 				.build();
 
-		when(managingAgent.getGreenCloudStructure()).thenReturn(greenCloudStructure);
+		when(managingAgentProps.getGreenCloudStructure()).thenReturn(greenCloudStructure);
 
 		database.writeMonitoringData("test", CLIENT_MONITORING, monitoringData);
 		database.writeMonitoringData("testRMA", HEALTH_CHECK, rmaHealthData);

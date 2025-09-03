@@ -52,8 +52,6 @@ public class MultiContainerScenarioService extends AbstractScenarioService imple
 		super();
 		final ContainerController container = mainHost ? mainContainer : agentContainer;
 		final File scenarioFile = readFile(scenarioFilePath);
-		final File initialKnowledgeFile = readFile(knowledgeFilePath);
-		systemKnowledge = parseKnowledgeStructure(initialKnowledgeFile);
 		scenario = parseScenarioStructure(scenarioFile);
 		updateStrategyInformation();
 

@@ -8,7 +8,7 @@ import static org.greencloud.commons.enums.job.JobClientStatusEnum.IN_PROGRESS;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.ON_BACK_UP;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.PROCESSED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.SCHEDULED;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getCloudNetworkSocket;
 
@@ -203,7 +203,9 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 	 */
 	public void updateJobDurationMap(final ClientAgentProps agentProps) {
 		final ToLongFunction<Map.Entry<JobClientStatusEnum, Long>> getRealDuration = entry ->
-				SIMULATION_STATUSES.contains(entry.getKey()) ? entry.getValue() : convertToRealTime(entry.getValue());
+				SIMULATION_STATUSES.contains(entry.getKey()) ?
+						entry.getValue() :
+						convertToRealTimeElapsing(entry.getValue());
 
 		final Map<JobClientStatusEnum, Long> durationMap = agentProps.getJobDurationMap().entrySet().stream()
 				.collect(toMap(Map.Entry::getKey, getRealDuration::applyAsLong));
@@ -242,6 +244,15 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 				.build(), agentProps.getAgentName());
 	}
 
+	/**
+	 * Method writes client's job data to the database
+	 *
+	 * @param props properties of Client Agent
+	 */
+	public void writeJobData(final ClientAgentProps props) {
+		databaseClient.writeJobData(props.getAgentName(), props.getJob());
+	}
+
 	@Override
 	public void updateGUI(final ClientAgentProps props) {
 		// no GUI node to apply
@@ -258,6 +269,8 @@ public class ClientNode extends EGCSNode<ClientNodeArgs, ClientAgentProps> {
 				.isFinished(isFinished)
 				.isWithinDeadline(isWithinDeadline)
 				.isWithinBudget(isWithinBudget)
+				.expectedExecutionDuration(props.getExpectedExecutionDuration())
+				.estimatedExecutionEnd(props.getJob().getExpectedEndTime())
 				.currentJobStatus(props.getJobStatus())
 				.jobStatusDurationMap(jobDurationMap)
 				.build();

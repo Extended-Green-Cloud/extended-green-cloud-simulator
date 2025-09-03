@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOBS;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_POWER_SHORTAGE_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_TIME;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -48,7 +49,7 @@ public class ScheduleGreenSourcePowerShortageStartRule
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final Instant shortageStart = facts.get(EVENT_TIME);
 		final Instant startTime = alignStartTimeToCurrentTime(shortageStart);
-		return Date.from(startTime);
+		return Date.from(convertToRealTime(startTime));
 	}
 
 	@Override

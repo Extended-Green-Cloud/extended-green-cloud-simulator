@@ -13,7 +13,7 @@ import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.construct
 import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.FINISH_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForCMA;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_CONTENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE_TYPE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -25,6 +25,7 @@ import org.greencloud.commons.args.agent.regionalmanager.agent.RegionalManagerAg
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.ImmutableJobWithStatus;
 import org.greencloud.commons.domain.job.extended.JobWithStatus;
+import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.gui.agents.regionalmanager.RMANode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentBasicRule;
@@ -86,8 +87,8 @@ public class ProcessServerJobStatusUpdateFinishedJobRule
 	}
 
 	private void updateHighestTimeDifference(final JobWithStatus jobStatusUpdate, final ClientJob job) {
-		final long jobExecutionFinishTime = convertToRealTime(jobStatusUpdate.getChangeTime()).toEpochMilli();
-		final long jobExecutionStartTime = convertToRealTime(job.getStartTime()).toEpochMilli();
+		final long jobExecutionFinishTime = convertToRealTimeElapsing(jobStatusUpdate.getChangeTime()).toEpochMilli();
+		final long jobExecutionStartTime = convertToRealTimeElapsing(job.getStartTime()).toEpochMilli();
 		final long expectedDuration = job.getDuration();
 		final long finalDuration = jobExecutionFinishTime - jobExecutionStartTime;
 		final long msTimeDifference = finalDuration - expectedDuration;

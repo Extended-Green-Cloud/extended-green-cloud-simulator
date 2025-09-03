@@ -50,7 +50,7 @@ public class AgentTemplatesConstants {
 	/**
 	 * Default green source execution price
 	 */
-	public static final Long TEMPLATE_GREEN_ENERGY_PRICE = 10L;
+	public static final Double TEMPLATE_GREEN_ENERGY_PRICE = 10.0;
 	/**
 	 * Default green source maximal capacity
 	 */

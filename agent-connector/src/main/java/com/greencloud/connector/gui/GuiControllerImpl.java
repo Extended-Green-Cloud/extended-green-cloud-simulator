@@ -43,12 +43,12 @@ public class GuiControllerImpl implements GuiController {
 	}
 
 	@Override
-	public void reportSystemStartTime(final Instant time) {
-		getAgentsWebSocket().reportSystemStartTime(time);
-		getClientsWebSocket().reportSystemStartTime(time);
-		getManagingSystemSocket().reportSystemStartTime(time);
-		getCloudNetworkSocket().reportSystemStartTime(time);
-		eventSocket.reportSystemStartTime(time);
+	public void reportSystemStartTime(final Instant time, final long timeDifferenceMillis) {
+		getAgentsWebSocket().reportSystemStartTime(time, timeDifferenceMillis);
+		getClientsWebSocket().reportSystemStartTime(time, timeDifferenceMillis);
+		getManagingSystemSocket().reportSystemStartTime(time, timeDifferenceMillis);
+		getCloudNetworkSocket().reportSystemStartTime(time, timeDifferenceMillis);
+		eventSocket.reportSystemStartTime(time, timeDifferenceMillis);
 	}
 
 	@Override

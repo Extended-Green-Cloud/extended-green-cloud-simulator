@@ -10,6 +10,7 @@ import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.IN_PROGRES
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_DELAYED_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.HANDLE_JOB_STATUS_CHECK_RULE;
 import static org.greencloud.commons.utils.job.JobUtils.getJobById;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.TRIGGER_TIME;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
@@ -48,7 +49,7 @@ public class ScheduleJobStartVerificationRule extends AgentScheduledRule<Regiona
 	@Override
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final ClientJob initial = facts.get(JOB);
-		return Date.from(initial.getDeadline());
+		return Date.from(convertToRealTime(initial.getDeadline()));
 	}
 
 	@Override

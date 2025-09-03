@@ -7,6 +7,7 @@ import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.ACCEPTED_JOB_STATUSES;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.FINISH_JOB_EXECUTION_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.PROCESS_FINISH_JOB_EXECUTION_RULE;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_TYPE;
@@ -56,7 +57,7 @@ public class HandleJobFinishRule extends AgentScheduledRule<ServerAgentProps, Se
 		final Instant endDate = ofNullable(job.getExpectedEndTime())
 				.filter(end -> !getCurrentTime().isAfter(end))
 				.orElse(getCurrentTime());
-		return Date.from(endDate);
+		return Date.from(convertToRealTime(endDate));
 	}
 
 	@Override

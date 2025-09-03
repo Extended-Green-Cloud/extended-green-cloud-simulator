@@ -13,5 +13,5 @@ public class AgentControllerConstants {
 	/**
 	 * Number of milliseconds after which next client agent controller is to be run
 	 */
-	public static final Integer RUN_CLIENT_AGENT_DELAY = 600;
+	public static final Integer RUN_CLIENT_AGENT_DELAY = 3000;
 }

@@ -1,8 +1,8 @@
 package org.greencloud.commons.args.agent.regionalmanager.factory;
 
-import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.immutables.value.Value.Immutable;
 import org.jetbrains.annotations.Nullable;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -26,17 +26,8 @@ public interface RegionalManagerArgs extends AgentArgs {
 	Integer getPollingBatchSize();
 
 	/**
-	 * @return location's latitude
+	 * @return identifier of a region
 	 */
-	@Nullable
-	String getLatitude();
-
-	/**
-	 * @return location's longitude
-	 */
-	@Nullable
-	String getLongitude();
-
 	@Nullable
 	String getLocationId();
 }

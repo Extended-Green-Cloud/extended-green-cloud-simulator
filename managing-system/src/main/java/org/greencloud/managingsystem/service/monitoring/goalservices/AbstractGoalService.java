@@ -2,12 +2,11 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
 import static java.util.List.of;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static java.util.Objects.nonNull;
 
 import java.util.List;
-import java.util.Objects;
 
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 
 import com.database.knowledge.domain.agent.AgentData;
@@ -28,7 +27,7 @@ public abstract class AbstractGoalService extends AbstractManagingService {
 	 *
 	 * @param managingAgent agent using the service to monitor the system
 	 */
-	protected AbstractGoalService(AbstractManagingAgent managingAgent, GoalType goal) {
+	protected AbstractGoalService(ManagingAgent managingAgent, GoalType goal) {
 		super(managingAgent);
 		this.currentGoalQuality = new AtomicDouble(0);
 		this.goal = goal;
@@ -61,16 +60,16 @@ public abstract class AbstractGoalService extends AbstractManagingService {
 
 	/**
 	 * Method recalculates the quality of a given goal based on data stored over a default period of time
-	 * specified by MONITOR_SYSTEM_DATA_TIME_PERIOD constant.
+	 * specified by shortTermDataTimeFrame property.
 	 *
 	 * @return current goal quality for the given period
 	 */
 	public double computeCurrentGoalQuality() {
-		return computeCurrentGoalQuality(MONITOR_SYSTEM_DATA_TIME_PERIOD);
+		return computeCurrentGoalQuality(managingAgent.getProperties().getConfig().getShortTermDataTimeFrame());
 	}
 
 	protected void updateGoalQuality(Double currentGoalQuality) {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
+		if (nonNull(managingAgent.getAgentNode())) {
 			managingAgent.getAgentNode().getDatabaseClient()
 					.writeSystemQualityData(goal.getAdaptationGoalId(), currentGoalQuality);
 		}

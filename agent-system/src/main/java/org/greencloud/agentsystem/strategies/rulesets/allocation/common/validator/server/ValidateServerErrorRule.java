@@ -51,7 +51,7 @@ public class ValidateServerErrorRule extends AgentBasicRule<ServerAgentProps, Se
 
 	@Override
 	public AgentRule copy() {
-		return new PrepareServerPriceEstimationDataRule(controller);
+		return new ValidateServerErrorRule(controller);
 	}
 
 	@Override

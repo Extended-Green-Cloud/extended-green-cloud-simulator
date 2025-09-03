@@ -12,6 +12,7 @@ import static org.greencloud.commons.utils.job.JobUtils.isJobStarted;
 import static org.greencloud.commons.utils.messaging.constants.MessageConversationConstants.GREEN_POWER_JOB_ID;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStartedMessage;
 import static org.greencloud.commons.utils.messaging.factory.JobStatusMessageFactory.prepareJobStatusMessageForRMA;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
 import static org.greencloud.commons.utils.time.TimeScheduler.alignStartTimeToCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.AGENT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
@@ -58,7 +59,7 @@ public class SchedulePowerShortageJobTransferRule extends AgentScheduledRule<Ser
 	protected Date specifyTime(final RuleSetFacts facts) {
 		final ClientJob job = facts.get(JOB);
 		final Instant transferTime = alignStartTimeToCurrentTime(job.getStartTime());
-		return Date.from(transferTime);
+		return Date.from(convertToRealTime(transferTime));
 	}
 
 	@Override

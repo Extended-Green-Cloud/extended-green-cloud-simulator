@@ -1,11 +1,11 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISABLE_SERVER;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static java.util.Collections.max;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
+import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DISABLE_SERVER;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableDisableServerActionParameters;
-import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
@@ -105,7 +105,8 @@ public class DisableServerPlan extends AbstractPlan {
 	}
 
 	private Map<String, Integer> getServersNotInDatabase(List<AgentData> agentDataFromDatabase) {
-		final List<String> consideredServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs().stream()
+		final List<String> consideredServers = managingAgent.getProperties().getGreenCloudStructure()
+				.getServerAgentsArgs().stream()
 				.map(AgentArgs::getName).toList();
 		final List<String> aliveServers = managingAgent.monitor().getAliveAgentsIntersection(SERVER, consideredServers);
 
@@ -115,7 +116,7 @@ public class DisableServerPlan extends AbstractPlan {
 
 	private ToIntFunction<String> getServerMaxCapacity() {
 		return serverAID -> {
-			final List<ServerArgs> allServers = managingAgent.getGreenCloudStructure().getServerAgentsArgs();
+			final List<ServerArgs> allServers = managingAgent.getProperties().getGreenCloudStructure().getServerAgentsArgs();
 
 			return allServers.stream()
 					.filter(server -> server.getName().equals(serverAID.split("@")[0]))

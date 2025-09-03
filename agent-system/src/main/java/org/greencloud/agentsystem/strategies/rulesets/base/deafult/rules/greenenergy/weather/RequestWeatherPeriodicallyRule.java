@@ -8,7 +8,7 @@ import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.CHECK_WEATH
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.POWER_SHORTAGE_ERROR_RULE;
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.PERIODIC_WEATHER_CHECK_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.WeatherCheckMessageFactory.prepareWeatherCheckRequest;
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_CAUSE;
 import static org.jrba.rulesengine.constants.FactTypeConstants.EVENT_IS_FINISHED;
@@ -25,6 +25,7 @@ import java.time.Instant;
 import org.greencloud.commons.args.agent.greenenergy.agent.GreenEnergyAgentProps;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.exception.IncorrectMessageContentException;
+import org.greencloud.commons.utils.time.TimeConverter;
 import org.greencloud.gui.agents.greenenergy.GreenEnergyNode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rule.AgentRule;
@@ -70,7 +71,7 @@ public class RequestWeatherPeriodicallyRule extends AgentRequestRule<GreenEnergy
 		try {
 			final MonitoringData data = readMessageContent(inform, MonitoringData.class);
 			final Instant time = getCurrentTime();
-			final Instant realTime = convertToRealTime(time);
+			final Instant realTime = convertToRealTimeElapsing(time);
 			final double availablePower = agentProps.getAvailableEnergy(realTime, data).orElse(-1.0);
 
 			if (availablePower < 0 && !agentProps.getServerJobs().isEmpty()) {

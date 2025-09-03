@@ -1,32 +1,32 @@
 package org.greencloud.agentsystem.agents.monitoring.management;
 
-import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTime;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToRealTimeElapsing;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.weatherapi.mapper.WeatherMapper.mapToWeatherData;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
-import org.greencloud.agentsystem.agents.monitoring.management.logs.MonitoringManagementLog;
-import org.greencloud.weatherapi.api.OpenWeatherMapApi;
-import org.greencloud.weatherapi.cache.WeatherCache;
-import org.slf4j.Logger;
-
+import org.greencloud.agentsystem.agents.monitoring.MonitoringAgent;
 import org.greencloud.commons.domain.agent.GreenSourceForecastData;
 import org.greencloud.commons.domain.agent.GreenSourceWeatherData;
 import org.greencloud.commons.domain.location.Location;
 import org.greencloud.commons.domain.weather.ImmutableMonitoringData;
 import org.greencloud.commons.domain.weather.MonitoringData;
 import org.greencloud.commons.domain.weather.WeatherData;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.commons.utils.time.TimeConverter;
+import org.greencloud.weatherapi.api.OpenWeatherMapApi;
+import org.greencloud.weatherapi.cache.WeatherCache;
 
 /**
  * Set of methods used in weather management.
  */
 public class MonitoringWeatherManagement implements Serializable {
 
-	private static final Logger logger = getLogger(MonitoringWeatherManagement.class);
+	private static final LogBuilder log = constructLogBuilder(MonitoringWeatherManagement.class);
 
 	private final transient OpenWeatherMapApi api;
 	private final transient WeatherCache cache;
@@ -34,8 +34,8 @@ public class MonitoringWeatherManagement implements Serializable {
 	/**
 	 * Default constructor.
 	 */
-	public MonitoringWeatherManagement() {
-		this.api = new OpenWeatherMapApi();
+	public MonitoringWeatherManagement(final MonitoringAgent agent) {
+		this.api = new OpenWeatherMapApi(agent.getProperties().getConfig().getWeatherFetchingMode());
 		this.cache = WeatherCache.getInstance();
 	}
 
@@ -46,9 +46,9 @@ public class MonitoringWeatherManagement implements Serializable {
 	 * @return weather for current moment
 	 */
 	public MonitoringData getWeather(final GreenSourceWeatherData data) {
-		logger.info(MonitoringManagementLog.RETRIEVE_WEATHER_LOG, data.getLocation());
+		log.messageInfo("Retrieving forecast info for {}!", data.getLocation());
 		return ImmutableMonitoringData.builder()
-				.addWeatherData(getWeatherData(data.getLocation(), convertToRealTime(getCurrentTime())))
+				.addWeatherData(getWeatherData(data.getLocation(), convertToRealTimeElapsing(getCurrentTime())))
 				.build();
 	}
 
@@ -60,7 +60,7 @@ public class MonitoringWeatherManagement implements Serializable {
 	 */
 	public MonitoringData getForecast(final GreenSourceForecastData requestData) {
 		final Location location = requestData.getLocation();
-		logger.info(MonitoringManagementLog.RETRIEVE_WEATHER_LOG, location);
+		log.messageInfo("Retrieving forecast info for {}!", location);
 		final List<WeatherData> weatherData = requestData.getTimetable().stream()
 				.map(time -> getForecastData(location, time))
 				.toList();

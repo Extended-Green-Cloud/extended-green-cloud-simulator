@@ -5,7 +5,7 @@ import java.util.List;
 import org.jrba.environment.domain.ExternalMessage;
 import org.immutables.value.Value;
 
-import com.database.knowledge.domain.goal.AdaptationGoal;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

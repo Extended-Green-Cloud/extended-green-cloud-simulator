@@ -37,8 +37,9 @@ public interface GuiController extends Runnable, Serializable {
 	 * Method reports to the socket server time when the system was started.
 	 *
 	 * @param time time of system start
+	 * @param timeDifferenceMillis time difference in milliseconds between the system start time and current time
 	 */
-	void reportSystemStartTime(final Instant time);
+	void reportSystemStartTime(final Instant time, final long timeDifferenceMillis);
 
 	/**
 	 * Method reports to the socket server the parameters of strategy allocation strategy.

@@ -76,6 +76,13 @@ public class PollNextClientJobForExecutionRule extends AgentPeriodicRule<ServerA
 		final Map<String, Resource> availableResources = agentProps.getAvailableResources(jobAndStartTime.getValue(),
 				job.getExpectedEndTime(), mapToJobInstanceId(job), null);
 
+		if(!agentProps.getServerJobs().containsKey(nextJob) || agentProps.getRuleSetForJob().get(job) == null) {
+			MDC.put(MDC_JOB_ID, nextJob.getJobId());
+			MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
+			logger.info("Job {} does not longer exists in Server's list.", nextJob.getJobId());
+			return;
+		}
+
 		facts.put(RULE_TYPE, NEW_JOB_POLLING_RULE);
 		facts.put(RULE_SET_IDX, agentProps.getRuleSetForJob().get(job));
 		facts.put(RESOURCES, availableResources);

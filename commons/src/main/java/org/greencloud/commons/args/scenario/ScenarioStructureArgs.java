@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import org.greencloud.commons.args.agent.centralmanager.factory.CentralManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.commons.args.agent.managing.ManagingAgentArgs;
+import org.greencloud.commons.args.agent.managing.factory.ManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;

@@ -2,6 +2,7 @@ package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.centra
 
 import static java.lang.String.valueOf;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.of;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.job.JobExecutionStatusEnum.CREATED;
@@ -14,8 +15,11 @@ import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_RULE_SET_ID;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Optional;
+
 import org.greencloud.commons.args.agent.centralmanager.agent.CentralManagerAgentProps;
 import org.greencloud.commons.domain.job.basic.ClientJob;
+import org.greencloud.commons.domain.job.basic.PowerJob;
 import org.greencloud.gui.agents.centralmanager.CMANode;
 import org.jrba.rulesengine.RulesController;
 import org.jrba.rulesengine.rest.domain.RuleSetRest;
@@ -69,6 +73,8 @@ public class ProcessNewClientJobAddJobRule extends AgentBasicRule<CentralManager
 			controller.addModifiedTemporaryRuleSetFromCurrent(modifications, newRuleSetIdx);
 		}
 		agentProps.addJob(job, newRuleSetIdx, CREATED);
+		agentProps.getPriorityPerJob().putIfAbsent(job.getJobId(),
+				Double.valueOf(of(job).map(PowerJob::getPriority).orElse(0)));
 
 		MDC.put(MDC_JOB_ID, job.getJobId());
 		MDC.put(MDC_RULE_SET_ID, valueOf(newRuleSetIdx));

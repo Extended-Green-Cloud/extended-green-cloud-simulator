@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.args.agent.EGCSAgentProps;
-import org.greencloud.commons.domain.agent.RegionResources;
+import org.greencloud.commons.args.agent.regionalmanager.factory.RegionalManagerArgs;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
@@ -62,7 +62,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RegionalManagerAgentProps extends EGCSAgentProps {
+public class RegionalManagerAgentProps extends EGCSAgentProps<RegionalManagerArgs> {
 
 	private static final Logger logger = getLogger(RegionalManagerAgentProps.class);
 
@@ -78,26 +78,18 @@ public class RegionalManagerAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<ClientJob, RuleSetFacts> priorityFacts;
 	protected PriorityBlockingQueue<ClientJob> jobsToBeExecuted;
 	protected AID cma;
-
-	protected int maximumQueueSize;
-	protected int pollingBatchSize;
 	protected Instant lastPollingTime;
-
-	public RegionalManagerAgentProps(final String agentName) {
-		super(REGIONAL_MANAGER, agentName);
-	}
 
 	/**
 	 * Constructor that initialize Regional Manager Agent state to initial values
 	 *
-	 * @param agentName name of the agent
+	 * @param agentName           name of the agent
+	 * @param regionalManagerArgs Regional Manager controller arguments
 	 */
-	public RegionalManagerAgentProps(final String agentName, final int maximumQueueSize, final int pollingBatchSize) {
-		super(REGIONAL_MANAGER, agentName);
-		this.maximumQueueSize = maximumQueueSize;
-		this.pollingBatchSize = pollingBatchSize;
-		this.lastPollingTime = getCurrentTime();
+	public RegionalManagerAgentProps(final String agentName, final RegionalManagerArgs regionalManagerArgs) {
+		super(REGIONAL_MANAGER, agentName, regionalManagerArgs);
 
+		this.lastPollingTime = getCurrentTime();
 		this.serverForJobMap = new ConcurrentHashMap<>();
 		this.networkJobs = new ConcurrentHashMap<>();
 		this.ownedServers = new ConcurrentHashMap<>();

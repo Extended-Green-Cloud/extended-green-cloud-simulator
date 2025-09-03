@@ -31,6 +31,7 @@ export type ManagingSystemReports = {
 
 export type ReportsStore = {
    systemStartTime: number | null
+   systemTimeDifference: number | null
    secondsPerHour: number | null
    systemTrafficReport: LiveChartEntry[]
    agentsReports: AgentStatisticReport[]

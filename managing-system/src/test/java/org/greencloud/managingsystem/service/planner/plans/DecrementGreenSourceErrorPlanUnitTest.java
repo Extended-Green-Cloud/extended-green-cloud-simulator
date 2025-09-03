@@ -4,13 +4,12 @@ import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
-import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_TIME_PERIOD;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -21,10 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsBackUpPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsPowerShortages;
@@ -37,7 +38,6 @@ import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.WeatherShortages;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 import jade.core.AID;
@@ -48,6 +48,8 @@ class DecrementGreenSourceErrorPlanUnitTest {
 
 	@Mock
 	private ManagingAgent mockManagingAgent;
+	@Mock
+	private ManagingAgentProps mockManagingAgentProps;
 	@Mock
 	private ScenarioStructureArgs mockScenarioStructure;
 	@Mock
@@ -66,16 +68,18 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		mockAgentNode = mock(ManagingAgentNode.class);
 		mockDatabase = mock(TimescaleDatabase.class);
 		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
+		mockManagingAgentProps = mock(ManagingAgentProps.class);
 
 		decrementGreenSourceErrorPlan = new DecrementGreenSourceErrorPlan(mockManagingAgent,
 				MINIMIZE_USED_BACKUP_POWER);
 
+		doReturn(mockManagingAgentProps).when(mockManagingAgent).getProperties();
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(mockDatabase).when(mockAgentNode).getDatabaseClient();
 
 		doReturn(prepareGreenSourceWeatherShortageData()).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, GREEN_SOURCES, MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, GREEN_SOURCES, 10);
 		doReturn(prepareGreenSourceMonitoringData()).when(mockDatabase)
 				.readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
 		doReturn(GREEN_SOURCES).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
@@ -121,10 +125,9 @@ class DecrementGreenSourceErrorPlanUnitTest {
 	void testGetValidGreenSourcesForServer() {
 		// given
 		var data1 = new WeatherShortages(1, 2000);
-		var monitoringData = List.of(new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, data1));
+		var monitoringData = List.of(new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, data1));
 		doReturn(monitoringData).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs1"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs1"), 10);
 
 		var testServer = new AgentsBackUpPower("test_server1", 0.7);
 		var aliveAgents = List.of("test_gs1", "test_gs2", "test_gs3");
@@ -154,18 +157,16 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		var data3 = new WeatherShortages(3, 2000);
 		var data4 = new WeatherShortages(1, 2000);
 
-		var monitoringData1 = List.of(new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, data1));
+		var monitoringData1 = List.of(new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, data1));
 		var monitoringData2 = List.of(
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, data3),
-				new AgentData(now(), "test_gs4", WEATHER_SHORTAGES, data4)
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, data3),
+				new AgentData(getCurrentTime(), "test_gs4", WEATHER_SHORTAGES, data4)
 		);
 
 		doReturn(monitoringData1).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs1"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs1"), 10);
 		doReturn(monitoringData2).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs3", "test_gs4"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(WEATHER_SHORTAGES, List.of("test_gs3", "test_gs4"), 10);
 
 		var testServer1 = new AgentsBackUpPower("test_server1", 0.7);
 		var testServer2 = new AgentsBackUpPower("test_server2", 0.8);
@@ -217,8 +218,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		doReturn(testAdaptationGoal).when(mockMonitoring).getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);
 		doReturn(List.of("test_server1", "test_server2")).when(mockMonitoring).getAliveAgents(SERVER);
 		doReturn(prepareServerMonitoringData()).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"), 10);
 
 		// when
 		var result = decrementGreenSourceErrorPlan.isPlanExecutable();
@@ -236,8 +236,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		doReturn(testAdaptationGoal).when(mockMonitoring).getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);
 		doReturn(List.of("test_server1", "test_server2")).when(mockMonitoring).getAliveAgents(SERVER);
 		doReturn(prepareServerMonitoringData()).when(mockDatabase)
-				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"),
-						MONITOR_SYSTEM_DATA_TIME_PERIOD);
+				.readMonitoringDataForDataTypeAndAID(SERVER_MONITORING, List.of("test_server1", "test_server2"), 10);
 		doReturn(emptyList()).when(mockMonitoring).getAliveAgents(GREEN_ENERGY);
 
 		// when
@@ -256,10 +255,10 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		var data3 = new WeatherShortages(3, 2000);
 		var data4 = new WeatherShortages(1, 2000);
 
-		var monitoringData1 = List.of(new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, data1));
+		var monitoringData1 = List.of(new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, data1));
 		var monitoringData2 = List.of(
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, data3),
-				new AgentData(now(), "test_gs4", WEATHER_SHORTAGES, data4)
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, data3),
+				new AgentData(getCurrentTime(), "test_gs4", WEATHER_SHORTAGES, data4)
 		);
 
 		doReturn(testAdaptationGoal).when(mockMonitoring).getAdaptationGoal(MINIMIZE_USED_BACKUP_POWER);
@@ -339,7 +338,7 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		doReturn(List.of(
 				ImmutableRegionalManagerArgs.builder().name("test_rma1").build()
 		)).when(mockScenarioStructure).getRegionalManagerAgentsArgs();
-		doReturn(mockScenarioStructure).when(mockManagingAgent).getGreenCloudStructure();
+		doReturn(mockScenarioStructure).when(mockManagingAgentProps).getGreenCloudStructure();
 	}
 
 	private List<AgentData> prepareGreenSourceWeatherShortageData() {
@@ -350,11 +349,11 @@ class DecrementGreenSourceErrorPlanUnitTest {
 		var data5 = new WeatherShortages(1, 2000);
 
 		return List.of(
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, data1),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, data2),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, data3),
-				new AgentData(now(), "test_gs4", WEATHER_SHORTAGES, data4),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, data5)
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, data1),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, data2),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, data3),
+				new AgentData(getCurrentTime(), "test_gs4", WEATHER_SHORTAGES, data4),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, data5)
 		);
 	}
 
@@ -385,10 +384,10 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs3", GREEN_SOURCE_MONITORING, data3),
-				new AgentData(now(), "test_gs4", GREEN_SOURCE_MONITORING, data4)
+				new AgentData(getCurrentTime(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs3", GREEN_SOURCE_MONITORING, data3),
+				new AgentData(getCurrentTime(), "test_gs4", GREEN_SOURCE_MONITORING, data4)
 		);
 	}
 
@@ -431,10 +430,10 @@ class DecrementGreenSourceErrorPlanUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_server1", SERVER_MONITORING, data1),
-				new AgentData(now(), "test_server1", SERVER_MONITORING, data2),
-				new AgentData(now(), "test_server2", SERVER_MONITORING, data3),
-				new AgentData(now(), "test_server2", SERVER_MONITORING, data4)
+				new AgentData(getCurrentTime(), "test_server1", SERVER_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_server1", SERVER_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_server2", SERVER_MONITORING, data3),
+				new AgentData(getCurrentTime(), "test_server2", SERVER_MONITORING, data4)
 		);
 	}
 }

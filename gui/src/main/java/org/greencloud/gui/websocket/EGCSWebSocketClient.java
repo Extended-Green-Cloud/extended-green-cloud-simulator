@@ -20,11 +20,13 @@ public class EGCSWebSocketClient extends GuiWebSocketClient {
 	 * Method sends the information about simulation start time to a given Websocket server
 	 *
 	 * @param time time when the simulation has started
+	 * @param timeDifferenceMillis time difference in milliseconds between the system start time and current time
 	 */
-	public void reportSystemStartTime(final Instant time) {
+	public void reportSystemStartTime(final Instant time, final long timeDifferenceMillis) {
 		this.send(ImmutableReportSystemStartTimeMessage.builder()
 				.time(time.toEpochMilli())
 				.secondsPerHour(SECONDS_PER_HOUR)
+				.timeDifference(timeDifferenceMillis)
 				.build());
 	}
 

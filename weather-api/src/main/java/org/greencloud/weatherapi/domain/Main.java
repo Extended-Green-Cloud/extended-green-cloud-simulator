@@ -19,17 +19,25 @@ public interface Main {
 
 	Double getTemp();
 
+	@Nullable
+	Double getRadiation();
+
 	@JsonProperty("feels_like")
+	@Nullable
 	Double getFeelsLike();
 
 	@JsonProperty("temp_min")
+	@Nullable
 	Double getMinimumTemperature();
 
 	@JsonProperty("temp_max")
+	@Nullable
 	Double getMaximumTemperature();
 
+	@Nullable
 	Double getPressure();
 
+	@Nullable
 	Double getHumidity();
 
 	@JsonProperty("sea_level")

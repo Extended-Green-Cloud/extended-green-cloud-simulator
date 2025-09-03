@@ -16,12 +16,14 @@ import static org.greencloud.commons.utils.time.TimeScheduler.computeFinishTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.greencloud.commons.domain.agent.ServerResources;
+import org.greencloud.commons.domain.allocation.BudgetDealdineAllocationData;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.extended.JobWithExecutionEstimation;
 import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
@@ -30,6 +32,43 @@ import org.greencloud.commons.enums.allocation.AllocationModificationEnum;
  * Class with method performing budget-deadline constrained resource allocation
  */
 public class BudgetDeadlineAllocator {
+
+	private final ClientJob job;
+	private final double priority;
+	private final Map<String, ServerResources> executorsResources;
+	private Map<String, JobWithExecutionEstimation> executorsEstimations;
+
+	private Comparator<Map. Entry<String, JobWithExecutionEstimation>> compareEarliestExecutor =
+			comparing(executor -> computeFinishTime(executor.getValue()));
+
+	/**
+	 * Default constructor.
+	 *
+	 * @param allocationData data used to perform allocation algorithm.
+	 */
+	public BudgetDeadlineAllocator(final BudgetDealdineAllocationData allocationData) {
+		this.executorsEstimations = allocationData.getExecutorsEstimations();;
+		this.executorsResources = allocationData.getExecutorsResources();
+		this.priority = allocationData.getJobPriority();
+		this.job = allocationData.getJobForAllocation();
+	}
+
+//	@Override
+//	protected void applyResourceSufficiencyModification() {
+//		executorsEstimations = executorsEstimations.entrySet().stream()
+//				.filter(executor -> areSufficient(executorsResources.get(executor.getKey()).getResources(),
+//						job.getRequiredResources()))
+//				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+//	}
+//
+//	@Override
+//	protected void applyEnergyPreferenceModification() {
+//
+//	}
+//
+//	public Map<String, List<String>> allocate() {
+//
+//	}
 
 	/**
 	 * Method performs a budget-deadline constrained allocation.
@@ -44,15 +83,18 @@ public class BudgetDeadlineAllocator {
 	 * @return mapping between executors identifiers and resource identifiers
 	 */
 	public static Map<String, List<String>> budgetDeadlineConstrainedAllocation(
-			final ClientJob job, final double priority,
+			final ClientJob job,
+			final double priority,
 			final List<AllocationModificationEnum> modifications,
 			final Map<String, ServerResources> executorsResources,
 			final Map<String, JobWithExecutionEstimation> executorsEstimations) {
-		final Map<String, JobWithExecutionEstimation> executorsToConsider = executorsEstimations.entrySet().stream()
-				.filter(executor -> !modifications.contains(RESOURCE_SUFFICIENCY_CHECK) ||
-						areSufficient(executorsResources.get(executor.getKey()).getResources(),
+		final boolean isResourceModificationActive = RESOURCE_SUFFICIENCY_CHECK.isModificationIncluded(modifications);
+
+		final Map<String, JobWithExecutionEstimation> executorsToConsider = isResourceModificationActive ?
+				executorsEstimations.entrySet().stream()
+						.filter(executor -> areSufficient(executorsResources.get(executor.getKey()).getResources(),
 								job.getRequiredResources()))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue)) : executorsEstimations;
 		final List<JobWithExecutionEstimation> jobEstimations = executorsToConsider.values().stream().toList();
 
 		final Pair<Instant, Long> jobOptimisticDeadline = computeTaskOptimisticDeadline(job, priority, jobEstimations);

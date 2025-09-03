@@ -56,7 +56,7 @@ public class PrepareJobPriceEstimationRule extends AgentBasicRule<ServerAgentPro
 	}
 
 	private Double estimatePrice(final ClientJob job) {
-		return convertToHourDuration(job.getDuration()) * agentProps.getPricePerHour();
+		return convertToHourDuration(job.getDuration()) * agentProps.getConfig().getPrice();
 	}
 
 	@Override

@@ -3,19 +3,20 @@ package org.greencloud.gui.agents.egcs;
 import static org.greencloud.gui.websocket.WebSocketConnections.getAgentsWebSocket;
 import static org.greencloud.gui.websocket.WebSocketConnections.getClientsWebSocket;
 
+import java.time.Instant;
 import java.util.Objects;
 
-import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.gui.messages.ImmutableRegisterAgentMessage;
 import org.greencloud.gui.messages.ImmutableRemoveAgentMessage;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.jrba.agentmodel.domain.node.AgentNode;
 import org.jrba.agentmodel.domain.props.AgentProps;
 import org.jrba.environment.websocket.GuiWebSocketClient;
 
-import com.database.knowledge.types.DataType;
 import com.database.knowledge.domain.agent.MonitoringData;
 import com.database.knowledge.timescale.TimescaleDatabase;
+import com.database.knowledge.types.DataType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -68,8 +69,34 @@ public abstract class EGCSNode<T extends AgentArgs, E extends AgentProps> extend
 	 * @param monitoringData data that is to be written
 	 * @param name           name of agent for which data is written
 	 */
-	public void writeMonitoringData(DataType dataType, MonitoringData monitoringData, String name) {
+	public void writeMonitoringData(final DataType dataType, final MonitoringData monitoringData, final String name) {
 		databaseClient.writeMonitoringData(name, dataType, monitoringData);
+	}
+
+	/**
+	 * Method writes monitoring data to database
+	 *
+	 * @param time           time of monitoring data reporting
+	 * @param dataType       type of the data that is to be written
+	 * @param monitoringData data that is to be written
+	 * @param name           name of agent for which data is written
+	 */
+	public void writeMonitoringData(final Instant time, final DataType dataType, final MonitoringData monitoringData,
+			final String name) {
+		databaseClient.writeMonitoringData(time, name, dataType, monitoringData);
+	}
+
+	/**
+	 * Method writes initial configuration of an agent into the database.
+	 *
+	 * @param agentName    name of the agent
+	 * @param agentAddress address of the agent
+	 * @param agentType    agent type
+	 * @param agentConfig  configuration of an agent
+	 */
+	public void writeAgentConfiguration(final String agentName, final String agentAddress,
+			final String agentType, final AgentArgs agentConfig) {
+		databaseClient.writeAgentData(agentName, agentAddress, agentType, agentConfig);
 	}
 
 	@Override

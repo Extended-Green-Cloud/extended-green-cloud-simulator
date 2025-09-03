@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
 import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
 import com.database.knowledge.domain.agent.AgentData;
@@ -60,7 +60,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 	 */
 	@Override
 	public boolean isPlanExecutable() {
-		final Map<String, List<String>> greenSourcesWithConnectedServers = managingAgent.getGreenCloudStructure()
+		final Map<String, List<String>> greenSourcesWithConnectedServers = managingAgent.getProperties().getGreenCloudStructure()
 				.getGreenEnergyAgentsArgs().stream()
 				.filter(greenSource -> greenSource.getConnectedServers().size() > 1)
 				.collect(toMap(AgentArgs::getName, GreenEnergyArgs::getConnectedServers));
@@ -119,7 +119,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				.serverName(selectedServer)
 				.build();
 		postActionHandler = () ->
-				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+				managingAgent.getProperties().getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(agent -> agent.getName().equals(selectedGreenSource.split("@")[0]))
 						.forEach(greenSource -> greenSource.getConnectedServers().remove(selectedServer));
 
@@ -193,7 +193,7 @@ public class DisconnectGreenSourcePlan extends AbstractPlan {
 				.getAliveAgentsIntersection(SERVER, consideredServers).stream()
 				.toList();
 
-		return managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+		return managingAgent.getProperties().getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 				.flatMap(entry -> entry.getConnectedServers().stream()
 						.map(server -> new AbstractMap.SimpleEntry<>(server, entry.getName())))
 				.filter(entry -> isNameInAIDs(aliveServers, entry.getKey()))

@@ -54,7 +54,7 @@ public class ChangeWeatherPredictionErrorRule extends AgentBasicRule<GreenEnergy
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
 		final AdjustGreenSourceErrorParameters params = facts.get(ADAPTATION_PARAMS);
-		final double currentError = agentProps.getWeatherPredictionError();
+		final double currentError = agentProps.getCurrentWeatherPredictionError();
 		final double newError = currentError + params.getPercentageChange();
 		final String log = params.getPercentageChange() > 0 ? "Increasing" : "Decreasing";
 
@@ -85,7 +85,7 @@ public class ChangeWeatherPredictionErrorRule extends AgentBasicRule<GreenEnergy
 	}
 
 	private void setWeatherPredictionError(double weatherPredictionError) {
-		agentProps.setWeatherPredictionError(weatherPredictionError);
+		agentProps.setCurrentWeatherPredictionError(weatherPredictionError);
 		if (nonNull(agentNode)) {
 			agentNode.updatePredictionError(weatherPredictionError);
 		}

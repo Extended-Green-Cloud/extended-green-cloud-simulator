@@ -2,27 +2,24 @@ package org.greencloud.managingsystem.service.monitoring.goalservices;
 
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
-import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
-import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Stream.concat;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.AGGREGATION_SIZE;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.JOB_DISTRIBUTION_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_JOB_DSTRIBUTION_LOG;
-import static org.greencloud.managingsystem.service.monitoring.logs.ManagingAgentMonitoringLog.READ_JOB_DSTRIBUTION_LOG_NO_DATA_YET;
+import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
+import static org.greencloud.commons.constants.MonitoringConstants.DATA_NOT_AVAILABLE_INDICATOR;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import com.database.knowledge.domain.agent.AgentData;
 import com.database.knowledge.domain.agent.server.ServerMonitoringData;
@@ -33,36 +30,36 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class TrafficDistributionService extends AbstractGoalService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TrafficDistributionService.class);
+	private static final LogBuilder log = constructLogBuilder(TrafficDistributionService.class);
 
-	public TrafficDistributionService(AbstractManagingAgent managingAgent) {
+	public TrafficDistributionService(ManagingAgent managingAgent) {
 		super(managingAgent, DISTRIBUTE_TRAFFIC_EVENLY);
 	}
 
 	@Override
 	public boolean evaluateAndUpdate() {
-		logger.info(READ_JOB_DSTRIBUTION_LOG);
+		log.messageInfo("Reading job distribution coefficients from database...");
 		double currentGoalQuality = computeCurrentGoalQuality();
 
 		if (currentGoalQuality == DATA_NOT_AVAILABLE_INDICATOR) {
-			logger.info(READ_JOB_DSTRIBUTION_LOG_NO_DATA_YET);
+			log.messageInfo("Job distribution data is not available yet");
 			return true;
 		}
 
-		logger.info(JOB_DISTRIBUTION_LOG, currentGoalQuality);
+		log.messageInfo("Current job distribution: {}", currentGoalQuality);
 		updateGoalQuality(currentGoalQuality);
 		return managingAgent.monitor().isQualityInBounds(currentGoalQuality, DISTRIBUTE_TRAFFIC_EVENLY);
 	}
 
 	@Override
 	public double computeCurrentGoalQuality(final int time) {
-		final List<String> rmaAgents = findRMAs();
+		final List<String> rmaAgents = managingAgent.monitor().getAliveAgents(REGIONAL_MANAGER);
 
-		//Servers
-		final List<List<String>> servers = findServers(rmaAgents);
-		final List<Pair<Double, Double>> serverValues = readServerQuality(servers);
-		final List<Double> serverQualities = serverValues.stream().map(Pair::getRight).toList();
-		final List<Double> allQualities = new ArrayList<>(serverQualities);
+		// Servers
+		final List<String> servers = managingAgent.monitor().getActiveServers();
+		final Map<String, List<String>> serversPerRMA = groupServersByRMA(servers, rmaAgents);
+		final List<Pair<Double, Double>> serverValues = readServerQuality(serversPerRMA);
+		final List<Double> allQualities = new java.util.ArrayList<>(serverValues.stream().map(Pair::getRight).toList());
 
 		//RMAs
 		final List<Double> regionPowerConsumption = serverValues.stream().map(Pair::getLeft).toList();
@@ -94,49 +91,47 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return sd / mean.getAsDouble();
 	}
 
+	private List<Pair<Double, Double>> readServerQuality(final Map<String, List<String>> serversPerRMA) {
+		final int goalWindowSize = managingAgent.getProperties().getConfig().getQualityGoalsWindowSize();
+
+		return serversPerRMA.entrySet().stream().map(entry -> {
+			final List<String> serversList = entry.getValue();
+			final List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
+					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, goalWindowSize);
+
+			if (serverMonitoringData.isEmpty()) {
+				log.messageInfo("There is no monitoring data available for servers under {}", entry.getKey());
+
+				final double notAvailable = DATA_NOT_AVAILABLE_INDICATOR;
+				return Pair.of(notAvailable, notAvailable);
+			}
+
+			if (isTrafficZero(serverMonitoringData)) {
+				return Pair.of(0D, 0D);
+			}
+
+			final List<Double> powerConsumption = computePowerConsumptionForAgents(serverMonitoringData, serversList);
+			final double totalPowerConsumption = powerConsumption.stream().mapToDouble(Double::doubleValue).sum();
+			final double goalQuality = computeCoefficient(powerConsumption);
+			return Pair.of(totalPowerConsumption, goalQuality);
+
+		}).toList();
+	}
+
 	protected List<Double> computePowerConsumptionForAgents(final List<AgentData> data,
 			final List<String> consideredAgents) {
-		var groupedData = data.stream().collect(groupingBy(AgentData::aid));
+		final Map<String, List<AgentData>> agentsData = data.stream().collect(groupingBy(AgentData::aid));
 
-		final Stream<Double> powerConsumptions = groupedData.values().stream()
+		final Stream<Double> powerConsumptions = agentsData.values().stream()
 				.map(agentData -> agentData.stream()
 						.mapToDouble(this::mapToPowerConsumption)
 						.filter(Objects::nonNull)
 						.average().orElseThrow());
 		final Stream<Double> consumptionForAgentsWithNoRecords = managingAgent.monitor()
 				.getAgentsNotPresentInTheDatabase(data, consideredAgents).stream()
-				.map(agent -> 0.0D);
+				.map(_ -> 0.0D);
 
 		return concat(powerConsumptions, consumptionForAgentsWithNoRecords).toList();
-	}
-
-	private List<String> findRMAs() {
-		return managingAgent.monitor().getAliveAgents(REGIONAL_MANAGER);
-	}
-
-	private List<List<String>> findServers(List<String> rmaAgents) {
-		final List<String> servers = managingAgent.monitor().getActiveServers();
-		return groupServersByRMA(servers, rmaAgents);
-	}
-
-	private List<Pair<Double, Double>> readServerQuality(List<List<String>> servers) {
-		return servers.stream().map(serversList -> {
-			final List<AgentData> serverMonitoringData = managingAgent.getAgentNode().getDatabaseClient()
-					.readLatestNRowsMonitoringDataForDataTypeAndAID(SERVER_MONITORING, serversList, AGGREGATION_SIZE);
-
-			if (serverMonitoringData.isEmpty()) {
-				final double notAvailable = DATA_NOT_AVAILABLE_INDICATOR;
-				return Pair.of(notAvailable, notAvailable);
-			} else if (isTrafficZero(serverMonitoringData)) {
-				return Pair.of(0D, 0D);
-			} else {
-				final List<Double> powerConsumption =
-						computePowerConsumptionForAgents(serverMonitoringData, serversList);
-				final double totalPowerConsumption = powerConsumption.stream().mapToDouble(Double::doubleValue).sum();
-				final double goalQuality = computeCoefficient(powerConsumption);
-				return Pair.of(totalPowerConsumption, goalQuality);
-			}
-		}).toList();
 	}
 
 	@VisibleForTesting
@@ -144,19 +139,17 @@ public class TrafficDistributionService extends AbstractGoalService {
 		return ((ServerMonitoringData) data.monitoringData()).getCurrentPowerConsumption();
 	}
 
-	private List<List<String>> groupServersByRMA(List<String> aliveServers, List<String> rmaAgents) {
-		final List<List<String>> serversList = new ArrayList<>();
-		rmaAgents.forEach(rma -> {
-			final List<String> childServers = managingAgent.getGreenCloudStructure()
+	private Map<String, List<String>> groupServersByRMA(final List<String> aliveServers, final List<String> rmaAgents) {
+		return rmaAgents.stream().collect(toMap(rma -> rma, rma -> {
+			final List<String> childServers = managingAgent.getProperties().getGreenCloudStructure()
 					.getServersForRegionalManagerAgent(rma.split("@")[0]);
-			final List<String> aliveChildServers = childServers.stream().filter(childServer -> aliveServers.stream()
+
+			return childServers.stream().filter(childServer -> aliveServers.stream()
 					.anyMatch(server -> server.split("@")[0].equals(childServer))).toList();
-			serversList.add(aliveChildServers);
-		});
-		return serversList;
+		}));
 	}
 
-	private boolean isTrafficZero(List<AgentData> data) {
+	private boolean isTrafficZero(final List<AgentData> data) {
 		final Predicate<AgentData> isTrafficZero = agentData ->
 				((ServerMonitoringData) agentData.monitoringData()).getCurrentPowerConsumption() == 0;
 		return data.stream()

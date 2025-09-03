@@ -1,5 +1,10 @@
 package org.greencloud.managingsystem.service.analyzer;
 
+import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
+import static com.database.knowledge.types.DataType.SERVER_MONITORING;
+import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
+import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum.ADD_COMPONENT;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionCategoryEnum.RECONFIGURE;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.ADD_GREEN_SOURCE;
@@ -8,11 +13,6 @@ import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.C
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.CONNECT_GREEN_SOURCE;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.DECREASE_GREEN_SOURCE_ERROR;
 import static org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum.INCREASE_GREEN_SOURCE_ERROR;
-import static com.database.knowledge.types.DataType.CLIENT_MONITORING;
-import static com.database.knowledge.types.DataType.SERVER_MONITORING;
-import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static com.database.knowledge.types.GoalType.MINIMIZE_USED_BACKUP_POWER;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FAILED;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.FINISHED;
@@ -30,8 +30,9 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Map;
 
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.greencloud.managingsystem.service.planner.PlannerService;
 import org.junit.jupiter.api.AfterEach;
@@ -54,6 +55,8 @@ class AnalyzerServiceDatabaseTest {
 	@Mock
 	private ManagingAgent mockManagingAgent;
 	@Mock
+	private ManagingAgentProps mockManagingAgentProps;
+	@Mock
 	private ManagingAgentNode mockAgentNode;
 
 	private TimescaleDatabase database;
@@ -64,14 +67,16 @@ class AnalyzerServiceDatabaseTest {
 	@BeforeEach
 	void init() {
 		database = spy(TimescaleDatabase.setUpForTests());
-		database.initDatabase();
+		database.initDatabase("2025-06-22 22:10:25");
 
 		mockManagingAgent = spy(ManagingAgent.class);
+		mockManagingAgentProps = spy(ManagingAgentProps.class);
 		mockAgentNode = mock(ManagingAgentNode.class);
 		analyzerService = new AnalyzerService(mockManagingAgent);
 		var monitoringService = new MonitoringService(mockManagingAgent);
 		plannerService = spy(new PlannerService(mockManagingAgent));
 
+		doReturn(mockManagingAgentProps).when(mockManagingAgent).getProperties();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(database).when(mockAgentNode).getDatabaseClient();
 		doReturn(monitoringService).when(mockManagingAgent).monitor();
@@ -95,7 +100,7 @@ class AnalyzerServiceDatabaseTest {
 				.forEach(action -> database.setAdaptationActionAvailability(action.getActionId(), false));
 		analyzerService.trigger(MAXIMIZE_JOB_SUCCESS_RATIO);
 
-		verify(mockManagingAgent).getSystemQualityThreshold();
+		verify(mockManagingAgentProps).getConfig().getSystemQualityThreshold();
 		verify(database, times(2)).readAdaptationActions();
 		verify(mockManagingAgent).plan();
 		verify(plannerService).trigger(argThat(

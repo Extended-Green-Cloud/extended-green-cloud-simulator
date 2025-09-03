@@ -21,7 +21,7 @@ import org.jrba.agentmodel.domain.props.AgentProps;
 /**
  * Class implementing methods used to allocate tasks to resources
  */
-public class ResourceAllocator {
+public abstract class ResourceAllocator {
 
 	/**
 	 * Method performs allocation of the jobs to the executors.

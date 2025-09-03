@@ -3,6 +3,9 @@ package runner.configuration;
 import static java.io.File.separator;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
+import static java.time.Instant.now;
+import static java.time.ZoneOffset.UTC;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.jrba.utils.file.FileReader.buildResourceFilePath;
 import static runner.configuration.ResourceRequirementConfiguration.readJobsRequirements;
 import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_EVENTS;
@@ -11,6 +14,7 @@ import static runner.configuration.enums.ClientGeneratorTypeEnum.FROM_SAMPLE_WIT
 import static runner.constants.EngineConstants.PROPERTIES_DIR;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -67,6 +71,11 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 	public static int jobTypesNumber;
 
 	/**
+	 * Simulated start time.
+	 */
+	public static String simulationStartTime;
+
+	/**
 	 * Method reads the properties set for the given scenario execution
 	 */
 	public static void readScenarioProperties() {
@@ -91,6 +100,8 @@ public class ScenarioConfiguration extends AbstractConfiguration {
 					: Optional.empty();
 			clientNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("scenario.clients.number"), "0"));
 			jobTypesNumber = parseInt(ifNotBlankThenGetOrElse(props.getProperty("scenario.jobs.typesnumber"), "0"));
+			simulationStartTime = ifNotBlankThenGetOrElse(props.getProperty("scenario.simulation.starttime"),
+					ofPattern("yyyy-MM-dd HH:mm:ss").format(now().atZone(ZoneId.systemDefault())));
 			readJobsRequirements(props);
 
 		} catch (final IOException e) {

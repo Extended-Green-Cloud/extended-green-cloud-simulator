@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Offset;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,13 +29,15 @@ import org.mockito.Mock;
 
 import com.database.knowledge.domain.action.ActionResult;
 import com.database.knowledge.domain.action.AdaptationAction;
-import com.database.knowledge.domain.goal.AdaptationGoal;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import com.database.knowledge.domain.systemquality.SystemQuality;
 
 class AnalyzerServiceUnitTest {
 
 	@Mock
 	private ManagingAgent managingAgent;
+	@Mock
+	private ManagingAgentProps managingAgentProps;
 
 	private AnalyzerService analyzerService;
 
@@ -110,9 +113,12 @@ class AnalyzerServiceUnitTest {
 		var traffic = new AdaptationGoal(3, "Distribute traffic evenly", 0.7, false, 0.2);
 
 		managingAgent = mock((ManagingAgent.class));
+		managingAgentProps = mock(ManagingAgentProps.class);
 
 		analyzerService = new AnalyzerService(managingAgent);
-		doReturn(List.of(successRatio, backupPower, traffic)).when(managingAgent).getAdaptationGoalList();
+
+		doReturn(managingAgentProps).when(managingAgent).getProperties();
+		doReturn(List.of(successRatio, backupPower, traffic)).when(managingAgentProps).getAdaptationGoalList();
 		doReturn(new MonitoringService(managingAgent)).when(managingAgent).monitor();
 	}
 

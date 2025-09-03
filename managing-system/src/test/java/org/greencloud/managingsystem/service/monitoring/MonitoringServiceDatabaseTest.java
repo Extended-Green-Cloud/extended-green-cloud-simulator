@@ -7,6 +7,7 @@ import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -17,8 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
+import org.greencloud.commons.domain.adaptation.goal.AdaptationGoal;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -31,7 +34,6 @@ import com.database.knowledge.domain.agent.HealthCheck;
 import com.database.knowledge.domain.agent.greensource.GreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.greensource.ImmutableGreenSourceMonitoringData;
 import com.database.knowledge.domain.agent.server.ImmutableServerMonitoringData;
-import com.database.knowledge.domain.goal.AdaptationGoal;
 import com.database.knowledge.timescale.TimescaleDatabase;
 
 @Disabled
@@ -39,6 +41,8 @@ class MonitoringServiceDatabaseTest {
 
 	@Mock
 	private ManagingAgent mockManagingAgent;
+	@Mock
+	private ManagingAgentProps mockManagingAgentProps;
 	@Mock
 	private ManagingAgentNode mockAgentNode;
 
@@ -48,12 +52,14 @@ class MonitoringServiceDatabaseTest {
 	@BeforeEach
 	void init() {
 		database = TimescaleDatabase.setUpForTests();
-		database.initDatabase();
+		database.initDatabase(now().toString());
 
 		mockManagingAgent = spy(ManagingAgent.class);
+		mockManagingAgentProps = spy(ManagingAgentProps.class);
 		mockAgentNode = mock(ManagingAgentNode.class);
 		monitoringService = new MonitoringService(mockManagingAgent);
 
+		doReturn(mockManagingAgentProps).when(mockManagingAgent).getProperties();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(database).when(mockAgentNode).getDatabaseClient();
 		doNothing().when(mockAgentNode).registerManagingAgent(anyList());
@@ -74,7 +80,7 @@ class MonitoringServiceDatabaseTest {
 		);
 		monitoringService.readSystemAdaptationGoals();
 
-		var result = mockManagingAgent.getAdaptationGoalList();
+		var result = mockManagingAgent.getProperties().getAdaptationGoalList();
 
 		assertThat(result)
 				.as("Managing agent should have 3 goals")
@@ -194,9 +200,9 @@ class MonitoringServiceDatabaseTest {
 		var healthCheck3 = new HealthCheck(true, GREEN_ENERGY);
 
 		var mockData = List.of(
-				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
-				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
-				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
+				new AgentData(getCurrentTime(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(getCurrentTime(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(getCurrentTime(), "test_gs3", HEALTH_CHECK, healthCheck3)
 		);
 
 		mockData.forEach(data -> database.writeMonitoringData(data.aid(), data.dataType(), data.monitoringData()));
@@ -223,9 +229,9 @@ class MonitoringServiceDatabaseTest {
 				.build();
 
 		var mockData = List.of(
-				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs2", GREEN_SOURCE_MONITORING, data3)
 		);
 
 		mockData.forEach(data -> database.writeMonitoringData(data.aid(), data.dataType(), data.monitoringData()));

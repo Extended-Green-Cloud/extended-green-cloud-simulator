@@ -85,7 +85,7 @@ class AgentFactoryUnitTest {
 				.maxPower(100D)
 				.regionalManager("TestOwner")
 				.isFinished(false)
-				.occurrenceTime(Instant.now())
+				.occurrenceTime(Instant.getCurrentTime())
 				.jobProcessingLimit(10L)
 				.price(20D)
 				.putResources(CPU, getCustomCpuResource())

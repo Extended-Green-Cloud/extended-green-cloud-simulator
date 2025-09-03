@@ -10,6 +10,7 @@ import org.greencloud.commons.enums.agent.ClientTimeTypeEnum;
 import org.greencloud.gui.messages.domain.GreenSourceCreator;
 import org.greencloud.gui.messages.domain.JobCreator;
 import org.greencloud.gui.messages.domain.ServerCreator;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 /**
  * Interface with a set o methods that create extra agents with specified parameters
@@ -76,7 +77,9 @@ public interface AgentFactory {
 	 * @param jobArgs  specification of the job sent by the client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(final String name, final String jobId, final ClientTimeTypeEnum timeType,
+	ClientArgs createClientAgent(final String name,
+			final String jobId,
+			final ClientTimeTypeEnum timeType,
 			final JobArgs jobArgs);
 
 	/**
@@ -95,6 +98,8 @@ public interface AgentFactory {
 	 * @param nextClientId identifier of next client
 	 * @return newly created client agent args
 	 */
-	ClientArgs createClientAgent(final JobCreator jobCreator, final String clientName, final int nextClientId);
+	ClientArgs createClientAgent(final JobCreator jobCreator,
+			final String clientName,
+			final int nextClientId);
 
 }

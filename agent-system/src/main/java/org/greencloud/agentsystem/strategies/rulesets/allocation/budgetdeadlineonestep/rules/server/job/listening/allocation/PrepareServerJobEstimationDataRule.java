@@ -43,7 +43,7 @@ public class PrepareServerJobEstimationDataRule extends AgentBasicRule<ServerAge
 	}
 
 	@Override
-	public boolean evaluateRule(RuleSetFacts facts) {
+	public boolean evaluateRule(final RuleSetFacts facts) {
 		controller.fire(constructFactsForServerValidation(facts));
 		return facts.get(RESULT);
 	}

@@ -4,6 +4,9 @@ import static java.lang.Math.abs;
 import static java.util.Comparator.comparingLong;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.empty;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
+import static org.greencloud.weatherapi.constants.MockWeatherConstants.CURRENT_WEATHER_BAD_STUB;
 import static org.greencloud.weatherapi.mapper.WeatherMapper.mapToWeatherData;
 
 import java.time.Instant;
@@ -13,20 +16,22 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.greencloud.commons.domain.location.Location;
+import org.greencloud.commons.domain.weather.WeatherData;
+import org.greencloud.commons.exception.APIFetchInternalException;
+import org.greencloud.commons.utils.logger.LogBuilder;
 import org.greencloud.weatherapi.api.OpenWeatherMapApi;
 import org.greencloud.weatherapi.domain.AbstractWeather;
 import org.greencloud.weatherapi.domain.CurrentWeather;
 import org.greencloud.weatherapi.domain.Forecast;
 import org.greencloud.weatherapi.domain.FutureWeather;
 
-import org.greencloud.commons.domain.location.Location;
-import org.greencloud.commons.domain.weather.WeatherData;
-import org.greencloud.commons.exception.APIFetchInternalException;
-
 /**
  * Class represents a weather cache storing weather forecast for given location
  */
 public class WeatherCache {
+
+	private static final LogBuilder log = constructLogBuilder(OpenWeatherMapApi.class);
 
 	private static final Map<Location, ForecastTimetable> CACHE = new HashMap<>();
 	private static final WeatherCache instance = new WeatherCache();
@@ -84,7 +89,8 @@ public class WeatherCache {
 			updateCache(location, weather);
 			return mapToWeatherData(weather, weather.getTimestamp());
 		} else {
-			throw new APIFetchInternalException();
+			log.messageWarn("No data retrieved for current weather at location {}. Returning bad stub.", location);
+			return mapToWeatherData(CURRENT_WEATHER_BAD_STUB, getCurrentTime());
 		}
 	}
 

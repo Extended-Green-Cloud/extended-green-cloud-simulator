@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
 import org.greencloud.managingsystem.service.planner.plans.AbstractPlan;
 import org.greencloud.managingsystem.service.planner.plans.AddGreenSourcePlan;
@@ -50,7 +50,7 @@ public class PlannerService extends AbstractManagingService {
 
 	private Map<AdaptationActionTypeEnum, AbstractPlan> planForActionMap;
 
-	public PlannerService(AbstractManagingAgent managingAgent) {
+	public PlannerService(ManagingAgent managingAgent) {
 		super(managingAgent);
 	}
 

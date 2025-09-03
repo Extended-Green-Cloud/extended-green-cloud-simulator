@@ -1,6 +1,6 @@
 package org.greencloud.managingsystem.service.planner.plans;
 
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 
 import org.greencloud.commons.enums.adaptation.AdaptationActionTypeEnum;
 import com.database.knowledge.types.GoalType;

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.immutables.value.Value.Immutable;
+import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,10 +23,13 @@ public interface CurrentWeather extends AbstractWeather {
 
 	Coord getCoord();
 
+	@Nullable
 	List<Weather> getWeather();
 
+	@Nullable
 	Double getVisibility();
 
+	@Nullable
 	Long getTimezone();
 
 	/**

@@ -7,28 +7,27 @@ import static jade.lang.acl.MessageTemplate.MatchSender;
 import static jade.lang.acl.MessageTemplate.and;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
-import static org.greencloud.managingsystem.service.mobility.logs.ManagingAgentMobilityLog.FOUND_CONTAINERS_LOG;
-import static org.greencloud.managingsystem.service.mobility.logs.ManagingAgentMobilityLog.MOVE_CONTAINER_LOG;
-import static org.greencloud.managingsystem.service.mobility.logs.ManagingAgentMobilityLog.NO_LOCATION_LOG;
+import static org.greencloud.commons.utils.logger.LogBuilder.constructLogBuilder;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import org.jrba.agentmodel.domain.args.AgentArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.GreenEnergyArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.MonitoringArgs;
 import org.greencloud.commons.args.agent.server.factory.ServerArgs;
+import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.exception.MapperException;
-import org.greencloud.managingsystem.agent.AbstractManagingAgent;
+import org.greencloud.commons.utils.logger.LogBuilder;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.AbstractManagingService;
+import org.greencloud.managingsystem.service.executor.ExecutorService;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jrba.agentmodel.domain.args.AgentArgs;
 
 import com.database.knowledge.domain.agent.AMSData;
 
@@ -44,15 +43,18 @@ import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
 
 /**
- * Service containing methods connected with modification of agent structure,
- * particularly moving agents between containers
+ * Service containing methods responsible for moving agents between containers
  */
+@SuppressWarnings("unchecked")
 public class MobilityService extends AbstractManagingService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MobilityService.class);
+	private static final LogBuilder log = constructLogBuilder(MobilityService.class);
 
-	public MobilityService(AbstractManagingAgent managingAgent) {
+	private final Map<Location, AID> containersLocations;
+
+	public MobilityService(ManagingAgent managingAgent) {
 		super(managingAgent);
+		this.containersLocations = findContainersLocations();
 	}
 
 	/**
@@ -61,33 +63,16 @@ public class MobilityService extends AbstractManagingService {
 	 * @param agentArgs - list of agents that are to be added to the cloud network structure
 	 */
 	public void addAgentsToStructure(final List<AgentArgs> agentArgs) {
-		for (AgentArgs args : agentArgs) {
-			if (args instanceof ServerArgs serverAgentArgs) {
-				managingAgent.getGreenCloudStructure().getServerAgentsArgs().add(serverAgentArgs);
-			}
-			if (args instanceof GreenEnergyArgs greenEnergyAgentArgs) {
-				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().add(greenEnergyAgentArgs);
-			}
-			if (args instanceof MonitoringArgs monitoringAgentArgs) {
-				managingAgent.getGreenCloudStructure().getMonitoringAgentsArgs().add(monitoringAgentArgs);
-			}
-		}
-	}
+		final ScenarioStructureArgs systemStructure = managingAgent.getProperties().getGreenCloudStructure();
 
-	/**
-	 * Method returns a container with a given name
-	 *
-	 * @param containerName name of the container that is to be returned
-	 * @return Location of a container with given name
-	 */
-	public Map.Entry<Location, AID> getContainerLocations(final String containerName) {
-		return managingAgent.getContainersLocations().entrySet().stream()
-				.filter(location -> location.getKey().getName().contains(containerName))
-				.findFirst()
-				.orElseGet(() -> {
-					logger.warn(NO_LOCATION_LOG);
-					return null;
-				});
+		agentArgs.forEach(args -> {
+			switch (args) {
+				case ServerArgs serverArgs -> systemStructure.getServerAgentsArgs().add(serverArgs);
+				case GreenEnergyArgs greenEnergyArgs -> systemStructure.getGreenEnergyAgentsArgs().add(greenEnergyArgs);
+				case MonitoringArgs monitoringArgs -> systemStructure.getMonitoringAgentsArgs().add(monitoringArgs);
+				default -> log.messageDebug("Unsupported agent type: {} for mobility.", args.getClass().getName());
+			}
+		});
 	}
 
 	/**
@@ -97,13 +82,26 @@ public class MobilityService extends AbstractManagingService {
 	 * @return location of the container
 	 */
 	public Map.Entry<Location, AID> findTargetLocation(final String candidateRegionalManager) {
-		if (managingAgent.getContainersLocations() == null) {
-			managingAgent.setContainersLocations(findContainersLocations());
-		}
 		var regionalManagerContainer = getContainerLocations(candidateRegionalManager);
 		return isNull(regionalManagerContainer)
 				? getContainerLocations("Main-Container")
 				: regionalManagerContainer;
+	}
+
+	/**
+	 * Method returns a container with a given name
+	 *
+	 * @param containerName name of the container that is to be returned
+	 * @return Location of a container with given name
+	 */
+	public Map.Entry<Location, AID> getContainerLocations(final String containerName) {
+		return containersLocations.entrySet().stream()
+				.filter(location -> location.getKey().getName().contains(containerName))
+				.findFirst()
+				.orElseGet(() -> {
+					log.messageWarn("Couldn't find target container for a new server!");
+					return null;
+				});
 	}
 
 	/**
@@ -120,7 +118,8 @@ public class MobilityService extends AbstractManagingService {
 
 	private void moveAgentController(AgentController agentController, Location targetContainer) {
 		try {
-			logger.info(MOVE_CONTAINER_LOG, agentController.getName(), targetContainer.getName());
+			log.messageInfo("Moving {} agent controller to container {}",
+					agentController.getName(), targetContainer.getName());
 			agentController.move(targetContainer);
 		} catch (StaleProxyException e) {
 			throw new MapperException(e);
@@ -148,7 +147,8 @@ public class MobilityService extends AbstractManagingService {
 				.collect(toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
 		final String locationsString = map.keySet().stream().map(Location::getName).collect(joining(", "));
-		logger.info(FOUND_CONTAINERS_LOG, map.size(), locationsString);
+		log.messageInfo("Found {} containers: {}.", map.size(), locationsString);
+
 		return map;
 	}
 
@@ -159,9 +159,9 @@ public class MobilityService extends AbstractManagingService {
 		final List<Location> locations = getLocationsFromQueryResult(result);
 
 		final String locationsString = locations.stream().map(Location::getName).collect(joining(", "));
-		logger.info(FOUND_CONTAINERS_LOG, locations.size(), locationsString);
+		log.messageInfo("Found {} containers: {}.", locations.size(), locationsString);
 
-		return locations.stream().collect(toMap(location -> location, location -> ams));
+		return locations.stream().collect(toMap(location -> location, _ -> ams));
 	}
 
 	private void prepareAndSendPlatformLocationsQuery(final AID ams) {
@@ -169,12 +169,13 @@ public class MobilityService extends AbstractManagingService {
 		final ACLMessage locationsRequest = new ACLMessage(REQUEST);
 		locationsRequest.setLanguage(new SLCodec().getName());
 		locationsRequest.setOntology(MobilityOntology.getInstance().getName());
+
 		try {
 			managingAgent.getContentManager().fillContent(locationsRequest, queryLocations);
 			locationsRequest.addReceiver(queryLocations.getActor());
 			managingAgent.send(locationsRequest);
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			log.messageError("Failed to send location query to AMS: {}", exception.getMessage());
 		}
 	}
 
@@ -185,13 +186,13 @@ public class MobilityService extends AbstractManagingService {
 		try {
 			return (Result) managingAgent.getContentManager().extractContent(response);
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			log.messageError("Failed to extract content from AMS response: {}", exception.getMessage());
 			return null;
 		}
 	}
 
 	private List<AMSData> getAMSData() {
-		if (Objects.nonNull(managingAgent.getAgentNode())) {
+		if (nonNull(managingAgent.getAgentNode())) {
 			return managingAgent.getAgentNode().getDatabaseClient().readAMSData();
 		}
 		return emptyList();
@@ -201,12 +202,10 @@ public class MobilityService extends AbstractManagingService {
 		if (isNull(result)) {
 			return emptyList();
 		}
-		List<Location> locations = new ArrayList<>();
-		jade.util.leap.Iterator it = result.getItems().iterator();
-		while (it.hasNext()) {
-			Location loc = (Location) it.next();
-			locations.add(loc);
-		}
+		final List<Location> locations = new ArrayList<>();
+		final jade.util.leap.Iterator it = result.getItems().iterator();
+
+		it.forEachRemaining(location -> locations.add((Location) location));
 		return locations;
 	}
 }

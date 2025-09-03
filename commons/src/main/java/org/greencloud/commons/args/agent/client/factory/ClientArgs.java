@@ -1,7 +1,7 @@
 package org.greencloud.commons.args.agent.client.factory;
 
-import static java.time.Instant.now;
 import static org.greencloud.commons.utils.time.TimeConverter.convertInstantToString;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -45,7 +45,8 @@ public interface ClientArgs extends AgentArgs {
 	 * @return formatted time string
 	 */
 	default String formatClientDeadline() {
-		final Instant deadline = now().plusSeconds(INITIAL_SEC + getJob().getDeadline() + getJob().getDuration());
+		final Instant deadline = getCurrentTime().plusSeconds(
+				INITIAL_SEC + getJob().getDeadline() + getJob().getDuration());
 		final Instant date = getJob().getDeadline().equals(0L) ?
 				deadline.plus(4, ChronoUnit.HOURS) :
 				deadline;

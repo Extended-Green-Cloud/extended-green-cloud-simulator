@@ -7,6 +7,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CLIENT;
 import static org.greencloud.commons.enums.job.JobClientStatusEnum.CREATED;
+import static org.greencloud.commons.utils.time.TimeConverter.convertToInstantTime;
 import static org.greencloud.commons.utils.time.TimeConverter.convertToSimulationTime;
 import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 
@@ -14,7 +15,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.EGCSAgentProps;
-import org.greencloud.commons.args.job.JobArgs;
+import org.greencloud.commons.args.agent.client.factory.ClientArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.basic.ImmutableClientJob;
 import org.greencloud.commons.domain.timer.Timer;
@@ -29,7 +30,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ClientAgentProps extends EGCSAgentProps {
+public class ClientAgentProps extends EGCSAgentProps<ClientArgs> {
 
 	protected final Timer jobExecutionTimer = new Timer();
 	protected boolean isAnnounced;
@@ -41,52 +42,24 @@ public class ClientAgentProps extends EGCSAgentProps {
 	protected Map<JobClientStatusEnum, Long> jobDurationMap;
 
 	/**
-	 * Constructor that initialize job state to initial values
+	 * Constructor
 	 *
-	 * @param agentName name of the agent
+	 * @param agentName  name of the agent
+	 * @param clientAID  identifier of the client
+	 * @param clientArgs client controller arguments
 	 */
-	public ClientAgentProps(final String agentName) {
-		super(CLIENT, agentName);
+	public ClientAgentProps(final String agentName, final AID clientAID, final ClientArgs clientArgs) {
+		super(CLIENT, agentName, clientArgs);
+		this.config = clientArgs;
 
 		this.jobDurationMap = stream(JobClientStatusEnum.values()).collect(
 				toMap(statusEnum -> statusEnum, statusEnum -> 0L));
 		this.jobExecutionTimer.startTimeMeasure(getCurrentTime());
 		this.jobStatus = CREATED;
-	}
-
-	/**
-	 * constructor
-	 *
-	 * @param agentName name of the agent
-	 * @param clientAID identifier of the client
-	 * @param deadline  job execution deadline (converted to simulation time)
-	 * @param jobArgs   arguments of the client job
-	 * @param jobId     job identifier
-	 */
-	public ClientAgentProps(final String agentName, final AID clientAID, final Instant deadline, final JobArgs jobArgs,
-			final String jobId) {
-		this(agentName);
-		final Instant currentTime = getCurrentTime();
-		final Instant simulatedJobDeadline = parseJobTimeFrame(deadline, currentTime);
-
-		final ClientJob clientJob = ImmutableClientJob.builder()
-				.jobId(jobId)
-				.clientIdentifier(clientAID.getName())
-				.clientAddress(clientAID.getAddressesArray()[0])
-				.deadline(simulatedJobDeadline)
-				.requiredResources(jobArgs.getResources())
-				.jobSteps(jobArgs.getJobSteps())
-				.priority(jobArgs.getPriority())
-				.jobType(jobArgs.getProcessorName())
-				.duration(convertToSimulationTime(jobArgs.getDuration()))
-				.selectionPreference(jobArgs.getSelectionPreference())
-				.budgetLimit(jobArgs.getBudgetLimit())
-				.build();
-
-		this.jobType = jobArgs.getProcessorName();
-		this.job = clientJob;
-		this.jobSimulatedDeadline = simulatedJobDeadline;
-		this.expectedExecutionDuration = jobArgs.getDuration();
+		this.jobType = clientArgs.getJob().getProcessorName();
+		this.job = prepareClientJob(clientAID);
+		this.jobSimulatedDeadline = job.getDeadline();
+		this.expectedExecutionDuration = clientArgs.getJob().getDuration();
 	}
 
 	private static Instant parseJobTimeFrame(final Instant jobRealTime, final Instant currentTime) {
@@ -117,5 +90,25 @@ public class ClientAgentProps extends EGCSAgentProps {
 		return ofNullable(job.getBudgetLimit())
 				.map(limit -> ofNullable(jobPrice).orElse(0D) <= limit * expectedExecutionDuration)
 				.orElse(true);
+	}
+
+	private ClientJob prepareClientJob(final AID clientAID) {
+		final Instant currentTime = getCurrentTime();
+		final Instant deadline = convertToInstantTime(getConfig().formatClientDeadline());
+		final Instant simulatedJobDeadline = parseJobTimeFrame(deadline, currentTime);
+
+		return ImmutableClientJob.builder()
+				.jobId(getConfig().getJobId())
+				.clientIdentifier(clientAID.getName())
+				.clientAddress(clientAID.getAddressesArray()[0])
+				.deadline(simulatedJobDeadline)
+				.requiredResources(getConfig().getJob().getResources())
+				.jobSteps(getConfig().getJob().getJobSteps())
+				.priority(getConfig().getJob().getPriority())
+				.jobType(getConfig().getJob().getProcessorName())
+				.duration(convertToSimulationTime(getConfig().getJob().getDuration()))
+				.selectionPreference(getConfig().getJob().getSelectionPreference())
+				.budgetLimit(getConfig().getJob().getBudgetLimit())
+				.build();
 	}
 }

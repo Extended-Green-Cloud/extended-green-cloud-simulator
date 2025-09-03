@@ -1,6 +1,5 @@
 package org.greencloud.commons.args.agent.centralmanager.agent;
 
-import static java.time.Instant.now;
 import static java.util.Comparator.comparingDouble;
 import static java.util.stream.Collectors.toMap;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
@@ -20,6 +19,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.ToDoubleFunction;
 
 import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.centralmanager.factory.CentralManagerArgs;
 import org.greencloud.commons.domain.agent.RegionResources;
 import org.greencloud.commons.domain.agent.ServerResources;
 import org.greencloud.commons.domain.job.basic.ClientJob;
@@ -36,7 +36,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CentralManagerAgentProps extends EGCSAgentProps {
+public class CentralManagerAgentProps extends EGCSAgentProps<CentralManagerArgs> {
 
 	private static final Logger logger = getLogger(CentralManagerAgentProps.class);
 
@@ -50,27 +50,18 @@ public class CentralManagerAgentProps extends EGCSAgentProps {
 	protected ConcurrentMap<String, Integer> ruleSetForJob;
 	protected ConcurrentMap<String, AID> rmaForJobMap;
 	protected List<AID> availableRegionalManagers;
-	protected int maximumQueueSize;
-	protected int pollingBatchSize;
 	protected Instant lastPollingTime;
-
-	public CentralManagerAgentProps(final String agentName) {
-		super(CENTRAL_MANAGER, agentName);
-	}
 
 	/**
 	 * Constructor
 	 *
-	 * @param agentName        name of the agent
-	 * @param maximumQueueSize size of the scheduling queue
-	 * @param pollingBatchSize size of scheduling queue polling
+	 * @param agentName          name of the agent
+	 * @param centralManagerArgs central manager arguments
 	 */
-	public CentralManagerAgentProps(final String agentName, final int maximumQueueSize, final int pollingBatchSize) {
-		this(agentName);
-		this.maximumQueueSize = maximumQueueSize;
-		this.pollingBatchSize = pollingBatchSize;
+	public CentralManagerAgentProps(final String agentName, final CentralManagerArgs centralManagerArgs) {
+		super(CENTRAL_MANAGER, agentName, centralManagerArgs);
 
-		this.lastPollingTime = now();
+		this.lastPollingTime = getCurrentTime();
 		this.clientJobs = new ConcurrentHashMap<>();
 		this.rmaForJobMap = new ConcurrentHashMap<>();
 		this.availableRegionalManagers = new ArrayList<>();
@@ -139,7 +130,8 @@ public class CentralManagerAgentProps extends EGCSAgentProps {
 	 * Method initializes priority queue
 	 */
 	public void setUpPriorityQueue(final ToDoubleFunction<ClientJob> getJobPriority) {
-		this.jobsToBeExecuted = new PriorityBlockingQueue<>(maximumQueueSize, comparingDouble(getJobPriority));
+		this.jobsToBeExecuted = new PriorityBlockingQueue<>(config.getMaximumQueueSize(),
+				comparingDouble(getJobPriority));
 	}
 
 	/**

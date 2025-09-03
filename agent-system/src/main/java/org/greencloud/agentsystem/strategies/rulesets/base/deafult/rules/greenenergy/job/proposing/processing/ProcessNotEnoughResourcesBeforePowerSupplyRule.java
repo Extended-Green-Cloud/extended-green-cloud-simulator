@@ -15,6 +15,7 @@ import static org.greencloud.commons.utils.messaging.constants.MessageProtocolCo
 import static org.greencloud.commons.utils.messaging.constants.MessageProtocolConstants.POWER_SHORTAGE_POWER_TRANSFER_PROTOCOL;
 import static org.greencloud.commons.utils.messaging.factory.ReplyMessageFactory.prepareFailureReply;
 import static org.jrba.rulesengine.constants.FactTypeConstants.MESSAGE;
+import static org.jrba.rulesengine.constants.FactTypeConstants.RESOURCES;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RESULT;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 import static org.jrba.rulesengine.constants.LoggingConstants.MDC_JOB_ID;
@@ -80,6 +81,8 @@ public class ProcessNotEnoughResourcesBeforePowerSupplyRule
 		final String responseProtocol = getResponseProtocol(jobWithProtocol.getReplyProtocol());
 
 		agentProps.incrementJobCounter(job.getJobId(), FAILED);
+		agentNode.reportDecisionAboutGreenEnergySupplyForJob(agentProps, facts.get(RESOURCES), job, false);
+
 		agent.send(prepareFailureReply(proposal, jobInstanceId, responseProtocol));
 	}
 

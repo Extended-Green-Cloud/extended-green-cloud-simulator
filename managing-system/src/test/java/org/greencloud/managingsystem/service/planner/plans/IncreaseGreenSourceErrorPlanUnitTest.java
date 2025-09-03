@@ -4,9 +4,8 @@ import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.HEALTH_CHECK;
 import static com.database.knowledge.types.DataType.WEATHER_SHORTAGES;
 import static com.database.knowledge.types.GoalType.MAXIMIZE_JOB_SUCCESS_RATIO;
-import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.greencloud.managingsystem.service.planner.plans.IncrementGreenSourceErrorPlan.PERCENTAGE_DIFFERENCE;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -22,7 +21,7 @@ import java.util.Set;
 import org.greencloud.commons.args.adaptation.singleagent.AdjustGreenSourceErrorParameters;
 import org.greencloud.commons.args.agent.EGCSAgentType;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -151,22 +150,22 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 
 	private List<AgentData> prepareWeatherShortageData() {
 		return List.of(
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(2, 1000)),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(4, 1000)),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(5, 1000)),
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(7, 1000)),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(10, 1000))
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(1, 1000)),
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(2, 1000)),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(4, 1000)),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(5, 1000)),
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(7, 1000)),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(3, 1000)),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(10, 1000))
 		);
 	}
 
 	private List<AgentData> prepareEmptyWeatherShortageData() {
 		return List.of(
-				new AgentData(now(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(0, 1000)),
-				new AgentData(now(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(0, 1000)),
-				new AgentData(now(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(0, 1000))
+				new AgentData(getCurrentTime(), "test_gs1", WEATHER_SHORTAGES, new WeatherShortages(0, 1000)),
+				new AgentData(getCurrentTime(), "test_gs2", WEATHER_SHORTAGES, new WeatherShortages(0, 1000)),
+				new AgentData(getCurrentTime(), "test_gs3", WEATHER_SHORTAGES, new WeatherShortages(0, 1000))
 		);
 	}
 
@@ -191,9 +190,9 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 				.build();
 
 		return List.of(
-				new AgentData(now(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_gs1", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs3", GREEN_SOURCE_MONITORING, data3)
 		);
 	}
 
@@ -203,13 +202,12 @@ class IncreaseGreenSourceErrorPlanUnitTest {
 		var healthCheck3 = new HealthCheck(true, EGCSAgentType.GREEN_ENERGY);
 
 		var mockData = List.of(
-				new AgentData(now(), "test_gs1", HEALTH_CHECK, healthCheck1),
-				new AgentData(now(), "test_gs2", HEALTH_CHECK, healthCheck2),
-				new AgentData(now(), "test_gs3", HEALTH_CHECK, healthCheck3)
+				new AgentData(getCurrentTime(), "test_gs1", HEALTH_CHECK, healthCheck1),
+				new AgentData(getCurrentTime(), "test_gs2", HEALTH_CHECK, healthCheck2),
+				new AgentData(getCurrentTime(), "test_gs3", HEALTH_CHECK, healthCheck3)
 		);
 
 		doReturn(mockData).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK),
-						MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(Collections.singletonList(HEALTH_CHECK), 500);
 	}
 }

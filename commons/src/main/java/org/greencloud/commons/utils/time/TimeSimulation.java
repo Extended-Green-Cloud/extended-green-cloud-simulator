@@ -1,10 +1,13 @@
 package org.greencloud.commons.utils.time;
 
+import static java.time.Duration.between;
 import static java.time.OffsetDateTime.now;
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.greencloud.commons.domain.location.Location;
 import org.shredzone.commons.suncalc.SunTimes;
@@ -13,14 +16,14 @@ import org.shredzone.commons.suncalc.SunTimes;
  * Class with methods describing current time on which system operates
  */
 public class TimeSimulation {
-	private static final Clock CLOCK = Clock.systemDefaultZone();
+	public static long TIME_DIFFERENCE_MILLIS;
 	public static Instant SYSTEM_START_TIME;
 
 	/**
 	 * @return current time
 	 */
 	public static Instant getCurrentTime() {
-		return now(CLOCK).toInstant();
+		return now().minus(TIME_DIFFERENCE_MILLIS, MILLIS).toInstant();
 	}
 
 	/**
@@ -36,8 +39,14 @@ public class TimeSimulation {
 
 	/**
 	 * Method sets the system start time to given value
+	 *
+	 * @param instant the time to set as system start time
+	 * @return returns the time difference in milliseconds between the system start time and current time
 	 */
-	public static void setSystemStartTime(Instant instant) {
+	public static long setSystemStartTime(Instant instant) {
 		SYSTEM_START_TIME = instant;
+		TIME_DIFFERENCE_MILLIS = between(SYSTEM_START_TIME, now()).toMillis();
+
+		return  TIME_DIFFERENCE_MILLIS;
 	}
 }

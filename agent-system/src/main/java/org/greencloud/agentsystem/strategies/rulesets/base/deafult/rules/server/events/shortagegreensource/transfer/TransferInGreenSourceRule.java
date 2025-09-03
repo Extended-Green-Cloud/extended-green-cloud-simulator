@@ -70,6 +70,7 @@ public class TransferInGreenSourceRule extends AgentCFPRule<ServerAgentProps, Se
 		final ClientJob job = newJobInstances.getSecondInstance();
 		final double estimatedEnergy = agentProps.estimatePowerForJob(job);
 
+		agentNode.reportProcessingData(agentProps, job.getJobId());
 		return prepareCallForProposal(mapPowerJobToEnergyJob(job, estimatedEnergy), facts.get(AGENTS),
 				SERVER_JOB_CFP_PROTOCOL, facts.get(RULE_SET_IDX));
 	}

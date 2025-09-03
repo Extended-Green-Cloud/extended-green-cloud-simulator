@@ -21,7 +21,7 @@ import java.util.function.ToDoubleFunction;
 
 import org.greencloud.commons.args.adaptation.singleagent.ImmutableChangeGreenSourceConnectionParameters;
 import org.jrba.agentmodel.domain.args.AgentArgs;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsGreenPower;
 import org.greencloud.managingsystem.service.planner.plans.domain.AgentsTraffic;
 
@@ -113,7 +113,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 				.serverName(selectedServer)
 				.build();
 		postActionHandler = () ->
-				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+				managingAgent.getProperties().getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(agent -> agent.getName().equals(selectedGreenSource.name().split("@")[0]))
 						.forEach(greenSource -> greenSource.getConnectedServers().add(selectedServer.split("@")[0]));
 
@@ -124,7 +124,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	protected Map<String, List<AgentsTraffic>> getAvailableServersMap() {
 		final List<String> activeServers = managingAgent.monitor().getActiveServers();
 
-		return managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
+		return managingAgent.getProperties().getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
 				.collect(toMap(AgentArgs::getName, rma -> getServersForRMA(rma.getName(), activeServers)))
 				.entrySet().stream()
 				.filter(entry -> !entry.getValue().isEmpty())
@@ -135,7 +135,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	protected Map<String, Set<AgentsGreenPower>> getAvailableGreenSourcesMap() {
 		final List<String> aliveGreenSources = managingAgent.monitor().getAliveAgents(GREEN_ENERGY);
 
-		return managingAgent.getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
+		return managingAgent.getProperties().getGreenCloudStructure().getRegionalManagerAgentsArgs().stream()
 				.collect(toMap(AgentArgs::getName, rma -> getGreenSourcesForRMA(rma.getName(), aliveGreenSources)))
 				.entrySet().stream()
 				.filter(entry -> !entry.getValue().isEmpty())
@@ -171,7 +171,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 		final String greenSourceLocalName = greenSource.name().split("@")[0];
 
 		final List<String> alreadyConnectedServers =
-				managingAgent.getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
+				managingAgent.getProperties().getGreenCloudStructure().getGreenEnergyAgentsArgs().stream()
 						.filter(gs -> gs.getName().equals(greenSourceLocalName))
 						.findFirst().orElseThrow()
 						.getConnectedServers();
@@ -185,7 +185,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 
 	@VisibleForTesting
 	protected List<AgentsTraffic> getServersForRMA(final String rma, final List<String> aliveServers) {
-		final List<String> serversForRMA = managingAgent.getGreenCloudStructure().getServersForRegionalManagerAgent(rma);
+		final List<String> serversForRMA = managingAgent.getProperties().getGreenCloudStructure().getServersForRegionalManagerAgent(rma);
 		final List<String> aliveServersForRMA = managingAgent.monitor()
 				.getAliveAgentsIntersection(aliveServers, serversForRMA);
 
@@ -199,7 +199,7 @@ public class ConnectGreenSourcePlan extends AbstractPlan {
 	@VisibleForTesting
 	protected Set<AgentsGreenPower> getGreenSourcesForRMA(final String regionalManagerName,
 			final List<String> aliveGreenSources) {
-		final List<String> greenSourcesForRMA = managingAgent.getGreenCloudStructure()
+		final List<String> greenSourcesForRMA = managingAgent.getProperties().getGreenCloudStructure()
 				.getGreenSourcesForRegionalManager(regionalManagerName);
 
 		final List<String> aliveSourcesForServer = managingAgent.monitor()

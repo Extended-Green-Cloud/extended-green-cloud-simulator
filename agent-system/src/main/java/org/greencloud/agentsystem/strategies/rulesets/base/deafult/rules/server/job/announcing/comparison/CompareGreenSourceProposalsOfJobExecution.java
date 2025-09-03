@@ -49,7 +49,7 @@ public class CompareGreenSourceProposalsOfJobExecution extends AgentBasicRule<Se
 		final ConcurrentMap<AID, Integer> greenSourceWeights = agentProps.getWeightsForGreenSourcesMap();
 
 		final int comparisonResult = ofNullable(greenSourceWeights.get(bestProposalMsg.getSender()))
-				.filter(bestProposalGs -> greenSourceWeights.containsKey(newProposalMsg.getSender()))
+				.filter(_ -> greenSourceWeights.containsKey(newProposalMsg.getSender()))
 				.map(bestProposalGsWeight -> compareMessages(bestProposalMsg, newProposalMsg, GreenSourceData.class,
 						getComparator(greenSourceWeights, bestProposalGsWeight, newProposalMsg)))
 				.orElse(0);

@@ -1,7 +1,6 @@
 package runner.service;
 
 import static java.lang.String.format;
-import static java.time.Instant.now;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -12,6 +11,7 @@ import static org.greencloud.commons.utils.event.EventSelector.getEventsForType;
 import static org.greencloud.commons.utils.event.EventValidator.validateClientCreationEvents;
 import static org.greencloud.commons.utils.event.EventValidator.validateGreenSourceEvents;
 import static org.greencloud.commons.utils.event.EventValidator.validateServerEvents;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.rest.RuleSetRestApi.getAvailableRuleSets;
 import static org.jrba.utils.file.FileReader.readFile;
 import static org.jrba.utils.mapper.JsonMapper.getMapper;
@@ -142,7 +142,7 @@ public class ScenarioEventService {
 				.longitude(event.getLongitude())
 				.build();
 		final GreenSourceCreator greenSourceCreator = ImmutableGreenSourceCreator.builder()
-				.occurrenceTime(now())
+				.occurrenceTime(getCurrentTime())
 				.name(event.getName())
 				.server(event.getServer())
 				.location(location)
@@ -158,7 +158,7 @@ public class ScenarioEventService {
 		final ServerCreator serverCreator = ImmutableServerCreator.builder()
 				.regionalManager(event.getRegionalManager())
 				.name(event.getName())
-				.occurrenceTime(now())
+				.occurrenceTime(getCurrentTime())
 				.isFinished(false)
 				.resources(event.getResources())
 				.maxPower(event.getMaxPower())
@@ -180,7 +180,7 @@ public class ScenarioEventService {
 	}
 
 	private void triggerPowerShortage(final PowerShortageEventArgs event) {
-		final Instant eventOccurrence = now().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
+		final Instant eventOccurrence = getCurrentTime().plusSeconds(POWER_SHORTAGE_EVENT_DELAY);
 		final PowerShortageEvent eventData = new PowerShortageEvent(eventOccurrence,
 				event.isFinished(),
 				event.getCause(),
@@ -189,19 +189,19 @@ public class ScenarioEventService {
 	}
 
 	private void triggerWeatherDrop(final WeatherDropEventArgs event) {
-		final WeatherDropEvent eventData = new WeatherDropEvent(now(),
+		final WeatherDropEvent eventData = new WeatherDropEvent(getCurrentTime(),
 				event.getDuration(),
 				event.getAgentName());
 		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void disableServer(final DisableServerEventArgs event) {
-		final DisableServerEvent eventData = new DisableServerEvent(now(), event.getName());
+		final DisableServerEvent eventData = new DisableServerEvent(getCurrentTime(), event.getName());
 		scenarioService.guiController.triggerEvent(eventData);
 	}
 
 	private void enableServer(final EnableServerEventArgs event) {
-		final EnableServerEvent eventData = new EnableServerEvent(now(), event.getName());
+		final EnableServerEvent eventData = new EnableServerEvent(getCurrentTime(), event.getName());
 		scenarioService.guiController.triggerEvent(eventData);
 	}
 
@@ -214,7 +214,7 @@ public class ScenarioEventService {
 
 	private void modifyServerResources(final ServerMaintenanceEventArgs event) {
 		final ServerMaintenanceEvent eventData =
-				new ServerMaintenanceEvent(now(), event.getName(), event.getResources());
+				new ServerMaintenanceEvent(getCurrentTime(), event.getName(), event.getResources());
 		scenarioService.guiController.triggerEvent(eventData);
 	}
 

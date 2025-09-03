@@ -1,13 +1,13 @@
 package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.regionalmanager.job.polling.processing;
 
 import static java.time.Duration.between;
-import static java.time.Instant.now;
 import static org.greencloud.commons.args.agent.EGCSAgentType.REGIONAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_POLLING_HANDLE_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_POLLING_RULE;
 import static org.greencloud.commons.utils.facts.JobAllocationFactsFactory.constructFactsForJobsAllocationInitiation;
 import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobDeadlineVerification;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 
 import java.util.ArrayList;
@@ -45,10 +45,10 @@ public class ProcessPollNextClientJobAllocationRule extends AgentBasicRule<Regio
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		agentProps.setLastPollingTime(now());
+		agentProps.setLastPollingTime(getCurrentTime());
 
 		final List<ClientJob> jobsToAllocate = new ArrayList<>();
-		agentProps.getJobsToBeExecuted().drainTo(jobsToAllocate, agentProps.getPollingBatchSize());
+		agentProps.getJobsToBeExecuted().drainTo(jobsToAllocate, agentProps.getConfig().getPollingBatchSize());
 
 		final List<ClientJob> jobsWithinTime = jobsToAllocate.stream()
 				.map(job -> checkTimeFrames(job, facts))
@@ -68,9 +68,9 @@ public class ProcessPollNextClientJobAllocationRule extends AgentBasicRule<Regio
 	}
 
 	private boolean canPollNextJobs() {
-		return agentProps.getJobsToBeExecuted().size() >= agentProps.getPollingBatchSize() ||
+		return agentProps.getJobsToBeExecuted().size() >= agentProps.getConfig().getPollingBatchSize() ||
 				(!agentProps.getJobsToBeExecuted().isEmpty() &&
-						between(agentProps.getLastPollingTime(), now()).toSeconds() > 3);
+						between(agentProps.getLastPollingTime(), getCurrentTime()).toSeconds() > 3);
 	}
 
 	@Override

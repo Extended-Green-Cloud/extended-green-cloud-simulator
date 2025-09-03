@@ -4,14 +4,12 @@ import static com.database.knowledge.types.DataType.GREEN_SOURCE_MONITORING;
 import static com.database.knowledge.types.DataType.HEALTH_CHECK;
 import static com.database.knowledge.types.DataType.SERVER_MONITORING;
 import static com.database.knowledge.types.GoalType.DISTRIBUTE_TRAFFIC_EVENLY;
-import static java.time.Instant.now;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.greencloud.commons.args.agent.EGCSAgentType.GREEN_ENERGY;
 import static org.greencloud.commons.args.agent.EGCSAgentType.SERVER;
 import static org.greencloud.commons.enums.agent.GreenEnergySourceTypeEnum.SOLAR;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_HEALTH_PERIOD;
-import static org.greencloud.managingsystem.domain.ManagingSystemConstants.MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -28,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
+import org.greencloud.commons.args.agent.managing.agent.ManagingAgentProps;
 import org.greencloud.commons.args.scenario.ScenarioStructureArgs;
 import org.greencloud.commons.domain.location.ImmutableLocation;
 import org.greencloud.gui.agents.managing.ManagingAgentNode;
-import org.greencloud.managingsystem.agent.ManagingAgent;
+import org.greencloud.managingsystem.agents.ManagingAgent;
 import org.greencloud.managingsystem.service.monitoring.MonitoringService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +51,8 @@ import com.database.knowledge.timescale.TimescaleDatabase;
 class DisconnectGreenSourcePlanUnitTest {
 
 	@Mock
+	ManagingAgentProps managingAgentProps;
+	@Mock
 	private ManagingAgent mockManagingAgent;
 	@Mock
 	private ScenarioStructureArgs mockStructure;
@@ -70,7 +71,8 @@ class DisconnectGreenSourcePlanUnitTest {
 		mockMonitoring = spy(new MonitoringService(mockManagingAgent));
 		mockDatabase = spy(TimescaleDatabase.setUpForTests());
 
-		doReturn(mockStructure).when(mockManagingAgent).getGreenCloudStructure();
+		doReturn(managingAgentProps).when(mockManagingAgent).getProperties();
+		doReturn(mockStructure).when(managingAgentProps).getGreenCloudStructure();
 		doReturn(mockMonitoring).when(mockManagingAgent).monitor();
 		doReturn(mockAgentNode).when(mockManagingAgent).getAgentNode();
 		doReturn(mockDatabase).when(mockAgentNode).getDatabaseClient();
@@ -91,7 +93,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		);
 
 		doReturn(prepareNotAliveGreenSourcesData()).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		assertThat(disconnectGreenSourcePlan.getGreenSourcesForDisconnection(greenSourcesWithServers)).isEmpty();
 	}
@@ -106,7 +108,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		);
 
 		doReturn(prepareAliveGreenSourcesData()).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		var expectedResult = Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", List.of("test_server1", "test_server2"),
@@ -132,7 +134,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		aliveAgents.addAll(prepareAliveServersData());
 
 		doReturn(aliveAgents).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		var expectedMap = Map.of(
 				"test_gs1@192.168.56.1:6996/JADE", List.of("test_server2@192.168.56.1:6996/JADE"),
@@ -196,7 +198,7 @@ class DisconnectGreenSourcePlanUnitTest {
 	@DisplayName("Test is plan executable for no green sources valid for disconnection")
 	void isPlanExecutableNoGreenSourcesValidForDisconnection() {
 		doReturn(prepareNotAliveGreenSourcesData()).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		var expectedGreenSourcesCall = Map.of(
 				"test_gs1", List.of("test_server1", "test_server2"),
@@ -253,7 +255,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		aliveAgents.addAll(prepareAliveServersData());
 
 		doReturn(aliveAgents).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		var expectedGreenSourcesWithServers = Map.of(
 				"test_gs1", List.of("test_server2", "test_server1"),
@@ -281,7 +283,7 @@ class DisconnectGreenSourcePlanUnitTest {
 		aliveAgents.addAll(prepareAliveServersData());
 
 		doReturn(aliveAgents).when(mockDatabase)
-				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), MONITOR_SYSTEM_DATA_HEALTH_PERIOD);
+				.readLastMonitoringDataForDataTypes(singletonList(HEALTH_CHECK), 500);
 
 		var expectedGreenSourcesWithServers = Map.of(
 				"test_gs1", List.of("test_server1", "test_server2"),
@@ -318,35 +320,35 @@ class DisconnectGreenSourcePlanUnitTest {
 
 	private List<AgentData> prepareAliveGreenSourcesData() {
 		return List.of(
-				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, GREEN_ENERGY)),
-				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, GREEN_ENERGY)),
-				new AgentData(now(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, GREEN_ENERGY))
 		);
 	}
 
 	private List<AgentData> prepareAliveServersData() {
 		return List.of(
-				new AgentData(now(), "test_server1@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_server1@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, SERVER)),
-				new AgentData(now(), "test_server2@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_server2@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, SERVER)),
-				new AgentData(now(), "test_server3@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_server3@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, SERVER)),
-				new AgentData(now(), "test_server5@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_server5@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(true, SERVER))
 		);
 	}
 
 	private List<AgentData> prepareNotAliveGreenSourcesData() {
 		return List.of(
-				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs1@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(false, GREEN_ENERGY)),
-				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs2@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(false, GREEN_ENERGY)),
-				new AgentData(now(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
+				new AgentData(getCurrentTime(), "test_gs3@192.168.56.1:6996/JADE", HEALTH_CHECK,
 						new HealthCheck(false, GREEN_ENERGY))
 		);
 	}
@@ -416,15 +418,15 @@ class DisconnectGreenSourcePlanUnitTest {
 				.build();
 
 		doReturn(List.of(
-				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs3@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data4)
+				new AgentData(getCurrentTime(), "test_gs1@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs3@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data4)
 		)).when(mockDatabase).readLastMonitoringDataForDataTypes(singletonList(GREEN_SOURCE_MONITORING));
 
 		doReturn(List.of(
-				new AgentData(now(), "test_gs1@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data1),
-				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data2),
-				new AgentData(now(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_gs1@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_gs2@192.168.56.1:6996/JADE", GREEN_SOURCE_MONITORING, data3)
 		)).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(eq(GREEN_SOURCE_MONITORING), anyList(), anyDouble());
 	}
@@ -459,14 +461,14 @@ class DisconnectGreenSourcePlanUnitTest {
 				.build();
 
 		var mockData = List.of(
-				new AgentData(now(), "test_server2", SERVER_MONITORING, data1),
-				new AgentData(now(), "test_server2", SERVER_MONITORING, data2),
-				new AgentData(now(), "test_server3", SERVER_MONITORING, data3)
+				new AgentData(getCurrentTime(), "test_server2", SERVER_MONITORING, data1),
+				new AgentData(getCurrentTime(), "test_server2", SERVER_MONITORING, data2),
+				new AgentData(getCurrentTime(), "test_server3", SERVER_MONITORING, data3)
 		);
 
 		doReturn(mockData).when(mockDatabase)
 				.readMonitoringDataForDataTypeAndAID(eq(SERVER_MONITORING),
 						anyList(),
-						eq(MONITOR_SYSTEM_DATA_LONG_TIME_PERIOD));
+						eq(15));
 	}
 }

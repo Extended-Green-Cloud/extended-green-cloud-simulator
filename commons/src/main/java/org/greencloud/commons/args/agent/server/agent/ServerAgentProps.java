@@ -1,5 +1,6 @@
 package org.greencloud.commons.args.agent.server.agent;
 
+import static jade.core.AID.ISLOCALNAME;
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -52,6 +53,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.greencloud.commons.args.agent.EGCSAgentProps;
+import org.greencloud.commons.args.agent.server.factory.ServerArgs;
 import org.greencloud.commons.domain.job.basic.ClientJob;
 import org.greencloud.commons.domain.job.counter.JobCounter;
 import org.greencloud.commons.domain.job.duration.JobExecutionDuration;
@@ -75,7 +77,7 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-public class ServerAgentProps extends EGCSAgentProps {
+public class ServerAgentProps extends EGCSAgentProps<ServerArgs> {
 
 	private static final Logger logger = getLogger(ServerAgentProps.class);
 
@@ -93,42 +95,22 @@ public class ServerAgentProps extends EGCSAgentProps {
 	protected AID ownerRegionalManagerAgent;
 
 	@Accessors(fluent = true)
-	protected Map<String, Resource> resources;
-	protected Integer maxPowerConsumption;
-	protected Integer idlePowerConsumption;
-	protected double pricePerHour;
-	protected int jobProcessingLimit;
+	protected Map<String, Resource> resources; // stored separately as they are adaptable
 
 	protected boolean isDisabled;
 	protected boolean hasError;
 
-	public ServerAgentProps(final String agentName) {
-		super(SERVER, agentName);
-	}
-
 	/**
 	 * Constructor
 	 *
-	 * @param agentName                 name of the agent
-	 * @param ownerRegionalManagerAgent regional manager to which the server is connected
-	 * @param resources                 hardware resources owned by the server
-	 * @param maxPowerConsumption       maximal power consumption that can be reached by the server
-	 * @param idlePowerConsumption      power consumption of a server when no jobs are running
-	 * @param pricePerHour              price of job execution calculated for an hour
-	 * @param jobProcessingLimit        limit of job requests that a server can process in at once
+	 * @param agentName  name of the agent
+	 * @param serverArgs server agent controller arguments
 	 */
-	public ServerAgentProps(final String agentName, final AID ownerRegionalManagerAgent,
-			final Map<String, Resource> resources,
-			final Integer maxPowerConsumption, final Integer idlePowerConsumption, final double pricePerHour,
-			final int jobProcessingLimit) {
-		this(agentName);
-		this.ownerRegionalManagerAgent = ownerRegionalManagerAgent;
-		this.resources = new HashMap<>(resources);
-		this.maxPowerConsumption = maxPowerConsumption;
-		this.idlePowerConsumption = idlePowerConsumption;
-		this.pricePerHour = pricePerHour;
-		this.jobProcessingLimit = jobProcessingLimit;
+	public ServerAgentProps(final String agentName, final ServerArgs serverArgs) {
+		super(SERVER, agentName, serverArgs);
 
+		this.ownerRegionalManagerAgent = new AID(serverArgs.getOwnerRegionalManager(), ISLOCALNAME);
+		this.resources = new HashMap<>(serverArgs.getResources());
 		this.serverJobs = new ConcurrentHashMap<>();
 		this.ruleSetForJob = new ConcurrentHashMap<>();
 		this.ownedGreenSources = new ConcurrentHashMap<>();
@@ -455,7 +437,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	 * @return boolean indicating if server can process new job
 	 */
 	public boolean canTakeIntoProcessing() {
-		return currentlyProcessing.get() < jobProcessingLimit && !isDisabled && !hasError;
+		return currentlyProcessing.get() < config.getJobProcessingLimit() && !isDisabled && !hasError;
 	}
 
 	/**
@@ -505,7 +487,7 @@ public class ServerAgentProps extends EGCSAgentProps {
 	}
 
 	private double computePowerConsumption(final double cpuUtilization) {
-		return (maxPowerConsumption - idlePowerConsumption) * cpuUtilization + idlePowerConsumption;
+		return (config.getMaxPower() - config.getIdlePower()) * cpuUtilization + config.getIdlePower();
 	}
 
 }

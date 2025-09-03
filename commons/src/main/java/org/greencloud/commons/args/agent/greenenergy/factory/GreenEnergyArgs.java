@@ -46,7 +46,7 @@ public interface GreenEnergyArgs extends AgentArgs {
 	/**
 	 * @return price for 1kWh
 	 */
-	Long getPricePerPowerUnit();
+	Double getPricePerPowerUnit();
 
 	/**
 	 * @return initial weather prediction error

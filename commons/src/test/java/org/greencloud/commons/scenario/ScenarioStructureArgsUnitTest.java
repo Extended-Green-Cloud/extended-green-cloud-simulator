@@ -11,7 +11,7 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.greencloud.commons.args.agent.centralmanager.factory.ImmutableCentralManagerArgs;
 import org.greencloud.commons.args.agent.greenenergy.factory.ImmutableGreenEnergyArgs;
-import org.greencloud.commons.args.agent.managing.ImmutableManagingAgentArgs;
+import org.greencloud.commons.args.agent.managing.factory.ImmutableManagingAgentArgs;
 import org.greencloud.commons.args.agent.monitoring.factory.ImmutableMonitoringArgs;
 import org.greencloud.commons.args.agent.regionalmanager.factory.ImmutableRegionalManagerArgs;
 import org.greencloud.commons.args.agent.server.factory.ImmutableServerArgs;

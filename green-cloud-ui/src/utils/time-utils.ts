@@ -70,10 +70,11 @@ export const convertSecondsToString = (seconds: number) => {
 export const getCurrentTime = () => {
    const currentState = store.getState()
    const systemStartTime = currentState.reports.systemStartTime
+   const systemTimeDifference = currentState.reports.systemTimeDifference
    const secondsPerHour = currentState.reports.secondsPerHour
 
-   if (systemStartTime !== null && secondsPerHour !== null) {
-      const timeDiff = new Date().getTime() - systemStartTime
+   if (systemStartTime !== null && systemTimeDifference !== null && secondsPerHour !== null) {
+      const timeDiff = new Date().getTime() - systemTimeDifference - systemStartTime
       const timeMultiplier = 3600 / secondsPerHour
       const realTimeDifference = timeDiff * timeMultiplier
       return systemStartTime + Math.round(realTimeDifference)

@@ -69,6 +69,7 @@ public class LookForGreenSourceForJobExecutionRule extends AgentCFPRule<ServerAg
 		MDC.put(MDC_RULE_SET_ID, valueOf((int) facts.get(RULE_SET_IDX)));
 		logger.info("Energy estimated for executing job {} is {}.", job.getJobId(), estimatedEnergy);
 
+		agentNode.reportProcessingData(agentProps, job.getJobId());
 		final EnergyJob energyJob = mapPowerJobToEnergyJob(job, estimatedEnergy);
 		return prepareCallForProposal(energyJob, greenSources, SERVER_JOB_CFP_PROTOCOL, facts.get(RULE_SET_IDX));
 	}

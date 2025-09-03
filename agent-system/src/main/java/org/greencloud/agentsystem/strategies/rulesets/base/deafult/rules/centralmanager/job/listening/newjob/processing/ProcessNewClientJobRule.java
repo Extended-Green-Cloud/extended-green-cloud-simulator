@@ -39,7 +39,7 @@ public class ProcessNewClientJobRule extends AgentBasicRule<CentralManagerAgentP
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
-		return agentProps.getJobsToBeExecuted().size() != agentProps.getMaximumQueueSize();
+		return agentProps.getJobsToBeExecuted().size() != agentProps.getConfig().getMaximumQueueSize();
 	}
 
 	@Override

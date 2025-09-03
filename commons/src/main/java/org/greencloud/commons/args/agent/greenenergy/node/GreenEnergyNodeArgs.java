@@ -38,7 +38,7 @@ public interface GreenEnergyNodeArgs extends AgentArgs {
 	/**
 	 * @return price for energy
 	 */
-	Long getPricePerPower();
+	Double getPricePerPower();
 
 	/**
 	 * @return type of energy source

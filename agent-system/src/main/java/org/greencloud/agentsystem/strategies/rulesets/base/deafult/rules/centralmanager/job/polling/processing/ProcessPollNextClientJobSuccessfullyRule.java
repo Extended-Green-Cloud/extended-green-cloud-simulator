@@ -1,13 +1,13 @@
 package org.greencloud.agentsystem.strategies.rulesets.base.deafult.rules.centralmanager.job.polling.processing;
 
 import static java.time.Duration.between;
-import static java.time.Instant.now;
 import static org.greencloud.commons.args.agent.EGCSAgentType.CENTRAL_MANAGER;
 import static org.greencloud.commons.constants.EGCSFactTypeConstants.JOB;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_POLLING_HANDLE_JOB_RULE;
 import static org.greencloud.commons.enums.rules.EGCSDefaultRuleType.NEW_JOB_POLLING_RULE;
 import static org.greencloud.commons.utils.facts.JobAllocationFactsFactory.constructFactsForJobsAllocationInitiation;
 import static org.greencloud.commons.utils.facts.JobUpdateFactsFactory.constructFactsForJobDeadlineVerification;
+import static org.greencloud.commons.utils.time.TimeSimulation.getCurrentTime;
 import static org.jrba.rulesengine.constants.FactTypeConstants.RULE_SET_IDX;
 
 import java.util.ArrayList;
@@ -39,17 +39,17 @@ public class ProcessPollNextClientJobSuccessfullyRule extends AgentBasicRule<Cen
 
 	@Override
 	public boolean evaluateRule(final RuleSetFacts facts) {
-		return agentProps.getJobsToBeExecuted().size() >= agentProps.getPollingBatchSize() ||
+		return agentProps.getJobsToBeExecuted().size() >= agentProps.getConfig().getPollingBatchSize() ||
 				(!agentProps.getJobsToBeExecuted().isEmpty() &&
-						between(agentProps.getLastPollingTime(), now()).toSeconds() > 10);
+						between(agentProps.getLastPollingTime(), getCurrentTime()).toSeconds() > 10);
 	}
 
 	@Override
 	public void executeRule(final RuleSetFacts facts) {
-		agentProps.setLastPollingTime(now());
+		agentProps.setLastPollingTime(getCurrentTime());
 
 		final List<ClientJob> jobsToAllocate = new ArrayList<>();
-		agentProps.getJobsToBeExecuted().drainTo(jobsToAllocate, agentProps.getPollingBatchSize());
+		agentProps.getJobsToBeExecuted().drainTo(jobsToAllocate, agentProps.getConfig().getPollingBatchSize());
 		agentNode.updateScheduledJobQueue(agentProps);
 
 		final List<ClientJob> jobsWithAdjustedTime = jobsToAllocate.stream()

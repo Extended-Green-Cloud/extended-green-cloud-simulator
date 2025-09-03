@@ -21,6 +21,11 @@ public interface ReportSystemStartTimeMessage extends ExternalMessage {
 	 */
 	long getSecondsPerHour();
 
+	/**
+	 * @return time difference in milliseconds between the system start time and current time
+	 */
+	long getTimeDifference();
+
 	default String getType() {
 		return "REPORT_SYSTEM_START_TIME";
 	}

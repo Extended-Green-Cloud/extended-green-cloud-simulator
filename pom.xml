@@ -26,7 +26,7 @@
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 		<maven.compiler.compilerVersion>21</maven.compiler.compilerVersion>
-		<io.jrba.version>1.3.9</io.jrba.version>
+		<io.jrba.version>1.4.0</io.jrba.version>
 		<org.apache.math.version>3.6.1</org.apache.math.version>
 		<org.apache.lang.version>3.14.0</org.apache.lang.version>
 		<org.apache.collection.version>4.4</org.apache.collection.version>
